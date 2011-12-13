@@ -119,13 +119,14 @@ public abstract class ArbilTest {
     }
 
     protected void inject() throws Exception {
-	ArbilTestInjector.injectVersionManager(new ApplicationVersionManager(new ArbilVersion()));
-        ArbilTestInjector.injectBugCatcher(getBugCatcher());
-        ArbilTestInjector.injectDialogHandler(getDialogHandler());
-        ArbilTestInjector.injectSessionStorage(getSessionStorage());
-        ArbilTestInjector.injectDataNodeLoader(getDataNodeLoader());
-        ArbilTestInjector.injectMimeHashQueue(getMimeHashQueue());
-        ArbilTestInjector.injectTreeHelper(getTreeHelper());
+	ArbilTestInjector injector = new ArbilTestInjector();
+	injector.injectVersionManager(new ApplicationVersionManager(new ArbilVersion()));
+        injector.injectBugCatcher(getBugCatcher());
+        injector.injectDialogHandler(getDialogHandler());
+        injector.injectSessionStorage(getSessionStorage());
+        injector.injectDataNodeLoader(getDataNodeLoader());
+        injector.injectMimeHashQueue(getMimeHashQueue());
+        injector.injectTreeHelper(getTreeHelper());
     }
 
     protected synchronized DataNodeLoader getDataNodeLoader() {

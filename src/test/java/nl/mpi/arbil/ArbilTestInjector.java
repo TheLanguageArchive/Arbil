@@ -18,7 +18,7 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ArbilTestInjector extends ArbilInjector {
 
-    public static synchronized void injectHandlers() {
+    public synchronized void injectHandlers() {
 
 	final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
 	injectVersionManager(versionManager);
@@ -36,7 +36,7 @@ public class ArbilTestInjector extends ArbilInjector {
 	injectClipboardOwner(clipboardOwner);
 
 	final SessionStorage sessionStorage = new MockSessionStorage();
-	ArbilTestInjector.injectSessionStorage(sessionStorage);
+	injectSessionStorage(sessionStorage);
 
 	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
 	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();

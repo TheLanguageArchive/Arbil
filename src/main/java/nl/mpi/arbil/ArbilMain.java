@@ -49,7 +49,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
     public ArbilMain() {
 	final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
-	ArbilDesktopInjector.injectHandlers(versionManager);
+	new ArbilDesktopInjector().injectHandlers(versionManager);
 
 	this.addWindowListener(new WindowAdapter() {
 

@@ -761,7 +761,7 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     public static void main(String args[]) {
-	ArbilDesktopInjector.injectHandlers();
+	new ArbilDesktopInjector().injectHandlers();
 	CmdiTemplate template = new CmdiTemplate();
 	template.loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1289827960126/xsd");
     }

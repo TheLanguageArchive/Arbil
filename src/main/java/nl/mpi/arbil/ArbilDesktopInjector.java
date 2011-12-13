@@ -23,16 +23,16 @@ import nl.mpi.arbil.util.WindowManager;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilDesktopInjector extends ArbilInjector {
+public class ArbilDesktopInjector extends ArbilSwingInjector {
 
-    public static synchronized void injectHandlers() {
+    public synchronized void injectHandlers() {
 	injectHandlers(new ApplicationVersionManager(new ArbilVersion()));
     }
 
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
-    public static synchronized void injectHandlers(final ApplicationVersionManager versionManager) {
+    public synchronized void injectHandlers(final ApplicationVersionManager versionManager) {
 	injectVersionManager(versionManager);
 
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;

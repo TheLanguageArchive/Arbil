@@ -29,7 +29,7 @@ public class MetadataBuilderTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-	ArbilDesktopInjector.injectHandlers();
+	new ArbilDesktopInjector().injectHandlers();
     }
 
     @AfterClass
