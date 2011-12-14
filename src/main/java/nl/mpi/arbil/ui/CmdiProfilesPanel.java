@@ -157,7 +157,10 @@ public class CmdiProfilesPanel extends JPanel {
 	for (String currentSepectedProfile : selectedTamplates) {
 	    if (currentSepectedProfile.startsWith("custom:")) {
 		String customUrlString = currentSepectedProfile.substring("custom:".length());
-		String customName = currentSepectedProfile.substring(currentSepectedProfile.lastIndexOf("/") + 1);
+		String customName = currentSepectedProfile.replaceAll("[/.]xsd$", "");
+		if (customName.contains("/")) {
+		    customName = customName.substring(customName.lastIndexOf("/") + 1);
+		}
 		JCheckBox clarinProfileCheckBox;
 		clarinProfileCheckBox = new JCheckBox();
 		clarinProfileCheckBox.setText(customName);
