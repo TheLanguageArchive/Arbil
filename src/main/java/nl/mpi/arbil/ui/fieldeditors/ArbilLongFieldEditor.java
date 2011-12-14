@@ -2,9 +2,12 @@ package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -61,7 +64,8 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     JComponent fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
     JInternalFrame editorFrame = null;
-    private FieldAttributesTableModel[] attributeTables;
+    private FieldAttributesTableModel[] attributeTableModels;
+    private JTable attributesTable = null;
     private JPanel contentPanel;
     private List<ArbilField[]> parentFieldList;
     private JButton prevButton;
@@ -149,7 +153,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	fieldEditors = new JComponent[arbilFields.length];
 	keyEditorFields = new JTextField[arbilFields.length];
 	fieldLanguageBoxs = new JComboBox[arbilFields.length];
-	attributeTables = new FieldAttributesTableModel[arbilFields.length];
+	attributeTableModels = new FieldAttributesTableModel[arbilFields.length];
 
 	for (int cellFieldIndex = 0; cellFieldIndex < arbilFields.length; cellFieldIndex++) {
 	    if (arbilFields[cellFieldIndex].hasVocabulary()) {
@@ -162,7 +166,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 		focusComponent = fieldEditors[cellFieldIndex];
 	    }
 	    if (arbilFields[cellFieldIndex].hasEditableFieldAttributes()) {
-		attributeTables[cellFieldIndex] = new FieldAttributesTableModel(cellFieldIndex);
+		attributeTableModels[cellFieldIndex] = new FieldAttributesTableModel(cellFieldIndex);
 	    }
 
 	    JPanel tabPanel = createTabPanel(cellFieldIndex, currentEditorText, createFieldDescription(cellFieldIndex));
@@ -208,9 +212,13 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	tabPanel.add(editorPanel, BorderLayout.CENTER);
 
 	if (arbilFields[cellFieldIndex].hasEditableFieldAttributes()) {
-	    JScrollPane tablePane = new JScrollPane(new JTable(attributeTables[cellFieldIndex]));
+	    attributesTable = new JTable(attributeTableModels[cellFieldIndex]);
+	    
+	    JScrollPane tablePane = new JScrollPane(attributesTable);
 	    tablePane.setPreferredSize(new Dimension(this.getWidth(), 100));
 	    tabPanel.add(tablePane, BorderLayout.SOUTH);
+	} else {
+	    attributesTable = null;
 	}
 
 	return tabPanel;
@@ -473,6 +481,10 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private synchronized void moveAdjacent(int d) {
 	int index = parentFieldList.indexOf(arbilFields);
+	if (attributesTable != null && attributesTable.getCellEditor() != null) {
+	    attributesTable.getCellEditor().stopCellEditing();
+	}
+
 	index += d;
 	if (index < parentFieldList.size() && index >= 0) {
 	    storeChanges();
