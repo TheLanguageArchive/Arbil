@@ -106,12 +106,13 @@ public class MetadataBuilderTest {
             {"SourceLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).SourceLanguage"},
             {"TargetLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).TargetLanguage"}
         };
-        URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(ArbilSessionStorage.getSingleInstance().getCacheDirectory(), currentTestTemplate);
+	ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
+        URI targetFileURI = sessionStorage.getNewArbilFileName(sessionStorage.getCacheDirectory(), currentTestTemplate);
         //            try {
         //                        targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(eniryFileURI), "Entity");
         //                        gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
         //                        gedcomImdiObject.waitTillLoaded();
-        targetFileURI = componentBuilder.createComponentFile(targetFileURI, ArbilSessionStorage.getSingleInstance().updateCache(currentTestTemplate, 7, false).toURI(), false);
+        targetFileURI = componentBuilder.createComponentFile(targetFileURI, sessionStorage.updateCache(currentTestTemplate, 7, false).toURI(), false);
         //            } catch (URISyntaxException ex) {
         //                GuiHelper.linorgBugCatcher.logError(ex);
         //                return;
