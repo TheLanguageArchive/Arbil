@@ -679,52 +679,52 @@ public class MetadataReader {
      * Also adds referenced resources to the tree
      */
     private int enterChildNodesRecursion(ArbilDataNode parentNode, Vector<String[]> childLinks, Node childNode, NamedNodeMap childNodeAttributes,
-            ArbilDataNode destinationNode, String localName, String parentNodePath, String siblingNodePath, String fullSubNodePath,
-            Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) throws DOMException {
-        NodeList childNodes = childNode.getChildNodes();
-        boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
-                || (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE));
-        // calculate the xpath index for multiple fields like description
-        if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
-            siblingNodePathCounter.put(fullSubNodePath, 0);
-        } else {
-            siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
-        }
-        if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) {
-            // is a leaf not a branch
-            final String fieldValue = (childNodes.getLength() == 1) ? childNodes.item(0).getTextContent() : "";
-            nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree, childNodeAttributes, shouldAddCurrent);
-        } else {
-            // for a branch, check if there are referenced resources to add
-            addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
-            // and add all editable component attributes as field
-            if (childNodeAttributes != null) {
-                if (parentNode.isCmdiMetaDataNode()) {
-                    for (int i = 0; i < childNodeAttributes.getLength(); i++) {
-                        Node attrNode = childNodeAttributes.item(i);
-                        String attrName = CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
-                        String attrPath = siblingNodePath + ".@" + attrName;
-                        String fullAttrPath = fullSubNodePath + ".@" + attrName;
-                        if (!siblingNodePathCounter.containsKey(fullAttrPath)) {
-                            siblingNodePathCounter.put(fullAttrPath, 0);
-                        }
-                        if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath)) {
-                            nodeOrderCounter = addEditableField(nodeOrderCounter,
-                                    destinationNode,
-                                    attrPath, //siblingNodePath,
-                                    attrNode.getNodeValue(),
-                                    siblingNodePathCounter,
-                                    fullAttrPath, //fullSubNodePath,
-                                    parentNode,
-                                    childLinks,
-                                    parentChildTree,
-                                    null, // don't pass childNodeAttributes as they're the parent's attributes
-                                    true);
-                        }
-                    }
-                }
-            }
-        }
+	    ArbilDataNode destinationNode, String localName, String parentNodePath, String siblingNodePath, String fullSubNodePath,
+	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) throws DOMException {
+	NodeList childNodes = childNode.getChildNodes();
+	boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
+		|| (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE));
+	// calculate the xpath index for multiple fields like description
+	if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
+	    siblingNodePathCounter.put(fullSubNodePath, 0);
+	} else {
+	    siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
+	}
+	if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) {
+	    // is a leaf not a branch
+	    final String fieldValue = (childNodes.getLength() == 1) ? childNodes.item(0).getTextContent() : "";
+	    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree, childNodeAttributes, shouldAddCurrent);
+	} else {
+	    // for a branch, check if there are referenced resources to add
+	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
+	    // and add all editable component attributes as field
+	    if (childNodeAttributes != null) {
+		if (parentNode.isCmdiMetaDataNode()) {
+		    for (int i = 0; i < childNodeAttributes.getLength(); i++) {
+			Node attrNode = childNodeAttributes.item(i);
+			String attrName = CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
+			String attrPath = siblingNodePath + ".@" + attrName;
+			String fullAttrPath = fullSubNodePath + ".@" + attrName;
+			if (!siblingNodePathCounter.containsKey(fullAttrPath)) {
+			    siblingNodePathCounter.put(fullAttrPath, 0);
+			}
+			if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath.replaceAll("\\(\\d*?\\)", ""))) {
+			    nodeOrderCounter = addEditableField(nodeOrderCounter,
+				    destinationNode,
+				    attrPath, //siblingNodePath,
+				    attrNode.getNodeValue(),
+				    siblingNodePathCounter,
+				    fullAttrPath, //fullSubNodePath,
+				    parentNode,
+				    childLinks,
+				    parentChildTree,
+				    null, // don't pass childNodeAttributes as they're the parent's attributes 
+				    true);
+			}
+		    }
+		}
+	    }
+	}
 
         nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
 
