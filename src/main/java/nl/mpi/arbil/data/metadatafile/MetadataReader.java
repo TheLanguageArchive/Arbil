@@ -704,7 +704,7 @@ public class MetadataReader {
 			if (!siblingNodePathCounter.containsKey(fullAttrPath)) {
 			    siblingNodePathCounter.put(fullAttrPath, 0);
 			}
-			if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath)) {
+			if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath.replaceAll("\\(\\d*?\\)", ""))) {
 			    nodeOrderCounter = addEditableField(nodeOrderCounter,
 				    destinationNode,
 				    attrPath, //siblingNodePath,
