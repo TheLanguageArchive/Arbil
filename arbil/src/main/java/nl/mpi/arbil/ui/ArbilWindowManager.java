@@ -143,8 +143,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    linorgFrame.setLocationRelativeTo(null);
 		    // make sure the main frame is visible. for instance when a second monitor has been removed.
 		    Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
-		    if (linorgFrame.getBounds().intersects(new Rectangle(screenDimension))) {
-			linorgFrame.setBounds(linorgFrame.getBounds().intersection(new Rectangle(screenDimension)));
+		    if (linorgFrameBounds instanceof Rectangle && ((Rectangle)linorgFrameBounds).intersects(new Rectangle(screenDimension))) {
+			linorgFrame.setBounds(((Rectangle)linorgFrameBounds).intersection(new Rectangle(screenDimension)));
 		    } else {
 			linorgFrame.setBounds(0, 0, 800, 600);
 			linorgFrame.setLocationRelativeTo(null);
