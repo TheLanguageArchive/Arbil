@@ -207,7 +207,12 @@ public class ArbilTemplateManager {
 	    }
 	} else if (location.startsWith("custom:")) {
 	    String currentString = location.substring("custom:".length());
-	    menuItem.menuText = currentString.substring(currentString.lastIndexOf("/") + 1);
+	    String customName = currentString.replaceAll("[/.]xsd$", "");
+	    if (customName.contains("/")) {
+		customName = customName.substring(customName.lastIndexOf("/") + 1);
+	    }
+
+	    menuItem.menuText = customName;
 	    menuItem.menuAction = currentString;
 	    menuItem.menuToolTip = currentString;
 	    menuItem.menuIcon = arbilIcons.clarinIcon;
