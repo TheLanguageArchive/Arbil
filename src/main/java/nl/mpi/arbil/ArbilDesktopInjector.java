@@ -36,7 +36,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     public synchronized void injectHandlers(final ApplicationVersionManager versionManager) {
 	injectVersionManager(versionManager);
 
-	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
+	final SessionStorage sessionStorage = new ArbilSessionStorage();
 	ArbilBugCatcher.setSessionStorage(sessionStorage);
 	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
 	ArbilMimeHashQueue.setSessionStorage(sessionStorage);

@@ -75,7 +75,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    System.out.println("BUGCATCHER: " + exception.getMessage());
 	}
     }
-    
+
     private static void logError(String message, Exception exception) {
 	if (bugCatcher != null) {
 	    bugCatcher.logError(message, exception);
@@ -83,24 +83,13 @@ public class ArbilSessionStorage implements SessionStorage {
 	    System.out.println("BUGCATCHER: " + message + "\nException: " + exception.getMessage());
 	}
     }
-    
-    
+
     private File storageDirectory = null;
     private File localCacheDirectory = null;
-    static private ArbilSessionStorage singleInstance = null;
     private boolean trackTableSelection = false;
     private boolean useLanguageIdInColumnName = false;
-
-    static synchronized public ArbilSessionStorage getSingleInstance() {
-	if (singleInstance == null) {
-	    singleInstance = new ArbilSessionStorage();
-	    singleInstance.checkForMultipleStorageDirectories();
-	    HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
-	}
-	return singleInstance;
-    }
-
-    private ArbilSessionStorage() {
+    
+    public ArbilSessionStorage() {
 
 	String storageDirectoryArray[] = getLocationOptions();
 
@@ -122,7 +111,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		    if (!storageFile.exists()) {
 			if (!storageFile.mkdir()) {
 			    testedStorageDirectories = testedStorageDirectories + currentStorageDirectory + "\n";
-			    System.out.println("failed to create: " + currentStorageDirectory);
+			    logError("failed to create: " + currentStorageDirectory, null);
 			} else {
 			    System.out.println("created new storage directory: " + currentStorageDirectory);
 			    storageDirectory = storageFile;
@@ -133,7 +122,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    }
 	}
 	if (storageDirectory == null) {
-	    messageDialogHandler.addMessageDialogToQueue("Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error");
+	    logError("Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", null);
 	    System.exit(-1);
 	} else {
 	    try {
@@ -151,7 +140,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		}
 		if (!success) {
 		    // test the storage directory is writable and add a warning message box here if not
-		    messageDialogHandler.addMessageDialogToQueue("Could not write to the working directory.\nThere will be issues creating, editing and saving any file.", null);
+		    logError("Could not write to the working directory.\nThere will be issues creating, editing and saving any file.", null);
 		}
 	    } catch (IOException exception) {
 		System.out.println(exception);
@@ -163,6 +152,9 @@ public class ArbilSessionStorage implements SessionStorage {
 	trackTableSelection = loadBoolean("trackTableSelection", false);
 	useLanguageIdInColumnName = loadBoolean("useLanguageIdInColumnName", false);
 	System.out.println("storageDirectory: " + storageDirectory);
+
+	checkForMultipleStorageDirectories();
+	HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
     }
 
     private void checkForMultipleStorageDirectories() {

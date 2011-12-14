@@ -36,7 +36,7 @@ public class MetadataReaderTest {
 	ArbilTestInjector injector = new ArbilTestInjector();
 	injector.injectHandlers();
 
-	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
+	final SessionStorage sessionStorage = new ArbilSessionStorage();
 	injector.injectSessionStorage(sessionStorage);
     }
 

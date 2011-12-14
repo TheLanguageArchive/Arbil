@@ -51,7 +51,7 @@ public class LinorgSessionStorageTest {
                 "http://www.mpi.nl/IMDI/Schema/Some%20Continents.imdi"
             }
         };
-        ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
+        ArbilSessionStorage instance = new ArbilSessionStorage();
         for (String[] currentTest : testInputArray) {
             try {
                 URI locationInCacheURI = new URI(currentTest[0]);
@@ -71,8 +71,7 @@ public class LinorgSessionStorageTest {
     @Ignore("Machine specific, should be fixed")
     public void testPathIsInsideCache() {
         System.out.println("pathIsInsideCache");
-        ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
-        File oldStorageDirectory = instance.getStorageDirectory();
+        ArbilSessionStorage instance = new ArbilSessionStorage();
         //instance.storageDirectory = new File("/Users/testUser/.arbil/");
         File[] testInputArrayTrue = {
             new File("/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml"),
@@ -100,7 +99,7 @@ public class LinorgSessionStorageTest {
     @Ignore("Machine specific, should be fixed")
     public void testGetExportPath() {
         System.out.println("getExportPath");
-        ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
+        ArbilSessionStorage instance = new ArbilSessionStorage();
         String[][] testInputArray = {
             {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
                 "/home/user/exportdirectory/http/www.mpi.nl/IMDI/Schema/Continents.xml"},
@@ -177,7 +176,7 @@ public class LinorgSessionStorageTest {
             }
 
         };
-        ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
+        ArbilSessionStorage instance = new ArbilSessionStorage();
 //        instance.storageDirectory = "/Users/testUser/";
         for (String[] currentTest : testInputArray) {
             instance.changeCacheDirectory(new File(currentTest[2]), false);
