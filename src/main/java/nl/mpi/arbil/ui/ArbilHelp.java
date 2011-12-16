@@ -19,6 +19,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Document   : ArbilHelp.java
@@ -27,6 +28,11 @@ import javax.swing.tree.TreeSelectionModel;
  */
 public class ArbilHelp extends javax.swing.JPanel {
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     final static public String SHOTCUT_KEYS_PAGE = "Short Cut Keys";
     final static public String INTRODUCTION_PAGE = "2. Quick Introduction";
     DefaultMutableTreeNode rootContentsNode;
@@ -60,7 +66,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 //            scanDirectory(helpDirectory, outFile);
 //            outFile.close();
 //        } catch (Exception ex) {
-//            GuiHelper.linorgBugCatcher.logError(ex);
+//            bugCatcher.logError(ex);
 //        }
 	try {
 	    InputStream fileReader = (this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/html/help/index.txt"));
@@ -73,7 +79,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    }
 	    bufferedReader.close();
 	} catch (Exception ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
+	    bugCatcher.logError(ex);
 	}
 
 	rootContentsNode = new DefaultMutableTreeNode("Contents");
@@ -222,7 +228,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    jTextPane1.setCaretPosition(0);
 	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Printing is not yet enabled, however this is roughly what will be printed", helpWindowTitle);
 	} catch (Exception ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
+	    bugCatcher.logError(ex);
 	}
     }
 
@@ -312,7 +318,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 		    }
 		} catch (Exception ex) {
 		    jTextPane1.setText("Page not found error");
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	}

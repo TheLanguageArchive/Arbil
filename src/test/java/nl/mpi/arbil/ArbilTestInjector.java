@@ -7,6 +7,7 @@ import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
@@ -23,7 +24,7 @@ public class ArbilTestInjector extends ArbilInjector {
 	final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
 	injectVersionManager(versionManager);
 
-	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
+	final BugCatcher bugCatcher = new ArbilBugCatcher();
 	injectBugCatcher(bugCatcher);
 
 	final MessageDialogHandler messageDialogHandler = new MockDialogHandler();

@@ -7,6 +7,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import javax.swing.JPanel;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Document   : ArbilNodeSearchTermPanel
@@ -15,6 +16,11 @@ import javax.swing.JPanel;
  */
 public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchTerm {
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     private javax.swing.JPanel thisPanel = this;
     private ArbilNodeSearchPanel parentPanel;
     private javax.swing.JComboBox notComboBox;
@@ -44,7 +50,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 		try {
 		    parentPanel.stopSearch();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -59,7 +65,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 			try {
 			    parentPanel.stopSearch();
 			} catch (Exception ex) {
-			    GuiHelper.linorgBugCatcher.logError(ex);
+			    bugCatcher.logError(ex);
 			}
 		    }
 		});
@@ -137,7 +143,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 		try {
 		    parentPanel.stopSearch();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -152,7 +158,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 		    parentPanel.revalidate();
 		    parentPanel.stopSearch();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});

@@ -33,7 +33,7 @@ import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBox;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
 import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
-import nl.mpi.arbil.util.ArbilBugCatcher;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Document   : ArbilTableCellEditor
@@ -53,7 +53,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     Object[] cellValue;
     int selectedField = -1;
     Vector<Component> componentsWithFocusListners = new Vector();
-    private static ArbilBugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     private final MouseListener fieldMouseAdapter = new java.awt.event.MouseAdapter() {
 
 	@Override
@@ -359,7 +364,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 //            final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
 	    // Todo: check if field can be added to node
 	} else {
-	    GuiHelper.linorgBugCatcher.logError("Edit cell type not supported", null);
+	    bugCatcher.logError("Edit cell type not supported", null);
 	}
     }
 

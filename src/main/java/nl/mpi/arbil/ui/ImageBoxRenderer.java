@@ -22,6 +22,7 @@ import javax.swing.ListCellRenderer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Document   : ImageBoxRenderer
@@ -30,6 +31,11 @@ import java.util.Map;
  */
 public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     int outputWidth = 200;
     int outputHeight = 130;
     int textStartX = 0;
@@ -126,7 +132,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 		try {
 		    setIcon(new ImageIcon(arbilObject.thumbnailFile.toURL()));
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	} else {
@@ -161,13 +167,13 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 		}
 	    }
 	} catch (Exception ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
+	    bugCatcher.logError(ex);
 	} finally {
 	    if (bufferedReader != null) {
 		try {
 		    bufferedReader.close();
 		} catch (IOException ioe) {
-		    GuiHelper.linorgBugCatcher.logError(ioe);
+		    bugCatcher.logError(ioe);
 		}
 	    }
 	}
@@ -188,7 +194,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 	    // todo: replaces this with a parameter or a properties file
 	    for (String currentPath : searchPath) {
 		for (String currentSuffix : new String[]{".exe", ""}) {
-		    File ffmpegFile = new File(currentPath,"ffmpeg" + currentSuffix);
+		    File ffmpegFile = new File(currentPath, "ffmpeg" + currentSuffix);
 		    ffmpegPath = ffmpegFile.toString();
 		    if (ffmpegFile.exists()) {
 			break;
@@ -223,13 +229,13 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 //            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
 	    } catch (IOException ex) {
 		ffmpegFound = false; //todo this is not getting hit when ffmpeg is not available
-		GuiHelper.linorgBugCatcher.logError(ex);
+		bugCatcher.logError(ex);
 	    } finally {
 		if (errorStreamReader != null) {
 		    try { // close pipeline
 			errorStreamReader.close();
 		    } catch (IOException ioe) {
-			GuiHelper.linorgBugCatcher.logError(ioe);
+			bugCatcher.logError(ioe);
 		    }
 		}
 	    }
@@ -243,14 +249,14 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 //                // todo: this need not be done in a non windows environment or when imagemagick is installed
 //                System.loadLibrary("CVCOMP90");
 //            } catch (Exception ex) {
-//                GuiHelper.linorgBugCatcher.logError(ex);
+//                bugCatcher.logError(ex);
 //            }
 //        }
 	if (imageMagickPath == null) {
 	    // todo: replaces this process with a parameter or a properties file so that the jnlp version can benifit from the installed version
 	    for (String currentPath : searchPath) {
 		for (String currentSuffix : new String[]{".exe", ""}) {
-		    File imageMagickFile = new File(currentPath,"convert" + currentSuffix);
+		    File imageMagickFile = new File(currentPath, "convert" + currentSuffix);
 		    imageMagickPath = imageMagickFile.toString();
 		    if (imageMagickFile.exists()) {
 			break;
@@ -285,7 +291,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 //            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
 	    } catch (Exception ex) {
 		imageMagickFound = false; //todo this is not getting hit when x is not available
-		GuiHelper.linorgBugCatcher.logError(ex);
+		bugCatcher.logError(ex);
 	    }
 	}
     }
@@ -311,7 +317,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 		targetDataNode.thumbnailFile = iconFile;
 	    }
 	} catch (Exception ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
+	    bugCatcher.logError(ex);
 	}
     }
 }

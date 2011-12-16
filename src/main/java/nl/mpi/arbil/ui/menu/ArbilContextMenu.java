@@ -16,6 +16,7 @@ import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Abstract base class for context menus
@@ -23,6 +24,12 @@ import nl.mpi.arbil.ui.GuiHelper;
  * @author Twan Goosen
  */
 public abstract class ArbilContextMenu extends JPopupMenu {
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
 
     private void applyMenuItems() {
 	boolean first = true;
@@ -81,7 +88,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			leadSelectedTreeNode.resourceUrlField.setFieldValue(selectedFiles[0].toURL().toExternalForm(), true, false);
 		    }
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -99,7 +106,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		    }
 
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -113,7 +120,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		try {
 		    new ImdiUtils().overrideTypecheckerDecision(selectedTreeNodes);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -127,7 +134,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		try {
 		    openFileInExternalApplication(selectedTreeNodes);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -142,7 +149,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, false, false);
 		    }
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -157,7 +164,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, true, false);
 		    }
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -172,7 +179,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, true, true);
 		    }
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -189,7 +196,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			GuiHelper.getSingleInstance().openFileInExternalApplication(uri);
 		    }
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Export to HTML failed. Check the error log for details.", "Export failed");
 		}
 	    }

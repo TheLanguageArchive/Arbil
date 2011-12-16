@@ -66,7 +66,7 @@ public class ArbilBugCatcher implements BugCatcher {
     }
     private int captureCount = 0;
 
-    public File getLogFile() {
+    public static File getLogFile() {
 	ApplicationVersion appVersion = versionManager.getApplicationVersion();
 	File file = new File(sessionStorage.getStorageDirectory(), "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".log");
 	if (!file.exists()) {

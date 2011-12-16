@@ -7,6 +7,7 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.util.BugCatcher;
 
 /*
  * ArbilApplet.java
@@ -15,7 +16,13 @@ import nl.mpi.arbil.ui.PreviewSplitPanel;
  */
 public class ArbilApplet extends javax.swing.JApplet {
 
+    private BugCatcher bugCatcher;
+
+    @Override
     public void init() {
+	// TODO: test if this suffices
+	new ArbilDesktopInjector().injectHandlers();
+	bugCatcher = new ArbilBugCatcher();
 	//System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 	try {
 	    SwingUtilities.invokeAndWait(new Runnable() {

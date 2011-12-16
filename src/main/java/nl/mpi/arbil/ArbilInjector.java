@@ -25,6 +25,7 @@ import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.search.ArbilRemoteSearch;
 import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
@@ -37,6 +38,7 @@ import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.ui.wizard.setup.RemoteLocationsContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -140,6 +142,9 @@ public abstract class ArbilInjector {
 	MetadataReader.setBugCatcher(bugCatcher);
 	ShibbolethNegotiator.setBugCatcher(bugCatcher);
 	XsdChecker.setBugCatcher(bugCatcher);
+	
+	RemoteLocationsContent.setBugCatcher(bugCatcher);
+	ArbilRemoteSearch.setBugCatcher(bugCatcher);
     }
 
     public void injectTreeHelper(TreeHelper treeHelper) {
