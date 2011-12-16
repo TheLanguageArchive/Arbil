@@ -94,7 +94,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 
     private void newTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {
 	try {
-	    String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", ArbilWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+	    String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Enter the name for the new template", ArbilWindowManager.getSingleInstance().getMainFrame().getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
 	    // if the user cancels the directory string will be a empty string.
 	    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
 		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
@@ -177,7 +177,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
     }
 
     protected static void showDialogue(String titleStirng) {
-	JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().linorgFrame, titleStirng, true);
+	JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), titleStirng, true);
 	TemplateDialogue templateDialogue = new TemplateDialogue(dialog);
 	dialog.setContentPane(templateDialogue);
 	templateDialogue.populateLists();

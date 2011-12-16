@@ -196,7 +196,7 @@ public class ArbilTable extends JTable {
 		    updateStoredColumnWidhts();
 		    try {
 			ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(arbilTableModel);
-			JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
+			JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().getMainFrame()), true);
 			editViewsDialog.setTitle("Editing Current Column View");
 			JScrollPane js = new JScrollPane(fieldViewTable);
 			editViewsDialog.getContentPane().add(js);
@@ -443,7 +443,7 @@ public class ArbilTable extends JTable {
 
     public void showRowChildData() {
 	Object[] possibilities = this.getArbilTableModel().getChildNames();
-	String selectionResult = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
+	String selectionResult = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
 //      TODO: JOptionPane.show it would be good to have a miltiple select here
 	if ((selectionResult != null) && (selectionResult.length() > 0)) {
 	    this.getArbilTableModel().addChildTypeToDisplay(selectionResult);
