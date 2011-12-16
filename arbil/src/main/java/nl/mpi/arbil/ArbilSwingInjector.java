@@ -81,6 +81,7 @@ public class ArbilSwingInjector extends ArbilInjector{
 	ArbilSetupWizard.setTreeHelper(treeHelper);
 	ArbilSplitPanel.setTreeHelper(treeHelper);
 	ArbilDragDrop.setTreeHelper(treeHelper);
+	ArbilMenuBar.setTreeHelper(treeHelper);
     }
 
     @Override

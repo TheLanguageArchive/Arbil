@@ -45,6 +45,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * ArbilMenuBar.java
@@ -68,9 +69,17 @@ public class ArbilMenuBar extends JMenuBar {
     public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance) {
 	mimeHashQueue = mimeHashQueueInstance;
     }
+    private static ArbilTreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	if (treeHelperInstance instanceof ArbilTreeHelper) {
+	    treeHelper = (ArbilTreeHelper) treeHelperInstance;
+	} else {
+	    throw new RuntimeException("ArbilMenuBar requires ArbilTreeHelper. Found " + treeHelperInstance.getClass());
+	}
+    }
     final static public JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
-    private ArbilTreeHelper treeHelper;
     private JMenuItem saveFileMenuItem = new JMenuItem();
     private JMenuItem showChangedNodesMenuItem = new JMenuItem();
     private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
@@ -131,10 +140,9 @@ public class ArbilMenuBar extends JMenuBar {
 	versionManager = versionManagerInstance;
     }
 
-    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, JApplet containerAppletLocal, ArbilTreeHelper treeHelper) {
+    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, JApplet containerAppletLocal) {
 	containerApplet = containerAppletLocal;
 	previewSplitPanel = previewSplitPanelLocal;
-	this.treeHelper = treeHelper;
 
 	initFileMenu();
 	initEditMenu();
