@@ -21,14 +21,6 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  */
 public class ArbilTreeHelper extends AbstractTreeHelper {
 
-    static private ArbilTreeHelper singleInstance = null;
-
-    static synchronized public ArbilTreeHelper getSingleInstance() {
-	if (singleInstance == null) {
-	    singleInstance = new ArbilTreeHelper();
-	}
-	return singleInstance;
-    }
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -41,7 +33,7 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
     }
     private ArbilTreePanels arbilTreePanel;
 
-    protected ArbilTreeHelper() {
+    public ArbilTreeHelper() {
 	super();
 	initTrees();
 	// load any locations from the previous file formats
@@ -136,12 +128,14 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 	}
     }
 
-    public void addLocationGui(URI addableLocation) {
-	if (!addLocation(addableLocation)) {
+    public boolean addLocationInteractive(URI addableLocation) {
+	boolean added = addLocation(addableLocation);
+	if (!added) {
 	    // alert the user when the node already exists and cannot be added again
 	    messageDialogHandler.addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
 	}
 	applyRootLocations();
+	return added;
     }
 
     public ArbilTreePanels getArbilTreePanel() {

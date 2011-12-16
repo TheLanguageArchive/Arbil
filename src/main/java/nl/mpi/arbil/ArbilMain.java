@@ -49,7 +49,8 @@ public class ArbilMain extends javax.swing.JFrame {
 
     public ArbilMain() {
 	final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
-	new ArbilDesktopInjector().injectHandlers(versionManager);
+	ArbilDesktopInjector injector = new ArbilDesktopInjector();
+	injector.injectHandlers(versionManager);
 
 	this.addWindowListener(new WindowAdapter() {
 
@@ -64,9 +65,9 @@ public class ArbilMain extends javax.swing.JFrame {
 	ArbilWindowManager.getSingleInstance().addTaskListener(statusBar);
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
 	mainSplitPane.setRightComponent(previewSplitPanel);
-	ArbilTreePanels arbilTreePanels = new ArbilTreePanels();
+	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper());
 	mainSplitPane.setLeftComponent(arbilTreePanels);
-	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null);
+	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null, injector.getTreeHelper());
 	setJMenuBar(arbilMenuBar);
 
 	mainSplitPane.setDividerLocation(0.25);

@@ -14,7 +14,6 @@ import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
-import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -25,6 +24,8 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilDesktopInjector extends ArbilSwingInjector {
+
+    private ArbilTreeHelper treeHelper;
 
     public synchronized void injectHandlers() {
 	injectHandlers(new ApplicationVersionManager(new ArbilVersion()));
@@ -42,7 +43,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	ArbilMimeHashQueue.setSessionStorage(sessionStorage);
 	ArbilWindowManager.setSessionStorage(sessionStorage);
 	injectSessionStorage(sessionStorage);
-	
+
 	final BugCatcher bugCatcher = new ArbilBugCatcher();
 	ArbilWindowManager.setBugCatcher(bugCatcher);
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
@@ -68,7 +69,17 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	ArbilMimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
 
-	final TreeHelper treeHelper = ArbilTreeHelper.getSingleInstance();
+	treeHelper = new ArbilTreeHelper();
+	ArbilWindowManager.setTreeHelper(treeHelper);
+	ArbilSessionStorage.setTreeHelper(treeHelper);
 	injectTreeHelper(treeHelper);
+    }
+
+    /**
+     * Should not be called before injectHandlers()!!
+     * @return the treeHelper
+     */
+    public ArbilTreeHelper getTreeHelper() {
+	return treeHelper;
     }
 }

@@ -33,6 +33,7 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.ui.ArbilFieldPlaceHolder;
 import nl.mpi.arbil.ui.ArbilFieldViews;
+import nl.mpi.arbil.ui.ArbilHyperlinkListener;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilWindowManager;
@@ -154,6 +155,8 @@ public abstract class ArbilInjector {
 	ArbilTree.setTreeHelper(treeHelper);
 	ImportExportDialog.setTreeHelper(treeHelper);
 	MetadataBuilder.setTreeHelper(treeHelper);
+	RemoteLocationsContent.setTreeHelper(treeHelper);
+	ArbilHyperlinkListener.setTreeHelper(treeHelper);
     }
 
     public void injectDialogHandler(MessageDialogHandler messageDialogHandler) {

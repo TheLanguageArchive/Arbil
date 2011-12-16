@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilDesktopInjector;
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  *
@@ -29,6 +29,11 @@ public class ArbilSetupWizard extends ArbilWizard {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
     }
     protected static final String WIZARDSTATE_PROPERTY = "wizardState";
     public final static Object INTRODUCTION = IntroductionContent.class;
@@ -136,7 +141,7 @@ public class ArbilSetupWizard extends ArbilWizard {
     private void applyRemoteLocationsConfiguration() {
 	final String newLine = System.getProperty("line.separator");
 
-	ArbilTreeHelper.getSingleInstance().clearRemoteLocations();
+	treeHelper.clearRemoteLocations();
 	String[] locations = model.getRemoteLocations().split(newLine);
 	List<URI> locationURIs = new ArrayList<URI>(locations.length);
 	for (String location : locations) {
@@ -149,7 +154,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 		}
 	    }
 	}
-	ArbilTreeHelper.getSingleInstance().addLocations(locationURIs);
-	ArbilTreeHelper.getSingleInstance().applyRootLocations();
+	treeHelper.addLocations(locationURIs);
+	treeHelper.applyRootLocations();
     }
 }

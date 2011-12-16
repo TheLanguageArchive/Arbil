@@ -10,7 +10,7 @@ import javax.swing.JTabbedPane;
  */
 public class ArbilTreePanels extends javax.swing.JSplitPane {
 
-    public ArbilTreePanels() {
+    public ArbilTreePanels(ArbilTreeHelper treeHelper) {
         leftLocalSplitPane = new javax.swing.JSplitPane();
         localDirectoryScrollPane = new javax.swing.JScrollPane();
         localCorpusScrollPane = new javax.swing.JScrollPane();
@@ -35,16 +35,16 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         ArbilDragDrop.getSingleInstance().addDrag(localCorpusTree);
         ArbilDragDrop.getSingleInstance().addDrag(favouritesTree);
 
-        remoteCorpusTree.setModel(ArbilTreeHelper.getSingleInstance().getRemoteCorpusTreeModel());
+        remoteCorpusTree.setModel(treeHelper.getRemoteCorpusTreeModel());
         remoteCorpusScrollPane.setViewportView(remoteCorpusTree);
 
-        localCorpusTree.setModel(ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeModel());
+        localCorpusTree.setModel(treeHelper.getLocalCorpusTreeModel());
         localCorpusScrollPane.setViewportView(localCorpusTree);
 
-        localDirectoryTree.setModel(ArbilTreeHelper.getSingleInstance().getLocalDirectoryTreeModel());
+        localDirectoryTree.setModel(treeHelper.getLocalDirectoryTreeModel());
         localDirectoryScrollPane.setViewportView(localDirectoryTree);
 
-        favouritesTree.setModel(ArbilTreeHelper.getSingleInstance().getFavouritesTreeModel());
+        favouritesTree.setModel(treeHelper.getFavouritesTreeModel());
         favouritesScrollPane.setViewportView(favouritesTree);
 
         JTabbedPane treeTabPane = new JTabbedPane();
@@ -57,11 +57,11 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         this.setBottomComponent(leftLocalSplitPane);
         this.setLeftComponent(remoteCorpusScrollPane);
 
-        ArbilTreeHelper.getSingleInstance().setTrees(this);
+        treeHelper.setTrees(this);
         setDefaultTreePaneSize();
     }
 
-    public void setDefaultTreePaneSize() {
+    public final void setDefaultTreePaneSize() {
         setDividerLocation(0.33);
         leftLocalSplitPane.setDividerLocation(0.5);
     }

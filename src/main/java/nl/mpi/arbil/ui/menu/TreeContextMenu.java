@@ -19,8 +19,8 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.templates.ArbilTemplate;
@@ -28,11 +28,13 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplateManager.MenuItemData;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.ui.ArbilTree;
+import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * Context menu for tree UI components
@@ -50,6 +52,11 @@ public class TreeContextMenu extends ArbilContextMenu {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
+    }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
     }
 
     public TreeContextMenu(ArbilTree tree) {
@@ -86,21 +93,21 @@ public class TreeContextMenu extends ArbilContextMenu {
 //        mergeWithFavouritesMenu.setEnabled(false);
 	deleteMenuItem.setEnabled(true);
 
-	if (ArbilTreeHelper.getSingleInstance().getArbilTreePanel() != null) {
-	    if (tree == ArbilTreeHelper.getSingleInstance().getArbilTreePanel().remoteCorpusTree) {
+	if (getTreePanel() != null) {
+	    if (tree == getTreePanel().remoteCorpusTree) {
 		removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
 		addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
 		copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
 		searchRemoteBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
 		addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
 	    }
-	    if (tree == ArbilTreeHelper.getSingleInstance().getArbilTreePanel().localCorpusTree) {
+	    if (tree == getTreePanel().localCorpusTree) {
 		viewSelectedNodesMenuItem.setText("View/Edit Selected");
 		//removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
 		pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
 		searchSubnodesMenuItem.setVisible(selectionCount > 0);
 		// a corpus can be added even at the root node
-		addMenu.setVisible(selectionCount == 1); // && /*nodeLevel > 1 &&*/ ArbilTreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
+		addMenu.setVisible(selectionCount == 1); // && /*nodeLevel > 1 &&*/ treeHelper.arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
 		deleteMenuItem.setVisible(nodeLevel > 1);
@@ -118,10 +125,10 @@ public class TreeContextMenu extends ArbilContextMenu {
 		// set up the favourites menu
 		addFromFavouritesMenu.setVisible(true);
 	    }
-	    if (tree == ArbilTreeHelper.getSingleInstance().getArbilTreePanel().localDirectoryTree) {
+	    if (tree == getTreePanel().localDirectoryTree) {
 		removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
 		if (showAddLocationsTasks) {
-		    showHiddenFilesMenuItem.setState(ArbilTreeHelper.getSingleInstance().isShowHiddenFilesInTree());
+		    showHiddenFilesMenuItem.setState(treeHelper.isShowHiddenFilesInTree());
 		    showHiddenFilesMenuItem.setVisible(true);
 		}
 		addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
@@ -139,7 +146,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    }
 
 	    if (leadSelectedTreeNode.isFavorite()) {
-		boolean isFavouriteTopLevel = ArbilTreeHelper.getSingleInstance().isInFavouritesNodes(leadSelectedTreeNode);
+		boolean isFavouriteTopLevel = treeHelper.isInFavouritesNodes(leadSelectedTreeNode);
 		addToFavouritesMenuItem.setVisible(false);
 		removeFromFavouritesMenuItem.setVisible(isFavouriteTopLevel);
 		removeFromFavouritesMenuItem.setEnabled(isFavouriteTopLevel);
@@ -200,7 +207,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    ArbilTreeHelper.getSingleInstance().deleteNodes(getInvoker());
+		    treeHelper.deleteNodes(getInvoker());
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}
@@ -430,9 +437,9 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode selectedNode : selectedTreeNodes) {
-			ArbilTreeHelper.getSingleInstance().removeLocation(selectedNode);
+			treeHelper.removeLocation(selectedNode);
 		    }
-		    ArbilTreeHelper.getSingleInstance().applyRootLocations();
+		    treeHelper.applyRootLocations();
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}
@@ -473,7 +480,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    ArbilTreeHelper.getSingleInstance().setShowHiddenFilesInTree(showHiddenFilesMenuItem.getState());
+		    treeHelper.setShowHiddenFilesInTree(showHiddenFilesMenuItem.getState());
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}
@@ -487,9 +494,9 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode selectedNode : selectedTreeNodes) {
-			ArbilTreeHelper.getSingleInstance().removeLocation(selectedNode);
+			treeHelper.removeLocation(selectedNode);
 		    }
-		    ArbilTreeHelper.getSingleInstance().applyRootLocations();
+		    treeHelper.applyRootLocations();
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}
@@ -534,7 +541,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().remoteCorpusTree);
+		    ImportExportDialog importExportDialog = new ImportExportDialog(getTreePanel().remoteCorpusTree);
 		    importExportDialog.selectExportDirectoryAndExport(((ArbilTree) getInvoker()).getSelectedNodes());
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
@@ -562,7 +569,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
+		    ImportExportDialog importExportDialog = new ImportExportDialog(getTreePanel().localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
 		    importExportDialog.setDestinationNode(leadSelectedTreeNode);
 		    importExportDialog.importArbilBranch();
 
@@ -623,7 +630,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Add Working Directory", true, true, false);
 	if (selectedFiles != null && selectedFiles.length > 0) {
 	    for (File currentDirectory : selectedFiles) {
-		ArbilTreeHelper.getSingleInstance().addLocationGui(currentDirectory.toURI());
+		treeHelper.addLocationInteractive(currentDirectory.toURI());
 	    }
 	}
     }
@@ -632,13 +639,13 @@ public class TreeContextMenu extends ArbilContextMenu {
 	String addableLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
 
 	if ((addableLocation != null) && (addableLocation.length() > 0)) {
-	    ArbilTreeHelper.getSingleInstance().addLocationGui(ArbilDataNode.conformStringToUrl(addableLocation));
+	    treeHelper.addLocationInteractive(ArbilDataNode.conformStringToUrl(addableLocation));
 	}
     }
 
     private void addDefaultLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	if (0 < ArbilTreeHelper.getSingleInstance().addDefaultCorpusLocations()) {
-	    ArbilTreeHelper.getSingleInstance().applyRootLocations();
+	if (0 < treeHelper.addDefaultCorpusLocations()) {
+	    treeHelper.applyRootLocations();
 
 	} else {
 	    // alert the user when the node already exists and cannot be added again
@@ -652,11 +659,11 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
 
     private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	ArbilWindowManager.getSingleInstance().openSearchTable(((ArbilTree) ArbilTreeHelper.getSingleInstance().getArbilTreePanel().localCorpusTree).getAllSelectedNodes(), "Search");
+	ArbilWindowManager.getSingleInstance().openSearchTable(((ArbilTree) getTreePanel().localCorpusTree).getAllSelectedNodes(), "Search");
     }
 
     private void searchRemoteSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	ArbilWindowManager.getSingleInstance().openSearchTable(((ArbilTree) ArbilTreeHelper.getSingleInstance().getArbilTreePanel().remoteCorpusTree).getSelectedNodes(), "Search Remote Corpus");
+	ArbilWindowManager.getSingleInstance().openSearchTable(((ArbilTree) getTreePanel().remoteCorpusTree).getSelectedNodes(), "Search Remote Corpus");
     }
 
     private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -789,7 +796,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	Object targetObject = leadSelectedTreeNode;
 	if (targetObject == null) {
 	    // No lead selected tree node, so pass local corpus root node
-	    targetObject = ((DefaultMutableTreeNode) ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeModel().getRoot()).getUserObject();
+	    targetObject = ((DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot()).getUserObject();
 	}
 	for (Enumeration menuItemName = ArbilFavourites.getSingleInstance().listFavouritesFor(targetObject); menuItemName.hasMoreElements();) {
 	    String[] currentField = (String[]) menuItemName.nextElement();
@@ -877,7 +884,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		if (originatingNode.isLocal() && !originatingNode.getFile().exists()) {
 		    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The origional file location cannot be found", "Re Import Branch");
 		} else if (originatingNode.isMetaDataNode()) {
-		    ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
+		    ImportExportDialog importExportDialog = new ImportExportDialog(getTreePanel().localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
 		    importExportDialog.setDestinationNode(leadSelectedTreeNode); // TODO: do not re add the location in this case
 		    importExportDialog.copyToCache(new ArbilDataNode[]{originatingNode});
 		} else {
@@ -903,6 +910,14 @@ public class TreeContextMenu extends ArbilContextMenu {
 		// Show the editor
 		new ArbilLongFieldEditor().showEditor(fieldArrays.get(0), fieldArrays.get(0)[0].getFieldValue(), 0);
 	    }
+	}
+    }
+
+    private ArbilTreePanels getTreePanel() {
+	if (treeHelper instanceof ArbilTreeHelper) {
+	    return ((ArbilTreeHelper) treeHelper).getArbilTreePanel();
+	} else {
+	    return null;
 	}
     }
 

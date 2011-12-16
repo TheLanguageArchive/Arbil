@@ -2,7 +2,6 @@ package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.templates.ArbilFavourites;
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Container;
 import java.awt.datatransfer.Clipboard;
@@ -25,10 +24,12 @@ import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * Document   :  ArbilDragDrop
@@ -54,6 +55,16 @@ public class ArbilDragDrop {
 	    singleInstance = new ArbilDragDrop();
 	}
 	return singleInstance;
+    }
+    private static ArbilTreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	if (treeHelperInstance instanceof ArbilTreeHelper) {
+	    treeHelper = (ArbilTreeHelper) treeHelperInstance;
+	} else {
+	    throw new RuntimeException("ArbilDragDrop requires ArbilTreeHelper, found " + treeHelperInstance.getClass());
+	}
+
     }
 
     private ArbilDragDrop() {
@@ -146,12 +157,12 @@ public class ArbilDragDrop {
 	    ArbilDataNode currentLeadSelection = dropTree.getLeadSelectionDataNode();
 	    if (currentLeadSelection == null) {
 		// this check is for the root node of the trees
-		if (ArbilTreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
+		if (treeHelper.componentIsTheFavouritesTree(currentDropTarget)) {
 		    // allow drop to the favourites tree even when no selection is made
 		    // allow drop to only the root node of the favourites tree
 		    System.out.println("favourites tree check");
 		    return !selectionContainsFavourite;
-		} else if (ArbilTreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
+		} else if (treeHelper.componentIsTheLocalCorpusTree(currentDropTarget)) {
 		    //if (dropTree.getSelectionPath().getPathCount() == 1) {
 		    // allow import to local tree if no nodes are selected
 		    // allow drop to the root node if it is an import
@@ -167,7 +178,7 @@ public class ArbilDragDrop {
 //                todo: prevent dragging to self but allow dragging to other branch of parent session
 //                todo: look for error dragging actor from favourites
 //                todo: look for error in field triggers when merging from favourite (suppress trtiggeres when merging)
-		if (ArbilTreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
+		if (treeHelper.componentIsTheLocalCorpusTree(currentDropTarget)) {
 		    if (currentLeadSelection.isCmdiMetaDataNode()) {
 			return currentLeadSelection.canHaveResource();
 		    } else if (currentLeadSelection.isDirectory) {
@@ -232,7 +243,7 @@ public class ArbilDragDrop {
 	    currentDropTarget = null;
 	    dropAllowed = false;
 	    if (comp instanceof JTree) {
-		if (ArbilTreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(comp)) {
+		if (treeHelper.componentIsTheLocalCorpusTree(comp)) {
 		    System.out.println("localcorpustree so can drop here");
 		    if (selectionContainsArchivableLocalFile
 			    || //selectionContainsLocalFile ||
@@ -251,7 +262,7 @@ public class ArbilDragDrop {
 			return true;
 		    }
 		}
-		if (ArbilTreeHelper.getSingleInstance().componentIsTheFavouritesTree(comp)) {
+		if (treeHelper.componentIsTheFavouritesTree(comp)) {
 		    System.out.println("favourites tree so can drop here");
 		    if (//selectionContainsArchivableLocalFile &&
 			    //selectionContainsLocalFile ||
@@ -469,7 +480,7 @@ public class ArbilDragDrop {
 	    for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 		System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
 	    }
-	    if (ArbilTreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
+	    if (treeHelper.componentIsTheFavouritesTree(currentDropTarget)) {
 		// Target component is the favourites tree
 		boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedArbilNodes, true);
 		return resultValue;
@@ -480,7 +491,7 @@ public class ArbilDragDrop {
 
 	private boolean draggedFromLocalCorpus() {
 	    if (draggedTreeNodes != null && draggedTreeNodes.length > 0) {
-		return draggedTreeNodes[0].getRoot() == ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeModel().getRoot();
+		return draggedTreeNodes[0].getRoot() == treeHelper.getLocalCorpusTreeModel().getRoot();
 	    }
 	    return false;
 	}
@@ -498,7 +509,7 @@ public class ArbilDragDrop {
 
 	private boolean importToLocalTree(ArbilTree dropTree) {
 	    // Drop on local corpus
-	    DefaultMutableTreeNode targetNode = ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
+	    DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
 	    Object dropTargetUserObject = targetNode.getUserObject();
 	    Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
 	    Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
@@ -618,7 +629,7 @@ public class ArbilDragDrop {
 //                                        ((ArbilDataNode) dropTargetUserObject).saveChangesToCache(false);
 		    (dropTargetDataNode).reloadNode();
 		} else {
-		    ArbilTreeHelper.getSingleInstance().applyRootLocations();
+		    treeHelper.applyRootLocations();
 		}
 		return true;
 	    }
@@ -661,15 +672,15 @@ public class ArbilDragDrop {
 		    }
 		}
 	    } else {
-		addNodeResult = ArbilTreeHelper.getSingleInstance().addLocation(currentNode.getURI());
+		addNodeResult = treeHelper.addLocation(currentNode.getURI());
 	    }
 
 	    if (addNodeResult) {
 		if (draggedTreeNodes[draggedCounter] != null) {
 		    if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
 			System.out.println("dragged from root");
-			ArbilTreeHelper.getSingleInstance().removeLocation(currentNode);
-			ArbilTreeHelper.getSingleInstance().applyRootLocations();
+			treeHelper.removeLocation(currentNode);
+			treeHelper.applyRootLocations();
 		    } else {
 			ArbilDataNode parentNode = (ArbilDataNode) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
 			System.out.println("removeing from parent: " + parentNode);
@@ -696,7 +707,7 @@ public class ArbilDragDrop {
 		    currentParent.deleteCorpusLink(arbilNodeArray);
 		} else if (currentParent.isMetaDataNode()) {
 		    // Removing metadata nodes from session
-		    ArbilTreeHelper.getSingleInstance().deleteChildNodes(currentParent, children);
+		    treeHelper.deleteChildNodes(currentParent, children);
 		}
 	    }
 	}

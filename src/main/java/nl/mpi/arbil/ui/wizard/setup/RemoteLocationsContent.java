@@ -12,8 +12,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * ArbilWizard content that lets the user specify remote locations
@@ -25,6 +25,11 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
     }
     private ArbilSetupWizardModel model;
     private JTextArea locationsTextArea;
@@ -109,7 +114,7 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
 	final List<String> locationsList = new LinkedList<String>();
 
 	// Load current locations
-	for (ArbilDataNode remoteNode : ArbilTreeHelper.getSingleInstance().getRemoteCorpusNodes()) {
+	for (ArbilDataNode remoteNode : treeHelper.getRemoteCorpusNodes()) {
 	    locationsList.add(remoteNode.getUrlString());
 	}
 

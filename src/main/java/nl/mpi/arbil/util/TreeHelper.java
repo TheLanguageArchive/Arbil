@@ -4,11 +4,13 @@
  */
 package nl.mpi.arbil.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilNode;
 
 /**
  *
@@ -19,6 +21,8 @@ public interface TreeHelper {
     int addDefaultCorpusLocations();
 
     boolean addLocation(URI addedLocation);
+
+    boolean addLocationInteractive(URI addableLocation);
 
     void applyRootLocations();
 
@@ -37,7 +41,7 @@ public interface TreeHelper {
     /**
      * @return the localCorpusNodes
      */
-    ArbilNode[] getLocalCorpusNodes();
+    ArbilDataNode[] getLocalCorpusNodes();
 
     /**
      * @return the localCorpusTreeModel
@@ -81,10 +85,15 @@ public interface TreeHelper {
 
     void removeLocation(ArbilDataNode removeObject);
 
+    void clearRemoteLocations();
+
+    void addLocations(List<URI> locations);
+
+    void addLocations(InputStream inputStream) throws IOException;
+
     void removeLocation(URI removeLocation);
 
     void saveLocations(ArbilDataNode[] nodesToAdd, ArbilDataNode[] nodesToRemove);
 
     void setShowHiddenFilesInTree(boolean showState);
-    
 }

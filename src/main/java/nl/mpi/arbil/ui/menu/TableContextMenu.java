@@ -8,11 +8,11 @@ import javax.swing.ListSelectionModel;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * Context menu for table UI components
@@ -25,6 +25,11 @@ public class TableContextMenu extends ArbilContextMenu {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
     }
 
     public TableContextMenu(ArbilTable table) {
@@ -319,7 +324,7 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    ArbilTreeHelper.getSingleInstance().jumpToSelectionInTree(false, table.getDataNodeForSelection());
+		    treeHelper.jumpToSelectionInTree(false, table.getDataNodeForSelection());
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
@@ -59,6 +58,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
 
 /**
@@ -100,6 +100,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
     }
 
     static synchronized public ArbilWindowManager getSingleInstance() {
@@ -455,7 +460,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void showSetupWizardIfFirstRun() {
-	if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()
+	if (!treeHelper.locationsHaveBeenAdded()
 		&& !"yes".equals(sessionStorage.loadString(SessionStorage.PARAM_WIZARD_RUN))) {
 	    sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, "yes");
 	    new ArbilSetupWizard(linorgFrame).showModalDialog();
@@ -491,7 +496,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	initWindows();
 
-	if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()) {
+	if (!treeHelper.locationsHaveBeenAdded()) {
 	    System.out.println("no local locations found, showing help window");
 	    ArbilHelp helpComponent = ArbilHelp.getSingleInstance();
 	    if (null == focusWindow(ArbilHelp.helpWindowTitle)) {

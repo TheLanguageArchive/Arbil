@@ -43,7 +43,7 @@ public class ArbilTestInjector extends ArbilInjector {
 	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
 	injectDataNodeLoader(dataNodeLoader);
 
-	final TreeHelper treeHelper = ArbilTreeHelper.getSingleInstance();
+	final TreeHelper treeHelper = new ArbilTreeHelper();
 	injectTreeHelper(treeHelper);
     }
 }

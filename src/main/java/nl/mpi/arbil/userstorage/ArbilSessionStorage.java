@@ -37,10 +37,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -66,6 +66,11 @@ public class ArbilSessionStorage implements SessionStorage {
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
+    }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
     }
 
     private static void logError(Exception exception) {
@@ -224,17 +229,17 @@ public class ArbilSessionStorage implements SessionStorage {
 		saveString("cacheDirectory", toDirectory.getAbsolutePath());
 		localCacheDirectory = null;
 		getCacheDirectory();
-		ArbilTreeHelper.getSingleInstance().loadLocationsList();
-		ArbilTreeHelper.getSingleInstance().applyRootLocations();
+		treeHelper.loadLocationsList();
+		treeHelper.applyRootLocations();
 	    }
 	} else {
 	    try {
 		Vector<String> locationsList = new Vector<String>();
 		for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{
-			    ArbilTreeHelper.getSingleInstance().getRemoteCorpusNodes(),
-			    ArbilTreeHelper.getSingleInstance().getLocalCorpusNodes(),
-			    ArbilTreeHelper.getSingleInstance().getLocalFileNodes(),
-			    ArbilTreeHelper.getSingleInstance().getFavouriteNodes()}) {
+			    treeHelper.getRemoteCorpusNodes(),
+			    treeHelper.getLocalCorpusNodes(),
+			    treeHelper.getLocalFileNodes(),
+			    treeHelper.getFavouriteNodes()}) {
 		    for (ArbilDataNode currentLocation : currentTreeArray) {
 			String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
 			System.out.println("currentLocationString: " + currentLocationString);
@@ -248,14 +253,14 @@ public class ArbilSessionStorage implements SessionStorage {
 		saveString("cacheDirectory", toDirectory.getAbsolutePath());
 		localCacheDirectory = null;
 		getCacheDirectory();
-		ArbilTreeHelper.getSingleInstance().loadLocationsList();
-		ArbilTreeHelper.getSingleInstance().applyRootLocations();
+		treeHelper.loadLocationsList();
+		treeHelper.applyRootLocations();
 		windowManager.closeAllWindows();
 	    } catch (Exception ex) {
 		logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
 	    }
-//            ArbilTreeHelper.getSingleInstance().loadLocationsList();
+//            treeHelper.loadLocationsList();
 //            JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The working files have been moved.", "Arbil", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Exit"}, "Exit");
 //            System.exit(0); // TODO: this exit might be unrequired
 	}
