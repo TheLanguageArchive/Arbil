@@ -599,7 +599,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		} else {
 		    initialValue = "";
 		}
-		String manualLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the resource URI:", "Manual resource location", JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
+		String manualLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Enter the resource URI:", "Manual resource location", JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
 		if (manualLocation != null) { // Not canceled
 		    try {
 			URI locationURI = new URI(manualLocation);
@@ -636,7 +636,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
 
     private void addRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	String addableLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
+	String addableLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
 
 	if ((addableLocation != null) && (addableLocation.length() > 0)) {
 	    treeHelper.addLocationInteractive(ArbilDataNode.conformStringToUrl(addableLocation));

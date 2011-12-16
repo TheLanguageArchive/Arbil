@@ -71,7 +71,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
     private Hashtable windowStatesHashtable;
     public JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
-    public JFrame linorgFrame;
+    private JFrame linorgFrame;
     private ArbilTaskStatusBar statusBar;
     private final static int defaultWindowX = 50;
     private final static int defaultWindowY = 50;
@@ -138,27 +138,27 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    // set the main window position and size. Also puts window on the correct screen (relevant for maximization)
 	    Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
 	    if (linorgFrameBounds != null) {
-		linorgFrame.setBounds((Rectangle) linorgFrameBounds);
+		getMainFrame().setBounds((Rectangle) linorgFrameBounds);
 	    }
 
 	    // set window state (i.e. maximized or not)
-	    linorgFrame.setExtendedState((Integer) windowStatesHashtable.get("linorgFrameExtendedState"));
-	    if (linorgFrame.getExtendedState() == JFrame.ICONIFIED) {
+	    getMainFrame().setExtendedState((Integer) windowStatesHashtable.get("linorgFrameExtendedState"));
+	    if (getMainFrame().getExtendedState() == JFrame.ICONIFIED) {
 		// start up iconified is just too confusing to the user
-		linorgFrame.setExtendedState(JFrame.NORMAL);
+		getMainFrame().setExtendedState(JFrame.NORMAL);
 	    }
 
 	    if (windowStatesHashtable.containsKey("ScreenDeviceCount")) {
 		int screenDeviceCount = ((Integer) windowStatesHashtable.get("ScreenDeviceCount"));
 		if (screenDeviceCount > GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length) {
-		    linorgFrame.setLocationRelativeTo(null);
+		    getMainFrame().setLocationRelativeTo(null);
 		    // make sure the main frame is visible. for instance when a second monitor has been removed.
 		    Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
 		    if (linorgFrameBounds instanceof Rectangle && ((Rectangle) linorgFrameBounds).intersects(new Rectangle(screenDimension))) {
-			linorgFrame.setBounds(((Rectangle) linorgFrameBounds).intersection(new Rectangle(screenDimension)));
+			getMainFrame().setBounds(((Rectangle) linorgFrameBounds).intersection(new Rectangle(screenDimension)));
 		    } else {
-			linorgFrame.setBounds(0, 0, 800, 600);
-			linorgFrame.setLocationRelativeTo(null);
+			getMainFrame().setBounds(0, 0, 800, 600);
+			getMainFrame().setLocationRelativeTo(null);
 		    }
 		}
 	    }
@@ -166,12 +166,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    System.out.println("load windowStates failed: " + ex.getMessage());
 	    System.out.println("setting default windowStates");
 	    windowStatesHashtable = new Hashtable();
-	    linorgFrame.setBounds(0, 0, 800, 600);
-	    linorgFrame.setLocationRelativeTo(null);
-	    linorgFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	    getMainFrame().setBounds(0, 0, 800, 600);
+	    getMainFrame().setLocationRelativeTo(null);
+	    getMainFrame().setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	// set the split pane positions
-	loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
+	loadSplitPlanes(getMainFrame().getContentPane().getComponent(0));
     }
 
     public void openAboutPage() {
@@ -185,12 +185,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		+ appVersion.lastCommitDate + "\n"
 		+ "Compile Date: " + appVersion.compileDate + "\n\n"
 		+ "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor");
-	JOptionPane.showMessageDialog(linorgFrame, messageString, "About " + appVersion.applicationTitle, JOptionPane.PLAIN_MESSAGE);
+	JOptionPane.showMessageDialog(getMainFrame(), messageString, "About " + appVersion.applicationTitle, JOptionPane.PLAIN_MESSAGE);
     }
 
     public void offerUserToSaveChanges() throws Exception {
 	if (ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
-	    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
+	    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().getMainFrame(),
 		    "There are unsaved changes.\nSave now?", "Save Changes",
 		    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 		ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
@@ -214,7 +214,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			mkdirsOkay = destinationDirectory.mkdirs();
 		    }
 		    if (destinationDirectory == null || !mkdirsOkay || !destinationDirectory.exists()) {
-			JOptionPane.showMessageDialog(linorgFrame, "The export directory\n\"" + destinationDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", titleText, JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.showMessageDialog(getMainFrame(), "The export directory\n\"" + destinationDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", titleText, JOptionPane.PLAIN_MESSAGE);
 		    } else {
 //                        if (!createdDirectory) {
 //                            String newDirectoryName = JOptionPane.showInputDialog(linorgFrame, "Enter Export Name", titleText, JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
@@ -269,7 +269,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    } else {
 		System.setProperty("apple.awt.fileDialogForDirectories", "false");
 	    }
-	    FileDialog fileDialog = new FileDialog(linorgFrame);
+	    FileDialog fileDialog = new FileDialog(getMainFrame());
 	    if (requireMetadataFiles) {
 		fileDialog.setFilenameFilter(new FilenameFilter() {
 
@@ -312,7 +312,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	    fileChooser.setCurrentDirectory(workingDirectory);
 	    fileChooser.setMultiSelectionEnabled(multipleSelect);
-	    if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(ArbilWindowManager.getSingleInstance().linorgFrame, titleText)) {
+	    if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), titleText)) {
 		returnFile = fileChooser.getSelectedFiles();
 		if (returnFile.length == 0) {
 		    returnFile = new File[]{fileChooser.getSelectedFile()};
@@ -371,7 +371,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	if (messageTitle == null) {
 	    messageTitle = "Arbil";
 	}
-	if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
+	if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().getMainFrame(),
 		messageString, messageTitle,
 		JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 	    return true;
@@ -449,7 +449,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			    String messageTitle = messageDialogQueue.keys().nextElement();
 			    String messageText = messageDialogQueue.remove(messageTitle);
 			    if (messageText != null) {
-				JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
 			    }
 			}
 		    }
@@ -463,7 +463,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	if (!treeHelper.locationsHaveBeenAdded()
 		&& !"yes".equals(sessionStorage.loadString(SessionStorage.PARAM_WIZARD_RUN))) {
 	    sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, "yes");
-	    new ArbilSetupWizard(linorgFrame).showModalDialog();
+	    new ArbilSetupWizard(getMainFrame()).showModalDialog();
 	}
     }
 
@@ -641,12 +641,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	// loop windowList and make a hashtable of window names with a vector of the imdinodes displayed, then save the hashtable
 	try {
 	    // collect the main window size and position for saving
-	    windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
+	    windowStatesHashtable.put("linorgFrameBounds", getMainFrame().getBounds());
 
 	    windowStatesHashtable.put("ScreenDeviceCount", GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length);
-	    windowStatesHashtable.put("linorgFrameExtendedState", linorgFrame.getExtendedState());
+	    windowStatesHashtable.put("linorgFrameExtendedState", getMainFrame().getExtendedState());
 	    // collect the split pane positions for saving
-	    saveSplitPlanes(linorgFrame.getContentPane().getComponent(0));
+	    saveSplitPlanes(getMainFrame().getContentPane().getComponent(0));
 	    // save the collected states
 	    sessionStorage.saveObject(windowStatesHashtable, "windowStates");
 	    // save the windows
@@ -1225,7 +1225,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      * @see javax.swing.JOptionPane
      */
     public int showDialogBox(String message, String title, int optionType, int messageType) {
-	return JOptionPane.showConfirmDialog(linorgFrame, message, title, optionType, messageType);
+	return JOptionPane.showConfirmDialog(getMainFrame(), message, title, optionType, messageType);
     }
 
     /**
@@ -1241,7 +1241,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      * @see javax.swing.JOptionPane
      */
     public int showDialogBox(String message, String title, int optionType, int messageType, Object[] options, Object initialValue) {
-	return JOptionPane.showOptionDialog(linorgFrame, message, title, optionType, messageType, null, options, initialValue);
+	return JOptionPane.showOptionDialog(getMainFrame(), message, title, optionType, messageType, null, options, initialValue);
     }
 
     public ProgressMonitor newProgressMonitor(Object message, String note, int min, int max) {
@@ -1251,7 +1251,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public JFrame getMainFrame() {
 	return linorgFrame;
     }
-
+    
     public boolean askUserToSaveChanges(String entityName) {
 	return showConfirmDialogBox("This action will save all pending changes on " + entityName + " to disk. Continue?", "Save to disk?");
     }

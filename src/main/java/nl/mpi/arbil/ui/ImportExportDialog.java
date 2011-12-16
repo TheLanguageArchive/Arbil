@@ -259,7 +259,7 @@ public class ImportExportDialog {
     // the targetComponent is used to place the import dialog
     public ImportExportDialog(Component targetComponent) throws Exception {
 	ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
-	searchDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
+	searchDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().getMainFrame()), true);
 	searchDialog.addWindowStateListener(new WindowAdapter() {
 
 	    @Override
@@ -677,7 +677,7 @@ public class ImportExportDialog {
 		setUItoStoppedState();
 		System.out.println("finalMessageString: " + finalMessageString);
 		Object[] options = {"Close", "Details"};
-		int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame, finalMessageString, searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+		int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), finalMessageString, searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (detailsOption == 0) {
 		    searchDialog.setVisible(false);
 		} else {

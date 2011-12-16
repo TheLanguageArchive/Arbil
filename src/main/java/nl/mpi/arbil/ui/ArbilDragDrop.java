@@ -591,7 +591,7 @@ public class ArbilDragDrop {
 				int detailsOption = 1;
 				//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
 				if (!moveAll) {
-				    detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
+				    detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().getMainFrame(),
 					    "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
 					    + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
 					    "Arbil",

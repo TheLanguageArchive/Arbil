@@ -80,7 +80,7 @@ public class CmdiProfilesPanel extends JPanel {
 	addButton.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+		String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
 		ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + newDirectoryName);
 		populateList();
 	    }

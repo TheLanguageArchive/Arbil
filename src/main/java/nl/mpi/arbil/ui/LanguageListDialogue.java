@@ -24,7 +24,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 
     public static void showLanguageDialogue() {
 	//showDialogue("Available Languages");
-	JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Available Languages", true);
+	JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Available Languages", true);
 	LanguageListDialogue templateDialogue = new LanguageListDialogue(dialog);
 	templateDialogue.populateLists();
 	dialog.setContentPane(templateDialogue);
