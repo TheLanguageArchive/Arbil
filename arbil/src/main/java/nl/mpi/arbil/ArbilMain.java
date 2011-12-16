@@ -10,10 +10,12 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilTaskStatusBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.util.ArbilMimeHashQueue;
 
 /*
  * ArbilMain.java
@@ -49,9 +51,20 @@ public class ArbilMain extends javax.swing.JFrame {
 
     public ArbilMain() {
 	final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
-	ArbilDesktopInjector injector = new ArbilDesktopInjector();
+	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers(versionManager);
 
+	initApplication(injector.getMimeHashQueue());
+	initUI(injector.getTreeHelper(), versionManager);
+	
+	checkFirstRun();
+    }
+
+    private void initApplication(ArbilMimeHashQueue hashQueue) {
+	hashQueue.init();
+    }
+
+    private void initUI(ArbilTreeHelper treeHelper, final ApplicationVersionManager versionManager) {
 	this.addWindowListener(new WindowAdapter() {
 
 	    @Override
@@ -65,9 +78,9 @@ public class ArbilMain extends javax.swing.JFrame {
 	ArbilWindowManager.getSingleInstance().addTaskListener(statusBar);
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
 	mainSplitPane.setRightComponent(previewSplitPanel);
-	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper());
+	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
-	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null, injector.getTreeHelper());
+	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null, treeHelper);
 	setJMenuBar(arbilMenuBar);
 
 	mainSplitPane.setDividerLocation(0.25);
@@ -83,7 +96,9 @@ public class ArbilMain extends javax.swing.JFrame {
 	}
 
 	initMacApplicationHandlers();
+    }
 
+    private void checkFirstRun() {
 	ArbilWindowManager.getSingleInstance().showSetupWizardIfFirstRun();
 	ArbilWindowManager.getSingleInstance().openIntroductionPage();
     }

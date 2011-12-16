@@ -43,8 +43,8 @@ import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
-import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MimeHashQueue;
 
 /**
  * ArbilMenuBar.java
@@ -62,6 +62,11 @@ public class ArbilMenuBar extends JMenuBar {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static MimeHashQueue mimeHashQueue;
+
+    public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance) {
+	mimeHashQueue = mimeHashQueueInstance;
     }
     final static public JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
@@ -501,13 +506,13 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
 
-	checkResourcePermissionsCheckBoxMenuItem.setSelected(ArbilMimeHashQueue.getSingleInstance().isCheckResourcePermissions());
+	checkResourcePermissionsCheckBoxMenuItem.setSelected(mimeHashQueue.isCheckResourcePermissions());
 	checkResourcePermissionsCheckBoxMenuItem.setText("Check permissions for remote resources");
 	checkResourcePermissionsCheckBoxMenuItem.setToolTipText("This option checks the server permissions for remote resources and shows icons accordingly.");
 	checkResourcePermissionsCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
-		ArbilMimeHashQueue.getSingleInstance().setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
+		mimeHashQueue.setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
 		sessionStorage.saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
 		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The setting change will be effective when Arbil is restarted.", "Check permissions for remote resources");
 	    }
@@ -871,7 +876,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    return false;
 	    }
 	}
-	ArbilMimeHashQueue.getSingleInstance().terminateQueue();
+	mimeHashQueue.terminateQueue();
 
 	GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
 	sessionStorage.saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
