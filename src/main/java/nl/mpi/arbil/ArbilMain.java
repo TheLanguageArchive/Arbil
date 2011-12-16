@@ -80,7 +80,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	mainSplitPane.setRightComponent(previewSplitPanel);
 	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
-	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null, treeHelper);
+	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null);
 	setJMenuBar(arbilMenuBar);
 
 	mainSplitPane.setDividerLocation(0.25);
