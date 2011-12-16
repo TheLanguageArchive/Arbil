@@ -42,7 +42,7 @@ public class ArbilWicketApplication extends WebApplication {
      * @return New session storage object
      */
     public SessionStorage newSessionStorage() {
-	return ArbilSessionStorage.getSingleInstance();
+	return new ArbilSessionStorage();
     }
 
     /**
