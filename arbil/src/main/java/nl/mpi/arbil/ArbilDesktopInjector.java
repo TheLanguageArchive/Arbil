@@ -43,7 +43,8 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	ArbilWindowManager.setSessionStorage(sessionStorage);
 	injectSessionStorage(sessionStorage);
 	
-	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
+	final BugCatcher bugCatcher = new ArbilBugCatcher();
+	ArbilWindowManager.setBugCatcher(bugCatcher);
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilMimeHashQueue.setBugCatcher(bugCatcher);
 	injectBugCatcher(bugCatcher);

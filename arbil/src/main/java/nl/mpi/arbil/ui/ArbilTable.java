@@ -42,6 +42,7 @@ import javax.swing.table.TableColumn;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Document   : ArbilTable
@@ -50,6 +51,11 @@ import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
  */
 public class ArbilTable extends JTable {
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     public final static int MIN_COLUMN_WIDTH = 50;
     public final static int MAX_COLUMN_WIDTH = 300;
     private ArbilTableModel arbilTableModel;
@@ -179,7 +185,7 @@ public class ArbilTable extends JTable {
 			    }
 			}
 		    } catch (Exception ex) {
-			GuiHelper.linorgBugCatcher.logError(ex);
+			bugCatcher.logError(ex);
 		    }
 		}
 	    });
@@ -197,7 +203,7 @@ public class ArbilTable extends JTable {
 			editViewsDialog.setBounds(50, 50, 600, 400);
 			editViewsDialog.setVisible(true);
 		    } catch (Exception ex) {
-			GuiHelper.linorgBugCatcher.logError(ex);
+			bugCatcher.logError(ex);
 		    }
 		}
 	    });
@@ -209,7 +215,7 @@ public class ArbilTable extends JTable {
 			//System.out.println("saveViewNenuItem: " + targetTable.toString());
 			arbilTableModel.showOnlyCurrentColumns();
 		    } catch (Exception ex) {
-			GuiHelper.linorgBugCatcher.logError(ex);
+			bugCatcher.logError(ex);
 		    }
 		}
 	    });
@@ -234,7 +240,7 @@ public class ArbilTable extends JTable {
 			    arbilTableModel.setCurrentView(ArbilFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
 			    doResizeColumns();
 			} catch (Exception ex) {
-			    GuiHelper.linorgBugCatcher.logError(ex);
+			    bugCatcher.logError(ex);
 			}
 		    }
 		});
@@ -339,7 +345,7 @@ public class ArbilTable extends JTable {
 		    //System.out.println("hideColumnMenuItem: " + targetTable.toString());
 		    arbilTableModel.hideColumn(targetColumn);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -355,7 +361,7 @@ public class ArbilTable extends JTable {
 		try {
 		    showRowChildData();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -459,7 +465,7 @@ public class ArbilTable extends JTable {
 		return requiredHeight;
 	    }
 	} catch (Exception exception) {
-//            GuiHelper.linorgBugCatcher.logError(exception);
+//            bugCatcher.logError(exception);
 	    System.out.println("getRowHeight could not get the font metrics, using the default row height");
 	}
 	return super.getRowHeight();

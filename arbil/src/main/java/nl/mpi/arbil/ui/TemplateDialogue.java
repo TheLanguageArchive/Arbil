@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.util.BugCatcher;
 
 /*
  * TemplateDialogue.java
@@ -21,6 +22,11 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
  */
 public class TemplateDialogue extends javax.swing.JPanel {
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     JDialog parentFrame;
 
     /** Creates new form TemplateDialogue */
@@ -105,7 +111,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 //                    System.out.println("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
 	} catch (Exception e) {
-	    GuiHelper.linorgBugCatcher.logError(e);
+	    bugCatcher.logError(e);
 	}
 	populateLists();
     }

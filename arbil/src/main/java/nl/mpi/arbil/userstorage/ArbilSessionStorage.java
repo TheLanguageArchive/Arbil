@@ -80,15 +80,14 @@ public class ArbilSessionStorage implements SessionStorage {
 	if (bugCatcher != null) {
 	    bugCatcher.logError(message, exception);
 	} else {
-	    System.out.println("BUGCATCHER: " + message + "\nException: " + exception.getMessage());
+	    System.out.println("BUGCATCHER: " + message + (exception != null ? ("\nException: " + exception.getMessage()) : ""));
 	}
     }
-
     private File storageDirectory = null;
     private File localCacheDirectory = null;
     private boolean trackTableSelection = false;
     private boolean useLanguageIdInColumnName = false;
-    
+
     public ArbilSessionStorage() {
 
 	String storageDirectoryArray[] = getLocationOptions();

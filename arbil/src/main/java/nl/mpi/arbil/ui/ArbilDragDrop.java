@@ -28,6 +28,7 @@ import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Document   :  ArbilDragDrop
@@ -40,6 +41,11 @@ public class ArbilDragDrop {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
+    }
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
     }
     private static ArbilDragDrop singleInstance = null;
 
@@ -86,7 +92,7 @@ public class ArbilDragDrop {
 		}
 	    });
 	} catch (java.util.TooManyListenersException ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
+	    bugCatcher.logError(ex);
 	}
     }
 
@@ -430,7 +436,7 @@ public class ArbilDragDrop {
 		    return importNodes(comp);
 		}
 	    } catch (Exception ex) {
-		GuiHelper.linorgBugCatcher.logError(ex);
+		bugCatcher.logError(ex);
 	    } finally {
 		createTransferable(null); // clear the transfer objects
 	    }
@@ -632,7 +638,7 @@ public class ArbilDragDrop {
 			    new MetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);
 			    addNodeResult = true;
 			} catch (ArbilMetadataException ex) {
-			    GuiHelper.linorgBugCatcher.logError(ex);
+			    bugCatcher.logError(ex);
 			    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(ex.getLocalizedMessage(), "Insert node error");
 			}
 		    }
@@ -675,7 +681,7 @@ public class ArbilDragDrop {
 		    }
 		}
 	    } else {
-		GuiHelper.linorgBugCatcher.logError("Could not add node " + currentNode.toString() + " to target " + dropTargetUserObject.toString(), null);
+		bugCatcher.logError("Could not add node " + currentNode.toString() + " to target " + dropTargetUserObject.toString(), null);
 	    }
 	}
 

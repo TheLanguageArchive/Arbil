@@ -47,6 +47,7 @@ import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -56,6 +57,11 @@ import nl.mpi.arbil.util.TreeHelper;
  */
 public class ImportExportDialog {
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     private JDialog searchDialog;
     private JPanel searchPanel;
     private JPanel inputNodePanel;
@@ -315,7 +321,7 @@ public class ImportExportDialog {
 		    showDetails(detailsCheckBox.isSelected());
 		    searchDialog.pack();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -495,7 +501,7 @@ public class ImportExportDialog {
 			resourceFileErrorsTable.addChildTypeToDisplay("WrittenResources");
 		    }
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -506,7 +512,7 @@ public class ImportExportDialog {
 		try {
 		    performCopy();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -519,7 +525,7 @@ public class ImportExportDialog {
 		    stopButton.setEnabled(false);
 		    startButton.setEnabled(false);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -572,7 +578,7 @@ public class ImportExportDialog {
 	    try {
 		Thread.sleep(100);
 	    } catch (InterruptedException ignore) {
-		GuiHelper.linorgBugCatcher.logError(ignore);
+		bugCatcher.logError(ignore);
 	    }
 	}
     }
@@ -590,11 +596,11 @@ public class ImportExportDialog {
 //		destinationFile[1] = new File(exportDestinationDirectory, currentDirectory.getName());
 //		if (tempFile.delete()) {
 //		    if (!currentDirectory.renameTo(tempFile)) {
-//			GuiHelper.linorgBugCatcher.logError(new Exception("Error while renaming file"));
+//			bugCatcher.logError(new Exception("Error while renaming file"));
 //		    }
 //		}
 //	    } catch (Exception ex) {
-//		GuiHelper.linorgBugCatcher.logError(ex);
+//		bugCatcher.logError(ex);
 //	    }
 //	}
 //    }
@@ -663,7 +669,7 @@ public class ImportExportDialog {
 		    // Copy the selected nodes
 		    copyElements(selectedNodes.elements());
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		    finalMessageString = finalMessageString + "There was a critical error.";
 		}
 
@@ -799,7 +805,7 @@ public class ImportExportDialog {
 			    }
 			    if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
 				if (!currentRetrievableFile.destinationFile.getParentFile().mkdir()) {
-				    GuiHelper.linorgBugCatcher.logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
+				    bugCatcher.logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
 				}
 			    }
 			    currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
@@ -821,18 +827,18 @@ public class ImportExportDialog {
 			}
 		    }
 		} catch (ArbilMetadataException ex) {
-		    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+		    bugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
 		    totalErrors++;
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
 		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
 		} catch (MalformedURLException ex) {
-		    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+		    bugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
 		    totalErrors++;
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
 		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 		    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
 		} catch (IOException ex) {
-		    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+		    bugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
 		    totalErrors++;
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
 		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
@@ -882,7 +888,7 @@ public class ImportExportDialog {
 				}
 				if (!retrievableLink.destinationFile.getParentFile().exists()) {
 				    if (!retrievableLink.destinationFile.getParentFile().mkdirs()) {
-					GuiHelper.linorgBugCatcher.logError(new IOException("Could not create missing parent directory for " + retrievableLink.destinationFile));
+					bugCatcher.logError(new IOException("Could not create missing parent directory for " + retrievableLink.destinationFile));
 				    }
 				}
 				downloadFileLocation = retrievableLink.destinationFile;
@@ -963,7 +969,7 @@ public class ImportExportDialog {
 		try {
 		    urlString = URLDecoder.decode(urlString, "UTF-8");
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(urlString, ex);
+		    bugCatcher.logError(urlString, ex);
 		    appendToTaskOutput("unable to decode the file name for: " + urlString);
 		    System.out.println("unable to decode the file name for: " + urlString);
 		}

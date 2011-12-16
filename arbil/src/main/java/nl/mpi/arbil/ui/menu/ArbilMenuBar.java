@@ -44,6 +44,7 @@ import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * ArbilMenuBar.java
@@ -56,6 +57,11 @@ public class ArbilMenuBar extends JMenuBar {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
+    }
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
     }
     final static public JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
@@ -156,7 +162,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    ArbilWindowManager.getSingleInstance().stopEditingInCurrentWindow();
 		    ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -180,7 +186,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    }
 		    ArbilWindowManager.getSingleInstance().openFloatingTable(individualChangedNodes.toArray(new ArbilDataNode[]{}), "Modified Nodes");
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -192,7 +198,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    importMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -204,7 +210,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    exitMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -230,7 +236,7 @@ public class ArbilMenuBar extends JMenuBar {
 			}
 		    } catch (MalformedURLException ex) {
 			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Invalid logout url:\n" + logoutUrl, "Logout Error");
-			GuiHelper.linorgBugCatcher.logError(ex);
+			bugCatcher.logError(ex);
 		    }
 		}
 	    });
@@ -293,7 +299,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -306,7 +312,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -325,7 +331,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                try {
 //                    editLocationsMenuItemActionPerformed(evt);
 //                } catch (Exception ex) {
-//                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    bugCatcher.logError(ex);
 //                }
 //            }
 //        });
@@ -338,7 +344,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    TemplateDialogue.showTemplatesDialogue();
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -363,7 +369,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                try {
 //                    viewFavouritesMenuItemActionPerformed(evt);
 //                } catch (Exception ex) {
-//                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    bugCatcher.logError(ex);
 //                }
 //            }
 //        });
@@ -396,7 +402,7 @@ public class ArbilMenuBar extends JMenuBar {
 				sessionStorage.changeCacheDirectory(selectedFiles[0], true);
 			    }
 			} catch (Exception ex) {
-			    GuiHelper.linorgBugCatcher.logError(ex);
+			    bugCatcher.logError(ex);
 			}
 		    }
 		});
@@ -459,7 +465,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
 		    sessionStorage.saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -527,7 +533,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    sessionStorage.setTrackTableSelection(trackTableSelectionCheckBoxMenuItem.getState());
 		    sessionStorage.saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -622,7 +628,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 
 	    public void menuSelected(MenuEvent evt) {
-		viewErrorLogMenuItem.setEnabled(new ArbilBugCatcher().getLogFile().exists());
+		viewErrorLogMenuItem.setEnabled(ArbilBugCatcher.getLogFile().exists());
 	    }
 	});
 	aboutMenuItem.setText("About");
@@ -632,7 +638,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    aboutMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -645,7 +651,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    helpMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -667,7 +673,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -677,9 +683,9 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    GuiHelper.getSingleInstance().openFileInExternalApplication(new ArbilBugCatcher().getLogFile().toURI());
+		    GuiHelper.getSingleInstance().openFileInExternalApplication(ArbilBugCatcher.getLogFile().toURI());
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -695,7 +701,7 @@ public class ArbilMenuBar extends JMenuBar {
 			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No updates found, current version is " + versionString, "Check for Updates");
 		    }
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -707,7 +713,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    shortCutKeysjMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -719,7 +725,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    printHelpMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -804,7 +810,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().remoteCorpusTree);
 	    importExportDialog.importArbilBranch();
 	} catch (Exception e) {
-	    GuiHelper.linorgBugCatcher.logError(e);
+	    bugCatcher.logError(e);
 	    System.out.println(e.getMessage());
 	}
     }
@@ -839,7 +845,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                            LinorgSessionStorage.getSingleInstance().changeStorageDirectory(evt.getActionCommand());
 //                            // LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
 //                        } catch (Exception e) {
-//                            GuiHelper.linorgBugCatcher.logError(e);
+//                            bugCatcher.logError(e);
 //                        }
 //                    }
 //                });
@@ -893,7 +899,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                    System.out.println("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
 //                } catch (Exception e) {
-//                    GuiHelper.linorgBugCatcher.logError(e);
+//                    bugCatcher.logError(e);
 //                }
 //            }
 //        });
@@ -928,7 +934,7 @@ public class ArbilMenuBar extends JMenuBar {
 ////                    System.out.println("setting template: " + evt.getActionCommand());
 ////                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
 //                } catch (Exception e) {
-//                    GuiHelper.linorgBugCatcher.logError(e);
+//                    bugCatcher.logError(e);
 //                }
 //            }
 //        });

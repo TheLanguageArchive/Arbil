@@ -58,6 +58,7 @@ import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
 
 /**
@@ -94,6 +95,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
+    }
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
     }
 
     static synchronized public ArbilWindowManager getSingleInstance() {
@@ -143,8 +149,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    linorgFrame.setLocationRelativeTo(null);
 		    // make sure the main frame is visible. for instance when a second monitor has been removed.
 		    Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
-		    if (linorgFrameBounds instanceof Rectangle && ((Rectangle)linorgFrameBounds).intersects(new Rectangle(screenDimension))) {
-			linorgFrame.setBounds(((Rectangle)linorgFrameBounds).intersection(new Rectangle(screenDimension)));
+		    if (linorgFrameBounds instanceof Rectangle && ((Rectangle) linorgFrameBounds).intersects(new Rectangle(screenDimension))) {
+			linorgFrame.setBounds(((Rectangle) linorgFrameBounds).intersection(new Rectangle(screenDimension)));
 		    } else {
 			linorgFrame.setBounds(0, 0, 800, 600);
 			linorgFrame.setLocationRelativeTo(null);
@@ -430,7 +436,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    try {
 			sleep(100);
 		    } catch (Exception ex) {
-			GuiHelper.linorgBugCatcher.logError(ex);
+			bugCatcher.logError(ex);
 		    }
 		    showMessageThreadrunning = true;
 		    if (messagesCanBeShown) {
@@ -533,7 +539,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			try {
 			    imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(windowState.currentNodes.elementAt(arrayCounter).toString())));
 			} catch (URISyntaxException ex) {
-			    GuiHelper.linorgBugCatcher.logError(ex);
+			    bugCatcher.logError(ex);
 			}
 		    }
 
@@ -686,7 +692,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			windowListHashtable.put(currentWindowName, windowState);
 		    }
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 //                    System.out.println("Exception: " + ex.getMessage());
 		}
 	    }
@@ -695,7 +701,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	    System.out.println("saved windowStates");
 	} catch (Exception ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
+	    bugCatcher.logError(ex);
 //            System.out.println("save windowStates exception: " + ex.getMessage());
 	}
     }
@@ -717,7 +723,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		try {
 		    focusWindow(evt.getActionCommand());
 		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
+		    bugCatcher.logError(ex);
 		}
 	    }
 	});
@@ -787,7 +793,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    return (JInternalFrame) windowObject;
 		}
 	    } catch (Exception ex) {
-		GuiHelper.linorgBugCatcher.logError(ex);
+		bugCatcher.logError(ex);
 //            System.out.println(ex.getMessage());
 	    }
 	}
@@ -859,7 +865,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 						}
 					    }
 					} catch (Exception ex) {
-					    GuiHelper.linorgBugCatcher.logError(ex);
+					    bugCatcher.logError(ex);
 //                                        System.out.println(ex.getMessage());
 					}
 				    }
@@ -881,7 +887,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 				    allWindows[targetLayerInt].setIcon(false);
 				    allWindows[targetLayerInt].setSelected(true);
 				} catch (Exception ex) {
-				    GuiHelper.linorgBugCatcher.logError(ex);
+				    bugCatcher.logError(ex);
 //                                    System.out.println(ex.getMessage());
 				}
 			    }
@@ -947,7 +953,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    // prevent the frame focus process consuming mouse events that should be recieved by the jtable etc.
 	    currentInternalFrame.setSelected(true);
 	} catch (Exception ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
+	    bugCatcher.logError(ex);
 //            System.out.println(ex.getMessage());
 	}
 
@@ -984,7 +990,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	    //gridViewInternalFrame.setMaximum(true);
 	} catch (Exception ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
+	    bugCatcher.logError(ex);
 //            System.out.println(ex.getMessage());
 	}
 
@@ -1043,7 +1049,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    String fieldPath = rowNodesArray[arrayCounter].getFragment();
 		    String parentNodeFragment;
 		    if (parentNode.nodeTemplate == null) {
-			GuiHelper.linorgBugCatcher.logError(new Exception("nodeTemplate null in: " + parentNode.getUrlString()));
+			bugCatcher.logError(new Exception("nodeTemplate null in: " + parentNode.getUrlString()));
 			parentNodeFragment = "";
 		    } else {
 			parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
@@ -1059,7 +1065,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    fieldPathsToHighlight.add(fieldPath);
 		}
 	    } catch (URISyntaxException ex) {
-		GuiHelper.linorgBugCatcher.logError(ex);
+		bugCatcher.logError(ex);
 	    }
 	}
 	ArbilTableModel targetTableModel = openFloatingTableOnceGetModel(tableNodes, frameTitle);
@@ -1077,7 +1083,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		tableNodes.add(currentChildNode);
 	    }
 //            } catch (URISyntaxException ex) {
-//                GuiHelper.linorgBugCatcher.logError(ex);
+//                bugCatcher.logError(ex);
 //            }
 	}
 	return openFloatingTableOnceGetModel(tableNodes.toArray(new ArbilDataNode[]{}), frameTitle);
@@ -1091,7 +1097,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    return null;
 		}
 	    } catch (MalformedURLException exception) {
-		GuiHelper.linorgBugCatcher.logError(exception);
+		bugCatcher.logError(exception);
 	    }
 	}
 	// open find a table containing exactly the same nodes as requested or create a new table
@@ -1120,7 +1126,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 				((JInternalFrame) currentWindow[0]).setSelected(true);
 				return currentTableModel;
 			    } catch (Exception ex) {
-				GuiHelper.linorgBugCatcher.logError(ex);
+				bugCatcher.logError(ex);
 			    }
 			}
 		    }

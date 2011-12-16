@@ -13,8 +13,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.GuiHelper;
 
+import nl.mpi.arbil.util.BugCatcher;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -27,15 +27,20 @@ import org.xml.sax.SAXException;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilRemoteSearch {
-    
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     protected String lastSearchString = null;
     protected ArbilDataNode[] lastSearchNodes = null;
     protected URI[] searchResults = null;
-    
+
     public static boolean isEmptyQuery(String queryText) {
 	return RemoteServerSearchTerm.valueFieldMessage.equals(queryText) || "".equals(queryText);
     }
-    
+
     public URI[] getServerSearchResults(final String queryText, ArbilDataNode[] searchNodes) {
 	if (queryText == null || isEmptyQuery(queryText)) {
 	    return new URI[]{};
@@ -51,7 +56,7 @@ public class ArbilRemoteSearch {
 		    try {
 			foundNodes.add(new URI(resultString));
 		    } catch (URISyntaxException exception) {
-			GuiHelper.linorgBugCatcher.logError(exception);
+			bugCatcher.logError(exception);
 		    }
 		}
 		searchResults = foundNodes.toArray(new URI[]{});
@@ -59,7 +64,7 @@ public class ArbilRemoteSearch {
 	    }
 	}
     }
-    
+
     protected String[] performSearch(String searchString, ArbilDataNode[] arbilDataNodeArray) {
 	ArrayList<String> returnArray = new ArrayList<String>();
 	int maxResultNumber = 1000;
@@ -76,22 +81,22 @@ public class ArbilRemoteSearch {
 		}
 	    }
 	} catch (DOMException exception) {
-	    GuiHelper.linorgBugCatcher.logError(exception);
+	    bugCatcher.logError(exception);
 	} catch (IOException exception) {
-	    GuiHelper.linorgBugCatcher.logError(exception);
+	    bugCatcher.logError(exception);
 	} catch (ParserConfigurationException exception) {
-	    GuiHelper.linorgBugCatcher.logError(exception);
+	    bugCatcher.logError(exception);
 	} catch (SAXException exception) {
-	    GuiHelper.linorgBugCatcher.logError(exception);
+	    bugCatcher.logError(exception);
 	} catch (TransformerException exception) {
-	    GuiHelper.linorgBugCatcher.logError(exception);
+	    bugCatcher.logError(exception);
 	}
 	if (returnArray.size() >= maxResultNumber) {
 	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Found more results than can be displayed, only showing the first " + maxResultNumber + " results", "Remote Search");
 	}
 	return returnArray.toArray(new String[]{});
     }
-    
+
     private static String constructSearchQuery(ArbilDataNode[] arbilDataNodeArray, String searchString, int maxResultNumber) {
 	String encodedQuery;
 	try {
@@ -99,7 +104,7 @@ public class ArbilRemoteSearch {
 	} catch (UnsupportedEncodingException ex) {
 	    throw new RuntimeException(ex);
 	}
-	
+
 	String fullQueryString = RemoteServerSearchTerm.IMDI_SEARCH_BASE;
 	fullQueryString += "&num=" + maxResultNumber;
 	fullQueryString += "&query=" + encodedQuery;
@@ -118,7 +123,7 @@ public class ArbilRemoteSearch {
 	fullQueryString += "&returnType=xml";
 	return fullQueryString;
     }
-    
+
     private Document getSearchResults(String fullQueryString) throws SAXException, ParserConfigurationException, IOException {
 	DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 	documentBuilderFactory.setValidating(false);

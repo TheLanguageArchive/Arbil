@@ -7,14 +7,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
-import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * ArbilWizard content that lets the user specify remote locations
@@ -22,6 +21,11 @@ import nl.mpi.arbil.ui.GuiHelper;
  */
 public class RemoteLocationsContent extends TextInstructionWizardContent {
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
+    }
     private ArbilSetupWizardModel model;
     private JTextArea locationsTextArea;
     public final static String imdiDefaultsResource = "/defaults/imdiLocations";
@@ -114,7 +118,7 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
 	    try {
 		addLocationsFromResource(imdiDefaultsResource, locationsList);
 	    } catch (IOException ex) {
-		GuiHelper.linorgBugCatcher.logError("Error while reading default IMDI locations", ex);
+		bugCatcher.logError("Error while reading default IMDI locations", ex);
 	    }
 	}
 
@@ -123,7 +127,7 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
 	    try {
 		addLocationsFromResource(cmdiDefaultsResource, locationsList);
 	    } catch (IOException ex) {
-		GuiHelper.linorgBugCatcher.logError("Error while reading default CMDI locations", ex);
+		bugCatcher.logError("Error while reading default CMDI locations", ex);
 	    }
 	}
 
@@ -142,7 +146,7 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
      */
     private void addLocationsFromResource(String resourceLocation, List<String> locations) throws IOException {
 	final InputStream is = getClass().getResourceAsStream(resourceLocation);
-	if(is == null){
+	if (is == null) {
 	    throw new IOException("Resource not found: " + resourceLocation);
 	}
 	final BufferedReader reader = new BufferedReader(new InputStreamReader(is));

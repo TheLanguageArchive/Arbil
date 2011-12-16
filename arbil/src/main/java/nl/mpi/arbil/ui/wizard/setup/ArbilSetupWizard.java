@@ -10,9 +10,9 @@ import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  *
@@ -24,6 +24,11 @@ public class ArbilSetupWizard extends ArbilWizard {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
+    }
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+	bugCatcher = bugCatherInstance;
     }
     protected static final String WIZARDSTATE_PROPERTY = "wizardState";
     public final static Object INTRODUCTION = IntroductionContent.class;
@@ -83,7 +88,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 	try {
 	    sessionStorage.saveObject(model, WIZARDSTATE_PROPERTY);
 	} catch (IOException ex) {
-	    GuiHelper.linorgBugCatcher.logError("Could not save wizard state", ex);
+	    bugCatcher.logError("Could not save wizard state", ex);
 	}
     }
 
@@ -140,7 +145,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 		    URI uri = new URI(location);
 		    locationURIs.add(uri);
 		} catch (URISyntaxException ex) {
-		    GuiHelper.linorgBugCatcher.logError("Invalid URI specified in wizard", ex);
+		    bugCatcher.logError("Invalid URI specified in wizard", ex);
 		}
 	    }
 	}
