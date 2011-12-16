@@ -65,6 +65,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
     final static public JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
+    private ArbilTreeHelper treeHelper;
     private JMenuItem saveFileMenuItem = new JMenuItem();
     private JMenuItem showChangedNodesMenuItem = new JMenuItem();
     private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
@@ -125,9 +126,10 @@ public class ArbilMenuBar extends JMenuBar {
 	versionManager = versionManagerInstance;
     }
 
-    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, JApplet containerAppletLocal) {
+    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, JApplet containerAppletLocal, ArbilTreeHelper treeHelper) {
 	containerApplet = containerAppletLocal;
 	previewSplitPanel = previewSplitPanelLocal;
+	this.treeHelper = treeHelper;
 
 	initFileMenu();
 	initEditMenu();
@@ -807,7 +809,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 	try {
-	    ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().remoteCorpusTree);
+	    ImportExportDialog importExportDialog = new ImportExportDialog(treeHelper.getArbilTreePanel().remoteCorpusTree);
 	    importExportDialog.importArbilBranch();
 	} catch (Exception e) {
 	    bugCatcher.logError(e);

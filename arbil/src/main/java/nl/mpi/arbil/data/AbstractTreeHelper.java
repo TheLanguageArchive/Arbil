@@ -267,6 +267,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     @Override
+    public boolean addLocationInteractive(URI addableLocation) {
+	return addLocation(addableLocation);
+    }
+
+    @Override
     public boolean addLocation(URI addedLocation) {
 	System.out.println("addLocation: " + addedLocation.toString());
 	// make sure the added location url matches that of the imdi node format

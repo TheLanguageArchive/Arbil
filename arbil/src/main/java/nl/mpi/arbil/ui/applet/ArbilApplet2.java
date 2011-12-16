@@ -22,13 +22,16 @@ public class ArbilApplet2 extends JApplet {
     private ArbilMenuBar arbilMenuBar;
 
     private void initComponents() {
+
+	ArbilDesktopInjector injector = new ArbilDesktopInjector();
+	injector.injectHandlers();
 	mainSplitPane = new javax.swing.JSplitPane();
 	mainSplitPane.setName("mainSplitPane");
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
-	ArbilTreePanels arbilTreePanels = new ArbilTreePanels();
+	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper());
 	mainSplitPane.setLeftComponent(arbilTreePanels);
 	mainSplitPane.setRightComponent(previewSplitPanel);
-	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this);
+	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this, injector.getTreeHelper());
 	ArbilMimeHashQueue.setAllowCookies(true);
 	add(mainSplitPane, java.awt.BorderLayout.CENTER);
 	setJMenuBar(arbilMenuBar);

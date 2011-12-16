@@ -23,6 +23,7 @@ import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.ui.wizard.setup.TextInstructionWizardContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  *
@@ -55,8 +56,6 @@ public class ArbilSwingInjector extends ArbilInjector{
 	ArbilDragDrop.setBugCatcher(bugCatcher);
 	ArbilFieldViews.setBugCatcher(bugCatcher);
     }
-
-    
     
     @Override
     public void injectSessionStorage(SessionStorage sessionStorage) {
@@ -72,4 +71,16 @@ public class ArbilSwingInjector extends ArbilInjector{
 	ArbilHyperlinkListener.setSessionStorage(sessionStorage);
 	ArbilDragDrop.setSessionStorage(sessionStorage);
     }
+
+    @Override
+    public void injectTreeHelper(TreeHelper treeHelper) {
+	super.injectTreeHelper(treeHelper);
+	TableContextMenu.setTreeHelper(treeHelper);
+	TreeContextMenu.setTreeHelper(treeHelper);
+	ArbilSetupWizard.setTreeHelper(treeHelper);
+	ArbilSplitPanel.setTreeHelper(treeHelper);
+	ArbilDragDrop.setTreeHelper(treeHelper);
+    }
+    
+    
 }
