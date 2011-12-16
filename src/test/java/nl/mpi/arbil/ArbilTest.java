@@ -139,7 +139,7 @@ public abstract class ArbilTest {
         ArbilMimeHashQueue.setMessageDialogHandler(getDialogHandler());
         ArbilMimeHashQueue.setSessionStorage(getSessionStorage());
         ArbilMimeHashQueue.setDataNodeLoader(getDataNodeLoader());
-        return ArbilMimeHashQueue.getSingleInstance();
+        return new ArbilMimeHashQueue();
     }
 
     protected synchronized TreeHelper getTreeHelper() {

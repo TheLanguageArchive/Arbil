@@ -23,6 +23,7 @@ import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.ui.wizard.setup.TextInstructionWizardContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -80,6 +81,12 @@ public class ArbilSwingInjector extends ArbilInjector{
 	ArbilSetupWizard.setTreeHelper(treeHelper);
 	ArbilSplitPanel.setTreeHelper(treeHelper);
 	ArbilDragDrop.setTreeHelper(treeHelper);
+    }
+
+    @Override
+    public void injectMimeHashQueue(MimeHashQueue mimeHashQueue) {
+	super.injectMimeHashQueue(mimeHashQueue);
+	ArbilMenuBar.setMimeHashQueue(mimeHashQueue);
     }
     
     

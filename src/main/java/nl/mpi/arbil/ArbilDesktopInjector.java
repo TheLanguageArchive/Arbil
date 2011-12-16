@@ -13,7 +13,6 @@ import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -26,6 +25,7 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     private ArbilTreeHelper treeHelper;
+    private ArbilMimeHashQueue mimeHashQueue;
 
     public synchronized void injectHandlers() {
 	injectHandlers(new ApplicationVersionManager(new ArbilVersion()));
@@ -62,7 +62,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
 	injectClipboardOwner(clipboardOwner);
 
-	final MimeHashQueue mimeHashQueue = ArbilMimeHashQueue.getSingleInstance();
+	mimeHashQueue = new ArbilMimeHashQueue();
 	injectMimeHashQueue(mimeHashQueue);
 
 	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
@@ -81,5 +81,9 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
      */
     public ArbilTreeHelper getTreeHelper() {
 	return treeHelper;
+    }
+    
+    public ArbilMimeHashQueue getMimeHashQueue(){
+	return mimeHashQueue;
     }
 }
