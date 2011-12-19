@@ -65,7 +65,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     JComboBox fieldLanguageBoxs[] = null;
     JInternalFrame editorFrame = null;
     private FieldAttributesTableModel[] attributeTableModels;
-    private JTable attributesTable = null;
+    private JTable attributesTable[] = null;
     private JPanel contentPanel;
     private List<ArbilField[]> parentFieldList;
     private JButton prevButton;
@@ -154,6 +154,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	keyEditorFields = new JTextField[arbilFields.length];
 	fieldLanguageBoxs = new JComboBox[arbilFields.length];
 	attributeTableModels = new FieldAttributesTableModel[arbilFields.length];
+	attributesTable = new JTable[arbilFields.length];
 
 	for (int cellFieldIndex = 0; cellFieldIndex < arbilFields.length; cellFieldIndex++) {
 	    if (arbilFields[cellFieldIndex].hasVocabulary()) {
@@ -212,13 +213,13 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	tabPanel.add(editorPanel, BorderLayout.CENTER);
 
 	if (arbilFields[cellFieldIndex].hasEditableFieldAttributes()) {
-	    attributesTable = new JTable(attributeTableModels[cellFieldIndex]);
-	    
-	    JScrollPane tablePane = new JScrollPane(attributesTable);
+	    attributesTable[cellFieldIndex] = new JTable(attributeTableModels[cellFieldIndex]);
+
+	    JScrollPane tablePane = new JScrollPane(attributesTable[cellFieldIndex]);
 	    tablePane.setPreferredSize(new Dimension(this.getWidth(), 100));
 	    tabPanel.add(tablePane, BorderLayout.SOUTH);
 	} else {
-	    attributesTable = null;
+	    attributesTable[cellFieldIndex] = null;
 	}
 
 	return tabPanel;
@@ -480,15 +481,23 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     }
 
     private synchronized void moveAdjacent(int d) {
-	int index = parentFieldList.indexOf(arbilFields);
-	if (attributesTable != null && attributesTable.getCellEditor() != null) {
-	    attributesTable.getCellEditor().stopCellEditing();
-	}
+	stopAttributesEditing();
 
-	index += d;
+	int index = parentFieldList.indexOf(arbilFields) + d;
 	if (index < parentFieldList.size() && index >= 0) {
 	    storeChanges();
 	    moveTo(index);
+	}
+    }
+
+    private void stopAttributesEditing() {
+	// Stop editing in all fields' attribute tables
+	if (attributesTable != null) {
+	    for (int fieldIndex = 0; fieldIndex < arbilFields.length; fieldIndex++) {
+		if (attributesTable[fieldIndex] != null && attributesTable[fieldIndex].getCellEditor() != null) {
+		    attributesTable[fieldIndex].getCellEditor().stopCellEditing();
+		}
+	    }
 	}
     }
 
