@@ -132,7 +132,7 @@ public abstract class ArbilTest {
 
     protected synchronized DataNodeLoader getDataNodeLoader() {
         ArbilDataNodeLoader.setSessionStorage(getSessionStorage());
-        return ArbilDataNodeLoader.getSingleInstance();
+        return new ArbilDataNodeLoader();
     }
 
     protected MimeHashQueue getMimeHashQueue() {

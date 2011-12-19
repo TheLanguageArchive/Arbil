@@ -11,9 +11,9 @@ import javax.swing.JTextField;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -46,6 +46,11 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
 	dialogHandler = dialogHandlerInstance;
+    }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
     }
 
     public void hyperlinkUpdate(HyperlinkEvent evt) {
@@ -138,12 +143,12 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 	if (parentNode == null) {
 	    URI targetFileURI = sessionStorage.getNewArbilFileName(sessionStorage.getCacheDirectory(), nodeType);
 	    targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
-	    addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, targetFileURI);
+	    addedImdiObject = dataNodeLoader.getArbilDataNode(null, targetFileURI);
 	    treeHelper.addLocation(targetFileURI);
 	    treeHelper.applyRootLocations();
 	} else {
 	    parentNode.saveChangesToCache(true);
-	    addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
+	    addedImdiObject = dataNodeLoader.getArbilDataNode(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
 	}
 	addedImdiObject.waitTillLoaded();
 	windowManager.openFloatingTableOnce(new ArbilDataNode[]{addedImdiObject}, nodeTypeDisplayName);

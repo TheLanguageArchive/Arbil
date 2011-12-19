@@ -7,6 +7,7 @@ import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.util.BugCatcher;
 
 /*
@@ -17,13 +18,15 @@ import nl.mpi.arbil.util.BugCatcher;
 public class ArbilTableApplet extends javax.swing.JApplet {
 
     private BugCatcher bugCatcher;
-
+    private DataNodeLoader dataNodeLoader;
     
     @Override
     public void init() {
+	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	// TODO: test if this suffices
-	new ArbilDesktopInjector().injectHandlers();
-	bugCatcher = new ArbilBugCatcher();
+	injector.injectHandlers();
+	bugCatcher = injector.getBugCatcher();
+	dataNodeLoader = injector.getDataNodeLoader();
 	try {
 	    java.awt.EventQueue.invokeAndWait(new Runnable() {
 
@@ -44,7 +47,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 	if (nodeURLsString != null) {
 	    for (String currentUrlString : nodeURLsString.split(",")) {
 		try {
-		    arbilTableModel.addSingleArbilDataNode(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(rootPane, new URI(currentUrlString)));
+		    arbilTableModel.addSingleArbilDataNode(dataNodeLoader.getArbilDataNode(rootPane, new URI(currentUrlString)));
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}

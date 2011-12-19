@@ -11,7 +11,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.ui.GuiHelper;
@@ -34,6 +34,11 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
 	dialogHandler = dialogHandlerInstance;
+    }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
     }
 
     private void applyMenuItems() {
@@ -107,7 +112,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		    for (ArbilDataNode selectedNode : selectedTreeNodes) {
 			System.out.println("userObject: " + selectedNode);
 			// reloading will first check if a save is required then save and reload
-			ArbilDataNodeLoader.getSingleInstance().requestReload((ArbilDataNode) selectedNode.getParentDomNode());
+			dataNodeLoader.requestReload((ArbilDataNode) selectedNode.getParentDomNode());
 		    }
 
 		} catch (Exception ex) {

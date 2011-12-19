@@ -16,10 +16,10 @@ import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.ui.ImportExportDialog;
@@ -69,6 +69,11 @@ public class TreeContextMenu extends ArbilContextMenu {
 
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
 	dialogHandler = dialogHandlerInstance;
+    }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
     }
 
     public TreeContextMenu(ArbilTree tree) {
@@ -825,7 +830,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    try {
 			String favouriteUrlString = evt.getActionCommand();
-			ArbilDataNode templateDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, ArbilDataNode.conformStringToUrl(favouriteUrlString));
+			ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNode.conformStringToUrl(favouriteUrlString));
 			if (leadSelectedTreeNode != null) {
 			    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateDataNode);
 			} else {
@@ -892,7 +897,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	try {
 	    URI remoteDataFile = sessionStorage.getOriginatingUri(leadSelectedTreeNode.getURI());
 	    if (remoteDataFile != null) {
-		ArbilDataNode originatingNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(remoteDataFile);
+		ArbilDataNode originatingNode = dataNodeLoader.getArbilDataNodeWithoutLoading(remoteDataFile);
 		if (originatingNode.isLocal() && !originatingNode.getFile().exists()) {
 		    dialogHandler.addMessageDialogToQueue("The origional file location cannot be found", "Re Import Branch");
 		} else if (originatingNode.isMetaDataNode()) {

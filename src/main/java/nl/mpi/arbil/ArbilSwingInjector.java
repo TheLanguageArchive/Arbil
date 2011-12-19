@@ -1,6 +1,7 @@
 package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.search.ArbilRemoteSearch;
 import nl.mpi.arbil.ui.ArbilDragDrop;
 import nl.mpi.arbil.ui.ArbilFieldViewTableModel;
@@ -137,4 +138,15 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ImportExportDialog.setMessageDialogHandler(messageDialogHandler);
 	ArbilRemoteSearch.setMessageDialogHandler(messageDialogHandler);
     }
+
+    @Override
+    public void injectDataNodeLoader(DataNodeLoader dataNodeLoader) {
+	super.injectDataNodeLoader(dataNodeLoader);
+	ArbilHyperlinkListener.setDataNodeLoader(dataNodeLoader);
+	ArbilContextMenu.setDataNodeLoader(dataNodeLoader);
+	ArbilMenuBar.setDataNodeLoader(dataNodeLoader);
+	TreeContextMenu.setDataNodeLoader(dataNodeLoader);
+    }
+    
+    
 }
