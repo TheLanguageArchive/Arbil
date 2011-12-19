@@ -5,9 +5,9 @@ import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 
@@ -20,11 +20,13 @@ public class ArbilApplet2 extends JApplet {
 
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
+    private DataNodeLoader dataNodeLoader;
 
     private void initComponents() {
 
 	ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers();
+	dataNodeLoader = injector.getDataNodeLoader();
 	mainSplitPane = new javax.swing.JSplitPane();
 	mainSplitPane.setName("mainSplitPane");
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
@@ -81,7 +83,7 @@ public class ArbilApplet2 extends JApplet {
 	    javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
 
 		public void run() {
-		    ArbilDataNodeLoader.getSingleInstance().startLoaderThreads();
+		    dataNodeLoader.startLoaderThreads();
 		}
 	    });
 	} catch (Exception e) {

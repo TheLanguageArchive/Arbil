@@ -51,8 +51,8 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
@@ -104,6 +104,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
+    }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
     }
 
     public ArbilWindowManager() {
@@ -180,11 +185,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void offerUserToSaveChanges() throws Exception {
-	if (ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
+	if (dataNodeLoader.nodesNeedSave()) {
 	    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(getMainFrame(),
 		    "There are unsaved changes.\nSave now?", "Save Changes",
 		    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-		ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
+		dataNodeLoader.saveNodesNeedingSave(true);
 	    } else {
 		throw new Exception("user canceled save action");
 	    }
@@ -533,7 +538,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[windowState.currentNodes.size()];
 		    for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
 			try {
-			    imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(windowState.currentNodes.elementAt(arrayCounter).toString())));
+			    imdiObjectsArray[arrayCounter] = (dataNodeLoader.getArbilDataNode(null, new URI(windowState.currentNodes.elementAt(arrayCounter).toString())));
 			} catch (URISyntaxException ex) {
 			    bugCatcher.logError(ex);
 			}
@@ -1040,7 +1045,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
 	    try {
 		if (rowNodesArray[arrayCounter] != null) {
-		    ArbilDataNode parentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
+		    ArbilDataNode parentNode = dataNodeLoader.getArbilDataNode(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
 //                parentNode.waitTillLoaded();
 		    String fieldPath = rowNodesArray[arrayCounter].getFragment();
 		    String parentNodeFragment;
@@ -1057,7 +1062,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    } else {
 			targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0]);
 		    }
-		    tableNodes[arrayCounter] = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, targetNode);
+		    tableNodes[arrayCounter] = dataNodeLoader.getArbilDataNode(null, targetNode);
 		    fieldPathsToHighlight.add(fieldPath);
 		}
 	    } catch (URISyntaxException ex) {
@@ -1073,7 +1078,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	HashSet<ArbilDataNode> tableNodes = new HashSet();
 	for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
 //            try {
-	    ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, rowNodesArray[arrayCounter]);
+	    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, rowNodesArray[arrayCounter]);
 	    tableNodes.add(currentNode);
 	    for (ArbilDataNode currentChildNode : currentNode.getAllChildren()) {
 		tableNodes.add(currentChildNode);

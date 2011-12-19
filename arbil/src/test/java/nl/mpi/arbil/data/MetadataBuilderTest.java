@@ -24,12 +24,16 @@ import static org.junit.Assert.*;
 @Ignore
 public class MetadataBuilderTest {
 
+    private static DataNodeLoader dataNodeloader;
+    
     public MetadataBuilderTest() {
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-	new ArbilDesktopInjector().injectHandlers();
+	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
+	injector.injectHandlers();
+	dataNodeloader = injector.getDataNodeLoader();
     }
 
     @AfterClass
@@ -117,7 +121,7 @@ public class MetadataBuilderTest {
         //                GuiHelper.linorgBugCatcher.logError(ex);
         //                return;
         //            }
-        ArbilDataNode gedcomImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(targetFileURI);
+        ArbilDataNode gedcomImdiObject = dataNodeloader.getArbilDataNodeWithoutLoading(targetFileURI);
         //TreeHelper.getSingleInstance().saveLocations(new ImdiTreeObject[]{gedcomImdiObject}, null);
         gedcomImdiObject.loadArbilDom();
         checkAgainstSchema(gedcomImdiObject);

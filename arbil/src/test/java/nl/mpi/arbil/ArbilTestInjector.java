@@ -40,7 +40,7 @@ public class ArbilTestInjector extends ArbilInjector {
 	injectSessionStorage(sessionStorage);
 
 	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
-	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
+	final DataNodeLoader dataNodeLoader = new ArbilDataNodeLoader();
 	injectDataNodeLoader(dataNodeLoader);
 
 	final TreeHelper treeHelper = new ArbilTreeHelper();
