@@ -1,10 +1,12 @@
 package nl.mpi.arbil.wicket;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -44,7 +46,7 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper{
 	return getTreeHelper().getFavouritesTreeModel();
     }
 
-    public ArbilNode[] getLocalCorpusNodes() {
+    public ArbilDataNode[] getLocalCorpusNodes() {
 	return getTreeHelper().getLocalCorpusNodes();
     }
 
@@ -106,5 +108,21 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper{
 
     public void setShowHiddenFilesInTree(boolean showState) {
 	getTreeHelper().setShowHiddenFilesInTree(showState);
-    }    
+    }
+
+    public boolean addLocationInteractive(URI addableLocation) {
+	return getTreeHelper().addLocationInteractive(addableLocation);
+    }
+
+    public void clearRemoteLocations() {
+	getTreeHelper().clearRemoteLocations();
+    }
+
+    public void addLocations(List<URI> locations) {
+	getTreeHelper().addLocations(locations);
+    }
+
+    public void addLocations(InputStream inputStream) throws IOException {
+	getTreeHelper().addLocations(inputStream);
+    }
 }

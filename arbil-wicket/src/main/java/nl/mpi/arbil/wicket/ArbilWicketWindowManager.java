@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.ProgressMonitor;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -48,6 +49,18 @@ public class ArbilWicketWindowManager implements WindowManager {
     }
 
     public ProgressMonitor newProgressMonitor(Object message, String note, int min, int max) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public AbstractArbilTableModel openFloatingTableOnceGetModel(URI[] rowNodesArray, String frameTitle) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public AbstractArbilTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void saveWindowStates() {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
     
