@@ -19,6 +19,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Document   : GuiHelper
@@ -42,6 +44,16 @@ public class GuiHelper {
 	    //throw new UnsupportedOperationException("Not supported yet.");
 	}
     };
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
+    }
     static private GuiHelper singleInstance = null;
 
     static synchronized public GuiHelper getSingleInstance() {
@@ -68,7 +80,7 @@ public class GuiHelper {
 	// linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
 	// TreeHelper.getSingleInstance().saveLocations(null, null); no need to do this here but it must be done when ever a change is made
 	if (saveWindows) {
-	    ArbilWindowManager.getSingleInstance().saveWindowStates();
+	    windowManager.saveWindowStates();
 	}
     }
 
@@ -131,7 +143,7 @@ public class GuiHelper {
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
 	if (userObject instanceof ArbilDataNode) {
 	    if (((ArbilDataNode) (userObject)).getNeedsSaveToDisk(false)) {
-		if (JOptionPane.OK_OPTION == ArbilWindowManager.getSingleInstance().showDialogBox("The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+		if (JOptionPane.OK_OPTION == dialogHandler.showDialogBox("The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 		    ((ArbilDataNode) (userObject)).saveChangesToCache(true);
 		} else {
 		    return;
@@ -144,7 +156,7 @@ public class GuiHelper {
 		try {
 		    File tempHtmlFile = new ArbilToHtmlConverter().convertToHtml((ArbilDataNode) userObject);
 		    if (!launchInBrowser) {
-			ArbilWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
+			windowManager.openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
 		    } else {
 			openFileInExternalApplication(tempHtmlFile.toURI());
 		    }
@@ -155,7 +167,7 @@ public class GuiHelper {
 		}
 	    } else {
 		try {
-		    ArbilWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeUri.toURL());
+		    windowManager.openUrlWindowOnce(nodeName + "-xml", nodeUri.toURL());
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		    //System.out.println(ex.getMessage());
@@ -206,10 +218,10 @@ public class GuiHelper {
 		result = true;
 	    } catch (MalformedURLException muE) {
 		bugCatcher.logError("awtDesktopFound", muE);
-		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to find the file: " + muE.getMessage(), "Open In External Application");
+		dialogHandler.addMessageDialogToQueue("Failed to find the file: " + muE.getMessage(), "Open In External Application");
 	    } catch (IOException ioE) {
 		bugCatcher.logError("awtDesktopFound", ioE);
-		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to open the file: " + ioE.getMessage(), "Open In External Application");
+		dialogHandler.addMessageDialogToQueue("Failed to open the file: " + ioE.getMessage(), "Open In External Application");
 	    }
 	} else {
 	    String osNameString = null;
@@ -247,7 +259,7 @@ public class GuiHelper {
 		    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
 		    String line;
 		    while ((line = errorStreamReader.readLine()) != null) {
-			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(line, "Open In External Application");
+			dialogHandler.addMessageDialogToQueue(line, "Open In External Application");
 			System.out.println("Launched process error stream: \"" + line + "\"");
 		    }
 		    result = true;

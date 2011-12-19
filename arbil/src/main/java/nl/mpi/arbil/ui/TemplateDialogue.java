@@ -14,6 +14,8 @@ import javax.swing.JPanel;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 
 /*
  * TemplateDialogue.java
@@ -26,6 +28,16 @@ public class TemplateDialogue extends javax.swing.JPanel {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
     JDialog parentFrame;
 
@@ -94,17 +106,17 @@ public class TemplateDialogue extends javax.swing.JPanel {
 
     private void newTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {
 	try {
-	    String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Enter the name for the new template", ArbilWindowManager.getSingleInstance().getMainFrame().getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+	    String newDirectoryName = JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the name for the new template", windowManager.getMainFrame().getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
 	    // if the user cancels the directory string will be a empty string.
 	    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
-		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
+		dialogHandler.addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
 	    }
 	    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
 	    if (freshTemplateFile != null) {
 		GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
 		GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
 	    } else {
-		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
+		dialogHandler.addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
 	    }
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
 	    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
@@ -177,7 +189,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
     }
 
     protected static void showDialogue(String titleStirng) {
-	JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), titleStirng, true);
+	JDialog dialog = new JDialog(windowManager.getMainFrame(), titleStirng, true);
 	TemplateDialogue templateDialogue = new TemplateDialogue(dialog);
 	dialog.setContentPane(templateDialogue);
 	templateDialogue.populateLists();

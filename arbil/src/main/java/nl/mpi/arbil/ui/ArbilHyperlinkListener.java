@@ -16,7 +16,9 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Document   : ArbilHyperlinkListener
@@ -34,6 +36,16 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
+    }
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
 
     public void hyperlinkUpdate(HyperlinkEvent evt) {
@@ -101,11 +113,11 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 			}
 		    }
 		} catch (ArbilMetadataException exception) {
-		    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+		    dialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
 		}
 
 	    } else if (evt.getURL() != null) {
-		ArbilWindowManager.getSingleInstance().openUrlWindowOnce(evt.getURL().toString(), evt.getURL());
+		windowManager.openUrlWindowOnce(evt.getURL().toString(), evt.getURL());
 	    }
 	}
     }
@@ -134,7 +146,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 	    addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
 	}
 	addedImdiObject.waitTillLoaded();
-	ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new ArbilDataNode[]{addedImdiObject}, nodeTypeDisplayName);
+	windowManager.openFloatingTableOnce(new ArbilDataNode[]{addedImdiObject}, nodeTypeDisplayName);
 	return addedImdiObject;
     }
 }

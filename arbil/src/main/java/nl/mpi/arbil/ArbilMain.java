@@ -55,16 +55,16 @@ public class ArbilMain extends javax.swing.JFrame {
 	injector.injectHandlers(versionManager);
 
 	initApplication(injector.getMimeHashQueue());
-	initUI(injector.getTreeHelper(), versionManager);
+	initUI(injector.getTreeHelper(), injector.getWindowManager(), versionManager);
 	
-	checkFirstRun();
+	checkFirstRun(injector.getWindowManager());
     }
 
     private void initApplication(ArbilMimeHashQueue hashQueue) {
 	hashQueue.init();
     }
 
-    private void initUI(ArbilTreeHelper treeHelper, final ApplicationVersionManager versionManager) {
+    private void initUI(ArbilTreeHelper treeHelper, ArbilWindowManager windowManager, final ApplicationVersionManager versionManager) {
 	this.addWindowListener(new WindowAdapter() {
 
 	    @Override
@@ -75,7 +75,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	});
 
 	initComponents();
-	ArbilWindowManager.getSingleInstance().addTaskListener(statusBar);
+	windowManager.addTaskListener(statusBar);
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
 	mainSplitPane.setRightComponent(previewSplitPanel);
 	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper);
@@ -85,7 +85,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	mainSplitPane.setDividerLocation(0.25);
 
-	ArbilWindowManager.getSingleInstance().loadGuiState(this, statusBar);
+	windowManager.loadGuiState(this, statusBar);
 	setTitle(versionManager.getApplicationVersion().applicationTitle + " " + versionManager.getApplicationVersion().compileDate);
 	setIconImage(ArbilIcons.getSingleInstance().linorgIcon.getImage());
 	// load the templates and populate the templates menu
@@ -95,12 +95,12 @@ public class ArbilMain extends javax.swing.JFrame {
 	    versionManager.checkForUpdate();
 	}
 
-	initMacApplicationHandlers();
+	initMacApplicationHandlers(windowManager);
     }
 
-    private void checkFirstRun() {
-	ArbilWindowManager.getSingleInstance().showSetupWizardIfFirstRun();
-	ArbilWindowManager.getSingleInstance().openIntroductionPage();
+    private void checkFirstRun(ArbilWindowManager windowManager) {
+	windowManager.showSetupWizardIfFirstRun();
+	windowManager.openIntroductionPage();
     }
 
     private void initComponents() {
@@ -126,7 +126,7 @@ public class ArbilMain extends javax.swing.JFrame {
      * This is done using reflection so that no compile or run time errors occur on systems that are not Mac
      * and do not have the required classes available...
      */
-    private void initMacApplicationHandlers() {
+    private void initMacApplicationHandlers(ArbilWindowManager windowManager) {
 	try {
 	    // Get application class
 	    Class applicationClass = Class.forName("com.apple.eawt.Application");
@@ -138,7 +138,7 @@ public class ArbilMain extends javax.swing.JFrame {
 		// Init quit handler
 		initMacQuitHandler(applicationClass, application);
 		// Init about handler
-		initMacAboutHandler(applicationClass, application);
+		initMacAboutHandler(windowManager, applicationClass, application);
 		// Successfully set handlers, now remove redundant options from menu bar
 		arbilMenuBar.setMacOsMenu(true);
 		return;
@@ -187,11 +187,11 @@ public class ArbilMain extends javax.swing.JFrame {
 	});
     }
 
-    private void initMacAboutHandler(Class applicationClass, Object application) throws IllegalArgumentException, IllegalAccessException, ClassNotFoundException, SecurityException, NoSuchMethodException, InvocationTargetException {
+    private void initMacAboutHandler(final ArbilWindowManager windowManager, Class applicationClass, Object application) throws IllegalArgumentException, IllegalAccessException, ClassNotFoundException, SecurityException, NoSuchMethodException, InvocationTargetException {
 	initMacHandler(applicationClass, application, "com.apple.eawt.AboutHandler", "setAboutHandler", new InvocationHandler() {
 
 	    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		ArbilWindowManager.getSingleInstance().openAboutPage();
+		windowManager.openAboutPage();
 		return null;
 	    }
 	});

@@ -14,9 +14,9 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Abstract base class for context menus
@@ -29,6 +29,11 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
 
     private void applyMenuItems() {
@@ -83,7 +88,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Select Resource File", false, false, false);
+		    File[] selectedFiles = dialogHandler.showFileSelectBox("Select Resource File", false, false, false);
 		    if (selectedFiles != null && selectedFiles.length > 0) {
 			leadSelectedTreeNode.resourceUrlField.setFieldValue(selectedFiles[0].toURL().toExternalForm(), true, false);
 		    }
@@ -197,7 +202,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		    }
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
-		    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Export to HTML failed. Check the error log for details.", "Export failed");
+		    dialogHandler.addMessageDialogToQueue("Export to HTML failed. Check the error log for details.", "Export failed");
 		}
 	    }
 	});

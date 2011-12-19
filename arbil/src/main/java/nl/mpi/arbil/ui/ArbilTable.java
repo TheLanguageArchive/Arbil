@@ -43,6 +43,8 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Document   : ArbilTable
@@ -55,6 +57,16 @@ public class ArbilTable extends JTable {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
     public final static int MIN_COLUMN_WIDTH = 50;
     public final static int MAX_COLUMN_WIDTH = 300;
@@ -181,7 +193,7 @@ public class ArbilTable extends JTable {
 			    updateStoredColumnWidhts();
 
 			    if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, arbilTableModel.getFieldView())) {
-				ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
+				dialogHandler.addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
 			    }
 			}
 		    } catch (Exception ex) {
@@ -196,7 +208,7 @@ public class ArbilTable extends JTable {
 		    updateStoredColumnWidhts();
 		    try {
 			ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(arbilTableModel);
-			JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().getMainFrame()), true);
+			JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(windowManager.getMainFrame()), true);
 			editViewsDialog.setTitle("Editing Current Column View");
 			JScrollPane js = new JScrollPane(fieldViewTable);
 			editViewsDialog.getContentPane().add(js);
@@ -443,7 +455,7 @@ public class ArbilTable extends JTable {
 
     public void showRowChildData() {
 	Object[] possibilities = this.getArbilTableModel().getChildNames();
-	String selectionResult = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
+	String selectionResult = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
 //      TODO: JOptionPane.show it would be good to have a miltiple select here
 	if ((selectionResult != null) && (selectionResult.length() > 0)) {
 	    this.getArbilTableModel().addChildTypeToDisplay(selectionResult);
@@ -656,7 +668,7 @@ public class ArbilTable extends JTable {
 		arbilTableModel.copyArbilRows(selectedRows);
 	    }
 	} else {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
+	    dialogHandler.addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
 	}
     }
 
@@ -735,16 +747,16 @@ public class ArbilTable extends JTable {
 	if (selectedFields != null) {
 	    String pasteResult = arbilTableModel.pasteIntoArbilFields(selectedFields);
 	    if (pasteResult != null) {
-		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(pasteResult, "Paste into Table");
+		dialogHandler.addMessageDialogToQueue(pasteResult, "Paste into Table");
 	    }
 	} else {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No rows selected", "Paste into Table");
+	    dialogHandler.addMessageDialogToQueue("No rows selected", "Paste into Table");
 	}
     }
 
     public void viewSelectedTableRows() {
 	int[] selectedRows = this.getSelectedRows();
-	ArbilWindowManager.getSingleInstance().openFloatingTableOnce(arbilTableModel.getSelectedDataNodes(selectedRows), null);
+	windowManager.openFloatingTableOnce(arbilTableModel.getSelectedDataNodes(selectedRows), null);
     }
 
     public ArbilDataNode getDataNodeForSelection() {
@@ -789,13 +801,13 @@ public class ArbilTable extends JTable {
     public void highlightMatchingRows() {
 	int selectedRow = this.getSelectedRow();
 	if (selectedRow == -1) {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No rows have been selected", "Highlight Matching Rows");
+	    dialogHandler.addMessageDialogToQueue("No rows have been selected", "Highlight Matching Rows");
 	    return;
 	}
 	Vector foundRows = arbilTableModel.getMatchingRows(selectedRow);
 	this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	this.getSelectionModel().clearSelection();
-	ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Found " + foundRows.size() + " matching rows", "Highlight Matching Rows");
+	dialogHandler.addMessageDialogToQueue("Found " + foundRows.size() + " matching rows", "Highlight Matching Rows");
 	for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
 	    for (int coloumCount = 0; coloumCount < this.getColumnCount(); coloumCount++) {
 		// TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)

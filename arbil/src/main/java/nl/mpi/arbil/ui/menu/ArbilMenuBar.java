@@ -44,8 +44,10 @@ import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * ArbilMenuBar.java
@@ -77,6 +79,20 @@ public class ArbilMenuBar extends JMenuBar {
 	} else {
 	    throw new RuntimeException("ArbilMenuBar requires ArbilTreeHelper. Found " + treeHelperInstance.getClass());
 	}
+    }
+    private static ArbilWindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	if (windowManagerInstance instanceof ArbilWindowManager) {
+	    windowManager = (ArbilWindowManager) windowManagerInstance;
+	} else {
+	    throw new RuntimeException("ArbilMenuBar requires ArbilWindowManager. Found " + windowManagerInstance.getClass());
+	}
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
     final static public JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
@@ -174,7 +190,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    ArbilWindowManager.getSingleInstance().stopEditingInCurrentWindow();
+		    windowManager.stopEditingInCurrentWindow();
 		    ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
@@ -199,7 +215,7 @@ public class ArbilMenuBar extends JMenuBar {
 			    }
 			}
 		    }
-		    ArbilWindowManager.getSingleInstance().openFloatingTable(individualChangedNodes.toArray(new ArbilDataNode[]{}), "Modified Nodes");
+		    windowManager.openFloatingTable(individualChangedNodes.toArray(new ArbilDataNode[]{}), "Modified Nodes");
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}
@@ -250,7 +266,7 @@ public class ArbilMenuBar extends JMenuBar {
 			    containerApplet.getAppletContext().showDocument(new URL(logoutUrl));
 			}
 		    } catch (MalformedURLException ex) {
-			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Invalid logout url:\n" + logoutUrl, "Logout Error");
+			dialogHandler.addMessageDialogToQueue("Invalid logout url:\n" + logoutUrl, "Logout Error");
 			bugCatcher.logError(ex);
 		    }
 		}
@@ -410,8 +426,8 @@ public class ArbilMenuBar extends JMenuBar {
 
 		    public void actionPerformed(java.awt.event.ActionEvent evt) {
 			try {
-			    ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
-			    File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Move Local Corpus Storage Directory", true, false, false);
+			    dialogHandler.offerUserToSaveChanges();
+			    File[] selectedFiles = dialogHandler.showFileSelectBox("Move Local Corpus Storage Directory", true, false, false);
 			    if (selectedFiles != null && selectedFiles.length > 0) {
 				//fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
 				sessionStorage.changeCacheDirectory(selectedFiles[0], true);
@@ -492,7 +508,7 @@ public class ArbilMenuBar extends JMenuBar {
 	showStatusBarMenuItem.addActionListener(new ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
-		ArbilWindowManager.getSingleInstance().setStatusBarVisible(showStatusBarMenuItem.getState());
+		windowManager.setStatusBarVisible(showStatusBarMenuItem.getState());
 		sessionStorage.saveBoolean("showStatusBar", showStatusBarMenuItem.getState());
 	    }
 	});
@@ -522,7 +538,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		mimeHashQueue.setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
 		sessionStorage.saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
-		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The setting change will be effective when Arbil is restarted.", "Check permissions for remote resources");
+		dialogHandler.addMessageDialogToQueue("The setting change will be effective when Arbil is restarted.", "Check permissions for remote resources");
 	    }
 	});
 	optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
@@ -561,7 +577,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
+		    dialogHandler.offerUserToSaveChanges();
 		    sessionStorage.setUseLanguageIdInColumnName(useLanguageIdInColumnNameCheckBoxMenuItem.getState());
 		    sessionStorage.saveBoolean("useLanguageIdInColumnName", useLanguageIdInColumnNameCheckBoxMenuItem.isSelected());
 		    ArbilDataNodeLoader.getSingleInstance().requestReloadAllNodes();
@@ -609,8 +625,8 @@ public class ArbilMenuBar extends JMenuBar {
 	resetWindowsMenuItem.addActionListener(new ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
-		if (ArbilWindowManager.getSingleInstance().showConfirmDialogBox("Reset all windows to default size and location?", "Reset windows")) {
-		    ArbilWindowManager.getSingleInstance().resetWindows();
+		if (dialogHandler.showConfirmDialogBox("Reset all windows to default size and location?", "Reset windows")) {
+		    windowManager.resetWindows();
 		}
 	    }
 	});
@@ -619,8 +635,8 @@ public class ArbilMenuBar extends JMenuBar {
 	closeWindowsMenuItem.addActionListener(new ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
-		if (ArbilWindowManager.getSingleInstance().showConfirmDialogBox("Close all windows?", "Close windows")) {
-		    ArbilWindowManager.getSingleInstance().closeAllWindows();
+		if (dialogHandler.showConfirmDialogBox("Close all windows?", "Close windows")) {
+		    windowManager.closeAllWindows();
 		}
 	    }
 	});
@@ -676,7 +692,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void actionPerformed(ActionEvent e) {
 		sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, "yes");
-		ArbilWizard wizard = new ArbilSetupWizard(ArbilWindowManager.getSingleInstance().getMainFrame());
+		ArbilWizard wizard = new ArbilSetupWizard(windowManager.getMainFrame());
 		wizard.showModalDialog();
 	    }
 	});
@@ -713,7 +729,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    if (!versionManager.forceUpdateCheck()) {
 			ApplicationVersion appVersion = versionManager.getApplicationVersion();
 			String versionString = appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision;
-			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No updates found, current version is " + versionString, "Check for Updates");
+			dialogHandler.addMessageDialogToQueue("No updates found, current version is " + versionString, "Check for Updates");
 		    }
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
@@ -775,7 +791,7 @@ public class ArbilMenuBar extends JMenuBar {
 			compFocusOwner = compFocusOwner.getParent();
 		    }
 		    if (((KeyEvent) event).getKeyCode() == KeyEvent.VK_S) {
-			ArbilWindowManager.getSingleInstance().stopEditingInCurrentWindow();
+			windowManager.stopEditingInCurrentWindow();
 			ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
 		    }
 		    if (((KeyEvent) event).getKeyCode() == java.awt.event.KeyEvent.VK_Z) {
@@ -802,21 +818,21 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	ArbilWindowManager.getSingleInstance().openAboutPage();
+	windowManager.openAboutPage();
     }
 
     private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 	ArbilHelp helpComponent = ArbilHelp.getSingleInstance();
-	if (null == ArbilWindowManager.getSingleInstance().focusWindow(ArbilHelp.helpWindowTitle)) {
-	    ArbilWindowManager.getSingleInstance().createWindow(ArbilHelp.helpWindowTitle, helpComponent);
+	if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
+	    windowManager.createWindow(ArbilHelp.helpWindowTitle, helpComponent);
 	}
 	helpComponent.setCurrentPage(ArbilHelp.SHOTCUT_KEYS_PAGE);
     }
 
     private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	if (null == ArbilWindowManager.getSingleInstance().focusWindow(ArbilHelp.helpWindowTitle)) {
+	if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
 	    // forcus existing or create a new help window
-	    ArbilWindowManager.getSingleInstance().createWindow(ArbilHelp.helpWindowTitle, ArbilHelp.getSingleInstance());
+	    windowManager.createWindow(ArbilHelp.helpWindowTitle, ArbilHelp.getSingleInstance());
 	}
     }
 
@@ -831,9 +847,9 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	if (null == ArbilWindowManager.getSingleInstance().focusWindow(ArbilHelp.helpWindowTitle)) {
+	if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
 	    // forcus existing or create a new help window
-	    ArbilWindowManager.getSingleInstance().createWindow(ArbilHelp.helpWindowTitle, ArbilHelp.getSingleInstance());
+	    windowManager.createWindow(ArbilHelp.helpWindowTitle, ArbilHelp.getSingleInstance());
 	}
 	ArbilHelp.getSingleInstance().printAsOneFile();
     }

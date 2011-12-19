@@ -34,6 +34,7 @@ import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBox;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
 import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Document   : ArbilTableCellEditor
@@ -42,6 +43,11 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class ArbilTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
     ArbilTable parentTable = null;
     Rectangle parentCellRect = null;
     ArbilDataNode registeredOwner = null;
@@ -53,7 +59,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     Object[] cellValue;
     int selectedField = -1;
     Vector<Component> componentsWithFocusListners = new Vector();
-
     private static BugCatcher bugCatcher;
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
@@ -350,7 +355,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	    }
 	} else if (cellValue instanceof ArbilDataNode[]) {
 	    /* Cell contains collection of child nodes. Open in table */
-	    ArbilWindowManager.getSingleInstance().openFloatingTableOnce((ArbilDataNode[]) cellValue, fieldName + " in " + registeredOwner);
+	    windowManager.openFloatingTableOnce((ArbilDataNode[]) cellValue, fieldName + " in " + registeredOwner);
 
 
 

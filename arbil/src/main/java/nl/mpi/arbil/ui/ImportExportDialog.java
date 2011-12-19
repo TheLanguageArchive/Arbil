@@ -48,7 +48,9 @@ import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Document   : ImportExportDialog
@@ -126,6 +128,16 @@ public class ImportExportDialog {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
+    }
 
     private void setNodesPanel(ArbilDataNode selectedNode, JPanel nodePanel) {
 	JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
@@ -158,7 +170,7 @@ public class ImportExportDialog {
     }
 
     public void importArbilBranch() {
-	File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Import", false, true, true);
+	File[] selectedFiles = dialogHandler.showFileSelectBox("Import", false, true, true);
 	if (selectedFiles != null) {
 	    Vector importNodeVector = new Vector();
 	    for (File currentFile : selectedFiles) {
@@ -173,7 +185,7 @@ public class ImportExportDialog {
 	// make sure the chosen directory is empty
 	// export the tree, maybe adjusting resource links so that resource files do not need to be copied
 	searchDialog.setTitle("Export Branch");
-	File destinationDirectory = ArbilWindowManager.getSingleInstance().showEmptyExportDirectoryDialogue(searchDialog.getTitle());
+	File destinationDirectory = dialogHandler.showEmptyExportDirectoryDialogue(searchDialog.getTitle());
 	if (destinationDirectory != null) {
 	    exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
 	}
@@ -183,7 +195,7 @@ public class ImportExportDialog {
 	selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
 	if (!selectedNodesContainDataNode()) {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No relevant nodes are selected", searchDialog.getTitle());
+	    dialogHandler.addMessageDialogToQueue("No relevant nodes are selected", searchDialog.getTitle());
 	    return;
 	}
 	setNodesPanel(selectedNodes, inputNodePanel);
@@ -208,7 +220,7 @@ public class ImportExportDialog {
 	selectedNodes = localSelectedNodes;
 	searchDialog.setTitle("Import Branch");
 	if (!selectedNodesContainDataNode()) {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No relevant nodes are selected", searchDialog.getTitle());
+	    dialogHandler.addMessageDialogToQueue("No relevant nodes are selected", searchDialog.getTitle());
 	    return;
 	}
 	setNodesPanel(selectedNodes, inputNodePanel);
@@ -258,8 +270,8 @@ public class ImportExportDialog {
 
     // the targetComponent is used to place the import dialog
     public ImportExportDialog(Component targetComponent) throws Exception {
-	ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
-	searchDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().getMainFrame()), true);
+	dialogHandler.offerUserToSaveChanges();
+	searchDialog = new JDialog(JOptionPane.getFrameForComponent(windowManager.getMainFrame()), true);
 	searchDialog.addWindowStateListener(new WindowAdapter() {
 
 	    @Override
@@ -489,13 +501,13 @@ public class ImportExportDialog {
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    if (metaDataCopyErrors.size() > 0) {
-			ArbilWindowManager.getSingleInstance().openFloatingTableOnce(metaDataCopyErrors.toArray(new URI[]{}), progressFailedLabelText);
+			windowManager.openFloatingTableOnce(metaDataCopyErrors.toArray(new URI[]{}), progressFailedLabelText);
 		    }
 		    if (validationErrors.size() > 0) {
-			ArbilWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new URI[]{}), progressXmlErrorsLabelText);
+			windowManager.openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new URI[]{}), progressXmlErrorsLabelText);
 		    }
 		    if (fileCopyErrors.size() > 0) {
-			ArbilTableModel resourceFileErrorsTable = ArbilWindowManager.getSingleInstance().openFloatingTableOnceGetModel(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
+			AbstractArbilTableModel resourceFileErrorsTable = windowManager.openFloatingTableOnceGetModel(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
 			//resourceFileErrorsTable.getFieldView().
 			resourceFileErrorsTable.addChildTypeToDisplay("MediaFiles");
 			resourceFileErrorsTable.addChildTypeToDisplay("WrittenResources");
@@ -677,7 +689,7 @@ public class ImportExportDialog {
 		setUItoStoppedState();
 		System.out.println("finalMessageString: " + finalMessageString);
 		Object[] options = {"Close", "Details"};
-		int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), finalMessageString, searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+		int detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(), finalMessageString, searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (detailsOption == 0) {
 		    searchDialog.setVisible(false);
 		} else {
@@ -917,7 +929,7 @@ public class ImportExportDialog {
 		    diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
 		    if (freeGbWarningPoint > freeGBytes) {
 			progressBar.setIndeterminate(false);
-			if (JOptionPane.YES_OPTION == ArbilWindowManager.getSingleInstance().showDialogBox("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+			if (JOptionPane.YES_OPTION == dialogHandler.showDialogBox("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 			    freeGbWarningPoint = freeGBytes - 1;
 			} else {
 			    stopSearch = true;

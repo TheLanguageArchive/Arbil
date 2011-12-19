@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : RemoteServerSearchTermPanel
@@ -22,6 +23,11 @@ public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerS
     private JTextField searchField;
     private JLabel resultCountLabel;
     private ArbilRemoteSearch remoteSearch = new ArbilRemoteSearch();
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
+    }
 
     public RemoteServerSearchTermPanel(ArbilNodeSearchPanel parentPanelLocal) {
 	parentPanel = parentPanelLocal;
@@ -63,7 +69,7 @@ public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerS
     public URI[] getServerSearchResults(ArbilDataNode[] arbilDataNodeArray) {
 	final String searchFieldText = searchField.getText();
 	if (ArbilRemoteSearch.isEmptyQuery(searchFieldText)) {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No remote search term provided, cannot search remotely", "Remote Search");
+	    dialogHandler.addMessageDialogToQueue("No remote search term provided, cannot search remotely", "Remote Search");
 	}
 
 	URI[] searchResult = remoteSearch.getServerSearchResults(searchFieldText, arbilDataNodeArray);

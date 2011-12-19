@@ -7,6 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.ProgressMonitor;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.ui.AbstractArbilTableModel;
+import nl.mpi.arbil.ui.ArbilTableModel;
 
 /**
  *
@@ -17,7 +19,7 @@ public interface WindowManager {
     JFrame getMainFrame();
 
     void closeAllWindows();
-    
+
     void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle);
 
     void openFloatingTableOnce(URI[] rowNodesArray, String frameTitle);
@@ -25,7 +27,7 @@ public interface WindowManager {
     void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle);
 
     void openSearchTable(ArbilNode[] selectedNodes, String frameTitle);
-    
+
     void openFloatingSubnodesWindows(ArbilDataNode[] arbilDataNodes);
 
     JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl);
@@ -36,17 +38,12 @@ public interface WindowManager {
      * but currently are not used through the interface so they are not included
      * so as not to put any additional burden on potential other implementers
      */
-
     //JInternalFrame createWindow(String windowTitle, Component contentsComponent);
-
     //JInternalFrame focusWindow(String windowName);
+    AbstractArbilTableModel openFloatingTableOnceGetModel(URI[] rowNodesArray, String frameTitle);
 
-    //ArbilTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle);
+    AbstractArbilTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle);
 
-    //ArbilTableModel openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle);
-
-    //void saveWindowStates();
-
+    void saveWindowStates();
     //void stopEditingInCurrentWindow();
-
 }

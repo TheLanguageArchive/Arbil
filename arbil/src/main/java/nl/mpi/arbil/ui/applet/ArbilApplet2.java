@@ -45,7 +45,7 @@ public class ArbilApplet2 extends JApplet {
 //        setIconImage(ImdiIcons.getSingleInstance().linorgIcon.getImage());
 	// load the templates and populate the templates menu
 	setVisible(true);
-	ArbilWindowManager.getSingleInstance().openIntroductionPage();
+	injector.getWindowManager().openIntroductionPage();
 
 //        if (arbilMenuBar.checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
 //            new LinorgVersionChecker().checkForUpdate();

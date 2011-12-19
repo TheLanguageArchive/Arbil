@@ -20,6 +20,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : ArbilHelp.java
@@ -32,6 +33,11 @@ public class ArbilHelp extends javax.swing.JPanel {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
     final static public String SHOTCUT_KEYS_PAGE = "Short Cut Keys";
     final static public String INTRODUCTION_PAGE = "2. Quick Introduction";
@@ -226,7 +232,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    System.out.println(completeHelpText.toString());
 	    jTextPane1.setText(completeHelpText.toString());
 	    jTextPane1.setCaretPosition(0);
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Printing is not yet enabled, however this is roughly what will be printed", helpWindowTitle);
+	    dialogHandler.addMessageDialogToQueue("Printing is not yet enabled, however this is roughly what will be printed", helpWindowTitle);
 	} catch (Exception ex) {
 	    bugCatcher.logError(ex);
 	}
