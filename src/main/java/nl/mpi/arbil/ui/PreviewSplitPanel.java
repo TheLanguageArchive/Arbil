@@ -11,6 +11,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.TransferHandler;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * PreviewSplitPanel.java
@@ -19,6 +20,11 @@ import javax.swing.table.TableCellEditor;
  */
 public class PreviewSplitPanel extends javax.swing.JSplitPane {
 
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
     private static PreviewSplitPanel instance;
 
     public static synchronized PreviewSplitPanel getInstance() {
@@ -80,7 +86,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	if (!showPreview) {
 	    // remove the right split split and show only the jdesktoppane
 	    parentComponent.remove(this);
-	    selectedComponent = ArbilWindowManager.getSingleInstance().desktopPane;
+	    selectedComponent = ((ArbilWindowManager) windowManager).getDesktopPane();
 	    TableCellEditor currentCellEditor = previewTable.getCellEditor(); // stop any editing so the changes get stored
 	    if (currentCellEditor != null) {
 		currentCellEditor.stopCellEditing();
@@ -89,10 +95,10 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	    previewTable.getArbilTableModel().removeAllArbilDataNodeRows();
 	} else {
 	    // put the jdesktoppane and the preview grid back into the right split pane
-	    this.remove(ArbilWindowManager.getSingleInstance().desktopPane);
+	    this.remove(((ArbilWindowManager) windowManager).getDesktopPane());
 	    this.setDividerLocation(0.25);
 	    this.setTopComponent(previewPanel);
-	    this.setBottomComponent(ArbilWindowManager.getSingleInstance().desktopPane);
+	    this.setBottomComponent(((ArbilWindowManager) windowManager).getDesktopPane());
 	    // update the preview data grid
 	    TableCellEditor currentCellEditor = previewTable.getCellEditor(); // stop any editing so the changes get stored
 	    if (currentCellEditor != null) {

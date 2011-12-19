@@ -19,6 +19,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
@@ -139,7 +140,7 @@ public abstract class ArbilTest {
         ArbilMimeHashQueue.setMessageDialogHandler(getDialogHandler());
         ArbilMimeHashQueue.setSessionStorage(getSessionStorage());
         ArbilMimeHashQueue.setDataNodeLoader(getDataNodeLoader());
-        return new ArbilMimeHashQueue();
+        return new DefaultMimeHashQueue();
     }
 
     protected synchronized TreeHelper getTreeHelper() {

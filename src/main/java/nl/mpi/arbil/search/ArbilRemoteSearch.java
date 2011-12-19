@@ -12,9 +12,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -32,6 +32,11 @@ public class ArbilRemoteSearch {
 
     public static void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
     protected String lastSearchString = null;
     protected ArbilDataNode[] lastSearchNodes = null;
@@ -92,7 +97,7 @@ public class ArbilRemoteSearch {
 	    bugCatcher.logError(exception);
 	}
 	if (returnArray.size() >= maxResultNumber) {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Found more results than can be displayed, only showing the first " + maxResultNumber + " results", "Remote Search");
+	    dialogHandler.addMessageDialogToQueue("Found more results than can be displayed, only showing the first " + maxResultNumber + " results", "Remote Search");
 	}
 	return returnArray.toArray(new String[]{});
     }
@@ -114,7 +119,7 @@ public class ArbilRemoteSearch {
 	    if (arbilDataNode.archiveHandle != null) {
 		fullQueryString += "&nodeid=" + arbilDataNode.archiveHandle;
 	    } else {
-		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot search \"" + arbilDataNode + "\" because it does not have an archive handle", "Remote Search");
+		dialogHandler.addMessageDialogToQueue("Cannot search \"" + arbilDataNode + "\" because it does not have an archive handle", "Remote Search");
 	    }
 	}
 	// to search a branch we need the node id and to get that we need to have the handle and that might not exist, also to do any of that we would need to use an xmlrpc and include the lamusapi jar file to all versions of the application, so we will just search the entire archive since that takes about the same time to return the results

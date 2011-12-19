@@ -70,7 +70,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     private Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
     private Hashtable windowStatesHashtable;
-    public JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
+    private JDesktopPane desktopPane;
     private JFrame linorgFrame;
     private ArbilTaskStatusBar statusBar;
     private final static int defaultWindowX = 50;
@@ -83,7 +83,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private Hashtable<String, String> messageDialogQueue = new Hashtable<String, String>();
     private boolean messagesCanBeShown = false;
     boolean showMessageThreadrunning = false;
-    static private ArbilWindowManager singleInstance = null;
     private static ApplicationVersionManager versionManager;
     private Map<String, FileFilter> fileFilterMap;
     private Collection<ArbilTaskListener> taskListeners = new HashSet<ArbilTaskListener>();
@@ -107,15 +106,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	treeHelper = treeHelperInstance;
     }
 
-    static synchronized public ArbilWindowManager getSingleInstance() {
-//        System.out.println("LinorgWindowManager getSingleInstance");
-	if (singleInstance == null) {
-	    singleInstance = new ArbilWindowManager();
-	}
-	return singleInstance;
-    }
-
-    private ArbilWindowManager() {
+    public ArbilWindowManager() {
 	desktopPane = new JDesktopPane();
 	desktopPane.setBackground(new java.awt.Color(204, 204, 204));
 	ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(desktopPane);
@@ -190,7 +181,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public void offerUserToSaveChanges() throws Exception {
 	if (ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
-	    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().getMainFrame(),
+	    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(getMainFrame(),
 		    "There are unsaved changes.\nSave now?", "Save Changes",
 		    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 		ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
@@ -204,7 +195,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	boolean fileSelectDone = false;
 	try {
 	    while (!fileSelectDone) {
-		File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox(titleText + " Destination Directory", true, false, false);
+		File[] selectedFiles = showFileSelectBox(titleText + " Destination Directory", true, false, false);
 		if (selectedFiles != null && selectedFiles.length > 0) {
 		    File destinationDirectory = selectedFiles[0];
 		    boolean mkdirsOkay = true;
@@ -312,7 +303,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	    fileChooser.setCurrentDirectory(workingDirectory);
 	    fileChooser.setMultiSelectionEnabled(multipleSelect);
-	    if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), titleText)) {
+	    if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(getMainFrame(), titleText)) {
 		returnFile = fileChooser.getSelectedFiles();
 		if (returnFile.length == 0) {
 		    returnFile = new File[]{fileChooser.getSelectedFile()};
@@ -371,7 +362,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	if (messageTitle == null) {
 	    messageTitle = "Arbil";
 	}
-	if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().getMainFrame(),
+	if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(getMainFrame(),
 		messageString, messageTitle,
 		JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 	    return true;
@@ -449,7 +440,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			    String messageTitle = messageDialogQueue.keys().nextElement();
 			    String messageText = messageDialogQueue.remove(messageTitle);
 			    if (messageText != null) {
-				JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(getMainFrame(), messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
 			    }
 			}
 		    }
@@ -846,9 +837,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			    if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
 				JInternalFrame[] windowsToClose;
 				if (((KeyEvent) e).isShiftDown()) {
-				    windowsToClose = desktopPane.getAllFrames();
+				    windowsToClose = getDesktopPane().getAllFrames();
 				} else {
-				    windowsToClose = new JInternalFrame[]{desktopPane.getSelectedFrame()};
+				    windowsToClose = new JInternalFrame[]{getDesktopPane().getSelectedFrame()};
 				}
 				for (JInternalFrame focusedWindow : windowsToClose) {
 				    if (focusedWindow != null) {
@@ -858,9 +849,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 					    ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
 					}
 					windowList.remove(windowName);
-					desktopPane.remove(focusedWindow);
+					getDesktopPane().remove(focusedWindow);
 					try {
-					    JInternalFrame[] allWindows = desktopPane.getAllFrames();
+					    JInternalFrame[] allWindows = getDesktopPane().getAllFrames();
 					    if (allWindows.length > 0) {
 						JInternalFrame topMostWindow = allWindows[0];
 						if (topMostWindow != null) {
@@ -875,13 +866,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 					}
 				    }
 				}
-				desktopPane.repaint();
+				getDesktopPane().repaint();
 			    }
 			    if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown())) {
 				// the [meta `] is consumed by the operating system, the only way to enable the back quote key for window switching is to use separate windows and rely on the OS to do the switching
 				// || (((KeyEvent) e).getKeyCode() == KeyEvent.VK_BACK_QUOTE && ((KeyEvent) e).isMetaDown())
 				try {
-				    JInternalFrame[] allWindows = desktopPane.getAllFrames();
+				    JInternalFrame[] allWindows = getDesktopPane().getAllFrames();
 				    int targetLayerInt;
 				    if (((KeyEvent) e).isShiftDown()) {
 					allWindows[0].moveToBack();
@@ -920,10 +911,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 					}
 				    }
 				}
-				SwingUtilities.updateComponentTreeUI(desktopPane.getParent().getParent());
+				SwingUtilities.updateComponentTreeUI(getDesktopPane().getParent().getParent());
 			    }
 			    if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_F) {
-				JInternalFrame windowToSearch = desktopPane.getSelectedFrame();
+				JInternalFrame windowToSearch = getDesktopPane().getSelectedFrame();
 				//System.out.println(windowToSearch.getContentPane());
 				for (Component childComponent : windowToSearch.getContentPane().getComponents()) {
 				    // loop through all the child components in the window (there will probably only be one)
@@ -1211,7 +1202,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
     }
 
-    //JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
+    //JOptionPane.showConfirmDialog(linorgFrame,
     //"Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
     //+ "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE))
     /**
@@ -1251,7 +1242,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public JFrame getMainFrame() {
 	return linorgFrame;
     }
-    
+
     public boolean askUserToSaveChanges(String entityName) {
 	return showConfirmDialogBox("This action will save all pending changes on " + entityName + " to disk. Continue?", "Save to disk?");
     }
@@ -1299,5 +1290,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public synchronized void addTaskListener(ArbilTaskListener taskListener) {
 	taskListeners.add(taskListener);
+    }
+
+    /**
+     * TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
+     * @return the desktopPane
+     */
+    public JDesktopPane getDesktopPane() {
+	return desktopPane;
     }
 }

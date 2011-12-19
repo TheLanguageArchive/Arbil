@@ -10,9 +10,10 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Context menu for table UI components
@@ -30,6 +31,16 @@ public class TableContextMenu extends ArbilContextMenu {
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
+    }
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
 
     public TableContextMenu(ArbilTable table) {
@@ -202,7 +213,7 @@ public class TableContextMenu extends ArbilContextMenu {
 			    if (result) {
 				currentDataNode.reloadNode();
 			    } else {
-				ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting fields, check the log file via the help menu for more information.", "Delete Field");
+				dialogHandler.addMessageDialogToQueue("Error deleting fields, check the log file via the help menu for more information.", "Delete Field");
 			    }
 			    //currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
 //                            bugCatcher.logError(new Exception("deleteFromDomViaId"));
@@ -238,8 +249,8 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    // TODO: change this to copy to selected rows
 		    if (!(table.getArbilTableModel().getTableCellContentAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
-			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
-		    } else if (0 == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "About to replace all values in column \"" + table.getArbilTableModel().getColumnName(table.getSelectedColumn()) + "\"\nwith the value \"" + table.getArbilTableModel().getValueAt(table.getSelectedRow(), table.getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+			dialogHandler.addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
+		    } else if (0 == JOptionPane.showConfirmDialog(windowManager.getMainFrame(), "About to replace all values in column \"" + table.getArbilTableModel().getColumnName(table.getSelectedColumn()) + "\"\nwith the value \"" + table.getArbilTableModel().getValueAt(table.getSelectedRow(), table.getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 			table.getArbilTableModel().copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
 		    }
 		} catch (Exception ex) {

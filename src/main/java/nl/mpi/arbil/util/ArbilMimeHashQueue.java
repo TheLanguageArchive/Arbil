@@ -13,9 +13,11 @@ import nl.mpi.arbil.util.task.ArbilTaskListener;
 public class ArbilMimeHashQueue extends DefaultMimeHashQueue {
 
     private static boolean allowCookies = false; // this is a silly place for this and should find a better home, but the cookies are only dissabled for the permissions test in this class
+    private ArbilWindowManager windowManager;
 
-    public ArbilMimeHashQueue() {
+    public ArbilMimeHashQueue(ArbilWindowManager windowManager) {
 	super();
+	this.windowManager = windowManager;
     }
 
     public void init() {
@@ -32,6 +34,6 @@ public class ArbilMimeHashQueue extends DefaultMimeHashQueue {
 
     @Override
     protected Collection<ArbilTaskListener> getTaskListeners() {
-	return ArbilWindowManager.getSingleInstance().getTaskListeners();
+	return windowManager.getTaskListeners();
     }
 }

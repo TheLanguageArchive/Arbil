@@ -13,6 +13,8 @@ import javax.swing.SwingConstants;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.ProfileSelection;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  *
@@ -20,6 +22,16 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
  */
 public class CmdiProfilesPanel extends JPanel {
 
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
+    }
     private javax.swing.JPanel clarinPanel;
     private javax.swing.JPanel profileReloadPanel;
     private javax.swing.JProgressBar profileReloadProgressBar;
@@ -80,7 +92,7 @@ public class CmdiProfilesPanel extends JPanel {
 	addButton.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+		String newDirectoryName = JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
 		ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + newDirectoryName);
 		populateList();
 	    }
@@ -92,7 +104,7 @@ public class CmdiProfilesPanel extends JPanel {
 	browseButton.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		for (File selectedFile : ArbilWindowManager.getSingleInstance().showFileSelectBox("Select Profile", false, true, false)) {
+		for (File selectedFile : dialogHandler.showFileSelectBox("Select Profile", false, true, false)) {
 		    ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + selectedFile.toURI().toString());
 		}
 		populateList();

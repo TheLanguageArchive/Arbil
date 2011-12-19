@@ -2,6 +2,7 @@ package nl.mpi.arbil.ui;
 
 import java.util.Enumeration;
 import javax.swing.table.DefaultTableModel;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : ArbilFieldViewTableModel
@@ -12,6 +13,11 @@ import javax.swing.table.DefaultTableModel;
 public class ArbilFieldViewTableModel extends DefaultTableModel {
 
     private ArbilTableModel imdiTableModel;
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
+    }
 
     public ArbilFieldViewTableModel(ArbilTableModel localImdiTableModel) {
 	imdiTableModel = localImdiTableModel;
@@ -104,7 +110,7 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 				Integer width = Integer.parseInt((String) aValue);
 				imdiTableModel.setPreferredColumnWidth(targetColumnName, width);
 			    } catch (NumberFormatException ex) {
-				ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Invalid width for column " + targetColumnName, "Column width invalid");
+				dialogHandler.addMessageDialogToQueue("Invalid width for column " + targetColumnName, "Column width invalid");
 			    }
 			    break;
 			}

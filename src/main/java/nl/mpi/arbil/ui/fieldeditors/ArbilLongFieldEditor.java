@@ -2,12 +2,9 @@ package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -45,6 +42,8 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  *  Document   : ArbilLongFieldEditor
@@ -70,6 +69,20 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     private List<ArbilField[]> parentFieldList;
     private JButton prevButton;
     private JButton nextButton;
+    private static ArbilWindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	if (windowManagerInstance instanceof ArbilWindowManager) {
+	    windowManager = (ArbilWindowManager) windowManagerInstance;
+	} else {
+	    throw new RuntimeException("Long field editor requires instance of ArbilWindowManager");
+	}
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
+    }
 
     public ArbilLongFieldEditor() {
 	this(null);
@@ -112,7 +125,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	contentPanel.add(tabPane, BorderLayout.CENTER);
 
 	// todo: add all unused attributes as editable text
-	editorFrame = ArbilWindowManager.getSingleInstance().createWindow(getWindowTitle(), this);
+	editorFrame = windowManager.createWindow(getWindowTitle(), this);
 	editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
 	    @Override
@@ -213,7 +226,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	if (arbilFields[cellFieldIndex].hasEditableFieldAttributes()) {
 	    attributesTable = new JTable(attributeTableModels[cellFieldIndex]);
-	    
+
 	    JScrollPane tablePane = new JScrollPane(attributesTable);
 	    tablePane.setPreferredSize(new Dimension(this.getWidth(), 100));
 	    tabPanel.add(tablePane, BorderLayout.SOUTH);
@@ -425,7 +438,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	final ArbilField cellField = (ArbilField) arbilFields[cellFieldIndex];
 	if (!keyEditorFields[cellFieldIndex].getText().equals(arbilFields[cellFieldIndex].getKeyName())) {
 	    // Changing the key will save to disk. Warn user
-	    if (ArbilWindowManager.getSingleInstance().askUserToSaveChanges(arbilFields[cellFieldIndex].getParentDataNode().getParentDomNode().toString())) {
+	    if (dialogHandler.askUserToSaveChanges(arbilFields[cellFieldIndex].getParentDataNode().getParentDomNode().toString())) {
 		// Remember index of current field
 		int index = parentFieldList.indexOf(arbilFields);
 		// Let field apply new name if necessary (true,false = Request update UI, don't exclude from undo history)

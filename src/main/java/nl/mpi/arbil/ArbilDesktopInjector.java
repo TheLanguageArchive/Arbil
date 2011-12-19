@@ -13,7 +13,6 @@ import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Takes care of injecting certain class instances into objects or classes.
@@ -26,6 +25,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     private ArbilTreeHelper treeHelper;
     private ArbilMimeHashQueue mimeHashQueue;
+    private ArbilWindowManager windowManager;
 
     public synchronized void injectHandlers() {
 	injectHandlers(new ApplicationVersionManager(new ArbilVersion()));
@@ -50,19 +50,20 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	ArbilMimeHashQueue.setBugCatcher(bugCatcher);
 	injectBugCatcher(bugCatcher);
 
-	final MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
+	windowManager = new ArbilWindowManager();
+	
+	final MessageDialogHandler messageDialogHandler = windowManager;
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilMimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	injectDialogHandler(messageDialogHandler);
 
-	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();
 	ArbilSessionStorage.setWindowManager(windowManager);
 	injectWindowManager(windowManager);
 
 	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
 	injectClipboardOwner(clipboardOwner);
 
-	mimeHashQueue = new ArbilMimeHashQueue();
+	mimeHashQueue = new ArbilMimeHashQueue(windowManager);
 	injectMimeHashQueue(mimeHashQueue);
 
 	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
@@ -85,5 +86,9 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     
     public ArbilMimeHashQueue getMimeHashQueue(){
 	return mimeHashQueue;
+    }
+    
+    public ArbilWindowManager getWindowManager(){
+	return windowManager;
     }
 }

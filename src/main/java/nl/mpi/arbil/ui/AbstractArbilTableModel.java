@@ -7,7 +7,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeArrayTableCell;

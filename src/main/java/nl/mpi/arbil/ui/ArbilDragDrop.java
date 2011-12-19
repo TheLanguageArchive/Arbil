@@ -29,7 +29,9 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Document   :  ArbilDragDrop
@@ -65,6 +67,16 @@ public class ArbilDragDrop {
 	    throw new RuntimeException("ArbilDragDrop requires ArbilTreeHelper, found " + treeHelperInstance.getClass());
 	}
 
+    }
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
+    private static MessageDialogHandler dialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
+	dialogHandler = dialogHandlerInstance;
     }
 
     private ArbilDragDrop() {
@@ -469,7 +481,7 @@ public class ArbilDragDrop {
 		    return true; // we have achieved the drag so return true
 		} else if (target instanceof JDesktopPane) {
 		    // Open new table window on the desktop pane for dragged nodes
-		    ArbilWindowManager.getSingleInstance().openFloatingTableOnce(draggedArbilNodes, null);
+		    windowManager.openFloatingTableOnce(draggedArbilNodes, null);
 		    return true; // we have achieved the drag so return true
 		}
 	    }
@@ -591,7 +603,7 @@ public class ArbilDragDrop {
 				int detailsOption = 1;
 				//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
 				if (!moveAll) {
-				    detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().getMainFrame(),
+				    detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(),
 					    "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
 					    + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
 					    "Arbil",
@@ -650,13 +662,13 @@ public class ArbilDragDrop {
 			    addNodeResult = true;
 			} catch (ArbilMetadataException ex) {
 			    bugCatcher.logError(ex);
-			    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(ex.getLocalizedMessage(), "Insert node error");
+			    dialogHandler.addMessageDialogToQueue(ex.getLocalizedMessage(), "Insert node error");
 			}
 		    }
 		} else if (dropTargetDataNode.isCmdiMetaDataNode()) {
 		    if (currentNode.isMetaDataNode() && !currentNode.isCmdiMetaDataNode()) {
 			//TODO: Add support for converting IMDI to CMDI. Should also be possible to add IMDI as 'dead' resource
-			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Moving IMDI metadata to CMDI metadata files is currently not supported", "Not supported");
+			dialogHandler.addMessageDialogToQueue("Moving IMDI metadata to CMDI metadata files is currently not supported", "Not supported");
 		    } else {
 			if (currentNode.isCmdiMetaDataNode() && currentNode.isChildNode()) {
 			    try {

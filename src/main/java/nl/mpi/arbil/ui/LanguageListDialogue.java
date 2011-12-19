@@ -8,6 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  *  Document   : LanguageListDialogue
@@ -16,6 +17,11 @@ import nl.mpi.arbil.data.ArbilVocabularyItem;
  */
 public class LanguageListDialogue extends TemplateDialogue implements ActionListener {
 
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
+    }
     ArrayList<JCheckBox> checkBoxArray;
 
     public LanguageListDialogue(JDialog parentFrameLocal) {
@@ -24,7 +30,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 
     public static void showLanguageDialogue() {
 	//showDialogue("Available Languages");
-	JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().getMainFrame(), "Available Languages", true);
+	JDialog dialog = new JDialog(windowManager.getMainFrame(), "Available Languages", true);
 	LanguageListDialogue templateDialogue = new LanguageListDialogue(dialog);
 	templateDialogue.populateLists();
 	dialog.setContentPane(templateDialogue);
