@@ -262,7 +262,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     static public boolean isStringLocal(String urlString) {
-        return (!urlString.startsWith("http")); // todo: should this test for "file" instead, in the case of ftp this will fail and cause a null pointer in pathIsInFavourites
+        return (urlString.startsWith("file:")); // this has been changed from !http so that only file: will be considered local (file objects will be created), the previous use of http was done be cause the string was not as normalised as it is now, when using !http it would in the case of ftp will fail and cause a null pointer in pathIsInFavourites
     }
 
     static public boolean isPathHistoryFile(String urlString) {
