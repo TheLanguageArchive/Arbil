@@ -229,7 +229,7 @@ public class GuiHelper {
 		osNameString = System.getProperty("os.name").toLowerCase();
 //                String openCommand = "";
 		String fileString;
-		if (ArbilDataNode.isStringLocal(targetUri.getScheme())) {
+		if (ArbilDataNode.isUriLocal(targetUri)) {
 		    fileString = new File(targetUri).getAbsolutePath();
 		} else {
 		    fileString = targetUri.toString();

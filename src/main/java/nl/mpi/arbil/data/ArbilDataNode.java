@@ -264,6 +264,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     static public boolean isStringLocal(String urlString) {
         return (urlString.startsWith("file:")); // this has been changed from !http so that only file: will be considered local (file objects will be created), the previous use of http was done be cause the string was not as normalised as it is now, when using !http it would in the case of ftp will fail and cause a null pointer in pathIsInFavourites
     }
+    
+    static public boolean isUriLocal(URI uri){
+	return (uri.getScheme().equalsIgnoreCase("file"));
+    }
 
     static public boolean isPathHistoryFile(String urlString) {
         return MetadataFormat.isPathMetadata(urlString.replaceAll("mdi.[0-9]*$", "mdi"));
@@ -1973,7 +1977,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public boolean isLocal() {
         if (nodeUri != null) {
-            return ArbilDataNode.isStringLocal(nodeUri.getScheme());
+            return ArbilDataNode.isUriLocal(nodeUri);
         } else {
             return false;
         }
