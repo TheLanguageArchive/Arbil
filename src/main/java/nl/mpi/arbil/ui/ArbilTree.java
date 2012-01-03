@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import java.awt.datatransfer.Transferable;
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -46,7 +47,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @see ArbilTreeRenderer
  * @see TreeContextMenu
  */
-public class ArbilTree extends JTree implements ArbilDataNodeContainer {
+public class ArbilTree extends JTree implements ArbilDataNodeContainer, ClipboardOwner {
 
     private static BugCatcher bugCatcher;
     protected ArbilTable customPreviewTable = null;
@@ -59,11 +60,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
-    }
-    private static ClipboardOwner clipboardOwner;
-
-    public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance) {
-	clipboardOwner = clipboardOwnerInstance;
     }
     private static TreeHelper treeHelper;
 
@@ -341,7 +337,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 		}
 	    }
 	    StringSelection stringSelection = new StringSelection(copiedNodeUrls);
-	    clipboard.setContents(stringSelection, clipboardOwner);
+	    clipboard.setContents(stringSelection, this);
 	    System.out.println("copied: \n" + copiedNodeUrls);
 	}
     }
@@ -419,7 +415,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     protected void nodeRemoved(final DefaultMutableTreeNode toRemove) {
     }
-    
     public ArbilNode[] rootNodeChildren;
 
     public void requestResort() {
@@ -459,5 +454,9 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
      */
     public void dataNodeChildAdded(final ArbilNode destination, final ArbilNode newNode) {
 	// Do nothing... (in contrast to ArbilTrackingTree!)
+    }
+
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+	System.out.println("lost clipboard ownership");
     }
 }

@@ -9,6 +9,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
@@ -16,10 +17,14 @@ import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,6 +58,7 @@ import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
@@ -1206,7 +1212,122 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    window[0] = tableFrame;
 	}
     }
+    
+    public boolean openFileInExternalApplication(URI targetUri) {
+	boolean result = false;
+	boolean awtDesktopFound = false;
+	try {
+	    Class.forName("java.awt.Desktop");
+	    awtDesktopFound = true;
+	} catch (ClassNotFoundException cnfE) {
+	    awtDesktopFound = false;
+	    System.out.println("java.awt.Desktop class not found");
+	}
+	if (awtDesktopFound) {
+	    try {
+		// this method is failing on some windows installations so we will just use browse instead
+		// TODO: verify that removing this helps and that it does not cause issues on other OSs
+		// removing this breaks launching directories on mac
+		if (targetUri.getScheme().toLowerCase().equals("file")) {
+		    final File targetFile = new File(targetUri);
+		    Desktop.getDesktop().open(targetFile);
+		} else {
+		    Desktop.getDesktop().browse(targetUri);
+		}
+		result = true;
+	    } catch (MalformedURLException muE) {
+		bugCatcher.logError("awtDesktopFound", muE);
+		addMessageDialogToQueue("Failed to find the file: " + muE.getMessage(), "Open In External Application");
+	    } catch (IOException ioE) {
+		bugCatcher.logError("awtDesktopFound", ioE);
+		addMessageDialogToQueue("Failed to open the file: " + ioE.getMessage(), "Open In External Application");
+	    }
+	} else {
+	    String osNameString = null;
+	    try {
+		osNameString = System.getProperty("os.name").toLowerCase();
+//                String openCommand = "";
+		String fileString;
+		if (ArbilDataNode.isUriLocal(targetUri)) {
+		    fileString = new File(targetUri).getAbsolutePath();
+		} else {
+		    fileString = targetUri.toString();
+		}
+		Process launchedProcess = null;
 
+		if (osNameString.indexOf("windows") != -1 || osNameString.indexOf("nt") != -1) {
+//                    openCommand = "cmd /c start ";
+		    launchedProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", "start", fileString});
+		}
+		if (osNameString.equals("windows 95") || osNameString.equals("windows 98")) {
+//                    openCommand = "command.com /C start ";
+		    launchedProcess = Runtime.getRuntime().exec(new String[]{"command.com", "/C", "start", fileString});
+		}
+		if (osNameString.indexOf("mac") != -1) {
+//                    openCommand = "open ";
+		    launchedProcess = Runtime.getRuntime().exec(new String[]{"open", fileString});
+		}
+		if (osNameString.indexOf("linux") != -1) {
+//                    openCommand = "gnome-open ";
+		    launchedProcess = Runtime.getRuntime().exec(new String[]{"gnome-open", fileString});
+		}
+//                String execString = openCommand + targetUri.getPath();
+//                System.out.println(execString);
+//                Process launchedProcess = Runtime.getRuntime().exec(new String[]{openCommand, targetUri.getPath()});
+		if (launchedProcess != null) {
+		    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+		    String line;
+		    while ((line = errorStreamReader.readLine()) != null) {
+			addMessageDialogToQueue(line, "Open In External Application");
+			System.out.println("Launched process error stream: \"" + line + "\"");
+		    }
+		    result = true;
+		}
+	    } catch (Exception e) {
+		bugCatcher.logError(osNameString, e);
+	    }
+	}
+	return result;
+    }
+
+    
+    public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
+	if (userObject instanceof ArbilDataNode) {
+	    if (((ArbilDataNode) (userObject)).getNeedsSaveToDisk(false)) {
+		if (JOptionPane.OK_OPTION == showDialogBox("The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+		    ((ArbilDataNode) (userObject)).saveChangesToCache(true);
+		} else {
+		    return;
+		}
+	    }
+	    URI nodeUri = ((ArbilDataNode) (userObject)).getURI();
+	    System.out.println("openImdiXmlWindow: " + nodeUri);
+	    String nodeName = ((ArbilDataNode) (userObject)).toString();
+	    if (formatXml) {
+		try {
+		    File tempHtmlFile = new ArbilToHtmlConverter().convertToHtml((ArbilDataNode) userObject);
+		    if (!launchInBrowser) {
+			openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
+		    } else {
+			openFileInExternalApplication(tempHtmlFile.toURI());
+		    }
+		} catch (Exception ex) {
+		    bugCatcher.logError(ex);
+		    //System.out.println(ex.getMessage());
+		    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+		}
+	    } else {
+		try {
+		    openUrlWindowOnce(nodeName + "-xml", nodeUri.toURL());
+		} catch (Exception ex) {
+		    bugCatcher.logError(ex);
+		    //System.out.println(ex.getMessage());
+		    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+		}
+	    }
+	}
+    }
+    
     //JOptionPane.showConfirmDialog(linorgFrame,
     //"Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
     //+ "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE))

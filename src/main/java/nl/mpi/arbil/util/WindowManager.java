@@ -8,7 +8,6 @@ import javax.swing.ProgressMonitor;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
-import nl.mpi.arbil.ui.ArbilTableModel;
 
 /**
  *
@@ -46,4 +45,8 @@ public interface WindowManager {
 
     void saveWindowStates();
     //void stopEditingInCurrentWindow();
+    
+    boolean openFileInExternalApplication(URI targetUri);
+    
+    void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser);
 }

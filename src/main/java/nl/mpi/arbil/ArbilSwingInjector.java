@@ -14,7 +14,6 @@ import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilTableCellEditor;
 import nl.mpi.arbil.ui.CmdiProfilesPanel;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.ImageBoxRenderer;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.LanguageListDialogue;
@@ -46,7 +45,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 
     @Override
     public void injectBugCatcher(BugCatcher bugCatcher) {
-	GuiHelper.setBugCatcher(bugCatcher);
 	super.injectBugCatcher(bugCatcher);
 	ArbilTableCellEditor.setBugCatcher(bugCatcher);
 	TableContextMenu.setBugCatcher(bugCatcher);
@@ -103,6 +101,7 @@ public class ArbilSwingInjector extends ArbilInjector {
     @Override
     public void injectWindowManager(WindowManager windowManager) {
 	super.injectWindowManager(windowManager);
+	ArbilContextMenu.setWindowManager(windowManager);
 	LanguageListDialogue.setWindowManager(windowManager);
 	TableContextMenu.setWindowManager(windowManager);
 	TreeContextMenu.setWindowManager(windowManager);
@@ -114,7 +113,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilLongFieldEditor.setWindowManager(windowManager);
 	ArbilTable.setWindowManager(windowManager);
 	ArbilMenuBar.setWindowManager(windowManager);
-	GuiHelper.setWindowManager(windowManager);
 	TemplateDialogue.setWindowManager(windowManager);
 	ImportExportDialog.setWindowManager(windowManager);
     }

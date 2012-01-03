@@ -700,7 +700,7 @@ public class ImportExportDialog {
 		    }
 		}
 		if (exportDestinationDirectory != null) {
-		    GuiHelper.getSingleInstance().openFileInExternalApplication(exportDestinationDirectory.toURI());
+		    windowManager.openFileInExternalApplication(exportDestinationDirectory.toURI());
 		}
 	    }
 

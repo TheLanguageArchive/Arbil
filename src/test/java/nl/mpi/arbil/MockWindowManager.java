@@ -56,5 +56,12 @@ public class MockWindowManager implements WindowManager {
 
     public void saveWindowStates() {
     }
+
+    public boolean openFileInExternalApplication(URI targetUri) {
+	return true;
+    }
+
+    public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
+    }
     
 }

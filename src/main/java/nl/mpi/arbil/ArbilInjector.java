@@ -76,7 +76,6 @@ public abstract class ArbilInjector {
 	injectDialogHandler(messageDialogHandler);
 	injectTreeHelper(treeHelper);
 	injectBugCatcher(bugCatcher);
-	injectClipboardOwner(clipboardOwner);
     }
     
     public void injectVersionManager(ApplicationVersionManager versionManager){
@@ -106,12 +105,6 @@ public abstract class ArbilInjector {
     
     public void injectMimeHashQueue(MimeHashQueue mimeHashQueue){
 	ArbilDataNode.setMimeHashQueue(mimeHashQueue);
-    }
-
-    public void injectClipboardOwner(ClipboardOwner clipboardOwner) {
-	// Clipboard owner
-	ArbilTree.setClipboardOwner(clipboardOwner);
-	ArbilTableModel.setClipboardOwner(clipboardOwner);
     }
 
     public void injectBugCatcher(BugCatcher bugCatcher) {

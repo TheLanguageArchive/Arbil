@@ -113,8 +113,8 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	    }
 	    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
 	    if (freshTemplateFile != null) {
-		GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
-		GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
+		windowManager.openFileInExternalApplication(freshTemplateFile.toURI());
+		windowManager.openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
 	    } else {
 		dialogHandler.addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
 	    }

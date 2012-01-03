@@ -19,6 +19,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -32,11 +34,11 @@ import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.ArbilHelp;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
@@ -707,7 +709,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
+		    windowManager.openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}
@@ -719,7 +721,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    GuiHelper.getSingleInstance().openFileInExternalApplication(ArbilBugCatcher.getLogFile().toURI());
+		    windowManager.openFileInExternalApplication(ArbilBugCatcher.getLogFile().toURI());
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}
@@ -815,7 +817,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void viewMenuMenuSelected(MenuEvent evt) {
-	GuiHelper.getSingleInstance().initViewMenu(viewMenu);
+	initViewMenu(viewMenu);
     }
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -907,10 +909,19 @@ public class ArbilMenuBar extends JMenuBar {
 	}
 	mimeHashQueue.terminateQueue();
 
-	GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
+	saveState(saveWindowsCheckBoxMenuItem.isSelected());
 	sessionStorage.saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
 	sessionStorage.saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());
 	return true;
+    }
+    
+    private void saveState(boolean saveWindows) {
+	ArbilFieldViews.getSingleInstance().saveViewsToFile();
+	// linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
+	// TreeHelper.getSingleInstance().saveLocations(null, null); no need to do this here but it must be done when ever a change is made
+	if (saveWindows) {
+	    windowManager.saveWindowStates();
+	}
     }
 
     public boolean performCleanExit() { // TODO: this should be moved into a utility class
@@ -921,6 +932,32 @@ public class ArbilMenuBar extends JMenuBar {
 	    return true;
 	}
 	return false;
+    }
+
+    private void initViewMenu(javax.swing.JMenu viewMenu) {
+	viewMenu.removeAll();
+	ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
+	//String[] viewLabels = guiHelper.imdiFieldViews.getSavedFieldViewLables();
+	for (Enumeration menuItemName = ArbilFieldViews.getSingleInstance().getSavedFieldViewLables(); menuItemName.hasMoreElements();) {
+	    String currentMenuName = menuItemName.nextElement().toString();
+	    javax.swing.JRadioButtonMenuItem viewLabelRadioButtonMenuItem;
+	    viewLabelRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
+	    viewMenuButtonGroup.add(viewLabelRadioButtonMenuItem);
+	    viewLabelRadioButtonMenuItem.setSelected(ArbilFieldViews.getSingleInstance().getCurrentGlobalViewName().equals(currentMenuName));
+	    viewLabelRadioButtonMenuItem.setText(currentMenuName);
+	    viewLabelRadioButtonMenuItem.setName(currentMenuName);
+	    viewLabelRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+		public void actionPerformed(java.awt.event.ActionEvent evt) {
+		    try {
+			ArbilFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());
+		    } catch (Exception ex) {
+			bugCatcher.logError(ex);
+		    }
+		}
+	    });
+	    viewMenu.add(viewLabelRadioButtonMenuItem);
+	}
     }
 //    private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templateName, String selectedTemplate) {
 //        JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();

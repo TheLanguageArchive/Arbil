@@ -14,9 +14,9 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Abstract base class for context menus
@@ -39,6 +39,11 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
+    }
+    private static WindowManager windowManager;
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
+	windowManager = windowManagerInstance;
     }
 
     private void applyMenuItems() {
@@ -156,7 +161,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode currentNode : selectedTreeNodes) {
-			GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, false, false);
+			windowManager.openImdiXmlWindow(currentNode, false, false);
 		    }
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
@@ -171,7 +176,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode currentNode : selectedTreeNodes) {
-			GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, true, false);
+			windowManager.openImdiXmlWindow(currentNode, true, false);
 		    }
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
@@ -186,7 +191,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode currentNode : selectedTreeNodes) {
-			GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, true, true);
+			windowManager.openImdiXmlWindow(currentNode, true, true);
 		    }
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
@@ -203,7 +208,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		    URI uri = new ArbilToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
 		    if (uri != null) {
 			System.out.println("Converted to html in " + uri.toString());
-			GuiHelper.getSingleInstance().openFileInExternalApplication(uri);
+			windowManager.openFileInExternalApplication(uri);
 		    }
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
@@ -268,7 +273,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 	    } else {
 		targetUri = currentNode.getURI();
 	    }
-	    GuiHelper.getSingleInstance().openFileInExternalApplication(targetUri);
+	    windowManager.openFileInExternalApplication(targetUri);
 	}
     }
 
