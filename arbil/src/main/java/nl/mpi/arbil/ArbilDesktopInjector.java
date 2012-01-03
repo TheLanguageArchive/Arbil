@@ -1,10 +1,8 @@
 package nl.mpi.arbil;
 
-import java.awt.datatransfer.ClipboardOwner;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -59,9 +57,6 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
 	ArbilSessionStorage.setWindowManager(windowManager);
 	injectWindowManager(windowManager);
-
-	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
-	injectClipboardOwner(clipboardOwner);
 
 	mimeHashQueue = new ArbilMimeHashQueue(windowManager);
 	injectMimeHashQueue(mimeHashQueue);

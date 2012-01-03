@@ -1,10 +1,11 @@
 package nl.mpi.arbil;
 
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Transferable;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
@@ -32,9 +33,6 @@ public class ArbilTestInjector extends ArbilInjector {
 
 	final WindowManager windowManager = new MockWindowManager();
 	injectWindowManager(windowManager);
-
-	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
-	injectClipboardOwner(clipboardOwner);
 
 	final SessionStorage sessionStorage = new MockSessionStorage();
 	injectSessionStorage(sessionStorage);

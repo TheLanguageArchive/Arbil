@@ -24,7 +24,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  * Implementation of AbstractArbilTableModel for the Swing UI
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilTableModel extends AbstractArbilTableModel {
+public class ArbilTableModel extends AbstractArbilTableModel implements ClipboardOwner {
 
     public static final char CSV_NEWLINE = '\n';
     public static final String CSV_SEPARATOR = "\t"; // excel seems to work with tab but not comma
@@ -42,11 +42,6 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static ClipboardOwner clipboardOwner;
-
-    public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance) {
-	clipboardOwner = clipboardOwnerInstance;
     }
     private static ApplicationVersionManager versionManager;
 
@@ -124,7 +119,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	    embedTagString = embedTagString + "</APPLET>";
 	    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	    StringSelection stringSelection = new StringSelection(embedTagString);
-	    clipboard.setContents(stringSelection, clipboardOwner);
+	    clipboard.setContents(stringSelection, this);
 	} catch (Exception ex) {
 	    getBugCatcher().logError(ex);
 	}
@@ -244,7 +239,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	System.out.println("copiedString: " + copiedString.toString());
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	StringSelection stringSelection = new StringSelection(copiedString.toString());
-	clipboard.setContents(stringSelection, ArbilTableModel.clipboardOwner);
+	clipboard.setContents(stringSelection, this);
     }
 
     public void copyArbilFields(ArbilField[] selectedCells) {
@@ -265,7 +260,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	System.out.println("copiedString: " + copiedString.toString());
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	StringSelection stringSelection = new StringSelection(copiedString.toString());
-	clipboard.setContents(stringSelection, ArbilTableModel.clipboardOwner);
+	clipboard.setContents(stringSelection, this);
     }
 
     public String pasteIntoArbilFields(ArbilField[] selectedCells) {
@@ -408,5 +403,9 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 
     protected String getRenderedText(ArbilTableCell data) {
 	return new ArbilTableCellRenderer(data).getText();
+    }
+
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+	System.out.println("lost clipboard ownership");
     }
 }

@@ -63,5 +63,13 @@ public class ArbilWicketWindowManager implements WindowManager {
     public void saveWindowStates() {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public boolean openFileInExternalApplication(URI targetUri) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
     
 }
