@@ -36,7 +36,6 @@ public class DataNodeLoaderThreadManager {
 	continueThread = true;
 	remoteLoaderThreadGroup = new ThreadGroup("RemoteLoaderThreads");
 	localLoaderThreadGroup = new ThreadGroup("LocalLoaderThreads");
-
     }
 
     public void addNodeToQueue(ArbilDataNode nodeToAdd) {

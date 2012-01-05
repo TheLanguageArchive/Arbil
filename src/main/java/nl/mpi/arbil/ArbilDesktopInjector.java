@@ -1,6 +1,7 @@
 package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
@@ -61,15 +62,15 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	mimeHashQueue = new ArbilMimeHashQueue(windowManager);
 	injectMimeHashQueue(mimeHashQueue);
 
-	dataNodeLoader = new ArbilDataNodeLoader();
-	ArbilMimeHashQueue.setDataNodeLoader(dataNodeLoader);
-	ArbilWindowManager.setDataNodeLoader(dataNodeLoader);
-	injectDataNodeLoader(dataNodeLoader);
-
 	treeHelper = new ArbilTreeHelper();
 	ArbilWindowManager.setTreeHelper(treeHelper);
 	ArbilSessionStorage.setTreeHelper(treeHelper);
 	injectTreeHelper(treeHelper);
+	
+	dataNodeLoader = new ArbilDataNodeLoader(bugCatcher, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+	ArbilMimeHashQueue.setDataNodeLoader(dataNodeLoader);
+	ArbilWindowManager.setDataNodeLoader(dataNodeLoader);
+	injectDataNodeLoader(dataNodeLoader);
     }
 
     /**

@@ -18,6 +18,8 @@ import nl.mpi.arbil.data.ArbilDataNode;
  */
 public interface TreeHelper {
 
+    void init();
+    
     int addDefaultCorpusLocations();
 
     boolean addLocation(URI addedLocation);

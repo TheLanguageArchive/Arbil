@@ -1,16 +1,16 @@
 package nl.mpi.arbil;
 
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.Transferable;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
+import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -37,11 +37,14 @@ public class ArbilTestInjector extends ArbilInjector {
 	final SessionStorage sessionStorage = new MockSessionStorage();
 	injectSessionStorage(sessionStorage);
 
-	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
-	final DataNodeLoader dataNodeLoader = new ArbilDataNodeLoader();
-	injectDataNodeLoader(dataNodeLoader);
-
 	final TreeHelper treeHelper = new ArbilTreeHelper();
 	injectTreeHelper(treeHelper);
+	
+	final MimeHashQueue mimeHashQueue = new DefaultMimeHashQueue();
+	injectMimeHashQueue(mimeHashQueue);
+
+	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
+	final DataNodeLoader dataNodeLoader = new ArbilDataNodeLoader(bugCatcher, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+	injectDataNodeLoader(dataNodeLoader);
     }
 }

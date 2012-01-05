@@ -17,6 +17,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
     private static SessionStorage sessionStorage;
     private DataNodeLoaderThreadManager threadManager;
+    private ArbilDataNodeService dataNodeService;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
@@ -27,6 +28,10 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 	threadManager = loaderThreadManager;
 	threadManager.setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", threadManager.isSchemaCheckLocalFiles()));
     }
+    
+    protected final void setDataNodeService(ArbilDataNodeService dataNodeService){
+	this.dataNodeService = dataNodeService;
+    }
 
 //    public ImdiTreeObject isImdiObjectLoaded(String localUrlString) {
 //        localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
@@ -36,13 +41,13 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     public ArbilDataNode getArbilDataNodeWithoutLoading(URI localUri) {
 	ArbilDataNode currentDataNode = null;
 	if (localUri != null) {
-	    localUri = ArbilDataNode.normaliseURI(localUri);
+	    localUri = ArbilDataNodeService.normaliseURI(localUri);
 	    // correct any variations in the url string
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
 	    currentDataNode = arbilHashTable.get(localUri.toString());
 	    if (currentDataNode == null) {
 //                System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
-		currentDataNode = new ArbilDataNode(localUri);
+		currentDataNode = new ArbilDataNode(dataNodeService, localUri);
 		arbilHashTable.put(localUri.toString(), currentDataNode);
 	    }
 	}
@@ -91,7 +96,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     @Override
     public ArbilDataNode getArbilDataNodeOnlyIfLoaded(URI arbilUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-	arbilUri = ArbilDataNode.normaliseURI(arbilUri);
+	arbilUri = ArbilDataNodeService.normaliseURI(arbilUri);
 	return arbilHashTable.get(arbilUri.toString());
     }
 
@@ -99,7 +104,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     @Override
     public void requestReloadOnlyIfLoaded(URI arbilUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-	arbilUri = ArbilDataNode.normaliseURI(arbilUri);
+	arbilUri = ArbilDataNodeService.normaliseURI(arbilUri);
 	ArbilDataNode currentDataNode = arbilHashTable.get(arbilUri.toString());
 	if (currentDataNode != null) {
 	    requestReload(currentDataNode);
@@ -195,5 +200,9 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     @Override
     public void setSchemaCheckLocalFiles(boolean schemaCheckLocalFiles) {
 	threadManager.setSchemaCheckLocalFiles(schemaCheckLocalFiles);
+    }
+
+    public ArbilDataNode createNewDataNode(URI uri) {
+	return new ArbilDataNode(dataNodeService, uri);
     }
 }

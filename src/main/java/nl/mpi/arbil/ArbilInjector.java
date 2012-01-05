@@ -184,7 +184,6 @@ public abstract class ArbilInjector {
 
     public void injectSessionStorage(SessionStorage sessionStorage) {
 	ArbilComponentBuilder.setSessionStorage(sessionStorage);
-	ArbilDataNode.setSessionStorage(sessionStorage);
 	ArbilEntityResolver.setSessionStorage(sessionStorage);
 	ArbilField.setSessionStorage(sessionStorage);
 	ArbilJournal.setSessionStorage(sessionStorage);
