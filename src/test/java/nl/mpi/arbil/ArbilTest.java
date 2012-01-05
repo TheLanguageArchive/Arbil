@@ -126,7 +126,6 @@ public abstract class ArbilTest {
 	injector.injectDialogHandler(getDialogHandler());
 	injector.injectSessionStorage(getSessionStorage());
 	injector.injectDataNodeLoader(getDataNodeLoader());
-	injector.injectMimeHashQueue(getMimeHashQueue());
 	injector.injectTreeHelper(getTreeHelper());
     }
 

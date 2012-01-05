@@ -46,7 +46,6 @@ import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BinaryMetadataReader;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.XsdChecker;
@@ -101,10 +100,6 @@ public abstract class ArbilInjector {
 	MetadataReader.setDataNodeLoader(dataNodeLoader);
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
-    
-    public void injectMimeHashQueue(MimeHashQueue mimeHashQueue){
-	ArbilDataNode.setMimeHashQueue(mimeHashQueue);
-    }
 
     public void injectBugCatcher(BugCatcher bugCatcher) {
 	// Inject bug catcher
@@ -154,7 +149,6 @@ public abstract class ArbilInjector {
 	// Inject message dialog handler
 	ArbilComponentBuilder.setMessageDialogHandler(messageDialogHandler);
 	ArbilCsvImporter.setMessageDialogHandler(messageDialogHandler);
-	ArbilDataNode.setMessageDialogHandler(messageDialogHandler);
 	ArbilFavourites.setMessageDialogHandler(messageDialogHandler);
 	ArbilJournal.setMessageDialogHandler(messageDialogHandler);
 	ArbilTableModel.setMessageDialogHandler(messageDialogHandler);
