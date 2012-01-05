@@ -143,7 +143,6 @@ public abstract class ArbilInjector {
 
     public void injectTreeHelper(TreeHelper treeHelper) {
 	//Inject tree helper
-	ArbilDataNode.setTreeHelper(treeHelper);
 	ArbilFavourites.setTreeHelper(treeHelper);
 	ArbilTree.setTreeHelper(treeHelper);
 	ImportExportDialog.setTreeHelper(treeHelper);
