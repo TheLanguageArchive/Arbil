@@ -1,5 +1,9 @@
 package nl.mpi.arbil.data;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -75,7 +79,34 @@ public class ArbilDataNodeService {
 	return sessionStorage.pathIsInFavourites(dataNode.getFile());
     }
 
-    public Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings) {
+    public void pasteIntoNode(ArbilDataNode dataNode) {
+	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	Transferable transfer = clipboard.getContents(null);
+	try {
+	    String clipBoardString = "";
+	    Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
+	    if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
+		clipBoardString = clipBoardData.toString();
+		System.out.println("clipBoardString: " + clipBoardString);
+
+		String[] elements;
+		if (clipBoardString.contains("\n")) {
+		    elements = clipBoardString.split("\n");
+		} else {
+		    elements = new String[]{clipBoardString};
+		}
+		for (String element : elements) {
+		}
+		for (ArbilDataNode clipboardNode : pasteIntoNode(dataNode, elements)) {
+		    new MetadataBuilder().requestAddNode(dataNode, "copy of " + clipboardNode, clipboardNode);
+		}
+	    }
+	} catch (Exception ex) {
+	    bugCatcher.logError(ex);
+	}
+    }
+
+    private Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings) {
 	try {
 	    ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
 	    boolean ignoreSaveChanges = false;
@@ -177,6 +208,45 @@ public class ArbilDataNodeService {
 		return false;
 	    }
 	}
+    }
+
+    public void deleteCorpusLink(ArbilDataNode dataNode, ArbilDataNode[] targetImdiNodes) {
+	// TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
+	if (dataNode.nodeNeedsSaveToDisk) {
+	    dataNode.saveChangesToCache(false);
+	}
+	try {
+	    dataNode.bumpHistory();
+	    copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
+	    synchronized (dataNode.getParentDomLockObject()) {
+		System.out.println("deleting by corpus link");
+		URI[] copusUriList = new URI[targetImdiNodes.length];
+		for (int nodeCounter = 0; nodeCounter < targetImdiNodes.length; nodeCounter++) {
+		    //                if (targetImdiNodes[nodeCounter].hasResource()) {
+		    //                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getFullResourceURI(); // todo: should this resouce case be used here? maybe just the uri
+		    //                } else {
+		    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getURI();
+		    //                }
+		}
+		dataNode.getMetadataUtils().removeCorpusLink(dataNode.getURI(), copusUriList);
+		dataNode.getParentDomNode().loadArbilDom();
+	    }
+	    //        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
+	    ////            currentChildNode.clearIcon();
+	    //            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
+	    //        }
+	    for (ArbilDataNode removedChild : targetImdiNodes) {
+		removedChild.removeFromAllContainers();
+	    }
+	} catch (IOException ex) {
+	    // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
+	    bugCatcher.logError("I/O exception while deleting nodes from " + this.toString(), ex);
+	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
+	}
+
+	dataNode.getParentDomNode().clearIcon();
+	dataNode.getParentDomNode().clearChildIcons();
+	dataNode.clearIcon(); // this must be cleared so that the leaf / branch flag gets set
     }
 
     public void bumpHistory(ArbilDataNode dataNode) throws IOException {

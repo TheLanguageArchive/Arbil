@@ -1,9 +1,5 @@
 package nl.mpi.arbil.data;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,7 +11,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,10 +33,8 @@ import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
-import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
-import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -78,7 +71,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public boolean fileNotFound;
     public boolean isInfoLink = false;
     private boolean singletonMetadataNode = false;
-    private boolean nodeNeedsSaveToDisk;
+    protected boolean nodeNeedsSaveToDisk;
     protected String nodeText, lastNodeText = NODE_LOADING_TEXT;
     //    private boolean nodeTextChanged = false;
     private URI nodeUri;
@@ -816,42 +809,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //    }
     // this is used to delete an IMDI node from a corpus branch
     public void deleteCorpusLink(ArbilDataNode[] targetImdiNodes) {
-        // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
-        if (nodeNeedsSaveToDisk) {
-            saveChangesToCache(false);
-        }
-        try {
-            bumpHistory();
-            dataNodeService.copyLastHistoryToCurrent(this); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
-            synchronized (getParentDomLockObject()) {
-                System.out.println("deleting by corpus link");
-                URI[] copusUriList = new URI[targetImdiNodes.length];
-                for (int nodeCounter = 0; nodeCounter < targetImdiNodes.length; nodeCounter++) {
-                    //                if (targetImdiNodes[nodeCounter].hasResource()) {
-                    //                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getFullResourceURI(); // todo: should this resouce case be used here? maybe just the uri
-                    //                } else {
-                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getURI();
-                    //                }
-                }
-                metadataUtils.removeCorpusLink(this.getURI(), copusUriList);
-                this.getParentDomNode().loadArbilDom();
-            }
-            //        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
-            ////            currentChildNode.clearIcon();
-            //            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
-            //        }
-            for (ArbilDataNode removedChild : targetImdiNodes) {
-                removedChild.removeFromAllContainers();
-            }
-        } catch (IOException ex) {
-            // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
-            bugCatcher.logError("I/O exception while deleting nodes from " + this.toString(), ex);
-            messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
-        }
-
-        this.getParentDomNode().clearIcon();
-        this.getParentDomNode().clearChildIcons();
-        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
+        dataNodeService.deleteCorpusLink(this, targetImdiNodes);
     }
 
     public boolean hasCatalogue() {
@@ -867,78 +825,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean addCorpusLink(ArbilDataNode targetImdiNode) {
-        boolean linkAlreadyExists = false;
-        if (targetImdiNode.isCatalogue()) {
-            if (this.hasCatalogue()) {
-                //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only one catalogue can be added", null);
-                // prevent adding a second catalogue file
-                return false;
-            }
-        }
-        for (String[] currentLinkPair : childLinks) {
-            String currentChildPath = currentLinkPair[0];
-            if (!targetImdiNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
-                messageDialogHandler.addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
-                return false;
-            }
-            if (currentChildPath.equals(targetImdiNode.getUrlString())) {
-                linkAlreadyExists = true;
-            }
-        }
-        if (targetImdiNode.getUrlString().equals(this.getUrlString())) {
-            messageDialogHandler.addMessageDialogToQueue("Cannot link or move a node into itself", null);
-            return false;
-        }
-        if (linkAlreadyExists) {
-            messageDialogHandler.addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and will not be added again", null);
-            return false;
-        } else {
-            // if link is not already there
-            // if needs saving then save now while you can
-            // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
-            if (nodeNeedsSaveToDisk) {
-                saveChangesToCache(true);
-            }
-            try {
-                dataNodeService.bumpHistory(this);
-                dataNodeService.copyLastHistoryToCurrent(this); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
-                synchronized (getParentDomLockObject()) {
-                    return metadataUtils.addCorpusLink(this.getURI(), new URI[]{targetImdiNode.getURI()});
-                }
-            } catch (IOException ex) {
-                // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
-                bugCatcher.logError("I/O exception while moving node " + targetImdiNode.toString() + " to " + this.toString(), ex);
-                messageDialogHandler.addMessageDialogToQueue("Could not move nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
-                return false;
-            }
-        }
+        return dataNodeService.addCorpusLink(this, targetImdiNode);
     }
 
     public void pasteIntoNode() {
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        Transferable transfer = clipboard.getContents(null);
-        try {
-            String clipBoardString = "";
-            Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
-            if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
-                clipBoardString = clipBoardData.toString();
-                System.out.println("clipBoardString: " + clipBoardString);
-
-                String[] elements;
-                if (clipBoardString.contains("\n")) {
-                    elements = clipBoardString.split("\n");
-                } else {
-                    elements = new String[]{clipBoardString};
-                }
-                for (String element : elements) {
-                }
-                for (ArbilDataNode clipboardNode : dataNodeService.pasteIntoNode(this, elements)) {
-                    new MetadataBuilder().requestAddNode(this, "copy of " + clipboardNode, clipboardNode);
-                }
-            }
-        } catch (Exception ex) {
-            bugCatcher.logError(ex);
-        }
+        dataNodeService.pasteIntoNode(this);
     }
 
     /**
