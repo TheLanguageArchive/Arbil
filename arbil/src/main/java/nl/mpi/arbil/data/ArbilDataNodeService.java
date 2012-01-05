@@ -6,15 +6,18 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -249,6 +252,91 @@ public class ArbilDataNodeService {
 	dataNode.clearIcon(); // this must be cleared so that the leaf / branch flag gets set
     }
 
+
+    /**
+     * Saves the current changes from memory into a new imdi file on disk.
+     * Previous imdi files are renamed and kept as a history.
+     * the caller is responsible for reloading the node if that is required
+     */
+    public synchronized void saveChangesToCache(ArbilDataNode datanode) {
+        if (datanode != datanode.getParentDomNode()) {
+            //        if (this.isImdiChild()) {
+            saveChangesToCache(datanode.getParentDomNode());
+            return;
+        }
+        System.out.println("saveChangesToCache");
+        ArbilJournal.getSingleInstance().clearFieldChangeHistory();
+        if (!datanode.isLocal() /*nodeUri.getScheme().toLowerCase().startsWith("http") */) {
+            System.out.println("should not try to save remote files");
+            return;
+        }
+        ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
+        Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
+        datanode.getAllFields(allFields);
+        for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
+            {
+                ArbilField[] currentFieldArray = fieldsEnum.nextElement();
+                for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
+                    ArbilField currentField = currentFieldArray[fieldCounter];
+                    if (currentField.fieldNeedsSaveToDisk()) {
+                        FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
+                        currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
+                        currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
+                        currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
+                        currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
+                        currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
+                        currentFieldUpdateRequest.attributeValuesMap = currentField.getAttributeValuesMap();
+                        fieldUpdateRequests.add(currentFieldUpdateRequest);
+                    }
+                }
+            }
+        }
+        ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+        boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
+        if (!result) {
+            messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+        } else {
+            datanode.nodeNeedsSaveToDisk = false;
+            //            // update the icon to indicate the change
+            //            setImdiNeedsSaveToDisk(null, false);
+        }
+        //        clearIcon(); this is called by setImdiNeedsSaveToDisk
+    }
+    
+    public void setDataNodeNeedsSaveToDisk(ArbilDataNode dataNode, ArbilField originatingField, boolean updateUI) {
+        if (dataNode.resourceUrlField != null && dataNode.resourceUrlField.equals(originatingField)) {
+            dataNode.hashString = null;
+            dataNode.mpiMimeType = null;
+            dataNode.thumbnailFile = null;
+            dataNode.typeCheckerMessage = null;
+            mimeHashQueue.addToQueue(dataNode);
+        }
+        boolean needsSaveToDisk = dataNode.hasChangedFields() || dataNode.hasDomIdAttribute;
+        if (dataNode.isMetaDataNode() && !dataNode.isChildNode()) {
+            if (needsSaveToDisk == false) {
+                for (ArbilDataNode childNode : dataNode.getAllChildren()) {
+                    if (childNode.nodeNeedsSaveToDisk) {
+                        needsSaveToDisk = true;
+                    }
+                }
+            }
+            if (dataNode.nodeNeedsSaveToDisk != needsSaveToDisk) {
+                if (needsSaveToDisk) {
+                    dataNodeLoader.addNodeNeedingSave(dataNode);
+                } else {
+                    dataNodeLoader.removeNodesNeedingSave(dataNode);
+                }
+                dataNode.nodeNeedsSaveToDisk = needsSaveToDisk;
+            }
+        } else {
+            dataNode.nodeNeedsSaveToDisk = needsSaveToDisk; // this must be set before setImdiNeedsSaveToDisk is called
+            setDataNodeNeedsSaveToDisk(dataNode.getParentDomNode(), null, updateUI);
+        }
+        if (updateUI) {
+            dataNode.clearIcon();
+        }
+    }
+    
     public void bumpHistory(ArbilDataNode dataNode) throws IOException {
 	// update the files version number
 	//TODO: the template add does not create a new history file
@@ -278,6 +366,73 @@ public class ArbilDataNodeService {
 		}
 	    }
 	}
+    }
+public boolean resurrectHistory(ArbilDataNode dataNode, String historyVersion) {
+        InputStream historyFile = null;
+        OutputStream activeVersionFile = null;
+        try {
+            if (historyVersion.equals(".x")) {
+                if (dataNode.getFile().delete()) {
+                    if (!new File(dataNode.getFile().getAbsolutePath() + ".x").renameTo(dataNode.getFile())) {
+                        throw new IOException("Could not rename history file '" + dataNode.getFile().getAbsolutePath() + ".x'");
+                    }
+                } else {
+                    throw new IOException("Could not delete old history file: " + dataNode.getFile().getAbsolutePath());
+                }
+            } else {
+                try {
+                    messageDialogHandler.offerUserToSaveChanges();
+                } catch (Exception e) {
+                    // user canceled the save action
+                    // todo: alert user that nothing was done
+                    return false;
+                }
+                if (!new File(dataNode.getFile().getAbsolutePath() + ".x").exists()) {
+                    if (!dataNode.getFile().renameTo(new File(dataNode.getFile().getAbsolutePath() + ".x"))) {
+                        throw new IOException("Could not rename to history file: " + dataNode.getFile().getAbsolutePath());
+                    }
+                } else {
+                    if (!dataNode.getFile().delete()) {
+                        throw new IOException("Could not delete history file: " + dataNode.getFile().getAbsolutePath());
+                    }
+                }
+                historyFile = new FileInputStream(new File(dataNode.getFile().getAbsolutePath() + historyVersion));
+                activeVersionFile = new FileOutputStream(dataNode.getFile(), true);
+
+                byte[] copyBuffer = new byte[1024];
+                int len;
+                while ((len = historyFile.read(copyBuffer)) > 0) {
+                    activeVersionFile.write(copyBuffer, 0, len);
+                }
+
+            }
+        } catch (FileNotFoundException e) {
+            messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + this.toString(), "File not found");
+            bugCatcher.logError(e);
+            return false;
+        } catch (IOException e) {
+            messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + this.toString(), "Error while reading or writing to disk");
+            bugCatcher.logError(e);
+            return false;
+        } finally {
+            if (null != historyFile) {
+                try {
+                    historyFile.close();
+                } catch (IOException ex) {
+                    bugCatcher.logError(ex);
+                }
+            }
+            if (null != activeVersionFile) {
+                try {
+                    activeVersionFile.close();
+                } catch (IOException ex) {
+                    bugCatcher.logError(ex);
+                }
+            }
+        }
+        dataNodeLoader.requestReload(dataNode.getParentDomNode());
+
+        return true;
     }
 
     public void copyLastHistoryToCurrent(ArbilDataNode dataNode) {
