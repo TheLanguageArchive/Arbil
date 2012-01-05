@@ -253,6 +253,31 @@ public class ArbilDataNodeService {
     }
 
 
+
+    /**
+     * Inserts/sets resource location. Behavior will depend on node type
+     * @param location Location to insert/set
+     */
+    public void insertResourceLocation(ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
+        if (dataNode.isCmdiMetaDataNode()) {
+            ArbilDataNode resourceNode = null;
+            try {
+                resourceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(location);
+            } catch (Exception ex) {
+                throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
+            }
+            if (resourceNode == null) {
+                throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
+            }
+
+            new MetadataBuilder().requestAddNode(dataNode, null, resourceNode);
+        } else {
+            if (dataNode.hasResource()) {
+                dataNode.resourceUrlField.setFieldValue(location.toString(), true, false);
+            }
+        }
+    }
+    
     /**
      * Saves the current changes from memory into a new imdi file on disk.
      * Previous imdi files are renamed and kept as a history.
@@ -470,6 +495,27 @@ public boolean resurrectHistory(ArbilDataNode dataNode, String historyVersion) {
 		}
 	    }
 	}
+    }
+    
+    public ArbilDataNode loadArbilDataNode(Object registeringObject, URI localUri){
+	return dataNodeLoader.getArbilDataNode(registeringObject, localUri);
+    }
+    
+    public void reloadNode(ArbilDataNode dataNode) {
+        dataNode.getParentDomNode().nodeNeedsSaveToDisk = false; // clear any changes
+        //        if (!this.isImdi()) {
+        //            initNodeVariables();
+        //            //loadChildNodes();
+        //            clearIcon();
+        //            // TODO: this could just remove the decendant nodes and let the user re open them
+        //            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(this);
+        ////            this.clearIcon();
+        //        } else {
+        ////            if (getParentDomNode().isCorpus()) {
+        ////                getParentDomNode().autoLoadChildNodes = true;
+        ////            }
+        dataNodeLoader.requestReload(dataNode.getParentDomNode());
+        //        }
     }
 
     public void loadArbilDom(ArbilDataNode dataNode) {

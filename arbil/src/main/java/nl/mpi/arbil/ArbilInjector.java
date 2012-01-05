@@ -91,7 +91,6 @@ public abstract class ArbilInjector {
 	AbstractTreeHelper.setDataNodeLoader(dataNodeLoader);
 	ArbilComponentBuilder.setDataNodeLoader(dataNodeLoader);
 	ArbilCsvImporter.setDataNodeLoader(dataNodeLoader);
-	ArbilDataNode.setDataNodeLoader(dataNodeLoader);
 	ArbilDataNodeTableCell.setDataNodeLoader(dataNodeLoader);
 	ArbilDataNodeArrayTableCell.setDataNodeLoader(dataNodeLoader);
 	ArbilField.setDataNodeLoader(dataNodeLoader);
