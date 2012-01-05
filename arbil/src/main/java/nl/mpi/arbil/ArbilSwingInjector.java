@@ -92,9 +92,7 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilMenuBar.setTreeHelper(treeHelper);
     }
 
-    @Override
     public void injectMimeHashQueue(MimeHashQueue mimeHashQueue) {
-	super.injectMimeHashQueue(mimeHashQueue);
 	ArbilMenuBar.setMimeHashQueue(mimeHashQueue);
     }
 

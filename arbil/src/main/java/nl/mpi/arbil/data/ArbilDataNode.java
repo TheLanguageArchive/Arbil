@@ -27,8 +27,6 @@ import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcher;
-import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
@@ -87,20 +85,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
     private final static String NODE_LOADING_TEXT = "loading node...";
-    private static MessageDialogHandler messageDialogHandler;
-
-    public static void setMessageDialogHandler(MessageDialogHandler handler) {
-        messageDialogHandler = handler;
-    }
+    
     private static BugCatcher bugCatcher;
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
-    }
-    private static MimeHashQueue mimeHashQueue;
-
-    public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance) {
-        mimeHashQueue = mimeHashQueueInstance;
     }
 
     protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
@@ -223,7 +212,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public String getAnyMimeType() {
         if (mpiMimeType == null && hasResource()) { // use the format from the imdi file if the type checker failed eg if the file is on the server
-            ArbilField[] formatField = fieldHashtable.get("Format");
+            ArbilField[] formatField = getFieldArray("Format");
             if (formatField != null && formatField.length > 0) {
                 return formatField[0].getFieldValue();
             }
@@ -596,27 +585,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
     
     public void addField(ArbilField fieldToAdd) {
-        //        System.addField:out.println("addField: " + this.getUrlString() + " : " + fieldToAdd.xmlPath + " : " + fieldToAdd.getFieldValue());
-        ArbilField[] currentFieldsArray = fieldHashtable.get(fieldToAdd.getTranslateFieldName());
-        if (currentFieldsArray == null) {
-            currentFieldsArray = new ArbilField[]{fieldToAdd};
-        } else {
-            //            System.out.println("appendingField: " + fieldToAdd);
-            ArbilField[] appendedFieldsArray = new ArbilField[currentFieldsArray.length + 1];
-            System.arraycopy(currentFieldsArray, 0, appendedFieldsArray, 0, currentFieldsArray.length);
-            appendedFieldsArray[appendedFieldsArray.length - 1] = fieldToAdd;
-            currentFieldsArray = appendedFieldsArray;
-
-            //            for (ImdiField tempField : currentFieldsArray) {
-            //                System.out.println("appended fields: " + tempField);
-            //            }
-        }
-        fieldHashtable.put(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
-
-        if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.getParentDataNode().isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
-            resourceUrlField = fieldToAdd;
-            mimeHashQueue.addToQueue(this);
-        }
+        dataNodeService.addField(this, fieldToAdd);
     }
 
     /**
@@ -853,7 +822,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                     }
                 }
             }
-            ArbilField[] currentFieldArray = fieldHashtable.get(currentPreferredName);
+            ArbilField[] currentFieldArray = getFieldArray(currentPreferredName);
             if (currentFieldArray != null) {
                 for (ArbilField currentField : currentFieldArray) {
                     if (currentField != null) {
@@ -1187,7 +1156,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public boolean isSession() {
         // test if this node is a session
-        ArbilField[] nameFields = fieldHashtable.get("Name");
+        ArbilField[] nameFields = getFieldArray("Name");
         if (nameFields != null) {
             return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Name");
         }
@@ -1204,7 +1173,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public boolean isCatalogue() {
         // test if this node is a catalogue
-        ArbilField[] nameFields = fieldHashtable.get("Name");
+        ArbilField[] nameFields = getFieldArray("Name");
         if (nameFields != null) {
             return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue" + MetadataReader.imdiPathSeparator + "Name");
         }
@@ -1216,7 +1185,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
             return false;
         }
         // test if this node is a corpus
-        ArbilField[] nameFields = fieldHashtable.get("Name");
+        ArbilField[] nameFields = getFieldArray("Name");
         if (nameFields != null) {
             return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus" + MetadataReader.imdiPathSeparator + "Name");
         }
@@ -1469,5 +1438,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      */
     protected String[][] getChildLinks() {
 	return childLinks;
+    }
+    
+    protected ArbilField[] getFieldArray(String translateFieldName){
+	return fieldHashtable.get(translateFieldName);
+    }
+    
+    protected void addFieldArray(String translateFieldName, ArbilField[] fieldArray){
+	fieldHashtable.put(translateFieldName, fieldArray);
     }
 }
