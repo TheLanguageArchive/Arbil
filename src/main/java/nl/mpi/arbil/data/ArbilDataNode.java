@@ -97,11 +97,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-    private static DataNodeLoader dataNodeLoader;
-
-    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
-        dataNodeLoader = dataNodeLoaderInstance;
-    }
     private static MimeHashQueue mimeHashQueue;
 
     public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance) {
@@ -313,20 +308,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public void reloadNode() {
         System.out.println("reloadNode: " + isLoading());
-        getParentDomNode().nodeNeedsSaveToDisk = false; // clear any changes
-        //        if (!this.isImdi()) {
-        //            initNodeVariables();
-        //            //loadChildNodes();
-        //            clearIcon();
-        //            // TODO: this could just remove the decendant nodes and let the user re open them
-        //            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(this);
-        ////            this.clearIcon();
-        //        } else {
-        ////            if (getParentDomNode().isCorpus()) {
-        ////                getParentDomNode().autoLoadChildNodes = true;
-        ////            }
-        dataNodeLoader.requestReload(getParentDomNode());
-        //        }
+	dataNodeService.reloadNode(this);
     }
 
     public void loadArbilDom() {
@@ -993,23 +975,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @param location Location to insert/set
      */
     public void insertResourceLocation(URI location) throws ArbilMetadataException {
-        if (isCmdiMetaDataNode()) {
-            ArbilDataNode resourceNode = null;
-            try {
-                resourceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(location);
-            } catch (Exception ex) {
-                throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
-            }
-            if (resourceNode == null) {
-                throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
-            }
-
-            new MetadataBuilder().requestAddNode(this, null, resourceNode);
-        } else {
-            if (hasResource()) {
-                resourceUrlField.setFieldValue(location.toString(), true, false);
-            }
-        }
+        dataNodeService.insertResourceLocation(this, location);
     }
 
     /**
@@ -1173,7 +1139,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                 try {
                     //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
                     // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
-                    domParentNode = dataNodeLoader.getArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
+                    domParentNode = dataNodeService.loadArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
                     //                    System.out.println("nodeUri: " + nodeUri);
                 } catch (URISyntaxException ex) {
                     bugCatcher.logError(ex);
@@ -1303,7 +1269,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
         // Node is contained by some object so make sure it's fully loaded or at least loading
         if (!getParentDomNode().dataLoaded && !isLoading()) {
-            dataNodeLoader.requestReload(getParentDomNode());
+	    dataNodeService.reloadNode(this);
+            //dataNodeLoader.requestReload(getParentDomNode());
         }
         super.registerContainer(containerToAdd);
     }
