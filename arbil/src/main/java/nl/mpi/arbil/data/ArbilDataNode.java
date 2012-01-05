@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilIcons;
@@ -38,6 +37,7 @@ import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -60,10 +60,12 @@ import org.xml.sax.SAXException;
  */
 public class ArbilDataNode extends ArbilNode implements Comparable {
 
+    private ArbilDataNodeService dataNodeService;
+    
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
     private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
-    private ArbilDataNode[] childArray = new ArbilDataNode[0];
+    protected ArbilDataNode[] childArray = new ArbilDataNode[0];
     private boolean dataLoaded;
     public int resourceFileServerResponse = -1; // -1 = not set otherwise this will be the http response code
     public String hashString;
@@ -77,7 +79,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public boolean isInfoLink = false;
     private boolean singletonMetadataNode = false;
     private boolean nodeNeedsSaveToDisk;
-    private String nodeText, lastNodeText = NODE_LOADING_TEXT;
+    protected String nodeText, lastNodeText = NODE_LOADING_TEXT;
     //    private boolean nodeTextChanged = false;
     private URI nodeUri;
     private boolean containerNode = false;
@@ -88,7 +90,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     private boolean nodeEnabled;
     public boolean hasSchemaError = false;
     // merge to one array of domid url ArbilDataNode
-    private String[][] childLinks = new String[0][0]; // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null    
+    protected String[][] childLinks = new String[0][0]; // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null    
     private int isLoadingCount = 0;
     final private Object loadingCountLock = new Object();
     @Deprecated
@@ -116,11 +118,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-    private static SessionStorage sessionStorage;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-        sessionStorage = sessionStorageInstance;
-    }
     private static TreeHelper treeHelper;
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
@@ -137,9 +134,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         mimeHashQueue = mimeHashQueueInstance;
     }
 
-    protected ArbilDataNode(URI localUri) {
+    protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
         super();
         //        addQueue = new Vector<String[]>();
+	this.dataNodeService = dataNodeService;
         nodeUri = localUri;
         if (nodeUri != null) {
             metadataUtils = ArbilDataNode.getMetadataUtils(nodeUri.toString());
@@ -152,105 +150,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         if (nodeText == null) {
             nodeText = localNodeText;
         }
-    }
-
-    // TODO: this is not used yet but may be required for unicode paths
-    private static String urlEncodePath(String inputPath) {
-        // url encode the path elements
-        String encodedString = null;
-        try {
-            for (String inputStringPart : inputPath.split("/")) {
-                //                    System.out.println("inputStringPart: " + inputStringPart);
-                if (encodedString == null) {
-                    encodedString = URLEncoder.encode(inputStringPart, "UTF-8");
-                } else {
-                    encodedString = encodedString + "/" + URLEncoder.encode(inputStringPart, "UTF-8");
-                }
-            }
-        } catch (Exception ex) {
-            bugCatcher.logError(ex);
-        }
-        return encodedString;
-    }
-
-    static public URI conformStringToUrl(String inputUrlString) {
-        try {
-            //            localUrlString = localUrlString.replace("\\", "/");
-            if (!inputUrlString.toLowerCase().startsWith("http") && !inputUrlString.toLowerCase().startsWith("file:") && !inputUrlString.toLowerCase().startsWith(".")) {
-                return new File(inputUrlString).toURI();
-            } else {
-                // apache method
-                //                URI tempURI = new URI(inputUrlString);
-                //                URI returnURI = URIUtils.createURI(tempURI.getScheme(), tempURI.getHost(), tempURI.getPort(), tempURI.getPath(), tempURI.getQuery(), tempURI.getFragment());
-                //                return returnURI;
-                // end apache method : this requires the uri to be broken into its parts so we might as well do it with the standard classes
-                // mpi method
-                //                URI returnURI = URIUtil.newURI(inputUrlString);
-                // end mpi method : this will url encode the # etc. and therefore loose the fragment and other parts
-                //                boolean isUncPath = inputUrlString.toLowerCase().startsWith("file:////");
-                //                if (isUncPath) {
-                //                    try {
-                //                        returnURI = new URI("file:////" + returnURI.toString().substring("file:/".length()));
-                //                    } catch (URISyntaxException urise) {
-                //                       .logError(urise);
-                //                    }
-                //                }
-
-                // separate the path and protocol
-                int protocolEndIndex;
-                if (inputUrlString.startsWith(".")) {
-                    // TODO: this is un tested for ./ paths, but at this stage it appears unlikey to ever be needed
-                    protocolEndIndex = 0;
-                } else {
-                    protocolEndIndex = inputUrlString.indexOf(":/");
-                }
-                //                while (inputUrlString.charAt(protocolEndIndex) == '/') {
-                //                    protocolEndIndex++;
-                //                }
-                String protocolComponent = inputUrlString.substring(0, protocolEndIndex);
-                String remainingComponents = inputUrlString.substring(protocolEndIndex + 1);
-                String[] pathComponentArray = remainingComponents.split("#");
-                String pathComponent = pathComponentArray[0];
-                String fragmentComponent = null;
-                if (pathComponentArray.length > 1) {
-                    fragmentComponent = pathComponentArray[1];
-                }
-                // note that this must be done as separate parameters not a single string otherwise it will not get url encoded
-                // TODO: this could require the other url components to be added here
-                return new URI(protocolComponent, pathComponent, fragmentComponent);
-                //                System.out.println("returnUrl: " + returnUrl);
-                ////                int protocolEndIndex = inputUrlString.lastIndexOf("/", "xxxx:".length());
-
-                //                String pathComponentEncoded = URLEncoder.encode(pathComponent, "UTF-8");
-                //                returnUrl = new URI(protocolComponent + pathComponentEncoded);
-                //                System.out.println("returnUrl: " + returnUrl);
-            }
-            //            // if the imdi api finds only one / after the file: it will interpret the url as relative and make a bit of a mess of it, so we have to make sure that we have two for the url and one for the root
-            //            if (returnUrl.toString().toLowerCase().startsWith("file:") && !returnUrl.toString().toLowerCase().startsWith("file:///")) {
-            //                // here we assume that this application does not use relative file paths
-            //                returnUrl = new URL("file", "", "//" + returnUrl.getPath());
-            //            }
-            //            System.out.println("conformStringToUrl URI: " + new URI(returnUrl.toString()));
-        } catch (Exception ex) {
-            bugCatcher.logError(ex);
-            return null;
-        }
-        //        System.out.println("conformStringToUrl out: " + returnUrl.toString());
-    }
-
-    static public URI normaliseURI(URI inputURI) {
-        //        System.out.println("normaliseURI: " + inputURI);
-        boolean isUncPath = inputURI.toString().toLowerCase().startsWith("file:////");
-        URI returnURI = inputURI.normalize();
-        if (isUncPath) {
-            try {
-                // note that this must use the single string parameter to prevent re url encoding
-                returnURI = new URI("file:////" + returnURI.toString().substring("file:/".length()));
-            } catch (URISyntaxException urise) {
-                bugCatcher.logError(urise);
-            }
-        }
-        return returnURI;
     }
     // static methods for testing imdi file and object types
 
@@ -297,6 +196,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         }
         return null;
     }
+    
+    public MetadataUtils getMetadataUtils(){
+	return metadataUtils;
+    }
+    
     // end static methods for testing imdi file and object types
 
     public boolean getNeedsSaveToDisk(boolean onlyOfSubNode) {
@@ -309,6 +213,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         } else {
             return this.getParentDomNode().nodeNeedsSaveToDisk;
         }
+    }
+    
+    protected boolean isNeedsSaveToDisk(){
+	return isNeedsSaveToDisk();
     }
 
     public boolean hasChangedFields() {
@@ -404,7 +312,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         return nodeFragmentName;
     }
 
-    private void initNodeVariables() {
+    protected void initNodeVariables() {
         // loop any indichildnodes and init
         if (childArray != null) {
             for (ArbilDataNode currentNode : childArray) {
@@ -479,33 +387,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public void loadArbilDom() {
         System.out.println("loadArbilDom: " + nodeUri.toString());
-        if (getParentDomNode() != this) {
-            getParentDomNode().loadArbilDom();
-        } else {
-            synchronized (getParentDomLockObject()) {
-                initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
-                if (!isMetaDataNode() && !isDirectory() && isLocal()) {
-                    // if it is an not imdi or a loose file but not a direcotry then get the md5sum
-                    mimeHashQueue.addToQueue(this);
-                    dataLoaded = true;
-                }
-                if (this.isDirectory()) {
-                    getDirectoryLinks();
-                    dataLoaded = true;
-                    //            clearIcon();
-                }
-                if (isMetaDataNode()) {
-                    loadMetadataDom();
-                    dataLoaded = true;
-                }
-            }
-        }
+        dataNodeService.loadArbilDom(this);
     }
 
     private void loadMetadataDom() {
         if (this.isLocal() && !this.getFile().exists() && new File(this.getFile().getAbsolutePath() + ".0").exists()) {
             // if the file is missing then try to find a valid history file
-            copyLastHistoryToCurrent();
+            dataNodeService.copyLastHistoryToCurrent(this);
             messageDialogHandler.addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
         }
         try {
@@ -934,7 +822,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         }
         try {
             bumpHistory();
-            copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
+            dataNodeService.copyLastHistoryToCurrent(this); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
             synchronized (getParentDomLockObject()) {
                 System.out.println("deleting by corpus link");
                 URI[] copusUriList = new URI[targetImdiNodes.length];
@@ -1012,8 +900,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                 saveChangesToCache(true);
             }
             try {
-                bumpHistory();
-                copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
+                dataNodeService.bumpHistory(this);
+                dataNodeService.copyLastHistoryToCurrent(this); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
                 synchronized (getParentDomLockObject()) {
                     return metadataUtils.addCorpusLink(this.getURI(), new URI[]{targetImdiNode.getURI()});
                 }
@@ -1044,70 +932,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                 }
                 for (String element : elements) {
                 }
-                for (ArbilDataNode clipboardNode : pasteIntoNode(elements)) {
+                for (ArbilDataNode clipboardNode : dataNodeService.pasteIntoNode(this, elements)) {
                     new MetadataBuilder().requestAddNode(this, "copy of " + clipboardNode, clipboardNode);
                 }
             }
         } catch (Exception ex) {
             bugCatcher.logError(ex);
         }
-    }
-
-//    if (currentNode.getNeedsSaveToDisk(false)) {
-//			    if (JOptionPane.CANCEL_OPTION == ArbilWindowManager.getSingleInstance().showDialogBox("The nodes to be copied contain unsaved changes.\nUnless these changes are saved, the resulting nodes will be copies of the currently saved nodes.\nContinue anyway?", "Copying with unsaved changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-//				return;
-//			    }
-//			    break;
-//			}
-    private Collection<ArbilDataNode> pasteIntoNode(String[] clipBoardStrings) {
-        ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
-        boolean ignoreSaveChanges = false;
-        for (String clipBoardString : clipBoardStrings) {
-            if (this.isCorpus()) {
-                if (MetadataFormat.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
-                    ArbilDataNode clipboardNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
-                    if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
-                        if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!this.isSession() && !this.isChildNode()))) {
-                            if (this.getFile().exists()) {
-                                if (!ignoreSaveChanges && clipboardNode.getNeedsSaveToDisk(false)) {
-                                    if (JOptionPane.CANCEL_OPTION == messageDialogHandler.showDialogBox(
-                                            "Some of the nodes to be copied contain unsaved changes.\nUnless they are saved, these changes will not be present in the resulting nodes. Continue anyway?", "Copying with unsaved changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                                        return new ArrayList<ArbilDataNode>(0);
-                                    } else {
-                                        ignoreSaveChanges = true;
-                                    }
-                                }
-
-                                // this must use merge like favoirite to prevent instances end endless loops in corpus branches
-                                nodesToAdd.add(clipboardNode);
-                            } else {
-                                messageDialogHandler.addMessageDialogToQueue("The target node's file does not exist", null);
-                            }
-                        } else {
-                            messageDialogHandler.addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
-                        }
-                    } else {
-                        messageDialogHandler.addMessageDialogToQueue("The target file is not in the cache", null);
-                    }
-                } else {
-                    messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
-                }
-            } else if (this.isMetaDataNode() || this.isSession()) {
-                // Get source node
-                ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
-                // Check if it can be contained by destination node
-                if (MetadataReader.getSingleInstance().nodeCanExistInNode(this, templateDataNode)) {
-                    // Add source to destination
-                    new MetadataBuilder().requestAddNode(this, templateDataNode.toString(), templateDataNode);
-                } else {
-                    // Invalid copy/paste...
-                    messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
-                }
-            } else { // Not corpus, session or metadata
-                messageDialogHandler.addMessageDialogToQueue("Nodes of this type cannot be pasted into at this stage", null);
-            }
-        }
-        return nodesToAdd;
     }
 
     /**
@@ -1753,71 +1584,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * Increment the history file so that a new current file can be saved without overwritting the old
      */
     public void bumpHistory() throws IOException {
-        // update the files version number
-        //TODO: the template add does not create a new history file
-        int versionCounter = 0;
-        File headVersion = this.getFile();
-        //        if the .x file (the last head) exist then replace the current with it
-        if (new File(this.getFile().getAbsolutePath() + ".x").exists()) {
-            versionCounter++;
-            headVersion = new File(this.getFile().getAbsolutePath() + ".x");
-        }
-        while (new File(this.getFile().getAbsolutePath() + "." + versionCounter).exists()) {
-            versionCounter++;
-        }
-        while (versionCounter >= 0) {
-            File lastFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
-            versionCounter--;
-            File nextFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
-            if (versionCounter >= 0) {
-                System.out.println("renaming: " + nextFile + " : " + lastFile);
-                if (!nextFile.renameTo(lastFile)) {
-                    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
-                }
-            } else {
-                System.out.println("renaming: " + headVersion + " : " + lastFile);
-                if (!headVersion.renameTo(lastFile)) {
-                    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
-                }
-            }
-        }
-    }
-
-    private void copyLastHistoryToCurrent() {
-        FileOutputStream outFile = null;
-        InputStream inputStream = null;
-        try {
-            outFile = new FileOutputStream(this.getFile());
-            inputStream = new FileInputStream(new File(this.getFile().getAbsolutePath() + ".0"));
-            int bufferLength = 1024 * 4;
-            byte[] buffer = new byte[bufferLength];
-            int bytesread = 0;
-            while (bytesread >= 0) {
-                bytesread = inputStream.read(buffer);
-                if (bytesread == -1) {
-                    break;
-                }
-                outFile.write(buffer, 0, bytesread);
-            }
-        } catch (IOException iOException) {
-            messageDialogHandler.addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
-            bugCatcher.logError(iOException);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException ex) {
-                    bugCatcher.logError(ex);
-                }
-            }
-            if (outFile != null) {
-                try {
-                    outFile.close();
-                } catch (IOException ex) {
-                    bugCatcher.logError(ex);
-                }
-            }
-        }
+        dataNodeService.bumpHistory(this);
     }
 
     /**
@@ -1984,13 +1751,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean isEditable() {
-        if (isLocal()) {
-            return (sessionStorage.pathIsInsideCache(this.getFile()))
-                    || sessionStorage.pathIsInFavourites(this.getFile());
-        } else {
-            return false;
-
-        }
+        return dataNodeService.isEditable(this);
     }
 
     /**
@@ -2096,11 +1857,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public boolean isFavorite() {
         // Is being cached because comparator checks this every time
         if (isFavorite == null) {
-            if (!this.isLocal()) {
-                // only local files can be favourites
-                return false;
-            }
-            isFavorite = sessionStorage.pathIsInFavourites(this.getFile());
+            isFavorite = dataNodeService.isFavorite(this);
         }
         return isFavorite;
 
@@ -2223,5 +1980,12 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      */
     public void setTypeCheckerState(TypeCheckerState typeCheckerState) {
         this.typeCheckerState = typeCheckerState;
+    }
+
+    /**
+     * @return the childLinks
+     */
+    protected String[][] getChildLinks() {
+	return childLinks;
     }
 }

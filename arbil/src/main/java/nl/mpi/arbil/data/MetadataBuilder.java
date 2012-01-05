@@ -58,14 +58,14 @@ public class MetadataBuilder {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
     private ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
-
+    
     /**
      * Requests to add a new node of given type to root
      * @param nodeType Name of node type
      * @param nodeTypeDisplayName Name to display as node type
      */
     public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
-	ArbilDataNode arbilDataNode = new ArbilDataNode(sessionStorage.getNewArbilFileName(sessionStorage.getSaveLocation(""), nodeType));
+	ArbilDataNode arbilDataNode = dataNodeLoader.createNewDataNode(sessionStorage.getNewArbilFileName(sessionStorage.getSaveLocation(""), nodeType));
 	requestAddNode(arbilDataNode, nodeType, nodeTypeDisplayName);
     }
 

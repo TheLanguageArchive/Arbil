@@ -17,6 +17,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
@@ -656,7 +657,12 @@ public class TreeContextMenu extends ArbilContextMenu {
 	String addableLocation = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
 
 	if ((addableLocation != null) && (addableLocation.length() > 0)) {
-	    treeHelper.addLocationInteractive(ArbilDataNode.conformStringToUrl(addableLocation));
+	    try {
+		treeHelper.addLocationInteractive(ArbilDataNodeService.conformStringToUrl(addableLocation));
+	    } catch (URISyntaxException ex) {
+		dialogHandler.addMessageDialogToQueue("Failed to add location to remote corpus. See error log for details.", "Error");
+		bugCatcher.logError(ex);
+	    }
 	}
     }
 
@@ -830,7 +836,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    try {
 			String favouriteUrlString = evt.getActionCommand();
-			ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNode.conformStringToUrl(favouriteUrlString));
+			ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNodeService.conformStringToUrl(favouriteUrlString));
 			if (leadSelectedTreeNode != null) {
 			    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateDataNode);
 			} else {
@@ -850,6 +856,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 //                    }
 //                    treeHelper.reloadLocalCorpusTree(targetNode);
 		    } catch (Exception ex) {
+			dialogHandler.addMessageDialogToQueue("Failed to add from favourites, see error log for details.", "Error");
 			bugCatcher.logError(ex);
 		    }
 		}

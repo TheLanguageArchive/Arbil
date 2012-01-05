@@ -16,6 +16,7 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.arbil.util.TreeHelper;
 
 /*
  * ArbilMain.java
@@ -54,13 +55,14 @@ public class ArbilMain extends javax.swing.JFrame {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers(versionManager);
 
-	initApplication(injector.getMimeHashQueue());
+	initApplication(injector.getTreeHelper(), injector.getMimeHashQueue());
 	initUI(injector.getTreeHelper(), injector.getWindowManager(), versionManager);
 	
 	checkFirstRun(injector.getWindowManager());
     }
 
-    private void initApplication(ArbilMimeHashQueue hashQueue) {
+    private void initApplication(TreeHelper treeHelper, ArbilMimeHashQueue hashQueue) {
+	treeHelper.init();
 	hashQueue.init();
     }
 

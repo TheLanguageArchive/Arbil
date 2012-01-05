@@ -32,6 +32,7 @@ import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
+import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
@@ -542,7 +543,7 @@ public class MetadataReader {
         //        }
         //                    System.out.println("linkPathCorrected: " + linkPath);
         if (linkURI != null) {
-            linkURI = ArbilDataNode.normaliseURI(linkURI);
+            linkURI = ArbilDataNodeService.normaliseURI(linkURI);
         }
         //        System.out.println("linkURI: " + linkURI.toString());
         return linkURI;
