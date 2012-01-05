@@ -26,7 +26,6 @@ import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
-import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
@@ -85,12 +84,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
     private final static String NODE_LOADING_TEXT = "loading node...";
-    
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-        bugCatcher = bugCatcherInstance;
-    }
 
     protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
         super();
@@ -240,7 +233,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         return nodeFragmentName;
     }
 
-    protected void initNodeVariables() {
+    protected final void initNodeVariables() {
         // loop any indichildnodes and init
         if (childArray != null) {
             for (ArbilDataNode currentNode : childArray) {
@@ -407,7 +400,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
             File destinationDir = new File(currentFileName);
             if (!destinationDir.exists()) {
                 if (!destinationDir.mkdir()) {
-                    bugCatcher.logError(new Exception("Could not create directory " + destinationDir.getAbsolutePath()));
+                    dataNodeService.getBugCatcher().logError(new Exception("Could not create directory " + destinationDir.getAbsolutePath()));
                 }
             }
             return destinationDir;
@@ -738,10 +731,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                     getParentDomNode().wait();
                     System.out.println("wait");
                     if (isLoading()) {
-                        bugCatcher.logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
+                        dataNodeService.getBugCatcher().logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
                     }
                 } catch (Exception ex) {
-                    bugCatcher.logError(ex);
+                    dataNodeService.getBugCatcher().logError(ex);
                     return false;
                 }
             }
@@ -870,7 +863,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                 try {
                     resourcePathString = URLDecoder.decode(resourcePathString, "UTF-8");
                 } catch (UnsupportedEncodingException encodingException) {
-                    bugCatcher.logError(encodingException);
+                    dataNodeService.getBugCatcher().logError(encodingException);
                 }
                 nodeText = resourcePathString;
             }
@@ -1070,13 +1063,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                     try {
                         resourceUri = new URI("file:////" + resourceUri.toString().substring("file:/".length()));
                     } catch (URISyntaxException urise) {
-                        bugCatcher.logError(urise);
+                        dataNodeService.getBugCatcher().logError(urise);
                     }
                 }
             }
             return resourceUri;
         } catch (Exception urise) {
-            bugCatcher.logError(urise);
+            dataNodeService.getBugCatcher().logError(urise);
             System.out.println("URISyntaxException: " + urise.getMessage());
             return null;
         }
@@ -1111,7 +1104,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                     domParentNode = dataNodeService.loadArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
                     //                    System.out.println("nodeUri: " + nodeUri);
                 } catch (URISyntaxException ex) {
-                    bugCatcher.logError(ex);
+                    dataNodeService.getBugCatcher().logError(ex);
                 }
             } else {
                 domParentNode = this;
@@ -1212,7 +1205,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         try {
             return nodeUri; // new URI(nodeUri.toString()); // a copy of
         } catch (Exception ex) {
-            bugCatcher.logError(ex);
+            dataNodeService.getBugCatcher().logError(ex);
             return null;
         }
     }
@@ -1223,7 +1216,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
             try {
                 return new File(new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
             } catch (Exception urise) {
-                bugCatcher.logError(nodeUri.toString(), urise);
+                dataNodeService.getBugCatcher().logError(nodeUri.toString(), urise);
             }
         }
         return null;
@@ -1281,7 +1274,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                 ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
                 currentContainer.dataNodeIconCleared(this);
             } catch (java.util.NoSuchElementException ex) {
-                bugCatcher.logError(ex);
+                dataNodeService.getBugCatcher().logError(ex);
             }
         }
         //            }
@@ -1299,7 +1292,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                 //ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
                 currentContainer.dataNodeRemoved(this);
             } catch (java.util.NoSuchElementException ex) {
-                bugCatcher.logError(ex);
+                dataNodeService.getBugCatcher().logError(ex);
             }
         }
     }

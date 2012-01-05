@@ -105,7 +105,6 @@ public abstract class ArbilInjector {
 	// Inject bug catcher
 	ArbilComponentBuilder.setBugCatcher(bugCatcher);
 	ArbilCsvImporter.setBugCatcher(bugCatcher);
-	ArbilDataNode.setBugCatcher(bugCatcher);
 	ArbilEntityResolver.setBugCatcher(bugCatcher);
 	ArbilFavourites.setBugCatcher(bugCatcher);
 	ArbilFieldViews.setBugCatcher(bugCatcher);
