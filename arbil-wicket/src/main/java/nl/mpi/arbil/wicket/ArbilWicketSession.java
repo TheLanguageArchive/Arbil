@@ -24,6 +24,11 @@ public class ArbilWicketSession extends WebSession {
 	super(request);
 	this.application = application;
     }
+    
+    public void init(){
+	getDataNodeLoader();
+	getTreeHelper().init();
+    }
 
     public static ArbilWicketSession get() {
 	return (ArbilWicketSession) Session.get();
@@ -52,14 +57,14 @@ public class ArbilWicketSession extends WebSession {
 
     public synchronized DataNodeLoader getDataNodeLoader(){
 	if(dataNodeLoader == null){
-	    dataNodeLoader = application.newDataNodeLoader(this);
+	    dataNodeLoader = application.newDataNodeLoader(this, getSessionStorage(), getTreeHelper(), getMimeHashQueue());
 	}
 	return dataNodeLoader;
     }
     
     public synchronized MimeHashQueue getMimeHashQueue(){
 	if(mimeHashQueue == null){
-	    mimeHashQueue = application.newMimeHashQueue(this);
+	    mimeHashQueue = application.newMimeHashQueue(this, sessionStorage);
 	}
 	return mimeHashQueue;
     }

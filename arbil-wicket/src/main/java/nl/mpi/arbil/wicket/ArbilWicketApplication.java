@@ -1,6 +1,6 @@
 package nl.mpi.arbil.wicket;
 
-import nl.mpi.arbil.data.DefaultDataNodeLoader;
+import nl.mpi.arbil.data.AbstractTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoaderThreadManager;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
@@ -17,11 +17,14 @@ import org.apache.wicket.protocol.http.WebApplication;
 
 public class ArbilWicketApplication extends WebApplication {
 
+    private ArbilWicketInjector injector;
+
     /**
      * Constructor
      */
     public ArbilWicketApplication() {
-	new ArbilWicketInjector().injectHandlers();
+	injector = new ArbilWicketInjector();
+	injector.injectHandlers();
     }
 
     /**
@@ -34,7 +37,9 @@ public class ArbilWicketApplication extends WebApplication {
     @Override
     public Session newSession(Request request, Response response) {
 	// We don't want no ordinary session we don't!
-	return new ArbilWicketSession(this, request);
+	ArbilWicketSession session = new ArbilWicketSession(this, request);
+	session.init();
+	return session;
     }
 
     /**
@@ -42,7 +47,12 @@ public class ArbilWicketApplication extends WebApplication {
      * @return New session storage object
      */
     public SessionStorage newSessionStorage() {
-	return new ArbilSessionStorage();
+	ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
+	sessionStorage.setBugCatcher(injector.getBugCatcher());
+	sessionStorage.setMessageDialogHandler(injector.getMessageDialogHandler());
+	sessionStorage.setWindowManager(injector.getWindowManager());
+	sessionStorage.setTreeHelper(injector.getTreeHelper());
+	return sessionStorage;
     }
 
     /**
@@ -51,7 +61,8 @@ public class ArbilWicketApplication extends WebApplication {
      * @return New treehelper object
      */
     public TreeHelper newTreeHelper(final SessionStorage sessionStorage) {
-	return new ArbilWicketTreeHelper(sessionStorage);
+	TreeHelper th = new ArbilWicketTreeHelper(injector.getMessageDialogHandler(), injector.getBugCatcher(), sessionStorage);
+	return th;
     }
 
     /**
@@ -59,8 +70,12 @@ public class ArbilWicketApplication extends WebApplication {
      * @param session Session to set as session in any new loader thread (generally Session.get() will do)
      * @return New DataNodeLoader instance
      */
-    DataNodeLoader newDataNodeLoader(ArbilWicketSession session) {
-	return new DefaultDataNodeLoader(newLoaderThreadManager(session));
+    DataNodeLoader newDataNodeLoader(ArbilWicketSession session, SessionStorage sessionStorage, TreeHelper treeHelper, MimeHashQueue mimeHashQueue) {
+	DataNodeLoader loader = new ArbilWicketDataNodeLoader(injector.getBugCatcher(), injector.getMessageDialogHandler(), sessionStorage, mimeHashQueue, treeHelper);
+	if (treeHelper instanceof AbstractTreeHelper) {
+	    ((AbstractTreeHelper) treeHelper).setDataNodeLoader(loader);
+	}
+	return loader;
     }
 
     /**
@@ -68,8 +83,8 @@ public class ArbilWicketApplication extends WebApplication {
      * @param session Session to set as session in the mime hash queue thread (generally Session.get() will do)
      * @return New MimeHashQueue instance
      */
-    public MimeHashQueue newMimeHashQueue(final ArbilWicketSession session) {
-	MimeHashQueue newHashQueue = new DefaultMimeHashQueue() {
+    public MimeHashQueue newMimeHashQueue(final ArbilWicketSession session, final SessionStorage sessionStorage) {
+	DefaultMimeHashQueue newHashQueue = new DefaultMimeHashQueue(sessionStorage) {
 
 	    @Override
 	    protected void beforeExecuteThread(Thread t, Runnable r) {
@@ -85,6 +100,9 @@ public class ArbilWicketApplication extends WebApplication {
 		cleanupSessionInThread();
 	    }
 	};
+	newHashQueue.setBugCatcher(injector.getBugCatcher());
+	newHashQueue.setDataNodeLoader(injector.getDataNodeLoader());
+	newHashQueue.setMessageDialogHandler(injector.getMessageDialogHandler());
 	newHashQueue.startMimeHashQueueThread();
 	return newHashQueue;
     }

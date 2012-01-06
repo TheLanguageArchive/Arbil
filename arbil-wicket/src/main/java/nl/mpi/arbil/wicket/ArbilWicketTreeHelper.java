@@ -2,6 +2,8 @@ package nl.mpi.arbil.wicket;
 
 import nl.mpi.arbil.data.AbstractTreeHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 
 /**
@@ -20,13 +22,17 @@ public class ArbilWicketTreeHelper extends AbstractTreeHelper {
      * 
      * @param sessionStorage Storage to tie treehelper to
      */
-    public ArbilWicketTreeHelper(SessionStorage sessionStorage) {
-	super();
+    public ArbilWicketTreeHelper(MessageDialogHandler dialogHandler, BugCatcher bugCatcher, SessionStorage sessionStorage) {
+	super(dialogHandler, bugCatcher);
 	this.sessionStorage = sessionStorage;
+	
+    }
+
+    public void init() {
 	initTrees();
 	loadLocationsList();
     }
-
+    
     @Override
     protected synchronized SessionStorage getSessionStorage() {
 	return sessionStorage;

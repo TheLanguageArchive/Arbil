@@ -14,14 +14,18 @@ import nl.mpi.arbil.util.TreeHelper;
  * the request. To be injected into Arbil core classes.
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilWicketTreeHelperProxy implements TreeHelper{
+public class ArbilWicketTreeHelperProxy implements TreeHelper {
 
     private TreeHelper getTreeHelper() {
 	// Session storage is retrieved from the request cycle. It is kept there because it gets
 	// stored in a thread local variable per request
 	return ArbilWicketSession.get().getTreeHelper();
     }
-    
+
+    public void init() {
+	getTreeHelper().init();
+    }
+
     public int addDefaultCorpusLocations() {
 	return getTreeHelper().addDefaultCorpusLocations();
     }

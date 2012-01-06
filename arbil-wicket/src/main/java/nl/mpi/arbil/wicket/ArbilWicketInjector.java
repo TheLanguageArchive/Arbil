@@ -23,34 +23,71 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ArbilWicketInjector extends ArbilInjector {
 
-    private final static BugCatcher bugCatcher = new ArbilWicketBugCatcher();
-    private final static ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
-    private final static MessageDialogHandler messageDialogHandler = new ArbilWicketMessageDialogHandler();
-    private final static WindowManager windowManager = new ArbilWicketWindowManager();
-    private final static SessionStorage sessionStorage = new ArbilWicketSessionStorageSessionProxy();
-    private final static TreeHelper treeHelper = new ArbilWicketTreeHelperProxy();
-    private final static DataNodeLoader dataNodeLoader = new ArbilWicketDataNodeLoaderProxy();
-    private final static MimeHashQueue mimeHashQueue = new ArbilWicketMimeHashQueueProxy();
+    private final BugCatcher bugCatcher = new ArbilWicketBugCatcher();
+    private final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
+    private final MessageDialogHandler messageDialogHandler = new ArbilWicketMessageDialogHandler();
+    private final WindowManager windowManager = new ArbilWicketWindowManager();
+    private final SessionStorage sessionStorage = new ArbilWicketSessionStorageSessionProxy();
+    private final TreeHelper treeHelper = new ArbilWicketTreeHelperProxy();
+    private final DataNodeLoader dataNodeLoader = new ArbilWicketDataNodeLoaderProxy();
 
     public void injectHandlers() {	
-	ArbilSessionStorage.setBugCatcher(bugCatcher);
-	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
-	ArbilSessionStorage.setWindowManager(windowManager);
-	
-	DefaultDataNodeLoader.setSessionStorage(sessionStorage);
-	
-	DefaultMimeHashQueue.setBugCatcher(bugCatcher);
-	DefaultMimeHashQueue.setDataNodeLoader(dataNodeLoader);
-	DefaultMimeHashQueue.setMessageDialogHandler(messageDialogHandler);
-	DefaultMimeHashQueue.setSessionStorage(sessionStorage);
 
 	injectVersionManager(versionManager);
 	injectBugCatcher(bugCatcher);
 	injectDialogHandler(messageDialogHandler);
 	injectWindowManager(windowManager);
 	injectSessionStorage(sessionStorage);
-	injectMimeHashQueue(mimeHashQueue);
 	injectDataNodeLoader(dataNodeLoader);
 	injectTreeHelper(treeHelper);
+    }
+
+    /**
+     * @return the sessionStorage
+     */
+    protected SessionStorage getSessionStorage() {
+	return sessionStorage;
+    }
+
+    /**
+     * @return the bugCatcher
+     */
+    protected BugCatcher getBugCatcher() {
+	return bugCatcher;
+    }
+
+    /**
+     * @return the versionManager
+     */
+    protected ApplicationVersionManager getVersionManager() {
+	return versionManager;
+    }
+
+    /**
+     * @return the messageDialogHandler
+     */
+    protected MessageDialogHandler getMessageDialogHandler() {
+	return messageDialogHandler;
+    }
+
+    /**
+     * @return the windowManager
+     */
+    protected WindowManager getWindowManager() {
+	return windowManager;
+    }
+
+    /**
+     * @return the treeHelper
+     */
+    protected TreeHelper getTreeHelper() {
+	return treeHelper;
+    }
+
+    /**
+     * @return the dataNodeLoader
+     */
+    protected DataNodeLoader getDataNodeLoader() {
+	return dataNodeLoader;
     }
 }
