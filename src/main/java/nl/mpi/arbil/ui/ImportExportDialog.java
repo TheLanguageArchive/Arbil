@@ -537,6 +537,8 @@ public class ImportExportDialog {
 	stopButton.setEnabled(true);
 	startButton.setEnabled(false);
 	showInTableButton.setEnabled(false);
+	overwriteCheckBox.setEnabled(false);
+	copyFilesCheckBox.setEnabled(false);
 	taskOutput.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	searchDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
@@ -553,6 +555,9 @@ public class ImportExportDialog {
 	stopButton.setEnabled(false);
 	startButton.setEnabled(selectedNodes.size() > 0);
 	showInTableButton.setEnabled(validationErrors.size() > 0 || metaDataCopyErrors.size() > 0 || fileCopyErrors.size() > 0);
+	overwriteCheckBox.setEnabled(true);
+	copyFilesCheckBox.setEnabled(true);
+
 	// TODO: add a close button?
 	stopSearch = false;
 	downloadAbortFlag.abortDownload = false;
