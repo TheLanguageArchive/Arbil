@@ -1380,7 +1380,6 @@ public class ArbilComponentBuilder {
 	Node returnNode = null;
 	// this must be tested against getting the actor description not the actor of an imdi profile instance
 	String currentPathString = pathString + "." + currentSchemaProperty.getName().getLocalPart();
-	System.out.println("Found Element: " + currentPathString);
 	SchemaType currentSchemaType = currentSchemaProperty.getType();
 	Node currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, currentSchemaProperty, addDummyData);
 	returnNode = currentElement;
