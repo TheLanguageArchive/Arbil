@@ -58,12 +58,13 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	mimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	injectMimeHashQueue(mimeHashQueue);
 
-	treeHelper = new ArbilTreeHelper();
+	treeHelper = new ArbilTreeHelper(sessionStorage, messageDialogHandler, bugCatcher);
 	windowManager.setTreeHelper(treeHelper);
 	sessionStorage.setTreeHelper(treeHelper);
 	injectTreeHelper(treeHelper);
 
 	dataNodeLoader = new ArbilDataNodeLoader(bugCatcher, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+	treeHelper.setDataNodeLoader(dataNodeLoader);
 	mimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	windowManager.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);

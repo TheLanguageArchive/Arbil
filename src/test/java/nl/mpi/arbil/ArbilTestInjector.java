@@ -9,7 +9,6 @@ import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -35,12 +34,13 @@ public class ArbilTestInjector extends ArbilInjector {
 	final WindowManager windowManager = new MockWindowManager();
 	injectWindowManager(windowManager);
 
-	final TreeHelper treeHelper = new ArbilTreeHelper();
+	final ArbilTreeHelper treeHelper = new ArbilTreeHelper(sessionStorage, messageDialogHandler, bugCatcher);
 	injectTreeHelper(treeHelper);
 
 	final DefaultMimeHashQueue mimeHashQueue = new DefaultMimeHashQueue(sessionStorage);
 	
 	final DataNodeLoader dataNodeLoader = new ArbilDataNodeLoader(bugCatcher, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+	treeHelper.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
     }
 }
