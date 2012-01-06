@@ -289,12 +289,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public void reloadNode() {
-        System.out.println("reloadNode: " + isLoading());
 	dataNodeService.reloadNode(this);
     }
 
     public void loadArbilDom() {
-        System.out.println("loadArbilDom: " + nodeUri.toString());
         dataNodeService.loadArbilDom(this);
     }
     

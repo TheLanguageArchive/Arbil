@@ -120,8 +120,6 @@ public class ArbilVocabularies {
 	    // testing code for checking the language fields have the required triggers
 	    if (vocabularyLocation.endsWith("MPI-Languages.xml")) {
 		boolean foundTrigger = false;
-//            System.out.println("vocabularyLocation: " + vocabularyLocation);
-//            System.out.println("Field: " + originatingImdiField.getFullXmlPath());
 		for (String[] currentTrigger : originatingArbilField.getParentDataNode().getNodeTemplate().fieldTriggersArray) {
 		    if (fieldPath.equals(currentTrigger[0])) {
 			foundTrigger = true;
@@ -149,13 +147,10 @@ public class ArbilVocabularies {
 		    // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
 		    ArbilVocabulary tempVocabulary = tempField[0].getVocabulary();
 		    ArbilVocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
-//                System.out.println("redirectFieldString: " + redirectFieldString);
 		    if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
-			System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
 			String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
 			// change the requested vocabulary string to the redirected value
 			vocabularyLocation = correctedUrl;
-			System.out.println("redirected vocabularyLocation: " + vocabularyLocation);
 		    }
 		}
 	    }
@@ -172,7 +167,6 @@ public class ArbilVocabularies {
     }
 
     public ArbilVocabulary getEmptyVocabulary(String vocabularyLocation) {
-	System.out.println("getEmptyVocabulary: " + vocabularyLocation);
 	if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
 	    return null;
 	} else {
@@ -191,13 +185,11 @@ public class ArbilVocabularies {
 	    // this delete is for testing only!!! new File(cachePath).delete();
 	    if (!cachedFile.exists()) {
 		String backupPath = "/nl/mpi/arbil/resources/IMDI/FallBack/" + cachedFile.getName();
-		System.out.println("backupPath: " + backupPath);
 		URL backUp = this.getClass().getResource(backupPath);
 		if (backUp != null) {
 		    sessionStorage.saveRemoteResource(backUp, cachedFile, null, true, false, new DownloadAbortFlag(), null);
 		}
 	    }
-	    System.out.println("parseRemoteFile: " + cachedFile);
 	    ArbilVocabulary vocabulary = new ArbilVocabulary(vocabRemoteUrl);
 	    vocabulariesTable.put(vocabRemoteUrl, vocabulary);
 	    try {
@@ -254,7 +246,6 @@ public class ArbilVocabularies {
 
 	@Override
 	public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
-//            System.out.println("startElement: " + name);
 //            this VocabularyRedirect code has been replaced by the templates
 //            if (name.equals("VocabularyRedirect")) { // or should this be Redirect
 //                // when getting the list check attribute in the field X for the vocab location
