@@ -653,7 +653,15 @@ public class TreeContextMenu extends ArbilContextMenu {
 
     private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 	for (ArbilDataNode currentNode : selectedTreeNodes) {
-	    // todo: offer to save node first
+	    if (currentNode.getNeedsSaveToDisk(false)
+		    && JOptionPane.YES_OPTION == ArbilWindowManager.getSingleInstance().showDialogBox(
+		    "Validation will be against the file on disk. Save changes first?",
+		    "Validation",
+		    JOptionPane.YES_NO_OPTION,
+		    JOptionPane.WARNING_MESSAGE)) {
+		currentNode.saveChangesToCache(true);
+		currentNode.reloadNode();
+	    }
 	    XsdChecker xsdChecker = new XsdChecker();
 	    ArbilWindowManager.getSingleInstance().createWindow("XsdChecker", xsdChecker);
 	    xsdChecker.checkXML(currentNode);
