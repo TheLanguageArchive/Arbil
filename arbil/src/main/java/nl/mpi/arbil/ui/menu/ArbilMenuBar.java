@@ -666,7 +666,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 
 	    public void menuSelected(MenuEvent evt) {
-		viewErrorLogMenuItem.setEnabled(ArbilBugCatcher.getLogFile().exists());
+		viewErrorLogMenuItem.setEnabled(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).exists());
 	    }
 	});
 	aboutMenuItem.setText("About");
@@ -721,7 +721,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    windowManager.openFileInExternalApplication(ArbilBugCatcher.getLogFile().toURI());
+		    windowManager.openFileInExternalApplication(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).toURI());
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}

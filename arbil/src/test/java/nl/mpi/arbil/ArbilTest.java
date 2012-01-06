@@ -17,11 +17,9 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import org.junit.After;
 
@@ -35,6 +33,7 @@ public abstract class ArbilTest {
     private SessionStorage sessionStorage;
     private MessageDialogHandler dialogHandler;
     private BugCatcher bugCatcher;
+    private DefaultMimeHashQueue mimeHashQueue;
     private Set<URI> localTreeItems;
 
     @After
@@ -84,7 +83,7 @@ public abstract class ArbilTest {
     }
 
     protected ArbilDataNode dataNodeFromUri(URI uri) {
-	ArbilDataNode dataNode = getDataNodeLoader().getArbilDataNode(this, uri);
+	ArbilDataNode dataNode = newDataNodeLoader().getArbilDataNode(this, uri);
 	waitForNodeToLoad(dataNode);
 	return dataNode;
     }
@@ -125,21 +124,27 @@ public abstract class ArbilTest {
 	injector.injectBugCatcher(getBugCatcher());
 	injector.injectDialogHandler(getDialogHandler());
 	injector.injectSessionStorage(getSessionStorage());
-	injector.injectDataNodeLoader(getDataNodeLoader());
+	injector.injectDataNodeLoader(newDataNodeLoader());
 	injector.injectTreeHelper(getTreeHelper());
     }
 
-    protected synchronized DataNodeLoader getDataNodeLoader() {
-	ArbilDataNodeLoader.setSessionStorage(getSessionStorage());
-	return new ArbilDataNodeLoader(getBugCatcher(), getDialogHandler(), getSessionStorage(), getMimeHashQueue(), getTreeHelper());
+    protected synchronized DataNodeLoader newDataNodeLoader() {
+	ArbilDataNodeLoader loader = new ArbilDataNodeLoader(getBugCatcher(), getDialogHandler(), getSessionStorage(), getMimeHashQueue(), getTreeHelper());
+	getMimeHashQueue().setDataNodeLoader(loader);
+	return loader;
     }
 
-    protected MimeHashQueue getMimeHashQueue() {
-	DefaultMimeHashQueue.setBugCatcher(getBugCatcher());
-	DefaultMimeHashQueue.setMessageDialogHandler(getDialogHandler());
-	DefaultMimeHashQueue.setSessionStorage(getSessionStorage());
-	DefaultMimeHashQueue.setDataNodeLoader(getDataNodeLoader());
-	DefaultMimeHashQueue hashQueue = new DefaultMimeHashQueue();
+    protected synchronized DefaultMimeHashQueue getMimeHashQueue() {
+	if(mimeHashQueue == null){
+	    mimeHashQueue = newMimeHashQueue();
+	}
+	return mimeHashQueue;
+    }
+    
+    protected DefaultMimeHashQueue newMimeHashQueue(){
+	DefaultMimeHashQueue hashQueue = new DefaultMimeHashQueue(getSessionStorage());
+	hashQueue.setBugCatcher(getBugCatcher());
+	hashQueue.setMessageDialogHandler(getDialogHandler());
 	return hashQueue;
     }
 

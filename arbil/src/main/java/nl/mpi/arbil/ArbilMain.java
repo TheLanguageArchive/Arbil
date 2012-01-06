@@ -15,6 +15,7 @@ import nl.mpi.arbil.ui.ArbilTaskStatusBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 
@@ -41,23 +42,24 @@ public class ArbilMain extends javax.swing.JFrame {
 	java.awt.EventQueue.invokeLater(new Runnable() {
 
 	    public void run() {
+		final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
 		try {
-		    new ArbilMain();
+		    new ArbilMain(versionManager);
 		} catch (Exception ex) {
-		    new ArbilBugCatcher().logError(ex);
+		    new ArbilBugCatcher(new ArbilSessionStorage(), versionManager).logError(ex);
 		}
 	    }
 	});
     }
 
-    public ArbilMain() {
-	final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
+    public ArbilMain(ApplicationVersionManager versionManager) {
+	
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers(versionManager);
 
 	initApplication(injector.getTreeHelper(), injector.getMimeHashQueue());
 	initUI(injector.getTreeHelper(), injector.getWindowManager(), versionManager);
-	
+
 	checkFirstRun(injector.getWindowManager());
     }
 

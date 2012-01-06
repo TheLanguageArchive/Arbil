@@ -18,29 +18,13 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  */
 public class ArbilBugCatcher implements BugCatcher {
 
-//    static Logger log = Logger.getLogger(ImdiIcons.class.getName());
-//            log.debug("debug message.");
-//            log.info("info message.");
-//            log.warn("warn message.");
-//            log.error("error message.");
-//            log.fatal("fatal message.");
-    private static WindowManager windowManager;
+    private ApplicationVersionManager versionManager;
 
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
-    private static ApplicationVersionManager versionManager;
+    private SessionStorage sessionStorage;
 
-    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
-	versionManager = versionManagerInstance;
-    }
-    private static SessionStorage sessionStorage;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
-
-    public ArbilBugCatcher() {
+    public ArbilBugCatcher(SessionStorage sessionStorage, ApplicationVersionManager versionManager) {
+	this.sessionStorage = sessionStorage;
+	this.versionManager = versionManager;
 	// remove all previous error logs for this version other than the one for this build number
 	File errorLogFile = new File(sessionStorage.getStorageDirectory(), "linorgerror.log");
 	if (errorLogFile.exists()) {
@@ -66,17 +50,15 @@ public class ArbilBugCatcher implements BugCatcher {
     }
     private int captureCount = 0;
 
-    public static File getLogFile() {
-	ApplicationVersion appVersion = versionManager.getApplicationVersion();
+    public static File getLogFile(SessionStorage sessionStorage, ApplicationVersion appVersion) {
 	File file = new File(sessionStorage.getStorageDirectory(), "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".log");
 	if (!file.exists()) {
-	    startNewLogFile(file);
+	    startNewLogFile(file, appVersion);
 	}
 	return file;
     }
 
-    private static void startNewLogFile(File file) {
-	ApplicationVersion appVersion = versionManager.getApplicationVersion();
+    private static void startNewLogFile(File file, ApplicationVersion appVersion) {
 	try {
 	    FileWriter errorLogFile = new FileWriter(file, false);
 	    errorLogFile.append(appVersion.applicationTitle + " error log" + System.getProperty("line.separator")
@@ -94,7 +76,7 @@ public class ArbilBugCatcher implements BugCatcher {
 	}
     }
 
-    public void grabApplicationShot() {
+    public void grabApplicationShot(WindowManager windowManager) {
 	try {
 	    Robot robot = new Robot();
 	    BufferedImage screenShot = robot.createScreenCapture(windowManager.getMainFrame().getBounds());
@@ -134,7 +116,7 @@ public class ArbilBugCatcher implements BugCatcher {
 		System.err.println("exception: " + exception.getMessage());
 		exception.printStackTrace(System.err);
 	    }
-	    FileWriter errorLogFile = new FileWriter(getLogFile(), true);
+	    FileWriter errorLogFile = new FileWriter(getLogFile(sessionStorage, versionManager.getApplicationVersion()), true);
 //            System.out.println("logCatch: " + messageString);
 	    errorLogFile.append(messageString + System.getProperty("line.separator"));
 	    errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));

@@ -4,8 +4,6 @@ import javax.swing.SwingUtilities;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
-import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.util.BugCatcher;
 
@@ -20,16 +18,16 @@ public class ArbilApplet extends javax.swing.JApplet {
 
     @Override
     public void init() {
+	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	// TODO: test if this suffices
-	new ArbilDesktopInjector().injectHandlers();
-	bugCatcher = new ArbilBugCatcher();
+	injector.injectHandlers();
+	bugCatcher = injector.getBugCatcher();
 	//System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 	try {
 	    SwingUtilities.invokeAndWait(new Runnable() {
 
 		public void run() {
-		    ArbilDesktopInjector injector = new ArbilDesktopInjector();
-		    injector.injectHandlers();
+		    //injector.injectHandlers();
 		    mainSplitPane = new javax.swing.JSplitPane();
 		    getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
 		    previewSplitPanel = PreviewSplitPanel.getInstance();
@@ -46,7 +44,7 @@ public class ArbilApplet extends javax.swing.JApplet {
 		}
 	    });
 	} catch (Exception ex) {
-	    new ArbilBugCatcher().logError(ex);
+	    injector.getBugCatcher().logError(ex);
 	}
     }
 

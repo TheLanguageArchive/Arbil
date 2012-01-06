@@ -52,28 +52,28 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilSessionStorage implements SessionStorage {
 
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
-    private static MessageDialogHandler messageDialogHandler;
+    private MessageDialogHandler messageDialogHandler;
 
-    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+    public void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
-    private static BugCatcher bugCatcher;
+    private BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+    public void setBugCatcher(BugCatcher bugCatcherInstance) {
 	bugCatcher = bugCatcherInstance;
     }
-    private static WindowManager windowManager;
+    private WindowManager windowManager;
 
-    public static void setWindowManager(WindowManager windowManagerInstance) {
+    public void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
     }
-    private static TreeHelper treeHelper;
+    private TreeHelper treeHelper;
 
-    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+    public void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
     }
 
-    private static void logError(Exception exception) {
+    private void logError(Exception exception) {
 	if (bugCatcher != null) {
 	    bugCatcher.logError(exception);
 	} else {
@@ -81,7 +81,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
     }
 
-    private static void logError(String message, Exception exception) {
+    private void logError(String message, Exception exception) {
 	if (bugCatcher != null) {
 	    bugCatcher.logError(message, exception);
 	} else {

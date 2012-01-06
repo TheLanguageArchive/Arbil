@@ -17,7 +17,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.datatransfer.ClipboardOwner;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
@@ -89,31 +88,32 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private Hashtable<String, String> messageDialogQueue = new Hashtable<String, String>();
     private boolean messagesCanBeShown = false;
     boolean showMessageThreadrunning = false;
-    private static ApplicationVersionManager versionManager;
     private Map<String, FileFilter> fileFilterMap;
     private Collection<ArbilTaskListener> taskListeners = new HashSet<ArbilTaskListener>();
 
-    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+    private ApplicationVersionManager versionManager;
+
+    public void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
     }
-    private static SessionStorage sessionStorage;
+    private SessionStorage sessionStorage;
 
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+    public void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
-    private static BugCatcher bugCatcher;
+    private BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
+    public void setBugCatcher(BugCatcher bugCatherInstance) {
 	bugCatcher = bugCatherInstance;
     }
-    private static TreeHelper treeHelper;
+    private TreeHelper treeHelper;
 
-    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+    public void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
     }
-    private static DataNodeLoader dataNodeLoader;
+    private DataNodeLoader dataNodeLoader;
 
-    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+    public void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
 

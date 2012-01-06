@@ -91,7 +91,7 @@ public class ArbilComponentBuilderTest extends ArbilTest {
 
     private ArbilDataNode addResourceToNode(ArbilDataNode node, ArbilDataNode childNode, int resourceLinks) throws URISyntaxException {
         // Add new resource to file
-        ArbilDataNode resourceNode = getDataNodeLoader().getArbilDataNodeWithoutLoading(uriFromResource("/nl/mpi/arbil/data/resources/arbil.jpg"));
+        ArbilDataNode resourceNode = newDataNodeLoader().getArbilDataNodeWithoutLoading(uriFromResource("/nl/mpi/arbil/data/resources/arbil.jpg"));
         addResourceProxyToNode(node, resourceNode);
         // A resource link should have been added
         assertEquals(resourceLinks + 1, node.getCmdiComponentLinkReader().cmdiResourceLinkArray.size());
