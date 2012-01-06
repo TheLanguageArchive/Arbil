@@ -11,6 +11,7 @@ import javax.swing.tree.TreePath;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
@@ -21,20 +22,13 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  */
 public class ArbilTreeHelper extends AbstractTreeHelper {
 
-    private static MessageDialogHandler messageDialogHandler;
+    private SessionStorage sessionStorage;
 
-    public static void setMessageDialogHandler(MessageDialogHandler handler) {
-	messageDialogHandler = handler;
-    }
-    private static SessionStorage sessionStorage;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
     private ArbilTreePanels arbilTreePanel;
 
-    public ArbilTreeHelper() {
-	super();
+    public ArbilTreeHelper(SessionStorage sessionStorage, MessageDialogHandler messageDialogHandler, BugCatcher bugCatcher) {
+	super(messageDialogHandler, bugCatcher);
+	this.sessionStorage = sessionStorage;
     }
 
     public void init() {
@@ -110,7 +104,7 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 		    }
 		}
 	    }
-	    if (JOptionPane.OK_OPTION == messageDialogHandler.showDialogBox(
+	    if (JOptionPane.OK_OPTION == getMessageDialogHandler().showDialogBox(
 		    "Delete " + (toDeleteCount == 1 ? "the node \"" + nameOfFirst + "\"?" : toDeleteCount + " nodes?")
 		    + " This will also save any pending changes to disk.", "Delete",
 		    JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
@@ -131,11 +125,12 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 	}
     }
 
+    @Override
     public boolean addLocationInteractive(URI addableLocation) {
 	boolean added = addLocation(addableLocation);
 	if (!added) {
 	    // alert the user when the node already exists and cannot be added again
-	    messageDialogHandler.addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
+	    getMessageDialogHandler().addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
 	}
 	applyRootLocations();
 	return added;

@@ -1,6 +1,5 @@
 package nl.mpi.arbil;
 
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.search.ArbilRemoteSearch;
 import nl.mpi.arbil.ui.ArbilDragDrop;
@@ -71,7 +70,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	super.injectSessionStorage(sessionStorage);
 	ArbilFieldViews.setSessionStorage(sessionStorage);
 	ArbilSplitPanel.setSessionStorage(sessionStorage);
-	ArbilTreeHelper.setSessionStorage(sessionStorage);
 	ArbilNodeSearchColumnComboBox.setSessionStorage(sessionStorage);
 	ArbilMenuBar.setSessionStorage(sessionStorage);
 	ImportExportDialog.setSessionStorage(sessionStorage);
