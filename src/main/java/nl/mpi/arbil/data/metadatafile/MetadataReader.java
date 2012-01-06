@@ -868,7 +868,6 @@ public class MetadataReader {
     private void addReferencedResources(ArbilDataNode parentNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, Vector<String[]> childLinks, ArbilDataNode destinationNode) {
 	String clarinRefIds = getNamedAttributeValue(childNodeAttributes, "ref");
 	if (clarinRefIds != null && clarinRefIds.length() > 0) {
-	    System.out.println("clarinRefIds: " + clarinRefIds);
 	    CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getCmdiComponentLinkReader();
 	    if (cmdiComponentLinkReader != null) {
 		for (String refId : clarinRefIds.split(" ")) {

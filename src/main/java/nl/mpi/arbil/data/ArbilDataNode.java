@@ -474,7 +474,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public void loadArbilDom() {
-	System.out.println("loadArbilDom: " + nodeUri.toString());
 	if (getParentDomNode() != this) {
 	    getParentDomNode().loadArbilDom();
 	} else {

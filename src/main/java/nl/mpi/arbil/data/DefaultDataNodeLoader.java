@@ -40,7 +40,6 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
 	    currentDataNode = arbilHashTable.get(localUri.toString());
 	    if (currentDataNode == null) {
-//                System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
 		currentDataNode = new ArbilDataNode(localUri);
 		arbilHashTable.put(localUri.toString(), currentDataNode);
 	    }
@@ -59,21 +58,16 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 //       todo if (localUrlString == null) {
 //            System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
 //       end todo }
-//        System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
 	ArbilDataNode currentDataNode = null;
 	if (localUri != null && localUri.toString().length() > 0) {
 	    currentDataNode = getArbilDataNodeWithoutLoading(localUri);
-//            System.out.println(currentImdiObject.isImdiChild() + ", " + currentImdiObject.getParentDomNode().imdiDataLoaded + ", " + currentImdiObject.isLoading());
 	    if (!currentDataNode.getParentDomNode().isDataLoaded() && !currentDataNode.isLoading()) {
-//                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
 		if (ArbilDataNode.isStringChildNode(currentDataNode.getUrlString())) {
-//                    System.out.println("cause the parent node to be loaded");
 		    // cause the parent node to be loaded
 		    currentDataNode.getParentDomNode();
 		} else if (MetadataFormat.isPathMetadata(currentDataNode.getUrlString()) || ArbilDataNode.isPathHistoryFile(currentDataNode.getUrlString())) {
 		    currentDataNode.updateLoadingState(+1);
 		    threadManager.addNodeToQueue(currentDataNode);
-//                    System.out.println("+imdiHashTable.size: " + arbilHashTable.size());
 		} else if (!MetadataFormat.isPathMetadata(currentDataNode.getUrlString())) {
 //                    currentImdiObject.clearIcon(); // do not do this
 		}
@@ -82,7 +76,6 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 		currentDataNode.registerContainer((ArbilDataNodeContainer) registeringObject);
 	    }
 	}
-//        System.out.println("currentImdiObject: " + currentImdiObject);
 	return currentDataNode;
     }
 
@@ -144,14 +137,12 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     public void addNodeNeedingSave(ArbilDataNode nodeToSave) {
 	nodeToSave = nodeToSave.getParentDomNode();
 	if (!nodesNeedingSave.contains(nodeToSave)) {
-	    System.out.println("addNodeNeedingSave: " + nodeToSave);
 	    nodesNeedingSave.add(nodeToSave);
 	}
     }
 
     @Override
     public void removeNodesNeedingSave(ArbilDataNode savedNode) {
-	System.out.println("removeNodesNeedingSave: " + savedNode);
 	nodesNeedingSave.remove(savedNode);
     }
 
