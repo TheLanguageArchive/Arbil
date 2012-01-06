@@ -3,7 +3,6 @@ package nl.mpi.arbil.data;
 import java.net.URI;
 import java.util.Hashtable;
 import java.util.Vector;
-import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
  * Document   : ArbilDataNodeLoader formerly known as ImdiLoader
@@ -15,18 +14,12 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
-    private static SessionStorage sessionStorage;
     private DataNodeLoaderThreadManager threadManager;
     private ArbilDataNodeService dataNodeService;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
 
     public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager) {
 	System.out.println("ArbilDataNodeLoader init");
 	threadManager = loaderThreadManager;
-	threadManager.setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", threadManager.isSchemaCheckLocalFiles()));
     }
     
     protected final void setDataNodeService(ArbilDataNodeService dataNodeService){
@@ -204,5 +197,12 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 
     public ArbilDataNode createNewDataNode(URI uri) {
 	return new ArbilDataNode(dataNodeService, uri);
+    }
+
+    /**
+     * @return the threadManager
+     */
+    protected DataNodeLoaderThreadManager getThreadManager() {
+	return threadManager;
     }
 }

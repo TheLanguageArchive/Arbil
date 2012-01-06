@@ -6,11 +6,9 @@ import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -25,7 +23,10 @@ public class ArbilTestInjector extends ArbilInjector {
 	final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
 	injectVersionManager(versionManager);
 
-	final BugCatcher bugCatcher = new ArbilBugCatcher();
+	final SessionStorage sessionStorage = new MockSessionStorage();
+	injectSessionStorage(sessionStorage);
+	
+	final BugCatcher bugCatcher = new ArbilBugCatcher(sessionStorage, versionManager);
 	injectBugCatcher(bugCatcher);
 
 	final MessageDialogHandler messageDialogHandler = new MockDialogHandler();
@@ -34,14 +35,12 @@ public class ArbilTestInjector extends ArbilInjector {
 	final WindowManager windowManager = new MockWindowManager();
 	injectWindowManager(windowManager);
 
-	final SessionStorage sessionStorage = new MockSessionStorage();
-	injectSessionStorage(sessionStorage);
-
 	final TreeHelper treeHelper = new ArbilTreeHelper();
 	injectTreeHelper(treeHelper);
+
+	final DefaultMimeHashQueue mimeHashQueue = new DefaultMimeHashQueue(sessionStorage);
 	
-	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
-	final DataNodeLoader dataNodeLoader = new ArbilDataNodeLoader(bugCatcher, messageDialogHandler, sessionStorage, new DefaultMimeHashQueue(), treeHelper);
+	final DataNodeLoader dataNodeLoader = new ArbilDataNodeLoader(bugCatcher, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
 	injectDataNodeLoader(dataNodeLoader);
     }
 }

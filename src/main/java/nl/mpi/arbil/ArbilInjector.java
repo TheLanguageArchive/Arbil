@@ -7,7 +7,6 @@ import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.clarin.profiles.ProfilePreview;
 import nl.mpi.arbil.data.AbstractTreeHelper;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeArrayTableCell;
 import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilEntityResolver;
@@ -36,12 +35,10 @@ import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilHyperlinkListener;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilTree;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.RemoteLocationsContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BinaryMetadataReader;
 import nl.mpi.arbil.util.BugCatcher;
@@ -78,8 +75,6 @@ public abstract class ArbilInjector {
     }
     
     public void injectVersionManager(ApplicationVersionManager versionManager){
-	ArbilBugCatcher.setVersionManager(versionManager);
-	ArbilWindowManager.setVersionManager(versionManager);
 	ArbilIcons.setVersionManager(versionManager);
 	ArbilMenuBar.setVersionManager(versionManager);
 	ArbilTableModel.setVersionManager(versionManager);
@@ -166,8 +161,6 @@ public abstract class ArbilInjector {
     }
 
     public void injectWindowManager(WindowManager windowManager) {
-	// Inject window manager
-	ArbilBugCatcher.setWindowManager(windowManager);
 	ArbilTree.setWindowManager(windowManager);
 	ArbilVocabularies.setWindowManager(windowManager);
 	MetadataBuilder.setWindowManager(windowManager);

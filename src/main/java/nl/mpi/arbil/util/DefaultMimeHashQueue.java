@@ -38,9 +38,9 @@ import nl.mpi.bcarchive.typecheck.FileType;
  */
 public class DefaultMimeHashQueue implements MimeHashQueue {
 
-    private static DataNodeLoader dataNodeLoader;
+    private DataNodeLoader dataNodeLoader;
 
-    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+    public void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
 
@@ -51,7 +51,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     /**
      * @return the fileType
      */
-    private static synchronized FileType getFileType() {
+    private synchronized FileType getFileType() {
 	if (fileType == null) {
 	    try {
 		File configFile = sessionStorage.getTypeCheckerConfig();
@@ -84,24 +84,22 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     private ScheduledThreadPoolExecutor mimeHashQueueThreadExecutor;
     private static FileType fileType;  //  used to check the file type
     private static DeepFileType deepFileType = new DeepFileType();
-    private static BugCatcher bugCatcher;
+    private BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+    public void setBugCatcher(BugCatcher bugCatcherInstance) {
 	bugCatcher = bugCatcherInstance;
     }
-    private static SessionStorage sessionStorage;
+    private SessionStorage sessionStorage;
 
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
-    private static MessageDialogHandler messageDialogHandler;
+    private MessageDialogHandler messageDialogHandler;
 
-    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+    public void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
 
-    public DefaultMimeHashQueue() {
+    public DefaultMimeHashQueue(SessionStorage sessionStorage) {
 	System.out.println("MimeHashQueue init");
+	this.sessionStorage = sessionStorage;
 	checkResourcePermissions = sessionStorage.loadBoolean("checkResourcePermissions", true);
 	continueThread = true;
     }
@@ -606,7 +604,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	}
     }
 
-    private static URI getNodeURI(ArbilDataNode dataNode) {
+    private URI getNodeURI(ArbilDataNode dataNode) {
 	if (dataNode.isResourceSet()) {
 	    return dataNode.getFullResourceURI();
 	} else {

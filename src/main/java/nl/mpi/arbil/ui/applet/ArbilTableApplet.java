@@ -4,9 +4,7 @@ import java.net.URI;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilTableModel;
-import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.util.BugCatcher;
 
@@ -39,7 +37,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 		}
 	    });
 	} catch (Exception ex) {
-	    new ArbilBugCatcher().logError(ex);
+	    injector.getBugCatcher().logError(ex);
 	}
     }
 

@@ -17,5 +17,6 @@ public class ArbilDataNodeLoader extends DefaultDataNodeLoader {
     public ArbilDataNodeLoader(BugCatcher bugCatcher, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	super(new DataNodeLoaderThreadManager());
 	setDataNodeService(new ArbilDataNodeService(bugCatcher, this, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper));
+	setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", getThreadManager().isSchemaCheckLocalFiles()));
     }
 }

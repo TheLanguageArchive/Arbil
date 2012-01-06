@@ -3,6 +3,7 @@ package nl.mpi.arbil.util;
 import java.net.CookieHandler;
 import java.util.Collection;
 import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
 
 /**
@@ -15,8 +16,8 @@ public class ArbilMimeHashQueue extends DefaultMimeHashQueue {
     private static boolean allowCookies = false; // this is a silly place for this and should find a better home, but the cookies are only dissabled for the permissions test in this class
     private ArbilWindowManager windowManager;
 
-    public ArbilMimeHashQueue(ArbilWindowManager windowManager) {
-	super();
+    public ArbilMimeHashQueue(ArbilWindowManager windowManager, SessionStorage sessionStorage) {
+	super(sessionStorage);
 	this.windowManager = windowManager;
     }
 
