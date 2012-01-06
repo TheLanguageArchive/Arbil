@@ -478,14 +478,16 @@ public class CmdiTemplate extends ArbilTemplate {
 	//Annotation: {ann}displaypriority : 1
 	// todo: the url here could be removed provided that it does not make it to unspecific
 
-	if ("{http://www.clarin.eu}displaypriority".equals(annotationName)) {
-	    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationValue});
-	}
-	if ("{http://www.clarin.eu}documentation".equals(annotationName)) {
-	    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationValue});
-	}
-	if ("{http://www.isocat.org/ns/dcr}datcat".equals(annotationName)) {
-	    arrayListGroup.dataCategoriesMap.put(nodePath, annotationValue);
+	if (!"".equals(annotationValue)) {
+	    if ("{http://www.clarin.eu}displaypriority".equals(annotationName)) {
+		arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationValue});
+	    }
+	    if ("{http://www.clarin.eu}documentation".equals(annotationName)) {
+		arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationValue});
+	    }
+	    if ("{http://www.isocat.org/ns/dcr}datcat".equals(annotationName)) {
+		arrayListGroup.dataCategoriesMap.put(nodePath, annotationValue);
+	    }
 	}
     }
 
