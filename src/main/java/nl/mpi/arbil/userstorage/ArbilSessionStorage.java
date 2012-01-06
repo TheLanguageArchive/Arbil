@@ -169,7 +169,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    File storageFile = new File(currentStorageDirectory);
 	    if (storageFile.exists()) {
 		foundDirectoryCount++;
-		storageDirectoryMessageString.append(storageDirectoryMessageString).append(currentStorageDirectory).append("\n");
+		storageDirectoryMessageString.append(currentStorageDirectory).append("\n");
 	    }
 	}
 	if (foundDirectoryCount > 1) {
@@ -679,19 +679,14 @@ public class ArbilSessionStorage implements SessionStorage {
 	if (!fileNeedsUpdate) {
 	    Date lastModified = new Date(targetFile.lastModified());
 	    Date expireDate = new Date(System.currentTimeMillis());
-	    System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + targetFile.getAbsolutePath());
 
 	    Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(expireDate);
 	    calendar.add(Calendar.DATE, -expireCacheDays);
 	    expireDate.setTime(calendar.getTime().getTime());
 
-	    System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + targetFile.getAbsolutePath());
-
 	    fileNeedsUpdate = expireDate.after(lastModified);
-	    System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
 	}
-	System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
 	return updateCache(pathString, targetFile, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
 //	}
     }
@@ -868,9 +863,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    }
 	}
 	String fileName = destinationFile.getName();
-	if (destinationFile.exists() && !expireCacheCopy && destinationFile.length() > 0) {
-	    System.out.println("this resource is already in the cache");
-	} else {
+	if (!destinationFile.exists() || expireCacheCopy || destinationFile.length() <= 0) {
 	    FileOutputStream outFile = null;
 	    try {
 		URLConnection urlConnection = openResourceConnection(targetUrl, shibbolethNegotiator, followRedirect);
@@ -958,7 +951,7 @@ public class ArbilSessionStorage implements SessionStorage {
 //                        }
 	    }
 	    //h.setFollowRedirects(false);
-	    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+	    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage() + resourceUrl.toString());
 	}
 
 	if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null

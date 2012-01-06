@@ -22,7 +22,6 @@ public class CmdiComponentLinkReader {
     public ArrayList<ResourceRelation> cmdiResourceRelationArray = null;
 
     public static void main(String args[]) {
-	System.out.println("CmdiComponentLinkReader");
 	CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
 	try {//http://www.clarin.eu/cmd/example/example-md-instance.xml
 	    cmdiComponentLinkReader.readLinks(new URI("http://www.clarin.eu/cmd/example/example-md-instance.cmdi"));
@@ -161,8 +160,6 @@ public class CmdiComponentLinkReader {
 	    String resourceProxyId,
 	    String resourceType,
 	    String resourceRef) {
-	System.out.println("addResourceProxy: " + resourceProxyId + " : " + resourceType + " : " + resourceRef);
-
 	CmdiResourceLink cmdiProfile = new CmdiResourceLink(resourceProxyId, resourceType, resourceRef);
 
 	cmdiResourceLinkArray.add(cmdiProfile);
@@ -172,8 +169,6 @@ public class CmdiComponentLinkReader {
 	    String RelationType,
 	    String Res1,
 	    String Res2) {
-	System.out.println("addResourceRelation: " + RelationType + " : " + Res1 + " : " + Res2);
-
 	ResourceRelation resourceRelation = new ResourceRelation(RelationType, Res1, Res2);
 
 	cmdiResourceRelationArray.add(resourceRelation);

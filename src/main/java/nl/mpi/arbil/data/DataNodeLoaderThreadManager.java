@@ -246,7 +246,6 @@ public class DataNodeLoaderThreadManager {
 	}
 
 	protected void loadNode(ArbilDataNode currentArbilDataNode) {
-	    System.out.println("run RemoteArbilLoader processing: " + currentArbilDataNode.getUrlString());
 	    currentArbilDataNode.loadArbilDom();
 	    currentArbilDataNode.updateLoadingState(-1);
 	    currentArbilDataNode.clearIcon();
@@ -268,7 +267,6 @@ public class DataNodeLoaderThreadManager {
 	}
 
 	protected void loadNode(ArbilDataNode currentArbilDataNode) {
-	    System.out.println("run LocalArbilLoader processing: " + currentArbilDataNode.getUrlString());
 	    if (currentArbilDataNode.getNeedsSaveToDisk(false)) {
 		currentArbilDataNode.saveChangesToCache(false);
 	    }
@@ -287,7 +285,6 @@ public class DataNodeLoaderThreadManager {
 	    currentArbilDataNode.clearIcon();
 	    currentArbilDataNode.clearChildIcons();
 	    arbilFilesLoaded++;
-	    System.out.println("remoteArbilFilesLoaded: " + remoteArbilFilesLoaded + " arbilFilesLoaded: " + arbilFilesLoaded);
 	    currentArbilDataNode.lockedByLoadingThread = false;
 	    currentArbilDataNode.notifyLoaded();
 	}

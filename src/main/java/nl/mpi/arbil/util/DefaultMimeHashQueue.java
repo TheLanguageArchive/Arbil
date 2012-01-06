@@ -121,15 +121,9 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
      */
     @Override
     public void addToQueue(ArbilDataNode dataNode) {
-	System.out.println("MimeHashQueue addToQueue: " + dataNode.getUrlString());
 	startMimeHashQueueThread();
 	// TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
 	if (((dataNode.isLocal() && !dataNode.isMetaDataNode() && !dataNode.isDirectory()) || (dataNode.isChildNode() && dataNode.hasResource()))) {
-//            System.out.println("addToQueue: " + getFilePath(imdiObject));
-//            System.out.println("addToQueue session: " + imdiObject.isSession());
-//            System.out.println("addToQueue directory: " + imdiObject.isDirectory());
-//            System.out.println("addToQueue: " + getFilePath(imdiObject));
-//            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
 
 	    synchronized (dataNodeQueue) {
 		if (!dataNodeQueue.contains(dataNode)) {
@@ -283,11 +277,9 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		currentDataNode.setTypeCheckerState(TypeCheckerState.IN_PROCESS);
 		//System.out.println("DefaultMimeHashQueue checking: " + currentImdiObject.getUrlString());
 		if (!currentDataNode.isMetaDataNode()) {
-		    System.out.println("checking file and exif");
 		    addFileAndExifFields();
 		}
 		if (currentDataNode.hasResource() && !currentDataNode.hasLocalResource()) {
-		    System.out.println("checking server permissions " + serverPermissionsChecked++);
 		    checkServerPermissions();
 		} else {
 		    checkMimeTypeForCurrentNode();
@@ -309,8 +301,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	}
 
 	private synchronized void checkMimeTypeForCurrentNode() {
-
-	    System.out.println("checking mime type etc");
 	    URI currentPathURI = getNodeURI(currentDataNode);
 	    if (currentPathURI != null && currentPathURI.toString().length() > 0) {
 //                                try {
@@ -401,33 +391,27 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	}
 
 	private void loadMd5sumIndex() {
-	    System.out.println("MimeHashQueue loadMd5sumIndex");
 	    try {
 		knownMimeTypes = (Hashtable<String, String[]>) sessionStorage.loadObject("knownMimeTypesV2");
 		pathToMd5Sums = (Hashtable<String, String>) sessionStorage.loadObject("pathToMd5Sums");
 		md5SumToDuplicates = (Hashtable<String, Vector<String>>) sessionStorage.loadObject("md5SumToDuplicates");
 		processedFilesMTimes = (Hashtable/*<String, Long>*/) sessionStorage.loadObject("processedFilesMTimesV2");
-		System.out.println("loaded md5 and mime from disk");
 	    } catch (Exception ex) {
 		knownMimeTypes = new Hashtable<String, String[]>();
 		pathToMd5Sums = new Hashtable<String, String>();
 		processedFilesMTimes = new Hashtable/*<String, Long>*/();
 		md5SumToDuplicates = new Hashtable<String, Vector<String>>();
-		System.out.println("load loadMd5sumIndex failed: " + ex.getMessage());
 	    }
 	}
 
 	private void saveMd5sumIndex() {
-	    System.out.println("MimeHashQueue saveMd5sumIndex");
 	    try {
 		sessionStorage.saveObject(knownMimeTypes, "knownMimeTypesV2");
 		sessionStorage.saveObject(pathToMd5Sums, "pathToMd5Sums");
 		sessionStorage.saveObject(processedFilesMTimes, "processedFilesMTimesV2");
 		sessionStorage.saveObject(md5SumToDuplicates, "md5SumToDuplicates");
-		System.out.println("saveMd5sumIndex");
 	    } catch (IOException ex) {
 		bugCatcher.logError(ex);
-//            System.out.println("saveMap exception: " + ex.getMessage());
 	    }
 	}
 
@@ -524,7 +508,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
 	private String getHash(URI fileUri, URI nodeUri) {
 	    long startTime = System.currentTimeMillis();
-	    System.out.println("getHash: " + fileUri);
 //        File targetFile = new URL(filePath).getFile();
 	    String hashString = null;
 	    // TODO: add hashes for session links
@@ -540,7 +523,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		while ((i = is.read(buff)) > 0) {
 		    digest.update(buff, 0, i);
 		    long downloadDelay = System.currentTimeMillis() - startTime;
-//                System.out.println("Download delay: " + downloadDelay);
 		    if (downloadDelay > 100) {
 			throw new Exception("reading file for md5sum is taking too long (" + downloadDelay + ") skipping the file: " + fileUri);
 		    }
@@ -585,21 +567,18 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 			    if (currentNode instanceof ArbilDataNode) {
 				//debugOut("updating icon for: " + ((ImdiTreeObject) currentNode).getUrl());
 				// clear the icon of the other copies so that they will be updated to indicate the commonality
-				System.out.println("Clearing icon for other node: " + currentNode.toString());
 				((ArbilDataNode) currentNode).clearIcon();
 			    }
 			}
 			((Vector) matchingNodes).add(fileUri.toString());
 		    }
 		} else {
-		    System.out.println("creating new vector for: " + hashString);
 		    Vector nodeVector = new Vector(1);
 		    nodeVector.add(nodeUri.toString());
 		    md5SumToDuplicates.put(hashString, nodeVector);
 		}
 	    }
 //            }
-	    System.out.println("hashString: " + hashString);
 	    return hashString;
 	}
     }

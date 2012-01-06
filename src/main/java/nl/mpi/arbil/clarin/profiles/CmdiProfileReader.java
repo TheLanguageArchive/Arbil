@@ -98,7 +98,6 @@ public class CmdiProfileReader {
 	// get all the xsd files from the profile listing and store them on disk for offline use
 	for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
 	    progressBar.setString(currentCmdiProfile.name);
-	    System.out.println("resaving profile to disk: " + currentCmdiProfile.getXsdHref());
 	    sessionStorage.updateCache(currentCmdiProfile.getXsdHref(), updateDays, false);
 	    progressBar.setValue(progressBar.getValue() + 1);
 	}
@@ -130,7 +129,6 @@ public class CmdiProfileReader {
 	}
 	// get all the xsd files from the profile listing and store them on disk for offline use
 //        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
-//            System.out.println("checking profile exists on disk: " + currentCmdiProfile.getXsdHref());
 //            LinorgSessionStorage.getSingleInstance().getFromCache(currentCmdiProfile.getXsdHref(), 90);
 //        }
     }
@@ -141,8 +139,6 @@ public class CmdiProfileReader {
 	    String registrationDate,
 	    String creatorName,
 	    String href) {
-//        System.out.println(id + " : " + description + " : " + name + " : " + registrationDate + " : " + creatorName + " : " + href);
-
 	CmdiProfile cmdiProfile = new CmdiProfile();
 	cmdiProfile.id = id;
 	cmdiProfile.description = description;

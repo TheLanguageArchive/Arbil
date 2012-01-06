@@ -51,7 +51,6 @@ public class ArbilVocabulary implements Serializable {
 
     public String resolveFollowUpUrl(String folowUpString) {
 	String vocabUrlDirectory = vocabularyUrl.substring(0, vocabularyUrl.lastIndexOf("/") + 1);
-	System.out.println("vocabUrlDirectory: " + vocabUrlDirectory);
 	return (vocabUrlDirectory + folowUpString);
     }
 
