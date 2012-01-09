@@ -1,7 +1,7 @@
 
 <InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" >
     <Actor>
-        <Role Link="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml" Type="ClosedVocabularyList">Speaker/Signer</Role>
+        <Role Link="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml" Type="OpenVocabularyList">Speaker/Signer</Role>
         <Name>Speaker/Signer Actor</Name>
         <FullName/>
         <Code/>

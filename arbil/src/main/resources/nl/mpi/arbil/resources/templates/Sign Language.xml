@@ -4,8 +4,6 @@
     Document   : template.xml
     Created on : August 28, 2009, 11:41 AM
     Author     : Peter.Withers@mpi.nl
-    Description:
-        Purpose of the document follows.
 -->
 <template>
     <RequiredFields>
@@ -22,13 +20,18 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Size" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Format" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Type" />
-        <RequiredField FieldPath=".*\.Date"/>
+<!--        <RequiredField FieldPath=".*\.Date"/>-->
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Date"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Date"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Date"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Date"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Catalogue.Date"/>
         <RequiredField FieldPath=".*\.BirthDate"/>
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).Dominant" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).SourceLanguage" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).TargetLanguage" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content\(x\).Languages.Language\(x\).Dominant" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content\(x\).Languages.Language\(x\).SourceLanguage" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content\(x\).Languages.Language\(x\).TargetLanguage" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor\(x\).Anonymized" />
-        <RequiredField FieldPath=".*\(x\).Quality" />
+<!--        <RequiredField FieldPath=".*\(x\).Quality" />-->
         <RequiredField FieldPath=".*\(x\).TimePosition.Start" />
         <RequiredField FieldPath=".*\(x\).TimePosition.End" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Validation.Level" />
@@ -48,14 +51,14 @@
     </AutoFields>
     <GenreSubgenres>
         <comment>The field pairs listed here will be linked as genre subgenre where the subgenre field gets its controlled vocabulary from the genre fields current selection</comment>
-        <GenreSubgenre Subgenre=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" Genre=".METATRANSCRIPT.Session.MDGroup.Content.Genre" Description="description" />
+        <GenreSubgenre Subgenre=".METATRANSCRIPT.Session.MDGroup.Content(x).SubGenre" Genre=".METATRANSCRIPT.Session.MDGroup.Content(x).Genre" Description="description" />
     </GenreSubgenres>
     <FieldConstraints>
         <comment>The fields listed here will be required to match the regex constraint and will be highlighted in the application if they do not</comment>
-        <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
-        <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
+        <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
+        <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\.Email" Constraint=".+@.+"/>
-        <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]" />
+        <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".*\(x\).TimePosition.Start" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".*\(x\).TimePosition.End" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Validation.Level" Constraint="[0-9]*|Unknown|Unspecified" />
@@ -67,18 +70,22 @@
         <comment>The field triggers cause the target field to be set after the source field is edited, the value set in the target is determined by the controlled vocabulary on the source field</comment>
         <comment>The primary use fof these triggers are to set the corresponding language code when the language name field is changed is set</comment>
         <comment>The SourceFieldValue sets the source of the data to be inserted into the target field from the source fields controlled vocabulary. Possible values relate to the vocabulary xml format and include: "Content" "Value" "Code" "FollowUp".</comment>
-        <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Id" SourceFieldValue = "Content" />
+        <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language(x).Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language(x).Id" SourceFieldValue = "Content" />
+        <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Content(x).Genre" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Content(x).SubGenre" SourceFieldValue = "FollowUp" />
         <comment>The LexiconResource field has no related id field and so is excluded from this list ".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language"</comment>
     </FieldTriggers>
     <ChildNodePaths>
         <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Languages" />
         <ChildNodePath ChildPath=".Languages.Language" SubNodeName="Languages" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Project" SubNodeName="Project" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content" SubNodeName="Content" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" SubNodeName="Actors" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Anonyms" SubNodeName="Anonyms" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.MediaFile" SubNodeName="MediaFiles" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.WrittenResource" SubNodeName="WrittenResources" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source" SubNodeName="Sources" />
@@ -97,71 +104,55 @@
     </RootTemplateComponents>
     <AvailableTemplateComponents>
         <comment>The template components that can be added via the add menu and the display name for each</comment>
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Access.Description.xml" DisplayName="Access Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Author.xml" DisplayName="Author" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.ContentType.xml" DisplayName="ContentType" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Description.xml" DisplayName="Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.DocumentLanguages.Description.xml" DisplayName="Document Languages Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.DocumentLanguages.Language.xml" DisplayName="Document Languages Language" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Keys.Key.xml" DisplayName="Catalogue Key" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Location.xml" DisplayName="Location" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Project.Author.xml" DisplayName="Project Author" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Project.Description.xml" DisplayName="Project Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Publisher.xml" DisplayName="Publisher" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Description.xml" DisplayName="Subject Languages Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Description.xml" DisplayName="Subject Languages Language Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Language.xml" DisplayName="Subject Languages Language" />
-        <TemplateComponent FileName="METATRANSCRIPT.Corpus.Description.xml" DisplayName="Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.Description.xml" DisplayName="Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description.xml" DisplayName="Actor Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml" DisplayName="Actor Key" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml" DisplayName="Actor Language" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml" DisplayName="Actor" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Access.Description.xml" DisplayName="Access Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Author.xml" DisplayName="Author" InsertBefore="Size" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.ContentType.xml" DisplayName="ContentType" InsertBefore="Format" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Description.xml" DisplayName="Description" InsertBefore="DocumentLanguages" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.DocumentLanguages.Description.xml" DisplayName="Document Languages Description" InsertBefore="Language" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.DocumentLanguages.Language.xml" DisplayName="Document Languages Language" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Keys.Key.xml" DisplayName="Catalogue Key" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Location.xml" DisplayName="Location" InsertBefore="ContentType" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Project.Author.xml" DisplayName="Project Author" InsertBefore="Size" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Project.Description.xml" DisplayName="Project Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Publisher.xml" DisplayName="Publisher" InsertBefore="Author" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Description.xml" DisplayName="Subject Languages Description" InsertBefore="Language" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Description.xml" DisplayName="Subject Languages Language Description" InsertBefore="Language" />
+        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Language.xml" DisplayName="Subject Languages Language" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Corpus.Description.xml" DisplayName="Description" InsertBefore="CorpusLink" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Description.xml" DisplayName="Description" InsertBefore="MDGroup" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.References.Description.xml" DisplayName="References Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Description.xml" DisplayName="Actors Description" InsertBefore="Actor" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description.xml" DisplayName="Actor Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml" DisplayName="Actor Key" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml" DisplayName="Actor Language" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Description.xml" DisplayName="Actor Language Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml" DisplayName="Actor" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.SpeakerSigner.xml" DisplayName="Speaker/Signer" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Keys.Key.xml" DisplayName="Content Key" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml" DisplayName="Content Language" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Description.xml" DisplayName="Content Language Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Keys.Key.xml" DisplayName="Key" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml" DisplayName="Source Key" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source.xml" DisplayName="Source" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml" DisplayName="WrittenResource Key" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource.xml" DisplayName="WrittenResource" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Keys.Key.xml" DisplayName="Content Key" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language.xml" DisplayName="Content Language" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language(x).Description.xml" DisplayName="Content Language Description" InsertBefore="Language" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Keys.Key.xml" DisplayName="Key" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Location.Region.xml" DisplayName="Location.Region" InsertBefore="Address" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Anonyms(x).Access.Description.xml" DisplayName="Anonyms Access Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Anonyms.xml" DisplayName="Anonyms" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Description.xml" DisplayName="MediaFile Description"  InsertBefore="Keys"/>
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Keys.Key.xml" DisplayName="MediaFile Key"  InsertBefore=""/>
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Access.Description.xml" DisplayName="MediaFile Access Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source,Anonyms" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Description.xml" DisplayName="Source Description" InsertBefore="Keys" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml" DisplayName="Source Key" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Access.Description.xml" DisplayName="Source Access Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source.xml" DisplayName="Source" InsertBefore="Anonyms" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Description.xml" DisplayName="WrittenResource Description" InsertBefore="Keys" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml" DisplayName="WrittenResource Key" InsertBefore="LexiconResource,LexiconComponent,Source,Anonyms" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Access.Description.xml" DisplayName="WrittenResource Access Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource.xml" DisplayName="WrittenResource" InsertBefore="LexiconResource,LexiconComponent,Source,Anonyms" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Project.xml" DisplayName="Project" InsertBefore="Keys" MaxOccurs="1" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Project(x).Description.xml" DisplayName="Project Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.xml" DisplayName="Content" InsertBefore="Actors" MaxOccurs="1" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Description.xml" DisplayName="Content Description" InsertBefore="" />
     </AvailableTemplateComponents>
-<!-- TemplateComponent-FileName-NodePath-DisplayName   <AvailableTemplateComponents>
-        <comment>The template components that can be added via the add menu and the display name for each</comment>
-        <TemplateComponent FileName="Catalogue.Access.Description.xml" NodePath=".METATRANSCRIPT.Catalogue.Access.Description" DisplayName="Access Description" />
-        <TemplateComponent FileName="Catalogue.Author.xml" NodePath=".METATRANSCRIPT.Catalogue.Author" DisplayName="Catalogue Author" />
-        <TemplateComponent FileName="Catalogue.ContentType.xml" NodePath=".METATRANSCRIPT.Catalogue.ContentType" DisplayName="Catalogue ContentType" />
-        <TemplateComponent FileName="Catalogue.Description.xml" NodePath=".METATRANSCRIPT.Catalogue.Description" DisplayName="Catalogue Description" />
-        <TemplateComponent FileName="Document.Languages.Description.xml" NodePath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Description" DisplayName="Document Languages Description" />
-        <TemplateComponent FileName="Document.Language.xml" NodePath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language" DisplayName="Document Language" />
-        <TemplateComponent FileName="Catalogue.Key.xml" NodePath=".METATRANSCRIPT.Catalogue.Keys.Key" DisplayName="Catalogue Key" />
-        <TemplateComponent FileName="Catalogue Location.xml" NodePath=".METATRANSCRIPT.Catalogue.Location" DisplayName="Catalogue Location" />
-        <TemplateComponent FileName="Project.Author.xml" NodePath=".METATRANSCRIPT.Catalogue.Project.Author" DisplayName="Project Author" />
-        <TemplateComponent FileName="Project.Description.xml" NodePath=".METATRANSCRIPT.Catalogue.Project.Description" DisplayName="Project Description" />
-        <TemplateComponent FileName="Publisher.xml" NodePath=".METATRANSCRIPT.Catalogue.Publisher" DisplayName="Publisher" />
-        <TemplateComponent FileName="Subject.Languages.Description.xml" NodePath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Description" DisplayName="" />
-        <TemplateComponent FileName="Subject.Language.Description.xml" NodePath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Description" DisplayName="Subject Language Description" />
-        <TemplateComponent FileName="Subject.Language.xml" NodePath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" DisplayName="Subject Language" />
-        <TemplateComponent FileName="Catalogue.xml" NodePath=".METATRANSCRIPT.Catalogue" DisplayName="Catalogue" />
-        <TemplateComponent FileName="Corpus.Description.xml" NodePath=".METATRANSCRIPT.Corpus.Description" DisplayName="Corpus Description" />
-        <TemplateComponent FileName="Corpus.xml" NodePath=".METATRANSCRIPT.Corpus" DisplayName="Corpus" />
-        <TemplateComponent FileName="Session.Description.xml" NodePath=".METATRANSCRIPT.Session.Description" DisplayName="Description" />
-        <TemplateComponent FileName="Actor.Description.xml" NodePath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description" DisplayName="Actor Description" />
-        <TemplateComponent FileName="Actor.Key.xml" NodePath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key" DisplayName="Actor Key" />
-        <TemplateComponent FileName="Actor.Language.xml" NodePath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language" DisplayName="Actor Language" />
-        <TemplateComponent FileName="Actor.xml" NodePath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" DisplayName="Actor" />
-        <TemplateComponent FileName="Content.Key.xml" NodePath=".METATRANSCRIPT.Session.MDGroup.Content.Keys.Key" DisplayName="Content Key" />
-        <TemplateComponent FileName="Content.Language.xml" NodePath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" DisplayName="Content Language" />
-        <TemplateComponent FileName="Session.Key.xml" NodePath=".METATRANSCRIPT.Session.MDGroup.Keys.Key" DisplayName="Session Key" />
-        <TemplateComponent FileName="MediaFile.xml" NodePath=".METATRANSCRIPT.Session.Resources.MediaFile" DisplayName="Media File" />
-        <TemplateComponent FileName="Source.Key.xml" NodePath=".METATRANSCRIPT.Session.Resources.Source(x).Keys.Key" DisplayName="Source Key" />
-        <TemplateComponent FileName="Source.xml" NodePath=".METATRANSCRIPT.Session.Resources.Source" DisplayName="Source" />
-        <TemplateComponent FileName="WrittenResource.Key.xml" NodePath=".METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key" DisplayName="Written Resource Key" />
-        <TemplateComponent FileName="WrittenResource.xml" NodePath=".METATRANSCRIPT.Session.Resources.WrittenResource" DisplayName="Written Resource" />
-        <TemplateComponent FileName="Session.xml" NodePath=".METATRANSCRIPT.Session" DisplayName="Session" />
-    </AvailableTemplateComponents>-->
+
     <FieldUsageDescriptions>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Title" FieldDescription="The title of this session" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Name" FieldDescription="The name of this session (also used to name the session in various applications)" />
@@ -188,7 +179,7 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Address" FieldDescription="Contact information for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" FieldDescription="Contact information for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description for this project" />
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5 where 1 is the lowest quality and 5 is the highest quality" />
     </FieldUsageDescriptions>
     <PreferredTreeNodeNameFields>
        <comment>The fields that will be used to name the node in the tree if the field contains a value. The first found value will be used, so the order of this list determines their preference of use in the tree.</comment>
@@ -198,6 +189,8 @@
        <TreeNodeNameField FieldsShortName="Region" />
        <TreeNodeNameField FieldsShortName="Country" />
        <TreeNodeNameField FieldsShortName="Continent" />
+        <TreeNodeNameField FieldsShortName="Genre" />
+        <TreeNodeNameField FieldsShortName="SubGenre" />
     </PreferredTreeNodeNameFields>
 
 </template>
