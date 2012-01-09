@@ -828,7 +828,7 @@ public class ImportExportDialog {
 			    currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
 			    ArbilJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
 			    String checkerResult;
-			    checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile, currentRetrievableFile.sourceURI);
+			    checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile);
 			    if (checkerResult != null) {
 				xmlOutput.append(currentRetrievableFile.sourceURI.toString() + "\n");
 				xmlOutput.append("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
