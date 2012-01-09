@@ -186,15 +186,9 @@ public abstract class ArbilTest {
     }
 
     protected ArbilTreeHelper newTreeHelper() {
-	ArbilTreeHelper treeHelper = new ArbilTreeHelper(getSessionStorage(), getDialogHandler(), getBugCatcher()) {
-
-	    @Override
-	    protected SessionStorage getSessionStorage() {
-		return ArbilTest.this.getSessionStorage();
-	    }
-	};
-	treeHelper.init();
-	return treeHelper;
+	ArbilTreeHelper newTreeHelper = new ArbilTreeHelper(getSessionStorage(), getDialogHandler(), getBugCatcher());
+	newTreeHelper.init();
+	return newTreeHelper;
     }
 
     protected SessionStorage newSessionStorage() {
