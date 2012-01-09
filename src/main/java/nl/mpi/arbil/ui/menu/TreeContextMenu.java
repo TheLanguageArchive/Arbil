@@ -774,7 +774,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 			    try {
 				if (leadSelectedTreeNode != null) {
-				    if (!leadSelectedTreeNode.getParentDomNode().hasChangedFieldsInSubtree()
+				    if (!leadSelectedTreeNode.getParentDomNode().getNeedsSaveToDisk(false)
 					    || dialogHandler.showConfirmDialogBox(
 					    "Adding a node will save pending changes to \""
 					    + leadSelectedTreeNode.getParentDomNode().toString()
