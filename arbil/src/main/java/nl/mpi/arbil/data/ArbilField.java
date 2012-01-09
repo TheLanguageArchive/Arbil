@@ -179,19 +179,19 @@ public class ArbilField implements Serializable {
     }
 
     public boolean fieldNeedsSaveToDisk() {
-        if (valuesDiffer(originalFieldValue, fieldValue)) {
-            return true;
-        }
-        if (valuesDiffer(originalLanguageId, languageId)) {
-            return true;
-        }
-        if (valuesDiffer(originalKeyName, keyName)) {
-            return true;
-        }
-        if (valuesDiffer(originalAttributeValuesMap, attributeValuesMap)) {
-            return true;
-        }
-        return false;
+	if (valuesDiffer(originalFieldValue, getFieldValueForXml())) { // original is always stored as XML representation
+	    return true;
+	}
+	if (valuesDiffer(originalLanguageId, languageId)) {
+	    return true;
+	}
+	if (valuesDiffer(originalKeyName, keyName)) {
+	    return true;
+	}
+	if (valuesDiffer(originalAttributeValuesMap, attributeValuesMap)) {
+	    return true;
+	}
+	return false;
     }
 
     public String getFieldValue() {
