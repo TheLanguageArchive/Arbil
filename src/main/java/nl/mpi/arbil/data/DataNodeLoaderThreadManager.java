@@ -193,7 +193,7 @@ public class DataNodeLoaderThreadManager {
 			if (currentArbilDataNode.isMetaDataNode()) {
 			    XsdChecker xsdChecker = new XsdChecker();
 			    String checkerResult;
-			    checkerResult = xsdChecker.simpleCheck(currentArbilDataNode.getFile(), currentArbilDataNode.getURI());
+			    checkerResult = xsdChecker.simpleCheck(currentArbilDataNode.getFile());
 			    currentArbilDataNode.hasSchemaError = (checkerResult != null);
 			}
 		    } else {

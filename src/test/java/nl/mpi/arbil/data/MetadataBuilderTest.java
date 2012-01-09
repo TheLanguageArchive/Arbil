@@ -47,7 +47,7 @@ public class MetadataBuilderTest {
     private void checkAgainstSchema(ArbilDataNode testImdiObject) {
         XsdChecker xsdChecker = new XsdChecker();
         String checkerResult;
-        checkerResult = xsdChecker.simpleCheck(testImdiObject.getFile(), testImdiObject.getURI());
+        checkerResult = xsdChecker.simpleCheck(testImdiObject.getFile());
         assertNull("schema error: " + checkerResult, checkerResult);
     }
 

@@ -92,14 +92,14 @@ public class XsdChecker extends JSplitPane {
 	return validator;
     }
 
-    private URL getXsd(File imdiFile, URI xmlFileUrl) {
+    private URL getXsd(File metadataFile) {
 	//boolean useImdiXSD = imdiFile.getAbsolutePath().toLowerCase().endsWith(".imdi");
 	String nameSpaceURI = null;
 	try {
 	    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 	    documentBuilderFactory.setValidating(false);
 	    DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-	    Document document = documentBuilder.parse(imdiFile);
+	    Document document = documentBuilder.parse(metadataFile);
 //            String[] schemaLocation = document.getDocumentElement().getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
 //            if (schemaLocation != null && schemaLocation.length > 0) {
 //                nameSpaceURI = schemaLocation[schemaLocation.length - 1];
@@ -121,7 +121,7 @@ public class XsdChecker extends JSplitPane {
 		schemaLocationString = schemaLocationNode.getNodeValue();
 		String[] schemaLocation = schemaLocationString.split("\\s");
 		schemaLocationString = schemaLocation[schemaLocation.length - 1];
-		nameSpaceURI = xmlFileUrl.resolve(schemaLocationString).toString();
+		nameSpaceURI = metadataFile.toURI().resolve(schemaLocationString).toString();
 	    }
 	    System.out.println("schemaLocationString: " + schemaLocationString);
 
@@ -149,7 +149,7 @@ public class XsdChecker extends JSplitPane {
 	URL schemaURL = null;
 	// if this is a cmdi file then we should just fail here
 	// otherwise try to get the imdi schema
-	if (!MetadataFormat.isPathImdi(imdiFile.toString())) {
+	if (!MetadataFormat.isPathImdi(metadataFile.toString())) {
 	    try {
 		schemaURL = schemaFile.toURL();
 	    } catch (Exception e) {
@@ -175,13 +175,13 @@ public class XsdChecker extends JSplitPane {
 	return schemaURL;
     }
 
-    private void alternateCheck(File imdiFile, URI xmlFileUrl) throws Exception {
-	URL schemaURL = getXsd(imdiFile, xmlFileUrl);
+    private void alternateCheck(File metadataFile) throws Exception {
+	URL schemaURL = getXsd(metadataFile);
 	if (schemaURL == null) {
 	    doc.insertString(doc.getLength(), "Failed to find the schema file.\n\n", styleFatalError);
 	} else {
 	    doc.insertString(doc.getLength(), "using schema file: " + schemaURL.getFile() + "\n\n", styleNormal);
-	    Source xmlFile = new StreamSource(imdiFile);
+	    Source xmlFile = new StreamSource(metadataFile);
 
 	    class CustomErrorHandler implements ErrorHandler {
 
@@ -235,7 +235,7 @@ public class XsdChecker extends JSplitPane {
 	    doc.insertString(checkingOffset, checkingString, styleNormal);
 
 	    Validator validator = createValidator(schemaURL);
-	    CustomErrorHandler errorHandler = new CustomErrorHandler(imdiFile);
+	    CustomErrorHandler errorHandler = new CustomErrorHandler(metadataFile);
 	    validator.setErrorHandler(errorHandler);
 	    try {
 		validator.validate(xmlFile);
@@ -253,11 +253,11 @@ public class XsdChecker extends JSplitPane {
 	}
     }
 
-    public String simpleCheck(File imdiFile, URI sourceFile) {
+    public String simpleCheck(File metadataFile) {
 	String messageString;
 //        System.out.println("simpleCheck: " + imdiFile);
-	URL schemaURL = getXsd(imdiFile, sourceFile);
-	Source xmlFile = new StreamSource(imdiFile);
+	URL schemaURL = getXsd(metadataFile);
+	Source xmlFile = new StreamSource(metadataFile);
 	try {
 	    Validator validator = createValidator(schemaURL);
 	    validator.validate(xmlFile);
@@ -265,7 +265,7 @@ public class XsdChecker extends JSplitPane {
 	} catch (Exception e) {
 //            System.out.println(sourceFile + " is NOT valid");
 //            System.out.println("Reason: " + e.getLocalizedMessage());
-	    messageString = "Error validating " + sourceFile + "\n"
+	    messageString = "Error validating " + metadataFile.toURI() + "\n"
 		    + "Reason: " + e.getLocalizedMessage() + "\n";
 	    return messageString;
 	}
@@ -293,7 +293,7 @@ public class XsdChecker extends JSplitPane {
 
 //            doc.insertString(doc.getLength(), "Exporting imdi file to remove the id attributes\n", styleNormal);
 	    synchronized (imdiObject) {
-		alternateCheck(imdiObject.getFile(), imdiObject.getURI());
+		alternateCheck(imdiObject.getFile());
 	    }
 
 	    try {
