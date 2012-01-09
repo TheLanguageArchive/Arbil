@@ -38,13 +38,11 @@ public class GuiHelper {
 
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
             System.out.println("lost clipboard ownership");
-            //throw new UnsupportedOperationException("Not supported yet.");
         }
     };
     static private GuiHelper singleInstance = null;
 
     static synchronized public GuiHelper getSingleInstance() {
-        System.out.println("GuiHelper getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new GuiHelper();
         }
