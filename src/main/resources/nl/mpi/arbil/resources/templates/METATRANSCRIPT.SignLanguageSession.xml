@@ -16,7 +16,7 @@
         <MDGroup>
             <Location>
                 <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="ClosedVocabulary"></Continent>
-                <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="ClosedVocabulary"></Country>
+                <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="OpenVocabulary"></Country>
                 <Region></Region>
                 <Address></Address>
             </Location>
@@ -61,29 +61,11 @@
                 <Description LanguageId="" Link=""/>
             </Content>
             <Actors>
-                <Description LanguageId="" Link=""/>
             </Actors>
         </MDGroup>
         <Resources>
-            <Anonyms >
-                <ResourceLink></ResourceLink>
-                <Access>
-                    <Availability/>
-                    <Date></Date>
-                    <Owner/>
-                    <Publisher/>
-                    <Contact>
-                        <Name/>
-                        <Address/>
-                        <Email/>
-                        <Organisation/>
-                    </Contact>
-                    <Description LanguageId="" Link=""/>
-                </Access>
-            </Anonyms>
         </Resources>
         <References>
-            <Description LanguageId="" Link=""/>
         </References>
     </Session>
 </METATRANSCRIPT>
