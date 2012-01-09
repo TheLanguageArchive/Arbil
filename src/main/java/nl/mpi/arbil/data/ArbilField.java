@@ -179,7 +179,7 @@ public class ArbilField implements Serializable {
     }
 
     public boolean fieldNeedsSaveToDisk() {
-	if (valuesDiffer(originalFieldValue, fieldValue)) {
+	if (valuesDiffer(originalFieldValue, getFieldValueForXml())) { // original is always stored as XML representation
 	    return true;
 	}
 	if (valuesDiffer(originalLanguageId, languageId)) {
