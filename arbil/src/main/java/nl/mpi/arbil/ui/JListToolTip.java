@@ -116,6 +116,9 @@ class JListToolTip extends JToolTip {
 	    }
 	    addDetailLabel("Open in long field editor to set attributes");
 	}
+	if (field.isAllowsLanguageId()) {
+	    addDetailLabelIcon("Field has language attribute", ArbilIcons.getSingleInstance().languageIcon);
+	}
     }
 
     private void addLabelsForDataNode(ArbilDataNode tempObject) {
