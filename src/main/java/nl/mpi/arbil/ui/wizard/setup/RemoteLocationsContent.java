@@ -33,8 +33,8 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
     }
     private ArbilSetupWizardModel model;
     private JTextArea locationsTextArea;
-    public final static String imdiDefaultsResource = "/defaults/imdiLocations";
-    public final static String cmdiDefaultsResource = "/defaults/cmdiLocations";
+    public final static String imdiDefaultsResource = "/nl/mpi/arbil/defaults/imdiLocations";
+    public final static String cmdiDefaultsResource = "/nl/mpi/arbil/defaults/cmdiLocations";
 
     public RemoteLocationsContent(ArbilSetupWizardModel model) {
 	super("/nl/mpi/arbil/resources/html/wizard/RemoteLocations.html");

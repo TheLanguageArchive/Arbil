@@ -97,7 +97,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     @Override
     public int addDefaultCorpusLocations() {
 	try {
-	    addLocations(getClass().getResourceAsStream("/defaults/imdiLocations"));
+	    addLocations(getClass().getResourceAsStream("/nl/mpi/arbil/defaults/imdiLocations"));
 	    return remoteCorpusNodes.length;
 	} catch (IOException ex) {
 	    bugCatcher.logError(ex);
