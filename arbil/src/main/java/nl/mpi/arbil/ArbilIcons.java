@@ -59,6 +59,7 @@ public class ArbilIcons {
     private ImageIcon picturesIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/pictures.png"));
 //    private ImageIcon corpusserverlocal16x16cIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusserverlocal16x16c.png"));
     private ImageIcon questionRedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/question-red.png"));
+    private ImageIcon questionBlackIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/question-black.png"));
     public ImageIcon dataIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/data.png"));
     public ImageIcon fieldIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/field.png"));
     private ImageIcon dataemptyIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/dataempty.png"));
@@ -71,11 +72,11 @@ public class ArbilIcons {
     public ImageIcon clarinIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/clarinE.png"));
     public ImageIcon kinOathIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/KinOath-16.png"));
     public ImageIcon catalogueColorIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/catalogue.png"));
-    private ImageIcon exclamationBlueIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-blue.png"));
+    //private ImageIcon exclamationBlueIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-blue.png"));
 //    private ImageIcon sessionColorServerlocalIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-serverlocal.png"));
 //    private ImageIcon exclamationGreenIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-green.png"));
 //    private ImageIcon sessionColorServerIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-server.png"));
-    private ImageIcon exclamationRedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-red.png"));
+    //private ImageIcon exclamationRedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-red.png"));
     public ImageIcon languageIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/language.png"));
 //    private ImageIcon sessionIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session.png"));
 //    private ImageIcon exclamationYellowIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-yellow.png"));
@@ -84,6 +85,7 @@ public class ArbilIcons {
 //    private ImageIcon filelocal16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/filelocal16x16.png"));
     private ImageIcon tickBlueIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/tick-blue.png"));
     private ImageIcon fileIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/file.png"));
+    private ImageIcon fileCheckedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/file-checked.png"));
     private ImageIcon tickGreenIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/tick-green.png"));
 //    private ImageIcon fileserver16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/fileserver16x16.png"));
 //    private ImageIcon tickRedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/tick-red.png"));
@@ -307,6 +309,8 @@ public class ArbilIcons {
 		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("kml")) {
 		iconsList.add(writtenresourceIcon);
+	    } else if (mimeTypeForNode.contains("ogg")) { // application/ogg, video/ and audio/ already get captured above
+		iconsList.add(picturesIcon);
 	    } else if (mimeTypeForNode.contains("manual/mediafile")) {
 		iconsList.add(picturesIcon);
 	    } else if (mimeTypeForNode.contains("manual/writtenresource")) {
@@ -315,9 +319,9 @@ public class ArbilIcons {
 		// no icon for this
 		iconsList.add(fileIcon);
 	    } else if (mimeTypeForNode.contains("unknown")) {
-		iconsList.add(questionRedIcon);
+		iconsList.add(fileCheckedIcon);
 	    } else if (mimeTypeForNode.length() > 0) {
-		iconsList.add(questionRedIcon);
+		iconsList.add(fileCheckedIcon);
 		bugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
 	    }
 	} else if (arbilNode.isInfoLink) {
@@ -328,10 +332,11 @@ public class ArbilIcons {
 	} else if (arbilNode.isDirectory()) {
 	    iconsList.add(UIManager.getIcon("FileView.directoryIcon"));
 	} else {
-	    iconsList.add(fileIcon);
-	    if (!arbilNode.getTypeCheckerState().equals(TypeCheckerState.CHECKED)) {
+	    if (arbilNode.getTypeCheckerState().equals(TypeCheckerState.CHECKED)) {
+		iconsList.add(fileIcon);
+	    } else {
 		// File has not been type checked, indicate with question mark icon
-		iconsList.add(questionRedIcon);
+		iconsList.add(questionBlackIcon);
 	    }
 	}
 	// add missing file icon
