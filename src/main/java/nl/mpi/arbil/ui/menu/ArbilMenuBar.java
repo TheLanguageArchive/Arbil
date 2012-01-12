@@ -10,7 +10,6 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import java.awt.AWTEvent;
 import java.awt.Component;
-import java.awt.Dialog.ModalityType;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -419,7 +418,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        optionsMenu.add(localStorageDirectoriesMenu);
 	optionsMenu.add(setCacheDirectoryMenu);
 
-	editPreferredLanguagesMenuItem.setText("Edit Language List...");
+	editPreferredLanguagesMenuItem.setText("Edit IMDI Language List...");
 	editPreferredLanguagesMenuItem.setEnabled(true);
 	editPreferredLanguagesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 

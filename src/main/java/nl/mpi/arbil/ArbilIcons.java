@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.net.HttpURLConnection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
