@@ -46,6 +46,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
@@ -54,6 +55,7 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
+import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
@@ -770,6 +772,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	while (focusedComponent != null) {
 	    if (focusedComponent instanceof ArbilLongFieldEditor) {
 		((ArbilLongFieldEditor) focusedComponent).storeChanges();
+	    } else if (focusedComponent instanceof JTable) {
+		TableCellEditor editor = ((JTable) focusedComponent).getCellEditor();
+		if (editor != null) {
+		    editor.stopCellEditing();
+		}
 	    }
 	    focusedComponent = focusedComponent.getParent();
 	}

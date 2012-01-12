@@ -144,12 +144,7 @@ public class CmdiTemplate extends ArbilTemplate {
 
             // sort and construct the preferredNameFields array
             String[][] tempSortableArray = arrayListGroup.displayNamePreferenceList.toArray(new String[][]{});
-            Arrays.sort(tempSortableArray, new Comparator<String[]>() {
-
-                public int compare(String[] o1, String[] o2) {
-                    return Integer.valueOf(o1[1]) - Integer.valueOf(o2[1]);
-                }
-            });
+	    Arrays.sort(tempSortableArray, displayNamePreferenceComparator);
             preferredNameFields = new String[tempSortableArray.length];
             for (int nameFieldCounter = 0; nameFieldCounter < preferredNameFields.length; nameFieldCounter++) {
                 preferredNameFields[nameFieldCounter] = tempSortableArray[nameFieldCounter][0];
@@ -744,4 +739,30 @@ public class CmdiTemplate extends ArbilTemplate {
         CmdiTemplate template = new CmdiTemplate();
         template.loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1289827960126/xsd");
     }
+    /**
+     * Compares for display preference. Paths of equal length get grouped together. Within those groups, ordering is on basis of displayPriority 
+     */
+    private static Comparator<String[]> displayNamePreferenceComparator = new Comparator<String[]>() {
+
+	public int compare(String[] o1, String[] o2) {
+	    int depthComp = getPathLength(o1[0]) - getPathLength(o2[0]);
+	    if (depthComp == 0) {
+		// Equal path length, compare using displayPriority
+		return Integer.valueOf(o1[1]) - Integer.valueOf(o2[1]);
+	    } else {
+		// Unequal path lengths, keep apart
+		return depthComp;
+	    }
+	}
+
+	private int getPathLength(String str) {
+	    int count = 0;
+	    for (char c : str.toCharArray()) {
+		if (c == '.') {
+		    count++;
+		}
+	    }
+	    return count;
+	}
+    };
 }
