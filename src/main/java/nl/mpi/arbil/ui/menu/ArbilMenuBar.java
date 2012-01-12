@@ -854,6 +854,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     public boolean performCleanExit() { // TODO: this should be moved into a utility class
+	ArbilWindowManager.getSingleInstance().stopEditingInCurrentWindow();
 	if (saveApplicationState()) {
 //                viewChangesMenuItem.setEnabled(false);
 //        screenCapture.stopCapture();

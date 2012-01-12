@@ -43,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
@@ -51,6 +52,7 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
+import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
@@ -132,8 +134,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    linorgFrame.setLocationRelativeTo(null);
 		    // make sure the main frame is visible. for instance when a second monitor has been removed.
 		    Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
-		    if (linorgFrameBounds instanceof Rectangle && ((Rectangle)linorgFrameBounds).intersects(new Rectangle(screenDimension))) {
-			linorgFrame.setBounds(((Rectangle)linorgFrameBounds).intersection(new Rectangle(screenDimension)));
+		    if (linorgFrameBounds instanceof Rectangle && ((Rectangle) linorgFrameBounds).intersects(new Rectangle(screenDimension))) {
+			linorgFrame.setBounds(((Rectangle) linorgFrameBounds).intersection(new Rectangle(screenDimension)));
 		    } else {
 			linorgFrame.setBounds(0, 0, 800, 600);
 			linorgFrame.setLocationRelativeTo(null);
@@ -746,6 +748,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	while (focusedComponent != null) {
 	    if (focusedComponent instanceof ArbilLongFieldEditor) {
 		((ArbilLongFieldEditor) focusedComponent).storeChanges();
+	    } else if (focusedComponent instanceof JTable) {
+		TableCellEditor editor = ((JTable) focusedComponent).getCellEditor();
+		if (editor != null) {
+		    editor.stopCellEditing();
+		}
 	    }
 	    focusedComponent = focusedComponent.getParent();
 	}
