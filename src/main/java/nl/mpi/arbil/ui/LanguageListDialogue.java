@@ -4,6 +4,7 @@ import nl.mpi.arbil.data.DocumentationLanguages;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -49,10 +50,10 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
     @Override
     protected void populateLists() {
 	cmdiProfilesPanel.getParent().remove(cmdiProfilesPanel);
-	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the field language select box"));
-	ArrayList<String> selectedLanguages = DocumentationLanguages.getSingleInstance().getSelectedLanguagesArrayList();
+	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the field language select box for IMDI"));
+	List<String> selectedLanguages = DocumentationLanguages.getSingleInstance().getSelectedLanguagesArrayList();
 	checkBoxArray = new ArrayList<JCheckBox>();
-	for (ArbilVocabularyItem currentTemplate : DocumentationLanguages.getSingleInstance().getallLanguages()) {
+	for (ArbilVocabularyItem currentTemplate : DocumentationLanguages.getSingleInstance().getAllLanguagesForImdi()) {
 	    JCheckBox languageCheckBox;
 	    languageCheckBox = new JCheckBox();
 	    languageCheckBox.setText(currentTemplate.itemDisplayName);

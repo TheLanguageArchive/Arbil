@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
@@ -33,50 +35,58 @@ public class LanguageIdBox extends JComboBox {
 	System.out.println("Has LanguageId");
 	ArbilVocabularyItem selectedItem = null;
 	this.setEditable(false);
-	List<ArbilVocabularyItem> languageItemArray = DocumentationLanguages.getSingleInstance().getLanguageListSubset();
-	Collections.sort(languageItemArray);
-	for (ArbilVocabularyItem currentItem : languageItemArray) {
-	    this.addItem(currentItem);
-	    // the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
-	    if (fieldLanguageId != null
-		    && (fieldLanguageId.equals(currentItem.itemCode) || fieldLanguageId.equals(currentItem.descriptionString))) {
-		selectedItem = currentItem;
-	    }
-	}
-	this.addItem(defaultLanguageDropDownValue);
-
-	if (selectedItem != null) {
-	    System.out.println("selectedItem: " + selectedItem);
-	    this.setSelectedItem(selectedItem);
-	} else {
-	    this.setSelectedItem(defaultLanguageDropDownValue);
-	}
-	this.addActionListener(new ActionListener() {
-
-	    public void actionPerformed(ActionEvent e) {
-		try {
-//                        ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
-		    if (LanguageIdBox.this.getSelectedItem() instanceof ArbilVocabularyItem) {
-			ArbilVocabularyItem selectedLanguage = (ArbilVocabularyItem) LanguageIdBox.this.getSelectedItem();
-			String languageCode = selectedLanguage.itemCode;
-			if (languageCode == null) {
-			    // the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
-			    languageCode = selectedLanguage.descriptionString;
-			}
-			cellField.setLanguageId(languageCode, true, false);
-		    } else {
-			if (defaultLanguageDropDownValue.equals(LanguageIdBox.this.getSelectedItem())) {
-			    cellField.setLanguageId(null, true, false);
-			}
-		    }
-		    //LanguageIdBox.this.removeItem(defaultLanguageDropDownValue);
-		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+	List<ArbilVocabularyItem> languageItemArray = getLanguageItems(cellField.getParentDataNode());
+	if (languageItemArray != null) {
+	    Collections.sort(languageItemArray);
+	    for (ArbilVocabularyItem currentItem : languageItemArray) {
+		this.addItem(currentItem);
+		// the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
+		if (fieldLanguageId != null
+			&& (fieldLanguageId.equals(currentItem.itemCode) || fieldLanguageId.equals(currentItem.descriptionString))) {
+		    selectedItem = currentItem;
 		}
 	    }
-	});
+	    this.addItem(defaultLanguageDropDownValue);
+
+	    if (selectedItem != null) {
+		System.out.println("selectedItem: " + selectedItem);
+		this.setSelectedItem(selectedItem);
+	    } else {
+		this.setSelectedItem(defaultLanguageDropDownValue);
+	    }
+	    this.addActionListener(new ActionListener() {
+
+		public void actionPerformed(ActionEvent e) {
+		    try {
+			if (LanguageIdBox.this.getSelectedItem() instanceof ArbilVocabularyItem) {
+			    ArbilVocabularyItem selectedLanguage = (ArbilVocabularyItem) LanguageIdBox.this.getSelectedItem();
+			    String languageCode = selectedLanguage.itemCode;
+			    if (languageCode == null) {
+				// the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
+				languageCode = selectedLanguage.descriptionString;
+			    }
+			    cellField.setLanguageId(languageCode, true, false);
+			} else {
+			    if (defaultLanguageDropDownValue.equals(LanguageIdBox.this.getSelectedItem())) {
+				cellField.setLanguageId(null, true, false);
+			    }
+			}
+		    } catch (Exception ex) {
+			bugCatcher.logError(ex);
+		    }
+		}
+	    });
+	}
 	if (parentCellRect != null) {
 	    this.setPreferredSize(new Dimension(languageSelectWidth, parentCellRect.height));
+	}
+    }
+
+    private List<ArbilVocabularyItem> getLanguageItems(final ArbilDataNode parentDataNode) {
+	if (parentDataNode.getNodeTemplate() instanceof CmdiTemplate) {
+	    return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
+	} else {
+	    return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForImdi();
 	}
     }
 }

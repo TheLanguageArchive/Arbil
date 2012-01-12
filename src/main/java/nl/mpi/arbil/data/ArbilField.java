@@ -404,18 +404,18 @@ public class ArbilField implements Serializable {
     }
 
     public void loadVocabulary() {
-        if (hasVocabularyType) {
-            if (cvUrlString != null && cvUrlString.length() > 0) {
-                fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
-                if (cvUrlString.equals(DocumentationLanguages.getLanguageVocabularyUrl())) {
-                    fieldVocabulary.setFilter(DocumentationLanguages.getSingleInstance());
-                }
-            }
-        } else {
-            // vocabularies specified in the xml override vocabularies defined in the schema
-            if (getParentDataNode().getParentDomNode().nodeTemplate != null) {
-                // get the schema vocabularies
-                String strippedXmlPath = this.getGenericFullXmlPath().replaceAll("\\(x\\)", "");
+	if (hasVocabularyType) {
+	    if (cvUrlString != null && cvUrlString.length() > 0) {
+		fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
+		if (cvUrlString.equals(DocumentationLanguages.getLanguageVocabularyUrlForImdi())) {
+		    fieldVocabulary.setFilter(DocumentationLanguages.getSingleInstance());
+		}
+	    }
+	} else {
+	    // vocabularies specified in the xml override vocabularies defined in the schema
+	    if (getParentDataNode().getParentDomNode().nodeTemplate != null) {
+		// get the schema vocabularies
+		String strippedXmlPath = this.getGenericFullXmlPath().replaceAll("\\(x\\)", "");
 //                System.out.println("parentImdi.getParentDomNode().nodeTemplate: " + parentImdi.getParentDomNode().nodeTemplate.loadedTemplateName);
 //                System.out.println("strippedXmlPath: " + strippedXmlPath);
                 fieldVocabulary = getParentDataNode().getParentDomNode().nodeTemplate.getFieldVocabulary(strippedXmlPath);

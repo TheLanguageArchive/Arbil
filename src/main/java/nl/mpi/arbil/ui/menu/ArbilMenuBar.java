@@ -468,7 +468,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        optionsMenu.add(localStorageDirectoriesMenu);
 	optionsMenu.add(setCacheDirectoryMenu);
 
-	editPreferredLanguagesMenuItem.setText("Edit Language List...");
+	editPreferredLanguagesMenuItem.setText("Edit IMDI Language List...");
 	editPreferredLanguagesMenuItem.setEnabled(true);
 	editPreferredLanguagesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
