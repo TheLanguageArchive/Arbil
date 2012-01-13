@@ -8,27 +8,22 @@ import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilHelp;
 import nl.mpi.arbil.ui.ArbilHyperlinkListener;
 import nl.mpi.arbil.ui.ArbilNodeSearchColumnComboBox;
-import nl.mpi.arbil.ui.ArbilNodeSearchTermPanel;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilTableCellEditor;
 import nl.mpi.arbil.ui.CmdiProfilesPanel;
-import nl.mpi.arbil.ui.ImageBoxRenderer;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.RemoteServerSearchTermPanel;
 import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
-import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
 import nl.mpi.arbil.ui.menu.ArbilContextMenu;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
-import nl.mpi.arbil.ui.wizard.setup.TextInstructionWizardContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
@@ -41,29 +36,6 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilSwingInjector extends ArbilInjector {
-
-    @Override
-    public void injectBugCatcher(BugCatcher bugCatcher) {
-	super.injectBugCatcher(bugCatcher);
-	ArbilTableCellEditor.setBugCatcher(bugCatcher);
-	TableContextMenu.setBugCatcher(bugCatcher);
-	TreeContextMenu.setBugCatcher(bugCatcher);
-	ImageBoxRenderer.setBugCatcher(bugCatcher);
-	ArbilHelp.setBugCatcher(bugCatcher);
-	ArbilNodeSearchTermPanel.setBugCatcher(bugCatcher);
-	TemplateDialogue.setBugCatcher(bugCatcher);
-	TextInstructionWizardContent.setBugCatcher(bugCatcher);
-	ArbilNodeSearchColumnComboBox.setBugCatcher(bugCatcher);
-	LanguageIdBox.setBugCatcher(bugCatcher);
-	ImportExportDialog.setBugCatcher(bugCatcher);
-	ArbilNodeSearchTermPanel.setBugCatcher(bugCatcher);
-	ArbilMenuBar.setBugCatcher(bugCatcher);
-	ArbilSetupWizard.setBugCatcher(bugCatcher);
-	ArbilTable.setBugCatcher(bugCatcher);
-	ArbilContextMenu.setBugCatcher(bugCatcher);
-	ArbilDragDrop.setBugCatcher(bugCatcher);
-	ArbilFieldViews.setBugCatcher(bugCatcher);
-    }
 
     @Override
     public void injectSessionStorage(SessionStorage sessionStorage) {

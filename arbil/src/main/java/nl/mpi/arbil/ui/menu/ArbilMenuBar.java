@@ -45,7 +45,7 @@ import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
@@ -62,11 +62,6 @@ public class ArbilMenuBar extends JMenuBar {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
     }
     private static MimeHashQueue mimeHashQueue;
 
@@ -200,7 +195,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    windowManager.stopEditingInCurrentWindow();
 		    dataNodeLoader.saveNodesNeedingSave(true);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -224,7 +219,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    }
 		    windowManager.openFloatingTable(individualChangedNodes.toArray(new ArbilDataNode[]{}), "Modified Nodes");
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -236,7 +231,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    importMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -248,7 +243,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    exitMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -274,7 +269,7 @@ public class ArbilMenuBar extends JMenuBar {
 			}
 		    } catch (MalformedURLException ex) {
 			dialogHandler.addMessageDialogToQueue("Invalid logout url:\n" + logoutUrl, "Logout Error");
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    });
@@ -337,7 +332,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -350,7 +345,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -369,7 +364,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                try {
 //                    editLocationsMenuItemActionPerformed(evt);
 //                } catch (Exception ex) {
-//                    bugCatcher.logError(ex);
+//                    BugCatcherManager.getBugCatcher().logError(ex);
 //                }
 //            }
 //        });
@@ -382,7 +377,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    TemplateDialogue.showTemplatesDialogue();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -407,7 +402,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                try {
 //                    viewFavouritesMenuItemActionPerformed(evt);
 //                } catch (Exception ex) {
-//                    bugCatcher.logError(ex);
+//                    BugCatcherManager.getBugCatcher().logError(ex);
 //                }
 //            }
 //        });
@@ -440,7 +435,7 @@ public class ArbilMenuBar extends JMenuBar {
 				sessionStorage.changeCacheDirectory(selectedFiles[0], true);
 			    }
 			} catch (Exception ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			}
 		    }
 		});
@@ -503,7 +498,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
 		    sessionStorage.saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -571,7 +566,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    sessionStorage.setTrackTableSelection(trackTableSelectionCheckBoxMenuItem.getState());
 		    sessionStorage.saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -676,7 +671,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    aboutMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -689,7 +684,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    helpMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -711,7 +706,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    windowManager.openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -723,7 +718,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    windowManager.openFileInExternalApplication(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).toURI());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -739,7 +734,7 @@ public class ArbilMenuBar extends JMenuBar {
 			dialogHandler.addMessageDialogToQueue("No updates found, current version is " + versionString, "Check for Updates");
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -751,7 +746,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    shortCutKeysjMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -763,7 +758,7 @@ public class ArbilMenuBar extends JMenuBar {
 		try {
 		    printHelpMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -848,7 +843,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    ImportExportDialog importExportDialog = new ImportExportDialog(treeHelper.getArbilTreePanel().remoteCorpusTree);
 	    importExportDialog.importArbilBranch();
 	} catch (Exception e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	    System.out.println(e.getMessage());
 	}
     }
@@ -883,7 +878,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                            LinorgSessionStorage.getSingleInstance().changeStorageDirectory(evt.getActionCommand());
 //                            // LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
 //                        } catch (Exception e) {
-//                            bugCatcher.logError(e);
+//                            BugCatcherManager.getBugCatcher().logError(e);
 //                        }
 //                    }
 //                });
@@ -914,7 +909,7 @@ public class ArbilMenuBar extends JMenuBar {
 	sessionStorage.saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());
 	return true;
     }
-    
+
     private void saveState(boolean saveWindows) {
 	ArbilFieldViews.getSingleInstance().saveViewsToFile();
 	// linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
@@ -953,7 +948,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    try {
 			ArbilFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());
 		    } catch (Exception ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    });
@@ -973,7 +968,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                    System.out.println("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
 //                } catch (Exception e) {
-//                    bugCatcher.logError(e);
+//                    BugCatcherManager.getBugCatcher().logError(e);
 //                }
 //            }
 //        });
@@ -1008,7 +1003,7 @@ public class ArbilMenuBar extends JMenuBar {
 ////                    System.out.println("setting template: " + evt.getActionCommand());
 ////                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
 //                } catch (Exception e) {
-//                    bugCatcher.logError(e);
+//                    BugCatcherManager.getBugCatcher().logError(e);
 //                }
 //            }
 //        });

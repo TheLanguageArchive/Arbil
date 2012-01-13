@@ -3,7 +3,7 @@ package nl.mpi.arbil.ui;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  * Document   : ArbilFieldViews
@@ -16,11 +16,6 @@ public class ArbilFieldViews {
     private Hashtable<String, ArbilFieldView> savedFieldViews;
     private String currentGlobalViewName = "";
     static private ArbilFieldViews singleInstance = null;
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -75,7 +70,7 @@ public class ArbilFieldViews {
 	try {
 	    savedFieldViews = (Hashtable<String, ArbilFieldView>) sessionStorage.loadObject(SAVED_FIELDVIEWS_FILE);
 	} catch (Exception ex) {
-	    bugCatcher.logError("load savedFieldViews failed", ex);
+	    BugCatcherManager.getBugCatcher().logError("load savedFieldViews failed", ex);
 	    savedFieldViews = new Hashtable<String, ArbilFieldView>();
 	    createDefaultFieldViews();
 	}
@@ -85,7 +80,7 @@ public class ArbilFieldViews {
 		currentGlobalViewName = (String) sessionStorage.loadObject("currentGlobalViewName");
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError("load currentGlobalViewName failed ", ex);
+	    BugCatcherManager.getBugCatcher().logError("load currentGlobalViewName failed ", ex);
 
 	    // Make sure there are field views
 	    if (savedFieldViews.isEmpty()) {
@@ -112,7 +107,7 @@ public class ArbilFieldViews {
 	    sessionStorage.saveObject(savedFieldViews, SAVED_FIELDVIEWS_FILE);
 	    //LinorgSessionStorage.getSingleInstance().saveString("currentGlobalViewName", currentGlobalViewName);
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	    //System.out.println("save savedFieldViews exception: " + ex.getMessage());
 	}
     }

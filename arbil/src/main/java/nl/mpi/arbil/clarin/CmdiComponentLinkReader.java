@@ -3,7 +3,7 @@ package nl.mpi.arbil.clarin;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import org.apache.commons.digester.Digester;
 
 /**
@@ -13,11 +13,6 @@ import org.apache.commons.digester.Digester;
  */
 public class CmdiComponentLinkReader {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     public ArrayList<CmdiResourceLink> cmdiResourceLinkArray = null;
     public ArrayList<ResourceRelation> cmdiResourceRelationArray = null;
 
@@ -103,7 +98,7 @@ public class CmdiComponentLinkReader {
 	    try {
 		return cmdiResourceLink.getLinkUri();
 	    } catch (URISyntaxException urise) {
-		bugCatcher.logError(urise);
+		BugCatcherManager.getBugCatcher().logError(urise);
 	    }
 	}
 	return null;
@@ -151,7 +146,7 @@ public class CmdiComponentLinkReader {
 	    cmdiResourceRelationArray = new ArrayList<ResourceRelation>();
 	    digester.parse(targetCmdiNode.toURL());
 	} catch (Exception e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
 	return cmdiResourceLinkArray;
     }

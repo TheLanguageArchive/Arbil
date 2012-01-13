@@ -18,7 +18,7 @@ import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
 import nl.mpi.arbil.util.NumberedStringComparator;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  *
@@ -41,18 +41,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private String[] highFieldPaths = new String[]{};
     private String[] columnNames = new String[0];
     private Color cellColour[][] = new Color[0][0];
-    // Handlers to be injected
-    private static BugCatcher bugCatcher;
-
-    protected static BugCatcher getBugCatcher() {
-	return bugCatcher;
-    }
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
-    // End handlers
-
+    
     public AbstractArbilTableModel(ArbilFieldView tableFieldView) {
 	this.tableFieldView = tableFieldView;
     }
@@ -652,7 +641,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    try {
 		fireTableStructureChanged();
 	    } catch (Exception ex) {
-		getBugCatcher().logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	} else {
 	    for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
@@ -835,7 +824,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 //                        return 0;
 //                    }
 		} catch (Exception ex) {
-		    getBugCatcher().logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		    return 1;
 		}
 	    }

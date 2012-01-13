@@ -39,14 +39,7 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
 public class XsdChecker extends JSplitPane {
-//        SimpleAttributeSet set = new SimpleAttributeSet();
-//        StyleConstants.setForeground(set, Color.red);
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private static SessionStorage sessionStorage;
     private ArbilResourceResolver resourceResolver = new ArbilResourceResolver();
 
@@ -126,11 +119,11 @@ public class XsdChecker extends JSplitPane {
 	    System.out.println("schemaLocationString: " + schemaLocationString);
 
 	} catch (IOException iOException) {
-	    bugCatcher.logError(iOException);
+	    BugCatcherManager.getBugCatcher().logError(iOException);
 	} catch (ParserConfigurationException parserConfigurationException) {
-	    bugCatcher.logError(parserConfigurationException);
+	    BugCatcherManager.getBugCatcher().logError(parserConfigurationException);
 	} catch (SAXException sAXException) {
-	    bugCatcher.logError(sAXException);
+	    BugCatcherManager.getBugCatcher().logError(sAXException);
 	}
 	System.out.println("nameSpaceURI: " + nameSpaceURI);
 	int daysTillExpire = 15;
@@ -143,7 +136,7 @@ public class XsdChecker extends JSplitPane {
 		// do not make cache copies of local schema files
 		schemaFile = new File(new URI(nameSpaceURI));
 	    } catch (URISyntaxException ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
 	URL schemaURL = null;
@@ -201,7 +194,7 @@ public class XsdChecker extends JSplitPane {
 			// return the line plus the preceding and following lines
 			return (lineNumber - 1) + ": " + returnText + "\n" + (lineNumber) + ": " + scanner.nextLine() + "\n" + (lineNumber + 1) + ": " + scanner.nextLine();
 		    } catch (FileNotFoundException fileNotFoundException) {
-			bugCatcher.logError(fileNotFoundException);
+			BugCatcherManager.getBugCatcher().logError(fileNotFoundException);
 			return fileNotFoundException.getMessage();
 		    }
 		}
@@ -210,7 +203,7 @@ public class XsdChecker extends JSplitPane {
 		    try {
 			doc.insertString(doc.getLength(), "warning: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleWarning);
 		    } catch (BadLocationException badLocationException) {
-			bugCatcher.logError(badLocationException);
+			BugCatcherManager.getBugCatcher().logError(badLocationException);
 		    }
 		}
 
@@ -218,7 +211,7 @@ public class XsdChecker extends JSplitPane {
 		    try {
 			doc.insertString(doc.getLength(), "error: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleError);
 		    } catch (BadLocationException badLocationException) {
-			bugCatcher.logError(badLocationException);
+			BugCatcherManager.getBugCatcher().logError(badLocationException);
 		    }
 		}
 
@@ -226,7 +219,7 @@ public class XsdChecker extends JSplitPane {
 		    try {
 			doc.insertString(doc.getLength(), "fatalError: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleError);
 		    } catch (BadLocationException badLocationException) {
-			bugCatcher.logError(badLocationException);
+			BugCatcherManager.getBugCatcher().logError(badLocationException);
 		    }
 		}
 	    }
@@ -299,7 +292,7 @@ public class XsdChecker extends JSplitPane {
 	    try {
 		fileViewPane.setPage(imdiObject.getURI().toURL());
 	    } catch (Exception ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	} catch (Exception ex) {
 	    encounteredAdditionalErrors = true;

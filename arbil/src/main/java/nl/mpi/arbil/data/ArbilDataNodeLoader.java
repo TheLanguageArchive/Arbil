@@ -1,7 +1,6 @@
 package nl.mpi.arbil.data;
 
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
@@ -14,9 +13,9 @@ import nl.mpi.arbil.util.TreeHelper;
  */
 public class ArbilDataNodeLoader extends DefaultDataNodeLoader {
 
-    public ArbilDataNodeLoader(BugCatcher bugCatcher, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
+    public ArbilDataNodeLoader(MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	super(new DataNodeLoaderThreadManager());
-	setDataNodeService(new ArbilDataNodeService(bugCatcher, this, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper));
+	setDataNodeService(new ArbilDataNodeService(this, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper));
 	setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", getThreadManager().isSchemaCheckLocalFiles()));
     }
 }

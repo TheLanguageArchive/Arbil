@@ -38,7 +38,7 @@ import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
@@ -69,11 +69,6 @@ public class ArbilComponentBuilder {
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
     private static SessionStorage sessionStorage;
 
@@ -136,15 +131,15 @@ public class ArbilComponentBuilder {
 //            }
 	    //System.out.println(xmlOutput.getWriter().toString());
 	} catch (IllegalArgumentException illegalArgumentException) {
-	    bugCatcher.logError(illegalArgumentException);
+	    BugCatcherManager.getBugCatcher().logError(illegalArgumentException);
 	} catch (TransformerException transformerException) {
-	    bugCatcher.logError(transformerException);
+	    BugCatcherManager.getBugCatcher().logError(transformerException);
 	} catch (TransformerFactoryConfigurationError transformerFactoryConfigurationError) {
 	    System.out.println(transformerFactoryConfigurationError.getMessage());
 	} catch (FileNotFoundException notFoundException) {
-	    bugCatcher.logError(notFoundException);
+	    BugCatcherManager.getBugCatcher().logError(notFoundException);
 	} catch (IOException iOException) {
-	    bugCatcher.logError(iOException);
+	    BugCatcherManager.getBugCatcher().logError(iOException);
 	}
     }
 
@@ -174,7 +169,7 @@ public class ArbilComponentBuilder {
 		    try {
 			insertResourceProxyReference(targetDocument, targetXmlPath, resourceProxyId);
 		    } catch (TransformerException exception) {
-			bugCatcher.logError(exception);
+			BugCatcherManager.getBugCatcher().logError(exception);
 			return null;
 		    }
 //                printoutDocument(targetDocument);
@@ -187,7 +182,7 @@ public class ArbilComponentBuilder {
 			linkReader.getResourceLink(resourceProxyId).addReferencingNode();
 		    }
 		} catch (Exception exception) {
-		    bugCatcher.logError(exception);
+		    BugCatcherManager.getBugCatcher().logError(exception);
 		    return null;
 		}
 		// bump the history
@@ -195,13 +190,13 @@ public class ArbilComponentBuilder {
 		// save the dom
 		savePrettyFormatting(targetDocument, arbilDataNode.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
 	    } catch (IOException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return null;
 	    } catch (ParserConfigurationException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return null;
 	    } catch (SAXException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return null;
 	    }
 	    return arbilDataNode.getURI();
@@ -296,7 +291,7 @@ public class ArbilComponentBuilder {
 			}
 		    }
 		} catch (TransformerException exception) {
-		    bugCatcher.logError(exception);
+		    BugCatcherManager.getBugCatcher().logError(exception);
 		    return false;
 		}
 
@@ -318,11 +313,11 @@ public class ArbilComponentBuilder {
 		savePrettyFormatting(targetDocument, parent.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
 		return true;
 	    } catch (IOException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    } catch (ParserConfigurationException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    } catch (SAXException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    }
 	}
 	return false;
@@ -360,7 +355,7 @@ public class ArbilComponentBuilder {
 		return true;
 	    }
 	} catch (TransformerException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	return false;
     }
@@ -411,13 +406,13 @@ public class ArbilComponentBuilder {
 		}
 		return true;
 	    } catch (ParserConfigurationException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    } catch (SAXException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    } catch (IOException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    } catch (TransformerException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    }
 	    return false;
 	}
@@ -437,7 +432,7 @@ public class ArbilComponentBuilder {
 		    if (currentFieldUpdate.fieldOldValue.equals(documentNode.getTextContent())) {
 			documentNode.setTextContent(currentFieldUpdate.fieldNewValue);
 		    } else {
-			bugCatcher.logError(new Exception("expecting \'" + currentFieldUpdate.fieldOldValue + "\' not \'" + documentNode.getTextContent() + "\' in " + currentFieldUpdate.fieldPath));
+			BugCatcherManager.getBugCatcher().logError(new Exception("expecting \'" + currentFieldUpdate.fieldOldValue + "\' not \'" + documentNode.getTextContent() + "\' in " + currentFieldUpdate.fieldPath));
 			return false;
 		    }
 		    if (!(documentNode instanceof Attr)) { // Attributes obviously don't have an attributesMap
@@ -521,13 +516,13 @@ public class ArbilComponentBuilder {
 		}
 		return true;
 	    } catch (ParserConfigurationException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    } catch (SAXException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    } catch (IOException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    } catch (TransformerException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    }
 	    return false;
 	}
@@ -541,9 +536,9 @@ public class ArbilComponentBuilder {
 	    insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode1);
 	    insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode2);
 	} catch (URISyntaxException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (ArbilMetadataException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
 
@@ -614,17 +609,17 @@ public class ArbilComponentBuilder {
 		    // first strip off any fragment then add the full node fragment
 		    returnUri = new URI(destinationArbilDataNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
 		} catch (URISyntaxException exception) {
-		    bugCatcher.logError(exception);
+		    BugCatcherManager.getBugCatcher().logError(exception);
 		}
 	    }
 	} catch (IOException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (ParserConfigurationException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (SAXException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (TransformerException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
 	return returnUri;
     }
@@ -665,7 +660,7 @@ public class ArbilComponentBuilder {
 		} else {
 		    // Should not happen, either exact match or remainder
 		    messageDialogHandler.addMessageDialogToQueue("Unexpected relation between source and target paths. See error log for details.", "Insert node");
-		    bugCatcher.logError("destinationXpath: " + destinationXpath + "\ntargetFragment: " + targetFragment, null);
+		    BugCatcherManager.getBugCatcher().logError("destinationXpath: " + destinationXpath + "\ntargetFragment: " + targetFragment, null);
 		}
 	    }
 	}
@@ -720,7 +715,7 @@ public class ArbilComponentBuilder {
 		}
 	    }
 	} catch (UnsupportedEncodingException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	return null;
     }
@@ -745,7 +740,7 @@ public class ArbilComponentBuilder {
 		return true;
 	    }
 	} catch (UnsupportedEncodingException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	return false;
     }
@@ -759,7 +754,7 @@ public class ArbilComponentBuilder {
 	try {
 	    return URLEncoder.encode(nsURI, "UTF-8").replace(".", "%2E");
 	} catch (UnsupportedEncodingException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	    return null;
 	}
     }
@@ -871,13 +866,13 @@ public class ArbilComponentBuilder {
 		// save the dom
 		savePrettyFormatting(targetDocument, arbilDataNode.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
 	    } catch (IOException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return null;
 	    } catch (ParserConfigurationException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return null;
 	    } catch (SAXException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return null;
 	    }
 //       diff_match_patch diffTool= new diff_match_patch();
@@ -888,7 +883,7 @@ public class ArbilComponentBuilder {
 		// first strip off any fragment then add the full node fragment
 		return new URI(arbilDataNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
 	    } catch (URISyntaxException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return null;
 	    }
 	}
@@ -913,21 +908,21 @@ public class ArbilComponentBuilder {
 		try {
 		    return canInsertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
 		} catch (ArbilMetadataException exception) {
-		    bugCatcher.logError(exception);
+		    BugCatcherManager.getBugCatcher().logError(exception);
 		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
 		    return false;
 		}
 	    } catch (IOException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return false;
 	    } catch (ParserConfigurationException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return false;
 	    } catch (SAXException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return false;
 	    } catch (DOMException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return false;
 	    }
 	}
@@ -939,7 +934,7 @@ public class ArbilComponentBuilder {
 	    removeArchiveHandles(workingDocument);
 	    printoutDocument(workingDocument);
 	} catch (Exception exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
 
@@ -950,7 +945,7 @@ public class ArbilComponentBuilder {
 		removeArchiveHandles(workingDocument);
 		savePrettyFormatting(workingDocument, arbilDataNode.getFile());
 	    } catch (Exception exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    }
 	}
     }
@@ -966,7 +961,7 @@ public class ArbilComponentBuilder {
 		}
 	    }
 	} catch (TransformerException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
 
@@ -981,7 +976,7 @@ public class ArbilComponentBuilder {
 		}
 	    }
 	} catch (TransformerException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
 
@@ -995,7 +990,7 @@ public class ArbilComponentBuilder {
 	try {
 	    return selectSingleNode(document, getPathForResourceProxynode(resourceProxyId));
 	} catch (TransformerException ex) {
-	    bugCatcher.logError("Exception while finding for removal resource proxy with id " + resourceProxyId, ex);
+	    BugCatcherManager.getBugCatcher().logError("Exception while finding for removal resource proxy with id " + resourceProxyId, ex);
 	}
 	return null;
     }
@@ -1019,7 +1014,7 @@ public class ArbilComponentBuilder {
 		}
 	    }
 	}
-	bugCatcher.logError(new Exception("Xpath issue, no node found for: " + targetXpath));
+	BugCatcherManager.getBugCatcher().logError(new Exception("Xpath issue, no node found for: " + targetXpath));
 	return null;
     }
 
@@ -1051,7 +1046,7 @@ public class ArbilComponentBuilder {
 		// test profile book is a good sample to test for errors; if you add Authors description from the root of the node it will cause a schema error but if you add from the author it is valid
 		documentNode = selectSingleNode(targetDocument, targetXpath);
 	    } catch (TransformerException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return null;
 	    }
 	    strippedXpath = targetXpath.replaceAll("\\(\\d+\\)", "");
@@ -1135,7 +1130,7 @@ public class ArbilComponentBuilder {
 	    try {
 		documentNode = selectSingleNode(targetDocument, targetXpath);
 	    } catch (TransformerException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 		return false;
 	    }
 	}
@@ -1270,11 +1265,11 @@ public class ArbilComponentBuilder {
 	    readSchema(workingDocument, xsdFile, addDummyData);
 	    savePrettyFormatting(workingDocument, new File(cmdiNodeFile));
 	} catch (IOException e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	} catch (ParserConfigurationException e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	} catch (SAXException e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
 	return cmdiNodeFile;
     }
@@ -1310,16 +1305,16 @@ public class ArbilComponentBuilder {
 		// there can only be a single root node so we just get the first one, note that the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef)
 		return sts.documentTypes()[0];
 	    } catch (IOException e) {
-		bugCatcher.logError(e);
+		BugCatcherManager.getBugCatcher().logError(e);
 	    } finally {
 		inputStream.close();
 	    }
 	} catch (IOException e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	} catch (XmlException e) {
 	    // TODO: this is not really a good place to message this so modify to throw
 	    messageDialogHandler.addMessageDialogToQueue("Could not read the XML Schema", "Error inserting node");
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
 	return null;
     }
@@ -1455,7 +1450,7 @@ public class ArbilComponentBuilder {
 	    Result dest = new StreamResult(System.out);
 	    transformer.transform(src, dest);
 	} catch (Exception e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
     }
 
@@ -1491,7 +1486,7 @@ public class ArbilComponentBuilder {
 	    readSchema(workingDocument, new URI("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264769926773/xsd"), true);
 	    printoutDocument(workingDocument);
 	} catch (Exception e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
     }
 //    public static void main(String args[]) {

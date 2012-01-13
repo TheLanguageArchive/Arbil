@@ -17,7 +17,6 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.junit.After;
@@ -31,7 +30,6 @@ public abstract class ArbilTest {
     private ArbilTreeHelper treeHelper;
     private SessionStorage sessionStorage;
     private MessageDialogHandler dialogHandler;
-    private BugCatcher bugCatcher;
     private DefaultMimeHashQueue mimeHashQueue;
     private Set<URI> localTreeItems;
     private DataNodeLoader dataNodeLoader;
@@ -121,7 +119,6 @@ public abstract class ArbilTest {
     protected void inject() throws Exception {
 	ArbilTestInjector injector = new ArbilTestInjector();
 	injector.injectVersionManager(new ApplicationVersionManager(new ArbilVersion()));
-	injector.injectBugCatcher(getBugCatcher());
 	injector.injectDialogHandler(getDialogHandler());
 	injector.injectSessionStorage(getSessionStorage());
 	injector.injectDataNodeLoader(getDataNodeLoader());
@@ -136,7 +133,7 @@ public abstract class ArbilTest {
     }
 
     private synchronized DataNodeLoader newDataNodeLoader() {
-	ArbilDataNodeLoader loader = new ArbilDataNodeLoader(getBugCatcher(), getDialogHandler(), getSessionStorage(), getMimeHashQueue(), getTreeHelper());
+	ArbilDataNodeLoader loader = new ArbilDataNodeLoader(getDialogHandler(), getSessionStorage(), getMimeHashQueue(), getTreeHelper());
 	getMimeHashQueue().setDataNodeLoader(loader);
 	getTreeHelper().setDataNodeLoader(loader);
 	return loader;
@@ -151,7 +148,6 @@ public abstract class ArbilTest {
 
     protected DefaultMimeHashQueue newMimeHashQueue() {
 	DefaultMimeHashQueue hashQueue = new DefaultMimeHashQueue(getSessionStorage());
-	hashQueue.setBugCatcher(getBugCatcher());
 	hashQueue.setMessageDialogHandler(getDialogHandler());
 	return hashQueue;
     }
@@ -171,13 +167,6 @@ public abstract class ArbilTest {
 	return sessionStorage;
     }
 
-    protected synchronized BugCatcher getBugCatcher() {
-	if (bugCatcher == null) {
-	    bugCatcher = newBugCatcher();
-	}
-	return bugCatcher;
-    }
-
     protected synchronized MessageDialogHandler getDialogHandler() {
 	if (dialogHandler == null) {
 	    dialogHandler = newDialogHandler();
@@ -186,7 +175,7 @@ public abstract class ArbilTest {
     }
 
     protected ArbilTreeHelper newTreeHelper() {
-	ArbilTreeHelper newTreeHelper = new ArbilTreeHelper(getSessionStorage(), getDialogHandler(), getBugCatcher());
+	ArbilTreeHelper newTreeHelper = new ArbilTreeHelper(getSessionStorage(), getDialogHandler());
 	newTreeHelper.init();
 	return newTreeHelper;
     }
@@ -199,10 +188,6 @@ public abstract class ArbilTest {
 		return localTreeItems.contains(fullTestFile.toURI());
 	    }
 	};
-    }
-
-    protected BugCatcher newBugCatcher() {
-	return new MockBugCatcher();
     }
 
     protected MessageDialogHandler newDialogHandler() {

@@ -12,8 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.data.ArbilDataNode;
-
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.DOMException;
@@ -28,11 +27,6 @@ import org.xml.sax.SAXException;
  */
 public class ArbilRemoteSearch {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private static MessageDialogHandler dialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
@@ -61,7 +55,7 @@ public class ArbilRemoteSearch {
 		    try {
 			foundNodes.add(new URI(resultString));
 		    } catch (URISyntaxException exception) {
-			bugCatcher.logError(exception);
+			BugCatcherManager.getBugCatcher().logError(exception);
 		    }
 		}
 		searchResults = foundNodes.toArray(new URI[]{});
@@ -86,15 +80,15 @@ public class ArbilRemoteSearch {
 		}
 	    }
 	} catch (DOMException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (IOException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (ParserConfigurationException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (SAXException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (TransformerException exception) {
-	    bugCatcher.logError(exception);
+	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
 	if (returnArray.size() >= maxResultNumber) {
 	    dialogHandler.addMessageDialogToQueue("Found more results than can be displayed, only showing the first " + maxResultNumber + " results", "Remote Search");

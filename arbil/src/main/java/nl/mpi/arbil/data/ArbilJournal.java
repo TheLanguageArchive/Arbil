@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
@@ -19,11 +19,6 @@ public class ArbilJournal {
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
     private static SessionStorage sessionStorage;
 
@@ -122,7 +117,7 @@ public class ArbilJournal {
 	}
 	if (currentValue != null && !currentValue.equals(historyItem.oldValue)) {
 	    messageDialogHandler.addMessageDialogToQueue("The field value is out of sync with the history item", "Undo/Redo");
-	    bugCatcher.logError(new Exception("ChangeFromHistory old value does not match current value"));
+	    BugCatcherManager.getBugCatcher().logError(new Exception("ChangeFromHistory old value does not match current value"));
 	} else {
 	    switch (historyItem.undoType) {
 		case KeyName:
@@ -141,7 +136,7 @@ public class ArbilJournal {
     // this is also use to record an import event
     public boolean saveJournalEntry(String imdiUrl, String imdiNodePath, String oldValue, String newValue, String eventType) {
 	boolean returnValue = false;
-        FileWriter journalFile = null;
+	FileWriter journalFile = null;
 	try {
 	    journalFile = new FileWriter(new File(sessionStorage.getStorageDirectory(), "linorgjornal.log"), true);
 	    System.out.println("Journal: " + imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue);
@@ -151,13 +146,15 @@ public class ArbilJournal {
 	    returnValue = true;
 	} catch (Exception ex) {
 	    returnValue = false;
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	    System.err.println("failed to write to the journal: " + ex.getMessage());
 	} finally {
-	    if (journalFile != null) try {
-	        journalFile.close();
-	    } catch (IOException ioe) {
-	        bugCatcher.logError(ioe);
+	    if (journalFile != null) {
+		try {
+		    journalFile.close();
+		} catch (IOException ioe) {
+		    BugCatcherManager.getBugCatcher().logError(ioe);
+		}
 	    }
 	}
 	return (returnValue);

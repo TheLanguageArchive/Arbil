@@ -12,7 +12,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  *  Document   : LanguageIdBox
@@ -21,11 +21,6 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class LanguageIdBox extends JComboBox {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     public final static int languageSelectWidth = 100;
     static String defaultLanguageDropDownValue = "<select>";
 
@@ -70,7 +65,7 @@ public class LanguageIdBox extends JComboBox {
 			    }
 			}
 		    } catch (Exception ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    });

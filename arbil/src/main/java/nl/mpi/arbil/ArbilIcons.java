@@ -12,7 +12,7 @@ import javax.swing.UIManager;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
@@ -106,15 +106,9 @@ public class ArbilIcons {
     public ImageIcon vocabularyClosedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed.png"));
     public ImageIcon vocabularyClosedListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed_list.png"));
     public ImageIcon attributeIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/attribute.png"));
-    
     public final ImageIcon orderAsc = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/order-asc.png"));
     public final ImageIcon orderDesc = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/order-desc.png"));
 //
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     static private ArbilIcons singleInstance = null;
 
     static synchronized public ArbilIcons getSingleInstance() {
@@ -321,7 +315,7 @@ public class ArbilIcons {
 		iconsList.add(fileCheckedIcon);
 	    } else if (mimeTypeForNode.length() > 0) {
 		iconsList.add(fileCheckedIcon);
-		bugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
+		BugCatcherManager.getBugCatcher().logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
 	    }
 	} else if (arbilNode.isInfoLink) {
 	    iconsList.add(infofileIcon);

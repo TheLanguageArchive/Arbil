@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -24,11 +24,6 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class TemplateDialogue extends javax.swing.JPanel {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private static WindowManager windowManager;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
@@ -123,7 +118,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 //                    System.out.println("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
 	} catch (Exception e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
 	populateLists();
     }

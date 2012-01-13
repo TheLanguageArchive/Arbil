@@ -7,6 +7,7 @@ import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
@@ -21,7 +22,6 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     private ArbilTreeHelper treeHelper;
     private ArbilMimeHashQueue mimeHashQueue;
     private ArbilWindowManager windowManager;
-    private ArbilBugCatcher bugCatcher;
     private ArbilDataNodeLoader dataNodeLoader;
 
     public synchronized void injectHandlers() {
@@ -37,12 +37,9 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	final ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
 	injectSessionStorage(sessionStorage);
 
-	bugCatcher = new ArbilBugCatcher(sessionStorage, versionManager);
-	sessionStorage.setBugCatcher(bugCatcher);
-	injectBugCatcher(bugCatcher);
+	BugCatcherManager.setBugCatcher(new ArbilBugCatcher(sessionStorage, versionManager));
 
 	windowManager = new ArbilWindowManager();
-	windowManager.setBugCatcher(bugCatcher);
 	windowManager.setSessionStorage(sessionStorage);
 	windowManager.setVersionManager(versionManager);
 
@@ -54,16 +51,15 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	injectWindowManager(windowManager);
 
 	mimeHashQueue = new ArbilMimeHashQueue(windowManager, sessionStorage);
-	mimeHashQueue.setBugCatcher(bugCatcher);
 	mimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	injectMimeHashQueue(mimeHashQueue);
 
-	treeHelper = new ArbilTreeHelper(sessionStorage, messageDialogHandler, bugCatcher);
+	treeHelper = new ArbilTreeHelper(sessionStorage, messageDialogHandler);
 	windowManager.setTreeHelper(treeHelper);
 	sessionStorage.setTreeHelper(treeHelper);
 	injectTreeHelper(treeHelper);
 
-	dataNodeLoader = new ArbilDataNodeLoader(bugCatcher, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
 	treeHelper.setDataNodeLoader(dataNodeLoader);
 	mimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	windowManager.setDataNodeLoader(dataNodeLoader);
@@ -92,14 +88,6 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
      */
     public ArbilWindowManager getWindowManager() {
 	return windowManager;
-    }
-
-    /**
-     * Should not be called before injectHandlers()!!
-     * @return the treeHelper
-     */
-    public ArbilBugCatcher getBugCatcher() {
-	return bugCatcher;
     }
 
     /**

@@ -7,7 +7,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  * Table for editing ArbilFieldViews
@@ -19,12 +19,6 @@ import nl.mpi.arbil.util.BugCatcher;
  * @see ArbilFieldView
  */
 public class ArbilFieldViewTable extends JTable {
-
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
 
     public ArbilFieldViewTable(ArbilTableModel imdiTableModel) {
 	TableModel tableModel = new ArbilFieldViewTableModel(imdiTableModel);
@@ -73,7 +67,7 @@ public class ArbilFieldViewTable extends JTable {
 					fieldViewTableModel.setValueAt(true, rowCounter, targetColumn);
 				    }
 				} catch (Exception ex) {
-				    bugCatcher.logError(ex);
+				    BugCatcherManager.getBugCatcher().logError(ex);
 				}
 			    }
 			});
@@ -93,7 +87,7 @@ public class ArbilFieldViewTable extends JTable {
 					fieldViewTableModel.setValueAt(false, rowCounter, targetColumn);
 				    }
 				} catch (Exception ex) {
-				    bugCatcher.logError(ex);
+				    BugCatcherManager.getBugCatcher().logError(ex);
 				}
 			    }
 			});

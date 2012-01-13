@@ -16,7 +16,7 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.search.ArbilSearch;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  * Document   : ArbilNodeSearchPanel
@@ -25,11 +25,6 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContainer {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private ArbilNodeSearchPanel thisPanel = this;
     private JInternalFrame parentFrame;
     private ArbilTableModel resultsTableModel;
@@ -80,7 +75,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		    hideFirstBooleanOption();
 //                searchTermsPanel.revalidate();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -99,7 +94,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		try {
 		    stopSearch();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -114,7 +109,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		try {
 		    startSearch();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -214,7 +209,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		    saveColumnOptions();
 		    executeSearch();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 		finishUI();
 		// add the results to the table

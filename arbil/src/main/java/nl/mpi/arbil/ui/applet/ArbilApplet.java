@@ -5,7 +5,7 @@ import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /*
  * ArbilApplet.java
@@ -14,14 +14,11 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class ArbilApplet extends javax.swing.JApplet {
 
-    private BugCatcher bugCatcher;
-
     @Override
     public void init() {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	// TODO: test if this suffices
 	injector.injectHandlers();
-	bugCatcher = injector.getBugCatcher();
 	//System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 	try {
 	    SwingUtilities.invokeAndWait(new Runnable() {
@@ -44,7 +41,7 @@ public class ArbilApplet extends javax.swing.JApplet {
 		}
 	    });
 	} catch (Exception ex) {
-	    injector.getBugCatcher().logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 

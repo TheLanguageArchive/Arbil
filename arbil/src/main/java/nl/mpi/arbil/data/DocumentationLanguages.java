@@ -7,7 +7,7 @@ import java.util.List;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  *  Document   : DocumentationLanguages
@@ -16,11 +16,6 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class DocumentationLanguages implements ArbilVocabularyFilter {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -102,7 +97,7 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	try {
 	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(SELECTED_LANGUAGES_KEY)));
 	} catch (Exception e) {
-	    bugCatcher.logError("No selectedLanguages file, will create one now.", e);
+	    BugCatcherManager.getBugCatcher().logError("No selectedLanguages file, will create one now.", e);
 	    addDefaultTemplates();
 	}
 	return selectedLanguages;
@@ -141,7 +136,7 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	try {
 	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(SELECTED_LANGUAGES_KEY)));
 	} catch (Exception e) {
-	    bugCatcher.logError("No selectedLanguages file, will create one now.", e);
+	    BugCatcherManager.getBugCatcher().logError("No selectedLanguages file, will create one now.", e);
 	}
 	selectedLanguages.add(templateString);
 	saveSelectedLanguages(selectedLanguages);
@@ -155,7 +150,7 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 		selectedLanguages.remove(templateString);
 	    }
 	} catch (IOException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	saveSelectedLanguages(selectedLanguages);
     }
@@ -164,7 +159,7 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	try {
 	    sessionStorage.saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));
 	} catch (IOException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 

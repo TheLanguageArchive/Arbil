@@ -10,7 +10,7 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -22,11 +22,6 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class TableContextMenu extends ArbilContextMenu {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private static TreeHelper treeHelper;
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
@@ -130,7 +125,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.copySelectedTableRowsToClipBoard();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -143,7 +138,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.pasteIntoSelectedTableRowsFromClipBoard();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -157,7 +152,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.startLongFieldEditorForSelectedFields();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -169,7 +164,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.hideSelectedColumnsFromTable();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -182,7 +177,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.showRowChildData();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -216,11 +211,11 @@ public class TableContextMenu extends ArbilContextMenu {
 				dialogHandler.addMessageDialogToQueue("Error deleting fields, check the log file via the help menu for more information.", "Delete Field");
 			    }
 			    //currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
-//                            bugCatcher.logError(new Exception("deleteFromDomViaId"));
+//                            BugCatcherManager.getBugCatcher().logError(new Exception("deleteFromDomViaId"));
 			}
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -237,7 +232,7 @@ public class TableContextMenu extends ArbilContextMenu {
 			}
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -254,7 +249,7 @@ public class TableContextMenu extends ArbilContextMenu {
 			table.getArbilTableModel().copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -267,7 +262,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.getArbilTableModel().highlightMatchingCells(table.getSelectedRow(), table.getSelectedColumn());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -279,7 +274,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.getArbilTableModel().clearCellColours();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -290,7 +285,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    ((ArbilSplitPanel) table.getParent().getParent().getParent().getParent()).showSearchPane();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -302,7 +297,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.viewSelectedTableRows();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -314,7 +309,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.highlightMatchingRows();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -326,7 +321,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    table.removeSelectedRowsFromTable();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -337,7 +332,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		try {
 		    treeHelper.jumpToSelectionInTree(false, table.getDataNodeForSelection());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});

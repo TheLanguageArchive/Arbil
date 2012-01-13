@@ -11,7 +11,7 @@ import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -24,11 +24,6 @@ public class ArbilSetupWizard extends ArbilWizard {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
     }
     private static TreeHelper treeHelper;
 
@@ -93,7 +88,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 	try {
 	    sessionStorage.saveObject(model, WIZARDSTATE_PROPERTY);
 	} catch (IOException ex) {
-	    bugCatcher.logError("Could not save wizard state", ex);
+	    BugCatcherManager.getBugCatcher().logError("Could not save wizard state", ex);
 	}
     }
 
@@ -150,7 +145,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 		    URI uri = new URI(location);
 		    locationURIs.add(uri);
 		} catch (URISyntaxException ex) {
-		    bugCatcher.logError("Invalid URI specified in wizard", ex);
+		    BugCatcherManager.getBugCatcher().logError("Invalid URI specified in wizard", ex);
 		}
 	    }
 	}
