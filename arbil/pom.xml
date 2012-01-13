@@ -5,15 +5,15 @@
 	<groupId>nl.mpi</groupId>
 	<artifactId>arbil</artifactId>
 	<packaging>jar</packaging>
-	<version>2.4.28783-pretesting-SNAPSHOT</version>
+	<version>2.4-pretesting-SNAPSHOT</version>
 	<name>Arbil</name>
 	<organization> 
 	<name>The Language Archive</name> 
 	<url>http://www.lat-mpi.eu/</url>
     </organization>
 	<scm>
-		<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/branches/2.4.28783-pretesting</developerConnection>
-		<url>https://svn.mpi.nl/LAT/Arbil/tags/2.4.28783-pretesting</url>
+		<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
+		<url>https://trac.mpi.nl/wiki/Arbil</url>
 	</scm>
 	<properties>
 		<majorVersion>2</majorVersion>
