@@ -5,17 +5,20 @@
 	<groupId>nl.mpi</groupId>
 	<artifactId>arbil</artifactId>
 	<packaging>jar</packaging>
-	<version>2.4-SNAPSHOT</version>
+	<version>2.4.28757-pretesting-SNAPSHOT</version>
 	<name>Arbil</name>
 	<organization> 
 	<name>The Language Archive</name> 
 	<url>http://www.lat-mpi.eu/</url>
     </organization>
 	<scm>
-		<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
-		<url>https://trac.mpi.nl/wiki/Arbil</url>
+		<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/branches/2.4.28757-pretesting</developerConnection>
+		<url>https://svn.mpi.nl/LAT/Arbil/tags/2.4.28757-pretesting</url>
 	</scm>
 	<properties>
+		<majorVersion>2</majorVersion>
+		<minorVersion>4</minorVersion>
+		<arbilBranch>pretesting</arbilBranch>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<build>
@@ -92,12 +95,14 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.2.2</version>
 				<configuration>
-					<branchName>arbil-r${buildNumber}</branchName>
+					<branchBase>https://svn.mpi.nl/LAT/Arbil/tags</branchBase>
+					<branchName>${majorVersion}.${minorVersion}.${buildNumber}-${arbilBranch}</branchName>
+					<releaseVersion>${majorVersion}.${minorVersion}.${buildNumber}-${arbilBranch}</releaseVersion>
 					<checkModificationExcludes>
 						<param>ArbilVersion.java</param>
 						<param>pom.xml</param>
 					</checkModificationExcludes>
-					<updateBranchVersions>false</updateBranchVersions>
+					<updateBranchVersions>true</updateBranchVersions>
 					<updateWorkingCopyVersions>false</updateWorkingCopyVersions>
 				</configuration>
 			</plugin>
