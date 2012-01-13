@@ -83,7 +83,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     <!-- target compile (this is included by build.all) -->
     <target name="compile" depends="clean, copyJarFilesToLib, getsvnversion" description="compile the arbil source code to class files">
         <echo message="Compiling Arbil"/>
-        <javac target="1.5" debug="on" srcdir="${SRCDIR};${RESOURCESDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java">
+        <javac target="1.5" debug="on" srcdir="${SRCDIR};${RESOURCESDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java,nl/mpi/arbil/ui/applet/**.java">
             <classpath>
                 <fileset dir="${LIBDIR}" includes="*.jar"/>
             </classpath>
