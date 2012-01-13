@@ -30,7 +30,7 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
@@ -44,24 +44,18 @@ import org.xml.sax.SAXException;
  */
 public class ArbilDataNodeService {
 
-    private BugCatcher bugCatcher;
     private DataNodeLoader dataNodeLoader;
     private MessageDialogHandler messageDialogHandler;
     private SessionStorage sessionStorage;
     private MimeHashQueue mimeHashQueue;
     private TreeHelper treeHelper;
 
-    public ArbilDataNodeService(BugCatcher bugCatcher, DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
-	this.bugCatcher = bugCatcher;
+    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
 	this.mimeHashQueue = mimeHashQueue;
 	this.treeHelper = treeHelper;
 	this.dataNodeLoader = dataNodeLoader;
-    }
-
-    public BugCatcher getBugCatcher() {
-	return bugCatcher;
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {
@@ -105,7 +99,7 @@ public class ArbilDataNodeService {
 		}
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 
@@ -160,7 +154,7 @@ public class ArbilDataNodeService {
 	    }
 	    return nodesToAdd;
 	} catch (URISyntaxException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	    return null;
 	}
     }
@@ -206,7 +200,7 @@ public class ArbilDataNodeService {
 		}
 	    } catch (IOException ex) {
 		// Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
-		bugCatcher.logError("I/O exception while moving node " + targetNode.toString() + " to " + this.toString(), ex);
+		BugCatcherManager.getBugCatcher().logError("I/O exception while moving node " + targetNode.toString() + " to " + this.toString(), ex);
 		messageDialogHandler.addMessageDialogToQueue("Could not move nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
 		return false;
 	    }
@@ -243,7 +237,7 @@ public class ArbilDataNodeService {
 	    }
 	} catch (IOException ex) {
 	    // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
-	    bugCatcher.logError("I/O exception while deleting nodes from " + this.toString(), ex);
+	    BugCatcherManager.getBugCatcher().logError("I/O exception while deleting nodes from " + this.toString(), ex);
 	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
 	}
 
@@ -456,25 +450,25 @@ public class ArbilDataNodeService {
 	    }
 	} catch (FileNotFoundException e) {
 	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + this.toString(), "File not found");
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	    return false;
 	} catch (IOException e) {
 	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + this.toString(), "Error while reading or writing to disk");
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	    return false;
 	} finally {
 	    if (null != historyFile) {
 		try {
 		    historyFile.close();
 		} catch (IOException ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	    if (null != activeVersionFile) {
 		try {
 		    activeVersionFile.close();
 		} catch (IOException ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	}
@@ -501,20 +495,20 @@ public class ArbilDataNodeService {
 	    }
 	} catch (IOException iOException) {
 	    messageDialogHandler.addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
-	    bugCatcher.logError(iOException);
+	    BugCatcherManager.getBugCatcher().logError(iOException);
 	} finally {
 	    if (inputStream != null) {
 		try {
 		    inputStream.close();
 		} catch (IOException ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	    if (outFile != null) {
 		try {
 		    outFile.close();
 		} catch (IOException ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	}
@@ -580,7 +574,7 @@ public class ArbilDataNodeService {
 		}
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	return encodedString;
     }
@@ -656,7 +650,7 @@ public class ArbilDataNodeService {
 		returnURI = new URI("file:////" + returnURI.toString().substring("file:/".length()));
 	    } catch (URISyntaxException urise) {
 		System.err.println(urise.toString());
-		//bugCatcher.logError(urise);
+		//BugCatcherManager.getBugCatcher().logError(urise);
 	    }
 	}
 	return returnURI;
@@ -677,7 +671,7 @@ public class ArbilDataNodeService {
 	    initComponentLinkReader(dataNode);
 	    updateMetadataChildNodes(dataNode);
 	} catch (Exception mue) {
-	    bugCatcher.logError(dataNode.getUrlString(), mue);
+	    BugCatcherManager.getBugCatcher().logError(dataNode.getUrlString(), mue);
 	    //            System.out.println("Invalid input URL: " + mue);
 	    File nodeFile = dataNode.getFile();
 	    if (nodeFile != null && nodeFile.exists()) {
@@ -772,7 +766,7 @@ public class ArbilDataNodeService {
 		    }
 		} catch (Exception ex) {
 		    messageDialogHandler.addMessageDialogToQueue(dirLinkArray[linkCount] + " could not be loaded in\n" + dataNode.getUrlString(), "Load Directory");
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	    //childLinks = childLinksTemp.toArray(new String[][]{});

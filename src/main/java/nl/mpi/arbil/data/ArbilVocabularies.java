@@ -12,7 +12,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 import org.xml.sax.InputSource;
@@ -29,11 +29,6 @@ public class ArbilVocabularies {
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
     private static WindowManager windowManager;
 
@@ -127,7 +122,7 @@ public class ArbilVocabularies {
 		}
 		if (!foundTrigger) {
 		    if (!fieldPath.equals(".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language")) {
-			bugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingArbilField.getParentDataNode().getUrlString()));
+			BugCatcherManager.getBugCatcher().logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingArbilField.getParentDataNode().getUrlString()));
 		    }
 		}
 	    }
@@ -213,7 +208,7 @@ public class ArbilVocabularies {
 		///////////////////////////////////////////////////////////////////////
 	    } catch (Exception ex) {
 		messageDialogHandler.addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
-		bugCatcher.logError("A controlled vocabulary could not be read: " + vocabRemoteUrl, ex);
+		BugCatcherManager.getBugCatcher().logError("A controlled vocabulary could not be read: " + vocabRemoteUrl, ex);
 	    }
 	}
     }
@@ -260,7 +255,7 @@ public class ArbilVocabularies {
 		    currentVocabItem = new ArbilVocabularyItem(vocabName, vocabCode, followUpVocab);
 		    collectedVocab.getVocabularyItemsUnfiltered().add(currentVocabItem);
 		} else {
-		    bugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.getVocabularyUrl()));
+		    BugCatcherManager.getBugCatcher().logError(new Exception("Vocabulary item has no name in " + collectedVocab.getVocabularyUrl()));
 		}
 	    }
 	}

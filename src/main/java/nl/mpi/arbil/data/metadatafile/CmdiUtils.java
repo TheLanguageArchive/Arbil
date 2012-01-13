@@ -14,7 +14,7 @@ import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,12 +27,6 @@ import org.xml.sax.SAXException;
  *  Author     : Peter Withers
  */
 public class CmdiUtils implements MetadataUtils {
-
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
 
     public boolean addCorpusLink(URI nodeURI, URI[] linkURI) {
 	throw new UnsupportedOperationException("Not supported yet.");
@@ -57,7 +51,7 @@ public class CmdiUtils implements MetadataUtils {
 				// Found: try to update. First relativize reference URI.
 				URI newReferenceURi = destinationFile.getParentFile().toURI().relativize(updatableLink[1]);
 				if (!componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi)) {
-				    bugCatcher.logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
+				    BugCatcherManager.getBugCatcher().logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
 				}
 				break;
 			    }
@@ -69,11 +63,11 @@ public class CmdiUtils implements MetadataUtils {
 	    ArbilComponentBuilder.savePrettyFormatting(document, destinationFile);
 	    return true;
 	} catch (IOException e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	} catch (ParserConfigurationException e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	} catch (SAXException e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
 	return false;
     }
@@ -102,7 +96,7 @@ public class CmdiUtils implements MetadataUtils {
 			returnUriList.add(linkUri);
 		    }
 		} catch (URISyntaxException ex) {
-		    bugCatcher.logError("Invalid link URI found in " + nodeURI.toString(), ex);
+		    BugCatcherManager.getBugCatcher().logError("Invalid link URI found in " + nodeURI.toString(), ex);
 		}
 	    }
 	}
@@ -123,7 +117,7 @@ public class CmdiUtils implements MetadataUtils {
      * @param mdDestinationFile Destination file for the metadata file copy action
      * @param mdDocument Metadata document that is being copied
      */
-    private void copySchemaFile(final URI mdSourceURI,  final File mdDestinationFile, final Document mdDocument) {
+    private void copySchemaFile(final URI mdSourceURI, final File mdDestinationFile, final Document mdDocument) {
 	// Get CMD root element
 	Node rootNode = mdDocument.getFirstChild();
 	if (rootNode instanceof Element) {
@@ -162,7 +156,7 @@ public class CmdiUtils implements MetadataUtils {
 			    newSchemaLocationValues[i + 1] = originalLocation;
 			}
 		    } catch (URISyntaxException ex) {
-			bugCatcher.logError("Problematic URI in xsi:schemaLocation: " + schemaLocationValues[i], ex);
+			BugCatcherManager.getBugCatcher().logError("Problematic URI in xsi:schemaLocation: " + schemaLocationValues[i], ex);
 		    }
 		}
 		// Concat new schema location values..
@@ -185,9 +179,9 @@ public class CmdiUtils implements MetadataUtils {
 		inStream.close();
 	    }
 	} catch (FileNotFoundException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	} catch (IOException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	return false;
     }

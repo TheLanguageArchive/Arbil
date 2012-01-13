@@ -14,7 +14,7 @@ import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  * ArbilTemplateManager.java
@@ -24,11 +24,6 @@ import nl.mpi.arbil.util.BugCatcher;
 public class ArbilTemplateManager {
 
     public static final String CLARIN_PREFIX = "clarin:";
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -74,7 +69,7 @@ public class ArbilTemplateManager {
 	    // Make example-components directory
 	    File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
 	    if (!examplesDirectory.mkdir()) { // create the example components directory
-		bugCatcher.logError(new IOException("Could not create example components directory: " + examplesDirectory));
+		BugCatcherManager.getBugCatcher().logError(new IOException("Could not create example components directory: " + examplesDirectory));
 	    }
 	    // copy example components from the jar file
 	    for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
@@ -122,7 +117,7 @@ public class ArbilTemplateManager {
 	try {
 	    selectedTemplates.addAll(Arrays.asList(loadSelectedTemplates()));
 	} catch (Exception e) {
-	    bugCatcher.logError("No selectedTemplates file, will create one now.", e);
+	    BugCatcherManager.getBugCatcher().logError("No selectedTemplates file, will create one now.", e);
 	}
 	if (!selectedTemplates.contains(templateString)) {
 	    selectedTemplates.add(templateString);
@@ -130,7 +125,7 @@ public class ArbilTemplateManager {
 	try {
 	    saveSelectedTemplates(selectedTemplates);
 	} catch (IOException ex) {
-	    bugCatcher.logError("Could not crate new selectedTemplates file.", ex);
+	    BugCatcherManager.getBugCatcher().logError("Could not crate new selectedTemplates file.", ex);
 	}
     }
 
@@ -151,7 +146,7 @@ public class ArbilTemplateManager {
 	    }
 	    saveSelectedTemplates(selectedTamplates);
 	} catch (IOException ex) {
-	    bugCatcher.logError("Could not load or create selectedTemplates file.", ex);
+	    BugCatcherManager.getBugCatcher().logError("Could not load or create selectedTemplates file.", ex);
 	}
     }
 
@@ -160,7 +155,7 @@ public class ArbilTemplateManager {
 	try {
 	    selectedTamplates.addAll(Arrays.asList(loadSelectedTemplates()));
 	} catch (Exception e) {
-	    bugCatcher.logError("No selectedTemplates file, will create one now.", e);
+	    BugCatcherManager.getBugCatcher().logError("No selectedTemplates file, will create one now.", e);
 	    addDefaultImdiTemplates();
 	}
 	return selectedTamplates;
@@ -245,14 +240,14 @@ public class ArbilTemplateManager {
 	try {
 	    locationsArray = loadSelectedTemplates();
 	} catch (IOException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	if (locationsArray == null || locationsArray.length == 0) {
 	    try {
 		addDefaultImdiTemplates();
 		locationsArray = loadSelectedTemplates();
 	    } catch (IOException ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
 	if (locationsArray == null) {
@@ -335,7 +330,7 @@ public class ArbilTemplateManager {
 	File templatesDir = getTemplateDirectory();
 	if (!templatesDir.exists()) {
 	    if (!templatesDir.mkdir()) {
-		bugCatcher.logError(new IOException("Could not create template directory: " + templatesDir));
+		BugCatcherManager.getBugCatcher().logError(new IOException("Could not create template directory: " + templatesDir));
 	    }
 	}
 	ArrayList<String> templateList = new ArrayList<String>();
@@ -379,7 +374,7 @@ public class ArbilTemplateManager {
 	    }
 	    return cmdiTemplate;
 	} else {
-	    bugCatcher.logError(new Exception("Name space URL not provided, cannot load the CMDI template, please check the XML file and ensure that the name space is specified."));
+	    BugCatcherManager.getBugCatcher().logError(new Exception("Name space URL not provided, cannot load the CMDI template, please check the XML file and ensure that the name space is specified."));
 	    return null;
 	}
     }

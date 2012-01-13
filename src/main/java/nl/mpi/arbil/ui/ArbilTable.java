@@ -42,7 +42,7 @@ import javax.swing.table.TableColumn;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -52,12 +52,6 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTable extends JTable {
-
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private static WindowManager windowManager;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
@@ -197,7 +191,7 @@ public class ArbilTable extends JTable {
 			    }
 			}
 		    } catch (Exception ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    });
@@ -215,7 +209,7 @@ public class ArbilTable extends JTable {
 			editViewsDialog.setBounds(50, 50, 600, 400);
 			editViewsDialog.setVisible(true);
 		    } catch (Exception ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    });
@@ -227,7 +221,7 @@ public class ArbilTable extends JTable {
 			//System.out.println("saveViewNenuItem: " + targetTable.toString());
 			arbilTableModel.showOnlyCurrentColumns();
 		    } catch (Exception ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    });
@@ -252,7 +246,7 @@ public class ArbilTable extends JTable {
 			    arbilTableModel.setCurrentView(ArbilFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
 			    doResizeColumns();
 			} catch (Exception ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			}
 		    }
 		});
@@ -357,7 +351,7 @@ public class ArbilTable extends JTable {
 		    //System.out.println("hideColumnMenuItem: " + targetTable.toString());
 		    arbilTableModel.hideColumn(targetColumn);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -373,7 +367,7 @@ public class ArbilTable extends JTable {
 		try {
 		    showRowChildData();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -477,7 +471,7 @@ public class ArbilTable extends JTable {
 		return requiredHeight;
 	    }
 	} catch (Exception exception) {
-//            bugCatcher.logError(exception);
+//            BugCatcherManager.getBugCatcher().logError(exception);
 	    System.out.println("getRowHeight could not get the font metrics, using the default row height");
 	}
 	return super.getRowHeight();

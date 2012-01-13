@@ -22,7 +22,7 @@ import javax.swing.ListCellRenderer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  * Document   : ImageBoxRenderer
@@ -31,11 +31,6 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     int outputWidth = 200;
     int outputHeight = 130;
     int textStartX = 0;
@@ -132,7 +127,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 		try {
 		    setIcon(new ImageIcon(arbilObject.thumbnailFile.toURL()));
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	} else {
@@ -167,13 +162,13 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 		}
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	} finally {
 	    if (bufferedReader != null) {
 		try {
 		    bufferedReader.close();
 		} catch (IOException ioe) {
-		    bugCatcher.logError(ioe);
+		    BugCatcherManager.getBugCatcher().logError(ioe);
 		}
 	    }
 	}
@@ -229,13 +224,13 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 //            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
 	    } catch (IOException ex) {
 		ffmpegFound = false; //todo this is not getting hit when ffmpeg is not available
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    } finally {
 		if (errorStreamReader != null) {
 		    try { // close pipeline
 			errorStreamReader.close();
 		    } catch (IOException ioe) {
-			bugCatcher.logError(ioe);
+			BugCatcherManager.getBugCatcher().logError(ioe);
 		    }
 		}
 	    }
@@ -249,7 +244,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 //                // todo: this need not be done in a non windows environment or when imagemagick is installed
 //                System.loadLibrary("CVCOMP90");
 //            } catch (Exception ex) {
-//                bugCatcher.logError(ex);
+//                BugCatcherManager.getBugCatcher().logError(ex);
 //            }
 //        }
 	if (imageMagickPath == null) {
@@ -291,7 +286,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 //            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
 	    } catch (Exception ex) {
 		imageMagickFound = false; //todo this is not getting hit when x is not available
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
     }
@@ -317,7 +312,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 		targetDataNode.thumbnailFile = iconFile;
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 }

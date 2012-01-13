@@ -20,18 +20,13 @@ public class ApplicationVersionManager {
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
     private ApplicationVersion applicationVersion;
-    
+
     /**
      * 
      * @param appVersion Version information to use
@@ -72,13 +67,13 @@ public class ApplicationVersionManager {
 	    // either exact or greater version matches will be considered correct because there will be cases where the txt file is older than the jar
 	    return (applicationVersion.currentRevision.compareTo(serverVersionString) >= 0);
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	} finally {
 	    if (bufferedReader != null) {
 		try {
 		    bufferedReader.close();
 		} catch (IOException ioe) {
-		    bugCatcher.logError(ioe);
+		    BugCatcherManager.getBugCatcher().logError(ioe);
 		}
 	    }
 	}
@@ -97,13 +92,13 @@ public class ApplicationVersionManager {
 	    }
 	    return (0 == launchedProcess.waitFor());
 	} catch (Exception e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	} finally { // close pipeline when lauched process is done
 	    if (errorStreamReader != null) {
 		try {
 		    errorStreamReader.close();
 		} catch (IOException ioe) {
-		    bugCatcher.logError(ioe);
+		    BugCatcherManager.getBugCatcher().logError(ioe);
 		}
 	    }
 	}
@@ -119,7 +114,7 @@ public class ApplicationVersionManager {
 		messageDialogHandler.addMessageDialogToQueue("There was an error restarting the application.\nThe update will take effect next time the application is restarted.", null);
 	    }
 	} catch (Exception e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
     }
 

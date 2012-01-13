@@ -12,7 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -21,11 +21,6 @@ import nl.mpi.arbil.util.TreeHelper;
  */
 public class RemoteLocationsContent extends TextInstructionWizardContent {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private static TreeHelper treeHelper;
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
@@ -123,7 +118,7 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
 	    try {
 		addLocationsFromResource(imdiDefaultsResource, locationsList);
 	    } catch (IOException ex) {
-		bugCatcher.logError("Error while reading default IMDI locations", ex);
+		BugCatcherManager.getBugCatcher().logError("Error while reading default IMDI locations", ex);
 	    }
 	}
 
@@ -132,7 +127,7 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
 	    try {
 		addLocationsFromResource(cmdiDefaultsResource, locationsList);
 	    } catch (IOException ex) {
-		bugCatcher.logError("Error while reading default CMDI locations", ex);
+		BugCatcherManager.getBugCatcher().logError("Error while reading default CMDI locations", ex);
 	    }
 	}
 

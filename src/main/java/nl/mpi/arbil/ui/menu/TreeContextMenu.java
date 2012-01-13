@@ -34,7 +34,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -46,11 +46,6 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class TreeContextMenu extends ArbilContextMenu {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -227,7 +222,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    treeHelper.deleteNodes(getInvoker());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -245,7 +240,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 			sourceTree.copyNodeUrlToClipboard(selectedTreeNodes);
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -260,7 +255,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 			currentNode.pasteIntoNode();
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -273,7 +268,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    searchRemoteSubnodesMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -286,7 +281,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    copyBranchMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -299,7 +294,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    searchSubnodesMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -315,7 +310,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 			currentNode.reloadNode();
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -334,7 +329,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    initAddMenu(addMenu, leadSelectedTreeNode);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -366,7 +361,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    ArbilFavourites.getSingleInstance().toggleFavouritesList(((ArbilTree) getInvoker()).getSelectedNodes(), true);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -379,7 +374,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    ArbilFavourites.getSingleInstance().toggleFavouritesList(((ArbilTree) getInvoker()).getSelectedNodes(), false);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -395,7 +390,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    validateMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -414,7 +409,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    initHistoryMenu();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -429,7 +424,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    addRemoteCorpusMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -443,7 +438,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    addDefaultLocationsMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -459,7 +454,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    }
 		    treeHelper.applyRootLocations();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -472,7 +467,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    removeCachedCopyMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -486,7 +481,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    addLocalDirectoryMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -500,7 +495,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		try {
 		    treeHelper.setShowHiddenFilesInTree(showHiddenFilesMenuItem.getState());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -516,7 +511,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    }
 		    treeHelper.applyRootLocations();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -533,7 +528,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 ////                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
 //                    }
 //                } catch (Exception ex) {
-//                    bugCatcher.logError(ex);
+//                    BugCatcherManager.getBugCatcher().logError(ex);
 //                }
 //            }
 //        });
@@ -548,7 +543,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 //                    sendToServerMenuItemActionPerformed(evt);
 //
 //                } catch (Exception ex) {
-//                    bugCatcher.logError(ex);
+//                    BugCatcherManager.getBugCatcher().logError(ex);
 //                }
 //            }
 //        });
@@ -562,7 +557,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    ImportExportDialog importExportDialog = new ImportExportDialog(getTreePanel().remoteCorpusTree);
 		    importExportDialog.selectExportDirectoryAndExport(((ArbilTree) getInvoker()).getSelectedNodes());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -576,7 +571,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    ArbilCsvImporter csvImporter = new ArbilCsvImporter(leadSelectedTreeNode);
 		    csvImporter.doImport();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -592,7 +587,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    importExportDialog.importArbilBranch();
 
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -625,7 +620,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    } catch (URISyntaxException ex) {
 			dialogHandler.addMessageDialogToQueue("The URI entered as a resource location is invalid. Please check the location and try again.", "Invalid URI");
 		    } catch (ArbilMetadataException ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 			dialogHandler.addMessageDialogToQueue("Could not add resource to the metadata. Check the error log for details.", "Error adding resource");
 		    }
 		}
@@ -640,7 +635,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    ImportExportDialog importExportDialog = new ImportExportDialog(tree);
 	    importExportDialog.copyToCache(tree.getSelectedNodes());
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 
@@ -661,7 +656,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		treeHelper.addLocationInteractive(ArbilDataNodeService.conformStringToUrl(addableLocation));
 	    } catch (URISyntaxException ex) {
 		dialogHandler.addMessageDialogToQueue("Failed to add location to remote corpus. See error log for details.", "Error");
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
     }
@@ -736,7 +731,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 				new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
 			    }
 			} catch (Exception ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			}
 		    }
 		});
@@ -786,7 +781,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 				    new MetadataBuilder().requestRootAddNode(nodeType, ((JMenuItem) evt.getSource()).getText());
 				}
 			    } catch (Exception ex) {
-				bugCatcher.logError(ex);
+				BugCatcherManager.getBugCatcher().logError(ex);
 			    }
 			}
 		    });
@@ -814,7 +809,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 			    dialogHandler.addMessageDialogToQueue("Could not revert version, no changes made", "History");
 			}
 		    } catch (Exception ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    });
@@ -865,7 +860,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 //                    treeHelper.reloadLocalCorpusTree(targetNode);
 		    } catch (Exception ex) {
 			dialogHandler.addMessageDialogToQueue("Failed to add from favourites, see error log for details.", "Error");
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    });
@@ -883,7 +878,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    try {
 			windowManager.openUrlWindowOnce(currentItem.toString(), currentItem.getURI().toURL());
 		    } catch (MalformedURLException murle) {
-			bugCatcher.logError(murle);
+			BugCatcherManager.getBugCatcher().logError(murle);
 		    }
 		}
 	    }
@@ -891,7 +886,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		windowManager.openFloatingTableOnce(filteredNodes.toArray(new ArbilDataNode[]{}), null);
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 
@@ -926,7 +921,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		dialogHandler.addMessageDialogToQueue("Could not determine the origional location", "Re Import Branch");
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 

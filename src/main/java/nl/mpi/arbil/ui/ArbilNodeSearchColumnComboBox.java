@@ -9,7 +9,7 @@ import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  *
@@ -17,11 +17,6 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class ArbilNodeSearchColumnComboBox extends JComboBox {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private List<String> options;
     private TypeAheadComboBoxEditor typeAheadEditor;
     private final static String[] defaultOptions = new String[]{"Name", "Title", "Description", "Genre", "Subject", "Task"};
@@ -44,7 +39,7 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
 		options = new ArrayList(Arrays.asList(optionsArray));
 	    }
 	} catch (IOException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	if (options == null) {
 	    options = new ArrayList<String>(Arrays.asList(defaultOptions));
@@ -87,7 +82,7 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
 	    }
 	    sessionStorage.saveStringArray("searchFieldOptions", newOptions.toArray(new String[]{}));
 	} catch (IOException ex) {
-	    bugCatcher.logError("Could not save search options", ex);
+	    BugCatcherManager.getBugCatcher().logError("Could not save search options", ex);
 	}
     }
 
@@ -108,7 +103,7 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
 	    }
 	    sessionStorage.saveStringArray("searchFieldOptions", newOptions.toArray(new String[]{}));
 	} catch (IOException ex) {
-	    bugCatcher.logError("Could not save search options", ex);
+	    BugCatcherManager.getBugCatcher().logError("Could not save search options", ex);
 	}
     }
 

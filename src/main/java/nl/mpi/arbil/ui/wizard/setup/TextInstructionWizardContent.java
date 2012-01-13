@@ -15,7 +15,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import nl.mpi.arbil.ui.wizard.ArbilWizardContent;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  * Abstract Wizard content that has vertical box layout with JTextPane on top (BorderLayout.NORTH)
@@ -24,12 +24,6 @@ import nl.mpi.arbil.util.BugCatcher;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public abstract class TextInstructionWizardContent extends JPanel implements ArbilWizardContent {
-
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
 
     /**
      * @param resourceLocation Location of text (HTML formatted) resource to show as introduction
@@ -53,7 +47,7 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
 	try {
 	    final InputStream resourceStream = getClass().getResourceAsStream(resourceLocation);
 	    if (resourceStream == null) {
-		bugCatcher.logError("Cannot load wizard text. Location: " + resourceLocation, null);
+		BugCatcherManager.getBugCatcher().logError("Cannot load wizard text. Location: " + resourceLocation, null);
 	    } else {
 		try {
 		    final BufferedReader contentReader = new BufferedReader(new InputStreamReader(resourceStream));
@@ -68,7 +62,7 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
 		}
 	    }
 	} catch (IOException ex) {
-	    bugCatcher.logError("I/O exception while getting wizard text. Location: " + resourceLocation, ex);
+	    BugCatcherManager.getBugCatcher().logError("I/O exception while getting wizard text. Location: " + resourceLocation, ex);
 	}
 	return "Error while getting wizard text. Please check the error log.";
     }

@@ -18,6 +18,7 @@ import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilActionBuffer;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
@@ -111,7 +112,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	    ApplicationVersion appVersion = versionManager.getApplicationVersion();
 	    // TODO: the clas path specified here needs to be dynamically generated
 	    String embedTagString = "<APPLET CODEBASE=\"http://www.mpi.nl/tg/j2se/jnlp/arbil/\" "
-	    //String embedTagString = "<APPLET CODEBASE=\"/Users/twagoo/Desktop/arbil-build-2.4.x/\" "
+		    //String embedTagString = "<APPLET CODEBASE=\"/Users/twagoo/Desktop/arbil-build-2.4.x/\" "
 		    + " CODE=\"nl.mpi.arbil.ui.applet.ArbilTableApplet.class\" ARCHIVE=\"arbil-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision
 		    + ".jar,lib/corpusstructure-api-1.7.3.jar,lib/mpi-util-1.0.0.jar,lib/imdi-api-1.1.2.jar,lib/log4j-1.2.14.jar,lib/saxon-8.7.jar,lib/saxon-dom-8.7.jar,lib/typechecker-1.6.5.jar,lib/xalan-2.7.1.jar,lib/xercesImpl-2.9.0.jar,lib/xmlbeans-2.4.0.jar\"";
 	    embedTagString = embedTagString + " WIDTH=" + tableWidth + " HEIGHT=" + tableHeight + " >\n";
@@ -124,7 +125,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	    StringSelection stringSelection = new StringSelection(embedTagString);
 	    clipboard.setContents(stringSelection, this);
 	} catch (Exception ex) {
-	    getBugCatcher().logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 
@@ -372,7 +373,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		}
 	    }
 	} catch (Exception ex) {
-	    getBugCatcher().logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
 	return resultMessage;
     }

@@ -14,7 +14,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -25,11 +25,6 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public abstract class ArbilContextMenu extends JPopupMenu {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private static MessageDialogHandler dialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
@@ -103,7 +98,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			leadSelectedTreeNode.resourceUrlField.setFieldValue(selectedFiles[0].toURL().toExternalForm(), true, false);
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -121,7 +116,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		    }
 
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -135,7 +130,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		try {
 		    new ImdiUtils().overrideTypecheckerDecision(selectedTreeNodes);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -149,7 +144,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		try {
 		    openFileInExternalApplication(selectedTreeNodes);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -164,7 +159,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			windowManager.openImdiXmlWindow(currentNode, false, false);
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -179,7 +174,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			windowManager.openImdiXmlWindow(currentNode, true, false);
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -194,7 +189,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			windowManager.openImdiXmlWindow(currentNode, true, true);
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -211,7 +206,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 			windowManager.openFileInExternalApplication(uri);
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		    dialogHandler.addMessageDialogToQueue("Export to HTML failed. Check the error log for details.", "Export failed");
 		}
 	    }

@@ -31,7 +31,7 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.util.ArbilActionBuffer;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -49,13 +49,8 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ArbilTree extends JTree implements ArbilDataNodeContainer, ClipboardOwner {
 
-    private static BugCatcher bugCatcher;
     protected ArbilTable customPreviewTable = null;
     private boolean clearSelectionOnFocusLost = false;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private static WindowManager windowManager;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
@@ -332,7 +327,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 			    copiedNodeUrls = copiedNodeUrls.concat(URLDecoder.decode(currentNode.getURI().toString(), "UTF-8"));
 			}
 		    } catch (UnsupportedEncodingException murle) {
-			bugCatcher.logError(murle);
+			BugCatcherManager.getBugCatcher().logError(murle);
 		    }
 		}
 	    }

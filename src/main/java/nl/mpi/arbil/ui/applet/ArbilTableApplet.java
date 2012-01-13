@@ -6,7 +6,7 @@ import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 
 /*
  * ArbilTableApplet.java
@@ -15,7 +15,6 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class ArbilTableApplet extends javax.swing.JApplet {
 
-    private BugCatcher bugCatcher;
     private DataNodeLoader dataNodeLoader;
 
     @Override
@@ -23,7 +22,6 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	// TODO: test if this suffices
 	injector.injectHandlers();
-	bugCatcher = injector.getBugCatcher();
 	dataNodeLoader = injector.getDataNodeLoader();
 	try {
 	    java.awt.EventQueue.invokeAndWait(new Runnable() {
@@ -37,7 +35,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 		}
 	    });
 	} catch (Exception ex) {
-	    injector.getBugCatcher().logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 
@@ -47,7 +45,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 		try {
 		    arbilTableModel.addSingleArbilDataNode(dataNodeLoader.getArbilDataNode(rootPane, new URI(currentUrlString)));
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	}

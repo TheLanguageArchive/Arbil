@@ -1,7 +1,6 @@
 package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
-import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.clarin.profiles.ProfilePreview;
@@ -19,17 +18,13 @@ import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
-import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.search.ArbilRemoteSearch;
 import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
-import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.ui.ArbilFieldPlaceHolder;
-import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilHyperlinkListener;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilTree;
@@ -38,7 +33,6 @@ import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.RemoteLocationsContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.BinaryMetadataReader;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
@@ -60,7 +54,6 @@ public abstract class ArbilInjector {
 	    SessionStorage sessionStorage,
 	    TreeHelper treeHelper,
 	    DataNodeLoader dataNodeLoader,
-	    BugCatcher bugCatcher,
 	    ApplicationVersionManager versionManager,
 	    ClipboardOwner clipboardOwner) {
 	injectVersionManager(versionManager);
@@ -69,7 +62,6 @@ public abstract class ArbilInjector {
 	injectWindowManager(windowManager);
 	injectDialogHandler(messageDialogHandler);
 	injectTreeHelper(treeHelper);
-	injectBugCatcher(bugCatcher);
     }
 
     public void injectVersionManager(ApplicationVersionManager versionManager) {
@@ -92,39 +84,7 @@ public abstract class ArbilInjector {
 	MetadataReader.setDataNodeLoader(dataNodeLoader);
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
-
-    public void injectBugCatcher(BugCatcher bugCatcher) {
-	// Inject bug catcher
-	ArbilComponentBuilder.setBugCatcher(bugCatcher);
-	ArbilCsvImporter.setBugCatcher(bugCatcher);
-	ArbilEntityResolver.setBugCatcher(bugCatcher);
-	ArbilFavourites.setBugCatcher(bugCatcher);
-	ArbilFieldViews.setBugCatcher(bugCatcher);
-	ArbilIcons.setBugCatcher(bugCatcher);
-	ArbilJournal.setBugCatcher(bugCatcher);
-	AbstractArbilTableModel.setBugCatcher(bugCatcher);
-	ArbilTemplate.setBugCatcher(bugCatcher);
-	ArbilTemplateManager.setBugCatcher(bugCatcher);
-	ArbilToHtmlConverter.setBugCatcher(bugCatcher);
-	ArbilTree.setBugCatcher(bugCatcher);
-	ApplicationVersionManager.setBugCatcher(bugCatcher);
-	ArbilVocabularies.setBugCatcher(bugCatcher);
-	BinaryMetadataReader.setBugCatcher(bugCatcher);
-	CmdiComponentLinkReader.setBugCatcher(bugCatcher);
-	CmdiProfileReader.setBugCatcher(bugCatcher);
-	CmdiTemplate.setBugCatcher(bugCatcher);
-	CmdiUtils.setBugCatcher(bugCatcher);
-	DocumentationLanguages.setBugCatcher(bugCatcher);
-	ImdiUtils.setBugCatcher(bugCatcher);
-	MetadataBuilder.setBugCatcher(bugCatcher);
-	MetadataReader.setBugCatcher(bugCatcher);
-	ShibbolethNegotiator.setBugCatcher(bugCatcher);
-	XsdChecker.setBugCatcher(bugCatcher);
-
-	RemoteLocationsContent.setBugCatcher(bugCatcher);
-	ArbilRemoteSearch.setBugCatcher(bugCatcher);
-    }
-
+    
     public void injectTreeHelper(TreeHelper treeHelper) {
 	//Inject tree helper
 	ArbilFavourites.setTreeHelper(treeHelper);

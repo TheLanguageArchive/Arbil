@@ -13,7 +13,7 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -31,11 +31,6 @@ public class MetadataBuilder {
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
     private static WindowManager windowManager;
 
@@ -58,7 +53,7 @@ public class MetadataBuilder {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
     private ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
-    
+
     /**
      * Requests to add a new node of given type to root
      * @param nodeType Name of node type
@@ -107,13 +102,13 @@ public class MetadataBuilder {
 				return MetadataReader.getSingleInstance().canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
 			    }
 			} catch (ParserConfigurationException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			} catch (SAXException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			} catch (IOException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			} catch (ArbilMetadataException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			}
 		    }
 		}
@@ -309,7 +304,7 @@ public class MetadataBuilder {
 	} else {
 	    if (destinationNode == null) {
 		// Cannot add subnode to local corpus tree root
-		bugCatcher.logError(new Exception("Attempt to add child node to local corpus root"));
+		BugCatcherManager.getBugCatcher().logError(new Exception("Attempt to add child node to local corpus root"));
 		return;
 	    }
 	    addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);
@@ -391,11 +386,11 @@ public class MetadataBuilder {
 				dataNodeLoader.requestReload(destinationNode);
 			    }
 			} catch (ParserConfigurationException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			} catch (SAXException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			} catch (IOException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			}
 //            needsSaveToDisk = true;
 		    } else {
@@ -410,7 +405,7 @@ public class MetadataBuilder {
 //                      LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
 //                    }
 			    } catch (URISyntaxException ex) {
-				bugCatcher.logError(ex);
+				BugCatcherManager.getBugCatcher().logError(ex);
 				return null;
 			    }
 			} else {

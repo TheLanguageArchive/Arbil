@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilVocabulary;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.xml.sax.SAXException;
 
@@ -28,11 +28,6 @@ public class ArbilTemplate {
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
     public File templateFile;
     protected Hashtable<String, ArbilVocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
@@ -562,7 +557,7 @@ public class ArbilTemplate {
 	    return true;
 	} catch (Exception ex) {
 	    messageDialogHandler.addMessageDialogToQueue("The required template could not be read.", "Load Template");
-	    bugCatcher.logError("A template could not be read.", ex);
+	    BugCatcherManager.getBugCatcher().logError("A template could not be read.", ex);
 	    return false;
 	}
     }

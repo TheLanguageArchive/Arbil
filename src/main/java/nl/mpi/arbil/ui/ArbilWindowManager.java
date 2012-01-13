@@ -64,7 +64,7 @@ import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
 
@@ -92,7 +92,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     boolean showMessageThreadrunning = false;
     private Map<String, FileFilter> fileFilterMap;
     private Collection<ArbilTaskListener> taskListeners = new HashSet<ArbilTaskListener>();
-
     private ApplicationVersionManager versionManager;
 
     public void setVersionManager(ApplicationVersionManager versionManagerInstance) {
@@ -102,11 +101,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
-    }
-    private BugCatcher bugCatcher;
-
-    public void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
     }
     private TreeHelper treeHelper;
 
@@ -445,7 +439,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    try {
 			sleep(100);
 		    } catch (Exception ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		    showMessageThreadrunning = true;
 		    if (messagesCanBeShown) {
@@ -548,7 +542,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			try {
 			    imdiObjectsArray[arrayCounter] = (dataNodeLoader.getArbilDataNode(null, new URI(windowState.currentNodes.elementAt(arrayCounter).toString())));
 			} catch (URISyntaxException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			}
 		    }
 
@@ -701,7 +695,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			windowListHashtable.put(currentWindowName, windowState);
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 //                    System.out.println("Exception: " + ex.getMessage());
 		}
 	    }
@@ -710,7 +704,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	    System.out.println("saved windowStates");
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 //            System.out.println("save windowStates exception: " + ex.getMessage());
 	}
     }
@@ -732,7 +726,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		try {
 		    focusWindow(evt.getActionCommand());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -807,7 +801,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    return (JInternalFrame) windowObject;
 		}
 	    } catch (Exception ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 //            System.out.println(ex.getMessage());
 	    }
 	}
@@ -879,7 +873,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 						}
 					    }
 					} catch (Exception ex) {
-					    bugCatcher.logError(ex);
+					    BugCatcherManager.getBugCatcher().logError(ex);
 //                                        System.out.println(ex.getMessage());
 					}
 				    }
@@ -901,7 +895,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 				    allWindows[targetLayerInt].setIcon(false);
 				    allWindows[targetLayerInt].setSelected(true);
 				} catch (Exception ex) {
-				    bugCatcher.logError(ex);
+				    BugCatcherManager.getBugCatcher().logError(ex);
 //                                    System.out.println(ex.getMessage());
 				}
 			    }
@@ -967,7 +961,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    // prevent the frame focus process consuming mouse events that should be recieved by the jtable etc.
 	    currentInternalFrame.setSelected(true);
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 //            System.out.println(ex.getMessage());
 	}
 
@@ -1004,7 +998,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	    //gridViewInternalFrame.setMaximum(true);
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 //            System.out.println(ex.getMessage());
 	}
 
@@ -1063,7 +1057,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    String fieldPath = rowNodesArray[arrayCounter].getFragment();
 		    String parentNodeFragment;
 		    if (parentNode.nodeTemplate == null) {
-			bugCatcher.logError(new Exception("nodeTemplate null in: " + parentNode.getUrlString()));
+			BugCatcherManager.getBugCatcher().logError(new Exception("nodeTemplate null in: " + parentNode.getUrlString()));
 			parentNodeFragment = "";
 		    } else {
 			parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
@@ -1079,7 +1073,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    fieldPathsToHighlight.add(fieldPath);
 		}
 	    } catch (URISyntaxException ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
 	ArbilTableModel targetTableModel = openFloatingTableOnceGetModel(tableNodes, frameTitle);
@@ -1097,7 +1091,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		tableNodes.add(currentChildNode);
 	    }
 //            } catch (URISyntaxException ex) {
-//                bugCatcher.logError(ex);
+//                BugCatcherManager.getBugCatcher().logError(ex);
 //            }
 	}
 	return openFloatingTableOnceGetModel(tableNodes.toArray(new ArbilDataNode[]{}), frameTitle);
@@ -1111,7 +1105,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    return null;
 		}
 	    } catch (MalformedURLException exception) {
-		bugCatcher.logError(exception);
+		BugCatcherManager.getBugCatcher().logError(exception);
 	    }
 	}
 	// open find a table containing exactly the same nodes as requested or create a new table
@@ -1140,7 +1134,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 				((JInternalFrame) currentWindow[0]).setSelected(true);
 				return currentTableModel;
 			    } catch (Exception ex) {
-				bugCatcher.logError(ex);
+				BugCatcherManager.getBugCatcher().logError(ex);
 			    }
 			}
 		    }
@@ -1219,7 +1213,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    window[0] = tableFrame;
 	}
     }
-    
+
     public boolean openFileInExternalApplication(URI targetUri) {
 	boolean result = false;
 	boolean awtDesktopFound = false;
@@ -1243,10 +1237,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		}
 		result = true;
 	    } catch (MalformedURLException muE) {
-		bugCatcher.logError("awtDesktopFound", muE);
+		BugCatcherManager.getBugCatcher().logError("awtDesktopFound", muE);
 		addMessageDialogToQueue("Failed to find the file: " + muE.getMessage(), "Open In External Application");
 	    } catch (IOException ioE) {
-		bugCatcher.logError("awtDesktopFound", ioE);
+		BugCatcherManager.getBugCatcher().logError("awtDesktopFound", ioE);
 		addMessageDialogToQueue("Failed to open the file: " + ioE.getMessage(), "Open In External Application");
 	    }
 	} else {
@@ -1291,13 +1285,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    result = true;
 		}
 	    } catch (Exception e) {
-		bugCatcher.logError(osNameString, e);
+		BugCatcherManager.getBugCatcher().logError(osNameString, e);
 	    }
 	}
 	return result;
     }
 
-    
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
 	if (userObject instanceof ArbilDataNode) {
 	    if (((ArbilDataNode) (userObject)).getNeedsSaveToDisk(false)) {
@@ -1319,7 +1312,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			openFileInExternalApplication(tempHtmlFile.toURI());
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		    //System.out.println(ex.getMessage());
 		    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
 		}
@@ -1327,14 +1320,14 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		try {
 		    openUrlWindowOnce(nodeName + "-xml", nodeUri.toURL());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		    //System.out.println(ex.getMessage());
 		    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
 		}
 	    }
 	}
     }
-    
+
     //JOptionPane.showConfirmDialog(linorgFrame,
     //"Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
     //+ "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE))

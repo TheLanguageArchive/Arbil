@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.net.URI;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -25,11 +25,6 @@ import org.xml.sax.SAXException;
 public class ArbilEntityResolver implements EntityResolver {
 
     public static final int EXPIRE_CACHE_DAYS = 7;
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -55,7 +50,7 @@ public class ArbilEntityResolver implements EntityResolver {
 	final File cachedfile = sessionStorage.updateCache(targetString, EXPIRE_CACHE_DAYS, false);
 	if (!cachedfile.exists()) {
 	    // todo: pull the file out of the jar
-	    bugCatcher.logError(new Exception("dependant xsd not stored in the jar for offline first time use: " + cachedfile));
+	    BugCatcherManager.getBugCatcher().logError(new Exception("dependant xsd not stored in the jar for offline first time use: " + cachedfile));
 	}
 	String cachedfileString = cachedfile.toURI().toString();
 //        System.out.println("cachedfileString: " + cachedfileString);
@@ -66,7 +61,7 @@ public class ArbilEntityResolver implements EntityResolver {
 		try {
 		    return new FileInputStream(cachedfile);
 		} catch (FileNotFoundException ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		    return null;
 		}
 	    }
@@ -76,7 +71,7 @@ public class ArbilEntityResolver implements EntityResolver {
 		try {
 		    return new FileReader(cachedfile);
 		} catch (FileNotFoundException ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		    return null;
 		}
 	    }

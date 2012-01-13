@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JProgressBar;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import org.apache.commons.digester.Digester;
 
 /**
@@ -15,7 +15,6 @@ import org.apache.commons.digester.Digester;
 public class CmdiProfileReader {
 
     private static SessionStorage sessionStorage;
-    private static BugCatcher bugCatcher;
     public static final String PARAM_PROFILESELECTION = "profileSelection";
     public static final String PARAM_PROFILES_URL = "profilesUrlAll";
     public static final String PARAM_SELECTED_PROFILES_URL = "profilesUrlSelected";
@@ -31,10 +30,6 @@ public class CmdiProfileReader {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
-    }
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
     public ArrayList<CmdiProfile> cmdiProfileArray = null;
     static CmdiProfileReader singleInstance = null;
@@ -125,7 +120,7 @@ public class CmdiProfileReader {
 	    cmdiProfileArray = new ArrayList<CmdiProfile>();
 	    digester.parse(profileXmlFile);
 	} catch (Exception e) {
-	    bugCatcher.logError(e);
+	    BugCatcherManager.getBugCatcher().logError(e);
 	}
 	// get all the xsd files from the profile listing and store them on disk for offline use
 //        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {

@@ -9,7 +9,7 @@ import java.util.Vector;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 
@@ -24,11 +24,6 @@ public class ArbilFavourites {
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
     private static SessionStorage sessionStorage;
 
@@ -69,7 +64,7 @@ public class ArbilFavourites {
 		}
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 
@@ -133,7 +128,7 @@ public class ArbilFavourites {
 	    treeHelper.addLocation(favouriteUri);
 	    treeHelper.applyRootLocations();
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 

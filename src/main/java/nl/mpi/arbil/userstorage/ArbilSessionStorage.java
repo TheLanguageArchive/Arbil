@@ -38,7 +38,7 @@ import javax.swing.JOptionPane;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -57,11 +57,6 @@ public class ArbilSessionStorage implements SessionStorage {
     public void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
-    private BugCatcher bugCatcher;
-
-    public void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private WindowManager windowManager;
 
     public void setWindowManager(WindowManager windowManagerInstance) {
@@ -74,19 +69,11 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     private void logError(Exception exception) {
-	if (bugCatcher != null) {
-	    bugCatcher.logError(exception);
-	} else {
-	    System.out.println("BUGCATCHER: " + exception.getMessage());
-	}
+	BugCatcherManager.getBugCatcher().logError(exception);
     }
 
     private void logError(String message, Exception exception) {
-	if (bugCatcher != null) {
-	    bugCatcher.logError(message, exception);
-	} else {
-	    System.out.println("BUGCATCHER: " + message + (exception != null ? ("\nException: " + exception.getMessage()) : ""));
-	}
+	BugCatcherManager.getBugCatcher().logError(message, exception);
     }
     private File storageDirectory = null;
     private File localCacheDirectory = null;
@@ -544,7 +531,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		out.write(currentString + "\r\n");
 	    }
 	} catch (IOException ex) {
-	    bugCatcher.logError(ex);
+	    logError(ex);
 	    throw ex;
 	} finally {
 	    if (out != null) {

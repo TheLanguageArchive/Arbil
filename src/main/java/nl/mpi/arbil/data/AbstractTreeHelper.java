@@ -25,7 +25,7 @@ import javax.swing.tree.TreePath;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ui.ArbilTrackingTree;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
@@ -49,16 +49,14 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     private ArbilDataNode[] favouriteNodes = new ArbilDataNode[]{};
     private boolean showHiddenFilesInTree = false;
     private MessageDialogHandler messageDialogHandler;
-    private BugCatcher bugCatcher;
     private DataNodeLoader dataNodeLoader;
 
     public void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
 
-    public AbstractTreeHelper(MessageDialogHandler messageDialogHandler, BugCatcher bugCatcher) {
+    public AbstractTreeHelper(MessageDialogHandler messageDialogHandler) {
 	this.messageDialogHandler = messageDialogHandler;
-	this.bugCatcher = bugCatcher;
     }
 
     protected final void initTrees() {
@@ -100,7 +98,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    addLocations(getClass().getResourceAsStream("/nl/mpi/arbil/defaults/imdiLocations"));
 	    return remoteCorpusNodes.length;
 	} catch (IOException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	    return 0;
 	}
     }
@@ -116,7 +114,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    try {
 		remoteCorpusNodesSet.add(dataNodeLoader.getArbilDataNode(null, new URI(currentUrlString)));
 	    } catch (URISyntaxException ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
 	remoteCorpusNodes = remoteCorpusNodesSet.toArray(new ArbilDataNode[]{});
@@ -152,7 +150,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    getSessionStorage().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
 	    System.out.println("saved locationsList");
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
 	}
     }
@@ -164,7 +162,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	try {
 	    locationsArray = getSessionStorage().loadStringArray("locationsList");
 	} catch (IOException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	    messageDialogHandler.addMessageDialogToQueue("Could not find or load locations. Adding default locations.", "Error");
 	}
 	if (locationsArray != null) {
@@ -180,10 +178,10 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 		try {
 		    currentLocation = ArbilDataNodeService.conformStringToUrl(currentLocationString);
 		} catch (URISyntaxException ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 		if (currentLocation == null) {
-		    bugCatcher.logError("Could conform string to url: " + currentLocationString, null);
+		    BugCatcherManager.getBugCatcher().logError("Could conform string to url: " + currentLocationString, null);
 		    failedLoads++;
 		} else {
 		    try {
@@ -202,7 +200,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 			    remoteCorpusNodesList.add(currentTreeObject);
 			}
 		    } catch (Exception ex) {
-			bugCatcher.logError("Failure in trying to load " + currentLocationString, ex);
+			BugCatcherManager.getBugCatcher().logError("Failure in trying to load " + currentLocationString, ex);
 			failedLoads++;
 		    }
 		}
@@ -253,7 +251,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 		URI uri = new URI(location);
 		locationsList.add(uri);
 	    } catch (URISyntaxException ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	    location = reader.readLine();
 	}
@@ -420,7 +418,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    } else {
 		messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
 	    }
-	    //bugCatcher.logError(new Exception("deleteFromDomViaId"));
+	    //BugCatcherManager.getBugCatcher().logError(new Exception("deleteFromDomViaId"));
 	}
     }
 
@@ -575,13 +573,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
      */
     protected MessageDialogHandler getMessageDialogHandler() {
 	return messageDialogHandler;
-    }
-
-    /**
-     * @return the bugCatcher
-     */
-    protected BugCatcher getBugCatcher() {
-	return bugCatcher;
     }
 
     /**

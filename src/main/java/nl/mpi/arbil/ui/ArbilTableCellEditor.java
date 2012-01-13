@@ -33,7 +33,7 @@ import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBox;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
 import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -59,11 +59,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     Object[] cellValue;
     int selectedField = -1;
     Vector<Component> componentsWithFocusListners = new Vector();
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private final MouseListener fieldMouseAdapter = new java.awt.event.MouseAdapter() {
 
 	@Override
@@ -369,7 +364,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 //            final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
 	    // Todo: check if field can be added to node
 	} else {
-	    bugCatcher.logError("Edit cell type not supported", null);
+	    BugCatcherManager.getBugCatcher().logError("Edit cell type not supported", null);
 	}
     }
 
@@ -416,7 +411,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 		registeredOwner = ((ArbilField) cellValue[0]).getParentDataNode();
 	    }
 	} else {
-	    bugCatcher.logError(new Exception("value is null in convertCellValue"));
+	    BugCatcherManager.getBugCatcher().logError(new Exception("value is null in convertCellValue"));
 	}
     }
 

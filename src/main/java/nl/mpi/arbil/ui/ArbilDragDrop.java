@@ -28,7 +28,7 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -44,11 +44,6 @@ public class ArbilDragDrop {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
     }
     private static ArbilDragDrop singleInstance = null;
 
@@ -115,7 +110,7 @@ public class ArbilDragDrop {
 		}
 	    });
 	} catch (java.util.TooManyListenersException ex) {
-	    bugCatcher.logError(ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
 
@@ -459,7 +454,7 @@ public class ArbilDragDrop {
 		    return importNodes(comp);
 		}
 	    } catch (Exception ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    } finally {
 		createTransferable(null); // clear the transfer objects
 	    }
@@ -661,7 +656,7 @@ public class ArbilDragDrop {
 			    new MetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);
 			    addNodeResult = true;
 			} catch (ArbilMetadataException ex) {
-			    bugCatcher.logError(ex);
+			    BugCatcherManager.getBugCatcher().logError(ex);
 			    dialogHandler.addMessageDialogToQueue(ex.getLocalizedMessage(), "Insert node error");
 			}
 		    }
@@ -704,7 +699,7 @@ public class ArbilDragDrop {
 		    }
 		}
 	    } else {
-		bugCatcher.logError("Could not add node " + currentNode.toString() + " to target " + dropTargetUserObject.toString(), null);
+		BugCatcherManager.getBugCatcher().logError("Could not add node " + currentNode.toString() + " to target " + dropTargetUserObject.toString(), null);
 	    }
 	}
 

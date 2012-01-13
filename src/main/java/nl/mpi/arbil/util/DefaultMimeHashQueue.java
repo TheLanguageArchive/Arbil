@@ -61,7 +61,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		}
 	    } catch (Exception ex) {
 		messageDialogHandler.addMessageDialogToQueue("A custom typechecker file types configuration was found. However, it cannot be processed, therefore the default configuration will be used.", "Type checker configuration error");
-		bugCatcher.logError("Error while retrieving or applying file checker configuration. Using default configuration.", ex);
+		BugCatcherManager.getBugCatcher().logError("Error while retrieving or applying file checker configuration. Using default configuration.", ex);
 	    }
 	    if (fileType == null) {
 		// Use default (included) configuration
@@ -84,13 +84,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     private ScheduledThreadPoolExecutor mimeHashQueueThreadExecutor;
     private static FileType fileType;  //  used to check the file type
     private static DeepFileType deepFileType = new DeepFileType();
-    private BugCatcher bugCatcher;
-
-    public void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
-    }
     private SessionStorage sessionStorage;
-
     private MessageDialogHandler messageDialogHandler;
 
     public void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -212,7 +206,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    processQueueWithTask();
 
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 		//TODO: take one file from the list and check it is still there and that it has the same mtime and maybe check the md5sum
 		//TODO: when deleting resouce or removing a session or corpus branch containing a session check for links
@@ -332,7 +326,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    }
 		}
 //                                } catch (MalformedURLException e) {
-//                                    //bugCatcher.logError(currentPathString, e);
+//                                    //BugCatcherManager.getBugCatcher().logError(currentPathString, e);
 //                                    System.out.println("MalformedURLException: " + currentPathString + " : " + e);
 //                                }
 	    }
@@ -360,7 +354,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 //                    System.out.println(currentField.fieldValue);
 			}
 		    } catch (Exception ex) {
-			bugCatcher.logError(currentDataNode.getUrlString() + "\n" + fileObject.getAbsolutePath(), ex);
+			BugCatcherManager.getBugCatcher().logError(currentDataNode.getUrlString() + "\n" + fileObject.getAbsolutePath(), ex);
 		    }
 		}
 	    }
@@ -411,7 +405,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		sessionStorage.saveObject(processedFilesMTimes, "processedFilesMTimesV2");
 		sessionStorage.saveObject(md5SumToDuplicates, "md5SumToDuplicates");
 	    } catch (IOException ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
 
@@ -537,8 +531,8 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 //                    debugOut("location: " + getUrl());
 //                    debugOut("digest: " + digest.toString());
 	    } catch (Exception ex) {
-//            bugCatcher.logMessage("getHash: " + targetFile);
-//            bugCatcher.logError("getHash: " + fileUrl, ex);
+//            BugCatcherManager.getBugCatcher().logMessage("getHash: " + targetFile);
+//            BugCatcherManager.getBugCatcher().logError("getHash: " + fileUrl, ex);
 		System.out.println("failed to created hash: " + ex.getMessage());
 	    } finally {
 		if (is != null) {
@@ -592,7 +586,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		// Remove fragment from URI to get reference to actual file
 		return new URI(dataNode.getURI().getScheme(), dataNode.getURI().getSchemeSpecificPart(), null);
 	    } catch (URISyntaxException ex) {
-		bugCatcher.logError(ex);
+		BugCatcherManager.getBugCatcher().logError(ex);
 		return null;
 	    }
 	}
@@ -631,9 +625,9 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		}
 		mpiMimeType = FileType.resultToMPIType(typeCheckerMessage);
 	    } catch (Exception ioe) {
-//                bugCatcher.logError(ioe);
+//                BugCatcherManager.getBugCatcher().logError(ioe);
 		System.out.println("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
-		bugCatcher.logError(ioe);
+		BugCatcherManager.getBugCatcher().logError(ioe);
 		if (typeCheckerMessage == null) {
 		    typeCheckerMessage = "I/O Exception: " + ioe.getMessage();
 		}
@@ -642,7 +636,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    try {
 			inputStream.close();
 		    } catch (IOException ex) {
-			bugCatcher.logError(ex);
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
 	    }

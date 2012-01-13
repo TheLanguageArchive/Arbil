@@ -11,7 +11,6 @@ import javax.swing.tree.TreePath;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
@@ -26,8 +25,8 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 
     private ArbilTreePanels arbilTreePanel;
 
-    public ArbilTreeHelper(SessionStorage sessionStorage, MessageDialogHandler messageDialogHandler, BugCatcher bugCatcher) {
-	super(messageDialogHandler, bugCatcher);
+    public ArbilTreeHelper(SessionStorage sessionStorage, MessageDialogHandler messageDialogHandler) {
+	super(messageDialogHandler);
 	this.sessionStorage = sessionStorage;
     }
 

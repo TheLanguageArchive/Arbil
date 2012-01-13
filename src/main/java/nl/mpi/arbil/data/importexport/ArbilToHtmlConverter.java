@@ -8,7 +8,7 @@ import java.net.URI;
 import java.net.URL;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
@@ -22,11 +22,6 @@ public class ArbilToHtmlConverter {
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
 
     public URI exportImdiToHtml(ArbilDataNode[] inputNodeArray) {
@@ -45,7 +40,7 @@ public class ArbilToHtmlConverter {
 		    transformNodeToHtml(currentNode, destinationFile);
 		} catch (Exception exception) {
 		    messageDialogHandler.addMessageDialogToQueue("Cannot convert data", "HTML Export");
-		    bugCatcher.logError(exception);
+		    BugCatcherManager.getBugCatcher().logError(exception);
 		}
 	    }
 	    return destinationDirectory.toURI();
@@ -91,7 +86,7 @@ public class ArbilToHtmlConverter {
 		//InputStream inputStream = this.getClass().getResourceAsStream("html/imdi-viewer/" + dependantFileString);
 		InputStream inputStream = this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/xsl/" + dependantFileString);
 		if (inputStream == null) {
-		    bugCatcher.logError(new Exception("Missing file in jar: " + dependantFileString));
+		    BugCatcherManager.getBugCatcher().logError(new Exception("Missing file in jar: " + dependantFileString));
 		} else {
 		    int bufferLength = 1024 * 4;
 		    byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
@@ -108,7 +103,7 @@ public class ArbilToHtmlConverter {
 		outFile.close();
 	    } catch (IOException iOException) {
 		messageDialogHandler.addMessageDialogToQueue("Cannot copy requisite file", "HTML Export");
-		bugCatcher.logError(iOException);
+		BugCatcherManager.getBugCatcher().logError(iOException);
 	    }
 	}
     }

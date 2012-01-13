@@ -47,7 +47,7 @@ import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -59,11 +59,6 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ImportExportDialog {
 
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatherInstance) {
-	bugCatcher = bugCatherInstance;
-    }
     private JDialog searchDialog;
     private JPanel searchPanel;
     private JPanel inputNodePanel;
@@ -333,7 +328,7 @@ public class ImportExportDialog {
 		    showDetails(detailsCheckBox.isSelected());
 		    searchDialog.pack();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -513,7 +508,7 @@ public class ImportExportDialog {
 			resourceFileErrorsTable.addChildTypeToDisplay("WrittenResources");
 		    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -524,7 +519,7 @@ public class ImportExportDialog {
 		try {
 		    performCopy();
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -537,7 +532,7 @@ public class ImportExportDialog {
 		    stopButton.setEnabled(false);
 		    startButton.setEnabled(false);
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
@@ -595,7 +590,7 @@ public class ImportExportDialog {
 	    try {
 		Thread.sleep(100);
 	    } catch (InterruptedException ignore) {
-		bugCatcher.logError(ignore);
+		BugCatcherManager.getBugCatcher().logError(ignore);
 	    }
 	}
     }
@@ -613,11 +608,11 @@ public class ImportExportDialog {
 //		destinationFile[1] = new File(exportDestinationDirectory, currentDirectory.getName());
 //		if (tempFile.delete()) {
 //		    if (!currentDirectory.renameTo(tempFile)) {
-//			bugCatcher.logError(new Exception("Error while renaming file"));
+//			BugCatcherManager.getBugCatcher().logError(new Exception("Error while renaming file"));
 //		    }
 //		}
 //	    } catch (Exception ex) {
-//		bugCatcher.logError(ex);
+//		BugCatcherManager.getBugCatcher().logError(ex);
 //	    }
 //	}
 //    }
@@ -686,7 +681,7 @@ public class ImportExportDialog {
 		    // Copy the selected nodes
 		    copyElements(selectedNodes.elements());
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		    finalMessageString = finalMessageString + "There was a critical error.";
 		}
 
@@ -822,7 +817,7 @@ public class ImportExportDialog {
 			    }
 			    if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
 				if (!currentRetrievableFile.destinationFile.getParentFile().mkdir()) {
-				    bugCatcher.logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
+				    BugCatcherManager.getBugCatcher().logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
 				}
 			    }
 			    currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
@@ -844,18 +839,18 @@ public class ImportExportDialog {
 			}
 		    }
 		} catch (ArbilMetadataException ex) {
-		    bugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+		    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 		    totalErrors++;
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
 		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
 		} catch (MalformedURLException ex) {
-		    bugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+		    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 		    totalErrors++;
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
 		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 		    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
 		} catch (IOException ex) {
-		    bugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+		    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 		    totalErrors++;
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
 		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
@@ -905,7 +900,7 @@ public class ImportExportDialog {
 				}
 				if (!retrievableLink.destinationFile.getParentFile().exists()) {
 				    if (!retrievableLink.destinationFile.getParentFile().mkdirs()) {
-					bugCatcher.logError(new IOException("Could not create missing parent directory for " + retrievableLink.destinationFile));
+					BugCatcherManager.getBugCatcher().logError(new IOException("Could not create missing parent directory for " + retrievableLink.destinationFile));
 				    }
 				}
 				downloadFileLocation = retrievableLink.destinationFile;
@@ -986,7 +981,7 @@ public class ImportExportDialog {
 		try {
 		    urlString = URLDecoder.decode(urlString, "UTF-8");
 		} catch (Exception ex) {
-		    bugCatcher.logError(urlString, ex);
+		    BugCatcherManager.getBugCatcher().logError(urlString, ex);
 		    appendToTaskOutput("unable to decode the file name for: " + urlString);
 		    System.out.println("unable to decode the file name for: " + urlString);
 		}
