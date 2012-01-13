@@ -32,7 +32,6 @@ public class LanguageIdBox extends JComboBox {
     public LanguageIdBox(final ArbilField cellField, Rectangle parentCellRect) {
 	String fieldLanguageId = cellField.getLanguageId();
 //        if (fieldLanguageId != null) {
-	System.out.println("Has LanguageId");
 	ArbilVocabularyItem selectedItem = null;
 	this.setEditable(false);
 	List<ArbilVocabularyItem> languageItemArray = getLanguageItems(cellField.getParentDataNode());
@@ -49,7 +48,6 @@ public class LanguageIdBox extends JComboBox {
 	    this.addItem(defaultLanguageDropDownValue);
 
 	    if (selectedItem != null) {
-		System.out.println("selectedItem: " + selectedItem);
 		this.setSelectedItem(selectedItem);
 	    } else {
 		this.setSelectedItem(defaultLanguageDropDownValue);

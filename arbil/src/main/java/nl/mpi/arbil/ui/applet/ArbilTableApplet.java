@@ -17,7 +17,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 
     private BugCatcher bugCatcher;
     private DataNodeLoader dataNodeLoader;
-    
+
     @Override
     public void init() {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
@@ -54,23 +54,23 @@ public class ArbilTableApplet extends javax.swing.JApplet {
     }
 
     private void addShowOnlyColumnsToTable(String showColumnsString) {
-	if (showColumnsString != null) {
+	if (showColumnsString != null && showColumnsString.trim().length() > 0) {
 	    for (String currentshowColumns : showColumnsString.split(",")) {
-		arbilTableModel.getFieldView().addShowOnlyColumn(currentshowColumns);
+		arbilTableModel.getFieldView().addShowOnlyColumn(currentshowColumns.trim());
 	    }
 	}
     }
 
     private void addChildNodesToTable(String childNodesString) {
-	if (childNodesString != null) {
+	if (childNodesString != null && childNodesString.trim().length() > 0) {
 	    for (String currentChildNode : childNodesString.split(",")) {
-		arbilTableModel.addChildTypeToDisplay(currentChildNode);
+		arbilTableModel.addChildTypeToDisplay(currentChildNode.trim());
 	    }
 	}
     }
 
     private void addHighlightToTable(String highlightableTextString) {
-	if (highlightableTextString != null) {
+	if (highlightableTextString != null && highlightableTextString.length() > 0) {
 	    for (String highlightText : highlightableTextString.split(",")) {
 		arbilTableModel.highlightMatchingText(highlightText);
 	    }

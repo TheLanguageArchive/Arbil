@@ -110,7 +110,10 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	try {
 	    ApplicationVersion appVersion = versionManager.getApplicationVersion();
 	    // TODO: the clas path specified here needs to be dynamically generated
-	    String embedTagString = "<APPLET CODEBASE=\"http://www.mpi.nl/tg/j2se/jnlp/arbil/\" CODE=\"nl.mpi.arbil.ArbilTableApplet.class\" ARCHIVE=\"arbil-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".jar,lib/corpusstructure-1.6.1.jar,lib/imdiapi-1.0.6.jar,lib/log4j-1.2.14.jar,lib/saxon8.jar,lib/saxon8-dom.jar,lib/typecheck-1.5.16185.jar,lib/xalan-2.6.0.jar,lib/xercesImpl-2.9.0.jar\"";
+	    String embedTagString = "<APPLET CODEBASE=\"http://www.mpi.nl/tg/j2se/jnlp/arbil/\" "
+	    //String embedTagString = "<APPLET CODEBASE=\"/Users/twagoo/Desktop/arbil-build-2.4.x/\" "
+		    + " CODE=\"nl.mpi.arbil.ui.applet.ArbilTableApplet.class\" ARCHIVE=\"arbil-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision
+		    + ".jar,lib/corpusstructure-api-1.7.3.jar,lib/mpi-util-1.0.0.jar,lib/imdi-api-1.1.2.jar,lib/log4j-1.2.14.jar,lib/saxon-8.7.jar,lib/saxon-dom-8.7.jar,lib/typechecker-1.6.5.jar,lib/xalan-2.7.1.jar,lib/xercesImpl-2.9.0.jar,lib/xmlbeans-2.4.0.jar\"";
 	    embedTagString = embedTagString + " WIDTH=" + tableWidth + " HEIGHT=" + tableHeight + " >\n";
 	    embedTagString = embedTagString + "  <PARAM NAME=\"ImdiFileList\" VALUE=\"" + joinArray(this.getArbilDataNodesURLs()) + "\">\n";
 	    embedTagString = embedTagString + "  <PARAM NAME=\"ShowOnlyColumns\" VALUE=\"" + joinArray(getColumnNames()) + "\">\n";
