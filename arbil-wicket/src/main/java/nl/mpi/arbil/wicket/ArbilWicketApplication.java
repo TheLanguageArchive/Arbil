@@ -48,7 +48,6 @@ public class ArbilWicketApplication extends WebApplication {
      */
     public SessionStorage newSessionStorage() {
 	ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
-	sessionStorage.setBugCatcher(injector.getBugCatcher());
 	sessionStorage.setMessageDialogHandler(injector.getMessageDialogHandler());
 	sessionStorage.setWindowManager(injector.getWindowManager());
 	sessionStorage.setTreeHelper(injector.getTreeHelper());
@@ -61,7 +60,7 @@ public class ArbilWicketApplication extends WebApplication {
      * @return New treehelper object
      */
     public TreeHelper newTreeHelper(final SessionStorage sessionStorage) {
-	TreeHelper th = new ArbilWicketTreeHelper(injector.getMessageDialogHandler(), injector.getBugCatcher(), sessionStorage);
+	TreeHelper th = new ArbilWicketTreeHelper(injector.getMessageDialogHandler(), sessionStorage);
 	return th;
     }
 
@@ -71,7 +70,7 @@ public class ArbilWicketApplication extends WebApplication {
      * @return New DataNodeLoader instance
      */
     DataNodeLoader newDataNodeLoader(ArbilWicketSession session, SessionStorage sessionStorage, TreeHelper treeHelper, MimeHashQueue mimeHashQueue) {
-	DataNodeLoader loader = new ArbilWicketDataNodeLoader(injector.getBugCatcher(), injector.getMessageDialogHandler(), sessionStorage, mimeHashQueue, treeHelper);
+	DataNodeLoader loader = new ArbilWicketDataNodeLoader(injector.getMessageDialogHandler(), sessionStorage, mimeHashQueue, treeHelper);
 	if (treeHelper instanceof AbstractTreeHelper) {
 	    ((AbstractTreeHelper) treeHelper).setDataNodeLoader(loader);
 	}
@@ -100,7 +99,6 @@ public class ArbilWicketApplication extends WebApplication {
 		cleanupSessionInThread();
 	    }
 	};
-	newHashQueue.setBugCatcher(injector.getBugCatcher());
 	newHashQueue.setDataNodeLoader(injector.getDataNodeLoader());
 	newHashQueue.setMessageDialogHandler(injector.getMessageDialogHandler());
 	newHashQueue.startMimeHashQueueThread();

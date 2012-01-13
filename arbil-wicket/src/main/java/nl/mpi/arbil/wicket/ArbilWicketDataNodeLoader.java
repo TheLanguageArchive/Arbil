@@ -8,7 +8,6 @@ import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.DataNodeLoaderThreadManager;
 import nl.mpi.arbil.data.DefaultDataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
@@ -19,9 +18,9 @@ import nl.mpi.arbil.util.TreeHelper;
  */
 public class ArbilWicketDataNodeLoader extends DefaultDataNodeLoader {
 
-    public ArbilWicketDataNodeLoader(BugCatcher bugCatcher, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
+    public ArbilWicketDataNodeLoader(MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	super(new DataNodeLoaderThreadManager());
-	setDataNodeService(new ArbilDataNodeService(bugCatcher, this, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper));
+	setDataNodeService(new ArbilDataNodeService(this, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper));
 	setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", getThreadManager().isSchemaCheckLocalFiles()));
     }
 }
