@@ -6,10 +6,10 @@ import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.arbil.util.TreeHelper;
 
 /*
  * ArbilApplet2.java
@@ -22,10 +22,7 @@ public class ArbilApplet2 extends JApplet {
     private ArbilMenuBar arbilMenuBar;
     private DataNodeLoader dataNodeLoader;
 
-    private void initComponents() {
-
-	ArbilDesktopInjector injector = new ArbilDesktopInjector();
-	injector.injectHandlers();
+    private void initComponents(ArbilDesktopInjector injector) {
 	dataNodeLoader = injector.getDataNodeLoader();
 	mainSplitPane = new javax.swing.JSplitPane();
 	mainSplitPane.setName("mainSplitPane");
@@ -54,6 +51,11 @@ public class ArbilApplet2 extends JApplet {
 //        }
     }
 
+    private void initApplication(TreeHelper treeHelper, ArbilMimeHashQueue hashQueue) {
+	treeHelper.init();
+	hashQueue.init();
+    }
+
     /**
      * Initialization method that will be called after the applet is loaded
      * into the browser.
@@ -65,11 +67,13 @@ public class ArbilApplet2 extends JApplet {
 
 		public void run() {
 		    final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
-		    new ArbilDesktopInjector().injectHandlers();
+		    ArbilDesktopInjector injector = new ArbilDesktopInjector();
+		    injector.injectHandlers(versionManager);
 		    System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 		    System.setProperty("apple.awt.graphics.UseQuartz", "true");
 		    System.setProperty("apple.laf.useScreenMenuBar", "true");
-		    initComponents();
+		    initApplication(injector.getTreeHelper(), injector.getMimeHashQueue());
+		    initComponents(injector);
 		}
 	    });
 	} catch (Exception e) {
