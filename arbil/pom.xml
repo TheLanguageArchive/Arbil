@@ -67,6 +67,7 @@
 		<version>2.3.1</version>
 		<configuration>
 		    <finalName>${output.jarname}</finalName>
+		    <outputDirectory>${output.directory}</outputDirectory>
 		    <archive>
 			<manifest>
 			    <addClasspath>true</addClasspath>
