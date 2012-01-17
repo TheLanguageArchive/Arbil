@@ -14,7 +14,7 @@ public class ArbilVersion extends ApplicationVersion {
 	    applicationIconName = properties.getProperty("application.iconName");
 	    currentMajor = properties.getProperty("application.majorVersion");
 	    currentMinor = properties.getProperty("application.minorVersion");
-	    currentRevision = properties.getProperty("application.currentRevision");
+	    currentRevision = properties.getProperty("application.revision");
 	    lastCommitDate = properties.getProperty("application.lastCommitDate");
 	    compileDate = properties.getProperty("application.compileDate");
 	    currentVersionFile = properties.getProperty("application.currentVersionFile");
