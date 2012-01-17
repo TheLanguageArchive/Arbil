@@ -45,8 +45,6 @@ public interface SessionStorage {
      */
     File getFavouritesDir();
 
-    String[] getLocationOptions();
-
     URI getNewArbilFileName(File parentDirectory, String nodeType);
 
     URI getOriginatingUri(URI locationInCacheURI);

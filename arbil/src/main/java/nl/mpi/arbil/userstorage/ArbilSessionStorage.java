@@ -26,7 +26,6 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -79,6 +78,14 @@ public class ArbilSessionStorage implements SessionStorage {
     private File localCacheDirectory = null;
     private boolean trackTableSelection = false;
     private boolean useLanguageIdInColumnName = false;
+
+    /**
+     * These get used to construct absolute working directory path candidates
+     * @return Application directory alternatives (relative)
+     */
+    protected String[] getAppDirectoryAlternatives() {
+	return new String[]{".arbil", ".linorg"};
+    }
 
     public ArbilSessionStorage() {
 
@@ -144,15 +151,15 @@ public class ArbilSessionStorage implements SessionStorage {
 	useLanguageIdInColumnName = loadBoolean("useLanguageIdInColumnName", false);
 	System.out.println("storageDirectory: " + storageDirectory);
 
-	checkForMultipleStorageDirectories();
+	checkForMultipleStorageDirectories(storageDirectoryArray);
 	HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
     }
 
-    private void checkForMultipleStorageDirectories() {
+    private void checkForMultipleStorageDirectories(String[] locationOptions) {
 	// look for any additional storage directories
 	int foundDirectoryCount = 0;
 	StringBuilder storageDirectoryMessageString = new StringBuilder();
-	for (String currentStorageDirectory : getLocationOptions()) {
+	for (String currentStorageDirectory : locationOptions) {
 	    File storageFile = new File(currentStorageDirectory);
 	    if (storageFile.exists()) {
 		foundDirectoryCount++;
@@ -253,40 +260,30 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
     }
 
-    public String[] getLocationOptions() {
-//        for (Map.Entry<?, ?> e : System.getProperties().entrySet()) {
-//            System.out.println(String.format("%s = %s", e.getKey(), e.getValue()));
-//        }
-//        System.out.println("HOMEDRIVE" + System.getenv("HOMEDRIVE"));
-//        System.out.println("HOMEPATH" + System.getenv("HOMEPATH"));
-	String[] locationOptions = new String[]{
+    protected String[] getLocationOptions() {
+	List<String> locationOptions = new ArrayList<String>();
+	for (String appDir : getAppDirectoryAlternatives()) {
 	    // System.getProperty("user.dir") is unreliable in the case of Vista and possibly others
-	    //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519127
-	    System.getProperty("user.home") + File.separatorChar + "Local Settings" + File.separatorChar + "Application Data" + File.separatorChar + ".arbil" + File.separatorChar,
-	    System.getenv("APPDATA") + File.separatorChar + ".arbil" + File.separatorChar,
-	    //                    System.getProperty("user.home") + File.separatorChar + "directory with spaces" + File.separatorChar + ".arbil" + File.separatorChar,
-	    System.getProperty("user.home") + File.separatorChar + ".arbil" + File.separatorChar,
-	    System.getenv("USERPROFILE") + File.separatorChar + ".arbil" + File.separatorChar,
-	    System.getProperty("user.dir") + File.separatorChar + ".arbil" + File.separatorChar,
-	    // keep checking for linorg for users with old data
-	    System.getenv("APPDATA") + File.separatorChar + ".linorg" + File.separatorChar,
-	    System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar,
-	    System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
-	    System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
-	};
+	    locationOptions.add(System.getProperty("user.home") + File.separatorChar + "Local Settings" + File.separatorChar + "Application Data" + File.separatorChar + appDir + File.separatorChar);
+	    locationOptions.add(System.getenv("APPDATA") + File.separatorChar + appDir + File.separatorChar);
+	    locationOptions.add(System.getProperty("user.home") + File.separatorChar + appDir + File.separatorChar);
+	    locationOptions.add(System.getenv("USERPROFILE") + File.separatorChar + appDir + File.separatorChar);
+	    locationOptions.add(System.getProperty("user.dir") + File.separatorChar + appDir + File.separatorChar);
+	}
+
 	List<String> uniqueArray = new ArrayList<String>();
-	uniqueArray.addAll(Arrays.asList(locationOptions));
+	uniqueArray.addAll(locationOptions);
 	for (Iterator<String> iterator = uniqueArray.iterator(); iterator.hasNext();) {
 	    String element = iterator.next();
 	    if (element.startsWith("null")) {
 		iterator.remove();
 	    }
 	}
-	locationOptions = uniqueArray.toArray(new String[]{});
+	locationOptions = uniqueArray;
 	for (String currentLocationOption : locationOptions) {
 	    System.out.println("LocationOption: " + currentLocationOption);
 	}
-	return locationOptions;
+	return locationOptions.toArray(new String[]{});
     }
 
 //    public void showDirectorySelectionDialogue() {
@@ -570,7 +567,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	saveConfig(configObject);
     }
 
-    public boolean loadBoolean(String filename, boolean defaultValue) {
+    public final boolean loadBoolean(String filename, boolean defaultValue) {
 	Properties configObject = getConfig();
 	String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
 	if (stringProperty == null) {
