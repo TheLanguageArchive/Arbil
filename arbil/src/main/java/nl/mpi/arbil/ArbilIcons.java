@@ -28,7 +28,7 @@ public class ArbilIcons {
 	versionManager = versionManagerInstance;
     }
     // the applicationIconName is set by the build script and will be in the jar file of the main class which might not be the arbil jar, so we use the ApplicationVersion class to access the correct jar file for the application icon.
-    public ImageIcon linorgIcon = new ImageIcon(versionManager.getApplicationVersion().getClass().getResource(versionManager.getApplicationVersion().applicationIconName));
+    public ImageIcon linorgIcon = new ImageIcon(versionManager.getApplicationVersion().getClass().getResource("/nl/mpi/arbil/resources/icons/" + versionManager.getApplicationVersion().applicationIconName));
     // basic icons used in the gui
     public ImageIcon serverIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
     public ImageIcon directoryIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));

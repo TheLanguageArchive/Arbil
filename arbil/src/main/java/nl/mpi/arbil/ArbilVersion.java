@@ -10,14 +10,14 @@ public class ArbilVersion extends ApplicationVersion {
 	Properties properties = new Properties();
 	try {
 	    properties.load(getClass().getResourceAsStream("/version.properties"));
-	    applicationTitle = properties.getProperty("applicationTitle");
-	    applicationIconName = properties.getProperty("applicationIconName");
-	    currentMajor = properties.getProperty("currentMajor");
-	    currentMinor = properties.getProperty("currentMinor");
-	    currentRevision = properties.getProperty("currentRevision");
-	    lastCommitDate = properties.getProperty("lastCommitDate");
-	    compileDate = properties.getProperty("compileDate");
-	    currentVersionFile = properties.getProperty("currentVersionFile");
+	    applicationTitle = properties.getProperty("application.title");
+	    applicationIconName = properties.getProperty("application.iconName");
+	    currentMajor = properties.getProperty("application.majorVersion");
+	    currentMinor = properties.getProperty("application.minorVersion");
+	    currentRevision = properties.getProperty("application.currentRevision");
+	    lastCommitDate = properties.getProperty("application.lastCommitDate");
+	    compileDate = properties.getProperty("application.compileDate");
+	    currentVersionFile = properties.getProperty("application.currentVersionFile");
 	} catch (IOException ex) {
 	    System.err.println("Version properties could not be read!");
 	}
