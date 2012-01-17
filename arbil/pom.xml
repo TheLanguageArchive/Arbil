@@ -67,7 +67,6 @@
 		<version>2.3.1</version>
 		<configuration>
 		    <finalName>${output.jarname}</finalName>
-                    <outputDirectory>${output.directory}</outputDirectory>
 		    <archive>
 			<manifest>
 			    <addClasspath>true</addClasspath>
@@ -119,7 +118,7 @@
 			    <overWriteReleases>false</overWriteReleases>
 			    <overWriteSnapshots>false</overWriteSnapshots>
 			    <overWriteIfNewer>true</overWriteIfNewer>
-			    <excludeArtifactIds>log4j</excludeArtifactIds>
+			    <excludeArtifactIds>junit</excludeArtifactIds>
 			</configuration>
 		    </execution>
 		</executions>
@@ -191,7 +190,7 @@
 	<dependency>
 	    <groupId>nl.mpi</groupId>
 	    <artifactId>typechecker</artifactId>
-	    <version>1.6.4</version>
+	    <version>1.6.5</version>
 	</dependency>
 	<dependency>
 	    <groupId>nl.nikhef</groupId>
