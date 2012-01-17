@@ -119,6 +119,7 @@
 			    <overWriteReleases>false</overWriteReleases>
 			    <overWriteSnapshots>false</overWriteSnapshots>
 			    <overWriteIfNewer>true</overWriteIfNewer>
+			    <excludeArtifactIds>log4j</excludeArtifactIds>
 			</configuration>
 		    </execution>
 		</executions>
