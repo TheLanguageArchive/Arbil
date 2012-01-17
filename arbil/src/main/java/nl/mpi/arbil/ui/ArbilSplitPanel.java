@@ -137,7 +137,7 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 				arbilTable.scrollRectToVisible(arbilTable.getCellRect(minSelectedRow, 0, true));
 			    }
 			}
-			if (sessionStorage.isTrackTableSelection()) {
+			if (sessionStorage.loadBoolean("trackTableSelection", false)) {
 			    treeHelper.jumpToSelectionInTree(true, (ArbilDataNode) ((JList) e.getSource()).getSelectedValue());
 			}
 		    }
@@ -172,7 +172,7 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 		    if (maxSelectedRow != -1) {
 			imagePreview.scrollRectToVisible(imagePreview.getCellBounds(minSelectedRow, maxSelectedRow));
 		    }
-		    if (sessionStorage.isTrackTableSelection()) {
+		    if (sessionStorage.loadBoolean("trackTableSelection", false)) {
 			treeHelper.jumpToSelectionInTree(true, arbilTable.getDataNodeForSelection());
 		    }
 		    selectionChangeInProcess = false;

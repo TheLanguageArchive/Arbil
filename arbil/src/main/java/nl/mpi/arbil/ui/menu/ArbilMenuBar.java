@@ -557,13 +557,13 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	optionsMenu.add(schemaCheckLocalFiles);
 
-	trackTableSelectionCheckBoxMenuItem.setSelected(sessionStorage.isTrackTableSelection());
+	trackTableSelectionCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("trackTableSelection", false));
 	trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
 	trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    sessionStorage.setTrackTableSelection(trackTableSelectionCheckBoxMenuItem.getState());
+		    sessionStorage.saveBoolean("useLanguageIdInColumnName", trackTableSelectionCheckBoxMenuItem.getState());
 		    sessionStorage.saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
@@ -573,18 +573,17 @@ public class ArbilMenuBar extends JMenuBar {
 	trackTableSelectionCheckBoxMenuItem.setEnabled(false);
 	optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
 
-	useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.isUseLanguageIdInColumnName());
+	useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("useLanguageIdInColumnName", false));
 	useLanguageIdInColumnNameCheckBoxMenuItem.setText("Show Language in Column Name");
 	useLanguageIdInColumnNameCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    dialogHandler.offerUserToSaveChanges();
-		    sessionStorage.setUseLanguageIdInColumnName(useLanguageIdInColumnNameCheckBoxMenuItem.getState());
 		    sessionStorage.saveBoolean("useLanguageIdInColumnName", useLanguageIdInColumnNameCheckBoxMenuItem.isSelected());
 		    dataNodeLoader.requestReloadAllNodes();
 		} catch (Exception ex) {
-		    useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.isUseLanguageIdInColumnName());
+		    useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("useLanguageIdInColumnName", false));
 		}
 	    }
 	});

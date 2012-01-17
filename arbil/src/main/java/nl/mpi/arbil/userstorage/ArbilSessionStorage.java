@@ -76,8 +76,6 @@ public class ArbilSessionStorage implements SessionStorage {
     }
     private File storageDirectory = null;
     private File localCacheDirectory = null;
-    private boolean trackTableSelection = false;
-    private boolean useLanguageIdInColumnName = false;
 
     /**
      * These get used to construct absolute working directory path candidates
@@ -88,7 +86,11 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     public ArbilSessionStorage() {
+	HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
+    }
 
+    private File determineStorageDirectory() throws RuntimeException {
+	File storageDirectoryFile = null;
 	String storageDirectoryArray[] = getLocationOptions();
 
 	// look for an existing storage directory
@@ -96,13 +98,13 @@ public class ArbilSessionStorage implements SessionStorage {
 	    File storageFile = new File(currentStorageDirectory);
 	    if (storageFile.exists()) {
 		System.out.println("existing storage directory found: " + currentStorageDirectory);
-		storageDirectory = storageFile;
+		storageDirectoryFile = storageFile;
 		break;
 	    }
 	}
 
 	String testedStorageDirectories = "";
-	if (storageDirectory == null) {
+	if (storageDirectoryFile == null) {
 	    for (String currentStorageDirectory : storageDirectoryArray) {
 		if (!currentStorageDirectory.startsWith("null")) {
 		    File storageFile = new File(currentStorageDirectory);
@@ -112,19 +114,19 @@ public class ArbilSessionStorage implements SessionStorage {
 			    logError("failed to create: " + currentStorageDirectory, null);
 			} else {
 			    System.out.println("created new storage directory: " + currentStorageDirectory);
-			    storageDirectory = storageFile;
+			    storageDirectoryFile = storageFile;
 			    break;
 			}
 		    }
 		}
 	    }
 	}
-	if (storageDirectory == null) {
+	if (storageDirectoryFile == null) {
 	    logError("Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", null);
 	    System.exit(-1);
 	} else {
 	    try {
-		File testFile = File.createTempFile("testfile", ".tmp", storageDirectory);
+		File testFile = File.createTempFile("testfile", ".tmp", storageDirectoryFile);
 		boolean success = testFile.exists();
 		if (!success) {
 		    success = testFile.createNewFile();
@@ -147,12 +149,10 @@ public class ArbilSessionStorage implements SessionStorage {
 		throw new RuntimeException("Exception while testing working directory writability", exception);
 	    }
 	}
-	trackTableSelection = loadBoolean("trackTableSelection", false);
-	useLanguageIdInColumnName = loadBoolean("useLanguageIdInColumnName", false);
-	System.out.println("storageDirectory: " + storageDirectory);
-
+	System.out.println("storageDirectory: " + storageDirectoryFile);
 	checkForMultipleStorageDirectories(storageDirectoryArray);
-	HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
+
+	return storageDirectoryFile;
     }
 
     private void checkForMultipleStorageDirectories(String[] locationOptions) {
@@ -396,7 +396,7 @@ public class ArbilSessionStorage implements SessionStorage {
      * @return File pointing to the favourites directory
      */
     public File getFavouritesDir() {
-	File favDirectory = new File(storageDirectory, "favourites"); // storageDirectory already has the file separator appended
+	File favDirectory = new File(getStorageDirectory(), "favourites"); // storageDirectory already has the file separator appended
 	boolean favDirExists = favDirectory.exists();
 	if (!favDirExists) {
 	    if (!favDirectory.mkdir()) {
@@ -423,10 +423,10 @@ public class ArbilSessionStorage implements SessionStorage {
 		    File localWorkingDirectory = (File) loadObject("cacheDirectory");
 		    localCacheDirectory = localWorkingDirectory;
 		} catch (Exception exception) {
-		    if (new File(storageDirectory, "imdicache").exists()) {
-			localCacheDirectory = new File(storageDirectory, "imdicache");
+		    if (new File(getStorageDirectory(), "imdicache").exists()) {
+			localCacheDirectory = new File(getStorageDirectory(), "imdicache");
 		    } else {
-			localCacheDirectory = new File(storageDirectory, "ArbilWorkingFiles");
+			localCacheDirectory = new File(getStorageDirectory(), "ArbilWorkingFiles");
 		    }
 		}
 		saveString("cacheDirectory", localCacheDirectory.getAbsolutePath());
@@ -450,7 +450,7 @@ public class ArbilSessionStorage implements SessionStorage {
      */
     public void saveObject(Serializable object, String filename) throws IOException {
 	System.out.println("saveObject: " + filename);
-	ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(new File(storageDirectory, filename)));
+	ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(new File(getStorageDirectory(), filename)));
 	objstream.writeObject(object);
 	objstream.close();
     }
@@ -465,7 +465,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	System.out.println("loadObject: " + filename);
 	Object object = null;
 	// this must be allowed to throw so don't do checks here
-	ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(storageDirectory, filename)));
+	ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(getStorageDirectory(), filename)));
 	object = objstream.readObject();
 	objstream.close();
 	if (object == null) {
@@ -476,7 +476,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
     public String[] loadStringArray(String filename) throws IOException {
 	// read the location list from a text file that admin-users can read and hand edit if they really want to
-	File currentConfigFile = new File(storageDirectory, filename + ".config");
+	File currentConfigFile = new File(getStorageDirectory(), filename + ".config");
 	if (currentConfigFile.exists()) {
 	    ArrayList<String> stringArrayList = new ArrayList<String>();
 	    FileInputStream fstream = new FileInputStream(currentConfigFile);
@@ -518,8 +518,8 @@ public class ArbilSessionStorage implements SessionStorage {
 
     public void saveStringArray(String filename, String[] storableValue) throws IOException {
 	// save the location list to a text file that admin-users can read and hand edit if they really want to
-	File destinationConfigFile = new File(storageDirectory, filename + ".config");
-	File tempConfigFile = new File(storageDirectory, filename + ".config.tmp");
+	File destinationConfigFile = new File(getStorageDirectory(), filename + ".config");
+	File tempConfigFile = new File(getStorageDirectory(), filename + ".config.tmp");
 
 	Writer out = null;
 	try {
@@ -587,7 +587,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	Properties propertiesObject = new Properties();
 	FileInputStream propertiesInStream = null;
 	try {
-	    propertiesInStream = new FileInputStream(new File(storageDirectory, "arbil.config"));
+	    propertiesInStream = new FileInputStream(new File(getStorageDirectory(), "arbil.config"));
 	    propertiesObject.load(propertiesInStream);
 	} catch (IOException ioe) {
 	    // file not found so create the file
@@ -616,7 +616,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	FileOutputStream propertiesOutputStream = null;
 	try {
 	    //new OutputStreamWriter
-	    propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
+	    propertiesOutputStream = new FileOutputStream(new File(getStorageDirectory(), "arbil.config"));
 	    if (canUseUTFOutputStreamWriter) {
 		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, "UTF8");
 		configObject.store(propertiesOutputStreamWriter, null);
@@ -963,36 +963,11 @@ public class ArbilSessionStorage implements SessionStorage {
     /**
      * @return the storageDirectory
      */
-    public File getStorageDirectory() {
+    public synchronized File getStorageDirectory() {
+	if (storageDirectory == null) {
+	    storageDirectory = determineStorageDirectory();
+	}
 	return storageDirectory;
-    }
-
-    /**
-     * @return the trackTableSelection
-     */
-    public boolean isTrackTableSelection() {
-	return trackTableSelection;
-    }
-
-    /**
-     * @param trackTableSelection the trackTableSelection to set
-     */
-    public void setTrackTableSelection(boolean trackTableSelection) {
-	this.trackTableSelection = trackTableSelection;
-    }
-
-    /**
-     * @return the useLanguageIdInColumnName
-     */
-    public boolean isUseLanguageIdInColumnName() {
-	return useLanguageIdInColumnName;
-    }
-
-    /**
-     * @param useLanguageIdInColumnName the useLanguageIdInColumnName to set
-     */
-    public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
-	this.useLanguageIdInColumnName = useLanguageIdInColumnName;
     }
 
     public File getTypeCheckerConfig() {

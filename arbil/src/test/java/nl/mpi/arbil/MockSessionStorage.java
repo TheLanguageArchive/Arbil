@@ -423,23 +423,7 @@ public class MockSessionStorage implements SessionStorage {
 	}
 	return tempDir;
     }
-
-    public boolean isTrackTableSelection() {
-	return false;
-    }
-
-    public void setTrackTableSelection(boolean trackTableSelection) {
-	log.log(Level.INFO, "setTrackTableSelection");
-    }
-
-    public boolean isUseLanguageIdInColumnName() {
-	return false;
-    }
-
-    public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
-	log.log(Level.INFO, "setUseLanguageIdInColumnName");
-    }
-
+    
     public File getTypeCheckerConfig() {
 	return null;
     }

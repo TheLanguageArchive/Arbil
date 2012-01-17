@@ -129,26 +129,6 @@ public interface SessionStorage {
     public File getStorageDirectory();
 
     /**
-     * @return the trackTableSelection
-     */
-    public boolean isTrackTableSelection();
-
-    /**
-     * @param trackTableSelection the trackTableSelection to set
-     */
-    public void setTrackTableSelection(boolean trackTableSelection);
-
-    /**
-     * @return the useLanguageIdInColumnName
-     */
-    public boolean isUseLanguageIdInColumnName();
-
-    /**
-     * @param useLanguageIdInColumnName the useLanguageIdInColumnName to set
-     */
-    public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName);
-
-    /**
      * @return Custom TypeChecker config file, or null if no such file exists
      */
     public File getTypeCheckerConfig();
