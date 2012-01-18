@@ -101,7 +101,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		addBooleanAnd("booleanAnd", item);
 		addNotEquals("notEqual", item);
 
-		item.add(new DropDownChoice<String>("nodeType", Arrays.asList(ArbilNodeSearchTerm.NODE_TYPES)));
+		item.add(new DropDownChoice<String>("nodeType", ArbilNodeSearchTerm.NODE_TYPES));
 
 		item.add(new TextField("searchFieldName"));
 		item.add(new TextField("searchString"));

@@ -38,7 +38,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 
 	this.setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
 
-	booleanComboBox.setModel(new javax.swing.DefaultComboBoxModel(ArbilNodeSearchTerm.BOOLEAN_TYPES));
+	booleanComboBox.setModel(new javax.swing.DefaultComboBoxModel(ArbilNodeSearchTerm.BOOLEAN_TYPES.toArray()));
 	booleanComboBox.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -52,7 +52,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 	this.add(booleanComboBox);
 
 	nodeTypeComboBox.setModel(
-		new javax.swing.DefaultComboBoxModel(NODE_TYPES));
+		new javax.swing.DefaultComboBoxModel(NODE_TYPES.toArray()));
 	nodeTypeComboBox.addActionListener(
 		new java.awt.event.ActionListener() {
 

@@ -1,14 +1,18 @@
 package nl.mpi.arbil.search;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Search term that can be combined into a local or remote search
  * @see nl.mpi.arbil.search.ArbilSearch
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public interface ArbilNodeSearchTerm {
+
     public static final String BOOLEAN_AND = "and";
     public static final String BOOLEAN_OR = "or";
-
     public static final String NODE_TYPE_ACTOR = "Actor";
     public static final String NODE_TYPE_ALL = "All";
     public static final String NODE_TYPE_CATALOGUE = "Catalogue";
@@ -18,9 +22,8 @@ public interface ArbilNodeSearchTerm {
     public static final String NODE_TYPE_SESSION = "Session";
     public static final String NODE_TYPE_SOURCE = "Source";
     public static final String NODE_TYPE_WRITTENRESOURCE = "WrittenResource";
-
-    public static final String[] NODE_TYPES = new String[]{NODE_TYPE_ALL, NODE_TYPE_CORPUS, NODE_TYPE_SESSION, NODE_TYPE_CATALOGUE, NODE_TYPE_ACTOR, NODE_TYPE_LANGUAGE, NODE_TYPE_MEDIAFILE, NODE_TYPE_SOURCE, NODE_TYPE_WRITTENRESOURCE};
-    public static final String[] BOOLEAN_TYPES = new String[]{BOOLEAN_AND, BOOLEAN_OR};
+    public static final List<String> NODE_TYPES = Collections.unmodifiableList(Arrays.asList(NODE_TYPE_ALL, NODE_TYPE_CORPUS, NODE_TYPE_SESSION, NODE_TYPE_CATALOGUE, NODE_TYPE_ACTOR, NODE_TYPE_LANGUAGE, NODE_TYPE_MEDIAFILE, NODE_TYPE_SOURCE, NODE_TYPE_WRITTENRESOURCE));
+    public static final List<String> BOOLEAN_TYPES = Collections.unmodifiableList(Arrays.asList(BOOLEAN_AND, BOOLEAN_OR));
     public static String COLUMN_FIELD_MESSAGE = "<column (optional)>";
     public static String VALUE_FIELD_MESSAGE = "<value (optional)>";
 
