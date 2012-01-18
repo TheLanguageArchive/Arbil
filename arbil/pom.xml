@@ -16,11 +16,11 @@
     </scm>
     
     <properties>
-	<arbil.majorVersion>${application.majorVersion}</arbil.majorVersion>
-	<arbil.minorVersion>${application.minorVersion}</arbil.minorVersion>
-	<!-- For pretesting or testing, prefix with dash (e.g. -pretesting). For stable, leave blank -->
-	<arbil.branch>${application.branch}</arbil.branch>
-	<arbil.application-title>${application.title}</arbil.application-title>
+	<arbil.majorVersion>2</arbil.majorVersion>
+	<arbil.minorVersion>4</arbil.minorVersion>
+	<arbil.branch>pretesting</arbil.branch>
+	<arbil.application-title>Arbil (pretesting)</arbil.application-title>
+	
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	<output.jarname>${project.build.finalName}</output.jarname>
 	<output.directory>${project.build.directory}</output.directory>
