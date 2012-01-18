@@ -108,22 +108,6 @@ public class ArbilWicketSessionStorage implements SessionStorage {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean isTrackTableSelection() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setTrackTableSelection(boolean trackTableSelection) {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public boolean isUseLanguageIdInColumnName() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     public File getTypeCheckerConfig() {
 	throw new UnsupportedOperationException("Not supported yet.");
     }

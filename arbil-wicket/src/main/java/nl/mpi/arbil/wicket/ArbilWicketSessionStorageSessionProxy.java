@@ -38,10 +38,6 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 	return getSessionStorage().getFavouritesDir();
     }
 
-    public String[] getLocationOptions() {
-	return getSessionStorage().getLocationOptions();
-    }
-
     public URI getNewArbilFileName(File parentDirectory, String nodeType) {
 	return getSessionStorage().getNewArbilFileName(parentDirectory, nodeType);
     }
@@ -116,22 +112,6 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 
     public File getStorageDirectory() {
 	return getSessionStorage().getStorageDirectory();
-    }
-
-    public boolean isTrackTableSelection() {
-	return getSessionStorage().isTrackTableSelection();
-    }
-
-    public void setTrackTableSelection(boolean trackTableSelection) {
-	getSessionStorage().setTrackTableSelection(trackTableSelection);
-    }
-
-    public boolean isUseLanguageIdInColumnName() {
-	return getSessionStorage().isUseLanguageIdInColumnName();
-    }
-
-    public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
-	getSessionStorage().setUseLanguageIdInColumnName(useLanguageIdInColumnName);
     }
 
     public File getTypeCheckerConfig() {
