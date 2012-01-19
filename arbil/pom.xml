@@ -69,11 +69,12 @@
 		    <finalName>${output.jarname}</finalName>
 		    <outputDirectory>${output.directory}</outputDirectory>
 		    <archive>
-			<manifest>
-			    <addClasspath>true</addClasspath>
-			    <mainClass>nl.mpi.arbil.ArbilMain</mainClass>
-			</manifest>
-		    </archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>${application.mainClass}</mainClass>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
 		    <excludes>
 			<exclude>nl/mpi/arbil/resources/**/readme.txt</exclude>
 			<exclude>nl/mpi/arbil/resources/icons/svg-files/**</exclude>
