@@ -11,12 +11,10 @@ import java.nio.channels.FileChannel;
 import java.util.HashSet;
 import java.util.Set;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.junit.After;
@@ -115,28 +113,20 @@ public abstract class ArbilTest {
 	out.deleteOnExit();
 	return out.toURI();
     }
+    ArbilTestInjector injector;
 
     protected void inject() throws Exception {
-	ArbilTestInjector injector = new ArbilTestInjector();
-	injector.injectVersionManager(new ApplicationVersionManager(new ArbilVersion()));
-	injector.injectDialogHandler(getDialogHandler());
-	injector.injectSessionStorage(getSessionStorage());
-	injector.injectDataNodeLoader(getDataNodeLoader());
-	injector.injectTreeHelper(getTreeHelper());
+	injector = new ArbilTestInjector();
+	injector.injectHandlers(getSessionStorage());
+//	injector.injectVersionManager(new ApplicationVersionManager(new ArbilVersion()));
+//	injector.injectDialogHandler(getDialogHandler());
+//	injector.injectSessionStorage(getSessionStorage());
+//	injector.injectDataNodeLoader(getDataNodeLoader());
+//	injector.injectTreeHelper(getTreeHelper());
     }
 
     protected synchronized DataNodeLoader getDataNodeLoader() {
-	if (dataNodeLoader == null) {
-	    dataNodeLoader = newDataNodeLoader();
-	}
-	return dataNodeLoader;
-    }
-
-    private synchronized DataNodeLoader newDataNodeLoader() {
-	ArbilDataNodeLoader loader = new ArbilDataNodeLoader(getDialogHandler(), getSessionStorage(), getMimeHashQueue(), getTreeHelper());
-	getMimeHashQueue().setDataNodeLoader(loader);
-	getTreeHelper().setDataNodeLoader(loader);
-	return loader;
+	return injector.dataNodeLoader;
     }
 
     protected synchronized DefaultMimeHashQueue getMimeHashQueue() {
@@ -153,11 +143,7 @@ public abstract class ArbilTest {
     }
 
     protected synchronized ArbilTreeHelper getTreeHelper() {
-	if (treeHelper == null) {
-	    treeHelper = newTreeHelper();
-	    treeHelper.init();
-	}
-	return treeHelper;
+	return injector.treeHelper;
     }
 
     protected synchronized SessionStorage getSessionStorage() {
@@ -172,12 +158,6 @@ public abstract class ArbilTest {
 	    dialogHandler = newDialogHandler();
 	}
 	return dialogHandler;
-    }
-
-    protected ArbilTreeHelper newTreeHelper() {
-	ArbilTreeHelper newTreeHelper = new ArbilTreeHelper(getSessionStorage(), getDialogHandler());
-	newTreeHelper.init();
-	return newTreeHelper;
     }
 
     protected SessionStorage newSessionStorage() {
