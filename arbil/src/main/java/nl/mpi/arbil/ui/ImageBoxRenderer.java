@@ -39,7 +39,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     boolean imageMagickFound = true;
     String ffmpegPath = null;
     String imageMagickPath = null;
-    private List<String> searchPath = Arrays.asList("ImageMagick\\", "/opt/local/bin/", "/usr/local/bin/", "/sw/bin/convert", "");
+    private List<String> searchPath = Arrays.asList("utils\\ImageMagick\\", "/opt/local/bin/", "/usr/local/bin/", "/sw/bin/convert", "");
     //    boolean loadedMfcDlls = false;
     // the thumbnail files are stored in a temp file on disk and the file location kept in the imditreeobject
 
