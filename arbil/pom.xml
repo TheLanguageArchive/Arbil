@@ -125,26 +125,6 @@
 		</executions>
 	    </plugin>
 	    <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-release-plugin</artifactId>
-		<version>2.2.2</version>
-		<configuration>
-		    <branchBase>https://svn.mpi.nl/LAT/Arbil/tags</branchBase>
-		    <tagBase>https://svn.mpi.nl/LAT/Arbil/tags</tagBase>
-		    <branchName>${arbil.majorVersion}.${arbil.minorVersion}.${buildNumber}${arbil.branch}</branchName>
-		    <releaseVersion>${arbil.majorVersion}.${arbil.minorVersion}.${arbil.buildNumber}${arbil.branch}</releaseVersion>
-		    <developmentVersion>${arbil.majorVersion}.${arbil.minorVersion}${arbil.branch}</developmentVersion>
-		    <scmCommentPrefix />
-		    <checkModificationExcludes>
-			<param>ArbilVersion.java</param>
-			<param>pom.xml</param>
-		    </checkModificationExcludes>
-		    <remoteTagging>false</remoteTagging>
-		    <updateBranchVersions>true</updateBranchVersions>
-		    <updateWorkingCopyVersions>false</updateWorkingCopyVersions>
-		</configuration>
-	    </plugin>
-	    <plugin>
 		<groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
 		<artifactId>maven-svn-revision-number-plugin</artifactId>
 		<version>1.7</version>
@@ -162,6 +142,25 @@
 			    <prefix>arbil.version</prefix>
 			</entry>
 		    </entries>
+		</configuration>
+	    </plugin>
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-release-plugin</artifactId>
+		<version>2.2.2</version>
+		<configuration>
+		    <branchBase>https://svn.mpi.nl/LAT/Arbil/tags</branchBase>
+		    <tagBase>https://svn.mpi.nl/LAT/Arbil/tags</tagBase>
+		    <branchName>${arbil.majorVersion}.${arbil.minorVersion}.${arbil.version.revision}-${arbil.branch</branchName>
+		    <releaseVersion>${arbil.majorVersion}.${arbil.minorVersion}.${arbil.version.revision}-${arbil.branch}</releaseVersion>
+		    <developmentVersion>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}</developmentVersion>
+		    <checkModificationExcludes>
+			<param>ArbilVersion.java</param>
+			<param>pom.xml</param>
+		    </checkModificationExcludes>
+		    <remoteTagging>false</remoteTagging>
+		    <updateBranchVersions>true</updateBranchVersions>
+		    <updateWorkingCopyVersions>false</updateWorkingCopyVersions>
 		</configuration>
 	    </plugin>
 	    <plugin>
