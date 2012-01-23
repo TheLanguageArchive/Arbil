@@ -212,9 +212,8 @@ public class ArbilTemplateManager {
 	    menuItem.menuToolTip = currentString;
 	    menuItem.menuIcon = arbilIcons.clarinIcon;
 	} else if (location.startsWith("template:")) {
-	    // todo:
 	    String currentString = location.substring("template:".length());
-	    menuItem.menuText = currentString + " (not available)";
+	    menuItem.menuText = currentString;
 	    menuItem.menuAction = currentString;
 	    menuItem.menuToolTip = currentString;
 	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
