@@ -284,13 +284,15 @@ public class ArbilSessionStorage implements SessionStorage {
 	    System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
 	};
 	List<String> uniqueArray = new ArrayList<String>();
-	uniqueArray.addAll(Arrays.asList(locationOptions));
-	for (Iterator<String> iterator = uniqueArray.iterator(); iterator.hasNext();) {
-	    String element = iterator.next();
-	    if (element.startsWith("null")) {
-		iterator.remove();
+
+	for (String location : locationOptions) {
+	    if (location != null
+		    && !location.startsWith("null")
+		    && !uniqueArray.contains(location)) {
+		uniqueArray.add(location);
 	    }
 	}
+
 	locationOptions = uniqueArray.toArray(new String[]{});
 	for (String currentLocationOption : locationOptions) {
 	    System.out.println("LocationOption: " + currentLocationOption);
