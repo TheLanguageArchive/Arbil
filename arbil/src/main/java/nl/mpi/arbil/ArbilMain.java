@@ -17,6 +17,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
 
 /*
@@ -46,7 +47,7 @@ public class ArbilMain extends javax.swing.JFrame {
 		try {
 		    new ArbilMain(versionManager);
 		} catch (Exception ex) {
-		    new ArbilBugCatcher(new ArbilSessionStorage(), versionManager).logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});

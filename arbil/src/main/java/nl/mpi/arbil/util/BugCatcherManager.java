@@ -37,12 +37,16 @@ public class BugCatcherManager {
     private static class FallbackBugCatcher implements BugCatcher {
 
 	public void logError(Exception exception) {
-	    exception.printStackTrace(System.err);
+	    if (exception != null) {
+		exception.printStackTrace(System.err);
+	    }
 	}
 
 	public void logError(String messageString, Exception exception) {
 	    System.err.println(messageString);
-	    exception.printStackTrace(System.err);
+	    if (exception != null) {
+		exception.printStackTrace(System.err);
+	    }
 	}
     }
 }
