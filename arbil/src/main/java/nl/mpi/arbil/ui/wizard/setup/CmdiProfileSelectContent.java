@@ -33,7 +33,7 @@ public class CmdiProfileSelectContent extends TextInstructionWizardContent {
     public void beforeShow() {
 	profilesPanel.setVisible(true);
 	profilesPanel.populateList();
-	profilesPanel.loadProfiles(false);
+	profilesPanel.loadProfileDescriptions(false);
     }
 
     @Override

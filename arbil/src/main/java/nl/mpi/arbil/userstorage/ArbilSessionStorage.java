@@ -28,7 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
@@ -280,7 +279,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    }
 	}
 	locationOptions = uniqueArray;
-	
+
 	for (String currentLocationOption : locationOptions) {
 	    System.out.println("LocationOption: " + currentLocationOption);
 	}

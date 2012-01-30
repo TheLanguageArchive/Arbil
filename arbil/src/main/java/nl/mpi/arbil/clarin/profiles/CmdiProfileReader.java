@@ -2,6 +2,7 @@ package nl.mpi.arbil.clarin.profiles;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import javax.swing.JProgressBar;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -22,6 +23,9 @@ public class CmdiProfileReader {
     public final static String DEFAULT_SELECTED_PROFILES_URL_STRING = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles?mdEditor=true";
     private ProfileSelection selection;
 
+    /**
+     * Indication of profiles set to download (all or selected for manual editing)
+     */
     public static enum ProfileSelection {
 
 	SELECTED,
@@ -75,9 +79,34 @@ public class CmdiProfileReader {
 	loadProfiles(getProfilesUrlStringForSelection(getSelection()));
     }
 
-    public void refreshProfiles(JProgressBar progressBar, boolean forceUpdate) {
-	progressBar.setIndeterminate(true);
-	progressBar.setString("");
+    /**
+     * Refreshes profiles list but does not update/create cached schemas
+     * @param forceUpdate Force update even if cached copies not out of date
+     */
+    public void refreshProfiles(boolean forceUpdate) {
+	refreshProfiles(forceUpdate, false, null);
+    }
+
+    /**
+     * Refreshes profiles list and creates or updates cached schemas for all profiles
+     * @param progressBar Progress bar to monitor progress
+     * @param forceUpdate whether to force update even if cached copies not out of date
+     */
+    public void refreshProfilesAndUpdateCache(JProgressBar progressBar, boolean forceUpdate) {
+	refreshProfiles(forceUpdate, true, progressBar);
+    }
+
+    /**
+     * 
+     * @param forceUpdate whether to force update even if cached copies not out of date
+     * @param updateCache whether to update the profiles cache as well
+     * @param progressBar progress bar for monitoring state of cache update. Null allowed if and only if {@code updateCache == null}
+     */
+    private void refreshProfiles(boolean forceUpdate, boolean updateCache, JProgressBar progressBar) {
+	if (updateCache) {
+	    progressBar.setIndeterminate(true);
+	    progressBar.setString("");
+	}
 	int updateDays;
 	if (forceUpdate) {
 	    updateDays = 0;
@@ -86,18 +115,30 @@ public class CmdiProfileReader {
 	}
 	sessionStorage.updateCache(getProfilesUrlStringForSelection(getSelection()), updateDays, false);
 	loadProfiles(getProfilesUrlStringForSelection(getSelection()));
+
+	if (updateCache) {
+	    storeProfilesInCache(updateDays, cmdiProfileArray, progressBar);
+	}
+    }
+
+    private void storeProfilesInCache(int updateDays, Collection<CmdiProfile> profiles, JProgressBar progressBar) {
 	progressBar.setIndeterminate(false);
 	progressBar.setMinimum(0);
-	progressBar.setMaximum(cmdiProfileArray.size() + 1);
+	progressBar.setMaximum(profiles.size() + 1);
 	progressBar.setValue(1);
+
 	// get all the xsd files from the profile listing and store them on disk for offline use
-	for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+	for (CmdiProfileReader.CmdiProfile currentCmdiProfile : profiles) {
 	    progressBar.setString(currentCmdiProfile.name);
-	    sessionStorage.updateCache(currentCmdiProfile.getXsdHref(), updateDays, false);
+	    storeProfileInCache(currentCmdiProfile.getXsdHref(), updateDays);
 	    progressBar.setValue(progressBar.getValue() + 1);
 	}
 	progressBar.setString("");
 	progressBar.setValue(0);
+    }
+
+    public final void storeProfileInCache(String xsdHref, int updateDays) {
+	sessionStorage.updateCache(xsdHref, updateDays, false);
     }
 
     private void loadProfiles(final String profilesUrl) {

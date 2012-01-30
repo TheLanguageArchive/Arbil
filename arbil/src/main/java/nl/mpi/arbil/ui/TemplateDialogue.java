@@ -175,7 +175,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 
     public void loadProfiles(final boolean forceUpdate) {
 	if (cmdiProfilesPanel != null) {
-	    cmdiProfilesPanel.loadProfiles(forceUpdate);
+	    cmdiProfilesPanel.loadProfileDescriptions(forceUpdate);
 	}
     }
 
