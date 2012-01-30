@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -13,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.ProfileSelection;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -25,6 +27,7 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class CmdiProfilesPanel extends JPanel {
 
+    private boolean firstLoad = true;
     private static WindowManager windowManager;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
@@ -43,6 +46,7 @@ public class CmdiProfilesPanel extends JPanel {
     private javax.swing.JButton reloadButton;
     private JDialog parentFrame;
     private javax.swing.JButton downloadAllButton;
+    private JTextArea profileInstructionsArea;
 
     public CmdiProfilesPanel(JDialog parentFrameLocal) {
 	this.parentFrame = parentFrameLocal;
@@ -94,16 +98,15 @@ public class CmdiProfilesPanel extends JPanel {
 	clarinScrollPane.setViewportView(clarinPanel);
 
 	add(clarinScrollPane, java.awt.BorderLayout.CENTER);
-	
-	final JTextArea profileInstructionsArea = new JTextArea("Profiles selected below will become available in the 'Add' menu of the local corpus. By default, only selected profiles will be downloaded for offline use.");
+
+	profileInstructionsArea = new JTextArea("Profiles selected below will become available in the 'Add' menu of the local corpus. By default, only selected profiles will be downloaded for offline use.");
 	profileInstructionsArea.setEditable(false);
 	profileInstructionsArea.setLineWrap(true);
 	profileInstructionsArea.setWrapStyleWord(true);
 	profileInstructionsArea.setOpaque(false);
-	
+
 	JPanel profilesTopButtonsPanel = new JPanel();
 	profilesTopButtonsPanel.setLayout(new javax.swing.BoxLayout(profilesTopButtonsPanel, javax.swing.BoxLayout.LINE_AXIS));
-	profilesTopButtonsPanel.setAlignmentX(SwingConstants.LEFT);
 
 	JButton addButton = new JButton();
 	addButton.setText("Add URL");
@@ -132,11 +135,13 @@ public class CmdiProfilesPanel extends JPanel {
 	profilesTopButtonsPanel.add(browseButton);
 
 	JPanel profilesTopPanel = new JPanel();
-	profilesTopPanel.setLayout(new javax.swing.BoxLayout(profilesTopPanel, javax.swing.BoxLayout.PAGE_AXIS));
+	profilesTopPanel.setLayout(new javax.swing.BoxLayout(profilesTopPanel, javax.swing.BoxLayout.Y_AXIS));
+	profileInstructionsArea.setAlignmentX(Component.LEFT_ALIGNMENT);
+	profilesTopButtonsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
 	profilesTopPanel.add(profileInstructionsArea);
 	profilesTopPanel.add(profilesTopButtonsPanel);
 	add(profilesTopPanel, java.awt.BorderLayout.PAGE_START);
-
     }
 
     public void downloadProfiles(final boolean forceUpdate) {
@@ -145,6 +150,10 @@ public class CmdiProfilesPanel extends JPanel {
 
     public void loadProfileDescriptions(final boolean forceUpdate) {
 	loadProfiles(forceUpdate, false);
+    }
+
+    public void setInstructionsVisible(boolean visible) {
+	profileInstructionsArea.setVisible(visible);
     }
 
     /**
@@ -171,12 +180,18 @@ public class CmdiProfilesPanel extends JPanel {
 		} else {
 		    cmdiProfileReader.refreshProfiles(forceUpdate);
 		}
-		profileReloadProgressBar.setVisible(false);
-		reloadButton.setVisible(true);
-		downloadAllButton.setVisible(true);
-		profileSelectionCheckBox.setEnabled(true);
-		populateList();
-		doLayout();
+		SwingUtilities.invokeLater(new Runnable() {
+
+		    public void run() {
+			profileReloadProgressBar.setVisible(false);
+			reloadButton.setVisible(true);
+			downloadAllButton.setVisible(true);
+			profileSelectionCheckBox.setEnabled(true);
+			populateList();
+			doLayout();
+		    }
+		});
+
 	    }
 	}.start();
     }
@@ -189,9 +204,12 @@ public class CmdiProfilesPanel extends JPanel {
 	downloadProfiles(true);
     }
 
-    public void populateList() {
+    public synchronized void populateList() {
 	populateProfilesList();
-	parentFrame.pack();
+	if (firstLoad) {
+	    parentFrame.pack();
+	    firstLoad = false;
+	}
     }
 
     protected void populateProfilesList() {
