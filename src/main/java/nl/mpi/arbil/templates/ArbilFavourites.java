@@ -1,12 +1,17 @@
 package nl.mpi.arbil.templates;
 
+import java.net.URISyntaxException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -111,7 +116,7 @@ public class ArbilFavourites {
 	    URI baseUri = new URI(imdiUri.toString().split("#")[0]);
 	    String fileSuffix = imdiUri.getPath().substring(imdiUri.getPath().lastIndexOf("."));
 	    File destinationFile = File.createTempFile("fav-", fileSuffix, sessionStorage.getFavouritesDir());
-	    ArbilDataNode.getMetadataUtils(baseUri.toString()).copyMetadataFile(baseUri, destinationFile, null, true);
+	    ArbilDataNode.getMetadataUtils(baseUri.toString()).copyMetadataFile(baseUri, destinationFile, makeLinksAbsolute(imdiUri), true);
 
 	    URI copiedFileURI = destinationFile.toURI();
 	    // creating a uri with separate parameters could cause the url to be reencoded
@@ -134,6 +139,35 @@ public class ArbilFavourites {
 	    treeHelper.applyRootLocations();
 	} catch (Exception ex) {
 	    bugCatcher.logError(ex);
+	}
+    }
+
+    /**
+     * Creates update array for CMDI resource links that need to be made absolute before being put into favorites
+     * @param imdiUri 
+     * @return update array for resource links with items for links that currently are not absolute. For IMDI will return null.
+     */
+    private URI[][] makeLinksAbsolute(URI imdiUri) {
+	List<URI[]> relativeLinks = null;
+	if (ArbilDataNode.isPathCmdi(imdiUri.toString())) {
+	    relativeLinks = new ArrayList<URI[]>();
+	    ArrayList<CmdiResourceLink> resourceLinks = new CmdiComponentLinkReader().readLinks(imdiUri);
+	    for (CmdiResourceLink link : resourceLinks) {
+		try {
+		    final URI linkUri = link.getLinkUri();
+		    if (!linkUri.isAbsolute()) {
+			relativeLinks.add(new URI[]{linkUri, link.getResolvedLinkUri()});
+		    }
+		} catch (URISyntaxException ex) {
+		    // resource proxy has syntax error in link. skip
+		    bugCatcher.logError(ex);
+		}
+	    }
+	}
+	if (relativeLinks != null) {
+	    return relativeLinks.toArray(new URI[][]{});
+	} else {
+	    return null;
 	}
     }
 
