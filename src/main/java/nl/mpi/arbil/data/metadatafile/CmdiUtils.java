@@ -49,19 +49,23 @@ public class CmdiUtils implements MetadataUtils {
 	    ArrayList<CmdiResourceLink> links = cmdiComponentLinkReader.readLinks(sourceURI);
 	    if (links != null && updateLinks) {
 		for (CmdiResourceLink link : links) {
-		    String ref = link.resourceRef;
-		    // Compare to links to update
-		    if (linksToUpdate != null) {
-			for (URI[] updatableLink : linksToUpdate) {
-			    if (updatableLink[0].toString().equals(ref)) {
-				// Found: try to update. First relativize reference URI.
-				URI newReferenceURi = destinationFile.getParentFile().toURI().relativize(updatableLink[1]);
-				if (!componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi)) {
-				    bugCatcher.logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
+		    try {
+			URI originalRef = link.getResolvedLinkUri();
+			// Compare to links to update
+			if (linksToUpdate != null) {
+			    for (URI[] updatableLink : linksToUpdate) {
+				if (sourceURI.resolve(updatableLink[0]).equals(originalRef)) {
+				    // Found: try to update. First relativize reference URI.
+				    URI newReferenceURi = destinationFile.getParentFile().toURI().relativize(updatableLink[1]);
+				    if (!componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi)) {
+					bugCatcher.logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
+				    }
+				    break;
 				}
-				break;
 			    }
 			}
+		    } catch (URISyntaxException ex) {
+			bugCatcher.logError("Cannot resolve resource proxy link while copying. Any replacements for this link have been skipped. ResourceProxy id:" + link.resourceProxyId, ex);
 		    }
 		}
 	    }
@@ -123,7 +127,7 @@ public class CmdiUtils implements MetadataUtils {
      * @param mdDestinationFile Destination file for the metadata file copy action
      * @param mdDocument Metadata document that is being copied
      */
-    private void copySchemaFile(final URI mdSourceURI,  final File mdDestinationFile, final Document mdDocument) {
+    private void copySchemaFile(final URI mdSourceURI, final File mdDestinationFile, final Document mdDocument) {
 	// Get CMD root element
 	Node rootNode = mdDocument.getFirstChild();
 	if (rootNode instanceof Element) {
