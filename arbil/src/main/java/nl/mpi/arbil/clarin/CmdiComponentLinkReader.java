@@ -13,6 +13,7 @@ import org.apache.commons.digester.Digester;
  */
 public class CmdiComponentLinkReader {
 
+    private URI parentUri;
     public ArrayList<CmdiResourceLink> cmdiResourceLinkArray = null;
     public ArrayList<ResourceRelation> cmdiResourceRelationArray = null;
 
@@ -25,20 +26,29 @@ public class CmdiComponentLinkReader {
 	}
     }
 
-    public static class CmdiResourceLink {
+    public final static class CmdiResourceLink {
 
 	public static final String HANDLE_SERVER_URI = "http://hdl.handle.net/";
-
-	// NOTE: should the fields be final?
-	public CmdiResourceLink(String proxyId, String type, String ref) {
-	    resourceProxyId = proxyId;
-	    resourceType = type;
-	    resourceRef = ref;
-	}
 	public final String resourceProxyId;
 	public final String resourceType;
 	public final String resourceRef;
+	private final URI parentUri;
 	private int referencingNodes;
+
+	/**
+	 * 
+	 * @param parentUri URI of parent document
+	 * @param proxyId id of proxy (id attribute of ResourceProxy element)
+	 * @param type proxy type (generally 'Resource' or 'Metadata')
+	 * @param ref reference to the actual resource location
+	 */
+	public CmdiResourceLink(URI parentUri, String proxyId, String type, String ref) {
+	    resourceProxyId = proxyId;
+	    resourceType = type;
+	    resourceRef = ref;
+
+	    this.parentUri = parentUri;
+	}
 
 	/**
 	 * To be called whenever a reference of this resource link is found
@@ -62,6 +72,12 @@ public class CmdiComponentLinkReader {
 	    return referencingNodes;
 	}
 
+	/**
+	 * 
+	 * @return the URI of the link, can be unresolved
+	 * @see #getResolvedLinkUri() 
+	 * @throws URISyntaxException if reference in this link is not a valid URI
+	 */
 	public URI getLinkUri() throws URISyntaxException {
 	    if (resourceRef != null && resourceRef.length() > 0) {
 		if (resourceRef.startsWith("hdl://")) { // IS THIS VALID? TG 4/10/2011
@@ -74,11 +90,22 @@ public class CmdiComponentLinkReader {
 	    }
 	    return null;
 	}
+
+	/**
+	 * 
+	 * @return the URI of the link resolved against the URI of the containing document. Null if either reference or parent URI not set.
+	 * @throws URISyntaxException if reference in this link is not a valid URI
+	 */
+	public URI getResolvedLinkUri() throws URISyntaxException {
+	    if (parentUri != null) {
+		return parentUri.resolve(getLinkUri());
+	    }
+	    return null;
+	}
     }
 
     public static class ResourceRelation {
 
-	// NOTE: should the fields be final?
 	public ResourceRelation(String type, String resource1, String resource2) {
 	    relationType = type;
 	    res1 = resource1;
@@ -120,14 +147,21 @@ public class CmdiComponentLinkReader {
      */
     public String getProxyId(String resourceRef) {
 	for (CmdiResourceLink resourceLink : cmdiResourceLinkArray) {
-	    if (resourceLink.resourceRef.equals(resourceRef)) {
-		return resourceLink.resourceProxyId;
+	    try {
+		if (resourceLink.resourceRef.equals(resourceRef)
+			|| resourceLink.getResolvedLinkUri().toString().equals(resourceRef)) {
+		    return resourceLink.resourceProxyId;
+		}
+	    } catch (URISyntaxException ex) {
+		// Detected illegal URI in resource link. Can't do much at this point, continue with others
+		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
 	return null;
     }
 
     public ArrayList<CmdiResourceLink> readLinks(URI targetCmdiNode) {
+	this.parentUri = targetCmdiNode;
 //        ArrayList<URI> returnUriList = new ArrayList<URI>();
 	try {
 	    Digester digester = new Digester();
@@ -155,7 +189,7 @@ public class CmdiComponentLinkReader {
 	    String resourceProxyId,
 	    String resourceType,
 	    String resourceRef) {
-	CmdiResourceLink cmdiProfile = new CmdiResourceLink(resourceProxyId, resourceType, resourceRef);
+	CmdiResourceLink cmdiProfile = new CmdiResourceLink(parentUri, resourceProxyId, resourceType, resourceRef);
 
 	cmdiResourceLinkArray.add(cmdiProfile);
     }

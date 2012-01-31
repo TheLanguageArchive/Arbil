@@ -43,19 +43,23 @@ public class CmdiUtils implements MetadataUtils {
 	    ArrayList<CmdiResourceLink> links = cmdiComponentLinkReader.readLinks(sourceURI);
 	    if (links != null && updateLinks) {
 		for (CmdiResourceLink link : links) {
-		    String ref = link.resourceRef;
-		    // Compare to links to update
-		    if (linksToUpdate != null) {
-			for (URI[] updatableLink : linksToUpdate) {
-			    if (updatableLink[0].toString().equals(ref)) {
-				// Found: try to update. First relativize reference URI.
-				URI newReferenceURi = destinationFile.getParentFile().toURI().relativize(updatableLink[1]);
-				if (!componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi)) {
-				    BugCatcherManager.getBugCatcher().logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
+		    try {
+			URI originalRef = link.getResolvedLinkUri();
+			// Compare to links to update
+			if (linksToUpdate != null) {
+			    for (URI[] updatableLink : linksToUpdate) {
+				if (sourceURI.resolve(updatableLink[0]).equals(originalRef)) {
+				    // Found: try to update. First relativize reference URI.
+				    URI newReferenceURi = destinationFile.getParentFile().toURI().relativize(updatableLink[1]);
+				    if (!componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi)) {
+					BugCatcherManager.getBugCatcher().logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
+				    }
+				    break;
 				}
-				break;
 			    }
 			}
+		    } catch (URISyntaxException ex) {
+			BugCatcherManager.getBugCatcher().logError("Cannot resolve resource proxy link while copying. Any replacements for this link have been skipped. ResourceProxy id:" + link.resourceProxyId, ex);
 		    }
 		}
 	    }

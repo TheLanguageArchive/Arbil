@@ -298,11 +298,15 @@ public class ArbilComponentBuilder {
 		// Check whether proxy can be deleted
 		for (String id : resourceProxyIds) {
 		    CmdiResourceLink link = linkReader.getResourceLink(id);
+		    if (link == null) {
+			BugCatcherManager.getBugCatcher().logError(new NullPointerException("Resource link not found for id " + id));
+			return false;
+		    }
 		    link.removeReferencingNode();
 		    if (link.getReferencingNodesCount() == 0) {
 			// There was only one reference to this proxy and we deleted it, so remove the proxy
 			if (!removeResourceProxy(targetDocument, id)) {
-			    messageDialogHandler.addMessageDialogToQueue("Failed to remove ", "Warning");
+			    messageDialogHandler.addMessageDialogToQueue("Failed to remove resource proxy with id " + id, "Warning");
 			}
 		    }
 		}
