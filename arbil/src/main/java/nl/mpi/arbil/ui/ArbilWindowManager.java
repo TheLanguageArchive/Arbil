@@ -1241,7 +1241,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		addMessageDialogToQueue("Failed to find the file: " + muE.getMessage(), "Open In External Application");
 	    } catch (IOException ioE) {
 		BugCatcherManager.getBugCatcher().logError("awtDesktopFound", ioE);
-		addMessageDialogToQueue("Failed to open the file: " + ioE.getMessage(), "Open In External Application");
+		if (targetUri.getScheme().equalsIgnoreCase("file")) {
+		    if (showConfirmDialogBox("Failed to open the file. Please check that it is accessible and has an application associated with it.\n\nDo you want to open the parent directory?", "Open In External Application")) {
+			openFileInExternalApplication(new File(targetUri).getParentFile().toURI());
+		    }
+		} else {
+		    addMessageDialogToQueue("Failed to open the remote location: " + ioE.getMessage(), "Open In External Application");
+		}
 	    }
 	} else {
 	    String osNameString = null;
