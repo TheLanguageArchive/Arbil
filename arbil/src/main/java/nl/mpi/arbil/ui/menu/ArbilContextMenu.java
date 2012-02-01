@@ -3,6 +3,7 @@ package nl.mpi.arbil.ui.menu;
 import java.awt.Component;
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -267,6 +268,14 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		targetUri = currentNode.getFullResourceURI();
 	    } else {
 		targetUri = currentNode.getURI();
+		if (targetUri.getFragment() != null) {
+		    try {
+			targetUri = new URI(targetUri.getScheme(), targetUri.getHost(), targetUri.getPath(), null);
+		    } catch (URISyntaxException ex) {
+			// Should not happen, derrived from valid URI
+			throw new AssertionError(ex);
+		    }
+		}
 	    }
 	    windowManager.openFileInExternalApplication(targetUri);
 	}
