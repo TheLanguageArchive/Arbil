@@ -105,21 +105,22 @@ public class ArbilBugCatcher implements BugCatcher {
 	try {
 	    System.err.println(messageString);
 	    if (exception != null) {
-		System.err.println("exception: " + exception.getMessage());
+		System.err.println("Exception of type " + exception.getClass().getName() + ": " + exception.getMessage());
 		exception.printStackTrace(System.err);
 	    }
 	    FileWriter errorLogFile = new FileWriter(getLogFile(sessionStorage, versionManager.getApplicationVersion()), true);
-	    errorLogFile.append(messageString + System.getProperty("line.separator"));
-	    errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));
+	    errorLogFile.append(messageString).append(System.getProperty("line.separator"));
+	    errorLogFile.append("Error Date: ").append(new Date().toString()).append(System.getProperty("line.separator"));
 	    appendVersionInformation(errorLogFile);
 	    if (exception != null) {
-		errorLogFile.append("Exception Message: " + exception.getMessage() + System.getProperty("line.separator"));
+		errorLogFile.append("Exception type: ").append(exception.getClass().getName()).append(System.getProperty("line.separator"));
+		errorLogFile.append("Exception message: ").append(exception.getMessage()).append(System.getProperty("line.separator"));
 		StackTraceElement[] stackTraceElements = exception.getStackTrace();
 		for (StackTraceElement element : stackTraceElements) {
-		    errorLogFile.append(element.toString() + System.getProperty("line.separator"));
+		    errorLogFile.append(element.toString()).append(System.getProperty("line.separator"));
 		}
 	    }
-	    errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
+	    errorLogFile.append("======================================================================").append(System.getProperty("line.separator"));
 	    errorLogFile.close();
 	} catch (Exception ex) {
 	    System.err.println("failed to write to the error log: " + ex.getMessage());
