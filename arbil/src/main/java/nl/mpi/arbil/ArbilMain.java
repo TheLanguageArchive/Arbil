@@ -3,7 +3,6 @@ package nl.mpi.arbil;
 import java.awt.BorderLayout;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.ArbilBugCatcher;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationHandler;
@@ -15,10 +14,8 @@ import nl.mpi.arbil.ui.ArbilTaskStatusBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcherManager;
-import nl.mpi.arbil.util.TreeHelper;
 
 /*
  * ArbilMain.java
@@ -27,11 +24,15 @@ import nl.mpi.arbil.util.TreeHelper;
  * @author Peter.Withers@mpi.nl
  * @author Twan.Goosen@mpi.nl
  */
-public class ArbilMain extends javax.swing.JFrame {
+public final class ArbilMain extends javax.swing.JFrame {
 
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
     private ArbilTaskStatusBar statusBar;
+    private final ArbilTreeHelper treeHelper;
+    private final ArbilWindowManager windowManager;
+    private final ApplicationVersionManager versionManager;
+    private final ArbilMimeHashQueue mimeHashQueue;
 
     /**
      * @param args the command line arguments
@@ -54,22 +55,27 @@ public class ArbilMain extends javax.swing.JFrame {
     }
 
     public ArbilMain(ApplicationVersionManager versionManager) {
-	
+	this.versionManager = versionManager;
+
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers(versionManager);
 
-	initApplication(injector.getTreeHelper(), injector.getMimeHashQueue());
-	initUI(injector.getTreeHelper(), injector.getWindowManager(), versionManager);
+	this.treeHelper = injector.getTreeHelper();
+	this.windowManager = injector.getWindowManager();
+	this.mimeHashQueue = injector.getMimeHashQueue();
 
-	checkFirstRun(injector.getWindowManager());
+	initApplication();
+	initUI();
+
+	checkFirstRun();
     }
 
-    private void initApplication(TreeHelper treeHelper, ArbilMimeHashQueue hashQueue) {
+    private void initApplication() {
 	treeHelper.init();
-	hashQueue.init();
+	mimeHashQueue.init();
     }
 
-    private void initUI(ArbilTreeHelper treeHelper, ArbilWindowManager windowManager, final ApplicationVersionManager versionManager) {
+    private void initUI() {
 	this.addWindowListener(new WindowAdapter() {
 
 	    @Override
@@ -103,7 +109,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	initMacApplicationHandlers(windowManager);
     }
 
-    private void checkFirstRun(ArbilWindowManager windowManager) {
+    private void checkFirstRun() {
 	windowManager.showSetupWizardIfFirstRun();
 	windowManager.openIntroductionPage();
     }
