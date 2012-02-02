@@ -15,6 +15,7 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.arbil.util.AuthenticatorStub;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /*
@@ -24,7 +25,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  * @author Peter.Withers@mpi.nl
  * @author Twan.Goosen@mpi.nl
  */
-public final class ArbilMain extends javax.swing.JFrame {
+public class ArbilMain extends javax.swing.JFrame {
 
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
@@ -57,6 +58,8 @@ public final class ArbilMain extends javax.swing.JFrame {
     public ArbilMain(ApplicationVersionManager versionManager) {
 	this.versionManager = versionManager;
 
+	preInitApplication();
+
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers(versionManager);
 
@@ -68,6 +71,10 @@ public final class ArbilMain extends javax.swing.JFrame {
 	initUI();
 
 	checkFirstRun();
+    }
+
+    private void preInitApplication() {
+	java.net.Authenticator.setDefault(new AuthenticatorStub(windowManager));
     }
 
     private void initApplication() {
