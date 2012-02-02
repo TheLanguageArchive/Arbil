@@ -1,5 +1,7 @@
 package nl.mpi.arbil.userstorage;
 
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -168,6 +170,16 @@ public class ArbilSessionStorage implements SessionStorage {
 	if (foundDirectoryCount > 1) {
 	    String errorMessage = "More than one storage directory has been found.\nIt is recommended to remove any unused directories in this list.\nNote that the first occurrence is currently in use:\n" + storageDirectoryMessageString;
 	    logError(new Exception(errorMessage));
+	    try {
+		if (!GraphicsEnvironment.isHeadless()) {
+		    JOptionPane.showMessageDialog(null,
+			    "More than one storage directory has been found.\nIt is recommended to remove any unused directories in this list.\nNote that the first occurrence is currently in use:\n" + storageDirectoryMessageString, "Multiple storage directories",
+			    JOptionPane.WARNING_MESSAGE);
+		}
+	    } catch (HeadlessException hEx) {
+		// Should never occur since we're checking whether headless
+		throw new AssertionError(hEx);
+	    }
 	}
     }
 
