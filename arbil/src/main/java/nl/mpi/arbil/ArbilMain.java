@@ -74,7 +74,11 @@ public class ArbilMain extends javax.swing.JFrame {
     }
 
     private void preInitApplication() {
-	java.net.Authenticator.setDefault(new AuthenticatorStub(windowManager));
+	try {
+	    java.net.Authenticator.setDefault(new AuthenticatorStub(windowManager));
+	} catch (SecurityException sEx) {
+	    BugCatcherManager.getBugCatcher().logError("Failed to set custom Authenticator. Default authentication dialogs may appear.", sEx);
+	}
     }
 
     private void initApplication() {
