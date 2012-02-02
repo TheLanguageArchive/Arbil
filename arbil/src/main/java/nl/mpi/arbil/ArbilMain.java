@@ -58,8 +58,6 @@ public class ArbilMain extends javax.swing.JFrame {
     public ArbilMain(ApplicationVersionManager versionManager) {
 	this.versionManager = versionManager;
 
-	preInitApplication();
-
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers(versionManager);
 
@@ -73,15 +71,14 @@ public class ArbilMain extends javax.swing.JFrame {
 	checkFirstRun();
     }
 
-    private void preInitApplication() {
+    private void initApplication() {
+
 	try {
 	    java.net.Authenticator.setDefault(new AuthenticatorStub(windowManager));
 	} catch (SecurityException sEx) {
 	    BugCatcherManager.getBugCatcher().logError("Failed to set custom Authenticator. Default authentication dialogs may appear.", sEx);
 	}
-    }
-
-    private void initApplication() {
+	
 	treeHelper.init();
 	mimeHashQueue.init();
     }
