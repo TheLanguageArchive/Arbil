@@ -90,10 +90,10 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     }
 
     @Override
-    protected void updateHiddenColumnsLabel(int hiddenColumnCount) {
+    protected void updateHiddenColumnsLabel(int hiddenColumnCount, int hiddenCellsCount) {
 	if (hiddenColumnsLabel != null) {
 	    hiddenColumnsLabel.setVisible(!hideContextMenuAndStatusBar && hiddenColumnCount > 0);
-	    hiddenColumnsLabel.setText(hiddenColumnCount + " columns hidden (edit \"Column View\" in the table header to show)");
+	    hiddenColumnsLabel.setText(hiddenCellsCount + " cells hidden in " + hiddenColumnCount + " columns (edit \"Column View\" in the table header to show)");
 	}
     }
     // utility to join an array to a comma separated string
