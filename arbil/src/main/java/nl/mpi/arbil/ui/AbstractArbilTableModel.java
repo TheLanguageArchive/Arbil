@@ -5,7 +5,9 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -457,7 +459,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private ArbilDataNode[] updateAllDataNodes() {
 	ArbilDataNode[] returnArray = getDataNodeHash().values().toArray(new ArbilDataNode[]{});
 	filteredColumnNames.clear();
-	int hiddenColumnCount = 0;
+	Set<String> hiddenColumns = new HashSet<String>();
+	int hiddenCellsCount = 0;
 	for (ArbilDataNode currentRowNode : returnArray) {
 	    for (ArbilField[] currentFieldArray : currentRowNode.getFields().values().toArray(new ArbilField[][]{})) {
 		for (ArbilField currentField : currentFieldArray) {
@@ -475,17 +478,18 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 			    }
 			}
 		    } else {
-			hiddenColumnCount++;
+			hiddenColumns.add(currentColumnName);
+			hiddenCellsCount++;
 		    }
 		    getFieldView().addKnownColumn(currentColumnName);
 		}
 	    }
 	}
-	updateHiddenColumnsLabel(hiddenColumnCount);
+	updateHiddenColumnsLabel(hiddenColumns.size(), hiddenCellsCount);
 	return returnArray;
     }
 
-    protected abstract void updateHiddenColumnsLabel(int hiddenColumnCount);
+    protected abstract void updateHiddenColumnsLabel(int hiddenColumnCount, int hiddenCellsCount);
 
     private void updateViewOrientation(ArbilDataNode[] tableRowsArbilArray) {
 	// set the view to either horizontal or vertical and set the default sort

@@ -173,7 +173,7 @@ public class ArbilSearchTest extends ArbilTest {
 	    }
 
 	    @Override
-	    protected void updateHiddenColumnsLabel(int hiddenColumnCount) {
+	    protected void updateHiddenColumnsLabel(int hiddenColumnCount, int hiddenCellsCount) {
 	    }
 	};
     }
