@@ -713,29 +713,32 @@ public class TreeContextMenu extends ArbilContextMenu {
 	if (!(targetNodeUserObject instanceof ArbilDataNode) || ((ArbilDataNode) targetNodeUserObject).isCorpus()) {
 	    // consume the selected templates here rather than the clarin profile list
 	    for (MenuItemData currentAddable : ArbilTemplateManager.getSingleInstance().getSelectedTemplatesMenuItems()) {
-		JMenuItem addMenuItem;
-		addMenuItem = new JMenuItem();
-		addMenuItem.setText(currentAddable.menuText);
-		addMenuItem.setName(currentAddable.menuText);
-		addMenuItem.setActionCommand(currentAddable.menuAction);
-		addMenuItem.setToolTipText(currentAddable.menuToolTip);
-		addMenuItem.setIcon(currentAddable.menuIcon);
-		addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+		// Check type. For root nodes (null object), allow all. For IMDI corpus, we should only allow IMDI
+		if (!(targetNodeUserObject instanceof ArbilDataNode) || currentAddable.type == MenuItemData.Type.IMDI) {
+		    JMenuItem addMenuItem;
+		    addMenuItem = new JMenuItem();
+		    addMenuItem.setText(currentAddable.menuText);
+		    addMenuItem.setName(currentAddable.menuText);
+		    addMenuItem.setActionCommand(currentAddable.menuAction);
+		    addMenuItem.setToolTipText(currentAddable.menuToolTip);
+		    addMenuItem.setIcon(currentAddable.menuIcon);
+		    addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-		    public void actionPerformed(java.awt.event.ActionEvent evt) {
-			try {
-			    if (leadSelectedTreeNode != null) {
-				new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-			    } else {
-				// no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-				new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+			    try {
+				if (leadSelectedTreeNode != null) {
+				    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+				} else {
+				    // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
+				    new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+				}
+			    } catch (Exception ex) {
+				BugCatcherManager.getBugCatcher().logError(ex);
 			    }
-			} catch (Exception ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
 			}
-		    }
-		});
-		addMenu.add(addMenuItem);
+		    });
+		    addMenu.add(addMenuItem);
+		}
 	    }
 	}
 

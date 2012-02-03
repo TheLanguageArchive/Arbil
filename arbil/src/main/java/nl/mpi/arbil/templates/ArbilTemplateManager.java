@@ -163,6 +163,11 @@ public class ArbilTemplateManager {
 
     public static class MenuItemData {
 
+	public enum Type {
+
+	    IMDI, CMDI, OTHER
+	}
+	public Type type;
 	public String menuText;
 	public String menuAction;
 	public String menuToolTip;
@@ -184,6 +189,7 @@ public class ArbilTemplateManager {
     private MenuItemData createMenuItemForTemplate(String location) {
 	ArbilIcons arbilIcons = ArbilIcons.getSingleInstance();
 	MenuItemData menuItem = new MenuItemData();
+	menuItem.type = MenuItemData.Type.IMDI;
 	if (location.startsWith("builtin:")) {
 	    String currentString = location.substring("builtin:".length());
 	    for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
@@ -200,7 +206,15 @@ public class ArbilTemplateManager {
 		    }
 		}
 	    }
+	} else if (location.startsWith("template:")) {
+	    String currentString = location.substring("template:".length());
+	    menuItem.menuText = currentString;
+	    menuItem.menuAction = currentString;
+	    menuItem.menuToolTip = currentString;
+	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
 	} else if (location.startsWith("custom:")) {
+	    menuItem.type = MenuItemData.Type.CMDI;
+	    
 	    String currentString = location.substring("custom:".length());
 	    String customName = currentString.replaceAll("[/.]xsd$", "");
 	    if (customName.contains("/")) {
@@ -211,13 +225,9 @@ public class ArbilTemplateManager {
 	    menuItem.menuAction = currentString;
 	    menuItem.menuToolTip = currentString;
 	    menuItem.menuIcon = arbilIcons.clarinIcon;
-	} else if (location.startsWith("template:")) {
-	    String currentString = location.substring("template:".length());
-	    menuItem.menuText = currentString;
-	    menuItem.menuAction = currentString;
-	    menuItem.menuToolTip = currentString;
-	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
 	} else if (location.startsWith(CLARIN_PREFIX)) {
+	    menuItem.type = MenuItemData.Type.CMDI;
+
 	    String currentString = location.substring(CLARIN_PREFIX.length());
 	    CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(currentString);
 	    if (cmdiProfile == null) {
