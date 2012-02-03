@@ -41,6 +41,7 @@ public class AuthenticatorStub extends Authenticator {
 
     @Override
     protected PasswordAuthentication getPasswordAuthentication() {
+	System.out.println("Authentication requested for " + getRequestingURL() + ". Handled by stub.");
 	synchronized (notificationLock) {
 	    if (!notificationShown) {
 		dialogHandler.addMessageDialogToQueue(notificationMessage, notificationTitle);
