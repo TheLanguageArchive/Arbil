@@ -10,6 +10,7 @@ import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.arbil.util.AuthenticatorStub;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
@@ -44,6 +45,14 @@ public class ArbilDesktopInjector extends ArbilInjector {
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilMimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	injectDialogHandler(messageDialogHandler);
+	
+	// Setting the authenticator here, needs to be done before TreeHelper gets constructed (=initialized). This has been
+	// improved in 2.4.x
+	try {
+	    java.net.Authenticator.setDefault(new AuthenticatorStub(messageDialogHandler));
+	} catch (SecurityException sEx) {
+	    bugCatcher.logError("Failed to set custom Authenticator. Default authentication dialogs may appear.", sEx);
+	}
 
 	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();
 	ArbilSessionStorage.setWindowManager(windowManager);
