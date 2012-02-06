@@ -159,7 +159,7 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
     }
 
     @Override
-    protected void updateHiddenColumnsLabel(int hiddenColumnCount) {
+    protected void updateHiddenColumnsLabel(int hiddenColumnCount, int hiddenCellsCount) {
 	// No such label (at the moment)
     }
 
