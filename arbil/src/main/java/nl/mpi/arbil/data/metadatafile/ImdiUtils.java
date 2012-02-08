@@ -15,7 +15,6 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import org.apache.xpath.CachedXPathAPI;
 import org.w3c.dom.Document;
 
 /**
@@ -25,7 +24,6 @@ import org.w3c.dom.Document;
  */
 public class ImdiUtils implements MetadataUtils {
 
-    private static CachedXPathAPI xPathAPI = new CachedXPathAPI();
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -38,7 +36,7 @@ public class ImdiUtils implements MetadataUtils {
 	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
 	    org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 	    checkImdiApiResult(nodDom, sourceURI);
-	    return null != xPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Catalogue");
+	    return null != org.apache.xpath.XPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Catalogue");
 	} catch (MalformedURLException exception) {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (TransformerException exception) {
@@ -52,7 +50,7 @@ public class ImdiUtils implements MetadataUtils {
 	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
 	    org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 	    checkImdiApiResult(nodDom, sourceURI);
-	    return null != xPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Session");
+	    return null != org.apache.xpath.XPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Session");
 	} catch (MalformedURLException exception) {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	} catch (TransformerException exception) {
