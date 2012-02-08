@@ -36,6 +36,7 @@ import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
+import nl.mpi.arbil.clarin.CmdiHeaderInfo;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -64,6 +65,7 @@ import org.xml.sax.SAXException;
  */
 public class ArbilComponentBuilder {
 
+    public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
     public static final String RESOURCE_ID_PREFIX = "res_";
     private static MessageDialogHandler messageDialogHandler;
 
@@ -80,6 +82,7 @@ public class ArbilComponentBuilder {
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
+    private HashMap<ArbilDataNode, SchemaType> nodeSchemaTypeMap = new HashMap<ArbilDataNode, SchemaType>();
 
     public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
 	DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -203,6 +206,35 @@ public class ArbilComponentBuilder {
 	}
     }
 
+    public void setHeaderInfo(Document document, CmdiHeaderInfo headerInfo) throws TransformerException {
+	final String headerPath = "/:CMD/:Header";
+
+	Node headerNode = XPathAPI.selectSingleNode(document.getFirstChild(), headerPath);
+
+	if (headerNode != null) {
+	    setHeaderInfoItem(document, headerNode, "MdCreator", headerInfo.getMdCreator());
+	    setHeaderInfoItem(document, headerNode, "MdCreationDate", headerInfo.getMdCreationDate());
+	    setHeaderInfoItem(document, headerNode, "MdSelfLink", headerInfo.getMdSelfLink());
+	    setHeaderInfoItem(document, headerNode, "MdProfile", headerInfo.getMdProfile());
+	    setHeaderInfoItem(document, headerNode, "MdCollectionDisplayName", headerInfo.getMdCollectionDisplayName());
+	}
+    }
+
+    private void setHeaderInfoItem(Document document, Node headerNode, final String nodeName, final String value) throws DOMException, TransformerException {
+	Node childNode = XPathAPI.selectSingleNode(headerNode, "/:" + nodeName);
+	if (value != null) {
+	    if (childNode == null) {
+		childNode = document.createElementNS(CMD_NAMESPACE, nodeName);
+	    }
+	    childNode.setTextContent(value);
+	    headerNode.appendChild(childNode);
+	} else {
+	    if (childNode != null) {
+		headerNode.removeChild(childNode);
+	    }
+	}
+    }
+
     private String getTargetXmlPath(ArbilDataNode arbilDataNode) {
 	String targetXmlPath = arbilDataNode.getURI().getFragment();
 	if (targetXmlPath == null) {
@@ -230,8 +262,8 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    private void addNewResourceProxy(Document targetDocument, SchemaType schemaType, String resourceProxyId, ArbilDataNode resourceNode) throws ArbilMetadataException, DOMException {
-	Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
+    private void addNewResourceProxy(Document targetDocument, SchemaType firstChildSchemaType, String resourceProxyId, ArbilDataNode resourceNode) throws ArbilMetadataException, DOMException {
+	Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), firstChildSchemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
 	addedResourceNode.getAttributes().getNamedItem("id").setNodeValue(resourceProxyId);
 	for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
 	    String localName = childNode.getNodeName();
@@ -1267,7 +1299,9 @@ public class ArbilComponentBuilder {
 	try {
 	    Document workingDocument = getDocument(null);
 	    readSchema(workingDocument, xsdFile, addDummyData);
+
 	    savePrettyFormatting(workingDocument, new File(cmdiNodeFile));
+	    setDefaultCmdiHeaderInfo(cmdiNodeFile, xsdFile);
 	} catch (IOException e) {
 	    BugCatcherManager.getBugCatcher().logError(e);
 	} catch (ParserConfigurationException e) {
@@ -1277,7 +1311,19 @@ public class ArbilComponentBuilder {
 	}
 	return cmdiNodeFile;
     }
-    private HashMap<ArbilDataNode, SchemaType> nodeSchemaTypeMap = new HashMap<ArbilDataNode, SchemaType>();
+
+    private void setDefaultCmdiHeaderInfo(URI cmdiNodeFile, URI xsdFile) throws ParserConfigurationException, IOException, SAXException {
+	// Reload DOM, needed for XPathAPI
+	Document document = getDocument(cmdiNodeFile);
+	// Construct header info, set and save
+	CmdiHeaderInfo headerInfo = CmdiHeaderInfo.createDefault(xsdFile);
+	try {
+	    setHeaderInfo(document, headerInfo);
+	    savePrettyFormatting(document, new File(cmdiNodeFile));
+	} catch (TransformerException ex) {
+	    BugCatcherManager.getBugCatcher().logError("Could not set header info for new CMDI " + cmdiNodeFile, ex);
+	}
+    }
 
     /**
      * Caches schema type for data nodes as fetching the schema type is rather expensive.
@@ -1354,7 +1400,7 @@ public class ArbilComponentBuilder {
 
     private Element appendElementNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
 //        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd", schemaProperty.getName().getLocalPart());
-	Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd/", schemaProperty.getName().getLocalPart());
+	Element currentElement = workingDocument.createElementNS(CMD_NAMESPACE, schemaProperty.getName().getLocalPart());
 	SchemaType currentSchemaType = schemaProperty.getType();
 	for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
 	    if (attributesProperty.getMinOccurs() != null && !attributesProperty.getMinOccurs().equals(BigInteger.ZERO)) {
@@ -1365,7 +1411,7 @@ public class ArbilComponentBuilder {
 	    // this is probably not the way to set these, however this will do for now (many other methods have been tested and all failed to function correctly)
 	    currentElement.setAttribute("CMDVersion", "1.1");
 	    currentElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-	    currentElement.setAttribute("xsi:schemaLocation", "http://www.clarin.eu/cmd/ " + nameSpaceUri);
+	    currentElement.setAttribute("xsi:schemaLocation", CMD_NAMESPACE + " " + nameSpaceUri);
 	    //          currentElement.setAttribute("xsi:schemaLocation", "cmd " + nameSpaceUri);
 	    workingDocument.appendChild(currentElement);
 	} else {
