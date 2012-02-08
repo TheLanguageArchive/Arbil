@@ -1,0 +1,144 @@
+package nl.mpi.arbil.clarin;
+
+import java.net.URI;
+import java.util.Date;
+import org.apache.xmlbeans.XmlDateTime;
+
+/**
+ * Class to represent the information stored in the /CMD/Header element of CMDI instances
+ * @author Twan Goosen <twan.goosen@mpi.nl>
+ */
+public class CmdiHeaderInfo {
+
+    protected final static String COMPONENT_REGISTRY_PATTERN = "^http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/(.*)/xsd$";
+    protected String MdCreator;
+    protected String MdCreationDate;
+    protected String MdSelfLink;
+    protected String MdProfile;
+    protected String MdCollectionDisplayName;
+
+    /**
+     * Creates an empty CmdiHeaderInfo instance with all fields set to null
+     */
+    public CmdiHeaderInfo() {
+    }
+
+    /**
+     * Will create a new CmdiHeaderInfo with default values. 
+     * <p>
+     * {@link #MdProfile} will be set according to the specified profileSchemaURI. If it  
+     * matches the component registry location, the Id is extracted and used. Otherwise, the entire string value of the URI is used.
+     * </p><p>
+     * The other values will be set as by {@link #createDefault(java.lang.String)}.
+     * </p>
+     * @param profileSchemaURI URI of profile schema. e.g. http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:c_1302702320465/xsd
+     * @return new CmdiHeaderInfo instance with MdCreator, MdProfile and MdCreationDate set
+     */
+    public static CmdiHeaderInfo createDefault(final URI profileSchemaURI) {
+	String uriString = profileSchemaURI.toString();
+	if (uriString.matches(COMPONENT_REGISTRY_PATTERN)) {
+	    uriString = uriString.replaceAll(COMPONENT_REGISTRY_PATTERN, "$1");
+	}
+	return createDefault(uriString);
+    }
+
+    /**
+     * Will create a new CmdiHeaderInfo with default values. 
+     * <p>
+     * {@link #MdProfile} will be the specified profile string (should be a Component Registry Id or URI according to CMDI specification)
+     * </p><p>
+     * {@link #MdCreator} will be the user's username as provided by the environment; if not provided, it will be set to "Arbil"
+     * </p><p>
+     * {@link #MdCreationDate} will be the current date/time coverted to string through {@code XmlDateTime.getStringValue()}
+     * </p><p>
+     * {@link #MdSelfLink} and {@link #MdCollectionDisplayName} will be null
+     * </p>
+     * @param profile value for the MdProfile element
+     * @return new CmdiHeaderInfo instance with MdCreator, MdProfile and MdCreationDate set
+     */
+    public static CmdiHeaderInfo createDefault(final String profile) {
+	String userName = System.getProperty("user.name");
+	if (userName == null || "".equals(userName)) {
+	    userName = "Arbil";
+	}
+
+	CmdiHeaderInfo headerInfo = new CmdiHeaderInfo();
+	headerInfo.setMdCreator(userName);
+	headerInfo.setMdProfile(profile);
+
+	XmlDateTime dateTime = XmlDateTime.Factory.newInstance();
+	dateTime.setDateValue(new Date());
+	headerInfo.setMdCreationDate(dateTime.getStringValue());
+	return headerInfo;
+    }
+
+    /**
+     * @return the MdCreator
+     */
+    public String getMdCreator() {
+	return MdCreator;
+    }
+
+    /**
+     * @param MdCreator the MdCreator to set
+     */
+    public void setMdCreator(String MdCreator) {
+	this.MdCreator = MdCreator;
+    }
+
+    /**
+     * @return the MdCreationDate
+     */
+    public String getMdCreationDate() {
+	return MdCreationDate;
+    }
+
+    /**
+     * @param MdCreationDate the MdCreationDate to set
+     */
+    public void setMdCreationDate(String MdCreationDate) {
+	this.MdCreationDate = MdCreationDate;
+    }
+
+    /**
+     * @return the MdSelfLink
+     */
+    public String getMdSelfLink() {
+	return MdSelfLink;
+    }
+
+    /**
+     * @param MdSelfLink the MdSelfLink to set
+     */
+    public void setMdSelfLink(String MdSelfLink) {
+	this.MdSelfLink = MdSelfLink;
+    }
+
+    /**
+     * @return the MdProfile
+     */
+    public String getMdProfile() {
+	return MdProfile;
+    }
+
+    /**
+     * @param MdProfile the MdProfile to set
+     */
+    public void setMdProfile(String MdProfile) {
+	this.MdProfile = MdProfile;
+    }
+
+    /**
+     * @return the MdCollectionDisplayName
+     */
+    public String getMdCollectionDisplayName() {
+	return MdCollectionDisplayName;
+    }
+
+    /**
+     * @param MdCollectionDisplayName the MdCollectionDisplayName to set
+     */
+    public void setMdCollectionDisplayName(String MdCollectionDisplayName) {
+	this.MdCollectionDisplayName = MdCollectionDisplayName;
+    }
+}
