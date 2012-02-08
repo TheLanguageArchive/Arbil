@@ -39,6 +39,7 @@ import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.apache.xpath.CachedXPathAPI;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -49,6 +50,7 @@ import org.xml.sax.SAXException;
  */
 public class MetadataReader {
 
+    private static CachedXPathAPI xPathAPI = new CachedXPathAPI();
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -172,7 +174,7 @@ public class MetadataReader {
 	    } else {
 		// Set some values to new instance of metadata file
 
-		Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
+		Node linkNode = xPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
 		NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
 
 		// Set the arbil version to the present version
@@ -294,10 +296,10 @@ public class MetadataReader {
 		Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
 
 		if (insertableSectionDoc != null) {
-		    Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
+		    Node insertableNode = xPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
 		    if (insertableNode != null) {
 			Node addableNode = targetImdiDom.importNode(insertableNode, true);
-			Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
+			Node destinationNode = xPathAPI.selectSingleNode(targetImdiDom, targetXpath);
 
 			return ArbilComponentBuilder.canInsertNode(destinationNode, addableNode, maxOccurs);
 		    }
@@ -356,7 +358,7 @@ public class MetadataReader {
 			insertMimeTypeForAddingFromTemplate(insertableSectionDoc, mimeType);
 		    }
 
-		    Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
+		    Node insertableNode = xPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
 		    if (insertableNode == null) {
 			BugCatcherManager.getBugCatcher().logError(new Exception("InsertableSection not found in the template"));
 		    }
@@ -389,7 +391,7 @@ public class MetadataReader {
 
     private URI importNodesAddedFromTemplate(Document targetImdiDom, URI targetMetadataUri, String targetXpath, String targetRef, Node insertableNode, String insertBefore, final int maxOccurs) throws URISyntaxException, DOMException, ArbilMetadataException, TransformerException {
 	Node addableNode = targetImdiDom.importNode(insertableNode, true);
-	Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
+	Node destinationNode = xPathAPI.selectSingleNode(targetImdiDom, targetXpath);
 	Node addedNode = ArbilComponentBuilder.insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
 	String nodeFragment = ArbilComponentBuilder.convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
 	//                            try {
@@ -409,7 +411,7 @@ public class MetadataReader {
 	    //                        linkNode.setTextContent(exifTags.get(dateExifTag).toString());
 	    //                    }
 	}
-	Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:Format");
+	Node linkNode = xPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:Format");
 	linkNode.setTextContent(mimeType);
     }
 
@@ -449,7 +451,7 @@ public class MetadataReader {
 	    //localFilePath = resourcePath; // link to the original file
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
-	Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:ResourceLink");
+	Node linkNode = xPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:ResourceLink");
 	String decodeUrlString = URLDecoder.decode(finalResourceUrl.toString(), "UTF-8");
 	linkNode.setTextContent(decodeUrlString);
     }

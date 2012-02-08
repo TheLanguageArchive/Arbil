@@ -48,7 +48,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xpath.XPathAPI;
+import org.apache.xpath.CachedXPathAPI;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -64,6 +64,8 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilComponentBuilder {
+    
+    private static CachedXPathAPI xPathAPI = new CachedXPathAPI();
 
     public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
     public static final String RESOURCE_ID_PREFIX = "res_";
@@ -209,7 +211,7 @@ public class ArbilComponentBuilder {
     public void setHeaderInfo(Document document, CmdiHeaderInfo headerInfo) throws TransformerException {
 	final String headerPath = "/:CMD/:Header";
 
-	Node headerNode = XPathAPI.selectSingleNode(document.getFirstChild(), headerPath);
+	Node headerNode = xPathAPI.selectSingleNode(document.getFirstChild(), headerPath);
 
 	if (headerNode != null) {
 	    setHeaderInfoItem(document, headerNode, "MdCreator", headerInfo.getMdCreator());
@@ -221,7 +223,7 @@ public class ArbilComponentBuilder {
     }
 
     private void setHeaderInfoItem(Document document, Node headerNode, final String nodeName, final String value) throws DOMException, TransformerException {
-	Node childNode = XPathAPI.selectSingleNode(headerNode, "/:" + nodeName);
+	Node childNode = xPathAPI.selectSingleNode(headerNode, "/:" + nodeName);
 	if (value != null) {
 	    if (childNode == null) {
 		childNode = document.createElementNS(CMD_NAMESPACE, nodeName);
@@ -989,7 +991,7 @@ public class ArbilComponentBuilder {
     private static void removeImdiDomIds(Document targetDocument) {
 	String handleXpath = "/:METATRANSCRIPT[@id]|/:METATRANSCRIPT//*[@id]";
 	try {
-	    NodeList domIdNodeList = XPathAPI.selectNodeList(targetDocument, handleXpath);
+	    NodeList domIdNodeList = xPathAPI.selectNodeList(targetDocument, handleXpath);
 	    for (int nodeCounter = 0; nodeCounter < domIdNodeList.getLength(); nodeCounter++) {
 		Node domIdNode = domIdNodeList.item(nodeCounter);
 		if (domIdNode != null) {
@@ -1004,7 +1006,7 @@ public class ArbilComponentBuilder {
     private void removeArchiveHandles(Document targetDocument) {
 	String handleXpath = "/:METATRANSCRIPT[@ArchiveHandle]|/:METATRANSCRIPT//*[@ArchiveHandle]";
 	try {
-	    NodeList archiveHandleNodeList = XPathAPI.selectNodeList(targetDocument, handleXpath);
+	    NodeList archiveHandleNodeList = xPathAPI.selectNodeList(targetDocument, handleXpath);
 	    for (int nodeCounter = 0; nodeCounter < archiveHandleNodeList.getLength(); nodeCounter++) {
 		Node archiveHandleNode = archiveHandleNodeList.item(nodeCounter);
 		if (archiveHandleNode != null) {
@@ -1044,7 +1046,7 @@ public class ArbilComponentBuilder {
 //            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
 		System.out.println("tempXpath: " + tempXpath);
 		// find the target node of the xml
-		Node returnNode = XPathAPI.selectSingleNode(targetDocument, tempXpath);
+		Node returnNode = xPathAPI.selectSingleNode(targetDocument, tempXpath);
 		if (returnNode != null) {
 		    return returnNode;
 		}
