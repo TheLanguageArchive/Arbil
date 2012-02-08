@@ -47,7 +47,7 @@ public class CmdiHeaderInfo {
     /**
      * Will create a new CmdiHeaderInfo with default values. 
      * <p>
-     * {@link #MdProfile} will be the specified profile string (should be a Component Registry IF or URI according to CMDI specification)
+     * {@link #MdProfile} will be the specified profile string (should be a Component Registry ID or URI according to CMDI specification)
      * </p><p>
      * {@link #MdCreator} will be the user's username as provided by the environment; if not provided, it will be set to "Arbil"
      * </p><p>
