@@ -111,8 +111,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 		removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
 		addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
 		copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-		searchRemoteBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
 		addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
+		searchRemoteBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1 && !leadSelectedTreeNode.isCmdiMetaDataNode());
 	    }
 	    if (tree == getTreePanel().localCorpusTree) {
 		viewSelectedNodesMenuItem.setText("View/Edit Selected");
