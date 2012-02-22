@@ -223,6 +223,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    logError(uee);
 	}
 	boolean success = fromDirectory.renameTo(toDirectory);
+	// This sometimes fails on Windows 7, JRE 6 without any clear reason. See https://trac.mpi.nl/ticket/1553
 	if (!success) {
 	    if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
 		    "The files in your 'Local Corpus' could not be moved to the requested location.\n"
