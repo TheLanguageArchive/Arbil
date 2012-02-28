@@ -102,7 +102,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    exportMenuItem.setVisible(!nodeIsChild);
 		    importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
 		    importBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
-		    reImportBranchMenuItem.setVisible(leadSelectedTreeNode.archiveHandle != null && !leadSelectedTreeNode.isChildNode());
+		    reImportBranchMenuItem.setVisible(selectedTreeNodes.length == 1 && leadSelectedTreeNode.archiveHandle != null && !leadSelectedTreeNode.isChildNode());
 		}
 		// set up the favourites menu
 		addFromFavouritesMenu.setVisible(true);
@@ -562,7 +562,11 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_IMPORT, PRIORITY_TOP + 5, importBranchMenuItem);
 
-	reImportBranchMenuItem.setText("Re-Import this Branch");
+	if (leadSelectedTreeNode.isSession()) {
+	    reImportBranchMenuItem.setText("Re-Import this Session");
+	} else {
+	    reImportBranchMenuItem.setText("Re-Import this Branch");
+	}
 	reImportBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
