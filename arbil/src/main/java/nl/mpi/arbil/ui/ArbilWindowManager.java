@@ -177,7 +177,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	String messageString = "Archive Builder\n"
 		+ "A local tool for organising linguistic data.\n"
 		+ "Max Planck Institute for Psycholinguistics\n\n"
-		+ "Application design and programming by Peter Withers\n"
+		+ "Application design and programming by Peter Withers and Twan Goosen\n"
 		+ "Arbil also uses components of the IMDI API and Lamus Type Checker\n\n"
 		+ "Version: " + appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision + "\n"
 		+ appVersion.lastCommitDate + "\n"
