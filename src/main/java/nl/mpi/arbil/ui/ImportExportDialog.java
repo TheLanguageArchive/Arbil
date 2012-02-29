@@ -952,7 +952,12 @@ public class ImportExportDialog {
 	}
 
 	public void calculateTreeFileName(boolean lamusFriendly) {
-	    fileSuffix = sourceURI.toString().substring(sourceURI.toString().lastIndexOf("."));
+	    final int suffixSeparator = sourceURI.toString().lastIndexOf(".");
+	    if (suffixSeparator > 0) {
+		fileSuffix = sourceURI.toString().substring(suffixSeparator);
+	    } else {
+		fileSuffix = "";
+	    }
 	    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, sourceURI);
 	    currentNode.waitTillLoaded();
 	    String fileNameString;
@@ -967,7 +972,12 @@ public class ImportExportDialog {
 		    appendToTaskOutput("unable to decode the file name for: " + urlString);
 		    System.out.println("unable to decode the file name for: " + urlString);
 		}
-		fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1, urlString.lastIndexOf("."));
+		final int separator = urlString.lastIndexOf(".");
+		if (separator > 0) {
+		    fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1, separator);
+		} else {
+		    fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1);
+		}
 	    }
 	    fileNameString = fileNameString.replace("\\", "_");
 	    fileNameString = fileNameString.replace("/", "_");
