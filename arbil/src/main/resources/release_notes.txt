@@ -1,4 +1,4 @@
-ARBIL 2.3.x RELEASE NOTES
+ARBIL 2.4.x RELEASE NOTES
 ----------------------------------------
 $Date$ 
 $Revision$ (this means that the descriptions below apply to Arbil 2.4.x with x >= revision)
@@ -50,4 +50,14 @@ not look as expected. (#899)
 - STABILITY: During search, memory usage may exceed the limits of the Java virtual machine which
 could cause the application to terminate unexpectedly.
 
+- WINDOWS: The 'Templates and Profiles' and 'Edit IMDI Language List' dialog windows can grow larger
+than the available screen space. (#147 and #1584)
 
+- SEARCH IN TABLE: The layout of the input boxes for search/replcae within a table sometimes break
+on Windows and Linux. (#1577)
+
+- REMOTE SEARCH: The search interface for remote search is not very intuitive. At the moment remote
+search requires two steps: remote searching and local filtering. (#651)
+
+- FILE HANDLING: There are some issues with file handling that occur on Windows 7. These can cause
+opening in external file and moving the local corpus directory to fail. (#1372 and #1553)
