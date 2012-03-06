@@ -102,7 +102,10 @@ even though character-by-character the latter comes first. This applies to the t
 as tables. (#557)
 
 - TREE VIEW: 'Container' nodes (nodes that do not carry actual data but combine subnodes of a common
-type) are now visually distinghuishable from other empty nodes (#1009).
+type) are now visually distinghuishable from other empty nodes. (#1009)
+
+- REMOTE SEARCH: The remote search option has been disabled for remote CMDI locations, since there
+currently is no remote CMDI search facility. (#1542)
 
 ** FIXES **
 
@@ -180,4 +183,14 @@ future release of Arbil.  (#1431)
 - STABILITY: During search, memory usage may exceed the limits of the Java virtual machine which
 could cause the application to terminate unexpectedly.
 
+- WINDOWS: The 'Templates and Profiles' and 'Edit IMDI Language List' dialog windows can grow larger
+than the available screen space. (#147 and #1584)
 
+- SEARCH IN TABLE: The layout of the input boxes for search/replcae within a table sometimes break
+on Windows and Linux. (#1577)
+
+- REMOTE SEARCH: The search interface for remote search is not very intuitive. At the moment remote
+search requires two steps: remote searching and local filtering. (#651)
+
+- FILE HANDLING: There are some issues with file handling that occur on Windows 7. These can cause
+opening in external file and moving the local corpus directory to fail. (#1372 and #1553)
