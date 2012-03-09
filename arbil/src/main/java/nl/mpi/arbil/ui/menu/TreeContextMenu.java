@@ -593,19 +593,21 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_IMPORT, PRIORITY_TOP + 5, importBranchMenuItem);
 
-	if (leadSelectedTreeNode.isSession()) {
-	    reImportBranchMenuItem.setText("Re-Import this Session");
-	} else {
-	    reImportBranchMenuItem.setText("Re-Import this Branch");
-	}
-	reImportBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		reImportBranch();
+	if (leadSelectedTreeNode != null) {
+	    if (leadSelectedTreeNode.isSession()) {
+		reImportBranchMenuItem.setText("Re-Import this Session");
+	    } else {
+		reImportBranchMenuItem.setText("Re-Import this Branch");
 	    }
-	});
-	addItem(CATEGORY_IMPORT, PRIORITY_MIDDLE, reImportBranchMenuItem);
+	    reImportBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
+		public void actionPerformed(java.awt.event.ActionEvent evt) {
+		    reImportBranch();
+		}
+	    });
+	    addItem(CATEGORY_IMPORT, PRIORITY_MIDDLE, reImportBranchMenuItem);
+	}
+	
 	setManualResourceLocationMenuItem.setText("Insert Manual Resource Location");
 	setManualResourceLocationMenuItem.addActionListener(new ActionListener() {
 
