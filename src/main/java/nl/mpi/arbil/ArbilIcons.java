@@ -19,7 +19,9 @@ import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
  * Document   : ArbilIcons
  * Created on : 
  * @author Peter.Withers@mpi.nl
+ *
  */
+
 public class ArbilIcons {
 
     private static ApplicationVersionManager versionManager;
