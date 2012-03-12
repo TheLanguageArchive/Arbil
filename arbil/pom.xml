@@ -17,7 +17,7 @@
     
     <properties>
 	<arbil.majorVersion>2</arbil.majorVersion>
-	<arbil.minorVersion>4</arbil.minorVersion>
+	<arbil.minorVersion>5</arbil.minorVersion>
 	<arbil.branch>pretesting</arbil.branch>
 	<arbil.application-title>Arbil (pretesting)</arbil.application-title>
 	
