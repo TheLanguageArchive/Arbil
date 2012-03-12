@@ -140,6 +140,7 @@
 		    <entries>
 			<entry>
 			    <path>${basedir}/src/main</path>
+                            <!-- this will populate "arbil.version.revision" -->
 			    <prefix>arbil.version</prefix>
 			</entry>
 		    </entries>
