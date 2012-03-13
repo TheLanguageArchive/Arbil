@@ -597,7 +597,7 @@ public class MetadataReader {
 		}
 
 		if (fullNodePath.length() == 0) {
-		    getClarinTemplate(childNode, parentNode, childNodeAttributes);
+		    getTemplate(childNode, parentNode, childNodeAttributes);
 		}
 		if (childNode.getLocalName().equals("Corpus")) {
 		    getImdiCatalogue(childNodeAttributes, parentNode, childLinks, parentChildTree);
@@ -925,7 +925,7 @@ public class MetadataReader {
 	return parentNodePath;
     }
 
-    private void getClarinTemplate(Node childNode, ArbilDataNode parentNode, NamedNodeMap attributesMap) throws DOMException {
+    private void getTemplate(Node childNode, ArbilDataNode parentNode, NamedNodeMap attributesMap) throws DOMException {
 	// if this is the first node and it is not metatranscript then it is not an imdi so get the clarin template
 	if (!childNode.getLocalName().equals("METATRANSCRIPT")) {
 	    // change made for clarin
@@ -962,10 +962,9 @@ public class MetadataReader {
 		BugCatcherManager.getBugCatcher().logError(exception);
 		messageDialogHandler.addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
 	    }
-	}
-	if (attributesMap != null) {
+	} else {
 	    // this is an imdi file so get an imdi template etc
-	    if (childNode.getLocalName().equals("METATRANSCRIPT")) {
+	    if (attributesMap != null) {
 		// these attributes exist only in the metatranscript node
 		Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
 		if (archiveHandleAtt != null) {
