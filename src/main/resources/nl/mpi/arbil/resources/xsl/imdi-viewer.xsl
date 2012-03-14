@@ -26,7 +26,7 @@
  This is a modified version which is under construction by Evelyn Richter, July 2009
  Last modification by Evelyn Richter, 13 Aug 2009, adjusted Catalogue: DocumentLanguages, SubjectLanguages, Quality, Format   
  -->
-<xsl:stylesheet version="1.0" xmlns:imdi="http://www.mpi.nl/IMDI/Schema/IMDI" xmlns:saxon="http://saxon.sf.net/" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" exclude-result-prefixes="saxon imdi">
+<xsl:stylesheet version="2.0" xmlns:imdi="http://www.mpi.nl/IMDI/Schema/IMDI" xmlns:saxon="http://saxon.sf.net/" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" exclude-result-prefixes="saxon imdi">
     <xsl:output indent="yes" method="html" encoding="UTF-8" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"/>
     <!--
         Display external descriptions as html links (true|false)
@@ -86,12 +86,12 @@
     -->
     <xsl:param name="SEARCH_STRING"></xsl:param>
     <xsl:param name="DISPLAY_ONLY_BODY">false</xsl:param>
-    <!-- 
-        SEARCH_TOKENS is the SEARCH_STRING enclosed by TOKEN_SEPARATOR
-        because the token in the XML content is also enclosed by TOKEN_SEPARATOR
-        so that it can be used in the 'contains' function
-    -->
-    <xsl:variable name="SEARCH_TOKENS" select="concat($TOKEN_SEPARATOR, $SEARCH_STRING, $TOKEN_SEPARATOR)"/>
+
+    <xsl:variable name="searchRegex" ><!-- aap,noot becomes aap|noot, NOTE tokens matching partial words will be matched which is bad, but not trivial to solve. You cannot just put whitespace around it because that won't match words at the end or beginning etc... -->
+        <xsl:value-of select='replace($SEARCH_STRING, ",", "|")'/>
+    </xsl:variable>
+    
+
     <!--
         Root match
     -->
@@ -107,7 +107,7 @@
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
                 <title>
-                    <xsl:value-of select="name(imdi:*|*)"/> : <xsl:value-of select="imdi:*/imdi:Name/text()|*/Name/text()"/> - <xsl:value-of select="imdi:Session/imdi:Title/text()"/> [IMDI 3.0] </title>
+                    <xsl:value-of select="name(imdi:Session|imdi:Catalogue|imdi:Corpus)"/> : <xsl:value-of select="imdi:*/imdi:Name/text()|*/Name/text()"/> - <xsl:value-of select="imdi:Session/imdi:Title/text()"/> [IMDI 3.0] </title>
                 <script language="javascript">
                     <xsl:attribute name="src">
                         <xsl:value-of select="$JAVASCRIPT_INCLUDE_FILE"/>
@@ -570,156 +570,67 @@
     </xsl:template>
     
     <!-- 
-        Content highlighting, uses string tokenizing from XSLT Cookbook
+        Content highlighting, using regex code.
     -->
     <xsl:template match="text()" mode="highlight">
-        <!--<xsl:param name="string" select="''"/>-->
         <xsl:param name="string" select="."/>
         <xsl:param name="delimiters" select="' &#x9;&#xA;'"/>
         <xsl:choose>
             <!-- nothing to do for empty string -->
             <xsl:when test="not($string)"/>
             <xsl:otherwise>
-                <xsl:call-template name="_tokenize_delimiters">
-                    <xsl:with-param name="string" select="$string"/>
-                    <xsl:with-param name="delimiters" select="$delimiters"/>
-                </xsl:call-template>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-    <!-- 
-        Highlight tokens using delimiters        
-    -->
-    <xsl:template name="_tokenize_delimiters">
-        <xsl:param name="string"/>
-        <xsl:param name="delimiters"/>
-        <xsl:param name="last-delimit"/>
-        <!-- extract a delimiter -->
-        <xsl:variable name="delimiter" select="substring($delimiters, 1, 1)"/>
-        <xsl:variable name="token_string">
-            <xsl:value-of select="$TOKEN_SEPARATOR"/>
-            <!--<xsl:value-of select="$string"/>-->
-            <xsl:value-of select="translate($string,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
-            <xsl:value-of select="$TOKEN_SEPARATOR"/>
-        </xsl:variable>
-        <xsl:choose>
-            <!-- if delimiter is empty we have a token -->
-            <xsl:when test="not($delimiter)">
                 <xsl:choose>
-                    <xsl:when test="contains($SEARCH_TOKENS,$token_string)">
-                        <b class="marker">
-                            <xsl:value-of select="$string"/>
-                        </b>
+                    <xsl:when test="$searchRegex != ''">
+                        <xsl:analyze-string select="$string" regex="{$searchRegex}" flags="i">
+                            <xsl:matching-substring>
+                                <b class="marker"><xsl:value-of select="regex-group(0)"/></b>
+                            </xsl:matching-substring>
+                            <xsl:non-matching-substring>
+                                <xsl:value-of select="." />
+                            </xsl:non-matching-substring>
+                        </xsl:analyze-string>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:value-of select="$string"/>
+                        <xsl:value-of select="." />
                     </xsl:otherwise>
                 </xsl:choose>
-            </xsl:when>
-            <!-- if the string contains at least one delimiter we must split it -->
-            <xsl:when test="contains($string, $delimiter)">
-                <xsl:if test="not(starts-with($string,$delimiter))">
-                    <!-- handle the part that comes before the current delimiter -->
-                    <!-- with the next delimiter. If there is no next the first test -->
-                    <!-- in this template will detect the token -->
-                    <xsl:call-template name="_tokenize_delimiters">
-                        <xsl:with-param name="string" select="substring-before($string, $delimiter)"/>
-                        <xsl:with-param name="delimiters" select="substring($delimiters, 2)"/>
-                    </xsl:call-template>
-                </xsl:if>
-                <!-- FRD place delimiter here -->
-                <xsl:value-of select="$delimiter"/>
-                <!-- handle the part that comes after the delimiter using the -->
-                <!-- current delimiter -->
-                <xsl:call-template name="_tokenize_delimiters">
-                    <xsl:with-param name="string" select="substring-after($string, $delimiter)"/>
-                    <xsl:with-param name="delimiters" select="$delimiters"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <!-- No occurances of current delimiter so move on to next -->
-                <xsl:call-template name="_tokenize_delimiters">
-                    <xsl:with-param name="string" select="$string"/>
-                    <xsl:with-param name="delimiters" select="substring($delimiters, 2)"/>
-                </xsl:call-template>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
     <!-- 
-        Count token matches (based on XSLT Cookbook tokenizer example)
+        Count token matches 
     -->
     <xsl:template name="count_matches">
         <xsl:param name="string" select="''"/>
-        <xsl:param name="delimiters" select="' &#x9;&#xA;'"/>
         <xsl:choose>
             <!-- nothing to do when we want to search _in_ an empty string
-                    or when we want to search _for_ an empty string -->
+                    or when we want to search _for_ an empty string
+             -->
             <xsl:when test="not($string) or not($SEARCH_STRING)"/>
             <xsl:otherwise>
                 <xsl:call-template name="_count_token_matches">
                     <xsl:with-param name="string" select="$string"/>
-                    <xsl:with-param name="delimiters" select="$delimiters"/>
                     <xsl:with-param name="current_count" select="''"/>
                 </xsl:call-template>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    <!-- 
-        Recursive routine to count tokens that match SEARCH_STRING
+    
+    <!--
+        Count matches using the regexp        
     -->
     <xsl:template name="_count_token_matches">
         <xsl:param name="string"/>
-        <xsl:param name="delimiters"/>
         <xsl:param name="current_count"/>
-        <!-- extract a delimiter -->
-        <xsl:variable name="delimiter" select="substring($delimiters, 1, 1)"/>
-        <xsl:variable name="token_string">
-            <xsl:value-of select="$TOKEN_SEPARATOR"/>
-            <xsl:value-of select="$string"/>
-            <xsl:value-of select="$TOKEN_SEPARATOR"/>
-        </xsl:variable>
-        <xsl:choose>
-            <!-- if delimiter is empty we have a token -->
-            <xsl:when test="not($delimiter)">
-                <xsl:if test="contains($SEARCH_TOKENS,$token_string)">
-                    <xsl:text>*</xsl:text>
-                </xsl:if>
-            </xsl:when>
-            <!-- if the string contains at least one delimiter we must split it -->
-            <xsl:when test="contains($string, $delimiter)">
-                <xsl:choose>
-                    <xsl:when test="not(starts-with($string,$delimiter))">
-                        <xsl:value-of select="$current_count"/>
-                        <xsl:call-template name="_count_token_matches">
-                            <xsl:with-param name="string" select="substring-before($string, $delimiter)"/>
-                            <xsl:with-param name="delimiters" select="substring($delimiters, 2)"/>
-                            <xsl:with-param name="current_count" select="$current_count"/>
-                        </xsl:call-template>
-                        <xsl:call-template name="_count_token_matches">
-                            <xsl:with-param name="string" select="substring-after($string, $delimiter)"/>
-                            <xsl:with-param name="delimiters" select="$delimiters"/>
-                            <xsl:with-param name="current_count" select="$current_count"/>
-                        </xsl:call-template>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:call-template name="_count_token_matches">
-                            <xsl:with-param name="string" select="substring-after($string, $delimiter)"/>
-                            <xsl:with-param name="delimiters" select="$delimiters"/>
-                            <xsl:with-param name="current_count" select="$current_count"/>
-                        </xsl:call-template>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:when>
-            <xsl:otherwise>
-                <!-- No occurances of current delimiter so move on to next -->
-                <xsl:call-template name="_count_token_matches">
-                    <xsl:with-param name="string" select="$string"/>
-                    <xsl:with-param name="delimiters" select="substring($delimiters, 2)"/>
-                    <xsl:with-param name="current_count" select="$current_count"/>
-                </xsl:call-template>
-            </xsl:otherwise>
-        </xsl:choose>
+        <xsl:analyze-string select="$string" regex="{$searchRegex}" flags="i">
+            <xsl:matching-substring>
+                <xsl:value-of select="$current_count"/>
+            </xsl:matching-substring>
+            <xsl:non-matching-substring>
+            </xsl:non-matching-substring>
+        </xsl:analyze-string>        
     </xsl:template>
+    
     <!--
         Keys    
     -->
@@ -799,7 +710,6 @@
                     <xsl:call-template name="group_header_dynamic">
                         <xsl:with-param name="level" select="$level"/>
                         <xsl:with-param name="group-name" select="$group-name"/>
-                        <xsl:with-param name="group-type" select="$group-type"/>
                         <xsl:with-param name="group-info" select="$group-info"/>
                         <xsl:with-param name="id" select="$tid"/>
                     </xsl:call-template>
@@ -811,7 +721,6 @@
             </xsl:choose>
             <xsl:call-template name="group_body">
                 <xsl:with-param name="level" select="$level"/>
-                <xsl:with-param name="group-name" select="$group-name"/>
                 <xsl:with-param name="group-type" select="$group-type"/>
                 <xsl:with-param name="id" select="$tid"/>
                 <xsl:with-param name="content" select="$content"/>
@@ -846,7 +755,7 @@
         <xsl:param name="group-info"/>
         <xsl:param name="id"/>
         <xsl:variable name="xpath-id">
-                <xsl:value-of select="saxon:path()"/>
+            <xsl:apply-templates select="." mode="path" />
         </xsl:variable>
         <div>
             <xsl:attribute name="class">IMDI_group_header_dynamic</xsl:attribute>
@@ -892,7 +801,9 @@
             <xsl:attribute name="class">
                     <xsl:text>IMDI_group_header_static</xsl:text>
             </xsl:attribute>
-            <xsl:attribute name="id"><xsl:value-of select="saxon:path()"/></xsl:attribute>
+            <xsl:attribute name="id">
+                <xsl:apply-templates select="." mode="path" />
+            </xsl:attribute>
             <xsl:value-of select="$group-name"/>
         </div>
     </xsl:template>
@@ -903,8 +814,8 @@
         <xsl:param name="level"/>
         <xsl:param name="name"/>
         <xsl:param name="value"/>
-        <xsl:variable name="xpath-id">
-                <xsl:value-of select="saxon:path()"/>
+        <xsl:variable name="xpath-id">                
+            <xsl:apply-templates select="." mode="path" />
         </xsl:variable>
         <div class="IMDI_name_value">
             <span>
@@ -930,7 +841,7 @@
         <xsl:param name="name"/>
         <xsl:param name="value"/>
         <xsl:variable name="xpath-id">
-                <xsl:value-of select="saxon:path()"/>
+                <xsl:apply-templates select="." mode="path" />
         </xsl:variable>
         <div class="IMDI_key_name_value">
             <span>
@@ -976,4 +887,16 @@
             </xsl:choose>
         </div>
      </xsl:template>
+    
+    <xsl:template match="*" mode="path">
+        <xsl:apply-templates select="parent::*" mode="path"/>
+        
+        <xsl:text>/</xsl:text>
+        <xsl:value-of select="name()"/>
+        <xsl:if test="parent::*">
+            <xsl:text>[</xsl:text>
+            <xsl:value-of select="1+count(preceding-sibling::*[name(.)=name(current())])"/>
+            <xsl:text>]</xsl:text>
+        </xsl:if>
+    </xsl:template>
 </xsl:stylesheet>
