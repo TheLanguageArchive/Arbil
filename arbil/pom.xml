@@ -208,7 +208,7 @@
 	    <groupId>nl.mpi</groupId>
 	    <artifactId>mpi-util</artifactId>
 	    <version>1.0.0</version>
-	</dependency>
+	</dependency>	
 	<dependency>
 	    <groupId>junit</groupId>
 	    <artifactId>junit</artifactId>
@@ -217,13 +217,8 @@
 	</dependency>
 	<dependency>
 	    <groupId>net.sf.saxon</groupId>
-	    <artifactId>saxon</artifactId>
-	    <version>9.1.0.8</version>
-	</dependency>
-	<dependency>
-	    <groupId>net.sf.saxon</groupId>
-	    <artifactId>saxon-dom</artifactId>
-	    <version>8.7</version>
+	    <artifactId>Saxon-HE</artifactId>
+	    <version>9.4</version>
 	</dependency>
 	<dependency>
 	    <groupId>xerces</groupId>
@@ -256,6 +251,10 @@
 	    <id>MPI</id>
 	    <name>MPI LAT Repository</name>
 	    <url>http://lux15.mpi.nl/nexus/content/groups/public/</url>
+	</repository>
+	<repository>
+	    <id>sonatype</id>
+	    <url>https://oss.sonatype.org/content/groups/public</url>
 	</repository>
     </repositories>
     <reporting>

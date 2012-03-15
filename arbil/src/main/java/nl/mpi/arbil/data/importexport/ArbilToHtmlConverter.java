@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.apache.xml.utils.DefaultErrorHandler;
 
 /**
  *  Document   : ArbilToHtmlConverter
@@ -67,9 +71,18 @@ public class ArbilToHtmlConverter {
 	if (xslFile != null && xslFile.exists()) {
 	    xslUrl = xslFile.toURL();
 	}
-	javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(xslUrl.toString()));
+	final StreamSource streamSource = new javax.xml.transform.stream.StreamSource(xslUrl.toString());
+	javax.xml.transform.Transformer transformer = tFactory.newTransformer(streamSource);
+	final StringWriter errorStringWriter = new StringWriter();
+	final DefaultErrorHandler errorHandler = new DefaultErrorHandler(new PrintWriter(errorStringWriter));
+	transformer.setErrorListener(errorHandler);
 	// 3. Use the Transformer to transform an XML Source and send the output to a Result object.
-	transformer.transform(new javax.xml.transform.stream.StreamSource(inputNode.getURI().toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(destinationFile.getCanonicalPath())));
+	try {
+	    transformer.transform(new javax.xml.transform.stream.StreamSource(inputNode.getURI().toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(destinationFile.getCanonicalPath())));
+	} catch (TransformerException tEx) {
+	    BugCatcherManager.getBugCatcher().logError("Transformer error messages: " + errorStringWriter.toString(), null);
+	    throw tEx;
+	}
     }
 
     private void copyDependancies(File destinationDirectory, boolean deleteOnExit) {
