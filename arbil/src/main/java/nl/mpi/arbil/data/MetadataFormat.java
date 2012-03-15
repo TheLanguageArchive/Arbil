@@ -34,7 +34,7 @@ public class MetadataFormat {
 		// Generic XML
 		new FormatType(".xml", "", ArbilIcons.getSingleInstance().clarinIcon, false), // Clarin icon is not really appropriate
 		// KMDI, Kinship metadata
-		new FormatType(".kmdi", ".Kinnate.Data", ArbilIcons.getSingleInstance().kinOathIcon, false),
+		new FormatType(".kmdi", ".Kinnate.CustomData", ArbilIcons.getSingleInstance().kinOathIcon, false),
 		// TLA test results
 		new FormatType(".trx", "", ArbilIcons.getSingleInstance().clarinIcon, false)})); // Clarin icon is not really appropriate
 
