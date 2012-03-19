@@ -499,10 +499,11 @@ public class ArbilField implements Serializable {
 	    fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue", "");
 
 	    // todo: the following path contraction should really be done in the templates rather than here
+            // todo: these filter strings should really be read from the metadata format
 	    // handle the clarin path names
 	    fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 	    // handle the kinoath path names
-	    fieldName = fieldName.replaceFirst("^\\.Kinnate\\.Metadata\\.[^\\.]+\\.", "");
+	    fieldName = fieldName.replaceFirst("^\\.Kinnate\\.CustomData\\.[^\\.]+\\.", "");
 //                    if (attributeName.equals("Name")) {
 	    if (fieldName.endsWith("Keys.Key")) {
 //                System.out.println("Found key for: " + xmlPath);
