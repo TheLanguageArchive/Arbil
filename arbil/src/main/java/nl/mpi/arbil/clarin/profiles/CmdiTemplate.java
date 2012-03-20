@@ -48,7 +48,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xpath.XPathAPI;
+import org.apache.xpath.CachedXPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -294,7 +294,7 @@ public class CmdiTemplate extends ArbilTemplate {
 //            xmlOptions.setCompileDownloadUrls();
 	    SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
 	    SchemaType schemaType = sts.documentTypes()[0];
-	    constructXml(schemaType, arrayListGroup, "");
+	    constructXml(schemaType, arrayListGroup, "", new CachedXPathAPI());
 //            for (SchemaType schemaType : sts.documentTypes()) {
 ////                System.out.println("T-documentTypes:");
 //                constructXml(schemaType, arrayListGroup, "", "");
@@ -309,16 +309,16 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
-    private int constructXml(final SchemaType schemaType, ArrayListGroup arrayListGroup, final String pathString) {
+    private int constructXml(final SchemaType schemaType, ArrayListGroup arrayListGroup, final String pathString, final CachedXPathAPI xPathAPI) {
 	int childCount = 0;
 //        boolean hasMultipleElementsInOneNode = false;
 	int subNodeCount = 0;
-	readControlledVocabularies(schemaType, pathString);
+	readControlledVocabularies(schemaType, pathString, xPathAPI);
 	readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
 
 	// search for annotations
 	SchemaParticle topParticle = schemaType.getContentModel();
-	searchForAnnotations(topParticle, pathString, arrayListGroup);
+	searchForAnnotations(topParticle, pathString, arrayListGroup, xPathAPI);
 	// end search for annotations
 	SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
 	//        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
@@ -333,7 +333,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		ElementCardinality cardinality = determineElementCardinality(schemaProperty);
 		SchemaType currentSchemaType = schemaProperty.getType();
 		currentNodeMenuName = localName;
-		subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString);
+		subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString, xPathAPI);
 		if (cardinality.canHaveMultiple) {
 		    if (subNodeCount > 0) {
 //                todo check for case of one or only single sub element and when found do not add as a child path
@@ -406,7 +406,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	return localPart;
     }
 
-    private void searchForAnnotations(SchemaParticle schemaParticle, String nodePathBase, ArrayListGroup arrayListGroup) {
+    private void searchForAnnotations(SchemaParticle schemaParticle, String nodePathBase, ArrayListGroup arrayListGroup, CachedXPathAPI xPathAPI) {
 	if (schemaParticle != null) {
 	    switch (schemaParticle.getParticleType()) {
 		case SchemaParticle.SEQUENCE:
@@ -418,7 +418,7 @@ public class CmdiTemplate extends ArbilTemplate {
 			    nodePath = nodePathBase + ".unnamed";
 			    BugCatcherManager.getBugCatcher().logError(new Exception("unnamed node at: " + nodePath));
 			}
-			searchForAnnotations(schemaParticleChild, nodePath, arrayListGroup);
+			searchForAnnotations(schemaParticleChild, nodePath, arrayListGroup, xPathAPI);
 		    }
 		    break;
 		case SchemaParticle.ELEMENT:
@@ -434,7 +434,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		String elementPath = nodePathBase.replaceFirst("\\.", "//*[@name='").replaceAll("\\.", "']//*[@name='") + "']";
 		try {
 		    // Get element specification
-		    Node elementSpecNode = XPathAPI.selectSingleNode(schemaDoc, elementPath);
+		    Node elementSpecNode = xPathAPI.selectSingleNode(schemaDoc, elementPath);
 		    if (elementSpecNode != null) {
 			// Get all attributes on the xs:element and look for annotation data
 			NamedNodeMap attributes = elementSpecNode.getAttributes();
@@ -540,14 +540,14 @@ public class CmdiTemplate extends ArbilTemplate {
      * @return HashMap that has [value => label] mapping for the vocabulary
      * @throws TransformerException Thrown on node selection through XPathAPI if transformation fails
      */
-    private HashMap<String, String> getDescriptionsForVocabulary(String vocabularyName) throws TransformerException {
+    private HashMap<String, String> getDescriptionsForVocabulary(String vocabularyName, CachedXPathAPI xPathAPI) throws TransformerException {
 	// Get document node (should not be null)
 	Document schemaDoc = getSchemaDocument();
 	if (schemaDoc == null) {
 	    return null;
 	} else {
 	    // Find all enumeration values within the vocabulary
-	    NodeList enumNodes = XPathAPI.selectNodeList(schemaDoc, "//*[@name='" + vocabularyName + "']//xs:restriction/xs:enumeration");
+	    NodeList enumNodes = xPathAPI.selectNodeList(schemaDoc, "//*[@name='" + vocabularyName + "']//xs:restriction/xs:enumeration");
 	    HashMap<String, String> descriptions = new HashMap<String, String>(enumNodes.getLength());
 	    for (int i = 0; i < enumNodes.getLength(); i++) {
 		NamedNodeMap attMap = enumNodes.item(i).getAttributes();
@@ -565,7 +565,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
-    private void readControlledVocabularies(SchemaType schemaType, String nodePath) {
+    private void readControlledVocabularies(SchemaType schemaType, String nodePath, CachedXPathAPI xPathAPI) {
 	XmlAnySimpleType[] enumerationValues = schemaType.getEnumerationValues();
 
 	if (enumerationValues != null && enumerationValues.length > 0) {
@@ -574,7 +574,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    HashMap<String, String> descriptions = null;
 	    try {
 		// Get descriptions (ann:label attributes on vocabulary enumeration elements)
-		descriptions = getDescriptionsForVocabulary(schemaType.getBaseType().getName().getLocalPart());
+		descriptions = getDescriptionsForVocabulary(schemaType.getBaseType().getName().getLocalPart(), xPathAPI);
 	    } catch (Exception ex) {
 		// Fall back to using just the values, no descriptions
 		BugCatcherManager.getBugCatcher().logError(ex);
