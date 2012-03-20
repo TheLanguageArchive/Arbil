@@ -1024,6 +1024,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /*
      * Increment the history file so that a new current file can be saved without overwritting the old
+     * This will also have the effect of deleting the file until the dom is saved thereby recreating the file that was bumped into history
      */
     public void bumpHistory() throws IOException {
         dataNodeService.bumpHistory(this);
