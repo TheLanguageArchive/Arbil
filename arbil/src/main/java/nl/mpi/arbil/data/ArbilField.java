@@ -503,7 +503,7 @@ public class ArbilField implements Serializable {
 	    // handle the clarin path names
 	    fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 	    // handle the kinoath path names
-	    fieldName = fieldName.replaceFirst("^\\.Kinnate\\.CustomData\\.[^\\.]+\\.", "");
+	    fieldName = fieldName.replaceFirst("^\\.Kinnate\\.CustomData\\.", "");
 //                    if (attributeName.equals("Name")) {
 	    if (fieldName.endsWith("Keys.Key")) {
 //                System.out.println("Found key for: " + xmlPath);
