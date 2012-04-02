@@ -67,7 +67,7 @@ public class ImportExportDialog {
     protected JCheckBox copyFilesImportCheckBox;
     protected JCheckBox renameFileToNodeName;
     protected JCheckBox renameFileToLamusFriendlyName;
-    protected JButton detailsButton;
+    protected JButton showMoreButton;
     protected JCheckBox overwriteCheckBox;
     protected JCheckBox shibbolethCheckBox;
     private JPanel shibbolethPanel;
@@ -253,7 +253,7 @@ public class ImportExportDialog {
 	    }
 	    searchDialog.setResizable(showMoreFlag);
 
-	    detailsButton.setText(showMoreFlag ? "< < Less" : "More > >");
+	    showMoreButton.setText(showMoreFlag ? "< < Less" : "More > >");
 	    showingDetails = showMoreFlag;
 	    searchDialog.pack();
 	}
@@ -262,6 +262,13 @@ public class ImportExportDialog {
     // the targetComponent is used to place the import dialog
     public ImportExportDialog(Component targetComponent) throws Exception {
 	ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
+
+	searchPanel = new JPanel();
+	searchPanel.setLayout(new BorderLayout());
+	searchPanel.add(createInOutNodePanel(), BorderLayout.NORTH);
+	searchPanel.add(createDetailsPanel(), BorderLayout.CENTER);
+	searchPanel.add(createStartStopButtonsPanel(), BorderLayout.SOUTH);
+
 	searchDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
 	searchDialog.addWindowStateListener(new WindowAdapter() {
 
@@ -274,53 +281,28 @@ public class ImportExportDialog {
 		}
 	    }
 	});
-	//searchDialog.setUndecorated(true);
 	searchDialog.addWindowListener(new WindowAdapter() {
 
 	    @Override
 	    public void windowClosing(WindowEvent e) {
 		stopSearch = true;
 		downloadAbortFlag.abortDownload = true;
-//                while (threadARunning || threadBRunning) {
-//                    try {
-//                        Thread.sleep(100);
-//                    } catch (InterruptedException ignore) {
-//                        linorgBugCatcher.logError(ignore);
-//                    }
-//                }
-//                GuiHelper.linorgWindowManager.linorgFrame.requestFocusInWindow();
 	    }
 	});
-	searchPanel = new JPanel();
-	searchPanel.setLayout(new BorderLayout());
-	//searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.PAGE_AXIS));
 	searchDialog.getContentPane().setLayout(new BorderLayout());
 	searchDialog.add(searchPanel, BorderLayout.CENTER);
+	searchDialog.setLocationRelativeTo(targetComponent);
 
-	JPanel inOutNodePanel = new JPanel();
-	inOutNodePanel.setLayout(new BoxLayout(inOutNodePanel, BoxLayout.PAGE_AXIS));
+	updateDialog(showingDetails); // showDetails no longer calls pack()
+	searchDialog.pack();
+    }
 
-	JPanel inputNodeLabelPanel = new JPanel();
-	inputNodeLabelPanel.setLayout(new BorderLayout());
-	inputNodePanel = new JPanel();
-	inputNodePanel.setLayout(new java.awt.GridLayout());
-	inputNodeLabelPanel.add(new JLabel("From: "), BorderLayout.LINE_START);
-	inputNodeLabelPanel.add(inputNodePanel, BorderLayout.CENTER);
-	inputNodeLabelPanel.setAlignmentX(0);
-	inOutNodePanel.add(inputNodeLabelPanel);
+    private JPanel createDetailsPanel() {
+	detailsPanel = new JPanel();
 
-	JPanel outputNodeLabelPanel = new JPanel();
-	outputNodeLabelPanel.setLayout(new BorderLayout());
-	outputNodePanel = new JPanel();
-	outputNodePanel.setLayout(new java.awt.GridLayout());
-	outputNodeLabelPanel.add(new JLabel("To: "), BorderLayout.LINE_START);
-	outputNodeLabelPanel.add(outputNodePanel, BorderLayout.CENTER);
-	outputNodeLabelPanel.setAlignmentX(0);
-	inOutNodePanel.add(outputNodeLabelPanel);
-
-	detailsButton = new JButton("");
-	detailsButton.setToolTipText("Show/hide additional options and details");
-	detailsButton.addActionListener(new ActionListener() {
+	showMoreButton = new JButton("");
+	showMoreButton.setToolTipText("Show/hide additional options and details");
+	showMoreButton.addActionListener(new ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
 		try {
@@ -330,26 +312,6 @@ public class ImportExportDialog {
 		}
 	    }
 	});
-
-	copyFilesExportCheckBox = new JCheckBox("Export Resource Files (if available)", false);
-	copyFilesImportCheckBox = new JCheckBox("Import Resource Files (if available)", false);
-	renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true);
-	renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", true);
-	overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
-	shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
-	JPanel optionsPanel = new JPanel();
-
-	optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
-	overwriteCheckBox.setAlignmentX(0);
-	optionsPanel.add(overwriteCheckBox);
-	copyFilesExportCheckBox.setAlignmentX(0);
-	optionsPanel.add(copyFilesExportCheckBox);
-	optionsPanel.setAlignmentX(0);
-
-	inOutNodePanel.add(optionsPanel);
-
-	searchPanel.add(inOutNodePanel, BorderLayout.NORTH);
-	detailsPanel = new JPanel();
 
 	detailsPanel.setLayout(
 		new BorderLayout());
@@ -423,16 +385,19 @@ public class ImportExportDialog {
 	taskOutput = new JTextArea(5, 20);
 	taskOutput.setMargin(new Insets(5, 5, 5, 5));
 	taskOutput.setEditable(false);
+	taskOutput.append("The details of the import / export process will be displayed here.\n");
 	detailsTabPane.add("Process Details", new JScrollPane(taskOutput));
 
 	xmlOutput = new JTextArea(5, 20);
 	xmlOutput.setMargin(new Insets(5, 5, 5, 5));
 	xmlOutput.setEditable(false);
+	xmlOutput.append("When the metadata files are imported or exported they will be validated (for XML schema conformance) and any errors will be reported here.\n");
 	detailsTabPane.add("Validation Errors", new JScrollPane(xmlOutput));
 
 	resourceCopyOutput = new JTextArea(5, 20);
 	resourceCopyOutput.setMargin(new Insets(5, 5, 5, 5));
 	resourceCopyOutput.setEditable(false);
+	resourceCopyOutput.append("If copying of resource files is selected, any file copy errors will be reported here.\n");
 	detailsTabPane.add("Resource Copy Errors", new JScrollPane(resourceCopyOutput));
 
 	detailsPanel.add(detailsTabPane, BorderLayout.CENTER);
@@ -470,7 +435,7 @@ public class ImportExportDialog {
 	detailsPanel.add(bottomPanel, BorderLayout.SOUTH);
 
 	JPanel detailsButtonPanel = new JPanel(new BorderLayout());
-	detailsButtonPanel.add(detailsButton, BorderLayout.WEST);
+	detailsButtonPanel.add(showMoreButton, BorderLayout.WEST);
 	JPanel detailsContainerPanel = new JPanel();
 	detailsContainerPanel.setLayout(new BoxLayout(detailsContainerPanel, BoxLayout.PAGE_AXIS));
 	detailsButtonPanel.setAlignmentX(0);
@@ -478,33 +443,68 @@ public class ImportExportDialog {
 	detailsPanel.setAlignmentX(0);
 	detailsContainerPanel.add(detailsPanel);
 
-	searchPanel.add(detailsContainerPanel, BorderLayout.CENTER);
+	return detailsContainerPanel;
+    }
 
+    private JPanel createInOutNodePanel() {
+	JPanel inOutNodePanel = new JPanel();
+	inOutNodePanel.setLayout(new BoxLayout(inOutNodePanel, BoxLayout.PAGE_AXIS));
+
+	JPanel inputNodeLabelPanel = new JPanel();
+	inputNodeLabelPanel.setLayout(new BorderLayout());
+	inputNodePanel = new JPanel();
+	inputNodePanel.setLayout(new java.awt.GridLayout());
+	inputNodeLabelPanel.add(new JLabel("From: "), BorderLayout.LINE_START);
+	inputNodeLabelPanel.add(inputNodePanel, BorderLayout.CENTER);
+	inputNodeLabelPanel.setAlignmentX(0);
+	inOutNodePanel.add(inputNodeLabelPanel);
+
+	JPanel outputNodeLabelPanel = new JPanel();
+	outputNodeLabelPanel.setLayout(new BorderLayout());
+	outputNodePanel = new JPanel();
+	outputNodePanel.setLayout(new java.awt.GridLayout());
+	outputNodeLabelPanel.add(new JLabel("To: "), BorderLayout.LINE_START);
+	outputNodeLabelPanel.add(outputNodePanel, BorderLayout.CENTER);
+	outputNodeLabelPanel.setAlignmentX(0);
+	inOutNodePanel.add(outputNodeLabelPanel);
+
+
+	copyFilesExportCheckBox = new JCheckBox("Export Resource Files (if available)", false);
+	copyFilesImportCheckBox = new JCheckBox("Import Resource Files (if available)", false);
+	renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true);
+	renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", true);
+	overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
+	shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
+	JPanel optionsPanel = new JPanel();
+
+	optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
+	overwriteCheckBox.setAlignmentX(0);
+	optionsPanel.add(overwriteCheckBox);
+	copyFilesExportCheckBox.setAlignmentX(0);
+	optionsPanel.add(copyFilesExportCheckBox);
+	optionsPanel.setAlignmentX(0);
+
+	inOutNodePanel.add(optionsPanel);
+	return inOutNodePanel;
+    }
+
+    private JPanel createStartStopButtonsPanel() {
 	JPanel buttonsPanel = new JPanel(new FlowLayout());
-
 	stopButton = new JButton("Stop");
 	startButton = new JButton("Start");
 	stopButton.setEnabled(false);
 	buttonsPanel.add(stopButton);
-
 	progressBar = new JProgressBar(0, 100);
 	progressBar.setValue(0);
 	progressBar.setStringPainted(true);
 	progressBar.setString("");
 	buttonsPanel.add(progressBar);
-
-//        resourceProgressBar = new JProgressBar(0, 100);
-//        resourceProgressBar.setValue(0);
-//        resourceProgressBar.setStringPainted(true);
-//        resourceProgressBar.setString("");
-//        buttonsPanel.add(resourceProgressBar);
-
+	//        resourceProgressBar = new JProgressBar(0, 100);
+	//        resourceProgressBar.setValue(0);
+	//        resourceProgressBar.setStringPainted(true);
+	//        resourceProgressBar.setString("");
+	//        buttonsPanel.add(resourceProgressBar);
 	buttonsPanel.add(startButton);
-
-	searchPanel.add(buttonsPanel, BorderLayout.SOUTH);
-
-	searchDialog.setLocationRelativeTo(targetComponent);
-
 	showInTableButton.setEnabled(false);
 	showInTableButton.addActionListener(new ActionListener() {
 
@@ -527,7 +527,6 @@ public class ImportExportDialog {
 		}
 	    }
 	});
-
 	startButton.addActionListener(new ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
@@ -551,13 +550,7 @@ public class ImportExportDialog {
 		}
 	    }
 	});
-
-	taskOutput.append("The details of the import / export process will be displayed here.\n");
-	xmlOutput.append("When the metadata files are imported or exported they will be validated (for XML schema conformance) and any errors will be reported here.\n");
-	resourceCopyOutput.append("If copying of resource files is selected, any file copy errors will be reported here.\n");
-
-	updateDialog(showingDetails); // showDetails no longer calls pack()
-	searchDialog.pack();
+	return buttonsPanel;
     }
 
     private void appendToTaskOutput(String lineOfText) {
