@@ -19,6 +19,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
 /**
  * ArbilTemplateManager.java
  * Created on Jul 15, 2009, 11:56:57 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplateManager {
@@ -45,6 +46,7 @@ public class ArbilTemplateManager {
 
     /**
      * Create new template of the given name from default
+     *
      * @param selectedTemplate Name of the new template. Cannot be empty or equal to the name of a built in template
      * @return File handle to the newly created template file, or null if the request is invalid
      */
@@ -214,7 +216,7 @@ public class ArbilTemplateManager {
 	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
 	} else if (location.startsWith("custom:")) {
 	    menuItem.type = MenuItemData.Type.CMDI;
-	    
+
 	    String currentString = location.substring("custom:".length());
 	    String customName = currentString.replaceAll("[/.]xsd$", "");
 	    if (customName.contains("/")) {
@@ -389,12 +391,11 @@ public class ArbilTemplateManager {
     }
 
     public ArbilTemplate getTemplate(String templateName) {
-	ArbilTemplate returnTemplate = new ArbilTemplate();
 	if (templateName == null || templateName.length() < 1) {
 	    return getDefaultTemplate(); // if the template string is not provided the default template is used
 	}
 	if (!templatesHashTable.containsKey(templateName)) {
-//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
+	    ArbilTemplate returnTemplate = new ArbilTemplate();
 	    if (returnTemplate.readTemplate(getTemplateFile(templateName), templateName)) {
 		templatesHashTable.put(templateName, returnTemplate);
 		return returnTemplate;
