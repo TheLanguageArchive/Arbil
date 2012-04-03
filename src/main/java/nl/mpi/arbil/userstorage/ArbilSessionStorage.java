@@ -3,7 +3,6 @@ package nl.mpi.arbil.userstorage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,27 +25,27 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
- * Document   : ArbilSessionStorage
+ * Document : ArbilSessionStorage
  * use to save and load objects from disk and to manage items in the local cache
- * Created on : 
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilSessionStorage implements SessionStorage {
@@ -349,6 +348,7 @@ public class ArbilSessionStorage implements SessionStorage {
 //    }
     /**
      * Tests if the a string points to a file that is in the favourites directory.
+     *
      * @return Boolean
      */
     public boolean pathIsInFavourites(File fullTestFile) { //todo: test me
@@ -391,6 +391,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Tests if the a string points to a flie that is in the cache directory.
+     *
      * @return Boolean
      */
     public boolean pathIsInsideCache(File fullTestFile) {
@@ -407,6 +408,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Checks for the existance of the favourites directory exists and creates it if it does not.
+     *
      * @return File pointing to the favourites directory
      */
     public File getFavouritesDir() {
@@ -423,6 +425,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Tests that the cache directory exists and creates it if it does not.
+     *
      * @return Boolean
      */
     public File getCacheDirectory() {
@@ -458,6 +461,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Serialises the passed object to a file in the linorg storage directory so that it can be retrieved on application restart.
+     *
      * @param object The object to be serialised
      * @param filename The name of the file the object is to be serialised into
      * @throws java.io.IOException
@@ -471,6 +475,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Deserialises the file from the linorg storage directory into an object. Use to recreate program state from last save.
+     *
      * @param filename The name of the file containing the serialised object
      * @return The deserialised object
      * @throws java.lang.Exception
@@ -655,6 +660,7 @@ public class ArbilSessionStorage implements SessionStorage {
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Does not check whether copy may have been expired
+     *
      * @param pathString Path of the remote file.
      * @param followRedirect Whether to follow redirects
      * @return The path of the file in the cache.
@@ -666,6 +672,7 @@ public class ArbilSessionStorage implements SessionStorage {
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
+     *
      * @param pathString Path of the remote file.
      * @param followRedirect Whether to follow redirects
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
@@ -696,6 +703,7 @@ public class ArbilSessionStorage implements SessionStorage {
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
+     *
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
@@ -735,6 +743,7 @@ public class ArbilSessionStorage implements SessionStorage {
     /**
      * Removes the cache path component from a path string and appends it to the destination directory.
      * Then tests for and creates the directory structure in the destination directory if required.
+     *
      * @param pathString Path of a file within the cache.
      * @param destinationDirectory Path of the destination directory.
      * @return The path of the file in the destination directory.
@@ -775,7 +784,7 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     /**
-     * Tries to find a match ('mirror') for the requested path string in the resources. 
+     * Tries to find a match ('mirror') for the requested path string in the resources.
      * The method may depend on the type of the requested file
      * @param pathString Requested file
      * @return Resource URL if available in resources, otherwise null
@@ -794,6 +803,7 @@ public class ArbilSessionStorage implements SessionStorage {
     /**
      * Converts a String path from the remote location to the respective location in the cache.
      * Then tests for and creates the directory structure in the cache if requred.
+     *
      * @param pathString Path of the remote file.
      * @return The path in the cache for the file.
      */
@@ -827,7 +837,7 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     private String fixCachePath(String pathString) {
-	String cachePath = pathString.replace(":/", "/").replace("//", "/").replace('?', '/').replace('&', '/');
+	String cachePath = pathString.replace(":/", "/").replace("//", "/").replace('?', '/').replace('&', '/').replace('=', '/');
 	while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
 	    cachePath = cachePath.replace(":", "_");
 	}
@@ -842,9 +852,11 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Copies a remote file over http and saves it into the cache.
+     *
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
-     * @return boolean true only if the file was downloaded, this will be false if the file exists but was not re-downloaded or if the download failed
+     * @return boolean true only if the file was downloaded, this will be false if the file exists but was not re-downloaded or if the
+     * download failed
      */
     public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	boolean downloadSucceeded = false;
@@ -922,10 +934,11 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Opens connection to resource at target url. Follows redirects if required
+     *
      * @param resourceUrl
      * @param shibbolethNegotiator
      * @return Connection to resource. Null if response code not ok (not 200 after optional redirects)
-     * @throws IOException 
+     * @throws IOException
      */
     private URLConnection openResourceConnection(URL resourceUrl, ShibbolethNegotiator shibbolethNegotiator, boolean followRedirects) throws IOException {
 	URLConnection urlConnection = resourceUrl.openConnection();
