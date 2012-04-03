@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.mpi</groupId>
-    <artifactId>arbil</artifactId>
+    <artifactId>arbil-mdapi</artifactId>
     <packaging>jar</packaging>
     <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
     <name>Arbil</name>
@@ -16,10 +16,10 @@
     </scm>
     
     <properties>
-	<arbil.majorVersion>2</arbil.majorVersion>
-	<arbil.minorVersion>5</arbil.minorVersion>
+	<arbil.majorVersion>3</arbil.majorVersion>
+	<arbil.minorVersion>0</arbil.minorVersion>
 	<arbil.branch>pretesting</arbil.branch>
-	<arbil.application-title>Arbil (pretesting)</arbil.application-title>
+	<arbil.application-title>Arbil (metadata API-pretesting)</arbil.application-title>
 	
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	<output.jarname>${project.build.finalName}</output.jarname>
@@ -245,6 +245,11 @@
 	    <artifactId>corpusstructure-api</artifactId>
 	    <version>1.7.3</version>
 	</dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>metadata-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <repositories>
 	<repository>
