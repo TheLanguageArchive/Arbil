@@ -22,7 +22,7 @@ import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.templates.ArbilFavourites;
-import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.ImdiTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.ArbilFieldPlaceHolder;
 import nl.mpi.arbil.ui.ArbilHyperlinkListener;
@@ -102,7 +102,7 @@ public abstract class ArbilInjector {
 	ArbilFavourites.setMessageDialogHandler(messageDialogHandler);
 	ArbilJournal.setMessageDialogHandler(messageDialogHandler);
 	ArbilTableModel.setMessageDialogHandler(messageDialogHandler);
-	ArbilTemplate.setMessageDialogHandler(messageDialogHandler);
+	ImdiTemplate.setMessageDialogHandler(messageDialogHandler);
 	ArbilToHtmlConverter.setMessageDialogHandler(messageDialogHandler);
 	ApplicationVersionManager.setMessageDialogHandler(messageDialogHandler);
 	ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);

@@ -1,6 +1,5 @@
 package nl.mpi.arbil.data;
 
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -8,10 +7,11 @@ import java.net.URISyntaxException;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.ParserConfigurationException;
-import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;

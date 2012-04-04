@@ -33,7 +33,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilVocabulary;
-import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.ImdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -60,7 +60,7 @@ import org.xml.sax.SAXException;
  * Created on March 10, 2010, 17:34:45 AM
  * @author Peter.Withers@mpi.nl
  */
-public class CmdiTemplate extends ArbilTemplate {
+public class CmdiTemplate extends ImdiTemplate {
 
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
     public static final String LANGUAGE_ATTRIBUTE = String.format("{%1$s}lang", ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")); // {http://www.w3.org/XML/1998/namespace}lang
@@ -162,16 +162,16 @@ public class CmdiTemplate extends ArbilTemplate {
 	boolean allGuiNamesUnique = false;
 	while (!allGuiNamesUnique) {
 	    allGuiNamesUnique = true;
-	    for (String[] currentTemplate : templatesArray) {
+	    for (String[] currentTemplate : getTemplatesArray()) {
 		String currentTemplateGuiName = currentTemplate[1];
 		String currentTemplatePath = currentTemplate[0];
-		for (String[] secondTemplate : templatesArray) {
+		for (String[] secondTemplate : getTemplatesArray()) {
 		    String secondTemplateGuiName = secondTemplate[1];
 		    String secondTemplatePath = secondTemplate[0];
 		    if (!currentTemplatePath.equals(secondTemplatePath)) {
 			if (currentTemplateGuiName.equals(secondTemplateGuiName)) {
 			    allGuiNamesUnique = false;
-			    for (String[] templateToChange : templatesArray) {
+			    for (String[] templateToChange : getTemplatesArray()) {
 				String templateToChangeGuiName = templateToChange[1];
 				String templateToChangePath = templateToChange[0];
 				if (templateToChangeGuiName.equals(currentTemplateGuiName)) {
@@ -199,7 +199,7 @@ public class CmdiTemplate extends ArbilTemplate {
     public List<String[]> getEditableAttributesForPath(final String path) {
 	LinkedList<String[]> attributePaths = new LinkedList<String[]>();
 	final String pathAsPrefix = path + ".";
-	for (String[] templatePath : templatesArray) {
+	for (String[] templatePath : getTemplatesArray()) {
 	    if (ArbilComponentBuilder.pathIsAttribute(templatePath[0]) // should be an attribute
 		    && templatePath[0].startsWith(pathAsPrefix) // should be a child of path
 		    && pathIsEditableAttribute(templatePath[0])) { // should be editable
@@ -223,7 +223,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
 	Vector<String[]> childTypes = new Vector<String[]>();
 	if (targetNodeUserObject instanceof ArbilDataNode) {
-	    for (String[] childPathString : templatesArray) {
+	    for (String[] childPathString : getTemplatesArray()) {
 		boolean allowEntry = false;
 		// allowing due to null path
 		if (targetNodeXpath == null) {
@@ -696,7 +696,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		    return false;
 		}
 	    }
-	    for (String[] pathString : templatesArray) { // some profiles do not have sub nodes hence this needs to be checked also
+	    for (String[] pathString : getTemplatesArray()) { // some profiles do not have sub nodes hence this needs to be checked also
 		if (!ArbilComponentBuilder.pathIsAttribute(pathString[0]) // fields can have attributes, so ignore these
 			&& (pathString[0].startsWith(nodePathAsParent) && !pathString[0].equals(nodePath))) {
 		    return false;

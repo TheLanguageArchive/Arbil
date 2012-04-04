@@ -1,21 +1,21 @@
 package nl.mpi.arbil.templates;
 
-import java.io.IOException;
-import nl.mpi.arbil.util.DownloadAbortFlag;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
-import nl.mpi.arbil.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Hashtable;
 import javax.swing.ImageIcon;
+import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.metadata.cmdi.api.CMDIApi;
 
 /**
@@ -38,7 +38,7 @@ public class ArbilTemplateManager {
     private String[] builtInTemplates2 = {"Default", "Sign Language"}; // the first item in this list is the default template
     private CMDIApi cmdiApi = new CMDIApi(new ArbilEntityResolver(null));
 
-//    private ArbilTemplate defaultArbilTemplate;
+//    private ImdiTemplate defaultArbilTemplate;
     //public String[] builtInTemplates = {"Corpus Branch (internal)", "Session (internal)", "Catalogue (internal)", "Sign Language (internal)"};
     static synchronized public ArbilTemplateManager getSingleInstance() {
 	if (singleInstance == null) {
@@ -77,7 +77,7 @@ public class ArbilTemplateManager {
 		BugCatcherManager.getBugCatcher().logError(new IOException("Could not create example components directory: " + examplesDirectory));
 	    }
 	    // copy example components from the jar file
-	    for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
+	    for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).getTemplatesArray()) {
 		sessionStorage.saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, false, new DownloadAbortFlag(), null);
 	    }
 	    // copy example "format.xsl" from the jar file which is used in the imdi to html conversion
@@ -197,7 +197,7 @@ public class ArbilTemplateManager {
 	menuItem.type = MenuItemData.Type.IMDI;
 	if (location.startsWith("builtin:")) {
 	    String currentString = location.substring("builtin:".length());
-	    for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
+	    for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).getRootTemplatesArray()) {
 		if (currentString.equals(currentTemplateName[0])) {
 		    menuItem.menuText = currentTemplateName[1];
 		    menuItem.menuAction = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
@@ -377,7 +377,7 @@ public class ArbilTemplateManager {
 	return getTemplate(builtInTemplates2[0]);
     }
 
-    public ArbilTemplate getCmdiTemplate(String nameSpaceString) {
+    public CmdiTemplate getCmdiTemplate(String nameSpaceString) {
 	if (nameSpaceString != null) {
 	    CmdiTemplate cmdiTemplate = (CmdiTemplate) templatesHashTable.get(nameSpaceString);
 	    if (cmdiTemplate == null) {
@@ -399,7 +399,7 @@ public class ArbilTemplateManager {
 	}
 	if (!templatesHashTable.containsKey(templateName)) {
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
-	    ArbilTemplate returnTemplate = new ArbilTemplate();
+	    ImdiTemplate returnTemplate = new ImdiTemplate();
 	    if (returnTemplate.readTemplate(getTemplateFile(templateName), templateName)) {
 		templatesHashTable.put(templateName, returnTemplate);
 		return returnTemplate;
