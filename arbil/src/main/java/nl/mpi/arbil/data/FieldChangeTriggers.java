@@ -18,7 +18,7 @@ public class FieldChangeTriggers {
     public void actOnChange(ArbilField changedArbilField) {
 	String fieldPath = changedArbilField.getGenericFullXmlPath();
 	System.out.println("fieldPath: " + fieldPath);
-	for (String[] currentTrigger : changedArbilField.getParentDataNode().getNodeTemplate().fieldTriggersArray) {
+	for (String[] currentTrigger : changedArbilField.getParentDataNode().getNodeTemplate().getFieldTriggersArray()) {
 	    if (fieldPath.equals(currentTrigger[0])) {
 		// we now have the path for two fields:
 		// .METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id

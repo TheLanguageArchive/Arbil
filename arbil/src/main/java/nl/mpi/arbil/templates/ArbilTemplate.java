@@ -1,7 +1,5 @@
 package nl.mpi.arbil.templates;
 
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,7 +10,9 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.xml.sax.SAXException;
@@ -29,11 +29,11 @@ public class ArbilTemplate {
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
-    public File templateFile;
+    protected File templateFile;
     protected Hashtable<String, ArbilVocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
-    public String loadedTemplateName;
-    public String[] preferredNameFields;
-    public String[][] fieldTriggersArray;
+    protected String loadedTemplateName;
+    protected String[] preferredNameFields;
+    protected String[][] fieldTriggersArray;
     /*
     <FieldTriggers>
     <comment>The field triggers cause the target field to be set after the source field is edited, the value set in the target is determined by the controlled vocabulary on the source field</comment>
@@ -47,12 +47,12 @@ public class ArbilTemplate {
     <comment>The LexiconResource field has no related id field and so is excluded from this list ".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language"</comment>
     </FieldTriggers>
      */
-    public String[][] genreSubgenreArray;
+    protected String[][] genreSubgenreArray;
     /*        
     <comment>The field pairs listed here will be linked as genre subgenre where the subgenre field gets its controlled vocabulary from the genre fields current selection</comment>
     <GenreSubgenre Subgenre=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" Genre=".METATRANSCRIPT.Session.MDGroup.Content.Genre" Description="description" />
      */
-    public String[] requiredFields;
+    protected String[] requiredFields;
     /*  
     <?xml version="1.0" encoding="UTF-8"?>
     <template>
@@ -69,7 +69,7 @@ public class ArbilTemplate {
     <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Id" />
     </template>
      */
-    public String[][] fieldConstraints;
+    protected String[][] fieldConstraints;
 //        (ISO639(-1|-2|-3)?:.*)?"/>
 //			<xsd:pattern value="(RFC3066:.*)?"/>
 //			<xsd:pattern value="(RFC1766:.*)?"/>
@@ -155,7 +155,7 @@ public class ArbilTemplate {
     }
     protected String[][] templatesArray; // TODO: separate the filename from the xpath by adding the nodepath as a separate value so that there can be multiple of the same type
     protected String[][] rootTemplatesArray;
-    public String[][] autoFieldsArray;
+    protected String[][] autoFieldsArray;
 
     public boolean pathIsDeleteableField(String nodePath) {
 	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
@@ -591,5 +591,54 @@ public class ArbilTemplate {
      */
     public String[][] getRootTemplatesArray() {
 	return rootTemplatesArray;
+    }
+
+    /**
+     * @return the templateFile
+     */
+    public File getTemplateFile() {
+	return templateFile;
+    }
+
+    /**
+     * @return the preferredNameFields
+     */
+    public String[] getPreferredNameFields() {
+	return preferredNameFields;
+    }
+
+    /**
+     * @return the fieldTriggersArray
+     */
+    public String[][] getFieldTriggersArray() {
+	return fieldTriggersArray;
+    }
+
+    /**
+     * @return the genreSubgenreArray
+     */
+    public String[][] getGenreSubgenreArray() {
+	return genreSubgenreArray;
+    }
+
+    /**
+     * @return the requiredFields
+     */
+    public String[] getRequiredFields() {
+	return requiredFields;
+    }
+
+    /**
+     * @return the fieldConstraints
+     */
+    public String[][] getFieldConstraints() {
+	return fieldConstraints;
+    }
+
+    /**
+     * @return the autoFieldsArray
+     */
+    public String[][] getAutoFieldsArray() {
+	return autoFieldsArray;
     }
 }

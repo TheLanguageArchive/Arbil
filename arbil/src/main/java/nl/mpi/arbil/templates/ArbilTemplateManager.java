@@ -12,13 +12,16 @@ import java.util.Hashtable;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.metadata.cmdi.api.CMDIApi;
 
 /**
  * ArbilTemplateManager.java
  * Created on Jul 15, 2009, 11:56:57 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplateManager {
@@ -33,9 +36,10 @@ public class ArbilTemplateManager {
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
     private String[] builtInTemplates2 = {"Default", "Sign Language"}; // the first item in this list is the default template
+    private CMDIApi cmdiApi = new CMDIApi(new ArbilEntityResolver(null));
+
 //    private ArbilTemplate defaultArbilTemplate;
     //public String[] builtInTemplates = {"Corpus Branch (internal)", "Session (internal)", "Catalogue (internal)", "Sign Language (internal)"};
-
     static synchronized public ArbilTemplateManager getSingleInstance() {
 	if (singleInstance == null) {
 	    singleInstance = new ArbilTemplateManager();
@@ -45,6 +49,7 @@ public class ArbilTemplateManager {
 
     /**
      * Create new template of the given name from default
+     *
      * @param selectedTemplate Name of the new template. Cannot be empty or equal to the name of a built in template
      * @return File handle to the newly created template file, or null if the request is invalid
      */
@@ -214,7 +219,7 @@ public class ArbilTemplateManager {
 	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
 	} else if (location.startsWith("custom:")) {
 	    menuItem.type = MenuItemData.Type.CMDI;
-	    
+
 	    String currentString = location.substring("custom:".length());
 	    String customName = currentString.replaceAll("[/.]xsd$", "");
 	    if (customName.contains("/")) {
@@ -389,12 +394,12 @@ public class ArbilTemplateManager {
     }
 
     public ArbilTemplate getTemplate(String templateName) {
-	ArbilTemplate returnTemplate = new ArbilTemplate();
 	if (templateName == null || templateName.length() < 1) {
 	    return getDefaultTemplate(); // if the template string is not provided the default template is used
 	}
 	if (!templatesHashTable.containsKey(templateName)) {
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
+	    ArbilTemplate returnTemplate = new ArbilTemplate();
 	    if (returnTemplate.readTemplate(getTemplateFile(templateName), templateName)) {
 		templatesHashTable.put(templateName, returnTemplate);
 		return returnTemplate;

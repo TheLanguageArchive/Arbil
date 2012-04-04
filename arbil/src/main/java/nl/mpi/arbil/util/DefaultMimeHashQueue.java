@@ -414,7 +414,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    String[] currentNodeFieldNames = currentDataNode.getFields().keySet().toArray(new String[0]);
 
 	    // loop over the auto fields from the template
-	    for (String[] autoFields : currentDataNode.getNodeTemplate().autoFieldsArray) {
+	    for (String[] autoFields : currentDataNode.getNodeTemplate().getAutoFieldsArray()) {
 		String fieldPath = autoFields[0];
 		String fileAttribute = autoFields[1];
 		String autoValue = null;

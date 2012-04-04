@@ -115,7 +115,7 @@ public class ArbilVocabularies {
 	    // testing code for checking the language fields have the required triggers
 	    if (vocabularyLocation.endsWith("MPI-Languages.xml")) {
 		boolean foundTrigger = false;
-		for (String[] currentTrigger : originatingArbilField.getParentDataNode().getNodeTemplate().fieldTriggersArray) {
+		for (String[] currentTrigger : originatingArbilField.getParentDataNode().getNodeTemplate().getFieldTriggersArray()) {
 		    if (fieldPath.equals(currentTrigger[0])) {
 			foundTrigger = true;
 		    }
@@ -129,7 +129,7 @@ public class ArbilVocabularies {
 	    ///////////////////////////////
 	    // look for genre / sub genre redirects in the template
 	    String vocabularyRedirectField = null;
-	    for (String[] currentRedirect : originatingArbilField.getParentDataNode().getNodeTemplate().genreSubgenreArray) {
+	    for (String[] currentRedirect : originatingArbilField.getParentDataNode().getNodeTemplate().getGenreSubgenreArray()) {
 		if (fieldPath.equals(currentRedirect[0])) {
 		    vocabularyRedirectField = currentRedirect[1];
 		}

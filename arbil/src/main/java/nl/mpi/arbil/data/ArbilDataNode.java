@@ -794,7 +794,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
         //final String nodePath = getNodePath();
         getLabelString:
-        for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
+        for (String currentPreferredName : this.getNodeTemplate().getPreferredNameFields()) {
             for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
 
                 // TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
