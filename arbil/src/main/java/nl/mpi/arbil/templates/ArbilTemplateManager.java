@@ -25,10 +25,10 @@ import nl.mpi.metadata.cmdi.api.CMDIApi;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplateManager {
-
+    
     public static final String CLARIN_PREFIX = "clarin:";
     private static SessionStorage sessionStorage;
-
+    
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
@@ -85,7 +85,7 @@ public class ArbilTemplateManager {
 	    return selectedTemplateFile;
 	}
     }
-
+    
     public File getTemplateFile(String currentTemplate) {
 	File currentTemplateFile = new File(getTemplateDirectory().getAbsolutePath() + File.separatorChar + currentTemplate + File.separatorChar + "template.xml");
 //        if (!currentTemplateFile.getParentFile().exists()) {
@@ -93,7 +93,7 @@ public class ArbilTemplateManager {
 //        }
 	return currentTemplateFile;
     }
-
+    
     public File getDefaultComponentOfTemplate(String currentTemplate) {
 	File currentTemplateFile = new File(getTemplateDirectory().getAbsolutePath() + File.separatorChar + currentTemplate + File.separatorChar + "components" + File.separatorChar + "default.xml");
 	return currentTemplateFile;
@@ -116,7 +116,7 @@ public class ArbilTemplateManager {
     public File getTemplateDirectory() {
 	return new File(sessionStorage.getStorageDirectory(), "templates");
     }
-
+    
     public void addSelectedTemplates(String templateString) {
 	ArrayList<String> selectedTemplates = new ArrayList<String>();
 	try {
@@ -133,15 +133,15 @@ public class ArbilTemplateManager {
 	    BugCatcherManager.getBugCatcher().logError("Could not crate new selectedTemplates file.", ex);
 	}
     }
-
+    
     private String[] loadSelectedTemplates() throws IOException {
 	return sessionStorage.loadStringArray("selectedTemplates");
     }
-
+    
     private void saveSelectedTemplates(ArrayList<String> selectedTamplates) throws IOException {
 	sessionStorage.saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
     }
-
+    
     public void removeSelectedTemplates(String templateString) {
 	ArrayList<String> selectedTamplates = new ArrayList<String>();
 	try {
@@ -154,7 +154,7 @@ public class ArbilTemplateManager {
 	    BugCatcherManager.getBugCatcher().logError("Could not load or create selectedTemplates file.", ex);
 	}
     }
-
+    
     public ArrayList<String> getSelectedTemplateArrayList() {
 	ArrayList<String> selectedTamplates = new ArrayList<String>();
 	try {
@@ -165,11 +165,11 @@ public class ArbilTemplateManager {
 	}
 	return selectedTamplates;
     }
-
+    
     public static class MenuItemData {
-
+	
 	public enum Type {
-
+	    
 	    IMDI, CMDI, OTHER
 	}
 	public Type type;
@@ -178,19 +178,19 @@ public class ArbilTemplateManager {
 	public String menuToolTip;
 	public ImageIcon menuIcon;
     }
-
+    
     public void addDefaultImdiTemplates() {
 	addSelectedTemplates("builtin:METATRANSCRIPT.Corpus.xml");
 	addSelectedTemplates("builtin:METATRANSCRIPT.Catalogue.xml");
 	addSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
     }
-
+    
     public void removeDefaultImdiTemplates() {
 	removeSelectedTemplates("builtin:METATRANSCRIPT.Corpus.xml");
 	removeSelectedTemplates("builtin:METATRANSCRIPT.Catalogue.xml");
 	removeSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
     }
-
+    
     private MenuItemData createMenuItemForTemplate(String location) {
 	ArbilIcons arbilIcons = ArbilIcons.getSingleInstance();
 	MenuItemData menuItem = new MenuItemData();
@@ -219,20 +219,20 @@ public class ArbilTemplateManager {
 	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
 	} else if (location.startsWith("custom:")) {
 	    menuItem.type = MenuItemData.Type.CMDI;
-
+	    
 	    String currentString = location.substring("custom:".length());
 	    String customName = currentString.replaceAll("[/.]xsd$", "");
 	    if (customName.contains("/")) {
 		customName = customName.substring(customName.lastIndexOf("/") + 1);
 	    }
-
+	    
 	    menuItem.menuText = customName;
 	    menuItem.menuAction = currentString;
 	    menuItem.menuToolTip = currentString;
 	    menuItem.menuIcon = arbilIcons.clarinIcon;
 	} else if (location.startsWith(CLARIN_PREFIX)) {
 	    menuItem.type = MenuItemData.Type.CMDI;
-
+	    
 	    String currentString = location.substring(CLARIN_PREFIX.length());
 	    CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(currentString);
 	    if (cmdiProfile == null) {
@@ -248,7 +248,7 @@ public class ArbilTemplateManager {
 	}
 	return menuItem;
     }
-
+    
     public MenuItemData[] getSelectedTemplatesMenuItems() {
 	String[] locationsArray = null;
 	try {
@@ -267,13 +267,13 @@ public class ArbilTemplateManager {
 	if (locationsArray == null) {
 	    return new MenuItemData[0];
 	}
-
+	
 	MenuItemData[] returnArray = new MenuItemData[locationsArray.length];
 	for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
 	    returnArray[insertableCounter] = createMenuItemForTemplate(locationsArray[insertableCounter]);
 	}
 	Arrays.sort(returnArray, new Comparator() {
-
+	    
 	    public int compare(Object firstItem, Object secondItem) {
 		return (((MenuItemData) firstItem).menuText.compareToIgnoreCase(((MenuItemData) secondItem).menuText));
 	    }
@@ -363,7 +363,7 @@ public class ArbilTemplateManager {
 	Arrays.sort(templatesList);
 	return templatesList;
     }
-
+    
     private ArbilTemplateManager() {
 	templatesHashTable = new Hashtable<String, ArbilTemplate>();
 //        defaultArbilTemplateName = LinorgSessionStorage.getSingleInstance().loadString("CurrentTemplate");
@@ -372,19 +372,23 @@ public class ArbilTemplateManager {
 //            LinorgSessionStorage.getSingleInstance().saveString("CurrentTemplate", defaultArbilTemplateName);
 //        }
     }
-
+    
     public ArbilTemplate getDefaultTemplate() {
 	return getTemplate(builtInTemplates2[0]);
     }
-
+    
     public CmdiTemplate getCmdiTemplate(String nameSpaceString) {
 	if (nameSpaceString != null) {
 	    CmdiTemplate cmdiTemplate = (CmdiTemplate) templatesHashTable.get(nameSpaceString);
 	    if (cmdiTemplate == null) {
 		cmdiTemplate = new CmdiTemplate(nameSpaceString);
-		cmdiTemplate.loadTemplate();
-		cmdiTemplate.startLoadingDatacategoryDescriptions();
-		templatesHashTable.put(nameSpaceString, cmdiTemplate);
+		if (cmdiTemplate.readTemplate()) {
+		    cmdiTemplate.startLoadingDatacategoryDescriptions();
+		    templatesHashTable.put(nameSpaceString, cmdiTemplate);
+		} else {
+		    BugCatcherManager.getBugCatcher().logError("Could not load CMDI profile with URI " + nameSpaceString, null);
+		    return null;
+		}
 	    }
 	    return cmdiTemplate;
 	} else {
@@ -392,7 +396,7 @@ public class ArbilTemplateManager {
 	    return null;
 	}
     }
-
+    
     public ArbilTemplate getTemplate(String templateName) {
 	if (templateName == null || templateName.length() < 1) {
 	    return getDefaultTemplate(); // if the template string is not provided the default template is used

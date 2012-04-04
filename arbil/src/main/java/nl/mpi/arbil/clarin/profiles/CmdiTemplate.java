@@ -128,7 +128,6 @@ public class CmdiTemplate extends ImdiTemplate {
 	public int maxOccurs;
 	public boolean canHaveMultiple;
     }
-    
     private String loadedTemplateName;
     private File templateFile;
 
@@ -136,7 +135,8 @@ public class CmdiTemplate extends ImdiTemplate {
 	this.loadedTemplateName = loadedTemplateName;
     }
 
-    public void loadTemplate() {
+    @Override
+    public boolean readTemplate() {
 	vocabularyHashTable = new Hashtable<String, ArbilVocabulary>();
 	nameSpaceString = loadedTemplateName;
 	// construct the template from the XSD
@@ -179,6 +179,8 @@ public class CmdiTemplate extends ImdiTemplate {
 	fieldTriggersArray = new String[][]{};
 	autoFieldsArray = new String[][]{};
 	genreSubgenreArray = new String[][]{};
+
+	return true;
     }
 
     private void makeGuiNamesUnique() {
