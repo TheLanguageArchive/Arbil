@@ -98,6 +98,6 @@ public interface ArbilTemplate {
 
     boolean pathIsEditableField(String nodePath);
 
-    boolean readTemplate(File templateConfigFile, String templateName);
+    boolean readTemplate();
     
 }
