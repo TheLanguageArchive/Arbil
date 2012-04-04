@@ -30,15 +30,14 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
- * Document   : ArbilDataNode formerly known as ImdiTreeObject
- * 
+ * Document : ArbilDataNode formerly known as ImdiTreeObject
+ *
  * @author Peter Withers <peter.withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilDataNode extends ArbilNode implements Comparable {
 
     private ArbilDataNodeService dataNodeService;
-    
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
     private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
@@ -87,206 +86,206 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     private final static String NODE_LOADING_TEXT = "loading node...";
 
     protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
-        super();
-        //        addQueue = new Vector<String[]>();
+	super();
+	//        addQueue = new Vector<String[]>();
 	this.dataNodeService = dataNodeService;
-        nodeUri = localUri;
-        if (nodeUri != null) {
-            metadataUtils = ArbilDataNode.getMetadataUtils(nodeUri.toString());
-        }
-        initNodeVariables();
+	nodeUri = localUri;
+	if (nodeUri != null) {
+	    metadataUtils = ArbilDataNode.getMetadataUtils(nodeUri.toString());
+	}
+	initNodeVariables();
     }
 
     // set the node text only if it is null
     public void setNodeText(String localNodeText) {
-        if (nodeText == null) {
-            nodeText = localNodeText;
-        }
+	if (nodeText == null) {
+	    nodeText = localNodeText;
+	}
     }
     // static methods for testing imdi file and object types
 
     static public boolean isArbilDataNode(Object unknownObj) {
-        if (unknownObj == null) {
-            return false;
-        }
-        return (unknownObj instanceof ArbilDataNode);
+	if (unknownObj == null) {
+	    return false;
+	}
+	return (unknownObj instanceof ArbilDataNode);
     }
 
     static public boolean isStringLocal(String urlString) {
-        return (urlString.startsWith("file:")); // this has been changed from !http so that only file: will be considered local (file objects will be created), the previous use of http was done be cause the string was not as normalised as it is now, when using !http it would in the case of ftp will fail and cause a null pointer in pathIsInFavourites
+	return (urlString.startsWith("file:")); // this has been changed from !http so that only file: will be considered local (file objects will be created), the previous use of http was done be cause the string was not as normalised as it is now, when using !http it would in the case of ftp will fail and cause a null pointer in pathIsInFavourites
     }
-    
-    static public boolean isUriLocal(URI uri){
+
+    static public boolean isUriLocal(URI uri) {
 	return (uri.getScheme().equalsIgnoreCase("file"));
     }
 
     static public boolean isPathHistoryFile(String urlString) {
-        return MetadataFormat.isPathMetadata(urlString.replaceAll("mdi.[0-9]*$", "mdi"));
+	return MetadataFormat.isPathMetadata(urlString.replaceAll("mdi.[0-9]*$", "mdi"));
     }
 
     static public boolean isPathMetadata(String urlString) {
-        return isPathImdi(urlString) || isPathCmdi(urlString); // change made for clarin
+	return isPathImdi(urlString) || isPathCmdi(urlString); // change made for clarin
     }
 
     static public boolean isPathImdi(String urlString) {
-        return urlString.endsWith(".imdi");
+	return urlString.endsWith(".imdi");
     }
 
     static public boolean isPathCmdi(String urlString) {
-        return urlString.endsWith(".cmdi");
+	return urlString.endsWith(".cmdi");
     }
 
     static public boolean isStringChildNode(String urlString) {
-        return urlString.contains("#."); // anything with a fragment is a sub node //urlString.contains("#.METATRANSCRIPT") || urlString.contains("#.CMD"); // change made for clarin
+	return urlString.contains("#."); // anything with a fragment is a sub node //urlString.contains("#.METATRANSCRIPT") || urlString.contains("#.CMD"); // change made for clarin
     }
 
     static public MetadataUtils getMetadataUtils(String urlString) {
-        if (MetadataFormat.isPathCmdi(urlString)) {
-            return new CmdiUtils();
-        } else if (MetadataFormat.isPathImdi(urlString)) {
-            return new ImdiUtils();
-        }
-        return null;
+	if (MetadataFormat.isPathCmdi(urlString)) {
+	    return new CmdiUtils();
+	} else if (MetadataFormat.isPathImdi(urlString)) {
+	    return new ImdiUtils();
+	}
+	return null;
     }
-    
-    public MetadataUtils getMetadataUtils(){
+
+    public MetadataUtils getMetadataUtils() {
 	return metadataUtils;
     }
-    
-    // end static methods for testing imdi file and object types
 
+    // end static methods for testing imdi file and object types
     public boolean getNeedsSaveToDisk(boolean onlyOfSubNode) {
-        // when the dom parent node is saved all the sub nodes are also saved so we need to clear this flag
-        if (nodeNeedsSaveToDisk && !this.getParentDomNode().nodeNeedsSaveToDisk) {
-            nodeNeedsSaveToDisk = false;
-        }
-        if (onlyOfSubNode) {
-            return nodeNeedsSaveToDisk;
-        } else {
-            return this.getParentDomNode().nodeNeedsSaveToDisk;
-        }
+	// when the dom parent node is saved all the sub nodes are also saved so we need to clear this flag
+	if (nodeNeedsSaveToDisk && !this.getParentDomNode().nodeNeedsSaveToDisk) {
+	    nodeNeedsSaveToDisk = false;
+	}
+	if (onlyOfSubNode) {
+	    return nodeNeedsSaveToDisk;
+	} else {
+	    return this.getParentDomNode().nodeNeedsSaveToDisk;
+	}
     }
-    
-    protected boolean isNeedsSaveToDisk(){
+
+    protected boolean isNeedsSaveToDisk() {
 	return isNeedsSaveToDisk();
     }
 
     public boolean hasChangedFields() {
-        for (ArbilField[] currentFieldArray : this.fieldHashtable.values()) {
-            for (ArbilField currentField : currentFieldArray) {
-                if (currentField.fieldNeedsSaveToDisk()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+	for (ArbilField[] currentFieldArray : this.fieldHashtable.values()) {
+	    for (ArbilField currentField : currentFieldArray) {
+		if (currentField.fieldNeedsSaveToDisk()) {
+		    return true;
+		}
+	    }
+	}
+	return false;
     }
 
     /**
      * Searches for pending changes in this node or one of its subnodes
+     *
      * @return Whether this node or any of its descendants has changed fields
      * @see hasChangedFields()
      */
     public boolean hasChangedFieldsInSubtree() {
-        if (hasChangedFields()) {
-            return true;
-        } else {
-            for (ArbilDataNode child : getChildArray()) {
-                if (child.hasChangedFieldsInSubtree()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+	if (hasChangedFields()) {
+	    return true;
+	} else {
+	    for (ArbilDataNode child : getChildArray()) {
+		if (child.hasChangedFieldsInSubtree()) {
+		    return true;
+		}
+	    }
+	}
+	return false;
     }
 
     public void setDataNodeNeedsSaveToDisk(ArbilField originatingField, boolean updateUI) {
-        dataNodeService.setDataNodeNeedsSaveToDisk(this, originatingField, updateUI);
+	dataNodeService.setDataNodeNeedsSaveToDisk(this, originatingField, updateUI);
     }
 
     public String getAnyMimeType() {
-        if (mpiMimeType == null && hasResource()) { // use the format from the imdi file if the type checker failed eg if the file is on the server
-            ArbilField[] formatField = getFieldArray("Format");
-            if (formatField != null && formatField.length > 0) {
-                return formatField[0].getFieldValue();
-            }
-        }
-        return mpiMimeType;
+	if (mpiMimeType == null && hasResource()) { // use the format from the imdi file if the type checker failed eg if the file is on the server
+	    ArbilField[] formatField = getFieldArray("Format");
+	    if (formatField != null && formatField.length > 0) {
+		return formatField[0].getFieldValue();
+	    }
+	}
+	return mpiMimeType;
     }
 
     public void setMimeType(String[] typeCheckerMessageArray) {
-        mpiMimeType = typeCheckerMessageArray[0];
-        typeCheckerMessage = typeCheckerMessageArray[1];
-        if (!isMetaDataNode() && isLocal() && mpiMimeType != null) {
-            // add the mime type for loose files
-            ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0, false, null, null);
-            //            mimeTypeField.fieldID = "x" + fieldHashtable.size();
-            addField(mimeTypeField);
-        }
+	mpiMimeType = typeCheckerMessageArray[0];
+	typeCheckerMessage = typeCheckerMessageArray[1];
+	if (!isMetaDataNode() && isLocal() && mpiMimeType != null) {
+	    // add the mime type for loose files
+	    ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0, false, null, null);
+	    //            mimeTypeField.fieldID = "x" + fieldHashtable.size();
+	    addField(mimeTypeField);
+	}
     }
 
     private String getNodeTypeNameFromUriFragment(String nodeFragmentName) {
-        if (nodeFragmentName == null) {
-            return null;
-        }
-        nodeFragmentName = nodeFragmentName.substring(nodeFragmentName.lastIndexOf(".") + 1);
-        nodeFragmentName = nodeFragmentName.replaceAll("\\(\\d+\\)", "");
-        return nodeFragmentName;
+	if (nodeFragmentName == null) {
+	    return null;
+	}
+	nodeFragmentName = nodeFragmentName.substring(nodeFragmentName.lastIndexOf(".") + 1);
+	nodeFragmentName = nodeFragmentName.replaceAll("\\(\\d+\\)", "");
+	return nodeFragmentName;
     }
 
     protected final void initNodeVariables() {
-        // loop any indichildnodes and init
-        if (childArray != null) {
-            for (ArbilDataNode currentNode : childArray) {
-                if (currentNode.isChildNode()) {
-                    currentNode.initNodeVariables();
-                }
-            }
-        }
-        //        if (currentTemplate == null) {
-        //            // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
-        //            if (isPathCmdi(nodeUri.getPath())) {
-        //                // this must be loaded with the name space uri
-        //                //   currentTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate();
-        //            } else {
-        //                currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
-        //            }
-        //        }
-        fieldHashtable = new Hashtable<String, ArbilField[]>();
-        dataLoaded = false;
-        hashString = null;
-        //mpiMimeType = null;
-        matchesInCache = 0;
-        matchesRemote = 0;
-        matchesLocalFileSystem = 0;
-        fileNotFound = false;
-        nodeNeedsSaveToDisk = false;
-        //    nodeText = null;
-        //    urlString = null;
-        //        resourceUrlField = null;
-        isDirectory = false;
-        icon = null;
-        nodeEnabled = true;
-        singletonMetadataNode = false;
-        containerNode = false;
-        //        isLoadingCount = true;
-        if (nodeUri != null) {
-            if (!isMetaDataNode() && isLocal()) {
-                File fileObject = getFile();
-                if (fileObject != null) {
-                    this.nodeText = fileObject.getName();
-                    this.isDirectory = fileObject.isDirectory();
-                    // TODO: check this on a windows box with a network drive and linux with symlinks
-                    //                    this.isDirectory = !fileObject.isFile();
-                    //                    System.out.println("isFile" + fileObject.isFile());
-                    //                    System.out.println("isDirectory" + fileObject.isDirectory());
-                    //                    System.out.println("getAbsolutePath" + fileObject.getAbsolutePath());
-                }
-            }
-            if (!isMetaDataNode() && nodeText == null) {
-                nodeText = this.getUrlString();
-            }
-        }
+	// loop any indichildnodes and init
+	if (childArray != null) {
+	    for (ArbilDataNode currentNode : childArray) {
+		if (currentNode.isChildNode()) {
+		    currentNode.initNodeVariables();
+		}
+	    }
+	}
+	//        if (currentTemplate == null) {
+	//            // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
+	//            if (isPathCmdi(nodeUri.getPath())) {
+	//                // this must be loaded with the name space uri
+	//                //   currentTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate();
+	//            } else {
+	//                currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
+	//            }
+	//        }
+	fieldHashtable = new Hashtable<String, ArbilField[]>();
+	dataLoaded = false;
+	hashString = null;
+	//mpiMimeType = null;
+	matchesInCache = 0;
+	matchesRemote = 0;
+	matchesLocalFileSystem = 0;
+	fileNotFound = false;
+	nodeNeedsSaveToDisk = false;
+	//    nodeText = null;
+	//    urlString = null;
+	//        resourceUrlField = null;
+	isDirectory = false;
+	icon = null;
+	nodeEnabled = true;
+	singletonMetadataNode = false;
+	containerNode = false;
+	//        isLoadingCount = true;
+	if (nodeUri != null) {
+	    if (!isMetaDataNode() && isLocal()) {
+		File fileObject = getFile();
+		if (fileObject != null) {
+		    this.nodeText = fileObject.getName();
+		    this.isDirectory = fileObject.isDirectory();
+		    // TODO: check this on a windows box with a network drive and linux with symlinks
+		    //                    this.isDirectory = !fileObject.isFile();
+		    //                    System.out.println("isFile" + fileObject.isFile());
+		    //                    System.out.println("isDirectory" + fileObject.isDirectory());
+		    //                    System.out.println("getAbsolutePath" + fileObject.getAbsolutePath());
+		}
+	    }
+	    if (!isMetaDataNode() && nodeText == null) {
+		nodeText = this.getUrlString();
+	    }
+	}
     }
 
     public void reloadNode() {
@@ -294,161 +293,169 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public void loadArbilDom() {
-        dataNodeService.loadArbilDom(this);
+	dataNodeService.loadArbilDom(this);
     }
-    
+
     /**
      * Count the next level of child nodes. (non recursive)
+     *
      * @return An integer of the next level of child nodes including corpus links and Arbil child nodes.
      */
     public int getChildCount() {
-        //        System.out.println("getChildCount: " + childLinks.size() + childrenHashtable.size() + " : " + this.getUrlString());
-        return childArray.length;
+	//        System.out.println("getChildCount: " + childLinks.size() + childrenHashtable.size() + " : " + this.getUrlString());
+	return childArray.length;
     }
 
     /**
      * Calls getAllChildren(Vector<ArbilDataNode> allChildren) and returns the result as an array
+     *
      * @return an array of all the child nodes
      */
     public ArbilDataNode[] getAllChildren() {
-        Vector<ArbilDataNode> allChildren = new Vector<ArbilDataNode>();
-        getAllChildren(allChildren);
-        return allChildren.toArray(new ArbilDataNode[]{});
+	Vector<ArbilDataNode> allChildren = new Vector<ArbilDataNode>();
+	getAllChildren(allChildren);
+	return allChildren.toArray(new ArbilDataNode[]{});
     }
 
     /**
      * Used to get all the Arbil child nodes (all levels) of a session or all the nodes contained in a corpus (one level only).
+     *
      * @param An empty vector, to which all the child nodes will be added.
      */
     public void getAllChildren(Vector<ArbilDataNode> allChildren) {
-        System.out.println("getAllChildren: " + this.getUrlString());
-        if (this.isSession() || this.isCatalogue() || this.isChildNode() || this.isCmdiMetaDataNode()) {
-            for (ArbilDataNode currentChild : childArray) {
-                if (currentChild != this) { // Should not happen but prevent looping by self reference
-                    currentChild.getAllChildren(allChildren);
-                    allChildren.add(currentChild);
-                }
-            }
-        }
+	System.out.println("getAllChildren: " + this.getUrlString());
+	if (this.isSession() || this.isCatalogue() || this.isChildNode() || this.isCmdiMetaDataNode()) {
+	    for (ArbilDataNode currentChild : childArray) {
+		if (currentChild != this) { // Should not happen but prevent looping by self reference
+		    currentChild.getAllChildren(allChildren);
+		    allChildren.add(currentChild);
+		}
+	    }
+	}
     }
 
     /**
      * Gets an array of the children of this node.
+     *
      * @return An array of the next level child nodes.
      */
     public ArbilDataNode[] getChildArray() {
-        return childArray;
+	return childArray;
     }
 
     /**
      * Gets the second level child nodes from the fist level child node matching the child type string.
      * Used to populate the child nodes in the table cell.
+     *
      * @param childType The name of the first level child to query.
      * @return An object array of all second level child nodes in the first level node.
      */
     public ArbilDataNode[] getChildNodesArray(String childType) {
-        for (ArbilDataNode currentNode : childArray) {
-            if (currentNode.toString().equals(childType)) {
-                return currentNode.getChildArray();
-            }
-        }
-        return null;
+	for (ArbilDataNode currentNode : childArray) {
+	    if (currentNode.toString().equals(childType)) {
+		return currentNode.getChildArray();
+	    }
+	}
+	return null;
     }
 
     /**
      * Recursively checks all subnodes and their URI fragments, tries to find a match to the provided path
+     *
      * @param path Path to match
      * @return Matching child node, if found. Otherwise null
      */
     public ArbilDataNode getChildByPath(String path) {
-        if (childArray != null && childArray.length > 0) {
-            for (ArbilDataNode child : childArray) {
-                if (child.getURI() != null && path.equals(child.getURI().getFragment())) {
-                    return child;
-                } else {
-                    ArbilDataNode childMatch = child.getChildByPath(path);
-                    if (childMatch != null) {
-                        return childMatch;
-                    }
-                }
-            }
-        }
-        return null;
+	if (childArray != null && childArray.length > 0) {
+	    for (ArbilDataNode child : childArray) {
+		if (child.getURI() != null && path.equals(child.getURI().getFragment())) {
+		    return child;
+		} else {
+		    ArbilDataNode childMatch = child.getChildByPath(path);
+		    if (childMatch != null) {
+			return childMatch;
+		    }
+		}
+	    }
+	}
+	return null;
     }
 
     public ArbilTemplate getNodeTemplate() {
-        if (nodeTemplate != null && !this.isCorpus()) {
-            return nodeTemplate;
-        } else if (this.isChildNode()) {
-            return this.getParentDomNode().getNodeTemplate();
-        } else {
-            //new LinorgBugCatcher().logError(new Exception("Corpus Branch Null Template"));
-            return ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
-        }
+	if (nodeTemplate != null && !this.isCorpus()) {
+	    return nodeTemplate;
+	} else if (this.isChildNode()) {
+	    return this.getParentDomNode().getNodeTemplate();
+	} else {
+	    //new LinorgBugCatcher().logError(new Exception("Corpus Branch Null Template"));
+	    return ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
+	}
     }
 
     /**
      * create a subdirectory based on the file name of the node
      * if that fails then the current directory will be returned
+     *
      * @return
      */
     public File getSubDirectory() {
-        String currentFileName = this.getFile().getParent();
-        if (MetadataFormat.isPathImdi(nodeUri.getPath()) || MetadataFormat.isPathCmdi(nodeUri.getPath())) {
-            currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
-            File destinationDir = new File(currentFileName);
-            if (!destinationDir.exists()) {
-                if (!destinationDir.mkdir()) {
-                    BugCatcherManager.getBugCatcher().logError(new Exception("Could not create directory " + destinationDir.getAbsolutePath()));
-                }
-            }
-            return destinationDir;
-        }
-        return new File(this.getFile().getParent());
+	String currentFileName = this.getFile().getParent();
+	if (MetadataFormat.isPathImdi(nodeUri.getPath()) || MetadataFormat.isPathCmdi(nodeUri.getPath())) {
+	    currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
+	    File destinationDir = new File(currentFileName);
+	    if (!destinationDir.exists()) {
+		if (!destinationDir.mkdir()) {
+		    BugCatcherManager.getBugCatcher().logError(new Exception("Could not create directory " + destinationDir.getAbsolutePath()));
+		}
+	    }
+	    return destinationDir;
+	}
+	return new File(this.getFile().getParent());
     }
 
     public boolean containsFieldValue(String fieldName, String searchValue) {
-        boolean findResult = false;
-        ArbilField[] currentFieldArray = this.fieldHashtable.get(fieldName);
-        if (currentFieldArray != null) {
-            for (ArbilField currentField : currentFieldArray) {
-                System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
-                if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
-                    return true;
-                }
-            }
-        }
-        System.out.println("result: " + findResult + ":" + this);
-        return findResult;
+	boolean findResult = false;
+	ArbilField[] currentFieldArray = this.fieldHashtable.get(fieldName);
+	if (currentFieldArray != null) {
+	    for (ArbilField currentField : currentFieldArray) {
+		System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
+		if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
+		    return true;
+		}
+	    }
+	}
+	System.out.println("result: " + findResult + ":" + this);
+	return findResult;
     }
 
     public boolean containsFieldValue(String searchValue) {
-        boolean findResult = false;
-        for (ArbilField[] currentFieldArray : (Collection<ArbilField[]>) this.fieldHashtable.values()) {
-            for (ArbilField currentField : currentFieldArray) {
-                System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
-                if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
-                    return true;
-                }
-            }
-        }
-        System.out.println("result: " + findResult + ":" + this);
-        return findResult;
+	boolean findResult = false;
+	for (ArbilField[] currentFieldArray : (Collection<ArbilField[]>) this.fieldHashtable.values()) {
+	    for (ArbilField currentField : currentFieldArray) {
+		System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
+		if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
+		    return true;
+		}
+	    }
+	}
+	System.out.println("result: " + findResult + ":" + this);
+	return findResult;
     }
 
     // this is used to disable the node in the tree gui
     public boolean getNodeEnabled() {
-        //       ---      TODO: here we could look through all the fields in this node against the current filed view, if node are showing then return false
-        //       ---      when the global field view is changed then set all nodeEnabled blaaaa
-        return nodeEnabled;
+	//       ---      TODO: here we could look through all the fields in this node against the current filed view, if node are showing then return false
+	//       ---      when the global field view is changed then set all nodeEnabled blaaaa
+	return nodeEnabled;
     }
 
     /**
      * Tests if this node has child nodes even if they are not yet loaded.
+     *
      * @return boolean
      */
     public boolean canHaveChildren() {
-        return childArray.length > 0;
+	return childArray.length > 0;
     }
 
     //    /*
@@ -495,16 +502,17 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     /**
      * Vector gets populated with all fields relevant to the parent node
      * that includes all indinodechild fields but not from any other imdi file
+     *
      * @param allFields Vector to populate
      */
     protected void getAllFields(Vector<ArbilField[]> allFields) {
-        System.out.println("getAllFields: " + this.toString());
-        allFields.addAll(fieldHashtable.values());
-        for (ArbilDataNode currentChild : childArray) {
-            if (currentChild.isChildNode()) {
-                currentChild.getAllFields(allFields);
-            }
-        }
+	System.out.println("getAllFields: " + this.toString());
+	allFields.addAll(fieldHashtable.values());
+	for (ArbilDataNode currentChild : childArray) {
+	    if (currentChild.isChildNode()) {
+		currentChild.getAllFields(allFields);
+	    }
+	}
     }
 
     //    public void deleteFromParentDom(String[] childNodeXmlIdArray) {
@@ -544,27 +552,27 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //    }
     // this is used to delete an IMDI node from a corpus branch
     public void deleteCorpusLink(ArbilDataNode[] targetImdiNodes) {
-        dataNodeService.deleteCorpusLink(this, targetImdiNodes);
+	dataNodeService.deleteCorpusLink(this, targetImdiNodes);
     }
 
     public boolean hasCatalogue() {
-        for (ArbilDataNode childNode : childArray) {
-            //            String currentChildPath = currentLinkPair[0];
-            //            ImdiTreeObject childNode = ImdiLoader.getSingleInstance().getImdiObject(null, currentChildPath);
-            //childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must wait here
-            if (childNode.isCatalogue()) {
-                return true;
-            }
-        }
-        return false;
+	for (ArbilDataNode childNode : childArray) {
+	    //            String currentChildPath = currentLinkPair[0];
+	    //            ImdiTreeObject childNode = ImdiLoader.getSingleInstance().getImdiObject(null, currentChildPath);
+	    //childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must wait here
+	    if (childNode.isCatalogue()) {
+		return true;
+	    }
+	}
+	return false;
     }
 
     public boolean addCorpusLink(ArbilDataNode targetImdiNode) {
-        return dataNodeService.addCorpusLink(this, targetImdiNode);
+	return dataNodeService.addCorpusLink(this, targetImdiNode);
     }
 
     public void pasteIntoNode() {
-        dataNodeService.pasteIntoNode(this);
+	dataNodeService.pasteIntoNode(this);
     }
 
     /**
@@ -573,15 +581,16 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * the caller is responsible for reloading the node if that is required
      */
     public synchronized void saveChangesToCache(boolean updateUI) {
-        dataNodeService.saveChangesToCache(this);
+	dataNodeService.saveChangesToCache(this);
     }
-    
+
     public void addField(ArbilField fieldToAdd) {
-        dataNodeService.addField(this, fieldToAdd);
+	dataNodeService.addField(this, fieldToAdd);
     }
 
     /**
      * Adds a field to the imdi node and creates imdi child nodes if required.
+     *
      * @param fieldToAdd The field to be added.
      * @param childLevel For internal use and should be zero. Used to track the distance in imdi child nodes from the imdi node.
      * @param addedImdiNodes Returns with all the imdi child nodes that have been added during the process.
@@ -656,22 +665,24 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     /**
      * Gets the fields in this node, this does not include any imdi child fields.
      * To get all fields relevant the imdi file use "getAllFields()" which includes imdi child fields.
+     *
      * @return A hashtable of the fields
      */
     public Hashtable<String, ArbilField[]> getFields() {
-        // store the Hastable for next call
-        // if hashtable is null then load from imdi
-        return fieldHashtable;
+	// store the Hastable for next call
+	// if hashtable is null then load from imdi
+	return fieldHashtable;
     }
 
     /**
      * Returns the fields of this data note sorted by field order
+     *
      * @return
      */
     public List<ArbilField[]> getFieldsSorted() {
-        List<ArbilField[]> fieldArrays = new ArrayList<ArbilField[]>(getFields().values());
-        Collections.sort(fieldArrays, new ArrayComparator<ArbilField>(new ArbilFieldComparator(), 0));
-        return fieldArrays;
+	List<ArbilField[]> fieldArrays = new ArrayList<ArbilField[]>(getFields().values());
+	Collections.sort(fieldArrays, new ArrayComparator<ArbilField>(new ArbilFieldComparator(), 0));
+	return fieldArrays;
     }
 
     //    public String getCommonFieldPathString() {
@@ -701,325 +712,331 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //    }
     /**
      * Compares this node to another based on its type and string value.
+     *
      * @return The string comparison result.
      */
     public int compareTo(Object o) throws ClassCastException {
-        if (isFavorite()) {
-            return favouriteSorter.compare(this, o);
-        } else {
-            return dataNodeSorter.compare(this, o);
-        }
+	if (isFavorite()) {
+	    return favouriteSorter.compare(this, o);
+	} else {
+	    return dataNodeSorter.compare(this, o);
+	}
     }
 
     public synchronized void notifyLoaded() {
-        getParentDomNode().notifyAll();
+	getParentDomNode().notifyAll();
     }
 
     /**
      * If isLoading(), i.e. loading state > 0, waits for loading state to become 0
-     * @return 
+     *
+     * @return
      */
     public synchronized boolean waitTillLoaded() {
-        System.out.println("waitTillLoaded");
-        if (this != getParentDomNode()) { // isloading does this parent check pretty much already
-            return getParentDomNode().waitTillLoaded();
-        } else {
-            if (isLoading()) {
-                System.out.println("isLoading");
-                try {
-                    getParentDomNode().wait();
-                    System.out.println("wait");
-                    if (isLoading()) {
-                        BugCatcherManager.getBugCatcher().logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
-                    }
-                } catch (Exception ex) {
-                    BugCatcherManager.getBugCatcher().logError(ex);
-                    return false;
-                }
-            }
-            return true;
-        }
+	System.out.println("waitTillLoaded");
+	if (this != getParentDomNode()) { // isloading does this parent check pretty much already
+	    return getParentDomNode().waitTillLoaded();
+	} else {
+	    if (isLoading()) {
+		System.out.println("isLoading");
+		try {
+		    getParentDomNode().wait();
+		    System.out.println("wait");
+		    if (isLoading()) {
+			BugCatcherManager.getBugCatcher().logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
+		    }
+		} catch (Exception ex) {
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		    return false;
+		}
+	    }
+	    return true;
+	}
     }
 
     public void updateLoadingState(int countChange) {
-        if (this != getParentDomNode()) {
-            getParentDomNode().updateLoadingState(countChange);
-        } else {
-            synchronized (loadingCountLock) {
-                isLoadingCount += countChange;
-            }
+	if (this != getParentDomNode()) {
+	    getParentDomNode().updateLoadingState(countChange);
+	} else {
+	    synchronized (loadingCountLock) {
+		isLoadingCount += countChange;
+	    }
 //            System.out.println("isLoadingCount: " + isLoadingCount);
-            if (!isLoading()) {
-                //                    this.notifyAll();
-                clearChildIcons();
-                clearIcon();
-            }
-        }
+	    if (!isLoading()) {
+		//                    this.notifyAll();
+		clearChildIcons();
+		clearIcon();
+	    }
+	}
     }
 
     public synchronized boolean isLoading() {
-        return getParentDomNode().isLoadingCount > 0;
+	return getParentDomNode().isLoadingCount > 0;
     }
 
     @Override
     public String toString() {
-        if (lastNodeText != null) {
-            return lastNodeText;
-        } else {
-            return "unknown";
-        }
+	if (lastNodeText != null) {
+	    return lastNodeText;
+	} else {
+	    return "unknown";
+	}
     }
 
     public boolean isNodeTextDetermined() {
-        return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT);
+	return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT);
     }
 
     public String refreshStringValue() {
-        if (isLoading()) {
-            //            if (lastNodeText.length() > 0) {
-            //                return lastNodeText;
-            //            } else {asdasdasd
-            ////                if (nodeText != null && nodeText.length() > 0) {
-            return lastNodeText;
-            //            }
-        } else if (lastNodeText.equals(NODE_LOADING_TEXT) && getParentDomNode().dataLoaded) {
-            lastNodeText = "                      ";
-        }
-        //        if (commonFieldPathString != null && commonFieldPathString.length() > 0) {
-        //            // todo: use the commonFieldPathString as the node name if not display preference is set or the ones that are set have no value
-        //            nodeText = commonFieldPathString;
-        //        }
-        boolean foundPreferredNameField = false;
-        boolean preferredNameFieldExists = false;
+	if (isLoading()) {
+	    //            if (lastNodeText.length() > 0) {
+	    //                return lastNodeText;
+	    //            } else {asdasdasd
+	    ////                if (nodeText != null && nodeText.length() > 0) {
+	    return lastNodeText;
+	    //            }
+	} else if (lastNodeText.equals(NODE_LOADING_TEXT) && getParentDomNode().dataLoaded) {
+	    lastNodeText = "                      ";
+	}
+	//        if (commonFieldPathString != null && commonFieldPathString.length() > 0) {
+	//            // todo: use the commonFieldPathString as the node name if not display preference is set or the ones that are set have no value
+	//            nodeText = commonFieldPathString;
+	//        }
+	boolean foundPreferredNameField = false;
+	boolean preferredNameFieldExists = false;
 
         //final String nodePath = getNodePath();
         getLabelString:
-        for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
+        for (String currentPreferredName : this.getNodeTemplate().getPreferredNameFields()) {
             for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
 
-                // TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
-                // nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
-                // if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
+		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
+		// nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
+		// if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
 
-                if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
-                    preferredNameFieldExists = true;
-                    for (ArbilField currentField : currentFieldArray) {
-                        if (currentField != null) {
-                            if (currentField.toString().trim().length() > 0) {
-                                nodeText = currentField.toString();
-                                foundPreferredNameField = true;
-                                break getLabelString;
-                            }
-                        }
-                    }
-                }
-            }
-            ArbilField[] currentFieldArray = getFieldArray(currentPreferredName);
-            if (currentFieldArray != null) {
-                for (ArbilField currentField : currentFieldArray) {
-                    if (currentField != null) {
-                        if (currentField.toString().trim().length() > 0) {
-                            nodeText = currentField.toString();
-                            //                            System.out.println("nodeText: " + nodeText);
-                            foundPreferredNameField = true;
-                            break getLabelString;
-                        }
-                    }
-                }
-            }
-        }
-        if (!foundPreferredNameField && this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//*&& fieldHashtable.size() > 0 && domParentImdi == this*/) {
-            String unamedText;
-            String nodeFragmentName = this.getURI().getFragment();
-            if (nodeFragmentName != null) {
-                nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
-                unamedText = nodeFragmentName;
-            } else if (this.nodeTemplate != null) {
-                //            if (this.getNodeTemplate().preferredNameFields.length == 0) {
-                //                nodeText = "no field specified to name this node (" + this.nodeTemplate.getTemplateName() + ")";
-                //            } else {
-                unamedText = this.nodeTemplate.getTemplateName();
-            } else {
-                unamedText = "";
-            }
-            if (preferredNameFieldExists) {
-                nodeText = unamedText + " (unnamed)";
-            } else {
-                nodeText = unamedText;
-            }
-        }
-        //        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && fieldHashtable.size() > 0) {
-        //            // only if no name has been found and only for cmdi nodes and only when this is the dom parent node
-        //            nodeText = fieldHashtable.elements().nextElement()[0].getFullXmlPath().split("\\.")[3];
-        //        }
-        if (hasResource()) {
-            URI resourceUri = getFullResourceURI();
-            if (resourceUri != null) {
-                String resourcePathString = resourceUri.toString();
-                int lastIndex = resourcePathString.lastIndexOf("/");
-                //                if (lastIndex)
-                resourcePathString = resourcePathString.substring(lastIndex + 1);
-                try {
-                    resourcePathString = URLDecoder.decode(resourcePathString, "UTF-8");
-                } catch (UnsupportedEncodingException encodingException) {
-                    BugCatcherManager.getBugCatcher().logError(encodingException);
-                }
-                nodeText = resourcePathString;
-            }
-        }
-        if (isInfoLink) {
-            String infoTitle = fieldHashtable.values().iterator().next()[0].getFieldValue();
-            infoTitle = infoTitle.trim();
-            if (infoTitle.length() > 0) {
-                nodeText = infoTitle;
-            }
-        }
-        //        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
-        if (nodeText != null) {
-            if (isMetaDataNode()) {
-                File nodeFile = this.getFile();
-                if (nodeFile != null && !isHeadRevision()) {
-                    nodeText = nodeText + " (rev:" + getHistoryLabelStringForFile(nodeFile) + ")";
-                }
-            }
-            lastNodeText = nodeText;
-        }
+		if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
+		    preferredNameFieldExists = true;
+		    for (ArbilField currentField : currentFieldArray) {
+			if (currentField != null) {
+			    if (currentField.toString().trim().length() > 0) {
+				nodeText = currentField.toString();
+				foundPreferredNameField = true;
+				break getLabelString;
+			    }
+			}
+		    }
+		}
+	    }
+	    ArbilField[] currentFieldArray = getFieldArray(currentPreferredName);
+	    if (currentFieldArray != null) {
+		for (ArbilField currentField : currentFieldArray) {
+		    if (currentField != null) {
+			if (currentField.toString().trim().length() > 0) {
+			    nodeText = currentField.toString();
+			    //                            System.out.println("nodeText: " + nodeText);
+			    foundPreferredNameField = true;
+			    break getLabelString;
+			}
+		    }
+		}
+	    }
+	}
+	if (!foundPreferredNameField && this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//* && fieldHashtable.size() > 0 && domParentImdi == this */) {
+	    String unamedText;
+	    String nodeFragmentName = this.getURI().getFragment();
+	    if (nodeFragmentName != null) {
+		nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
+		unamedText = nodeFragmentName;
+	    } else if (this.nodeTemplate != null) {
+		//            if (this.getNodeTemplate().preferredNameFields.length == 0) {
+		//                nodeText = "no field specified to name this node (" + this.nodeTemplate.getTemplateName() + ")";
+		//            } else {
+		unamedText = this.nodeTemplate.getTemplateName();
+	    } else {
+		unamedText = "";
+	    }
+	    if (preferredNameFieldExists) {
+		nodeText = unamedText + " (unnamed)";
+	    } else {
+		nodeText = unamedText;
+	    }
+	}
+	//        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && fieldHashtable.size() > 0) {
+	//            // only if no name has been found and only for cmdi nodes and only when this is the dom parent node
+	//            nodeText = fieldHashtable.elements().nextElement()[0].getFullXmlPath().split("\\.")[3];
+	//        }
+	if (hasResource()) {
+	    URI resourceUri = getFullResourceURI();
+	    if (resourceUri != null) {
+		String resourcePathString = resourceUri.toString();
+		int lastIndex = resourcePathString.lastIndexOf("/");
+		//                if (lastIndex)
+		resourcePathString = resourcePathString.substring(lastIndex + 1);
+		try {
+		    resourcePathString = URLDecoder.decode(resourcePathString, "UTF-8");
+		} catch (UnsupportedEncodingException encodingException) {
+		    BugCatcherManager.getBugCatcher().logError(encodingException);
+		}
+		nodeText = resourcePathString;
+	    }
+	}
+	if (isInfoLink) {
+	    String infoTitle = fieldHashtable.values().iterator().next()[0].getFieldValue();
+	    infoTitle = infoTitle.trim();
+	    if (infoTitle.length() > 0) {
+		nodeText = infoTitle;
+	    }
+	}
+	//        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
+	if (nodeText != null) {
+	    if (isMetaDataNode()) {
+		File nodeFile = this.getFile();
+		if (nodeFile != null && !isHeadRevision()) {
+		    nodeText = nodeText + " (rev:" + getHistoryLabelStringForFile(nodeFile) + ")";
+		}
+	    }
+	    lastNodeText = nodeText;
+	}
 
-        if (isContainerNode()) {
-            lastNodeText = String.format("%1$s (%2$d)", lastNodeText, getChildCount());
-        } else if (isSingletonMetadataNode()) {
-            StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURI().getFragment()));
-            if (nodeText != null && nodeText.length() > 0) {
-                nodeTextSB.append(" (").append(nodeText).append(")");
-            }
-            lastNodeText = nodeTextSB.toString();
-        }
+	if (isContainerNode()) {
+	    lastNodeText = String.format("%1$s (%2$d)", lastNodeText, getChildCount());
+	} else if (isSingletonMetadataNode()) {
+	    StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURI().getFragment()));
+	    if (nodeText != null && nodeText.length() > 0) {
+		nodeTextSB.append(" (").append(nodeText).append(")");
+	    }
+	    lastNodeText = nodeTextSB.toString();
+	}
 
-        if (lastNodeText.length() == 0) {
-            lastNodeText = "                      ";
-        }
-        return lastNodeText;// + "-" + clearIconCounterGlobal + "-" + clearIconCounter;
-        //            }
+	if (lastNodeText.length() == 0) {
+	    lastNodeText = "                      ";
+	}
+	return lastNodeText;// + "-" + clearIconCounterGlobal + "-" + clearIconCounter;
+	//            }
     }
 
     /**
      * Tests if there is file associated with this node and if it is an archivable type.
      * The file could be either a resource file (getResource) or a loose file (getUrlString).
+     *
      * @return boolean
      */
     public boolean isArchivableFile() {
-        return mpiMimeType != null;
+	return mpiMimeType != null;
     }
 
     /**
      * Tests if a resource file (local or remote) is associated with this node.
+     *
      * @return boolean
      */
     public boolean hasResource() {
-        return resourceUrlField != null;
+	return resourceUrlField != null;
     }
 
     public boolean canHaveResource() {
-        if (hasResource()) {
-            return true;
-        } else if (isCmdiMetaDataNode()) {
-            final ArbilTemplate template = getNodeTemplate();
-            if (template != null) {
-                return template.pathCanHaveResource(nodeUri.getFragment());
-            }
-        }
-        return false;
+	if (hasResource()) {
+	    return true;
+	} else if (isCmdiMetaDataNode()) {
+	    final ArbilTemplate template = getNodeTemplate();
+	    if (template != null) {
+		return template.pathCanHaveResource(nodeUri.getFragment());
+	    }
+	}
+	return false;
     }
 
     /**
      * Inserts/sets resource location. Behavior will depend on node type
+     *
      * @param location Location to insert/set
      */
     public void insertResourceLocation(URI location) throws ArbilMetadataException {
-        dataNodeService.insertResourceLocation(this, location);
+	dataNodeService.insertResourceLocation(this, location);
     }
 
     /**
      * Tests if a local resource file is associated with this node.
+     *
      * @return boolean
      */
     public boolean hasLocalResource() {
-        if (!hasResource()) {
-            return false;
-        }
-        if (resourceUrlField.getFieldValue().toLowerCase().startsWith("http")) {
-            return false;
-        }
-        if (!this.isLocal()) {
-            return false;
-        } else {
-            return true;
-        }
+	if (!hasResource()) {
+	    return false;
+	}
+	if (resourceUrlField.getFieldValue().toLowerCase().startsWith("http")) {
+	    return false;
+	}
+	if (!this.isLocal()) {
+	    return false;
+	} else {
+	    return true;
+	}
     }
 
     public boolean resourceFileNotFound() {
-        if (hasLocalResource()) {
-            if (resourceUrlField.getFieldValue().length() == 0) {
-                return true;
-            }
-            try {
-                return !(new File(this.getFullResourceURI())).exists();
-            } catch (Exception e) {
-                return true;
-            }
-        } else {
-            return false;
-        }
+	if (hasLocalResource()) {
+	    if (resourceUrlField.getFieldValue().length() == 0) {
+		return true;
+	    }
+	    try {
+		return !(new File(this.getFullResourceURI())).exists();
+	    } catch (Exception e) {
+		return true;
+	    }
+	} else {
+	    return false;
+	}
     }
 
     /**
      * Gets the ULR string of the resource file if it is available.
+     *
      * @return a URL string of the resource file
      */
     private String getResource() {
-        return resourceUrlField.getFieldValue();
+	return resourceUrlField.getFieldValue();
     }
 
     public boolean hasHistory() {
-        if (!this.isLocal()) {
-            // only local files can have a history
-            return false;
-        }
-        return !this.isChildNode() && new File(this.getFile().getAbsolutePath() + ".0").exists();
+	if (!this.isLocal()) {
+	    // only local files can have a history
+	    return false;
+	}
+	return !this.isChildNode() && new File(this.getFile().getAbsolutePath() + ".0").exists();
     }
-
 
     private boolean isHeadRevision() {
-        return !(new File(this.getFile().getAbsolutePath() + ".x").exists());
+	return !(new File(this.getFile().getAbsolutePath() + ".x").exists());
     }
-    
+
     private String getHistoryLabelStringForFile(File historyFile) {
-        Date mtime = new Date(historyFile.lastModified());
-        String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
-        return mTimeString;
+	Date mtime = new Date(historyFile.lastModified());
+	String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
+	return mTimeString;
     }
 
     public String[][] getHistoryList() {
-        Vector<String[]> historyVector = new Vector<String[]>();
-        int versionCounter = 0;
-        File currentHistoryFile;
-        //        historyVector.add(new String[]{"Current", ""});
-        if (!isHeadRevision()) {
-            historyVector.add(new String[]{"Last Save", ".x"});
-        }
-        do {
-            currentHistoryFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
-            if (currentHistoryFile.exists()) {
-                String mTimeString = getHistoryLabelStringForFile(currentHistoryFile);
-                historyVector.add(new String[]{mTimeString, "." + versionCounter});
-            }
-            versionCounter++;
-        } while (currentHistoryFile.exists());
-        return historyVector.toArray(new String[][]{{}});
+	Vector<String[]> historyVector = new Vector<String[]>();
+	int versionCounter = 0;
+	File currentHistoryFile;
+	//        historyVector.add(new String[]{"Current", ""});
+	if (!isHeadRevision()) {
+	    historyVector.add(new String[]{"Last Save", ".x"});
+	}
+	do {
+	    currentHistoryFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
+	    if (currentHistoryFile.exists()) {
+		String mTimeString = getHistoryLabelStringForFile(currentHistoryFile);
+		historyVector.add(new String[]{mTimeString, "." + versionCounter});
+	    }
+	    versionCounter++;
+	} while (currentHistoryFile.exists());
+	return historyVector.toArray(new String[][]{{}});
     }
 
     public boolean resurrectHistory(String historyVersion) {
-        return dataNodeService.resurrectHistory(this, historyVersion);
+	return dataNodeService.resurrectHistory(this, historyVersion);
     }
 
     /*
@@ -1027,214 +1044,226 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * This will also have the effect of deleting the file until the dom is saved thereby recreating the file that was bumped into history
      */
     public void bumpHistory() throws IOException {
-        dataNodeService.bumpHistory(this.getFile());
+	dataNodeService.bumpHistory(this.getFile());
     }
 
     /**
      * Resolves the full path to a resource file if it exists.
+     *
      * @return The path to remote resource if it exists.
      */
     public URI getFullResourceURI() {
-        try {
-            String targetUriString = resourceUrlField.getFieldValue();
-            String[] uriParts = targetUriString.split(":/", 2);
-            URI targetUri;
-            if (uriParts.length > 1) {
-                // todo: this will not allow urls that have square brackets in them due to yet another bug in the java URI class
-                //                String bracketEncodedPath = uriParts[1].replaceAll("\\[", "%5B");
-                //                bracketEncodedPath = bracketEncodedPath.replaceAll("\\]", "%5D");
-                String bracketEncodedPath = uriParts[1];
-                //org.apache.commons.httpclient.URI test = null;
+	try {
+	    String targetUriString = resourceUrlField.getFieldValue();
+	    String[] uriParts = targetUriString.split(":/", 2);
+	    URI targetUri;
+	    if (uriParts.length > 1) {
+		// todo: this will not allow urls that have square brackets in them due to yet another bug in the java URI class
+		//                String bracketEncodedPath = uriParts[1].replaceAll("\\[", "%5B");
+		//                bracketEncodedPath = bracketEncodedPath.replaceAll("\\]", "%5D");
+		String bracketEncodedPath = uriParts[1];
+		//org.apache.commons.httpclient.URI test = null;
 
-                //if (bracketEncodedPath.c)
-                targetUri = new URI(uriParts[0], "/" + bracketEncodedPath, null);
-            } else {
-                targetUri = new URI(null, targetUriString, null);
-            }
-            //            System.out.println("nodeUri: " + nodeUri);
-            URI resourceUri = nodeUri.resolve(targetUri);
-            //            System.out.println("targetUriString: " + targetUriString);
-            //            System.out.println("targetUri: " + targetUri);
-            //            System.out.println("resourceUri: " + resourceUri);
-            if (!targetUri.equals(resourceUri)) {
-                // maintain the UNC path
-                boolean isUncPath = nodeUri.toString().toLowerCase().startsWith("file:////");
-                if (isUncPath) {
-                    try {
-                        resourceUri = new URI("file:////" + resourceUri.toString().substring("file:/".length()));
-                    } catch (URISyntaxException urise) {
-                        BugCatcherManager.getBugCatcher().logError(urise);
-                    }
-                }
-            }
-            return resourceUri;
-        } catch (Exception urise) {
-            BugCatcherManager.getBugCatcher().logError(urise);
-            System.out.println("URISyntaxException: " + urise.getMessage());
-            return null;
-        }
+		//if (bracketEncodedPath.c)
+		targetUri = new URI(uriParts[0], "/" + bracketEncodedPath, null);
+	    } else {
+		targetUri = new URI(null, targetUriString, null);
+	    }
+	    //            System.out.println("nodeUri: " + nodeUri);
+	    URI resourceUri = nodeUri.resolve(targetUri);
+	    //            System.out.println("targetUriString: " + targetUriString);
+	    //            System.out.println("targetUri: " + targetUri);
+	    //            System.out.println("resourceUri: " + resourceUri);
+	    if (!targetUri.equals(resourceUri)) {
+		// maintain the UNC path
+		boolean isUncPath = nodeUri.toString().toLowerCase().startsWith("file:////");
+		if (isUncPath) {
+		    try {
+			resourceUri = new URI("file:////" + resourceUri.toString().substring("file:/".length()));
+		    } catch (URISyntaxException urise) {
+			BugCatcherManager.getBugCatcher().logError(urise);
+		    }
+		}
+	    }
+	    return resourceUri;
+	} catch (Exception urise) {
+	    BugCatcherManager.getBugCatcher().logError(urise);
+	    System.out.println("URISyntaxException: " + urise.getMessage());
+	    return null;
+	}
     }
 
     /**
      * Gets the ULR string provided when the node was created.
+     *
      * @return a URL string of the IMDI
      */
     public String getUrlString() {
-        // TODO: update the uses of this to use the uri not a string
-        return nodeUri.toString();
+	// TODO: update the uses of this to use the uri not a string
+	return nodeUri.toString();
     }
 
     public Object getParentDomLockObject() {
-        return getParentDomNode().domLockObjectPrivate;
+	return getParentDomNode().domLockObjectPrivate;
     }
 
     /**
      * Gets the ArbilDataNode parent of an imdi child node.
      * The returned node will be able to reload/save the dom for this node.
      * Only relevant for imdi child nodes.
+     *
      * @return ArbilDataNode
      */
     public synchronized ArbilDataNode getParentDomNode() {
-        //        System.out.println("nodeUri: " + nodeUri);
-        if (domParentNode == null) {
-            if (nodeUri.getFragment() != null) {
-                try {
-                    //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
-                    // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
-                    domParentNode = dataNodeService.loadArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
-                    //                    System.out.println("nodeUri: " + nodeUri);
-                } catch (URISyntaxException ex) {
-                    BugCatcherManager.getBugCatcher().logError(ex);
-                }
-            } else {
-                domParentNode = this;
-            }
-        }
-        return domParentNode;
+	//        System.out.println("nodeUri: " + nodeUri);
+	if (domParentNode == null) {
+	    if (nodeUri.getFragment() != null) {
+		try {
+		    //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
+		    // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
+		    domParentNode = dataNodeService.loadArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
+		    //                    System.out.println("nodeUri: " + nodeUri);
+		} catch (URISyntaxException ex) {
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    } else {
+		domParentNode = this;
+	    }
+	}
+	return domParentNode;
     }
 
     public boolean isDirectory() {
-        return isDirectory;
+	return isDirectory;
     }
 
     public boolean isMetaDataNode() {
-        if (nodeUri != null /* && nodDom != null*/) {
-            if (isChildNode()) {
-                return true;
-            } else {
-                return MetadataFormat.isPathMetadata(nodeUri.getPath());
-            }
-        }
-        return false;
+	if (nodeUri != null /* && nodDom != null */) {
+	    if (isChildNode()) {
+		return true;
+	    } else {
+		return MetadataFormat.isPathMetadata(nodeUri.getPath());
+	    }
+	}
+	return false;
     }
 
     public boolean isCmdiMetaDataNode() {
-        if (nodeUri != null /* && nodDom != null*/) {
-            if (isChildNode()) {
-                return getParentDomNode().isCmdiMetaDataNode();
-            } else {
-                return MetadataFormat.isPathCmdi(nodeUri.getPath());
-            }
-        }
-        return false;
+	if (nodeUri != null /* && nodDom != null */) {
+	    if (isChildNode()) {
+		return getParentDomNode().isCmdiMetaDataNode();
+	    } else {
+		// TG 3/4/2012 consider using template as indicator for type. This may have consequences in other parts of the application
+//		if (nodeTemplate != null) {
+//		    return (nodeTemplate instanceof CmdiTemplate);
+//		} else {
+		return MetadataFormat.isPathCmdi(nodeUri.getPath());
+	    }
+//	    }
+	}
+	return false;
     }
 
     /**
-     * Tests if this node represents an imdi file or if if it represents a child node from an imdi file (created by adding fields with child nodes).
+     * Tests if this node represents an imdi file or if if it represents a child node from an imdi file (created by adding fields with child
+     * nodes).
+     *
      * @return boolean
      */
     public boolean isChildNode() {
-        return ArbilDataNode.isStringChildNode(this.getUrlString());
+	return ArbilDataNode.isStringChildNode(this.getUrlString());
     }
 
     public boolean isSession() {
-        // test if this node is a session
-        ArbilField[] nameFields = getFieldArray("Name");
-        if (nameFields != null) {
-            return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Name");
-        }
-        return false;
+	// test if this node is a session
+	ArbilField[] nameFields = getFieldArray("Name");
+	if (nameFields != null) {
+	    return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Name");
+	}
+	return false;
     }
 
     /**
      * Tests if this node is a meta node that contains no fields and only child nodes, such as the Languages, Actors, MediaFiles nodes etc..
+     *
      * @return boolean
      */
     public boolean isEmptyMetaNode() {
-        return this.getFields().isEmpty();
+	return this.getFields().isEmpty();
     }
 
     public boolean isCatalogue() {
-        // test if this node is a catalogue
-        ArbilField[] nameFields = getFieldArray("Name");
-        if (nameFields != null) {
-            return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue" + MetadataReader.imdiPathSeparator + "Name");
-        }
-        return false;
+	// test if this node is a catalogue
+	ArbilField[] nameFields = getFieldArray("Name");
+	if (nameFields != null) {
+	    return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue" + MetadataReader.imdiPathSeparator + "Name");
+	}
+	return false;
     }
 
     public boolean isCorpus() {
-        if (isCmdiMetaDataNode()) {
-            return false;
-        }
-        // test if this node is a corpus
-        ArbilField[] nameFields = getFieldArray("Name");
-        if (nameFields != null) {
-            return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus" + MetadataReader.imdiPathSeparator + "Name");
-        }
-        return false;
+	if (isCmdiMetaDataNode()) {
+	    return false;
+	}
+	// test if this node is a corpus
+	ArbilField[] nameFields = getFieldArray("Name");
+	if (nameFields != null) {
+	    return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus" + MetadataReader.imdiPathSeparator + "Name");
+	}
+	return false;
     }
 
     public boolean isLocal() {
-        if (nodeUri != null) {
-            return ArbilDataNode.isUriLocal(nodeUri);
-        } else {
-            return false;
-        }
+	if (nodeUri != null) {
+	    return ArbilDataNode.isUriLocal(nodeUri);
+	} else {
+	    return false;
+	}
     }
 
     public boolean isEditable() {
-        return dataNodeService.isEditable(this);
+	return dataNodeService.isEditable(this);
     }
 
     /**
      * Returns the URI object for this node.
+     *
      * @return A URI that this node represents.
      */
     public URI getURI() {
-        try {
-            return nodeUri; // new URI(nodeUri.toString()); // a copy of
-        } catch (Exception ex) {
-            BugCatcherManager.getBugCatcher().logError(ex);
-            return null;
-        }
+	try {
+	    return nodeUri; // new URI(nodeUri.toString()); // a copy of
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	    return null;
+	}
     }
 
     public File getFile() {
-        //        System.out.println("getFile: " + nodeUri.toString());
-        if (nodeUri.getScheme().toLowerCase().equals("file")) {
-            try {
-                return new File(new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
-            } catch (Exception urise) {
-                BugCatcherManager.getBugCatcher().logError(nodeUri.toString(), urise);
-            }
-        }
-        return null;
+	//        System.out.println("getFile: " + nodeUri.toString());
+	if (nodeUri.getScheme().toLowerCase().equals("file")) {
+	    try {
+		return new File(new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
+	    } catch (Exception urise) {
+		BugCatcherManager.getBugCatcher().logError(nodeUri.toString(), urise);
+	    }
+	}
+	return null;
     }
 
     public String getParentDirectory() {
-        String parentPath = this.getUrlString().substring(0, this.getUrlString().lastIndexOf("/")) + "/"; // this is a url so don't use the path separator
-        return parentPath;
+	String parentPath = this.getUrlString().substring(0, this.getUrlString().lastIndexOf("/")) + "/"; // this is a url so don't use the path separator
+	return parentPath;
     }
 
     @Override
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
-        // Node is contained by some object so make sure it's fully loaded or at least loading
-        if (!getParentDomNode().dataLoaded && !isLoading()) {
+	// Node is contained by some object so make sure it's fully loaded or at least loading
+	if (!getParentDomNode().dataLoaded && !isLoading()) {
 	    dataNodeService.reloadNode(this);
-            //dataNodeLoader.requestReload(getParentDomNode());
-        }
-        super.registerContainer(containerToAdd);
+	    //dataNodeLoader.requestReload(getParentDomNode());
+	}
+	super.registerContainer(containerToAdd);
     }
 
     /**
@@ -1242,14 +1271,14 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * Used when loading a session dom.
      */
     public void clearChildIcons() {
-        //        System.out.println("clearChildIconsParent: " + this);
-        for (ArbilDataNode currentChild : childArray) {
-            //            if (!currentChild.equals(currentChild.getParentDomNode())) {
-            //                System.out.println("clearChildIcons: " + currentChild);
-            currentChild.clearChildIcons();
-            currentChild.clearIcon();
-            //            }
-        }
+	//        System.out.println("clearChildIconsParent: " + this);
+	for (ArbilDataNode currentChild : childArray) {
+	    //            if (!currentChild.equals(currentChild.getParentDomNode())) {
+	    //                System.out.println("clearChildIcons: " + currentChild);
+	    currentChild.clearChildIcons();
+	    currentChild.clearIcon();
+	    //            }
+	}
     }
     //    public void addJumpToInTreeRequest() {
     //        jumpToRequested = true;
@@ -1259,53 +1288,53 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
     public void clearIcon() {
-        refreshStringValue();
-        //        System.out.println("clearIcon: " + this);
-        //        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
-        //        SwingUtilities.invokeLater(new Runnable() {
+	refreshStringValue();
+	//        System.out.println("clearIcon: " + this);
+	//        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
+	//        SwingUtilities.invokeLater(new Runnable() {
 
-        //            public void run() {
-        icon = ArbilIcons.getSingleInstance().getIconForNode(ArbilDataNode.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
-        //                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
-        //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
-        // here we need to cause an update in the gui containers so that the new icon can be loaded
-        for (Enumeration<ArbilDataNodeContainer> containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
-            try { // TODO: the need for this try catch indicates that there is a threading issue in the way that imdichild nodes are reloaded within an imdi parent node and this should be reorganised to be more systematic and hierarchical
-                ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
-                currentContainer.dataNodeIconCleared(this);
-            } catch (java.util.NoSuchElementException ex) {
-                BugCatcherManager.getBugCatcher().logError(ex);
-            }
-        }
-        //            }
-        //        });
-        //        System.out.println("end clearIcon: " + this);
+	//            public void run() {
+	icon = ArbilIcons.getSingleInstance().getIconForNode(ArbilDataNode.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
+	//                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
+	//                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
+	// here we need to cause an update in the gui containers so that the new icon can be loaded
+	for (Enumeration<ArbilDataNodeContainer> containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
+	    try { // TODO: the need for this try catch indicates that there is a threading issue in the way that imdichild nodes are reloaded within an imdi parent node and this should be reorganised to be more systematic and hierarchical
+		ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
+		currentContainer.dataNodeIconCleared(this);
+	    } catch (java.util.NoSuchElementException ex) {
+		BugCatcherManager.getBugCatcher().logError(ex);
+	    }
+	}
+	//            }
+	//        });
+	//        System.out.println("end clearIcon: " + this);
     }
 
     public synchronized void removeFromAllContainers() {
-        // todo: this should also scan all child nodes and also remove them in the same way
-        for (ArbilDataNode currentChildNode : this.getAllChildren()) {
-            currentChildNode.removeFromAllContainers();
-        }
-        for (ArbilDataNodeContainer currentContainer : containersOfThisNode.toArray(new ArbilDataNodeContainer[]{})) {
-            try {
-                //ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
-                currentContainer.dataNodeRemoved(this);
-            } catch (java.util.NoSuchElementException ex) {
-                BugCatcherManager.getBugCatcher().logError(ex);
-            }
-        }
+	// todo: this should also scan all child nodes and also remove them in the same way
+	for (ArbilDataNode currentChildNode : this.getAllChildren()) {
+	    currentChildNode.removeFromAllContainers();
+	}
+	for (ArbilDataNodeContainer currentContainer : containersOfThisNode.toArray(new ArbilDataNodeContainer[]{})) {
+	    try {
+		//ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
+		currentContainer.dataNodeRemoved(this);
+	    } catch (java.util.NoSuchElementException ex) {
+		BugCatcherManager.getBugCatcher().logError(ex);
+	    }
+	}
     }
     private Boolean isFavorite = null;
 
     public boolean isFavorite() {
-        // Is being cached because comparator checks this every time
-        if (isFavorite == null) {
-            isFavorite = dataNodeService.isFavorite(this);
-        }
-        return isFavorite;
+	// Is being cached because comparator checks this every time
+	if (isFavorite == null) {
+	    isFavorite = dataNodeService.isFavorite(this);
+	}
+	return isFavorite;
 
-        //        return getParentDomNode().isFavourite;
+	//        return getParentDomNode().isFavourite;
     }
 
     //    public void setFavouriteStatus(boolean favouriteStatus) {
@@ -1316,13 +1345,14 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * If not already done calculates the required icon for this node in its current state.
      * Once calculated the stored icon will be returned.
      * To clear the icon and recalculate it "clearIcon()" should be called.
+     *
      * @return The icon for this node.
      */
     public ImageIcon getIcon() {
-        if (icon == null) {
-            return ArbilIcons.getSingleInstance().loadingIcon;
-        }
-        return icon;
+	if (icon == null) {
+	    return ArbilIcons.getSingleInstance().loadingIcon;
+	}
+	return icon;
     }
     private static ArbilNodeSorter dataNodeSorter = new ArbilNodeSorter();
     private static ArbilNodeSorter favouriteSorter = new ArbilFavouritesSorter();
@@ -1331,32 +1361,32 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @return the dataLoaded
      */
     public boolean isDataLoaded() {
-        if (isChildNode()) {
-            return getParentDomNode().dataLoaded;
-        } else {
-            return dataLoaded;
-        }
+	if (isChildNode()) {
+	    return getParentDomNode().dataLoaded;
+	} else {
+	    return dataLoaded;
+	}
     }
 
     /**
      * @param dataLoaded the dataLoaded to set
      */
     public void setDataLoaded(boolean dataLoaded) {
-        this.dataLoaded = dataLoaded;
+	this.dataLoaded = dataLoaded;
     }
 
     /**
      * @return Whether a resource URI has been set for this node
      */
     public boolean isResourceSet() {
-        return resourceUrlField != null && resourceUrlField.getFieldValue().length() > 0;
+	return resourceUrlField != null && resourceUrlField.getFieldValue().length() > 0;
     }
 
     public void invalidateThumbnails() {
-        thumbnailFile = null;
-        for (ArbilDataNode node : getChildArray()) {
-            node.invalidateThumbnails();
-        }
+	thumbnailFile = null;
+	for (ArbilDataNode node : getChildArray()) {
+	    node.invalidateThumbnails();
+	}
     }
 //
 //    @Override
@@ -1377,14 +1407,14 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @return Whether node is conflated with metanode because if it is singleton (e.g. Project, Content). Null if this does not apply.
      */
     public boolean isSingletonMetadataNode() {
-        return singletonMetadataNode;
+	return singletonMetadataNode;
     }
 
     /**
      * @param singletonMetadataNodeName Whether this node is conflated with metanode because it is singleton (e.g. Project, Content)
      */
     public void setSingletonMetadataNode(boolean singletonMetadataNodeName) {
-        this.singletonMetadataNode = singletonMetadataNodeName;
+	this.singletonMetadataNode = singletonMetadataNodeName;
     }
 
     /**
@@ -1393,7 +1423,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @return the value of containerNode
      */
     public boolean isContainerNode() {
-        return containerNode;
+	return containerNode;
     }
 
     /**
@@ -1402,28 +1432,28 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @param containerNode new value of containerNode
      */
     public void setContainerNode(boolean containerNode) {
-        this.containerNode = containerNode;
+	this.containerNode = containerNode;
     }
 
     /**
      * @return the cmdiComponentLinkReader
      */
     public CmdiComponentLinkReader getCmdiComponentLinkReader() {
-        return getParentDomNode().cmdiComponentLinkReader;
+	return getParentDomNode().cmdiComponentLinkReader;
     }
 
     /**
      * @return the typeCheckerState
      */
     public TypeCheckerState getTypeCheckerState() {
-        return typeCheckerState;
+	return typeCheckerState;
     }
 
     /**
      * @param typeCheckerState the typeCheckerState to set
      */
     public void setTypeCheckerState(TypeCheckerState typeCheckerState) {
-        this.typeCheckerState = typeCheckerState;
+	this.typeCheckerState = typeCheckerState;
     }
 
     /**
@@ -1432,12 +1462,12 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     protected String[][] getChildLinks() {
 	return childLinks;
     }
-    
-    protected ArbilField[] getFieldArray(String translateFieldName){
+
+    protected ArbilField[] getFieldArray(String translateFieldName) {
 	return fieldHashtable.get(translateFieldName);
     }
-    
-    protected void addFieldArray(String translateFieldName, ArbilField[] fieldArray){
+
+    protected void addFieldArray(String translateFieldName, ArbilField[] fieldArray) {
 	fieldHashtable.put(translateFieldName, fieldArray);
     }
 }

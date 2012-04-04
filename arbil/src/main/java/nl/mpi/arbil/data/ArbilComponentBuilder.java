@@ -178,7 +178,7 @@ public class ArbilComponentBuilder {
 //                printoutDocument(targetDocument);
 		    if (newResourceProxy) {
 			// load the schema
-			SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
+			SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().getTemplateFile());
 			addNewResourceProxy(targetDocument, schemaType, resourceProxyId, resourceNode);
 		    } else {
 			// Increase counter for referencing nodes
@@ -885,7 +885,7 @@ public class ArbilComponentBuilder {
 	    String nodeFragment = "";
 	    try {
 		// load the schema
-		SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
+		SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().getTemplateFile());
 		// load the dom
 		Document targetDocument = getDocument(arbilDataNode.getURI());
 		// insert the new section
@@ -1335,7 +1335,7 @@ public class ArbilComponentBuilder {
 	if (nodeSchemaTypeMap.containsKey(arbilDataNode)) {
 	    return nodeSchemaTypeMap.get(arbilDataNode);
 	} else {
-	    SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
+	    SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().getTemplateFile());
 	    nodeSchemaTypeMap.put(arbilDataNode, schemaType);
 	    return schemaType;
 	}

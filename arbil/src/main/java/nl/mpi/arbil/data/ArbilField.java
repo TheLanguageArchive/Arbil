@@ -105,7 +105,7 @@ public class ArbilField implements Serializable {
 	if (isRequiredField < 0) {
 	    isRequiredField = 0;
 	    String fullXmlPath = getGenericFullXmlPath();
-	    for (String currentRequiredField : getParentDataNode().getNodeTemplate().requiredFields) {
+	    for (String currentRequiredField : getParentDataNode().getNodeTemplate().getRequiredFields()) {
 		if (fullXmlPath.matches(currentRequiredField)) {
 		    isRequiredField = 1;
 		    break;
@@ -133,7 +133,7 @@ public class ArbilField implements Serializable {
 	if (canValidateField != 0) { // only do this the first time or once a field constraint has been found
 	    canValidateField = 0;
 	    String fullXmlPath = getGenericFullXmlPath();
-	    for (String[] currentRequiredField : getParentDataNode().getNodeTemplate().fieldConstraints) {
+	    for (String[] currentRequiredField : getParentDataNode().getNodeTemplate().getFieldConstraints()) {
 		if (fullXmlPath.matches(currentRequiredField[0])) {
 		    canValidateField = 1;
 		    isValidValue = (fieldValue.matches(currentRequiredField[1]));

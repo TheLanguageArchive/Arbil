@@ -12,6 +12,7 @@ import java.util.Hashtable;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -34,9 +35,9 @@ public class ArbilTemplateManager {
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
     private String[] builtInTemplates2 = {"Default", "Sign Language"}; // the first item in this list is the default template
+
 //    private ArbilTemplate defaultArbilTemplate;
     //public String[] builtInTemplates = {"Corpus Branch (internal)", "Session (internal)", "Catalogue (internal)", "Sign Language (internal)"};
-
     static synchronized public ArbilTemplateManager getSingleInstance() {
 	if (singleInstance == null) {
 	    singleInstance = new ArbilTemplateManager();

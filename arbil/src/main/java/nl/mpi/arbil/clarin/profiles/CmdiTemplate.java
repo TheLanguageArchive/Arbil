@@ -27,11 +27,11 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilDesktopInjector;
-import nl.mpi.arbil.data.ArbilEntityResolver;
-import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilEntityResolver;
+import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -141,7 +141,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    String[][] tempSortableArray = arrayListGroup.displayNamePreferenceList.toArray(new String[][]{});
 	    Arrays.sort(tempSortableArray, displayNamePreferenceComparator);
 	    preferredNameFields = new String[tempSortableArray.length];
-	    for (int nameFieldCounter = 0; nameFieldCounter < preferredNameFields.length; nameFieldCounter++) {
+	    for (int nameFieldCounter = 0; nameFieldCounter < getPreferredNameFields().length; nameFieldCounter++) {
 		preferredNameFields[nameFieldCounter] = tempSortableArray[nameFieldCounter][0];
 	    }
 	    // end sort and construct the preferredNameFields array
@@ -301,11 +301,11 @@ public class CmdiTemplate extends ArbilTemplate {
 //                break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
 //            }
 	} catch (IOException e) {
-	    BugCatcherManager.getBugCatcher().logError(templateFile.getName(), e);
-	    messageDialogHandler.addMessageDialogToQueue("Could not open the required template file: " + templateFile.getName(), "Load Clarin Template");
+	    BugCatcherManager.getBugCatcher().logError(getTemplateFile().getName(), e);
+	    messageDialogHandler.addMessageDialogToQueue("Could not open the required template file: " + getTemplateFile().getName(), "Load Clarin Template");
 	} catch (XmlException e) {
-	    BugCatcherManager.getBugCatcher().logError(templateFile.getName(), e);
-	    messageDialogHandler.addMessageDialogToQueue("Could not read the required template file: " + templateFile.getName(), "Load Clarin Template");
+	    BugCatcherManager.getBugCatcher().logError(getTemplateFile().getName(), e);
+	    messageDialogHandler.addMessageDialogToQueue("Could not read the required template file: " + getTemplateFile().getName(), "Load Clarin Template");
 	}
     }
 
@@ -516,7 +516,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		documentBuilderFactory.setValidating(false);
 		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		schemaDocument = documentBuilder.parse(templateFile);
+		schemaDocument = documentBuilder.parse(getTemplateFile());
 	    } catch (IOException ex) {
 		BugCatcherManager.getBugCatcher().logError("Error while parsing schema", ex);
 	    } catch (ParserConfigurationException ex) {
