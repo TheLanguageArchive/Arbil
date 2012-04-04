@@ -1,21 +1,20 @@
 package nl.mpi.arbil.templates;
 
-import java.io.IOException;
-import nl.mpi.arbil.util.DownloadAbortFlag;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
-import nl.mpi.arbil.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Hashtable;
 import javax.swing.ImageIcon;
+import nl.mpi.arbil.*;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
-import nl.mpi.arbil.data.ArbilEntityResolver;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.DownloadAbortFlag;
 
 /**
  * ArbilTemplateManager.java
