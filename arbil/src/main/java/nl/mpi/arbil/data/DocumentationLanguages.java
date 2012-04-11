@@ -1,6 +1,7 @@
 package nl.mpi.arbil.data;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,9 +11,9 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
- *  Document   : DocumentationLanguages
- *  Created on : Jul 6, 2010, 4:05:46 PM
- *  Author     : Peter Withers
+ * Document : DocumentationLanguages
+ * Created on : Jul 6, 2010, 4:05:46 PM
+ * Author : Peter Withers
  */
 public class DocumentationLanguages implements ArbilVocabularyFilter {
 
@@ -82,12 +83,16 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
     }
 
     public synchronized List<ArbilVocabularyItem> getAllLanguagesForCmdi() {
-	CmdiTemplate profile = (CmdiTemplate) ArbilTemplateManager.getSingleInstance().getCmdiTemplate(getLanguageVocabularyUrlForCmdi());
-	if (profile != null) {
-	    ArbilVocabulary vocab = profile.getFieldVocabulary(getLanguageVocabularyPathForCmdi());
-	    if (vocab != null) {
-		return vocab.getVocabularyItems();
+	try {
+	    CmdiTemplate profile = (CmdiTemplate) ArbilTemplateManager.getSingleInstance().getCmdiTemplate(getLanguageVocabularyUrlForCmdi());
+	    if (profile != null) {
+		ArbilVocabulary vocab = profile.getFieldVocabulary(getLanguageVocabularyPathForCmdi());
+		if (vocab != null) {
+		    return vocab.getVocabularyItems();
+		}
 	    }
+	} catch (URISyntaxException usEx) {
+	    throw new AssertionError(usEx);
 	}
 	return null;
     }
