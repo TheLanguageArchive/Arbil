@@ -1,8 +1,8 @@
 package nl.mpi.arbil.templates;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
 
@@ -72,7 +72,7 @@ public interface ArbilTemplate {
 
     boolean isArbilChildNode(String childType);
 
-    ArrayList<String> listAllTemplates();
+    List<String> listAllTemplates();
 
     Enumeration listTypesFor(Object targetNodeUserObject);
 

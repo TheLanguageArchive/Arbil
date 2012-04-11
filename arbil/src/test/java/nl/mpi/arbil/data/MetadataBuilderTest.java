@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.net.URI;
+import java.util.List;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ArbilMetadataException;
 import org.junit.After;
@@ -126,7 +127,7 @@ public class MetadataBuilderTest {
         gedcomImdiObject.loadArbilDom();
         checkAgainstSchema(gedcomImdiObject);
         //            gedcomImdiObject.waitTillLoaded();
-        ArrayList<String> allTemplates = gedcomImdiObject.nodeTemplate.listAllTemplates();
+        List<String> allTemplates = gedcomImdiObject.nodeTemplate.listAllTemplates();
         ArrayList<ArbilDataNode> currentLevel = new ArrayList<ArbilDataNode>();
         //            ImdiLoader.getSingleInstance().schemaCheckLocalFiles = true;
 //        for (int addNodeCount = 0; addNodeCount < 3; addNodeCount++) {
