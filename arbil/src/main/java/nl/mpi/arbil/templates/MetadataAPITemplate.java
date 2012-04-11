@@ -15,10 +15,14 @@ import java.util.List;
 import java.util.Map;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.metadata.api.MetadataAPI;
 import nl.mpi.metadata.api.MetadataException;
+import nl.mpi.metadata.api.type.ContainedMetadataElementType;
+import nl.mpi.metadata.api.type.ControlledVocabularyItem;
+import nl.mpi.metadata.api.type.ControlledVocabularyMetadataType;
 import nl.mpi.metadata.api.type.MetadataContainerElementType;
 import nl.mpi.metadata.api.type.MetadataDocumentType;
 import nl.mpi.metadata.api.type.MetadataElementType;
@@ -72,29 +76,47 @@ public class MetadataAPITemplate implements ArbilTemplate {
     }
 
     public String[][] getAutoFieldsArray() {
+	// No auto fields
 	return new String[][]{};
     }
 
     public String[][] getFieldConstraints() {
+	// TODO
 	return new String[][]{};
     }
 
     public String[][] getFieldTriggersArray() {
+	// No field triggers
 	return new String[][]{};
     }
 
     public ArbilVocabulary getFieldVocabulary(String nodePath) {
-	getMetadataElement(nodePath);
+	MetadataElementType metadataElement = getMetadataElement(nodePath);
+	if (metadataElement instanceof ControlledVocabularyMetadataType) {
+	    ArbilVocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(templateURI.toString() + "#" + metadataElement.getPathString());
+
+	    for (ControlledVocabularyItem item : ((ControlledVocabularyMetadataType) metadataElement).getItems()) {
+		String entryCode = item.getValue();
+		String description = item.getDescription();
+
+		if (description == null || description.length() == 0) {
+		    vocabulary.addEntry(entryCode, null);
+		} else {
+		    vocabulary.addEntry(description, entryCode);
+		}
+	    }
+	}
 	return null;
     }
 
     public String[][] getGenreSubgenreArray() {
+	// No genre/subgenre
 	return new String[][]{};
     }
 
     public String getHelpStringForField(String fieldName) {
-	getMetadataElement(fieldName);
-	return "";
+	MetadataElementType metadataElement = getMetadataElement(fieldName);
+	return metadataElement.getDescription();
     }
 
     public String getInsertBeforeOfTemplate(String templatPath) {
@@ -176,9 +198,21 @@ public class MetadataAPITemplate implements ArbilTemplate {
     }
 
     public String pathIsChildNode(String nodePath) {
-	MetadataElementType metadataElement = getMetadataElement(nodePath);
-	if(metadataElement instanceof MetadataContainerElementType){
-	    return metadataElement.getName();
+	MetadataElementType elementType = getMetadataElement(nodePath);
+	// Must have children
+	if (elementType instanceof MetadataContainerElementType
+		&& ((MetadataContainerElementType) elementType).getContainableTypes().size() > 0) {
+	    // Must be child with valid parent
+	    if (elementType instanceof ContainedMetadataElementType) {
+		final ContainedMetadataElementType containedType = (ContainedMetadataElementType) elementType;
+		final MetadataContainerElementType parent = containedType.getParent();
+		if (parent != null) {
+		    final int maxOccurs = containedType.getMaxOccurences(parent);
+		    if (maxOccurs > 1 || maxOccurs == -1 || maxOccurs != containedType.getMinOccurences(parent)) {
+			return parent.getName();
+		    }
+		}
+	    }
 	}
 	return null;
     }
