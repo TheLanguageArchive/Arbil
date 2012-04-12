@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ import nl.mpi.metadata.api.type.ControlledVocabularyItem;
 import nl.mpi.metadata.api.type.ControlledVocabularyMetadataType;
 import nl.mpi.metadata.api.type.MetadataContainerElementType;
 import nl.mpi.metadata.api.type.MetadataDocumentType;
+import nl.mpi.metadata.api.type.MetadataElementAttributeType;
 import nl.mpi.metadata.api.type.MetadataElementType;
 import nl.mpi.metadata.cmdi.api.CMDIApi;
 
@@ -125,8 +128,11 @@ public class MetadataAPITemplate implements ArbilTemplate {
     }
 
     public int getMaxOccursForTemplate(String templatPath) {
-	getMetadataElement(templatPath);
-	return 0;
+	MetadataElementType metadataElement = getMetadataElement(templatPath);
+	if (metadataElement instanceof ContainedMetadataElementType) {
+	    return ((ContainedMetadataElementType) metadataElement).getMaxOccurences();
+	}
+	return 1;
     }
 
     public String getParentOfField(String targetFieldPath) {
@@ -207,8 +213,8 @@ public class MetadataAPITemplate implements ArbilTemplate {
 		final ContainedMetadataElementType containedType = (ContainedMetadataElementType) elementType;
 		final MetadataContainerElementType parent = containedType.getParent();
 		if (parent != null) {
-		    final int maxOccurs = containedType.getMaxOccurences(parent);
-		    if (maxOccurs > 1 || maxOccurs == -1 || maxOccurs != containedType.getMinOccurences(parent)) {
+		    final int maxOccurs = containedType.getMaxOccurences();
+		    if (maxOccurs > 1 || maxOccurs == -1 || maxOccurs != containedType.getMinOccurences()) {
 			return parent.getName();
 		    }
 		}
@@ -223,7 +229,28 @@ public class MetadataAPITemplate implements ArbilTemplate {
     }
 
     public boolean pathIsEditableField(String nodePath) {
-	getMetadataElement(nodePath);
+	MetadataElementType metadataElement = getMetadataElement(nodePath);
+	return !(metadataElement instanceof MetadataContainerElementType);
+    }
+
+    public List<String[]> getEditableAttributesForPath(String path) {
+	MetadataElementType metadataElement = getMetadataElement(path);
+	if (metadataElement != null) {
+	    Collection<MetadataElementAttributeType> attributes = metadataElement.getAttributes();
+	    if (attributes.size() > 0) {
+		List attributesList = new ArrayList<String>(attributes.size());
+		for (MetadataElementAttributeType attribute : attributes) {
+		    //TODO: get attribute path directly from attribute
+		    attributesList.add(String.format("%1$s/@%2$s", metadataElement.getPathString(), attribute.getName()));
+		}
+		return attributesList;
+	    }
+	}
+	return Collections.emptyList();
+    }
+
+    public boolean pathAllowsLanguageId(String path) {
+	//TODO
 	return false;
     }
 

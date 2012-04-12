@@ -786,7 +786,7 @@ public class MetadataReader {
 	// For CMDI nodes, get field attribute paths from schema and values from document before creating arbil field
 	if (destinationNode.isCmdiMetaDataNode()) {
 	    final String nodePath = fullSubNodePath.replaceAll("\\(\\d+\\)", "");
-	    CmdiTemplate template = (CmdiTemplate) destinationNode.getNodeTemplate();
+	    ArbilTemplate template = destinationNode.getNodeTemplate();
 	    attributePaths = template.getEditableAttributesForPath(nodePath);
 	    attributesValueMap = new HashMap<String, Object>();
 	    if (childNodeAttributes != null) {

@@ -708,4 +708,14 @@ public class ImdiTemplate implements ArbilTemplate {
     public String getLoadedTemplateName() {
 	return loadedTemplateName;
     }
+
+    public List<String[]> getEditableAttributesForPath(String path) {
+	// CMDI only at this point
+	return Collections.emptyList();
+    }
+
+    public boolean pathAllowsLanguageId(String path) {
+	// CMDI only at this point
+	return false;
+    }
 }
