@@ -3,6 +3,7 @@ package nl.mpi.arbil.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -10,9 +11,9 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 
 /**
- *  Document   : DocumentationLanguages
- *  Created on : Jul 6, 2010, 4:05:46 PM
- *  Author     : Peter Withers
+ * Document : DocumentationLanguages
+ * Created on : Jul 6, 2010, 4:05:46 PM
+ * Author : Peter Withers
  */
 public class DocumentationLanguages implements ArbilVocabularyFilter {
 
@@ -101,11 +102,11 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	ArrayList<String> selectedLanguages = new ArrayList<String>();
 	try {
 	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(SELECTED_LANGUAGES_KEY)));
+	    return selectedLanguages;
 	} catch (Exception e) {
 	    bugCatcher.logError("No selectedLanguages file, will create one now.", e);
-	    addDefaultTemplates();
+	    return addDefaultLanguages();
 	}
-	return selectedLanguages;
     }
 
     public List<ArbilVocabularyItem> getLanguageListSubsetForCmdi() {
@@ -130,21 +131,40 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	return languageListSubset;//.toArray(new ArbilVocabularyItem[]{});
     }
 
-    private void addDefaultTemplates() {
-	for (ArbilVocabularyItem currentTemplate : getAllLanguagesForImdi()) {
-	    addselectedLanguages(currentTemplate.itemDisplayName);
+    public synchronized void addselectedLanguage(String templateString) {
+	List<String> selectedLanguages = getSelectedLanguages();
+	if (selectedLanguages == null) {
+	    selectedLanguages = Collections.singletonList(templateString);
+	} else {
+	    selectedLanguages.add(templateString);
 	}
+	saveSelectedLanguages(selectedLanguages);
     }
 
-    public synchronized void addselectedLanguages(String templateString) {
+    private List<String> addDefaultLanguages() {
+	final List<ArbilVocabularyItem> imdiLanguages = getAllLanguagesForImdi();
+
+	List<String> selectedLanguages = getSelectedLanguages();
+	if (selectedLanguages == null) {
+	    selectedLanguages = new ArrayList<String>(imdiLanguages.size());
+	}
+
+	for (ArbilVocabularyItem currentTemplate : imdiLanguages) {
+	    selectedLanguages.add(currentTemplate.itemDisplayName);
+	}
+	saveSelectedLanguages(selectedLanguages);
+	return getSelectedLanguages();
+    }
+
+    private ArrayList<String> getSelectedLanguages() {
 	ArrayList<String> selectedLanguages = new ArrayList<String>();
 	try {
 	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(SELECTED_LANGUAGES_KEY)));
 	} catch (Exception e) {
-	    bugCatcher.logError("No selectedLanguages file, will create one now.", e);
+	    bugCatcher.logError("No selectedLanguages file, will create one if required.", e);
+	    return null;
 	}
-	selectedLanguages.add(templateString);
-	saveSelectedLanguages(selectedLanguages);
+	return selectedLanguages;
     }
 
     public synchronized void removeselectedLanguages(String templateString) {
@@ -160,7 +180,7 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	saveSelectedLanguages(selectedLanguages);
     }
 
-    private void saveSelectedLanguages(ArrayList<String> selectedLanguages) {
+    private void saveSelectedLanguages(List<String> selectedLanguages) {
 	try {
 	    sessionStorage.saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));
 	} catch (IOException ex) {
