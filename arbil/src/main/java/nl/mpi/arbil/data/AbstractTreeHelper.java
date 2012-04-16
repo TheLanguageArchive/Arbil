@@ -22,6 +22,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.ArbilIcons;
+import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.ArbilTrackingTree;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -83,7 +84,9 @@ public abstract class AbstractTreeHelper implements TreeHelper {
         HashMap<String, ContainerNode> containerNodeMap = new HashMap<String, ContainerNode>();
 
         public ArbilNode[] getChildArray() {
-            return groupTreeNodesByType(getFavouriteNodes(), containerNodeMap);
+            containerNodeMap = groupTreeNodesByType(getFavouriteNodes(), containerNodeMap);
+            return containerNodeMap.values().toArray(new ArbilNode[]{});
+//            return getFavouriteNodes();
         }
     };
 
@@ -549,11 +552,23 @@ public abstract class AbstractTreeHelper implements TreeHelper {
         return favouriteNodes;
     }
 
-    protected ArbilNode[] groupTreeNodesByType(ArbilDataNode[] favouriteNodes, HashMap<String, ContainerNode> containerNodeMap) {
+    protected HashMap<String, ContainerNode> groupTreeNodesByType(ArbilDataNode[] favouriteNodes, HashMap<String, ContainerNode> containerNodeMap) {
         HashMap<String, HashSet<ArbilDataNode>> metaNodeMap = new HashMap<String, HashSet<ArbilDataNode>>();
         for (ArbilDataNode arbilDataNode : favouriteNodes) {
             String containerNodeLabel = "Other";
-            if (arbilDataNode.isSession()) {
+            if (arbilDataNode.isChildNode()) {
+                final String urlString = arbilDataNode.getUrlString();
+                containerNodeLabel = urlString.substring(urlString.lastIndexOf(".") + 1);
+                containerNodeLabel = containerNodeLabel.replaceFirst("\\([0-9]*\\)", "");
+                if (arbilDataNode.isCmdiMetaDataNode()) {
+                    final ArbilTemplate nodeTemplate = arbilDataNode.getParentDomNode().nodeTemplate;
+                    if (nodeTemplate != null) {
+                        containerNodeLabel = containerNodeLabel + " (" + nodeTemplate.getTemplateName() + ")";
+                    } else {
+                        containerNodeLabel = containerNodeLabel + " (loading)";
+                    }
+                }
+            } else if (arbilDataNode.isSession()) {
                 containerNodeLabel = "Session";
             } else if (arbilDataNode.isCatalogue()) {
                 containerNodeLabel = "Catalogue";
@@ -563,10 +578,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 } else {
                     containerNodeLabel = arbilDataNode.nodeTemplate.getTemplateName();
                 }
-            } else if (arbilDataNode.isChildNode()) {
-                final String urlString = arbilDataNode.getUrlString();
-                containerNodeLabel = urlString.substring(urlString.lastIndexOf(".") + 1);
-                containerNodeLabel = containerNodeLabel.replaceFirst("\\([0-9]*\\)", "");
             }
             if (!metaNodeMap.containsKey(containerNodeLabel)) {
                 metaNodeMap.put(containerNodeLabel, new HashSet<ArbilDataNode>());
@@ -587,7 +598,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 containerNodeMapUpdated.put(filteredNodeEntry.getKey(), containerNode);
             }
         }
-        return containerNodeMapUpdated.values().toArray(new ArbilNode[]{});
+        return containerNodeMapUpdated;
     }
 
     /**
