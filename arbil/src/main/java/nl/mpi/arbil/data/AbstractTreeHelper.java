@@ -36,15 +36,11 @@ import nl.mpi.arbil.util.TreeHelper;
  * @author Twan.Goosen@mpi.nl
  */
 public abstract class AbstractTreeHelper implements TreeHelper {
-    
+
     private DefaultTreeModel localCorpusTreeModel;
     private DefaultTreeModel remoteCorpusTreeModel;
     private DefaultTreeModel localDirectoryTreeModel;
     private DefaultTreeModel favouritesTreeModel;
-    protected DefaultMutableTreeNode localCorpusRootNode;
-    protected DefaultMutableTreeNode remoteCorpusRootNode;
-    protected DefaultMutableTreeNode localDirectoryRootNode;
-    protected DefaultMutableTreeNode favouritesRootNode;
     private ArbilDataNode[] remoteCorpusNodes = new ArbilDataNode[]{};
     private ArbilDataNode[] localCorpusNodes = new ArbilDataNode[]{};
     private ArbilDataNode[] localFileNodes = new ArbilDataNode[]{};
@@ -55,8 +51,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for local corpus tree
      */
-    private ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode("Local corpus", ArbilIcons.getSingleInstance().directoryIcon, true) {
-	
+    protected final ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode("Local corpus", ArbilIcons.getSingleInstance().directoryIcon, true) {
+
 	public ArbilDataNode[] getChildArray() {
 	    return getLocalCorpusNodes();
 	}
@@ -64,8 +60,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for remote corpus tree
      */
-    private ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode("Remote corpus", ArbilIcons.getSingleInstance().serverIcon, false) {
-	
+    protected final ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode("Remote corpus", ArbilIcons.getSingleInstance().serverIcon, false) {
+
 	public ArbilDataNode[] getChildArray() {
 	    return getRemoteCorpusNodes();
 	}
@@ -73,8 +69,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for working directories tree ('files')
      */
-    private ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode("Working Directories", ArbilIcons.getSingleInstance().computerIcon, true) {
-	
+    protected final ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode("Working Directories", ArbilIcons.getSingleInstance().computerIcon, true) {
+
 	public ArbilDataNode[] getChildArray() {
 	    return getLocalFileNodes();
 	}
@@ -82,54 +78,33 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for favourites tree
      */
-    private ArbilRootNode favouritesRootNodeObject = new ArbilRootNode("Favourites", ArbilIcons.getSingleInstance().favouriteIcon, true) {
-	
+    protected final ArbilRootNode favouritesRootNodeObject = new ArbilRootNode("Favourites", ArbilIcons.getSingleInstance().favouriteIcon, true) {
+
 	public ArbilDataNode[] getChildArray() {
 	    return getFavouriteNodes();
 	}
     };
-    
+
     public AbstractTreeHelper(MessageDialogHandler messageDialogHandler) {
 	this.messageDialogHandler = messageDialogHandler;
     }
-    
+
     protected final void initTrees() {
 	initTreeModels();
     }
-    
+
     protected void initTreeModels() {
 	// Create tree models using the ArbilRootNodes as user objects for the root tree nodes.
 	//
 	// Second parameter of DefaultTreeModel constructor: 
 	//	asksAllowsChildren - a boolean, true if each node is asked to see if it can have children
 
-	localCorpusRootNode = new DefaultMutableTreeNode(localCorpusRootNodeObject);
-	localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
-	
-	remoteCorpusRootNode = new DefaultMutableTreeNode(remoteCorpusRootNodeObject);
-	remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
-	
-	localDirectoryRootNode = new DefaultMutableTreeNode(localDirectoryRootNodeObject);
-	localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
-	
-	favouritesRootNode = new DefaultMutableTreeNode(favouritesRootNodeObject);
-	favouritesTreeModel = new DefaultTreeModel(favouritesRootNode, true);
+	localCorpusTreeModel = new DefaultTreeModel(new DefaultMutableTreeNode(localCorpusRootNodeObject), true);
+	remoteCorpusTreeModel = new DefaultTreeModel(new DefaultMutableTreeNode(remoteCorpusRootNodeObject), true);
+	localDirectoryTreeModel = new DefaultTreeModel(new DefaultMutableTreeNode(localDirectoryRootNodeObject), true);
+	favouritesTreeModel = new DefaultTreeModel(new DefaultMutableTreeNode(favouritesRootNodeObject), true);
     }
-    
-    @Override
-    public DefaultTreeModel getModelForNode(DefaultMutableTreeNode nodeToTest) {
-	if (nodeToTest.getRoot().equals(remoteCorpusRootNode)) {
-	    return remoteCorpusTreeModel;
-	}
-	if (nodeToTest.getRoot().equals(localCorpusRootNode)) {
-	    return localCorpusTreeModel;
-	}
-	if (nodeToTest.getRoot().equals(localDirectoryRootNode)) {
-	    return localDirectoryTreeModel;
-	}
-	    return favouritesTreeModel;
-	}
-    
+
     @Override
     public int addDefaultCorpusLocations() {
 	try {
@@ -140,7 +115,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    return 0;
 	}
     }
-    
+
     public int addDefaultCorpusLocationsOld() {
 	HashSet<ArbilDataNode> remoteCorpusNodesSet = new HashSet<ArbilDataNode>();
 	remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
@@ -158,7 +133,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	remoteCorpusNodes = remoteCorpusNodesSet.toArray(new ArbilDataNode[]{});
 	return remoteCorpusNodesSet.size();
     }
-    
+
     @Override
     public void saveLocations(ArbilDataNode[] nodesToAdd, ArbilDataNode[] nodesToRemove) {
 	try {
@@ -192,7 +167,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 //            System.out.println("save locationsList exception: " + ex.getMessage());
 	}
     }
-    
+
     @Override
     public final void loadLocationsList() {
 	System.out.println("loading locationsList");
@@ -208,7 +183,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    ArrayList<ArbilDataNode> localCorpusNodesList = new ArrayList<ArbilDataNode>();
 	    ArrayList<ArbilDataNode> localFileNodesList = new ArrayList<ArbilDataNode>();
 	    ArrayList<ArbilDataNode> favouriteNodesList = new ArrayList<ArbilDataNode>();
-	    
+
 	    int failedLoads = 0;
 	    // this also removes all locations and replaces them with normalised paths
 	    for (String currentLocationString : locationsArray) {
@@ -243,11 +218,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 		    }
 		}
 	    }
-	    
+
 	    if (failedLoads > 0) {
 		messageDialogHandler.addMessageDialogToQueue("Failed to load " + failedLoads + " locations. See error log for details.", "Warning");
 	    }
-	    
+
 	    remoteCorpusNodes = remoteCorpusNodesList.toArray(new ArbilDataNode[]{});
 	    localCorpusNodes = localCorpusNodesList.toArray(new ArbilDataNode[]{});
 	    localFileNodes = localFileNodesList.toArray(new ArbilDataNode[]{});
@@ -255,18 +230,18 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
 	showHiddenFilesInTree = getSessionStorage().loadBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
     }
-    
+
     @Override
     public void setShowHiddenFilesInTree(boolean showState) {
 	showHiddenFilesInTree = showState;
-	reloadNodesInTree(localDirectoryRootNode);
+	reloadNodesInTree((DefaultMutableTreeNode) localDirectoryTreeModel.getRoot());
 	try {
 	    getSessionStorage().saveBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
 	} catch (Exception ex) {
 	    System.out.println("save showHiddenFilesInTree failed");
 	}
     }
-    
+
     public void addLocations(List<URI> locations) {
 	ArbilDataNode[] addedNodes = new ArbilDataNode[locations.size()];
 	for (int i = 0; i < locations.size(); i++) {
@@ -275,11 +250,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    // make sure the added location url matches that of the imdi node format
 	    addedNodes[i] = dataNodeLoader.getArbilDataNode(null, addedLocation);
 	}
-	
+
 	saveLocations(addedNodes, null);
 	loadLocationsList();
     }
-    
+
     public void addLocations(InputStream inputStream) throws IOException {
 	BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 	List<URI> locationsList = new LinkedList<URI>();
@@ -295,18 +270,18 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
 	addLocations(locationsList);
     }
-    
+
     public void clearRemoteLocations() {
 	for (ArbilDataNode removeNode : remoteCorpusNodes) {
 	    removeLocation(removeNode.getURI());
 	}
     }
-    
+
     @Override
     public boolean addLocationInteractive(URI addableLocation) {
 	return addLocation(addableLocation);
     }
-    
+
     @Override
     public boolean addLocation(URI addedLocation) {
 	System.out.println("addLocation: " + addedLocation.toString());
@@ -319,7 +294,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
 	return false;
     }
-    
+
     @Override
     public void removeLocation(ArbilDataNode removeObject) {
 	if (removeObject != null) {
@@ -328,13 +303,13 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    loadLocationsList();
 	}
     }
-    
+
     @Override
     public void removeLocation(URI removeLocation) {
 	System.out.println("removeLocation: " + removeLocation);
 	removeLocation(dataNodeLoader.getArbilDataNode(null, removeLocation));
     }
-    
+
     private void reloadNodesInTree(DefaultMutableTreeNode parentTreeNode) {
 	// this will reload all nodes in a tree but not create any new child nodes
 	for (Enumeration<DefaultMutableTreeNode> childNodesEnum = parentTreeNode.children(); childNodesEnum.hasMoreElements();) {
@@ -346,18 +321,18 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    }
 	}
     }
-    
+
     @Override
     public boolean locationsHaveBeenAdded() {
 	return localCorpusNodes.length > 0;
     }
-    
+
     @Override
     public abstract void applyRootLocations();
-    
+
     @Override
     public abstract void deleteNodes(Object sourceObject);
-    
+
     public void deleteChildNodes(ArbilDataNode parent, Collection<ArbilDataNode> children) {
 	Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList = new HashMap<ArbilDataNode, List<ArbilDataNode>>();
 	Map<ArbilDataNode, List<String>> childNodeDeleteList = new HashMap<ArbilDataNode, List<String>>();
@@ -372,7 +347,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	// delete cmdi links
 	deleteCmdiLinks(cmdiLinksDeleteList);
     }
-    
+
     protected void determineNodesToDelete(TreePath[] nodePaths, Map<ArbilDataNode, List<String>> childNodeDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList) {
 	Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
 	for (TreePath currentNodePath : nodePaths) {
@@ -403,7 +378,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    }
 	}
     }
-    
+
     private void determineDeleteFromParent(ArbilDataNode childDataNode, ArbilDataNode parentDataNode, Map<ArbilDataNode, List<String>> childNodeDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList) {
 	if (childDataNode.isChildNode()) {
 	    // there is a risk of the later deleted nodes being outof sync with the xml, so we add them all to a list and delete all at once before the node is reloaded
@@ -438,7 +413,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	//                                }
 	//                            }
     }
-    
+
     protected void deleteNodesByChidXmlIdLink(Map<ArbilDataNode, List<String>> childNodeDeleteList) {
 	for (Entry<ArbilDataNode, List<String>> deleteEntry : childNodeDeleteList.entrySet()) {
 	    ArbilDataNode currentParent = deleteEntry.getKey();
@@ -459,14 +434,14 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    //BugCatcherManager.getBugCatcher().logError(new Exception("deleteFromDomViaId"));
 	}
     }
-    
+
     protected void deleteNodesByCorpusLink(Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList) {
 	for (Entry<ArbilDataNode, List<ArbilDataNode>> deleteEntry : dataNodesDeleteList.entrySet()) {
 	    System.out.println("deleting by corpus link");
 	    deleteEntry.getKey().deleteCorpusLink(deleteEntry.getValue().toArray(new ArbilDataNode[]{}));
 	}
     }
-    
+
     protected void deleteCmdiLinks(Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinks) {
 	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 	for (Entry<ArbilDataNode, List<ArbilDataNode>> deleteEntry : cmdiLinks.entrySet()) {
@@ -481,7 +456,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    }
 	}
     }
-    
+
     @Override
     public void jumpToSelectionInTree(boolean silent, ArbilDataNode cellDataNode) {
 	// TODO: Now does not work for nodes that have not been exposed in the tree. This is because the tree
@@ -502,7 +477,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    }
 	}
     }
-    
+
     @Override
     public boolean isInFavouritesNodes(ArbilDataNode dataNode) {
 	return Arrays.asList(favouriteNodes).contains(dataNode);
@@ -579,7 +554,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public boolean isShowHiddenFilesInTree() {
 	return showHiddenFilesInTree;
     }
-    
+
     protected abstract SessionStorage getSessionStorage();
 
     /**
@@ -588,7 +563,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     protected MessageDialogHandler getMessageDialogHandler() {
 	return messageDialogHandler;
     }
-    
+
     public void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
