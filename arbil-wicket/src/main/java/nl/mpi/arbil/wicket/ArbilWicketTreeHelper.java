@@ -1,5 +1,6 @@
 package nl.mpi.arbil.wicket;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.AbstractTreeHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -7,6 +8,7 @@ import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 
 /**
  * TreeHelper that is tied to a specific session storage
+ *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilWicketTreeHelper extends AbstractTreeHelper {
@@ -18,20 +20,20 @@ public class ArbilWicketTreeHelper extends AbstractTreeHelper {
     private ArbilWicketTreeModel favouritesTreeModel;
 
     /**
-     * 
+     *
      * @param sessionStorage Storage to tie treehelper to
      */
     public ArbilWicketTreeHelper(MessageDialogHandler dialogHandler, SessionStorage sessionStorage) {
 	super(dialogHandler);
 	this.sessionStorage = sessionStorage;
-	
+
     }
 
     public void init() {
 	initTrees();
 	loadLocationsList();
     }
-    
+
     @Override
     protected synchronized SessionStorage getSessionStorage() {
 	return sessionStorage;
@@ -50,15 +52,14 @@ public class ArbilWicketTreeHelper extends AbstractTreeHelper {
 
 	favouritesTreeModel.setRootNodeChildren(getFavouriteNodes());
 	favouritesTreeModel.requestResort();
-
     }
 
     @Override
     protected void initTreeModels() {
-	localCorpusTreeModel = new ArbilWicketTreeModel(localCorpusRootNode);
-	remoteCorpusTreeModel = new ArbilWicketTreeModel(remoteCorpusRootNode);
-	localDirectoryTreeModel = new ArbilWicketTreeModel(localDirectoryRootNode);
-	favouritesTreeModel = new ArbilWicketTreeModel(favouritesRootNode);
+	localCorpusTreeModel = new ArbilWicketTreeModel(new DefaultMutableTreeNode(localCorpusRootNodeObject));
+	remoteCorpusTreeModel = new ArbilWicketTreeModel(new DefaultMutableTreeNode(remoteCorpusRootNodeObject));
+	localDirectoryTreeModel = new ArbilWicketTreeModel(new DefaultMutableTreeNode(localDirectoryRootNodeObject));
+	favouritesTreeModel = new ArbilWicketTreeModel(new DefaultMutableTreeNode(favouritesRootNodeObject));
     }
 
     @Override

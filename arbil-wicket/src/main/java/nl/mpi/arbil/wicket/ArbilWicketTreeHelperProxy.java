@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.TreeHelper;
@@ -12,6 +11,7 @@ import nl.mpi.arbil.util.TreeHelper;
 /**
  * Proxy for the ArbilWicketTreeHelper that is contained in the session that makes
  * the request. To be injected into Arbil core classes.
+ *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilWicketTreeHelperProxy implements TreeHelper {
@@ -64,10 +64,6 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper {
 
     public ArbilDataNode[] getLocalFileNodes() {
 	return getTreeHelper().getLocalFileNodes();
-    }
-
-    public DefaultTreeModel getModelForNode(DefaultMutableTreeNode nodeToTest) {
-	return getTreeHelper().getModelForNode(nodeToTest);
     }
 
     public ArbilDataNode[] getRemoteCorpusNodes() {
