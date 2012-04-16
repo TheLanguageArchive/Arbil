@@ -68,6 +68,20 @@ public class ContainerNode extends ArbilNode implements Comparable {
     }
 
     @Override
+    public void registerContainer(ArbilDataNodeContainer containerToAdd) {
+        for (ArbilNode currentChild : childNodes) {
+            currentChild.registerContainer(containerToAdd);
+        }
+    }
+
+    @Override
+    public void removeContainer(ArbilDataNodeContainer containerToRemove) {
+        for (ArbilNode currentChild : childNodes) {
+            currentChild.removeContainer(containerToRemove);
+        }
+    }
+
+    @Override
     public ArbilDataNode[] getAllChildren() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
