@@ -726,6 +726,7 @@ public class ArbilComponentBuilder {
 	return true;
     }
     private final static Pattern attributePathPattern = Pattern.compile("^.*\\.@[^.]+$");
+    private final static Pattern namespacePartPattern = Pattern.compile("\\{(.*)\\}");
 
     public static boolean pathIsAttribute(String pathString) {
 	return attributePathPattern.matcher(pathString).matches();
@@ -744,7 +745,7 @@ public class ArbilComponentBuilder {
 	try {
 	    if (pathIsAttribute(path)) {
 		final String attributePart = path.replaceAll("^.*@", ""); // remove path suffix (including @) so only attribute remains
-		Matcher matcher = (Pattern.compile("\\{(.*)\\}").matcher(attributePart)); // look for namespace part
+		Matcher matcher = (namespacePartPattern.matcher(attributePart)); // look for namespace part
 		if (matcher.find()) {
 		    String nsPart = URLDecoder.decode(matcher.group(1), "UTF-8"); // extract namespace part and decode
 		    String localName = attributePart.replaceAll("\\{.*\\}", "");
@@ -768,7 +769,7 @@ public class ArbilComponentBuilder {
 	try {
 	    if (pathIsAttribute(path)) {
 		final String attributePart = path.replaceAll("^.*@", ""); // remove path suffix (including @) so only attribute remains
-		Matcher matcher = (Pattern.compile("\\{(.*)\\}").matcher(attributePart)); // look for namespace part
+		Matcher matcher = (namespacePartPattern.matcher(attributePart)); // look for namespace part
 		if (matcher.find()) {
 		    String nsPart = URLDecoder.decode(matcher.group(1), "UTF-8"); // extract namespace part and decode
 		    String localName = attributePart.replaceAll("\\{.*\\}", "");
