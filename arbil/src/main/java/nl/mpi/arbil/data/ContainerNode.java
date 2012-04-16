@@ -16,12 +16,16 @@ public class ContainerNode extends ArbilNode implements Comparable {
 
     public ContainerNode(String labelString, ImageIcon imageIcon, ArbilNode[] childNodes) {
         this.childNodes = childNodes;
-        this.labelString = labelString + " (" + childNodes.length + ")";
+        this.labelString = labelString;
         this.imageIcon = imageIcon;
     }
 
     public int compareTo(Object o) {
         return labelString.compareTo(o.toString());
+    }
+
+    public void setChildNodes(ArbilNode[] childNodes) {
+        this.childNodes = childNodes;
     }
 
     @Override
@@ -45,7 +49,7 @@ public class ContainerNode extends ArbilNode implements Comparable {
 
     @Override
     public String toString() {
-        return labelString;
+        return labelString + " (" + childNodes.length + ")";
     }
 
     @Override
