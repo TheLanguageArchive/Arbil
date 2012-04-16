@@ -11,7 +11,7 @@ import javax.swing.ImageIcon;
 public class ContainerNode extends ArbilNode implements Comparable {
 
     private ArbilNode[] childNodes;
-    private String labelString;
+    protected String labelString;
     private ImageIcon imageIcon;
 
     public ContainerNode(String labelString, ImageIcon imageIcon, ArbilNode[] childNodes) {
@@ -36,13 +36,18 @@ public class ContainerNode extends ArbilNode implements Comparable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        return this.hashCode() == obj.hashCode();
+        final ContainerNode other = (ContainerNode) obj;
+        if ((this.labelString == null) ? (other.labelString != null) : !this.labelString.equals(other.labelString)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
         int hash = 17;
 //        hash = 19 * hash + Arrays.deepHashCode(this.childNodes);
+//        hash = 19 * hash + this.childNodes.hashCode();
         hash = 19 * hash + (this.labelString != null ? this.labelString.hashCode() : 0);
         return hash;
     }
