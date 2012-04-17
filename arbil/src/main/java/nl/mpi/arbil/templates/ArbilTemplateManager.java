@@ -7,12 +7,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -378,25 +379,91 @@ public class ArbilTemplateManager {
     public ArbilTemplate getDefaultTemplate() {
 	return getTemplate(builtInTemplates2[0]);
     }
+    private final Map<String, Object> cmdiLoadingState = new HashMap<String, Object>();
 
+    /**
+     * Gets a CMDI template by namespace string. Each template gets loaded only once, so callers might end
+     * up in a queue.
+     *
+     * @param nameSpaceString
+     * @return
+     */
     public ArbilTemplate getCmdiTemplate(String nameSpaceString) throws URISyntaxException {
 	if (nameSpaceString != null) {
-	    ArbilTemplate cmdiTemplate = templatesHashTable.get(nameSpaceString);
-	    if (cmdiTemplate == null) {
-		cmdiTemplate = new MetadataAPITemplate(cmdiApi, new URI(nameSpaceString));
-		if (cmdiTemplate.readTemplate()) {
-		    //cmdiTemplate.startLoadingDatacategoryDescriptions();
-		    templatesHashTable.put(nameSpaceString, cmdiTemplate);
-		} else {
+	    try {
+		// Check if template is being loaded and if so retrieve it
+		ArbilTemplate template = waitForCmdiTemplateProfileLoading(nameSpaceString);
+		// Did we get a loaded CMDI profile template?
+		if (template == null) {
+		    // Template has not been loaded, do so now
+		    template = loadCmdiTemplateProfile(nameSpaceString);
+		}
+		if (template == null) {
 		    BugCatcherManager.getBugCatcher().logError("Could not load CMDI profile with URI " + nameSpaceString, null);
 		    return null;
 		}
+		return template;
+	    } catch (InterruptedException iEx) {
+		BugCatcherManager.getBugCatcher().logError("Interrupted while waiting for CMDI profile to load", iEx);
+		return null;
 	    }
-	    return cmdiTemplate;
 	} else {
 	    BugCatcherManager.getBugCatcher().logError(new Exception("Name space URL not provided, cannot load the CMDI template, please check the XML file and ensure that the name space is specified."));
 	    return null;
 	}
+    }
+
+    /**
+     * Checks if template is being loaded, and if so wait for it to finish loading.
+     * If the template has not been loaded and is not being loading, creates a lock object in
+     * {@link #cmdiLoadingState}.
+     *
+     * @param nameSpaceString
+     * @return CMDI profile template if it was already loaded. Null if it still needs to be loaded
+     * @throws InterruptedException if interrupted while waiting
+     */
+    private ArbilTemplate waitForCmdiTemplateProfileLoading(String nameSpaceString) throws InterruptedException {
+	synchronized (cmdiLoadingState) {
+	    // Look for lock object for namespace string
+	    while (cmdiLoadingState.containsKey(nameSpaceString)) {
+		// Lock object found, wait for loading to finish
+		cmdiLoadingState.wait();
+	    }
+	    // Nothing is loading, see if already loaded
+	    ArbilTemplate cmdiTemplate = templatesHashTable.get(nameSpaceString);
+	    if (cmdiTemplate != null) {
+		// Was already loaded, return
+		return cmdiTemplate;
+	    } else {
+		// Not loading, not loaded. Prepare for loading now.
+		cmdiLoadingState.put(nameSpaceString, new Object());
+		return null;
+	    }
+	}
+    }
+
+    /**
+     * Loads a CMDI profile template and tells others to wait for it.
+     * After loading has finished, removes the lock object from {@link #cmdiLoadingState} and notifies
+     * all waiting threads.
+     *
+     * @param nameSpaceString
+     * @return Loaded CMDI template
+     */
+    private ArbilTemplate loadCmdiTemplateProfile(String nameSpaceString) throws URISyntaxException {
+	ArbilTemplate cmdiTemplate = new MetadataAPITemplate(cmdiApi, new URI(nameSpaceString));
+	if (cmdiTemplate.readTemplate()) {
+	    templatesHashTable.put(nameSpaceString, cmdiTemplate);
+	} else {
+	    cmdiTemplate = null;
+	}
+
+	synchronized (cmdiLoadingState) {
+	    cmdiLoadingState.remove(nameSpaceString);
+	    cmdiLoadingState.notifyAll();
+	}
+
+	return cmdiTemplate;
     }
 
     public ArbilTemplate getTemplate(String templateName) {

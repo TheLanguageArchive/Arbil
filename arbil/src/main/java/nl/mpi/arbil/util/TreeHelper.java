@@ -60,8 +60,6 @@ public interface TreeHelper {
      */
     ArbilDataNode[] getLocalFileNodes();
 
-    DefaultTreeModel getModelForNode(DefaultMutableTreeNode nodeToTest);
-
     /**
      * @return the remoteCorpusNodes
      */

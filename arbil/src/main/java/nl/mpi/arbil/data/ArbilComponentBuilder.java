@@ -59,8 +59,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Document   : ArbilComponentBuilder
+ * Document : ArbilComponentBuilder
  * Created on : Mar 18, 2010, 1:40:35 PM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilComponentBuilder {
@@ -360,8 +361,9 @@ public class ArbilComponentBuilder {
     }
 
     /**
-     * Removes the resource proxy with the specified id from the document. 
+     * Removes the resource proxy with the specified id from the document.
      * Note: THIS DOES NOT CHECK WHETHER THERE ARE ANY REFERENCES LEFT
+     *
      * @param document Document to remove resource proxy from
      * @param resourceProxyId Unique id (id="xyz") of resource proxy element
      * @return Whether resource proxy was removed successfully
@@ -662,9 +664,9 @@ public class ArbilComponentBuilder {
 
     /**
      * Aligns a destination path for a favourite with the target path (fragment) within the target node
-     * 
+     *
      * Fixes issue reported in https://trac.mpi.nl/ticket/1157
-     * 
+     *
      * @param destinationXpath Destination path as provided by the favourite
      * @param destinationArbilDataNode target node
      * @return Aligned XPath, or original if could not be aligned
@@ -723,9 +725,11 @@ public class ArbilComponentBuilder {
 	}
 	return true;
     }
+    private final static Pattern attributePathPattern = Pattern.compile("^.*\\.@[^.]+$");
+    private final static Pattern namespacePartPattern = Pattern.compile("\\{(.*)\\}");
 
     public static boolean pathIsAttribute(String pathString) {
-	return pathString.matches("^.*\\.@[^.]+$");
+	return attributePathPattern.matcher(pathString).matches();
     }
 
     public static boolean pathIsAttribute(String[] pathTokens) {
@@ -733,7 +737,7 @@ public class ArbilComponentBuilder {
     }
 
     /**
-     * 
+     *
      * @param path Full path (e.g. .CMD.Component.Test.@myattr) of attribute
      * @return Attribute, if found
      */
@@ -741,7 +745,7 @@ public class ArbilComponentBuilder {
 	try {
 	    if (pathIsAttribute(path)) {
 		final String attributePart = path.replaceAll("^.*@", ""); // remove path suffix (including @) so only attribute remains
-		Matcher matcher = (Pattern.compile("\\{(.*)\\}").matcher(attributePart)); // look for namespace part
+		Matcher matcher = (namespacePartPattern.matcher(attributePart)); // look for namespace part
 		if (matcher.find()) {
 		    String nsPart = URLDecoder.decode(matcher.group(1), "UTF-8"); // extract namespace part and decode
 		    String localName = attributePart.replaceAll("\\{.*\\}", "");
@@ -757,7 +761,7 @@ public class ArbilComponentBuilder {
     }
 
     /**
-     * 
+     *
      * @param path Full path (e.g. .CMD.Component.Test.@myattr) of attribute
      * @return Successful creation
      */
@@ -765,7 +769,7 @@ public class ArbilComponentBuilder {
 	try {
 	    if (pathIsAttribute(path)) {
 		final String attributePart = path.replaceAll("^.*@", ""); // remove path suffix (including @) so only attribute remains
-		Matcher matcher = (Pattern.compile("\\{(.*)\\}").matcher(attributePart)); // look for namespace part
+		Matcher matcher = (namespacePartPattern.matcher(attributePart)); // look for namespace part
 		if (matcher.find()) {
 		    String nsPart = URLDecoder.decode(matcher.group(1), "UTF-8"); // extract namespace part and decode
 		    String localName = attributePart.replaceAll("\\{.*\\}", "");
@@ -783,6 +787,7 @@ public class ArbilComponentBuilder {
 
     /**
      * URLEncode and replace dots so dots, slashes and colons in string won't interfere with node path structure
+     *
      * @param nsURI
      * @return Encoded nsURI
      */
@@ -864,6 +869,7 @@ public class ArbilComponentBuilder {
 
     /**
      * Adds a CMD component to a datanode
+     *
      * @param arbilDataNode
      * @param targetXmlPath
      * @param cmdiComponentId
@@ -927,6 +933,7 @@ public class ArbilComponentBuilder {
 
     /**
      * Tests whether the specified CMD component can be added to the specified datanode
+     *
      * @param arbilDataNode
      * @param targetXmlPath
      * @param cmdiComponentId
@@ -1018,6 +1025,7 @@ public class ArbilComponentBuilder {
 
     /**
      * Looks up CMD/Resources/ResourceProxyList/ResourceProxy node with resourceProxyId
+     *
      * @param document
      * @param resourceProxyId
      * @return ProxyNode, if found (first if multiple found (should not occur)); otherwise null
@@ -1328,6 +1336,7 @@ public class ArbilComponentBuilder {
     /**
      * Caches schema type for data nodes as fetching the schema type is rather expensive.
      * This is not static, so only as long as this component builder lives (e.g. during series of canInsertChildComponent calls)
+     *
      * @param arbilDataNode
      * @return
      */

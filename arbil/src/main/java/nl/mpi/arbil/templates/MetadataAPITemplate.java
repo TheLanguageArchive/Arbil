@@ -36,25 +36,27 @@ import nl.mpi.metadata.cmdi.api.CMDIApi;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class MetadataAPITemplate implements ArbilTemplate {
-
+    
     private MetadataAPI metadataAPI;
     private URI templateURI;
     private MetadataDocumentType documentType;
     private Map<String, MetadataElementType> elementPathMap;
-
+    
     public MetadataAPITemplate(MetadataAPI metadataAPI, URI templateURI) {
 	this.metadataAPI = metadataAPI;
 	this.templateURI = templateURI;
-
+	
 	this.elementPathMap = new HashMap<String, MetadataElementType>();
     }
-
+    
     public boolean readTemplate() {
 	try {
 	    documentType = metadataAPI.getMetadataDocumentType(templateURI);
 	    if (documentType != null) {
 		readPaths(documentType);
 		return true;
+	    } else {
+		BugCatcherManager.getBugCatcher().logError("Could not find template " + templateURI, null);
 	    }
 	} catch (IOException ioEx) {
 	    BugCatcherManager.getBugCatcher().logError("Error while reading template in metadata API", ioEx);
@@ -63,7 +65,7 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	}
 	return false;
     }
-
+    
     private void readPaths(MetadataElementType type) {
 	elementPathMap.put(type.getPathString(), type);
 	if (type instanceof MetadataContainerElementType<?>) {
@@ -72,36 +74,36 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	    }
 	}
     }
-
+    
     private MetadataElementType getMetadataElement(final String path) {
-	final String xPath = path.replace(".", "/:");
+	final String xPath = path == null ? "/" : path.replace(".", "/:");
 	return elementPathMap.get(xPath);
     }
-
+    
     public String[][] getAutoFieldsArray() {
 	// No auto fields
 	return new String[][]{};
     }
-
+    
     public String[][] getFieldConstraints() {
 	// TODO
 	return new String[][]{};
     }
-
+    
     public String[][] getFieldTriggersArray() {
 	// No field triggers
 	return new String[][]{};
     }
-
+    
     public ArbilVocabulary getFieldVocabulary(String nodePath) {
 	MetadataElementType metadataElement = getMetadataElement(nodePath);
 	if (metadataElement instanceof ControlledVocabularyMetadataType) {
 	    ArbilVocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(templateURI.toString() + "#" + metadataElement.getPathString());
-
+	    
 	    for (ControlledVocabularyItem item : ((ControlledVocabularyMetadataType) metadataElement).getItems()) {
 		String entryCode = item.getValue();
 		String description = item.getDescription();
-
+		
 		if (description == null || description.length() == 0) {
 		    vocabulary.addEntry(entryCode, null);
 		} else {
@@ -111,22 +113,22 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	}
 	return null;
     }
-
+    
     public String[][] getGenreSubgenreArray() {
 	// No genre/subgenre
 	return new String[][]{};
     }
-
+    
     public String getHelpStringForField(String fieldName) {
 	MetadataElementType metadataElement = getMetadataElement(fieldName);
 	return metadataElement.getDescription();
     }
-
+    
     public String getInsertBeforeOfTemplate(String templatPath) {
 	getMetadataElement(templatPath);
 	return "";
     }
-
+    
     public int getMaxOccursForTemplate(String templatPath) {
 	MetadataElementType metadataElement = getMetadataElement(templatPath);
 	if (metadataElement instanceof ContainedMetadataElementType) {
@@ -134,44 +136,44 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	}
 	return 1;
     }
-
+    
     public String getParentOfField(String targetFieldPath) {
 	getMetadataElement(targetFieldPath);
 	return "";
     }
-
+    
     public String[] getPreferredNameFields() {
 	return new String[]{};
     }
-
+    
     public String[] getRequiredFields() {
 	return new String[]{};
     }
-
+    
     public String[][] getTemplatesArray() {
 	return new String[][]{};
     }
-
+    
     public String[][] getRootTemplatesArray() {
 	return new String[][]{};
     }
-
+    
     public File getTemplateComponentDirectory() {
 	return null;
     }
-
+    
     public File getTemplateDirectory() {
 	return null;
     }
-
+    
     public File getTemplateFile() {
 	return new File(documentType.getSchemaLocation());
     }
-
+    
     public String getTemplateName() {
 	return documentType.getName();
     }
-
+    
     public boolean isArbilChildNode(String childType) {
 	MetadataElementType metadataElement = getMetadataElement(childType);
 	if (metadataElement != null) {
@@ -180,29 +182,29 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	    return false;
 	}
     }
-
+    
     public List<String> listAllTemplates() {
 	return Collections.EMPTY_LIST;
     }
-
+    
     public Enumeration listTypesFor(Object targetNodeUserObject) {
 	return Collections.enumeration(Collections.EMPTY_SET);
     }
-
+    
     public Enumeration listTypesFor(Object targetNodeUserObject, boolean includeCorpusNodeEntries) {
 	return Collections.enumeration(Collections.EMPTY_SET);
     }
-
+    
     public boolean nodeCanContainType(ArbilDataNode dataNode, String type) {
-	getMetadataElement(type);
+	MetadataElementType metadataElement = getMetadataElement(type);
 	return false;
     }
-
+    
     public boolean pathCanHaveResource(String nodePath) {
 	getMetadataElement(nodePath);
 	return false;
     }
-
+    
     public String pathIsChildNode(String nodePath) {
 	MetadataElementType elementType = getMetadataElement(nodePath);
 	// Must have children
@@ -222,17 +224,17 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	}
 	return null;
     }
-
+    
     public boolean pathIsDeleteableField(String nodePath) {
 	getMetadataElement(nodePath);
 	return false;
     }
-
+    
     public boolean pathIsEditableField(String nodePath) {
 	MetadataElementType metadataElement = getMetadataElement(nodePath);
 	return !(metadataElement instanceof MetadataContainerElementType);
     }
-
+    
     public List<String[]> getEditableAttributesForPath(String path) {
 	MetadataElementType metadataElement = getMetadataElement(path);
 	if (metadataElement != null) {
@@ -248,12 +250,12 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	}
 	return Collections.emptyList();
     }
-
+    
     public boolean pathAllowsLanguageId(String path) {
 	//TODO
 	return false;
     }
-
+    
     public static void main(String args[]) throws URISyntaxException {
 	new ArbilDesktopInjector().injectHandlers();
 	MetadataAPITemplate template = new MetadataAPITemplate(

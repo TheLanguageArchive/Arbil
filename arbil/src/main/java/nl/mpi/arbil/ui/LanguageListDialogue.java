@@ -41,7 +41,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 
     public void actionPerformed(ActionEvent e) {
 	if (((JCheckBox) e.getSource()).isSelected()) {
-	    DocumentationLanguages.getSingleInstance().addselectedLanguages(e.getActionCommand());
+	    DocumentationLanguages.getSingleInstance().addselectedLanguage(e.getActionCommand());
 	} else {
 	    DocumentationLanguages.getSingleInstance().removeselectedLanguages(e.getActionCommand());
 	}
@@ -73,7 +73,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		for (JCheckBox currentCheckBox : checkBoxArray) {
 		    currentCheckBox.setSelected(true);
-		    DocumentationLanguages.getSingleInstance().addselectedLanguages(currentCheckBox.getActionCommand());
+		    DocumentationLanguages.getSingleInstance().addselectedLanguage(currentCheckBox.getActionCommand());
 		}
 	    }
 	});
