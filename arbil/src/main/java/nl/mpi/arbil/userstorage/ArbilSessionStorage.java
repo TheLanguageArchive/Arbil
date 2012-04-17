@@ -5,7 +5,6 @@ import java.awt.HeadlessException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -35,10 +34,11 @@ import java.util.Properties;
 import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -880,11 +880,12 @@ public class ArbilSessionStorage implements SessionStorage {
 	String fileName = destinationFile.getName();
 	if (!destinationFile.exists() || expireCacheCopy || destinationFile.length() <= 0) {
 	    FileOutputStream outFile = null;
+	    File tempFile = null;
 	    try {
 		URLConnection urlConnection = openResourceConnection(targetUrl, shibbolethNegotiator, followRedirect);
 
 		if (urlConnection != null) {
-		    File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
+		    tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
 		    tempFile.deleteOnExit();
 		    int bufferLength = 1024 * 3;
 		    outFile = new FileOutputStream(tempFile); //targetUrlString
@@ -930,6 +931,11 @@ public class ArbilSessionStorage implements SessionStorage {
 			outFile.close();
 		    } catch (IOException ioe) {
 			logError(ioe);
+		    }
+		}
+		if (tempFile != null) {
+		    if (!tempFile.delete()) {
+			BugCatcherManager.getBugCatcher().logError("Could not delete temporary file " + tempFile.getAbsolutePath(), null);
 		    }
 		}
 	    }
