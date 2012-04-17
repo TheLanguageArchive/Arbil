@@ -1,15 +1,11 @@
 package nl.mpi.arbil.data.metadatafile;
 
-import java.io.UnsupportedEncodingException;
-import nl.mpi.arbil.data.ArbilVocabularies;
-import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.templates.ArbilTemplateManager;
-import nl.mpi.arbil.templates.ArbilTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,14 +22,18 @@ import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeService;
+import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -43,8 +43,9 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 /**
- * Document   : MetadataReader
+ * Document : MetadataReader
  * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class MetadataReader {
@@ -557,6 +558,7 @@ public class MetadataReader {
      * each end node becomes a field;
      * any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode;
      * the id of the node that passes pathIsChildNode is stored in the subnode to allow for deletion from the dom if needed
+     *
      * @param parentNode
      * @param childLinks
      * @param startNode
@@ -565,9 +567,9 @@ public class MetadataReader {
      * @param parentChildTree
      * @param siblingNodePathCounter
      * @param nodeOrderCounter
-     * @return 
+     * @return
      */
-    public int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
+    public int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, final String nodePath, String fullNodePath,
 	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
 	    , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) {
 	//        System.out.println("iterateChildNodes: " + nodePath);
@@ -577,17 +579,18 @@ public class MetadataReader {
 	//        int nodeCounter = 0;
 	// add the fields and nodes
 	for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
-	    String localName = childNode.getLocalName();
-	    NamedNodeMap childNodeAttributes = childNode.getAttributes();
+	    final String localName = childNode.getLocalName();
+	    final NamedNodeMap childNodeAttributes = childNode.getAttributes();
 	    if (localName != null) {
+		final String childNodePath = new StringBuilder(3).append(nodePath).append(MetadataReader.imdiPathSeparator).append(localName).toString();
 		// todo: these filter strings should really be read from the metadata format
-		if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".CMD.Header")) {
+		if ((childNodePath).equals(".CMD.Header")) {
 		    continue;
 		}
-		if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".CMD.Resources")) {
+		if ((childNodePath).equals(".CMD.Resources")) {
 		    continue;
 		}
-		if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".Kinnate.Entity")) {
+		if ((childNodePath).equals(".Kinnate.Entity")) {
 		    continue;
 		}
 
@@ -599,17 +602,21 @@ public class MetadataReader {
 		if (fullNodePath.length() == 0) {
 		    getTemplate(childNode, parentNode, childNodeAttributes);
 		}
-		if (childNode.getLocalName().equals("Corpus")) {
+		if (localName.equals("Corpus")) {
 		    getImdiCatalogue(childNodeAttributes, parentNode, childLinks, parentChildTree);
 		}
-		String siblingNodePath = nodePath + MetadataReader.imdiPathSeparator + localName;
-		String fullSubNodePath = fullNodePath + MetadataReader.imdiPathSeparator + localName;
+
+		final ArbilDataNode parentDomNode = parentNode.getParentDomNode();
+		final ArbilTemplate parentNodeTemplate = parentDomNode.getNodeTemplate();
+
+		final StringBuilder fullSubNodePath = new StringBuilder(fullNodePath).append(MetadataReader.imdiPathSeparator).append(localName);
+		final String parentNodePath = determineParentPath(parentNode);
+		final String combinedPath = parentNodePath + childNodePath;
+		final String childsMetaNode = parentNodeTemplate.pathIsChildNode(combinedPath);
+		final int maxOccurs = parentNodeTemplate.getMaxOccursForTemplate(combinedPath);
 
 		ArbilDataNode destinationNode;
-		String parentNodePath = determineParentPath(parentNode);
-		String childsMetaNode = parentNode.getParentDomNode().getNodeTemplate().pathIsChildNode(parentNodePath + siblingNodePath);
-		int maxOccurs = parentNode.getParentDomNode().getNodeTemplate().getMaxOccursForTemplate(parentNodePath + siblingNodePath);
-
+		String siblingNodePath = childNodePath;
 		if (localName != null && childsMetaNode != null) {
 		    try {
 			ArbilDataNode metaNode = null;
@@ -617,11 +624,13 @@ public class MetadataReader {
 			if (!parentNode.getUrlString().contains("#")) {
 			    pathUrlXpathSeparator = "#";
 			}
-			String siblingSpacer = "";
+			StringBuilder siblingSpacer;
 			boolean isSingleton = false;
-			if (maxOccurs > 1 || maxOccurs == -1 || !(parentNode.getParentDomNode().nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
+			// Build URI for metaNode or subNode
+			final StringBuilder nodeURIStringBuilder = new StringBuilder(4).append(parentNode.getURI().toString()).append(pathUrlXpathSeparator).append(siblingNodePath);
+			if (maxOccurs > 1 || maxOccurs == -1 || !(parentDomNode.nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
 			    isSingleton = maxOccurs == 1;
-			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
+			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
 			    metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
 			    if (!parentChildTree.containsKey(metaNode)) {
 				parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
@@ -631,14 +640,16 @@ public class MetadataReader {
 				parentChildTree.get(parentNode).add(metaNode);
 			    }
 			    // add brackets to conform with the imdi api notation
-			    siblingSpacer = "(" + (parentChildTree.get(metaNode).size() + 1) + ")";
+			    siblingSpacer = new StringBuilder(3).append("(").append(parentChildTree.get(metaNode).size() + 1).append(")");
 			} else {
 			    int siblingCount = countSiblings(parentChildTree, parentNode, localName);
-			    siblingSpacer = "(" + siblingCount + ")";
+			    siblingSpacer = new StringBuilder(3).append("(").append(siblingCount).append(")");
 //                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(localName + " : " + childsMetaNode + " : " + maxOccurs, "filtered metanode");
 			}
-			fullSubNodePath = fullSubNodePath + siblingSpacer;
-			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
+			fullSubNodePath.append(siblingSpacer);
+			// For subnode URI 
+			nodeURIStringBuilder.append(siblingSpacer);
+			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
 
 			if (metaNode != null && !isSingleton) {
 			    // Add subnode to metanode
@@ -664,14 +675,14 @@ public class MetadataReader {
 		    destinationNode = parentNode;
 		}
 		nodeOrderCounter = enterChildNodesRecursion(parentNode, childLinks, childNode, childNodeAttributes, destinationNode, localName,
-			parentNodePath, siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+			parentNodePath, siblingNodePath, fullSubNodePath.toString(), parentChildTree, siblingNodePathCounter, nodeOrderCounter);
 	    }
 	}
 	return nodeOrderCounter;
     }
 
     /**
-     * Updates counters and enters recursive iteration for child nodes. 
+     * Updates counters and enters recursive iteration for child nodes.
      * Also adds referenced resources to the tree
      */
     private int enterChildNodesRecursion(ArbilDataNode parentNode, Vector<String[]> childLinks, Node childNode, NamedNodeMap childNodeAttributes,
@@ -883,6 +894,7 @@ public class MetadataReader {
 
     /**
      * Add all unreferenced resources in a document to the parent node
+     *
      * @param parentNode Parent node, to which resources will be added
      * @param parentChildTree Parent-child tree that is constructed
      * @param childLinks Child links collection that is constructed
@@ -953,10 +965,10 @@ public class MetadataReader {
 		// this method also assumes that the xsd url is fully resolved
 		parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
 		/*
-		// TODO: pass the resource node to a class to handle the resources
-		childNode = childNode.getAttributes().getNamedItem("Components");
-		nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
-		break;
+		 * // TODO: pass the resource node to a class to handle the resources
+		 * childNode = childNode.getAttributes().getNamedItem("Components");
+		 * nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
+		 * break;
 		 */
 	    } catch (Exception exception) {
 		BugCatcherManager.getBugCatcher().logError(exception);
