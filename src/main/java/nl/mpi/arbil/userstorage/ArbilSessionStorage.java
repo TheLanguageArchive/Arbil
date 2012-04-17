@@ -49,26 +49,26 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilSessionStorage implements SessionStorage {
-
+    
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
     private static MessageDialogHandler messageDialogHandler;
     public static final String PARAM_LAST_FILE_FILTER = "metadataFileFilter";
     public static final String PARAM_WIZARD_RUN = "wizardHasRun";
-
+    
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     private static BugCatcher bugCatcher;
-
+    
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
 	bugCatcher = bugCatcherInstance;
     }
     private static WindowManager windowManager;
-
+    
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
     }
-
+    
     private static void logError(Exception exception) {
 	if (bugCatcher != null) {
 	    bugCatcher.logError(exception);
@@ -81,7 +81,7 @@ public class ArbilSessionStorage implements SessionStorage {
     static private ArbilSessionStorage singleInstance = null;
     private boolean trackTableSelection = false;
     private boolean useLanguageIdInColumnName = false;
-
+    
     static synchronized public ArbilSessionStorage getSingleInstance() {
 	if (singleInstance == null) {
 	    singleInstance = new ArbilSessionStorage();
@@ -90,9 +90,9 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	return singleInstance;
     }
-
+    
     private ArbilSessionStorage() {
-
+	
 	String storageDirectoryArray[] = getLocationOptions();
 
 	// look for an existing storage directory
@@ -104,7 +104,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		break;
 	    }
 	}
-
+	
 	String testedStorageDirectories = "";
 	if (storageDirectory == null) {
 	    for (String currentStorageDirectory : storageDirectoryArray) {
@@ -155,7 +155,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	useLanguageIdInColumnName = loadBoolean("useLanguageIdInColumnName", false);
 	System.out.println("storageDirectory: " + storageDirectory);
     }
-
+    
     private void checkForMultipleStorageDirectories() {
 	// look for any additional storage directories
 	int foundDirectoryCount = 0;
@@ -172,7 +172,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    logError(new Exception(errorMessage));
 	}
     }
-
+    
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
 	File fromDirectory = getCacheDirectory();
 	if (!preferedCacheDirectory.getAbsolutePath().contains("ArbilWorkingFiles") && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
@@ -260,7 +260,7 @@ public class ArbilSessionStorage implements SessionStorage {
 //            System.exit(0); // TODO: this exit might be unrequired
 	}
     }
-
+    
     public String[] getLocationOptions() {
 //        for (Map.Entry<?, ?> e : System.getProperties().entrySet()) {
 //            System.out.println(String.format("%s = %s", e.getKey(), e.getValue()));
@@ -283,7 +283,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
 	};
 	List<String> uniqueArray = new ArrayList<String>();
-
+	
 	for (String location : locationOptions) {
 	    if (location != null
 		    && !location.startsWith("null")
@@ -291,7 +291,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		uniqueArray.add(location);
 	    }
 	}
-
+	
 	locationOptions = uniqueArray.toArray(new String[]{});
 	for (String currentLocationOption : locationOptions) {
 	    System.out.println("LocationOption: " + currentLocationOption);
@@ -363,7 +363,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
 	return testFile.equals(getFavouritesDir());
     }
-
+    
     public URI getOriginatingUri(URI locationInCacheURI) {
 	URI returnUri = null;
 	String uriPath = locationInCacheURI.getPath();
@@ -492,7 +492,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	return object;
     }
-
+    
     public String[] loadStringArray(String filename) throws IOException {
 	// read the location list from a text file that admin-users can read and hand edit if they really want to
 	File currentConfigFile = new File(storageDirectory, filename + ".config");
@@ -534,12 +534,12 @@ public class ArbilSessionStorage implements SessionStorage {
 //        }
 //        return stringProperty;
     }
-
+    
     public void saveStringArray(String filename, String[] storableValue) throws IOException {
 	// save the location list to a text file that admin-users can read and hand edit if they really want to
 	File destinationConfigFile = new File(storageDirectory, filename + ".config");
 	File tempConfigFile = new File(storageDirectory, filename + ".config.tmp");
-
+	
 	Writer out = null;
 	try {
 	    out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), "UTF8"));
@@ -573,19 +573,19 @@ public class ArbilSessionStorage implements SessionStorage {
 //            bugCatcher.logError(ioe);
 //        }
     }
-
+    
     public String loadString(String filename) {
 	Properties configObject = getConfig();
 	String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
 	return stringProperty;
     }
-
+    
     public void saveString(String filename, String storableValue) {
 	Properties configObject = getConfig();
 	configObject.setProperty("nl.mpi.arbil." + filename, storableValue);
 	saveConfig(configObject);
     }
-
+    
     public boolean loadBoolean(String filename, boolean defaultValue) {
 	Properties configObject = getConfig();
 	String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
@@ -595,13 +595,13 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	return Boolean.valueOf(stringProperty);
     }
-
+    
     public void saveBoolean(String filename, boolean storableValue) {
 	Properties configObject = getConfig();
 	configObject.setProperty("nl.mpi.arbil." + filename, Boolean.toString(storableValue));
 	saveConfig(configObject);
     }
-
+    
     private Properties getConfig() {
 	Properties propertiesObject = new Properties();
 	FileInputStream propertiesInStream = null;
@@ -622,16 +622,16 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	return propertiesObject;
     }
-
+    
     private void saveConfig(Properties configObject) {
-
+	
 	boolean canUseUTFOutputStreamWriter; // Writing to an (encoding-specific) StreamWriter is not supported until 1.6
 	try {
 	    canUseUTFOutputStreamWriter = null != Properties.class.getMethod("store", Writer.class, String.class);
 	} catch (NoSuchMethodException ex) {
 	    canUseUTFOutputStreamWriter = false;
 	}
-
+	
 	FileOutputStream propertiesOutputStream = null;
 	try {
 	    //new OutputStreamWriter
@@ -684,18 +684,18 @@ public class ArbilSessionStorage implements SessionStorage {
 	if (!fileNeedsUpdate) {
 	    Date lastModified = new Date(targetFile.lastModified());
 	    Date expireDate = new Date(System.currentTimeMillis());
-
+	    
 	    Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(expireDate);
 	    calendar.add(Calendar.DATE, -expireCacheDays);
 	    expireDate.setTime(calendar.getTime().getTime());
-
+	    
 	    fileNeedsUpdate = expireDate.after(lastModified);
 	}
 	return updateCache(pathString, targetFile, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
 //	}
     }
-
+    
     public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	return updateCache(pathString, getSaveLocation(pathString), shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
     }
@@ -721,14 +721,14 @@ public class ArbilSessionStorage implements SessionStorage {
 	    if (pathUrl == null) {
 		pathUrl = new URL(pathString);
 	    }
-
+	    
 	    saveRemoteResource(pathUrl, cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
 	} catch (MalformedURLException mul) {
 	    logError(new Exception(pathString, mul));
 	}
 	return cachePath;
     }
-
+    
     public boolean replaceCacheCopy(String pathString) {
 	File cachePath = getSaveLocation(pathString);
 	boolean fileDownloadedBoolean = false;
@@ -766,7 +766,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	return returnFile;
     }
-
+    
     public URI getNewArbilFileName(File parentDirectory, String nodeType) {
 	String suffixString;
 	if (nodeType.endsWith(".cmdi") || CmdiProfileReader.pathIsProfile(nodeType)) {
@@ -786,6 +786,7 @@ public class ArbilSessionStorage implements SessionStorage {
     /**
      * Tries to find a match ('mirror') for the requested path string in the resources.
      * The method may depend on the type of the requested file
+     *
      * @param pathString Requested file
      * @return Resource URL if available in resources, otherwise null
      */
@@ -825,7 +826,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	return returnFile;
     }
-
+    
     private String preProcessPathString(String pathString) {
 	try {
 	    pathString = URLDecoder.decode(pathString, "UTF-8");
@@ -835,7 +836,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	pathString = pathString.replace("//", "/");
 	return pathString;
     }
-
+    
     private String fixCachePath(String pathString) {
 	String cachePath = pathString.replace(":/", "/").replace("//", "/").replace('?', '/').replace('&', '/').replace('=', '/');
 	while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
@@ -875,11 +876,12 @@ public class ArbilSessionStorage implements SessionStorage {
 	String fileName = destinationFile.getName();
 	if (!destinationFile.exists() || expireCacheCopy || destinationFile.length() <= 0) {
 	    FileOutputStream outFile = null;
+	    File tempFile = null;
 	    try {
 		URLConnection urlConnection = openResourceConnection(targetUrl, shibbolethNegotiator, followRedirect);
-
+		
 		if (urlConnection != null) {
-		    File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
+		    tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
 		    tempFile.deleteOnExit();
 		    int bufferLength = 1024 * 3;
 		    outFile = new FileOutputStream(tempFile); //targetUrlString
@@ -927,6 +929,11 @@ public class ArbilSessionStorage implements SessionStorage {
 			logError(ioe);
 		    }
 		}
+		if (tempFile != null) {
+		    if (!tempFile.delete()) {
+			bugCatcher.logError("Could not delete temporary file " + tempFile.getAbsolutePath(), null);
+		    }
+		}
 	    }
 	}
 	return downloadSucceeded;
@@ -964,7 +971,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    //h.setFollowRedirects(false);
 	    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage() + resourceUrl.toString());
 	}
-
+	
 	if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
 	    final int responseCode = httpConnection.getResponseCode();
 	    if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) { // Redirect codes
@@ -1021,7 +1028,7 @@ public class ArbilSessionStorage implements SessionStorage {
     public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
 	this.useLanguageIdInColumnName = useLanguageIdInColumnName;
     }
-
+    
     public File getTypeCheckerConfig() {
 	File typeCheckerConfig = new File(getStorageDirectory(), TYPECHECKER_CONFIG_FILENAME);
 	if (typeCheckerConfig.exists()) {
