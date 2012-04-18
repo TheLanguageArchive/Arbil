@@ -2,6 +2,8 @@ package nl.mpi.arbil.wicket;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
+import javax.swing.filechooser.FileFilter;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.wicket.Session;
 import org.slf4j.Logger;
@@ -36,11 +38,6 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 	return 0;
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
-	logger.info("showFileSelectBox");
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     public File showEmptyExportDirectoryDialogue(String titleText) {
 	logger.info("showEmptyExportDirectoryDialogue");
 	throw new UnsupportedOperationException("Not supported yet.");
@@ -53,6 +50,21 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 
     public boolean askUserToSaveChanges(String entityName) {
 	logger.info("askUserToSaveChanges");
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public File[] showMetadataFileSelectBox(String titleText, boolean multipleSelect) {
+	logger.info("showMetadataFileSelectBox");
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public File[] showDirectorySelectBox(String titleText, boolean multipleSelect) {
+	logger.info("showMetadataFileSelectBox");
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap) {
+	logger.info("showFileSelectBox");
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 }
