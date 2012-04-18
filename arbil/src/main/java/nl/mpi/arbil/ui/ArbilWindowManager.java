@@ -238,26 +238,32 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         return null;
     }
 
-    private void addToFileFilterMap(HashMap fileFilterMap, final String name, final String extension) {
-        fileFilterMap.put(name, new FileFilter() {
+    public File[] showMetadataFileSelectBox(String titleText, boolean multipleSelect) {
+        HashMap<String, FileFilter> fileFilterMap = new HashMap<String, FileFilter>(2);
+        fileFilterMap.put("Metadata Files", new FileFilter() {
 
             @Override
             public boolean accept(File selectedFile) {
-                final String extensionLowerCase = extension.toLowerCase();
-                return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(extensionLowerCase)));
+                if (selectedFile.isDirectory()) {
+                    return true;
+                }
+                if (selectedFile.exists() && !selectedFile.isDirectory()) {
+                    final String fileNameLowerCase = selectedFile.getName().toLowerCase();
+                    if (fileNameLowerCase.endsWith(".cmdi")) {
+                        return true;
+                    }
+                    if (fileNameLowerCase.endsWith(".imdi")) {
+                        return true;
+                    }
+                }
+                return false;
             }
 
             @Override
             public String getDescription() {
-                return name;
+                return "Metadata Files";
             }
         });
-    }
-
-    public File[] showMetadataFileSelectBox(String titleText, boolean multipleSelect) {
-        HashMap<String, FileFilter> fileFilterMap = new HashMap<String, FileFilter>(2);
-        addToFileFilterMap(fileFilterMap, "IMDI", ".imdi");
-        addToFileFilterMap(fileFilterMap, "CMDI", ".cmdi");
         return showFileSelectBox(titleText, false, multipleSelect, fileFilterMap, DialogueType.open);
     }
 
@@ -278,7 +284,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         fileFilterMap.put("Directories", imdiFileFilter);
         return showFileSelectBox(titleText, true, multipleSelect, fileFilterMap, DialogueType.custom);
     }
-
 
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap, DialogueType dialogueType) {
         // test for os: if mac or file then awt else for other and directory use swing
