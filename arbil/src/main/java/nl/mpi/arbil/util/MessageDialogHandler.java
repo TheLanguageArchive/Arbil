@@ -9,6 +9,11 @@ import java.util.HashMap;
  */
 public interface MessageDialogHandler {
 
+    static enum DialogueType {
+
+        open, save, custom
+    };
+
     void addMessageDialogToQueue(String messageString, String messageTitle);
 
     boolean showConfirmDialogBox(String messageString, String messageTitle);
@@ -21,7 +26,7 @@ public interface MessageDialogHandler {
 
     File[] showDirectorySelectBox(String titleText, boolean multipleSelect);
 
-    File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, javax.swing.filechooser.FileFilter> fileFilterMap);
+    File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, javax.swing.filechooser.FileFilter> fileFilterMap, DialogueType dialogueType);
 
     File showEmptyExportDirectoryDialogue(String titleText);
 

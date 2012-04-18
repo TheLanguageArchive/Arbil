@@ -43,7 +43,7 @@ public class MockDialogHandler implements MessageDialogHandler {
         return null;
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, javax.swing.filechooser.FileFilter> fileFilterMap) {
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, javax.swing.filechooser.FileFilter> fileFilterMap, DialogueType dialogueType) {
         logMessage(titleText, null);
         return null;
     }

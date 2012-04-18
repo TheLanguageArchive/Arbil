@@ -126,7 +126,7 @@ public class CmdiProfilesPanel extends JPanel {
         browseButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                for (File selectedFile : dialogHandler.showFileSelectBox("Select Profile", false, true, null)) {
+                for (File selectedFile : dialogHandler.showFileSelectBox("Select Profile", false, true, null, MessageDialogHandler.DialogueType.open)) {
                     ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + selectedFile.toURI().toString());
                 }
                 populateList();

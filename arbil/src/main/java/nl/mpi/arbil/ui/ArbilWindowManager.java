@@ -198,7 +198,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public File showEmptyExportDirectoryDialogue(String titleText) {
         boolean fileSelectDone = false;
         while (!fileSelectDone) {
-            File[] selectedFiles = showFileSelectBox(titleText + " Destination Directory", true, false, null);
+            File[] selectedFiles = showFileSelectBox(titleText + " Destination Directory", true, false, null, DialogueType.custom);
             if (selectedFiles != null && selectedFiles.length > 0) {
                 File destinationDirectory = selectedFiles[0];
                 boolean mkdirsOkay = true;
@@ -258,7 +258,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         HashMap<String, FileFilter> fileFilterMap = new HashMap<String, FileFilter>(2);
         addToFileFilterMap(fileFilterMap, "IMDI", ".imdi");
         addToFileFilterMap(fileFilterMap, "CMDI", ".cmdi");
-        return showFileSelectBox(titleText, false, multipleSelect, fileFilterMap);
+        return showFileSelectBox(titleText, false, multipleSelect, fileFilterMap, DialogueType.open);
     }
 
     public File[] showDirectorySelectBox(String titleText, boolean multipleSelect) {
@@ -276,10 +276,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             }
         };
         fileFilterMap.put("Directories", imdiFileFilter);
-        return showFileSelectBox(titleText, true, multipleSelect, fileFilterMap);
+        return showFileSelectBox(titleText, true, multipleSelect, fileFilterMap, DialogueType.custom);
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap) {
+
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap, DialogueType dialogueType) {
         // test for os: if mac or file then awt else for other and directory use swing
         // save/load last directory accoring to the title of the dialogue
         //Hashtable<String, File> fileSelectLocationsHashtable;
@@ -303,7 +304,21 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         }
         fileChooser.setCurrentDirectory(workingDirectory);
         fileChooser.setMultiSelectionEnabled(multipleSelect);
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(getMainFrame(), titleText)) {
+        final int showDialogResult;
+        switch (dialogueType) {
+            case open:
+                fileChooser.setDialogTitle(titleText);
+                showDialogResult = fileChooser.showOpenDialog(getMainFrame());
+                break;
+            case save:
+                fileChooser.setDialogTitle(titleText);
+                showDialogResult = fileChooser.showSaveDialog(getMainFrame());
+                break;
+            default:
+                showDialogResult = fileChooser.showDialog(getMainFrame(), titleText);
+        }
+
+        if (JFileChooser.APPROVE_OPTION == showDialogResult) {
             returnFile = fileChooser.getSelectedFiles();
             if (returnFile.length == 0) {
                 returnFile = new File[]{fileChooser.getSelectedFile()};
