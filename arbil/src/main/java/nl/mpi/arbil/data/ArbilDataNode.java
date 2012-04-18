@@ -166,7 +166,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     protected boolean isNeedsSaveToDisk() {
-	return isNeedsSaveToDisk();
+	return nodeNeedsSaveToDisk;
     }
 
     public boolean hasChangedFields() {
@@ -805,10 +805,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	boolean foundPreferredNameField = false;
 	boolean preferredNameFieldExists = false;
 
-        //final String nodePath = getNodePath();
-        getLabelString:
-        for (String currentPreferredName : this.getNodeTemplate().getPreferredNameFields()) {
-            for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
+	//final String nodePath = getNodePath();
+	getLabelString:
+	for (String currentPreferredName : this.getNodeTemplate().getPreferredNameFields()) {
+	    for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
 
 		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
 		// nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
