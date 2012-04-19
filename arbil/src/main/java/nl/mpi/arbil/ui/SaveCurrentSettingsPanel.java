@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.ui.ImportExportDialog;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -65,8 +64,7 @@ public class SaveCurrentSettingsPanel extends JPanel {
 //                }
                 // todo: save the settings to a text file
                 System.out.println(importExportDialog.overwriteCheckBox.isSelected());
-                System.out.println(importExportDialog.copyFilesCheckBox.isSelected());
-                System.out.println(importExportDialog.detailsCheckBox.isSelected());
+                System.out.println(importExportDialog.copyFilesImportCheckBox.isSelected());
                 System.out.println(importExportDialog.renameFileToLamusFriendlyName.isSelected());
                 System.out.println(importExportDialog.renameFileToNodeName.isSelected());
                 System.out.println(importExportDialog.shibbolethCheckBox.isSelected());
