@@ -37,6 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -86,6 +87,7 @@ public class ImportExportDialog {
     private JLabel progressXmlErrorsLabel;
     private JLabel resourceCopyErrorsLabel;
     private JButton showInTableButton;
+    private JButton closeButton;
     String progressFoundLabelText = "Total Metadata Files Found: ";
     String progressProcessedLabelText = "Total Metadata Files Processed: ";
     String progressAlreadyInCacheLabelText = "Metadata Files already in Local Corpus: ";
@@ -279,6 +281,7 @@ public class ImportExportDialog {
 	importExportPanel.add(dialogBottomPanel, BorderLayout.SOUTH);
 
 	importExportDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
+	importExportDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 	importExportDialog.addWindowStateListener(new WindowAdapter() {
 
 	    @Override
@@ -304,6 +307,19 @@ public class ImportExportDialog {
 	importExportDialog.setResizable(false);
 
 	updateDialog(showingMoreOptions, showingDetails); // updateDialog no longer calls pack()
+
+	JPanel closeButtonPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+	closeButton = new JButton("Close");
+	closeButton.addActionListener(new ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		importExportDialog.dispose();
+	    }
+	});
+	closeButtonPanel.add(closeButton);
+	closeButtonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
+	importExportDialog.add(closeButtonPanel, BorderLayout.SOUTH);
+
 	importExportDialog.pack();
     }
 
@@ -604,6 +620,7 @@ public class ImportExportDialog {
     private void setUItoRunningState() {
 	stopButton.setEnabled(true);
 	startButton.setEnabled(false);
+	closeButton.setEnabled(false);
 	showMoreButton.setEnabled(false);
 	showInTableButton.setEnabled(false);
 	overwriteCheckBox.setEnabled(false);
@@ -624,6 +641,7 @@ public class ImportExportDialog {
 //        progressLabel.setText("");
 	stopButton.setEnabled(false);
 	startButton.setEnabled(selectedNodes.size() > 0);
+	closeButton.setEnabled(true);
 	showMoreButton.setEnabled(true);
 	showInTableButton.setEnabled(validationErrors.size() > 0 || metaDataCopyErrors.size() > 0 || fileCopyErrors.size() > 0);
 	overwriteCheckBox.setEnabled(true);
@@ -750,7 +768,7 @@ public class ImportExportDialog {
 		Object[] options = {"Close", "Details"};
 		int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame, finalMessageString, importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (detailsOption == 0) {
-		    importExportDialog.setVisible(false);
+		    importExportDialog.dispose();
 		} else {
 		    if (!showingDetails) {
 			updateDialog(showingMoreOptions, true);
