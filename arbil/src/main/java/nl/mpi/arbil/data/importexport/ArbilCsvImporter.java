@@ -40,7 +40,7 @@ public class ArbilCsvImporter {
     }
 
     public void doImport() {
-        File[] selectedFiles = messageDialogHandler.showFileSelectBox("Import CSV", false, true, null, MessageDialogHandler.DialogueType.open);
+        File[] selectedFiles = messageDialogHandler.showFileSelectBox("Import CSV", false, true, null, MessageDialogHandler.DialogueType.open, null);
         if (selectedFiles != null && selectedFiles.length > 0) {
 //                return "CSV File (comma or tab separated values)";
 //                return selectedFile.getName().toLowerCase().endsWith(".csv");

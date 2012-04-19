@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComponent;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 public class MockDialogHandler implements MessageDialogHandler {
@@ -43,7 +44,7 @@ public class MockDialogHandler implements MessageDialogHandler {
         return null;
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, javax.swing.filechooser.FileFilter> fileFilterMap, DialogueType dialogueType) {
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, javax.swing.filechooser.FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
         logMessage(titleText, null);
         return null;
     }
