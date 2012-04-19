@@ -59,8 +59,8 @@ import nl.mpi.arbil.util.XsdChecker;
  */
 public class ImportExportDialog {
 
-    private JDialog searchDialog;
-    private JPanel searchPanel;
+    private JDialog importExportDialog;
+    private JPanel importExportPanel;
     private JPanel inputNodePanel;
     private JPanel outputNodePanel;
     protected JCheckBox copyFilesExportCheckBox;
@@ -102,7 +102,7 @@ public class ImportExportDialog {
     // variables used but the search thread
     // variables used by the copy thread
     // variables used by all threads
-    private boolean stopSearch = false;
+    private boolean stopCopy = false;
     protected Vector<ArbilDataNode> selectedNodes;
     ArbilDataNode destinationNode = null;
     protected File exportDestinationDirectory = null;
@@ -169,8 +169,8 @@ public class ImportExportDialog {
     public void selectExportDirectoryAndExport(ArbilDataNode[] localCorpusSelectedNodes) {
 	// make sure the chosen directory is empty
 	// export the tree, maybe adjusting resource links so that resource files do not need to be copied
-	searchDialog.setTitle("Export Branch");
-	File destinationDirectory = ArbilWindowManager.getSingleInstance().showEmptyExportDirectoryDialogue(searchDialog.getTitle());
+	importExportDialog.setTitle("Export Branch");
+	File destinationDirectory = ArbilWindowManager.getSingleInstance().showEmptyExportDirectoryDialogue(importExportDialog.getTitle());
 	if (destinationDirectory != null) {
 	    exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
 	}
@@ -180,7 +180,7 @@ public class ImportExportDialog {
 	selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
 	if (!selectedNodesContainDataNode()) {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No relevant nodes are selected", searchDialog.getTitle());
+	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No relevant nodes are selected", importExportDialog.getTitle());
 	    return;
 	}
 	setNodesPanel(selectedNodes, inputNodePanel);
@@ -189,7 +189,7 @@ public class ImportExportDialog {
 
 	exportDestinationDirectory = destinationDirectory;
 	updateDialog(showingMoreOptions, showingDetails);
-	searchDialog.setVisible(true);
+	importExportDialog.setVisible(true);
     }
 
     public void copyToCache(ArbilDataNode[] localSelectedNodes) {
@@ -204,16 +204,16 @@ public class ImportExportDialog {
 
     public void copyToCache(Vector localSelectedNodes) {
 	selectedNodes = localSelectedNodes;
-	searchDialog.setTitle("Import Branch");
+	importExportDialog.setTitle("Import Branch");
 	if (!selectedNodesContainDataNode()) {
-	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No relevant nodes are selected", searchDialog.getTitle());
+	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No relevant nodes are selected", importExportDialog.getTitle());
 	    return;
 	}
 	setNodesPanel(selectedNodes, inputNodePanel);
 	if (destinationNode == null) {
 	    setLocalCacheToNodesPanel(outputNodePanel);
 	}
-	searchDialog.setVisible(true);
+	importExportDialog.setVisible(true);
     }
 
     private boolean selectedNodesContainDataNode() {
@@ -246,16 +246,16 @@ public class ImportExportDialog {
 	    shibbolethPanel.setVisible(optionsFlag && copyFilesImportCheckBox.isSelected());
 
 	    if (detailsFlag) {
-		searchDialog.setMinimumSize(new Dimension(500, 500));
+		importExportDialog.setMinimumSize(new Dimension(500, 500));
 	    } else {
-		searchDialog.setMinimumSize(null);
+		importExportDialog.setMinimumSize(null);
 	    }
 
 	    showMoreButton.setText(optionsFlag ? "< < Fewer options" : "More options> >");
 	    showDetailsButton.setText(detailsFlag ? "< < Hide details" : "Details > >");
 	    showingMoreOptions = optionsFlag;
 	    showingDetails = detailsFlag;
-	    searchDialog.pack();
+	    importExportDialog.pack();
 	}
     }
 
@@ -263,48 +263,48 @@ public class ImportExportDialog {
     public ImportExportDialog(Component targetComponent) throws Exception {
 	ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
 
-	searchPanel = new JPanel();
-	searchPanel.setLayout(new BorderLayout());
+	importExportPanel = new JPanel();
+	importExportPanel.setLayout(new BorderLayout());
 
-	searchPanel.add(createInOutNodePanel(), BorderLayout.NORTH);
+	importExportPanel.add(createInOutNodePanel(), BorderLayout.NORTH);
 
 	JPanel optionsPanel = new JPanel(new BorderLayout());
 	optionsPanel.add(createOptionsPanel(), BorderLayout.CENTER);
 	optionsPanel.add(createMoreOptionsPanel(), BorderLayout.SOUTH);
-	searchPanel.add(optionsPanel, BorderLayout.CENTER);
+	importExportPanel.add(optionsPanel, BorderLayout.CENTER);
 
 	JPanel dialogBottomPanel = new JPanel(new BorderLayout());
 	dialogBottomPanel.add(createStartStopButtonsPanel(), BorderLayout.WEST);
 	dialogBottomPanel.add(createDetailsPanel(), BorderLayout.SOUTH);
-	searchPanel.add(dialogBottomPanel, BorderLayout.SOUTH);
+	importExportPanel.add(dialogBottomPanel, BorderLayout.SOUTH);
 
-	searchDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
-	searchDialog.addWindowStateListener(new WindowAdapter() {
+	importExportDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
+	importExportDialog.addWindowStateListener(new WindowAdapter() {
 
 	    @Override
 	    public void windowStateChanged(WindowEvent e) {
 		if ((e.getNewState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
 		    updateDialog(true, true);
 		} else {
-		    searchDialog.pack();
+		    importExportDialog.pack();
 		}
 	    }
 	});
-	searchDialog.addWindowListener(new WindowAdapter() {
+	importExportDialog.addWindowListener(new WindowAdapter() {
 
 	    @Override
 	    public void windowClosing(WindowEvent e) {
-		stopSearch = true;
+		stopCopy = true;
 		downloadAbortFlag.abortDownload = true;
 	    }
 	});
-	searchDialog.getContentPane().setLayout(new BorderLayout());
-	searchDialog.add(searchPanel, BorderLayout.CENTER);
-	searchDialog.setLocationRelativeTo(targetComponent);
-	searchDialog.setResizable(false);
+	importExportDialog.getContentPane().setLayout(new BorderLayout());
+	importExportDialog.add(importExportPanel, BorderLayout.CENTER);
+	importExportDialog.setLocationRelativeTo(targetComponent);
+	importExportDialog.setResizable(false);
 
 	updateDialog(showingMoreOptions, showingDetails); // updateDialog no longer calls pack()
-	searchDialog.pack();
+	importExportDialog.pack();
     }
 
     private JPanel createOptionsPanel() {
@@ -364,7 +364,7 @@ public class ImportExportDialog {
 			    shibbolethPanel.removeAll();
 			    shibbolethNegotiator = null;
 			}
-			searchDialog.pack();
+			importExportDialog.pack();
 		    }
 		});
 	copyFilesImportCheckBox.addActionListener(new ActionListener() {
@@ -372,7 +372,7 @@ public class ImportExportDialog {
 	    public void actionPerformed(ActionEvent e) {
 		shibbolethCheckBox.setVisible(copyFilesImportCheckBox.isSelected());
 		shibbolethPanel.setVisible(copyFilesImportCheckBox.isSelected());
-		searchDialog.pack();
+		importExportDialog.pack();
 	    }
 	});
 
@@ -568,7 +568,7 @@ public class ImportExportDialog {
 
 	    public void actionPerformed(ActionEvent e) {
 		try {
-		    stopSearch = true;
+		    stopCopy = true;
 		    downloadAbortFlag.abortDownload = true;
 		    stopButton.setEnabled(false);
 		    startButton.setEnabled(false);
@@ -610,13 +610,13 @@ public class ImportExportDialog {
 	copyFilesExportCheckBox.setEnabled(false);
 	copyFilesImportCheckBox.setEnabled(false);
 	taskOutput.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	searchDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	importExportDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
 
     private void setUItoStoppedState() {
 	Toolkit.getDefaultToolkit().beep();
 	taskOutput.setCursor(null);
-	searchDialog.setCursor(null); //turn off the wait cursor
+	importExportDialog.setCursor(null); //turn off the wait cursor
 	//appendToTaskOutput("Done!");
 	progressBar.setIndeterminate(false);
 //        resourceProgressBar.setIndeterminate(false);
@@ -631,7 +631,7 @@ public class ImportExportDialog {
 	copyFilesImportCheckBox.setEnabled(true);
 
 	// TODO: add a close button?
-	stopSearch = false;
+	stopCopy = false;
 	downloadAbortFlag.abortDownload = false;
     }
     /////////////////////////////////////
@@ -640,7 +640,7 @@ public class ImportExportDialog {
 
     private void waitTillVisible() {
 	// this is to prevent deadlocks between the thread starting before the dialog is showing which causes the JTextArea to appear without the frame
-	while (!searchDialog.isVisible()) {
+	while (!importExportDialog.isVisible()) {
 	    try {
 		Thread.sleep(100);
 	    } catch (InterruptedException ignore) {
@@ -748,13 +748,13 @@ public class ImportExportDialog {
 		});
 		System.out.println("finalMessageString: " + finalMessageString);
 		Object[] options = {"Close", "Details"};
-		int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame, finalMessageString, searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+		int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame, finalMessageString, importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (detailsOption == 0) {
-		    searchDialog.setVisible(false);
+		    importExportDialog.setVisible(false);
 		} else {
 		    if (!showingDetails) {
 			updateDialog(showingMoreOptions, true);
-			searchDialog.pack();
+			importExportDialog.pack();
 		    }
 		}
 		if (exportDestinationDirectory != null) {
@@ -770,7 +770,7 @@ public class ImportExportDialog {
 		Hashtable<URI, RetrievableFile> seenFiles = new Hashtable<URI, RetrievableFile>();
 		ArrayList<URI> getList = new ArrayList<URI>();
 		ArrayList<URI> doneList = new ArrayList<URI>();
-		while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
+		while (selectedNodesEnum.hasMoreElements() && !stopCopy) {
 		    Object currentElement = selectedNodesEnum.nextElement();
 		    if (currentElement instanceof ArbilDataNode) {
 			copyElement(currentElement, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
@@ -778,7 +778,7 @@ public class ImportExportDialog {
 		}
 		finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
 		if (exportDestinationDirectory == null) {
-		    if (!stopSearch) {
+		    if (!stopCopy) {
 			for (ArbilDataNode currentFinishedNode : finishedTopNodes) {
 			    if (destinationNode != null) {
 				if (!destinationNode.getURI().equals(currentFinishedNode.getURI())) {
@@ -805,7 +805,7 @@ public class ImportExportDialog {
 		if (xsdErrors != 0) {
 		    finalMessageString = finalMessageString + "There were " + xsdErrors + " files that failed to validate and have xml errors.\n";
 		}
-		if (stopSearch) {
+		if (stopCopy) {
 		    appendToTaskOutput("copy canceled");
 		    System.out.println("copy canceled");
 		    finalMessageString = finalMessageString + "The process was canceled, some files may not have been copied.\n";
@@ -820,7 +820,7 @@ public class ImportExportDialog {
 		if (!seenFiles.containsKey(currentGettableUri)) {
 		    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
 		}
-		while (!stopSearch && getList.size() > 0) {
+		while (!stopCopy && getList.size() > 0) {
 		    RetrievableFile currentRetrievableFile = seenFiles.get(getList.remove(0));
 		    copyFile(currentRetrievableFile, seenFiles, doneList, getList, xsdChecker);
 		}
@@ -927,7 +927,7 @@ public class ImportExportDialog {
 	    }
 
 	    private void copyLinks(URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
-		for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
+		for (int linkCount = 0; linkCount < linksUriArray.length && !stopCopy; linkCount++) {
 		    System.out.println("Link: " + linksUriArray[linkCount].toString());
 		    String currentLink = linksUriArray[linkCount].toString();
 		    URI gettableLinkUri = linksUriArray[linkCount].normalize();
@@ -987,10 +987,10 @@ public class ImportExportDialog {
 		    diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
 		    if (freeGbWarningPoint > freeGBytes) {
 			progressBar.setIndeterminate(false);
-			if (JOptionPane.YES_OPTION == ArbilWindowManager.getSingleInstance().showDialogBox("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+			if (JOptionPane.YES_OPTION == ArbilWindowManager.getSingleInstance().showDialogBox("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 			    freeGbWarningPoint = freeGBytes - 1;
 			} else {
-			    stopSearch = true;
+			    stopCopy = true;
 			}
 			progressBar.setIndeterminate(true);
 		    }
