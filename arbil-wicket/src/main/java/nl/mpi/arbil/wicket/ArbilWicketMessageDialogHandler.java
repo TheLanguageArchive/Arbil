@@ -63,8 +63,9 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap) {
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap, DialogueType dialogueType) {
 	logger.info("showFileSelectBox");
 	throw new UnsupportedOperationException("Not supported yet.");
     }
+
 }
