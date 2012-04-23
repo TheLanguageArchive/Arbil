@@ -146,4 +146,6 @@ public abstract class ArbilNode {
     public abstract boolean isLoading();
     
     public abstract boolean isDataLoaded();
+    
+    public abstract boolean isDataPartiallyLoaded();
 }

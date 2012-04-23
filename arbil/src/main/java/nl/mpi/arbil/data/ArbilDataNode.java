@@ -50,6 +50,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     protected ArbilDataNode[] childArray = new ArbilDataNode[0];
     //private boolean dataLoaded;
     private LoadingState loadingState = LoadingState.UNLOADED;
+    private LoadingState requestedLoadingState = null;
     public int resourceFileServerResponse = -1; // -1 = not set otherwise this will be the http response code
     public String hashString;
     public String mpiMimeType = null;
@@ -292,6 +293,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 		nodeText = this.getUrlString();
 	    }
 	}
+    }
+    
+    public void reloadNodeShallowly(){
+	dataNodeService.reloadNodeShallowly(this);
     }
 
     public void reloadNode() {
@@ -801,7 +806,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    ////                if (nodeText != null && nodeText.length() > 0) {
 	    return lastNodeText;
 	    //            }
-	} else if (lastNodeText.equals(NODE_LOADING_TEXT) && isDataLoaded()) {
+	} else if (lastNodeText.equals(NODE_LOADING_TEXT) && isDataPartiallyLoaded()) {
 	    lastNodeText = "                      ";
 	}
 	//        if (commonFieldPathString != null && commonFieldPathString.length() > 0) {
@@ -1266,7 +1271,14 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
 	// Node is contained by some object so make sure it's fully loaded or at least loading
 	if (!isDataLoaded() && !isLoading()) {
-	    dataNodeService.reloadNode(this);
+	    if (containerToAdd.isFulllyLoadedNodeRequired()) {
+		dataNodeService.reloadNode(this);
+	    } else {
+		// Partial load required
+		if (!isDataPartiallyLoaded()) {
+		    dataNodeService.reloadNodeShallowly(this);
+		}
+	    }
 	    //dataNodeLoader.requestReload(getParentDomNode());
 	}
 	super.registerContainer(containerToAdd);
@@ -1382,10 +1394,28 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     /**
+     * @return the requested loading state. To be used by data node loaders to determine the level of loading. Can be null.
+     */
+    public LoadingState getRequestedLoadingState() {
+	return requestedLoadingState;
+    }
+
+    /**
+     * @param requestedLoadingState the loading state to communicate to data node loaders
+     */
+    public void setRequestedLoadingState(LoadingState requestedLoadingState) {
+	this.requestedLoadingState = requestedLoadingState;
+    }
+
+    /**
      * @return whether {@link #getParentDomNode() }'s {@link #getLoadingState() } equals {@link LoadingState#LOADED}
      */
     public synchronized boolean isDataLoaded() {
 	return getLoadingState().equals(LoadingState.LOADED);
+    }
+    
+    public synchronized boolean isDataPartiallyLoaded() {
+	return !getLoadingState().equals(LoadingState.UNLOADED);
     }
 
     /**
