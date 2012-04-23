@@ -94,7 +94,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    File[] selectedFiles = dialogHandler.showFileSelectBox("Select Resource File", false, false, null, MessageDialogHandler.DialogueType.open);
+                    File[] selectedFiles = dialogHandler.showFileSelectBox("Select Resource File", false, false, null, MessageDialogHandler.DialogueType.open, null);
                     if (selectedFiles != null && selectedFiles.length > 0) {
                         leadSelectedTreeNode.resourceUrlField.setFieldValue(selectedFiles[0].toURL().toExternalForm(), true, false);
                     }

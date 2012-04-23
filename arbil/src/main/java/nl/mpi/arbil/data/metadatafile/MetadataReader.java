@@ -49,14 +49,14 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class MetadataReader {
-
+    
     private static SessionStorage sessionStorage;
-
+    
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
     static private MetadataReader singleInstance = null;
-
+    
     static synchronized public MetadataReader getSingleInstance() {
 	if (singleInstance == null) {
 	    singleInstance = new MetadataReader();
@@ -64,21 +64,21 @@ public class MetadataReader {
 	return singleInstance;
     }
     private static MessageDialogHandler messageDialogHandler;
-
+    
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     private static DataNodeLoader dataNodeLoader;
-
+    
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
     private static ApplicationVersionManager versionManager;
-
+    
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
     }
-
+    
     private MetadataReader() {
 	copyNewResourcesToCache = sessionStorage.loadBoolean("copyNewResources", false);
     }
@@ -102,7 +102,7 @@ public class MetadataReader {
 	boolean hasCorrectSubNodeCount = childBranchCount - targetBranchCount < 2;
 	return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
     }
-
+    
     public static String getNodePath(ArbilDataNode targetDataNode) {
 	//TODO: this should probably be moved into the imditreeobject
 	String xpath;
@@ -126,7 +126,7 @@ public class MetadataReader {
 	}
 	return xpath;
     }
-
+    
     private URL constructTemplateUrl(String templateType) {
 	URL templateUrl = null;
 	if (CmdiProfileReader.pathIsProfile(templateType)) {
@@ -139,7 +139,7 @@ public class MetadataReader {
 	} else {
 	    templateUrl = MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
 	}
-
+	
 	if (templateUrl == null) {
 	    try {
 		templateUrl = ArbilTemplateManager.getSingleInstance().getDefaultComponentOfTemplate(templateType).toURI().toURL();
@@ -148,10 +148,10 @@ public class MetadataReader {
 		return null;
 	    }
 	}
-
+	
 	return templateUrl;
     }
-
+    
     public URI addFromTemplate(File destinationFile, String templateType) {
 	System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
 
@@ -163,7 +163,7 @@ public class MetadataReader {
 
 	// Copy (1:1) template to new local file
 	URI addedPathUri = copyToDisk(templateUrl, destinationFile);
-
+	
 	try {
 	    // Open new metadata file
 	    Document addedDocument = ArbilComponentBuilder.getDocument(addedPathUri);
@@ -200,7 +200,7 @@ public class MetadataReader {
 	}
 	return addedPathUri;
     }
-
+    
     private URI copyToDisk(URL sourceURL, File targetFile) {
 	InputStream in = null;
 	OutputStream out = null;
@@ -241,7 +241,7 @@ public class MetadataReader {
 	}
 	return null;
     }
-
+    
     public String getNodeTypeFromMimeType(String mimeType) {
 	System.out.println("getNodeTypeFromMimeType: " + mimeType);
 	for (String[] formatType : new String[][]{
@@ -259,7 +259,7 @@ public class MetadataReader {
 	}
 	return null;
     }
-
+    
     private String getNamedAttributeValue(NamedNodeMap namedNodeMap, String attributeName) {
 	Node nameNode = namedNodeMap.getNamedItem(attributeName);
 	if (nameNode != null) {
@@ -283,23 +283,23 @@ public class MetadataReader {
 	if (maxOccurs < 0) {
 	    return true;
 	}
-
+	
 	URI addedPathURI = null;
 	try {
 	    String templateFileString = templateFileStringFromElementName(elementName);
 	    URL templateUrl = urlForTemplateFile(currentTemplate, templateFileString);
 	    String targetRef = xPathFromXmlPath(targetXmlPath, elementName);
 	    String targetXpath = xPathFromTargetRef(targetRef);
-
+	    
 	    if (templateUrl != null) {
 		Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
-
+		
 		if (insertableSectionDoc != null) {
 		    Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
 		    if (insertableNode != null) {
 			Node addableNode = targetImdiDom.importNode(insertableNode, true);
 			Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
-
+			
 			return ArbilComponentBuilder.canInsertNode(destinationNode, addableNode, maxOccurs);
 		    }
 		}
@@ -322,7 +322,7 @@ public class MetadataReader {
 	System.out.println("addedPathString: " + addedPathURI);
 	return false;
     }
-
+    
     public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException {
 	System.out.println("insertFromTemplate: " + elementName + " : " + resourceUrl);
 	System.out.println("targetXpath: " + targetXmlPath);
@@ -336,16 +336,16 @@ public class MetadataReader {
 	    URL templateUrl = urlForTemplateFile(currentTemplate, templateFileString);
 	    String targetRef = xPathFromXmlPath(targetXmlPath, elementName);
 	    String targetXpath = xPathFromTargetRef(targetRef);
-
+	    
 	    System.out.println("targetXpath: " + targetXpath);
 	    System.out.println("templateUrl: " + templateUrl);
-
+	    
 	    if (templateUrl == null) {
 		messageDialogHandler.addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
 		BugCatcherManager.getBugCatcher().logError(new Exception("No template found for: " + elementName.substring(1)));
 	    } else {
 		Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
-
+		
 		if (insertableSectionDoc == null) {
 		    messageDialogHandler.addMessageDialogToQueue("Error reading template", "Insert from Template");
 		} else {
@@ -356,7 +356,7 @@ public class MetadataReader {
 		    if (mimeType != null) {
 			insertMimeTypeForAddingFromTemplate(insertableSectionDoc, mimeType);
 		    }
-
+		    
 		    Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
 		    if (insertableNode == null) {
 			BugCatcherManager.getBugCatcher().logError(new Exception("InsertableSection not found in the template"));
@@ -387,7 +387,7 @@ public class MetadataReader {
 	System.out.println("addedPathString: " + addedPathURI);
 	return addedPathURI;
     }
-
+    
     private URI importNodesAddedFromTemplate(Document targetImdiDom, URI targetMetadataUri, String targetXpath, String targetRef, Node insertableNode, String insertBefore, final int maxOccurs) throws URISyntaxException, DOMException, ArbilMetadataException, TransformerException {
 	Node addableNode = targetImdiDom.importNode(insertableNode, true);
 	Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
@@ -399,7 +399,7 @@ public class MetadataReader {
 	// first strip off any fragment then add the full node fragment
 	return new URI(targetMetadataUri.toString().split("#")[0] + "#" + nodeFragment);
     }
-
+    
     private void insertMimeTypeForAddingFromTemplate(Document insertableSectionDoc, String mimeType) throws DOMException, TransformerException {
 	if (mimeType.equals("image/jpeg")) {
 	    // TODO: consider replacing this with exif imdifields in the original imdiobject and doing a merge
@@ -413,7 +413,7 @@ public class MetadataReader {
 	Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:Format");
 	linkNode.setTextContent(mimeType);
     }
-
+    
     private void insertValuesForAddingFromTemplate(Document insertableSectionDoc, URI resourceUrl, File resourceDestinationDirectory, URI targetMetadataUri) throws UnsupportedEncodingException, DOMException, TransformerException {
 	URI finalResourceUrl = resourceUrl;
 	//                    String localFilePath = resourcePath; // will be changed when copied to the cache
@@ -454,7 +454,7 @@ public class MetadataReader {
 	String decodeUrlString = URLDecoder.decode(finalResourceUrl.toString(), "UTF-8");
 	linkNode.setTextContent(decodeUrlString);
     }
-
+    
     private static String xPathFromTargetRef(String targetRef) {
 	String targetXpath = targetRef;
 	// convert to xpath for the api
@@ -463,7 +463,7 @@ public class MetadataReader {
 	targetXpath = targetXpath.replace("(", "[");
 	return targetXpath;
     }
-
+    
     private static String xPathFromXmlPath(String targetXmlPath, String elementName) {
 	// prepare the parent node
 	String targetXpath = targetXmlPath;
@@ -491,7 +491,7 @@ public class MetadataReader {
 	targetXpath = targetXpath.substring(0, targetXpath.lastIndexOf("."));
 	return targetXpath;
     }
-
+    
     private static URL urlForTemplateFile(ArbilTemplate currentTemplate, String templateFileString) throws MalformedURLException {
 	URL templateUrl;
 	File templateFile = new File(currentTemplate.getTemplateComponentDirectory(), templateFileString + ".xml");
@@ -503,7 +503,7 @@ public class MetadataReader {
 	}
 	return templateUrl;
     }
-
+    
     private static String templateFileStringFromElementName(String elementName) {
 	String templateFileString = elementName.substring(1); //TODO: this level of path change should not be done here but in the original caller
 	System.out.println("templateFileString: " + templateFileString);
@@ -512,7 +512,7 @@ public class MetadataReader {
 	templateFileString = templateFileString.replaceAll("\\(x\\)$", "");
 	return templateFileString;
     }
-
+    
     public URI correctLinkPath(URI parentPath, String linkString) {
 	URI linkURI = null;
 	try {
@@ -544,7 +544,7 @@ public class MetadataReader {
 	//        System.out.println("linkURI: " + linkURI.toString());
 	return linkURI;
     }
-
+    
     private void showDomIdFoundMessage() {
 	if (!dataNodeLoader.nodesNeedSave()) {
 	    // Note TG: it may be good to add something like 'non-critical error' or something, so users feel safe to
@@ -598,23 +598,23 @@ public class MetadataReader {
 		if (childNodeAttributes != null) {
 		    removeImdiNodeIds(childNodeAttributes, parentNode);
 		}
-
+		
 		if (fullNodePath.length() == 0) {
 		    getTemplate(childNode, parentNode, childNodeAttributes);
 		}
 		if (localName.equals("Corpus")) {
 		    getImdiCatalogue(childNodeAttributes, parentNode, childLinks, parentChildTree);
 		}
-
+		
 		final ArbilDataNode parentDomNode = parentNode.getParentDomNode();
 		final ArbilTemplate parentNodeTemplate = parentDomNode.getNodeTemplate();
-
+		
 		final StringBuilder fullSubNodePath = new StringBuilder(fullNodePath).append(MetadataReader.imdiPathSeparator).append(localName);
 		final String parentNodePath = determineParentPath(parentNode);
 		final String combinedPath = parentNodePath + childNodePath;
 		final String childsMetaNode = parentNodeTemplate.pathIsChildNode(combinedPath);
 		final int maxOccurs = parentNodeTemplate.getMaxOccursForTemplate(combinedPath);
-
+		
 		ArbilDataNode destinationNode;
 		String siblingNodePath = childNodePath;
 		if (localName != null && childsMetaNode != null) {
@@ -650,7 +650,7 @@ public class MetadataReader {
 			// For subnode URI 
 			nodeURIStringBuilder.append(siblingSpacer);
 			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
-
+			
 			if (metaNode != null && !isSingleton) {
 			    // Add subnode to metanode
 			    parentChildTree.get(metaNode).add(subNode);
@@ -732,12 +732,12 @@ public class MetadataReader {
 		}
 	    }
 	}
-
+	
 	nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
-
+	
 	return nodeOrderCounter;
     }
-
+    
     private int countSiblings(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, ArbilDataNode parentNode, String localName) {
 	// todo: this might need to be revisited
 	// this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
@@ -754,7 +754,7 @@ public class MetadataReader {
 	}
 	return siblingCount;
     }
-
+    
     private void removeImdiNodeIds(NamedNodeMap attributesMap, ArbilDataNode parentNode) {
 	// look for node id attribites that should be removed from imdi files
 	if (attributesMap.getNamedItem("id") != null) {
@@ -768,7 +768,7 @@ public class MetadataReader {
 	    }
 	} // end get the xml node id
     }
-
+    
     private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, boolean shouldAddCurrent) {
 
 	// Handle special attributes
@@ -786,7 +786,7 @@ public class MetadataReader {
 	    }
 	    keyName = getNamedAttributeValue(childNodeAttributes, "Name");
 	}
-
+	
 	List<String[]> attributePaths = null;
 	Map<String, Object> attributesValueMap = null;
 	boolean allowsLanguageId = false;
@@ -828,14 +828,14 @@ public class MetadataReader {
 		    childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
 		    ArbilDataNode descriptionLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink);
 		    descriptionLinkNode.isInfoLink = true;
-		    descriptionLinkNode.setDataLoaded(true);
+		    descriptionLinkNode.setLoadingState(ArbilDataNode.LoadingState.LOADED);
 		    parentChildTree.get(parentNode).add(descriptionLinkNode);
 		    descriptionLinkNode.addField(fieldToAdd);
 		}
 	    }
 	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
 	}
-
+	
 	if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
 	    //                System.out.println("Adding: " + fieldToAdd);
 	    //                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
@@ -875,7 +875,7 @@ public class MetadataReader {
 	fieldToAdd.finishLoading();
 	return nodeOrderCounter;
     }
-
+    
     private void addReferencedResources(ArbilDataNode parentNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, Vector<String[]> childLinks, ArbilDataNode destinationNode) {
 	String clarinRefIds = getNamedAttributeValue(childNodeAttributes, "ref");
 	if (clarinRefIds != null && clarinRefIds.length() > 0) {
@@ -909,7 +909,7 @@ public class MetadataReader {
 	    }
 	}
     }
-
+    
     private void addResourceLinkNode(ArbilDataNode parentNode, ArbilDataNode destinationNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, CmdiResourceLink clarinLink, Vector<String[]> childLinks) {
 	if (clarinLink != null) {
 	    try {
@@ -925,7 +925,7 @@ public class MetadataReader {
 	    }
 	}
     }
-
+    
     private String determineParentPath(ArbilDataNode parentNode) {
 	String parentNodePath = parentNode.getURI().getFragment();
 	if (parentNodePath == null) {
@@ -936,7 +936,7 @@ public class MetadataReader {
 	}
 	return parentNodePath;
     }
-
+    
     private void getTemplate(Node childNode, ArbilDataNode parentNode, NamedNodeMap attributesMap) throws DOMException {
 	// if this is the first node and it is not metatranscript then it is not an imdi so get the clarin template
 	if (!childNode.getLocalName().equals("METATRANSCRIPT")) {
@@ -1003,7 +1003,7 @@ public class MetadataReader {
 	    }
 	}
     }
-
+    
     private void getImdiCatalogue(NamedNodeMap attributesMap, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws DOMException {
 	// get the imdi catalogue if it exists
 	Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");

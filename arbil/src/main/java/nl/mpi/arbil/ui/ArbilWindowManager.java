@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
+import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -198,7 +199,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public File showEmptyExportDirectoryDialogue(String titleText) {
         boolean fileSelectDone = false;
         while (!fileSelectDone) {
-            File[] selectedFiles = showFileSelectBox(titleText + " Destination Directory", true, false, null, DialogueType.custom);
+            File[] selectedFiles = showFileSelectBox(titleText + " Destination Directory", true, false, null, DialogueType.custom, null);
             if (selectedFiles != null && selectedFiles.length > 0) {
                 File destinationDirectory = selectedFiles[0];
                 boolean mkdirsOkay = true;
@@ -264,7 +265,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                 return "Metadata Files";
             }
         });
-        return showFileSelectBox(titleText, false, multipleSelect, fileFilterMap, DialogueType.open);
+        return showFileSelectBox(titleText, false, multipleSelect, fileFilterMap, DialogueType.open, null);
     }
 
     public File[] showDirectorySelectBox(String titleText, boolean multipleSelect) {
@@ -282,10 +283,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             }
         };
         fileFilterMap.put("Directories", imdiFileFilter);
-        return showFileSelectBox(titleText, true, multipleSelect, fileFilterMap, DialogueType.custom);
+        return showFileSelectBox(titleText, true, multipleSelect, fileFilterMap, DialogueType.custom, null);
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap, DialogueType dialogueType) {
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
         // test for os: if mac or file then awt else for other and directory use swing
         // save/load last directory accoring to the title of the dialogue
         //Hashtable<String, File> fileSelectLocationsHashtable;
@@ -309,6 +310,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         }
         fileChooser.setCurrentDirectory(workingDirectory);
         fileChooser.setMultiSelectionEnabled(multipleSelect);
+        if (customAccessory != null) {
+            // a custom accessory can be provided to add additional controls to the dialogue
+            fileChooser.setAccessory(customAccessory);
+        }
         final int showDialogResult;
         switch (dialogueType) {
             case open:
@@ -322,7 +327,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             default:
                 showDialogResult = fileChooser.showDialog(getMainFrame(), titleText);
         }
-
         if (JFileChooser.APPROVE_OPTION == showDialogResult) {
             returnFile = fileChooser.getSelectedFiles();
             if (returnFile.length == 0) {

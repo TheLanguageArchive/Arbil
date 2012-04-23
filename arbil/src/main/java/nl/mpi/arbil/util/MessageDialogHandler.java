@@ -2,6 +2,7 @@ package nl.mpi.arbil.util;
 
 import java.io.File;
 import java.util.HashMap;
+import javax.swing.JComponent;
 
 /**
  *
@@ -26,7 +27,7 @@ public interface MessageDialogHandler {
 
     File[] showDirectorySelectBox(String titleText, boolean multipleSelect);
 
-    File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, javax.swing.filechooser.FileFilter> fileFilterMap, DialogueType dialogueType);
+    File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, javax.swing.filechooser.FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory);
 
     File showEmptyExportDirectoryDialogue(String titleText);
 
