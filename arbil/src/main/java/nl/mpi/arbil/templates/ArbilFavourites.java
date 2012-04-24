@@ -2,7 +2,6 @@ package nl.mpi.arbil.templates;
 
 import java.net.URISyntaxException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -10,6 +9,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilNode;
@@ -244,9 +244,9 @@ public class ArbilFavourites {
 	System.out.println("getNodeType: \nfavouriteXmlPath: " + favouriteXmlPath + "\ntargetXmlPath:" + targetXmlPath);
 	String returnValue;
 	if (favouriteNode.isSession()) {
-	    returnValue = ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session";
+	    returnValue = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session";
 	} else if (favouriteNode.isCorpus()) {
-	    returnValue = ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Corpus";
+	    returnValue = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Corpus";
 	} else if (favouriteNode.isChildNode()) {
 	    if (targetXmlPath == null) {
 		returnValue = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");

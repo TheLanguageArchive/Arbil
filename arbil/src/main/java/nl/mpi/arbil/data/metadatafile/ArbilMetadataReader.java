@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
@@ -63,7 +64,6 @@ public class ArbilMetadataReader implements MetadataReader {
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
     //public File selectedTemplateDirectory = null;
-    public final static String imdiPathSeparator = ".";
     
     // todo: this should probably be moved into the arbiltemplate class
     @Override
@@ -84,11 +84,11 @@ public class ArbilMetadataReader implements MetadataReader {
 	//TODO: this should probably be moved into the imditreeobject
 	String xpath;
 	if (targetDataNode.isSession()) {
-	    xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session";
+	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session";
 	} else if (targetDataNode.isCatalogue()) {
-	    xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue";
+	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Catalogue";
 	} else {
-	    xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus";
+	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Corpus";
 	}
 	Object[] nodePathArray = ((ArbilDataNode) targetDataNode).getUrlString().split("#");
 	//        System.out.println("nodePath0: " + nodePathArray[0]);
@@ -449,7 +449,7 @@ public class ArbilMetadataReader implements MetadataReader {
 	    final String localName = childNode.getLocalName();
 	    final NamedNodeMap childNodeAttributes = childNode.getAttributes();
 	    if (localName != null) {
-		final String childNodePath = new StringBuilder(3).append(nodePath).append(ArbilMetadataReader.imdiPathSeparator).append(localName).toString();
+		final String childNodePath = new StringBuilder(3).append(nodePath).append(ArbilConstants.imdiPathSeparator).append(localName).toString();
 		// todo: these filter strings should really be read from the metadata format
 		if ((childNodePath).equals(".CMD.Header")) {
 		    continue;
@@ -476,7 +476,7 @@ public class ArbilMetadataReader implements MetadataReader {
 		final ArbilDataNode parentDomNode = parentNode.getParentDomNode();
 		final ArbilTemplate parentNodeTemplate = parentDomNode.getNodeTemplate();
 
-		final StringBuilder fullSubNodePath = new StringBuilder(fullNodePath).append(ArbilMetadataReader.imdiPathSeparator).append(localName);
+		final StringBuilder fullSubNodePath = new StringBuilder(fullNodePath).append(ArbilConstants.imdiPathSeparator).append(localName);
 		final String parentNodePath = determineParentPath(parentNode);
 		final String combinedPath = parentNodePath + childNodePath;
 		final String childsMetaNode = parentNodeTemplate.pathIsChildNode(combinedPath);

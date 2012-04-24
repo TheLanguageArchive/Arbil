@@ -1,12 +1,12 @@
 package nl.mpi.arbil.data.importexport;
 
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
@@ -98,7 +98,7 @@ public class ArbilCsvImporter {
 			}
 		    }
 		    if (!skipLine) {
-			String nodeType = ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session";
+			String nodeType = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session";
 			ArbilDataNode addedImdiObject = dataNodeLoader.getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode, nodeType, null, null, null));
 			addedImdiObject.waitTillLoaded();
 			Hashtable<String, ArbilField[]> addedNodesFields = addedImdiObject.getFields();

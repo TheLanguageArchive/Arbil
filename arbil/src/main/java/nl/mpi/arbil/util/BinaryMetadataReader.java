@@ -7,7 +7,7 @@ import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.data.ArbilDataNode;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -57,14 +57,14 @@ public class BinaryMetadataReader {
 	if (prefixString == null) {
 	    prefixString = "EXIF"; // skip the first node name
 	} else {
-	    prefixString = prefixString + ArbilMetadataReader.imdiPathSeparator + node.getNodeName();
+	    prefixString = prefixString + ArbilConstants.imdiPathSeparator + node.getNodeName();
 	}
 	NamedNodeMap namedNodeMap = node.getAttributes();
 	if (namedNodeMap != null) {
 	    for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
 		String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
 		String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-		exifTagFields.add(new ArbilField(currentFieldId++, resourceNode, prefixString + ArbilMetadataReader.imdiPathSeparator + attributeName, attributeValue, 0, false));
+		exifTagFields.add(new ArbilField(currentFieldId++, resourceNode, prefixString + ArbilConstants.imdiPathSeparator + attributeName, attributeValue, 0, false));
 	    }
 	}
 	if (node.hasChildNodes()) {

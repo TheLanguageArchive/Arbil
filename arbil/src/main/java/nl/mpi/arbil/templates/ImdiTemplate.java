@@ -586,7 +586,7 @@ public class ImdiTemplate implements ArbilTemplate {
 		    preferredNameFields = preferredNameFieldsList.toArray(new String[]{});
 		}
 	    });
-	    URL internalTemplateName = ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + getLoadedTemplateName() + ".xml");
+	    URL internalTemplateName = ImdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/" + getLoadedTemplateName() + ".xml");
 	    if (templateFile.exists()) {
 		xmlReader.parse(templateFile.getPath());
 	    } else if (getLoadedTemplateName().equals("Sign Language") || getLoadedTemplateName().equals("template_cmdi")) {// (new File(internalTemplateName.getFile()).exists()) {
@@ -594,7 +594,7 @@ public class ImdiTemplate implements ArbilTemplate {
 	    } else {
 		loadedTemplateName = "Default"; // (" + loadedTemplateName + ") n/a";
 		// todo: LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "\nThe default template will be used instead.", "Load Template");
-		xmlReader.parse(ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
+		xmlReader.parse(ImdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
 	    }
 	    return true;
 	} catch (Exception ex) {
