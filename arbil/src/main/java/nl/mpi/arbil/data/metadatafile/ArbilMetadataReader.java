@@ -68,8 +68,8 @@ public class ArbilMetadataReader implements MetadataReader {
     // todo: this should probably be moved into the arbiltemplate class
     @Override
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
-	String targetImdiPath = getNodePath((ArbilDataNode) targetDataNode);
-	String childPath = getNodePath((ArbilDataNode) childDataNode);
+	String targetImdiPath = ImdiUtils.getNodePath((ArbilDataNode) targetDataNode);
+	String childPath = ImdiUtils.getNodePath((ArbilDataNode) childDataNode);
 	targetImdiPath = targetImdiPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
 	childPath = childPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
 	//        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
@@ -78,30 +78,6 @@ public class ArbilMetadataReader implements MetadataReader {
 	//        System.out.println("targetBranchCount: " + targetBranchCount + " childBranchCount: " + childBranchCount);
 	boolean hasCorrectSubNodeCount = childBranchCount - targetBranchCount < 2;
 	return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
-    }
-
-    public static String getNodePath(ArbilDataNode targetDataNode) {
-	//TODO: this should probably be moved into the imditreeobject
-	String xpath;
-	if (targetDataNode.isSession()) {
-	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session";
-	} else if (targetDataNode.isCatalogue()) {
-	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Catalogue";
-	} else {
-	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Corpus";
-	}
-	Object[] nodePathArray = ((ArbilDataNode) targetDataNode).getUrlString().split("#");
-	//        System.out.println("nodePath0: " + nodePathArray[0]);
-	if (nodePathArray.length > 1) {
-	    String nodePath = nodePathArray[1].toString();
-	    xpath = nodePath;
-	    //            System.out.println("nodePath1: " + nodePath);
-	    // convert the dot path to xpath
-	    //            xpath = nodePath.replaceAll("(\\(.?\\))?\\.", ".");
-	    //                xpath = nodePath.replaceAll("(\\(.?\\))?", "/");
-	    //            System.out.println("xpath: " + xpath);
-	}
-	return xpath;
     }
 
     @Override

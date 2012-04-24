@@ -12,7 +12,7 @@ import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
+import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.xml.sax.SAXException;
@@ -392,7 +392,7 @@ public class ImdiTemplate implements ArbilTemplate {
 	List<String[]> childTypes;
 	if (targetNodeUserObject instanceof ArbilDataNode) {
 	    ArbilDataNode targetNode = (ArbilDataNode) targetNodeUserObject;
-	    String xpath = ArbilMetadataReader.getNodePath(targetNode);
+	    String xpath = ImdiUtils.getNodePath(targetNode);
 	    childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
 	    if (includeCorpusNodeEntries && (targetNode).isCorpus()) { // add any corpus node entries
 		for (String[] currentTemplate : rootTemplatesArray) {
