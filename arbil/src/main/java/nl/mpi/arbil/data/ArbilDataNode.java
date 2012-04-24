@@ -21,7 +21,7 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -635,7 +635,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     ////                    }
     ////                }
     //            // if the node contains a ResourceLink then save the location in resourceUrlString and create a hash for the file
-    //            if (childsLabel.equals(MetadataReader.imdiPathSeparator + "ResourceLink")) {
+    //            if (childsLabel.equals(ArbilMetadataReader.imdiPathSeparator + "ResourceLink")) {
     ////                        // resolve the relative location of the file
     ////                        File resourceFile = new File(this.getFile().getParent(), fieldToAdd.fieldValue);
     ////                        resourceUrlString = resourceFile.getCanonicalPath();
@@ -1178,7 +1178,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	// test if this node is a session
 	ArbilField[] nameFields = getFieldArray("Name");
 	if (nameFields != null) {
-	    return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Name");
+	    return nameFields[0].xmlPath.equals(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session" + ArbilMetadataReader.imdiPathSeparator + "Name");
 	}
 	return false;
     }
@@ -1196,7 +1196,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	// test if this node is a catalogue
 	ArbilField[] nameFields = getFieldArray("Name");
 	if (nameFields != null) {
-	    return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue" + MetadataReader.imdiPathSeparator + "Name");
+	    return nameFields[0].xmlPath.equals(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Catalogue" + ArbilMetadataReader.imdiPathSeparator + "Name");
 	}
 	return false;
     }
@@ -1208,7 +1208,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	// test if this node is a corpus
 	ArbilField[] nameFields = getFieldArray("Name");
 	if (nameFields != null) {
-	    return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus" + MetadataReader.imdiPathSeparator + "Name");
+	    return nameFields[0].xmlPath.equals(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Corpus" + ArbilMetadataReader.imdiPathSeparator + "Name");
 	}
 	return false;
     }

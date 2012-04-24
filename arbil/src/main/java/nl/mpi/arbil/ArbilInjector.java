@@ -19,7 +19,7 @@ import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ImdiTemplate;
@@ -68,7 +68,7 @@ public abstract class ArbilInjector {
 	ArbilIcons.setVersionManager(versionManager);
 	ArbilMenuBar.setVersionManager(versionManager);
 	ArbilTableModel.setVersionManager(versionManager);
-	MetadataReader.setVersionManager(versionManager);
+	MetadataBuilder.setVersionManager(versionManager);
     }
 
     public void injectDataNodeLoader(DataNodeLoader dataNodeLoader) {
@@ -81,7 +81,7 @@ public abstract class ArbilInjector {
 	ArbilSearch.setDataNodeLoader(dataNodeLoader);
 	ImportExportDialog.setDataNodeLoader(dataNodeLoader);
 	MetadataBuilder.setDataNodeLoader(dataNodeLoader);
-	MetadataReader.setDataNodeLoader(dataNodeLoader);
+	ArbilMetadataReader.setDataNodeLoader(dataNodeLoader);
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
     
@@ -110,7 +110,7 @@ public abstract class ArbilInjector {
 	FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
 	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
 	MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
-	MetadataReader.setMessageDialogHandler(messageDialogHandler);
+	ArbilMetadataReader.setMessageDialogHandler(messageDialogHandler);
 	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
     }
 
@@ -128,7 +128,7 @@ public abstract class ArbilInjector {
 	ArbilVocabularies.setSessionStorage(sessionStorage);
 	DocumentationLanguages.setSessionStorage(sessionStorage);
 	MetadataBuilder.setSessionStorage(sessionStorage);
-	MetadataReader.setSessionStorage(sessionStorage);
+	ArbilMetadataReader.setSessionStorage(sessionStorage);
 	CmdiProfileReader.setSessionStorage(sessionStorage);
 	ProfilePreview.setSessionStorage(sessionStorage);
 	CmdiTemplate.setSessionStorage(sessionStorage);

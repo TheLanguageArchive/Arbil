@@ -28,7 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -141,7 +141,7 @@ public class ArbilDataNodeService {
                     // Get source node
                     ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
                     // Check if it can be contained by destination node
-                    if (MetadataReader.getSingleInstance().nodeCanExistInNode(dataNode, templateDataNode)) {
+                    if (ArbilMetadataReader.getSingleInstance().nodeCanExistInNode(dataNode, templateDataNode)) {
                         // Add source to destination
                         new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
                     } else {
@@ -719,10 +719,10 @@ public class ArbilDataNodeService {
 //	    startNode = metadataNode;
 //	}
         // load the fields from the imdi file
-        MetadataReader.getSingleInstance().iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
+        ArbilMetadataReader.getSingleInstance().iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
         if (dataNode.isCmdiMetaDataNode()) {
             // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
-            MetadataReader.getSingleInstance().addUnreferencedResources(dataNode, parentChildTree, childLinks);
+            ArbilMetadataReader.getSingleInstance().addUnreferencedResources(dataNode, parentChildTree, childLinks);
         }
         return childLinks.toArray(new String[][]{});
     }

@@ -6,6 +6,10 @@
     <packaging>jar</packaging>
     <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
     <name>Arbil</name>
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://lux16.mpi.nl/jenkins/job/Arbil/</url>
+    </ciManagement>
     <organization> 
 	<name>The Language Archive</name> 
 	<url>http://www.lat-mpi.eu/</url>

@@ -12,7 +12,7 @@ import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.xml.sax.SAXException;
@@ -392,7 +392,7 @@ public class ImdiTemplate implements ArbilTemplate {
 	List<String[]> childTypes;
 	if (targetNodeUserObject instanceof ArbilDataNode) {
 	    ArbilDataNode targetNode = (ArbilDataNode) targetNodeUserObject;
-	    String xpath = MetadataReader.getNodePath(targetNode);
+	    String xpath = ArbilMetadataReader.getNodePath(targetNode);
 	    childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
 	    if (includeCorpusNodeEntries && (targetNode).isCorpus()) { // add any corpus node entries
 		for (String[] currentTemplate : rootTemplatesArray) {
@@ -586,7 +586,7 @@ public class ImdiTemplate implements ArbilTemplate {
 		    preferredNameFields = preferredNameFieldsList.toArray(new String[]{});
 		}
 	    });
-	    URL internalTemplateName = MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + getLoadedTemplateName() + ".xml");
+	    URL internalTemplateName = ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + getLoadedTemplateName() + ".xml");
 	    if (templateFile.exists()) {
 		xmlReader.parse(templateFile.getPath());
 	    } else if (getLoadedTemplateName().equals("Sign Language") || getLoadedTemplateName().equals("template_cmdi")) {// (new File(internalTemplateName.getFile()).exists()) {
@@ -594,7 +594,7 @@ public class ImdiTemplate implements ArbilTemplate {
 	    } else {
 		loadedTemplateName = "Default"; // (" + loadedTemplateName + ") n/a";
 		// todo: LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "\nThe default template will be used instead.", "Load Template");
-		xmlReader.parse(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
+		xmlReader.parse(ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
 	    }
 	    return true;
 	} catch (Exception ex) {

@@ -2,7 +2,7 @@ package nl.mpi.arbil.templates;
 
 import java.net.URISyntaxException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -211,9 +211,9 @@ public class ArbilFavourites {
 		} else if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
 		    addThisFavourites = true;
 		} else if (targetIsSession && currentFavouritesObject.isChildNode()) {
-		    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
+		    addThisFavourites = ArbilMetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
 		} else if (targetIsChildNode && currentFavouritesObject.isChildNode()) {
-		    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
+		    addThisFavourites = ArbilMetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
 		}
 		if (addThisFavourites) {
 //                    System.out.println("adding: " + currentFavouritesObject);
@@ -244,9 +244,9 @@ public class ArbilFavourites {
 	System.out.println("getNodeType: \nfavouriteXmlPath: " + favouriteXmlPath + "\ntargetXmlPath:" + targetXmlPath);
 	String returnValue;
 	if (favouriteNode.isSession()) {
-	    returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
+	    returnValue = ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session";
 	} else if (favouriteNode.isCorpus()) {
-	    returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus";
+	    returnValue = ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Corpus";
 	} else if (favouriteNode.isChildNode()) {
 	    if (targetXmlPath == null) {
 		returnValue = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");

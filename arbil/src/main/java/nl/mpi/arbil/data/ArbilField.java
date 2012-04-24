@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
@@ -488,15 +488,15 @@ public class ArbilField implements Serializable {
 	    String fieldName = xmlPath;
 	    // TODO: move this to the imdischema class
 	    // replace the xml paths with user friendly node names
-//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Resources" + MetadataReader.imdiPathSeparator + "WrittenResource", "WrittenResource");
-//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "MDGroup" + MetadataReader.imdiPathSeparator + "Actors" + MetadataReader.imdiPathSeparator + "Actor", "Actors");
-//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Resources" + MetadataReader.imdiPathSeparator + "Anonyms", "Anonyms");
-//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Resources" + MetadataReader.imdiPathSeparator + "MediaFile", "MediaFiles");
-//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "MDGroup", "");
-	    fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "MDGroup", "");
-	    fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session", "");
-	    fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus", "");
-	    fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue", "");
+//            fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session" + ArbilMetadataReader.imdiPathSeparator + "Resources" + ArbilMetadataReader.imdiPathSeparator + "WrittenResource", "WrittenResource");
+//            fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session" + ArbilMetadataReader.imdiPathSeparator + "MDGroup" + ArbilMetadataReader.imdiPathSeparator + "Actors" + ArbilMetadataReader.imdiPathSeparator + "Actor", "Actors");
+//            fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session" + ArbilMetadataReader.imdiPathSeparator + "Resources" + ArbilMetadataReader.imdiPathSeparator + "Anonyms", "Anonyms");
+//            fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session" + ArbilMetadataReader.imdiPathSeparator + "Resources" + ArbilMetadataReader.imdiPathSeparator + "MediaFile", "MediaFiles");
+//            fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session" + ArbilMetadataReader.imdiPathSeparator + "MDGroup", "");
+	    fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session" + ArbilMetadataReader.imdiPathSeparator + "MDGroup", "");
+	    fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Session", "");
+	    fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Corpus", "");
+	    fieldName = fieldName.replace(ArbilMetadataReader.imdiPathSeparator + "METATRANSCRIPT" + ArbilMetadataReader.imdiPathSeparator + "Catalogue", "");
 
 	    // todo: the following path contraction should really be done in the templates rather than here
             // todo: these filter strings should really be read from the metadata format
@@ -510,9 +510,9 @@ public class ArbilField implements Serializable {
 		//String keyValue = getFieldAttribute("Name");
 		if (keyName != null) {
 //                    System.out.println("Key value valid: " + keyValue.toString());
-		    fieldName = fieldName + MetadataReader.imdiPathSeparator + keyName;
+		    fieldName = fieldName + ArbilMetadataReader.imdiPathSeparator + keyName;
 		}
-//                xmlPath = xmlPath + MetadataReader.imdiPathSeparator + attributeValue;
+//                xmlPath = xmlPath + ArbilMetadataReader.imdiPathSeparator + attributeValue;
 
 	    }
 	    if (fieldName.startsWith(".")) {

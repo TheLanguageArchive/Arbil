@@ -11,7 +11,8 @@ import javax.swing.JTextField;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
@@ -142,7 +143,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 	ArbilDataNode addedImdiObject;
 	if (parentNode == null) {
 	    URI targetFileURI = sessionStorage.getNewArbilFileName(sessionStorage.getCacheDirectory(), nodeType);
-	    targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
+	    targetFileURI = new MetadataBuilder().addFromTemplate(new File(targetFileURI), nodeType);
 	    addedImdiObject = dataNodeLoader.getArbilDataNode(null, targetFileURI);
 	    treeHelper.addLocation(targetFileURI);
 	    treeHelper.applyRootLocations();

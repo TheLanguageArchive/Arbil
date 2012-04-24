@@ -1,29 +1,41 @@
 package nl.mpi.arbil.data;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.templates.ArbilFavourites;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersion;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- *  Document   : MetadataBuilder
- *  Created on : Jun 9, 2010, 4:03:07 PM
- *  Author     : Peter Withers
+ * Document : MetadataBuilder
+ * Created on : Jun 9, 2010, 4:03:07 PM
+ * Author : Peter Withers
  */
 public class MetadataBuilder {
 
@@ -52,10 +64,16 @@ public class MetadataBuilder {
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
+    private static ApplicationVersionManager versionManager;
+
+    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+	versionManager = versionManagerInstance;
+    }
     private ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 
     /**
      * Requests to add a new node of given type to root
+     *
      * @param nodeType Name of node type
      * @param nodeTypeDisplayName Name to display as node type
      */
@@ -66,6 +84,7 @@ public class MetadataBuilder {
 
     /**
      * Requests to add a node on basis of a given existing node to the local corpus
+     *
      * @param nodeType Name of node type
      * @param addableNode Node to base new node on
      */
@@ -76,7 +95,7 @@ public class MetadataBuilder {
 
     /**
      * Checks whether the destinationNode in its current state supports adding a node of the specified type
-     * 
+     *
      * @param destinationNode Proposed destination node
      * @param nodeType Full type name of the node to add
      * @return Whether the node can be added
@@ -99,7 +118,7 @@ public class MetadataBuilder {
 			    if (nodDom == null) {
 				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
 			    } else {
-				return MetadataReader.getSingleInstance().canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
+				return ArbilMetadataReader.getSingleInstance().canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
 			    }
 			} catch (ParserConfigurationException ex) {
 			    BugCatcherManager.getBugCatcher().logError(ex);
@@ -120,6 +139,7 @@ public class MetadataBuilder {
 
     /**
      * Requests to add a new node of given type to given destination node
+     *
      * @param destinationNode Node to add new node to
      * @param nodeType Name of node type
      * @param nodeTypeDisplayName Name to display as node type
@@ -154,6 +174,7 @@ public class MetadataBuilder {
 
     /**
      * Requests to add a node on basis of a given existing node to the given destination node
+     *
      * @param destinationNode Node to add new node to
      * @param nodeType Name of node type
      * @param addableNode Node to base new node on
@@ -168,6 +189,7 @@ public class MetadataBuilder {
 
     /**
      * Creates a thread to be triggered by requestAddNode for addableNode
+     *
      * @param destinationNode Node to add new node to
      * @param nodeType Name of node type
      * @param addableNode Node to base new node on
@@ -235,7 +257,7 @@ public class MetadataBuilder {
 		URI resourceUrl = null;
 		String mimeType = null;
 		if (currentArbilNode.isArchivableFile() && !currentArbilNode.isMetaDataNode()) {
-		    nodeType = MetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+		    nodeType = ArbilMetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
 		    if (nodeType == null) {
 			nodeType = handleUnknownMimetype(currentArbilNode);
 		    }
@@ -257,7 +279,7 @@ public class MetadataBuilder {
     }
 
     /**
-     * 
+     *
      * @param currentArbilNode
      * @return Manual nodetype, if set. Otherwise null
      */
@@ -273,7 +295,7 @@ public class MetadataBuilder {
 	    currentArbilNode.mpiMimeType = null;
 	    if (new ImdiUtils().overrideTypecheckerDecision(new ArbilDataNode[]{currentArbilNode})) {
 		// Try again
-		return MetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+		return ArbilMetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
 	    } else {
 		currentArbilNode.mpiMimeType = originalMime;
 	    }
@@ -354,6 +376,7 @@ public class MetadataBuilder {
 
     /**
      * Add a new node based on a template and optionally attach a resource
+     *
      * @return String path to the added node
      */
     public URI addChildNode(ArbilDataNode destinationNode, String nodeType, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
@@ -380,7 +403,7 @@ public class MetadataBuilder {
 			    if (nodDom == null) {
 				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
 			    } else {
-				addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
+				addedNodePath = ArbilMetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
 				destinationNode.bumpHistory();
 				ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
 				dataNodeLoader.requestReload(destinationNode);
@@ -409,7 +432,7 @@ public class MetadataBuilder {
 				return null;
 			    }
 			} else {
-			    addedNodePath = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
+			    addedNodePath = addFromTemplate(new File(targetFileURI), nodeType);
 			}
 			if (destinationNode.getFile().exists()) {
 			    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
@@ -437,5 +460,120 @@ public class MetadataBuilder {
 	    }
 	}
 	return destinationNode;
+    }
+
+    public URI addFromTemplate(File destinationFile, String templateType) {
+	System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
+
+	// Get local url for template type
+	URL templateUrl = constructTemplateUrl(templateType);
+	if (templateUrl == null) {
+	    return null;
+	}
+
+	// Copy (1:1) template to new local file
+	URI addedPathUri = copyToDisk(templateUrl, destinationFile);
+
+	try {
+	    // Open new metadata file
+	    Document addedDocument = ArbilComponentBuilder.getDocument(addedPathUri);
+	    if (addedDocument == null) {
+		//                BugCatcherManager.getBugCatcher().logError(new Exception(ImdiTreeObject.api.getMessage()));
+		messageDialogHandler.addMessageDialogToQueue("Error inserting create date", "Add from Template");
+	    } else {
+		// Set some values to new instance of metadata file
+
+		Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
+		NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
+
+		// Set the arbil version to the present version
+		ApplicationVersion currentVersion = versionManager.getApplicationVersion();
+		String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
+
+		//                todo: the template must be stored at this point
+		//                if (!ArbilTemplateManager.getSingleInstance().defaultTemplateIsCurrentTemplate()) {
+		//                    if (!templateType.equals(".METATRANSCRIPT.Corpus")) { // prevent corpus branches getting a template so that the global template takes effect
+		//                        arbilVersionString = arbilVersionString + ":" + ArbilTemplateManager.getSingleInstance().getCurrentTemplateName();
+		//                    }
+		//                }
+		arbilVersionString = arbilVersionString + ":" + metatranscriptAttributes.getNamedItem("Originator").getNodeValue();
+		metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
+		//metatranscriptAttributes.getNamedItem("Type").setNodeValue(ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
+
+		// Set the date field to the current data + time
+		metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
+		// Save new document in formatted XML
+		ArbilComponentBuilder.savePrettyFormatting(addedDocument, new File(addedPathUri));
+	    }
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
+	return addedPathUri;
+    }
+
+    private URL constructTemplateUrl(String templateType) {
+	URL templateUrl = null;
+	if (CmdiProfileReader.pathIsProfile(templateType)) {
+	    try {
+		return new URL(templateType);
+	    } catch (MalformedURLException ex) {
+		BugCatcherManager.getBugCatcher().logError(ex);
+		templateUrl = null;
+	    }
+	} else {
+	    templateUrl = ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
+	}
+
+	if (templateUrl == null) {
+	    try {
+		templateUrl = ArbilTemplateManager.getSingleInstance().getDefaultComponentOfTemplate(templateType).toURI().toURL();
+	    } catch (MalformedURLException exception) {
+		BugCatcherManager.getBugCatcher().logError(exception);
+		return null;
+	    }
+	}
+
+	return templateUrl;
+    }
+
+    public static URI copyToDisk(URL sourceURL, File targetFile) {
+	InputStream in = null;
+	OutputStream out = null;
+	try {
+	    in = sourceURL.openStream();
+	    out = new FileOutputStream(targetFile);
+
+	    // Transfer bytes from in to out
+	    byte[] buf = new byte[1024];
+	    int len;
+	    while ((len = in.read(buf)) > 0) {
+		out.write(buf, 0, len);
+	    }
+	    in.close();
+	    in = null;
+	    out.flush();
+	    out.close();
+	    out = null;
+	    return targetFile.toURI();
+	} catch (Exception ex) {
+	    System.out.println("copyToDisk: " + ex);
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	} finally {
+	    if (in != null) {
+		try {
+		    in.close();
+		} catch (IOException ioe) {
+		    BugCatcherManager.getBugCatcher().logError(ioe);
+		}
+	    }
+	    if (out != null) {
+		try {
+		    out.close();
+		} catch (IOException ioe2) {
+		    BugCatcherManager.getBugCatcher().logError(ioe2);
+		}
+	    }
+	}
+	return null;
     }
 }

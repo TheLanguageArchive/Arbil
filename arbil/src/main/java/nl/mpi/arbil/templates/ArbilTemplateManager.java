@@ -15,7 +15,7 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ArbilEntityResolver;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.DownloadAbortFlag;
@@ -68,12 +68,12 @@ public class ArbilTemplateManager {
 	    // Make directory for new template
 	    selectedTemplateFile.getParentFile().mkdir();
 	    // Copy template.xml from jar to the new directory
-	    sessionStorage.saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, false, new DownloadAbortFlag(), null);
+	    sessionStorage.saveRemoteResource(ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, false, new DownloadAbortFlag(), null);
 	    // Make components directory
 	    File componentsDirectory = new File(selectedTemplateFile.getParentFile(), "components");
 	    componentsDirectory.mkdir(); // create the components directory
 	    // Copy default.xml from jar to components directory
-	    sessionStorage.saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/default.xml"), new File(componentsDirectory, "default.xml"), null, true, false, new DownloadAbortFlag(), null);
+	    sessionStorage.saveRemoteResource(ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/default.xml"), new File(componentsDirectory, "default.xml"), null, true, false, new DownloadAbortFlag(), null);
 	    // Make example-components directory
 	    File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
 	    if (!examplesDirectory.mkdir()) { // create the example components directory
@@ -81,10 +81,10 @@ public class ArbilTemplateManager {
 	    }
 	    // copy example components from the jar file
 	    for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).getTemplatesArray()) {
-		sessionStorage.saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, false, new DownloadAbortFlag(), null);
+		sessionStorage.saveRemoteResource(ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, false, new DownloadAbortFlag(), null);
 	    }
 	    // copy example "format.xsl" from the jar file which is used in the imdi to html conversion
-	    sessionStorage.saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl"), new File(selectedTemplateFile.getParentFile(), "example-format.xsl"), null, true, false, new DownloadAbortFlag(), null);
+	    sessionStorage.saveRemoteResource(ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl"), new File(selectedTemplateFile.getParentFile(), "example-format.xsl"), null, true, false, new DownloadAbortFlag(), null);
 	    return selectedTemplateFile;
 	}
     }
@@ -287,7 +287,7 @@ public class ArbilTemplateManager {
 //     
 //                Vector childTypes = new Vector();
 //        if (targetNodeUserObject instanceof ImdiTreeObject) {
-//            String xpath = MetadataReader.getNodePath((ImdiTreeObject) targetNodeUserObject);
+//            String xpath = ArbilMetadataReader.getNodePath((ImdiTreeObject) targetNodeUserObject);
 //            childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
 //            if (((ImdiTreeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
 //                for (String[] currentTemplate : rootTemplatesArray) {

@@ -4,7 +4,7 @@ import java.awt.GraphicsEnvironment;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import org.junit.Ignore;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -82,41 +82,7 @@ public class MetadataReaderTest {
     }
 
     /**
-     * Test of addFromTemplate method, of class MetadataReader.
-     */
-    @Test
-    @Ignore
-    public void testAddFromTemplate() {
-	System.out.println("addFromTemplate");
-	MetadataReader instance = MetadataReader.getSingleInstance();
-	String[] testTemplateTypes = {".METATRANSCRIPT.Corpus", ".METATRANSCRIPT.Session", ".METATRANSCRIPT.Catalogue"};
-	URI[] expectedTypes = null;
-	try {
-	    expectedTypes = new URI[]{
-		MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI(),
-		MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/session.imdi").toURI(),
-		MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toURI()
-	    };
-	} catch (URISyntaxException urise) {
-	    fail(urise.getMessage());
-	}
-	for (int testCounter = 0; testCounter < testTemplateTypes.length; testCounter++) {
-	    try {
-		File destinationFile = File.createTempFile("testFile", ".imdi");
-		destinationFile.deleteOnExit();
-		String templateType = testTemplateTypes[testCounter];
-		URI expResult = expectedTypes[testCounter];
-		URI result = instance.addFromTemplate(destinationFile, templateType);
-		System.out.println("assertFileContents: " + expResult);
-		assertFileContents(expResult, result);
-	    } catch (IOException ioe) {
-		fail(ioe.getMessage());
-	    }
-	}
-    }
-
-    /**
-     * Test of getNodeTypeFromMimeType method, of class MetadataReader.
+     * Test of getNodeTypeFromMimeType method, of class ArbilMetadataReader.
      */
     @Test
     public void testGetNodeTypeFromMimeType() {
@@ -129,20 +95,20 @@ public class MetadataReaderTest {
 	};
 	for (String[] currentTest : testCases) {
 	    String mimeType = currentTest[0];
-	    MetadataReader instance = MetadataReader.getSingleInstance();
+	    ArbilMetadataReader instance = ArbilMetadataReader.getSingleInstance();
 	    String expResult = currentTest[1];
 	    String result = instance.getNodeTypeFromMimeType(mimeType);
 	    assertEquals(expResult, result);
 	}
     }
     /**
-     * Test of insertFromTemplate method, of class MetadataReader.
+     * Test of insertFromTemplate method, of class ArbilMetadataReader.
      */
 //    @Test
 //    public void testInsertFromTemplate() {
 //        System.out.println("insertFromTemplate");
 //        ArbilTemplate currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate("Default");
-//        MetadataReader instance = MetadataReader.getSingleInstance();
+//        ArbilMetadataReader instance = ArbilMetadataReader.getSingleInstance();
 //        String[][][] testTemplates = {
 //            {
 //                {".METATRANSCRIPT.Catalogue.Access.Description",null},
