@@ -19,7 +19,6 @@ import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ImdiTemplate;
@@ -33,7 +32,6 @@ import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.RemoteLocationsContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -81,7 +79,6 @@ public abstract class ArbilInjector {
 	ArbilSearch.setDataNodeLoader(dataNodeLoader);
 	ImportExportDialog.setDataNodeLoader(dataNodeLoader);
 	MetadataBuilder.setDataNodeLoader(dataNodeLoader);
-	ArbilMetadataReader.setDataNodeLoader(dataNodeLoader);
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
     
@@ -110,7 +107,6 @@ public abstract class ArbilInjector {
 	FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
 	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
 	MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
-	ArbilMetadataReader.setMessageDialogHandler(messageDialogHandler);
 	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
     }
 
@@ -128,7 +124,6 @@ public abstract class ArbilInjector {
 	ArbilVocabularies.setSessionStorage(sessionStorage);
 	DocumentationLanguages.setSessionStorage(sessionStorage);
 	MetadataBuilder.setSessionStorage(sessionStorage);
-	ArbilMetadataReader.setSessionStorage(sessionStorage);
 	CmdiProfileReader.setSessionStorage(sessionStorage);
 	ProfilePreview.setSessionStorage(sessionStorage);
 	CmdiTemplate.setSessionStorage(sessionStorage);

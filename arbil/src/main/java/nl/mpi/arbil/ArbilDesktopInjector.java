@@ -2,6 +2,8 @@ package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -58,8 +60,11 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	windowManager.setTreeHelper(treeHelper);
 	sessionStorage.setTreeHelper(treeHelper);
 	injectTreeHelper(treeHelper);
+	
+	final ArbilMetadataReader metadataReader = new ArbilMetadataReader(sessionStorage, messageDialogHandler);
 
-	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper, metadataReader);
+	metadataReader.setDataNodeLoader(dataNodeLoader);
 	treeHelper.setDataNodeLoader(dataNodeLoader);
 	mimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	windowManager.setDataNodeLoader(dataNodeLoader);

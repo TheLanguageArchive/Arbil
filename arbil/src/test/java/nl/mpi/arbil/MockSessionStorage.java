@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
+import nl.mpi.arbil.userstorage.ArbilOptions;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 
@@ -27,6 +28,11 @@ public class MockSessionStorage implements SessionStorage {
 
     private static final Logger log = Logger.getLogger(MockSessionStorage.class.toString());
     private File localCacheDirectory = null;
+    private final ArbilOptions options;
+
+    public MockSessionStorage() {
+	options = new ArbilOptions(this);
+    }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
 	log.log(Level.INFO, "changeCacheDirectory({0},{1})", new Object[]{preferedCacheDirectory, moveFiles});
@@ -34,6 +40,7 @@ public class MockSessionStorage implements SessionStorage {
 
     /**
      * Tests that the cache directory exists and creates it if it does not.
+     *
      * @return Boolean
      */
     public File getCacheDirectory() {
@@ -73,6 +80,7 @@ public class MockSessionStorage implements SessionStorage {
 
     /**
      * Checks for the existance of the favourites directory exists and creates it if it does not.
+     *
      * @return File pointing to the favourites directory
      */
     public File getFavouritesDir() {
@@ -123,6 +131,7 @@ public class MockSessionStorage implements SessionStorage {
     /**
      * Converts a String path from the remote location to the respective location in the cache.
      * Then tests for and creates the directory structure in the cache if requred.
+     *
      * @param pathString Path of the remote file.
      * @return The path in the cache for the file.
      */
@@ -207,6 +216,7 @@ public class MockSessionStorage implements SessionStorage {
 
     /**
      * Tests if the a string points to a file that is in the favourites directory.
+     *
      * @return Boolean
      */
     public boolean pathIsInFavourites(File fullTestFile) { //todo: test me
@@ -224,6 +234,7 @@ public class MockSessionStorage implements SessionStorage {
 
     /**
      * Tests if the a string points to a flie that is in the cache directory.
+     *
      * @return Boolean
      */
     public boolean pathIsInsideCache(File fullTestFile) {
@@ -345,6 +356,7 @@ public class MockSessionStorage implements SessionStorage {
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
+     *
      * @param pathString Path of the remote file.
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
      * @return The path of the file in the cache.
@@ -378,6 +390,7 @@ public class MockSessionStorage implements SessionStorage {
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
+     *
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
@@ -423,8 +436,12 @@ public class MockSessionStorage implements SessionStorage {
 	}
 	return tempDir;
     }
-    
+
     public File getTypeCheckerConfig() {
 	return null;
+    }
+
+    public ArbilOptions getOptions() {
+	return options;
     }
 }

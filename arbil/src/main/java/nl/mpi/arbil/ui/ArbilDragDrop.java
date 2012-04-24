@@ -561,7 +561,7 @@ public class ArbilDragDrop {
 		for (int draggedCounter = 0; continueMove && draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 		    final ArbilDataNode currentNode = draggedArbilNodes[draggedCounter];
 		    System.out.println("dragged: " + currentNode.toString());
-		    if (!currentNode.isChildNode() || dropTargetDataNode != null && ArbilMetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
+		    if (!currentNode.isChildNode() || dropTargetDataNode != null && dropTargetDataNode.getMetadataReader().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			//((ArbilDataNode) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
 			// check that the node has not been dragged into itself
@@ -650,7 +650,7 @@ public class ArbilDragDrop {
 		    addNodeResult = dropTargetDataNode.addCorpusLink(currentNode);
 		} else if (!dropTargetDataNode.isCmdiMetaDataNode() && (dropTargetDataNode.isEmptyMetaNode() || dropTargetDataNode.isSession())) {
 		    // Dragging metadata node onto empty node
-		    if (ArbilMetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
+		    if (dropTargetDataNode.getMetadataReader().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			try {
 			    // Add source to destination
 			    new MetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);

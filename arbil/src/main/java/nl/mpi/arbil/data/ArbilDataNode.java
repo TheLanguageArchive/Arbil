@@ -22,6 +22,7 @@ import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -379,6 +380,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    }
 	}
 	return null;
+    }
+    
+    public MetadataReader getMetadataReader(){
+	return dataNodeService.getMetadataReader();
     }
 
     public ArbilTemplate getNodeTemplate() {

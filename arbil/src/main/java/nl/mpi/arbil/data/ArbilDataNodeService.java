@@ -28,7 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -44,18 +44,24 @@ import org.xml.sax.SAXException;
  */
 public class ArbilDataNodeService {
 
-    private DataNodeLoader dataNodeLoader;
-    private MessageDialogHandler messageDialogHandler;
-    private SessionStorage sessionStorage;
-    private MimeHashQueue mimeHashQueue;
-    private TreeHelper treeHelper;
+    private final DataNodeLoader dataNodeLoader;
+    private final MessageDialogHandler messageDialogHandler;
+    private final SessionStorage sessionStorage;
+    private final MimeHashQueue mimeHashQueue;
+    private final TreeHelper treeHelper;
+    private final MetadataReader metadataReader;
 
-    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
+    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper, MetadataReader metadataReader) {
         this.messageDialogHandler = messageDialogHandler;
         this.sessionStorage = sessionStorage;
         this.mimeHashQueue = mimeHashQueue;
         this.treeHelper = treeHelper;
         this.dataNodeLoader = dataNodeLoader;
+	this.metadataReader = metadataReader;
+    }
+
+    public MetadataReader getMetadataReader() {
+	return metadataReader;
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {
@@ -141,7 +147,7 @@ public class ArbilDataNodeService {
                     // Get source node
                     ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
                     // Check if it can be contained by destination node
-                    if (ArbilMetadataReader.getSingleInstance().nodeCanExistInNode(dataNode, templateDataNode)) {
+                    if (metadataReader.nodeCanExistInNode(dataNode, templateDataNode)) {
                         // Add source to destination
                         new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
                     } else {
@@ -719,10 +725,10 @@ public class ArbilDataNodeService {
 //	    startNode = metadataNode;
 //	}
         // load the fields from the imdi file
-        ArbilMetadataReader.getSingleInstance().iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
+        dataNode.getMetadataReader().iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
         if (dataNode.isCmdiMetaDataNode()) {
             // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
-            ArbilMetadataReader.getSingleInstance().addUnreferencedResources(dataNode, parentChildTree, childLinks);
+            dataNode.getMetadataReader().addUnreferencedResources(dataNode, parentChildTree, childLinks);
         }
         return childLinks.toArray(new String[][]{});
     }

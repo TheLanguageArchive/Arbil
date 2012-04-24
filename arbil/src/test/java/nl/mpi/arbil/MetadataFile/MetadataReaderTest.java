@@ -20,20 +20,21 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Document   : MetadataReaderTest
+ * Document : MetadataReaderTest
  * Created on : Jan 5, 2010, 16:26:47 PM
+ *
  * @author Peter.Withers@mpi.nl
  */
-
 @Ignore("Giving headless issues on Jenkins, ignore until fixed")
 public class MetadataReaderTest {
 
     public MetadataReaderTest() {
     }
+    static ArbilTestInjector injector;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-	ArbilTestInjector injector = new ArbilTestInjector();
+	injector = new ArbilTestInjector();
 	injector.injectHandlers();
 
 	final SessionStorage sessionStorage = new ArbilSessionStorage();
@@ -95,7 +96,7 @@ public class MetadataReaderTest {
 	};
 	for (String[] currentTest : testCases) {
 	    String mimeType = currentTest[0];
-	    ArbilMetadataReader instance = ArbilMetadataReader.getSingleInstance();
+	    ArbilMetadataReader instance = new ArbilMetadataReader(injector.sessionStorage, injector.messageDialogHandler);
 	    String expResult = currentTest[1];
 	    String result = instance.getNodeTypeFromMimeType(mimeType);
 	    assertEquals(expResult, result);

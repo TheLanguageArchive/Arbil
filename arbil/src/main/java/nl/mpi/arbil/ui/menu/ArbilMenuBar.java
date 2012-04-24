@@ -31,7 +31,6 @@ import javax.swing.JSeparator;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.ArbilFieldViews;
@@ -54,6 +53,7 @@ import nl.mpi.arbil.util.WindowManager;
 /**
  * ArbilMenuBar.java
  * Created on Jul 9, 2009, 12:01:02 PM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilMenuBar extends JMenuBar {
@@ -520,14 +520,13 @@ public class ArbilMenuBar extends JMenuBar {
 	checkNewVersionAtStartCheckBoxMenuItem.setText("Check for new version on start");
 	optionsMenu.add(checkNewVersionAtStartCheckBoxMenuItem);
 
-	copyNewResourcesCheckBoxMenuItem.setSelected(ArbilMetadataReader.getSingleInstance().copyNewResourcesToCache);
+	copyNewResourcesCheckBoxMenuItem.setSelected(sessionStorage.getOptions().isCopyNewResourcesToCache());
 	copyNewResourcesCheckBoxMenuItem.setText("Copy new resources into cache");
 	copyNewResourcesCheckBoxMenuItem.setToolTipText("When adding a new resource to a session this options will copy the file into the local cache rather than linking to its current location. This option can make a considerable difference to disk use if you are handling large files.");
 	copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
-		ArbilMetadataReader.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
-		sessionStorage.saveBoolean("copyNewResources", copyNewResourcesCheckBoxMenuItem.isSelected());
+		sessionStorage.getOptions().setCopyNewResourcesToCache(copyNewResourcesCheckBoxMenuItem.isSelected());
 	    }
 	});
 	optionsMenu.add(copyNewResourcesCheckBoxMenuItem);

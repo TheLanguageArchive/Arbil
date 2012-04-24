@@ -76,6 +76,7 @@ public class ArbilSessionStorage implements SessionStorage {
     private void logError(String message, Exception exception) {
 	BugCatcherManager.getBugCatcher().logError(message, exception);
     }
+    private final ArbilOptions options;
     private File storageDirectory = null;
     private File localCacheDirectory = null;
 
@@ -90,6 +91,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
     public ArbilSessionStorage() {
 	HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
+	options = new ArbilOptions(this);
     }
 
     private File determineStorageDirectory() throws RuntimeException {
@@ -1009,5 +1011,9 @@ public class ArbilSessionStorage implements SessionStorage {
 	} else {
 	    return null;
 	}
+    }
+
+    public ArbilOptions getOptions() {
+	return options;
     }
 }

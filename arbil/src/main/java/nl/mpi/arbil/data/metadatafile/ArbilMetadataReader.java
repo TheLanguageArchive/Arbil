@@ -47,40 +47,24 @@ import org.xml.sax.SAXException;
  */
 public class ArbilMetadataReader implements MetadataReader {
 
-    private static SessionStorage sessionStorage;
+    private final MessageDialogHandler messageDialogHandler;
+    private final SessionStorage sessionStorage;
+    private DataNodeLoader dataNodeLoader;
 
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
-    static private ArbilMetadataReader singleInstance = null;
-
-    static synchronized public ArbilMetadataReader getSingleInstance() {
-	if (singleInstance == null) {
-	    singleInstance = new ArbilMetadataReader();
-	}
-	return singleInstance;
-    }
-    private static MessageDialogHandler messageDialogHandler;
-
-    public static void setMessageDialogHandler(MessageDialogHandler handler) {
-	messageDialogHandler = handler;
-    }
-    private static DataNodeLoader dataNodeLoader;
-
-    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+    public void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
 
-    private ArbilMetadataReader() {
-	copyNewResourcesToCache = sessionStorage.loadBoolean("copyNewResources", false);
+    public ArbilMetadataReader(SessionStorage sessionStorage, MessageDialogHandler messageDialogHandler) {
+	this.messageDialogHandler = messageDialogHandler;
+	this.sessionStorage = sessionStorage;
     }
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
     //public File selectedTemplateDirectory = null;
     public final static String imdiPathSeparator = ".";
-    public boolean copyNewResourcesToCache = true; // todo: this variable should find a new home
-
+    
     // todo: this should probably be moved into the arbiltemplate class
     @Override
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
@@ -300,7 +284,7 @@ public class ArbilMetadataReader implements MetadataReader {
 	//                    String localFilePath = resourcePath; // will be changed when copied to the cache
 	// copy the file to the imdi directory
 	try {
-	    if (copyNewResourcesToCache) {
+	    if (sessionStorage.getOptions().isCopyNewResourcesToCache()) {
 		//                            URL resourceUrl = new URL(resourcePath);
 		//                    String resourcesDirName = "resources";
 		File originalFile = new File(resourceUrl);

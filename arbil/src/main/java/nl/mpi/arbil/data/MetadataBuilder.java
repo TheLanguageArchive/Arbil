@@ -118,7 +118,7 @@ public class MetadataBuilder {
 			    if (nodDom == null) {
 				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
 			    } else {
-				return ArbilMetadataReader.getSingleInstance().canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
+				return destinationNode.getMetadataReader().canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
 			    }
 			} catch (ParserConfigurationException ex) {
 			    BugCatcherManager.getBugCatcher().logError(ex);
@@ -257,7 +257,7 @@ public class MetadataBuilder {
 		URI resourceUrl = null;
 		String mimeType = null;
 		if (currentArbilNode.isArchivableFile() && !currentArbilNode.isMetaDataNode()) {
-		    nodeType = ArbilMetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+		    nodeType = currentArbilNode.getMetadataReader().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
 		    if (nodeType == null) {
 			nodeType = handleUnknownMimetype(currentArbilNode);
 		    }
@@ -295,7 +295,7 @@ public class MetadataBuilder {
 	    currentArbilNode.mpiMimeType = null;
 	    if (new ImdiUtils().overrideTypecheckerDecision(new ArbilDataNode[]{currentArbilNode})) {
 		// Try again
-		return ArbilMetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+		return currentArbilNode.getMetadataReader().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
 	    } else {
 		currentArbilNode.mpiMimeType = originalMime;
 	    }
@@ -403,7 +403,7 @@ public class MetadataBuilder {
 			    if (nodDom == null) {
 				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
 			    } else {
-				addedNodePath = ArbilMetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
+				addedNodePath = destinationNode.getMetadataReader().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
 				destinationNode.bumpHistory();
 				ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
 				dataNodeLoader.requestReload(destinationNode);
@@ -521,7 +521,7 @@ public class MetadataBuilder {
 		templateUrl = null;
 	    }
 	} else {
-	    templateUrl = ArbilMetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
+	    templateUrl = MetadataBuilder.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
 	}
 
 	if (templateUrl == null) {

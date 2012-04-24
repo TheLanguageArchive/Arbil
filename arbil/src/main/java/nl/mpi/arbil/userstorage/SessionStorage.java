@@ -132,4 +132,6 @@ public interface SessionStorage {
      * @return Custom TypeChecker config file, or null if no such file exists
      */
     public File getTypeCheckerConfig();
+    
+    public ArbilOptions getOptions();
 }
