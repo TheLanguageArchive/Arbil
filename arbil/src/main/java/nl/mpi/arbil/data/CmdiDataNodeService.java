@@ -20,7 +20,7 @@ import nl.mpi.arbil.util.TreeHelper;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ImdiDataNodeService extends ArbilDataNodeService {
+public class CmdiDataNodeService extends ArbilDataNodeService {
 
     private final DataNodeLoader dataNodeLoader;
     private final MessageDialogHandler messageDialogHandler;
@@ -29,7 +29,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
     private final TreeHelper treeHelper;
     private final MetadataDomLoader metadataDomLoader;
 
-    public ImdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
+    public CmdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper);
 
 	this.messageDialogHandler = messageDialogHandler;
@@ -38,7 +38,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	this.treeHelper = treeHelper;
 	this.dataNodeLoader = dataNodeLoader;
 
-	this.metadataDomLoader = new ImdiDomLoader(dataNodeLoader, messageDialogHandler);
+	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, messageDialogHandler);
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {
@@ -251,6 +251,11 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	}
     }
 
+    @Override
+    public MetadataDomLoader getMetadataDomLoader() {
+	return metadataDomLoader;
+    }
+
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
 	String targetImdiPath = ImdiUtils.getNodePath((ArbilDataNode) targetDataNode);
 	String childPath = ImdiUtils.getNodePath((ArbilDataNode) childDataNode);
@@ -312,10 +317,5 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	    //            setImdiNeedsSaveToDisk(null, false);
 	}
 	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
-    }
-
-    @Override
-    public MetadataDomLoader getMetadataDomLoader() {
-	return metadataDomLoader;
     }
 }

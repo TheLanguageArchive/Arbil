@@ -4,6 +4,10 @@
  */
 package nl.mpi.arbil.data;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,10 +18,13 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.Vector;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  *
@@ -28,11 +35,13 @@ public abstract class ArbilDataNodeService {
     private final DataNodeLoader dataNodeLoader;
     private final MessageDialogHandler messageDialogHandler;
     private final MimeHashQueue mimeHashQueue;
+    private final TreeHelper treeHelper;
 
-    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, MimeHashQueue mimeHashQueue) {
+    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	this.dataNodeLoader = dataNodeLoader;
 	this.messageDialogHandler = messageDialogHandler;
 	this.mimeHashQueue = mimeHashQueue;
+	this.treeHelper = treeHelper;
     }
 
     public abstract void deleteCorpusLink(ArbilDataNode dataNode, ArbilDataNode[] targetImdiNodes);
@@ -48,21 +57,94 @@ public abstract class ArbilDataNodeService {
 
     public abstract boolean isFavorite(ArbilDataNode dataNode);
 
-    public abstract ArbilDataNode loadArbilDataNode(Object registeringObject, URI localUri);
-
-    public abstract void loadArbilDom(ArbilDataNode dataNode);
+    public abstract MetadataDomLoader getMetadataDomLoader();
 
     public abstract boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode);
-
-    public abstract void pasteIntoNode(ArbilDataNode dataNode);
-
-    public abstract void reloadNode(ArbilDataNode dataNode);
 
     public abstract boolean addCorpusLink(ArbilDataNode dataNode, ArbilDataNode targetNode);
 
     public abstract void addField(ArbilDataNode dataNode, ArbilField fieldToAdd);
 
     public abstract void saveChangesToCache(ArbilDataNode datanode);
+
+    public ArbilDataNode loadArbilDataNode(Object registeringObject, URI localUri) {
+	return dataNodeLoader.getArbilDataNode(registeringObject, localUri);
+    }
+
+    public void loadArbilDom(ArbilDataNode dataNode) {
+	if (dataNode.getParentDomNode() != dataNode) {
+	    dataNode.getParentDomNode().loadArbilDom();
+	} else {
+	    synchronized (dataNode.getParentDomLockObject()) {
+		dataNode.initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
+		if (!dataNode.isMetaDataNode() && !dataNode.isDirectory() && dataNode.isLocal()) {
+		    // if it is an not imdi or a loose file but not a direcotry then get the md5sum
+		    mimeHashQueue.addToQueue(dataNode);
+		    dataNode.setDataLoaded(true);
+		}
+		if (dataNode.isDirectory()) {
+		    getDirectoryLinks(dataNode);
+		    dataNode.setDataLoaded(true);
+		    //            clearIcon();
+		}
+		if (dataNode.isMetaDataNode()) {
+		    loadMetadataDom(dataNode);
+		}
+	    }
+	}
+    }
+
+    private void loadMetadataDom(ArbilDataNode dataNode) {
+	if (dataNode.isLocal() && !dataNode.getFile().exists() && new File(dataNode.getFile().getAbsolutePath() + ".0").exists()) {
+	    // if the file is missing then try to find a valid history file
+	    copyLastHistoryToCurrent(dataNode);
+	    messageDialogHandler.addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
+	}
+	getMetadataDomLoader().loadMetadataDom(dataNode);
+	dataNode.setDataLoaded(true);
+    }
+
+    public void reloadNode(ArbilDataNode dataNode) {
+	dataNode.getParentDomNode().nodeNeedsSaveToDisk = false; // clear any changes
+	//        if (!this.isImdi()) {
+	//            initNodeVariables();
+	//            //loadChildNodes();
+	//            clearIcon();
+	//            // TODO: this could just remove the decendant nodes and let the user re open them
+	//            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(this);
+	////            this.clearIcon();
+	//        } else {
+	////            if (getParentDomNode().isCorpus()) {
+	////                getParentDomNode().autoLoadChildNodes = true;
+	////            }
+	dataNodeLoader.requestReload(dataNode.getParentDomNode());
+	//        }
+    }
+
+    private void getDirectoryLinks(ArbilDataNode dataNode) {
+	File[] dirLinkArray = null;
+	File nodeFile = dataNode.getFile();
+	if (nodeFile != null && nodeFile.isDirectory()) {
+	    dirLinkArray = nodeFile.listFiles();
+	    Vector<ArbilDataNode> childLinksTemp = new Vector<ArbilDataNode>();
+	    for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
+		try {
+		    //                    System.out.println("nodeFile: " + nodeFile);
+		    //                    System.out.println("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
+		    URI childURI = dirLinkArray[linkCount].toURI();
+		    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNodeWithoutLoading(childURI);
+		    if (treeHelper.isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {
+			childLinksTemp.add(currentNode);
+		    }
+		} catch (Exception ex) {
+		    messageDialogHandler.addMessageDialogToQueue(dirLinkArray[linkCount] + " could not be loaded in\n" + dataNode.getUrlString(), "Load Directory");
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	    //childLinks = childLinksTemp.toArray(new String[][]{});
+	    dataNode.childArray = childLinksTemp.toArray(new ArbilDataNode[]{});
+	}
+    }
 
     public static URI conformStringToUrl(String inputUrlString) throws URISyntaxException {
 	//            localUrlString = localUrlString.replace("\\", "/");
@@ -325,4 +407,33 @@ public abstract class ArbilDataNodeService {
 	}
 	return encodedString;
     }
+
+    public void pasteIntoNode(ArbilDataNode dataNode) {
+	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	Transferable transfer = clipboard.getContents(null);
+	try {
+	    String clipBoardString = "";
+	    Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
+	    if (clipBoardData != null) {
+		//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
+		clipBoardString = clipBoardData.toString();
+		System.out.println("clipBoardString: " + clipBoardString);
+		String[] elements;
+		if (clipBoardString.contains("\n")) {
+		    elements = clipBoardString.split("\n");
+		} else {
+		    elements = new String[]{clipBoardString};
+		}
+		for (String element : elements) {
+		}
+		for (ArbilDataNode clipboardNode : pasteIntoNode(dataNode, elements)) {
+		    new MetadataBuilder().requestAddNode(dataNode, "copy of " + clipboardNode, clipboardNode);
+		}
+	    }
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
+    }
+
+    protected abstract Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings);
 }
