@@ -2,8 +2,6 @@ package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
