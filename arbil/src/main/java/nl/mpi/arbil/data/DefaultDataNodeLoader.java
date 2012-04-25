@@ -39,7 +39,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
 	    currentDataNode = arbilHashTable.get(localUri.toString());
 	    if (currentDataNode == null) {
-		currentDataNode = new ArbilDataNode(dataNodeService, localUri);
+		currentDataNode = createNewDataNode(localUri);
 		arbilHashTable.put(localUri.toString(), currentDataNode);
 	    }
 	}
