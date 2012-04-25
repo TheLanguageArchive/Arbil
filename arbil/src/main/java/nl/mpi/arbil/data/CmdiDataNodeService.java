@@ -26,7 +26,6 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     private final MessageDialogHandler messageDialogHandler;
     private final SessionStorage sessionStorage;
     private final MimeHashQueue mimeHashQueue;
-    private final TreeHelper treeHelper;
     private final MetadataDomLoader metadataDomLoader;
 
     public CmdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
@@ -35,7 +34,6 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
 	this.mimeHashQueue = mimeHashQueue;
-	this.treeHelper = treeHelper;
 	this.dataNodeLoader = dataNodeLoader;
 
 	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, messageDialogHandler);

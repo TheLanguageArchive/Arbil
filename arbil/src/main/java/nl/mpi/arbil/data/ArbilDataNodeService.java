@@ -57,8 +57,6 @@ public abstract class ArbilDataNodeService {
 
     public abstract boolean isFavorite(ArbilDataNode dataNode);
 
-    public abstract MetadataDomLoader getMetadataDomLoader();
-
     public abstract boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode);
 
     public abstract boolean addCorpusLink(ArbilDataNode dataNode, ArbilDataNode targetNode);
@@ -103,6 +101,8 @@ public abstract class ArbilDataNodeService {
 	getMetadataDomLoader().loadMetadataDom(dataNode);
 	dataNode.setDataLoaded(true);
     }
+
+    protected abstract MetadataDomLoader getMetadataDomLoader();
 
     public void reloadNode(ArbilDataNode dataNode) {
 	dataNode.getParentDomNode().nodeNeedsSaveToDisk = false; // clear any changes
