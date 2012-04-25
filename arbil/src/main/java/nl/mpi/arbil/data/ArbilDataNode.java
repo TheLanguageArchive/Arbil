@@ -382,10 +382,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	return null;
     }
 
-    public MetadataReader getMetadataReader(){
-	return dataNodeService.getMetadataReader(this);
-    }
-
     public ArbilTemplate getNodeTemplate() {
 	if (nodeTemplate != null && !this.isCorpus()) {
 	    return nodeTemplate;

@@ -4,15 +4,11 @@
  */
 package nl.mpi.arbil.data.metadatafile;
 
-import java.io.File;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
-import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.templates.ArbilTemplate;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
@@ -30,17 +26,7 @@ public interface MetadataReader {
      */
     void addUnreferencedResources(ArbilDataNode parentNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Vector<String[]> childLinks);
 
-    /**
-     * Checks whether the component builder will be able to insert a node of
-     * specified type in the specified target DOM
-     */
-    boolean canInsertFromTemplate(ArbilTemplate currentTemplate, String elementName, String targetXmlPath, Document targetImdiDom) throws ArbilMetadataException;
-
     URI correctLinkPath(URI parentPath, String linkString);
-
-    String getNodeTypeFromMimeType(String mimeType);
-
-    URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException;
 
     /**
      * loop all nodes;

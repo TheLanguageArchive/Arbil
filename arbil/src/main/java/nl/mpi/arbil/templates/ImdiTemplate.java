@@ -1,6 +1,7 @@
 package nl.mpi.arbil.templates;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -643,8 +644,12 @@ public class ImdiTemplate implements ArbilTemplate {
      * @return the templateFile
      */
     @Override
-    public File getTemplateFile() {
-	return templateFile;
+    public URL getTemplateFile() {
+	try {
+	    return templateFile.toURI().toURL();
+	} catch (MalformedURLException e) {
+	    return null;
+	}
     }
 
     /**

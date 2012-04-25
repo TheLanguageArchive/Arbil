@@ -6,8 +6,10 @@ package nl.mpi.arbil.templates;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -166,8 +168,13 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	return null;
     }
     
-    public File getTemplateFile() {
-	return new File(documentType.getSchemaLocation());
+    public URL getTemplateFile() {
+	try {
+	    return documentType.getSchemaLocation().toURL();
+	} catch (MalformedURLException e) {
+	    BugCatcherManager.getBugCatcher().logError(e);
+	    return null;
+	}
     }
     
     public String getTemplateName() {

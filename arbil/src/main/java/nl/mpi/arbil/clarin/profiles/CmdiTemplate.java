@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -107,8 +109,12 @@ public class CmdiTemplate extends ImdiTemplate {
      * @return the templateFile
      */
     @Override
-    public File getTemplateFile() {
-	return templateFile;
+    public URL getTemplateFile() {
+	try {
+	    return templateFile.toURL();
+	} catch (MalformedURLException ex) {
+	    return null;
+	}
     }
 
     private static class ArrayListGroup {
@@ -327,11 +333,11 @@ public class CmdiTemplate extends ImdiTemplate {
 //                break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
 //            }
 	} catch (IOException e) {
-	    BugCatcherManager.getBugCatcher().logError(getTemplateFile().getName(), e);
-	    messageDialogHandler.addMessageDialogToQueue("Could not open the required template file: " + getTemplateFile().getName(), "Load Clarin Template");
+	    BugCatcherManager.getBugCatcher().logError(templateFile.getName(), e);
+	    messageDialogHandler.addMessageDialogToQueue("Could not open the required template file: " + templateFile.getName(), "Load Clarin Template");
 	} catch (XmlException e) {
-	    BugCatcherManager.getBugCatcher().logError(getTemplateFile().getName(), e);
-	    messageDialogHandler.addMessageDialogToQueue("Could not read the required template file: " + getTemplateFile().getName(), "Load Clarin Template");
+	    BugCatcherManager.getBugCatcher().logError(templateFile.getName(), e);
+	    messageDialogHandler.addMessageDialogToQueue("Could not read the required template file: " + templateFile.getName(), "Load Clarin Template");
 	}
     }
 
@@ -542,7 +548,7 @@ public class CmdiTemplate extends ImdiTemplate {
 		documentBuilderFactory.setValidating(false);
 		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		schemaDocument = documentBuilder.parse(getTemplateFile());
+		schemaDocument = documentBuilder.parse(templateFile);
 	    } catch (IOException ex) {
 		BugCatcherManager.getBugCatcher().logError("Error while parsing schema", ex);
 	    } catch (ParserConfigurationException ex) {

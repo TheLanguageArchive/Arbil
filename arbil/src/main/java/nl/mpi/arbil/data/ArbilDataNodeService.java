@@ -40,7 +40,9 @@ public class ArbilDataNodeService {
     private final SessionStorage sessionStorage;
     private final MimeHashQueue mimeHashQueue;
     private final TreeHelper treeHelper;
+    
     private final MetadataReader imdiMetadataReader;
+    
     private final MetadataDomLoader imdiDomLoader;
     private final MetadataDomLoader cmdiDomLoader;
     
@@ -52,6 +54,7 @@ public class ArbilDataNodeService {
 	this.dataNodeLoader = dataNodeLoader;
 	
 	this.imdiMetadataReader = new ArbilMetadataReader(messageDialogHandler, sessionStorage, dataNodeLoader);
+	
 	this.imdiDomLoader = new ImdiDomLoader(this, messageDialogHandler, imdiMetadataReader);
 	this.cmdiDomLoader = new CmdiDomLoader(this, messageDialogHandler, imdiMetadataReader);
     }

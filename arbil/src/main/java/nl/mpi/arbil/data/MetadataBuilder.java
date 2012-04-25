@@ -5,19 +5,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.templates.ArbilFavourites;
+import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
@@ -26,6 +30,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -117,7 +122,7 @@ public class MetadataBuilder {
 			    if (nodDom == null) {
 				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
 			    } else {
-				return destinationNode.getMetadataReader().canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
+				return canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
 			    }
 			} catch (ParserConfigurationException ex) {
 			    BugCatcherManager.getBugCatcher().logError(ex);
@@ -256,7 +261,7 @@ public class MetadataBuilder {
 		URI resourceUrl = null;
 		String mimeType = null;
 		if (currentArbilNode.isArchivableFile() && !currentArbilNode.isMetaDataNode()) {
-		    nodeType = currentArbilNode.getMetadataReader().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+		    nodeType = getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
 		    if (nodeType == null) {
 			nodeType = handleUnknownMimetype(currentArbilNode);
 		    }
@@ -276,6 +281,25 @@ public class MetadataBuilder {
 	    }
 	}
     }
+    
+    
+    private String getNodeTypeFromMimeType(String mimeType) {
+	System.out.println("getNodeTypeFromMimeType: " + mimeType);
+	for (String[] formatType : new String[][]{
+		    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource", "Manual/WrittenResource"},
+		    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile", "Manual/MediaFile"}
+		}) {
+	    if (formatType[2].equals(mimeType)) {
+		System.out.println("UsingOverrideNodeType: " + formatType[1]);
+		return formatType[1];
+	    } else if (ArbilVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
+		System.out.println("NodeType: " + formatType[1]);
+		//                    if (mimeType.equals("image/jpeg")) {
+		return formatType[1];
+	    }
+	}
+	return null;
+    }
 
     /**
      *
@@ -294,7 +318,7 @@ public class MetadataBuilder {
 	    currentArbilNode.mpiMimeType = null;
 	    if (new ImdiUtils().overrideTypecheckerDecision(new ArbilDataNode[]{currentArbilNode})) {
 		// Try again
-		return currentArbilNode.getMetadataReader().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+		return getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
 	    } else {
 		currentArbilNode.mpiMimeType = originalMime;
 	    }
@@ -402,7 +426,7 @@ public class MetadataBuilder {
 			    if (nodDom == null) {
 				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
 			    } else {
-				addedNodePath = destinationNode.getMetadataReader().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
+				addedNodePath = insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
 				destinationNode.bumpHistory();
 				ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
 				dataNodeLoader.requestReload(destinationNode);
@@ -533,6 +557,254 @@ public class MetadataBuilder {
 	}
 
 	return templateUrl;
+    }
+    
+    
+
+    /**
+     * Checks whether the component builder will be able to insert a node of
+     * specified type in the specified target DOM
+     */
+    public boolean canInsertFromTemplate(ArbilTemplate currentTemplate, String elementName, String targetXmlPath, Document targetImdiDom) throws ArbilMetadataException {
+	// This may be done more efficiently, but for now we basically prepare
+	// an insertion up to the point we have the destination node and
+	// potentially addable node which we can pass to the component builder
+	// and ask whether this can actually be done.
+
+	int maxOccurs = currentTemplate.getMaxOccursForTemplate(elementName);
+	if (maxOccurs < 0) {
+	    return true;
+	}
+
+	URI addedPathURI = null;
+	try {
+	    String templateFileString = templateFileStringFromElementName(elementName);
+	    URL templateUrl = urlForTemplateFile(currentTemplate, templateFileString);
+	    String targetRef = xPathFromXmlPath(targetXmlPath, elementName);
+	    String targetXpath = xPathFromTargetRef(targetRef);
+
+	    if (templateUrl != null) {
+		Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
+
+		if (insertableSectionDoc != null) {
+		    Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
+		    if (insertableNode != null) {
+			Node addableNode = targetImdiDom.importNode(insertableNode, true);
+			Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
+
+			return ArbilComponentBuilder.canInsertNode(destinationNode, addableNode, maxOccurs);
+		    }
+		}
+	    }
+	} catch (URISyntaxException ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	} catch (MalformedURLException ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	} catch (DOMException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	} catch (IOException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	} catch (ParserConfigurationException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	} catch (SAXException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	} catch (TransformerException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	}
+	System.out.println("addedPathString: " + addedPathURI);
+	return false;
+    }
+
+
+    private static String xPathFromTargetRef(String targetRef) {
+	String targetXpath = targetRef;
+	// convert to xpath for the api
+	targetXpath = targetXpath.replace(".", "/:");
+	targetXpath = targetXpath.replace(")", "]");
+	targetXpath = targetXpath.replace("(", "[");
+	return targetXpath;
+    }
+
+    private static String xPathFromXmlPath(String targetXmlPath, String elementName) {
+	// prepare the parent node
+	String targetXpath = targetXmlPath;
+	if (targetXpath == null) {
+	    targetXpath = elementName;
+	} else {
+	    // make sure we have a complete path
+	    // for instance METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language
+	    // requires /:METATRANSCRIPT/:Session/:MDGroup/:Actors/:Actor[6].Languages
+	    // not /:METATRANSCRIPT/:Session/:MDGroup/:Actors/:Actor[6]
+	    // the last path component (.Language) will be removed later
+	    String[] targetXpathArray = targetXpath.split("\\)");
+	    String[] elementNameArray = elementName.split("\\)");
+	    StringBuilder targetXpathSB = new StringBuilder();
+	    for (int partCounter = 0; partCounter < elementNameArray.length; partCounter++) {
+		if (targetXpathArray.length > partCounter) {
+		    targetXpathSB.append(targetXpathArray[partCounter]);
+		} else {
+		    targetXpathSB.append(elementNameArray[partCounter]);
+		}
+		targetXpathSB.append(')');
+	    }
+	    targetXpath = targetXpathSB.toString().replaceAll("\\)$", "");
+	}
+	targetXpath = targetXpath.substring(0, targetXpath.lastIndexOf("."));
+	return targetXpath;
+    }
+
+    private static URL urlForTemplateFile(ArbilTemplate currentTemplate, String templateFileString) throws MalformedURLException {
+	URL templateUrl;
+	File templateFile = new File(currentTemplate.getTemplateComponentDirectory(), templateFileString + ".xml");
+	System.out.println("templateFile: " + templateFile.getAbsolutePath());
+	if (templateFile.exists()) {
+	    templateUrl = templateFile.toURI().toURL();
+	} else {
+	    templateUrl = MetadataBuilder.class.getResource("/nl/mpi/arbil/resources/templates/" + templateFileString + ".xml");
+	}
+	return templateUrl;
+    }
+
+    private static String templateFileStringFromElementName(String elementName) {
+	String templateFileString = elementName.substring(1); //TODO: this level of path change should not be done here but in the original caller
+	System.out.println("templateFileString: " + templateFileString);
+	templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
+	System.out.println("templateFileString(x): " + templateFileString);
+	templateFileString = templateFileString.replaceAll("\\(x\\)$", "");
+	return templateFileString;
+    }
+
+    public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException {
+	System.out.println("insertFromTemplate: " + elementName + " : " + resourceUrl);
+	System.out.println("targetXpath: " + targetXmlPath);
+	String insertBefore = currentTemplate.getInsertBeforeOfTemplate(elementName);
+	System.out.println("insertBefore: " + insertBefore);
+	final int maxOccurs = currentTemplate.getMaxOccursForTemplate(elementName);
+	System.out.println("maxOccurs: " + maxOccurs);
+	URI addedPathURI = null;
+	try {
+	    String templateFileString = templateFileStringFromElementName(elementName);
+	    URL templateUrl = urlForTemplateFile(currentTemplate, templateFileString);
+	    String targetRef = xPathFromXmlPath(targetXmlPath, elementName);
+	    String targetXpath = xPathFromTargetRef(targetRef);
+
+	    System.out.println("targetXpath: " + targetXpath);
+	    System.out.println("templateUrl: " + templateUrl);
+
+	    if (templateUrl == null) {
+		messageDialogHandler.addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
+		BugCatcherManager.getBugCatcher().logError(new Exception("No template found for: " + elementName.substring(1)));
+	    } else {
+		Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
+
+		if (insertableSectionDoc == null) {
+		    messageDialogHandler.addMessageDialogToQueue("Error reading template", "Insert from Template");
+		} else {
+		    // insert values into the section that about to be added
+		    if (resourceUrl != null) {
+			insertValuesForAddingFromTemplate(insertableSectionDoc, resourceUrl, resourceDestinationDirectory, targetMetadataUri);
+		    }
+		    if (mimeType != null) {
+			insertMimeTypeForAddingFromTemplate(insertableSectionDoc, mimeType);
+		    }
+
+		    Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
+		    if (insertableNode == null) {
+			BugCatcherManager.getBugCatcher().logError(new Exception("InsertableSection not found in the template"));
+		    }
+		    return importNodesAddedFromTemplate(targetImdiDom, targetMetadataUri, targetXpath, targetRef, insertableNode, insertBefore, maxOccurs);
+		}
+	    }
+	} catch (URISyntaxException ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	} catch (MalformedURLException ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	} catch (DOMException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	    return null;
+	} catch (IOException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	    return null;
+	} catch (ParserConfigurationException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	    return null;
+	} catch (SAXException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	    return null;
+	} catch (TransformerException exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	    return null;
+	}
+	System.out.println("addedPathString: " + addedPathURI);
+	return addedPathURI;
+    }
+    
+    
+    private URI importNodesAddedFromTemplate(Document targetImdiDom, URI targetMetadataUri, String targetXpath, String targetRef, Node insertableNode, String insertBefore, final int maxOccurs) throws URISyntaxException, DOMException, ArbilMetadataException, TransformerException {
+	Node addableNode = targetImdiDom.importNode(insertableNode, true);
+	Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
+	Node addedNode = ArbilComponentBuilder.insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
+	String nodeFragment = ArbilComponentBuilder.convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
+	//                            try {
+	System.out.println("nodeFragment: " + nodeFragment);
+	// return the child node url and path in the xml
+	// first strip off any fragment then add the full node fragment
+	return new URI(targetMetadataUri.toString().split("#")[0] + "#" + nodeFragment);
+    }
+
+    private void insertMimeTypeForAddingFromTemplate(Document insertableSectionDoc, String mimeType) throws DOMException, TransformerException {
+	if (mimeType.equals("image/jpeg")) {
+	    // TODO: consider replacing this with exif imdifields in the original imdiobject and doing a merge
+	    //                    Hashtable exifTags = getExifMetadata(resourcePath);
+	    //                    String dateExifTag = "date";
+	    //                    if (exifTags.contains(dateExifTag)) {
+	    //                        Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:MediaFile/:Date");
+	    //                        linkNode.setTextContent(exifTags.get(dateExifTag).toString());
+	    //                    }
+	}
+	Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:Format");
+	linkNode.setTextContent(mimeType);
+    }
+
+    private void insertValuesForAddingFromTemplate(Document insertableSectionDoc, URI resourceUrl, File resourceDestinationDirectory, URI targetMetadataUri) throws UnsupportedEncodingException, DOMException, TransformerException {
+	URI finalResourceUrl = resourceUrl;
+	//                    String localFilePath = resourcePath; // will be changed when copied to the cache
+	// copy the file to the imdi directory
+	try {
+	    if (sessionStorage.getOptions().isCopyNewResourcesToCache()) {
+		//                            URL resourceUrl = new URL(resourcePath);
+		//                    String resourcesDirName = "resources";
+		File originalFile = new File(resourceUrl);
+		int suffixIndex = originalFile.getName().lastIndexOf(".");
+		String targetFilename = originalFile.getName().substring(0, suffixIndex);
+		String targetSuffix = originalFile.getName().substring(suffixIndex);
+		System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
+		///////////////////////////////////////////////////////////////////////
+		// use the nodes child directory
+		File destinationFileCopy = new File(resourceDestinationDirectory, targetFilename + targetSuffix);
+		int fileCounter = 0;
+		while (destinationFileCopy.exists()) {
+		    fileCounter++;
+		    destinationFileCopy = new File(resourceDestinationDirectory, targetFilename + "(" + fileCounter + ")" + targetSuffix);
+		}
+		URI fullURI = destinationFileCopy.toURI();
+		finalResourceUrl = targetMetadataUri.relativize(fullURI);
+		//destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
+		// for easy reading in the fields keep the file in the same directory
+		//                        File destinationDirectory = new File(destinationFile.getParentFile().getPath());
+		//                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
+		//                        localFilePath = "./" + destinationFileCopy.getName();
+		///////////////////////////////////////////////////////////////////////
+		MetadataBuilder.copyToDisk(resourceUrl.toURL(), destinationFileCopy);
+		System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
+	    }
+	} catch (Exception ex) {
+	    //localFilePath = resourcePath; // link to the original file
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
+	Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:ResourceLink");
+	String decodeUrlString = URLDecoder.decode(finalResourceUrl.toString(), "UTF-8");
+	linkNode.setTextContent(decodeUrlString);
     }
 
     public static URI copyToDisk(URL sourceURL, File targetFile) {

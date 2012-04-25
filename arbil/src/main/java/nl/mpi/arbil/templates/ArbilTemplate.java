@@ -1,6 +1,7 @@
 package nl.mpi.arbil.templates;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -66,7 +67,7 @@ public interface ArbilTemplate {
     /**
      * @return the templateFile
      */
-    File getTemplateFile();
+    URL getTemplateFile();
 
     String getTemplateName();
 

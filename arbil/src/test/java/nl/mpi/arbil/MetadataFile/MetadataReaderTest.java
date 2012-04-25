@@ -1,22 +1,17 @@
 package nl.mpi.arbil.MetadataFile;
 
-import java.awt.GraphicsEnvironment;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import org.junit.Ignore;
-import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import nl.mpi.arbil.ArbilTestInjector;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
@@ -82,26 +77,6 @@ public class MetadataReaderTest {
 	}
     }
 
-    /**
-     * Test of getNodeTypeFromMimeType method, of class ArbilMetadataReader.
-     */
-    @Test
-    public void testGetNodeTypeFromMimeType() {
-	System.out.println("getNodeTypeFromMimeType");
-	String[][] testCases = {
-	    {"application/pdf", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-	    {"image/jpeg", ".METATRANSCRIPT.Session.Resources.MediaFile"},
-	    {"Manual/WrittenResource", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-	    {"Manual/MediaFile", ".METATRANSCRIPT.Session.Resources.MediaFile"}
-	};
-	for (String[] currentTest : testCases) {
-	    String mimeType = currentTest[0];
-	    ArbilMetadataReader instance = new ArbilMetadataReader(injector.messageDialogHandler, injector.sessionStorage, injector.dataNodeLoader);
-	    String expResult = currentTest[1];
-	    String result = instance.getNodeTypeFromMimeType(mimeType);
-	    assertEquals(expResult, result);
-	}
-    }
     /**
      * Test of insertFromTemplate method, of class ArbilMetadataReader.
      */
