@@ -52,9 +52,8 @@ public class ArbilTestInjector extends ArbilInjector {
 	injectTreeHelper(treeHelper);
 
 	final DefaultMimeHashQueue mimeHashQueue = new DefaultMimeHashQueue(sessionStorage);
-	final ArbilMetadataReader metadataReader = new ArbilMetadataReader(sessionStorage, messageDialogHandler);
 
-	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper, metadataReader);
+	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
 	treeHelper.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
 

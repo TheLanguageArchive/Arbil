@@ -211,9 +211,9 @@ public class ArbilFavourites {
 		} else if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
 		    addThisFavourites = true;
 		} else if (targetIsSession && currentFavouritesObject.isChildNode()) {
-		    addThisFavourites = targetDataNode.getMetadataReader().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
+		    addThisFavourites = targetDataNode.getDataNodeService().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
 		} else if (targetIsChildNode && currentFavouritesObject.isChildNode()) {
-		    addThisFavourites = targetDataNode.getMetadataReader().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
+		    addThisFavourites = targetDataNode.getDataNodeService().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
 		}
 		if (addThisFavourites) {
 //                    System.out.println("adding: " + currentFavouritesObject);

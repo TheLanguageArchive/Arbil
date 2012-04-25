@@ -16,6 +16,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.w3c.dom.Document;
@@ -30,10 +33,12 @@ public class ImdiDomLoader implements MetadataDomLoader {
 
     private final ArbilDataNodeService dataNodeService;
     private final MessageDialogHandler messageDialogHandler;
+    private final MetadataReader metadataReader;
 
-    public ImdiDomLoader(ArbilDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler) {
+    public ImdiDomLoader(ArbilDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler, MetadataReader metadataReader) {
 	this.dataNodeService = dataNodeService;
 	this.messageDialogHandler = messageDialogHandler;
+	this.metadataReader = metadataReader;
     }
     
     public void loadMetadataDom(ArbilDataNode dataNode) {
@@ -96,10 +101,10 @@ public class ImdiDomLoader implements MetadataDomLoader {
 //	    startNode = metadataNode;
 //	}
 	// load the fields from the imdi file
-	dataNode.getMetadataReader().iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
+	metadataReader.iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
 	if (dataNode.isCmdiMetaDataNode()) {
 	    // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
-	    dataNode.getMetadataReader().addUnreferencedResources(dataNode, parentChildTree, childLinks);
+	    metadataReader.addUnreferencedResources(dataNode, parentChildTree, childLinks);
 	}
 	return childLinks.toArray(new String[][]{});
     }

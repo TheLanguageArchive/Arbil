@@ -61,10 +61,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	sessionStorage.setTreeHelper(treeHelper);
 	injectTreeHelper(treeHelper);
 	
-	final ArbilMetadataReader metadataReader = new ArbilMetadataReader(sessionStorage, messageDialogHandler);
-
-	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper, metadataReader);
-	metadataReader.setDataNodeLoader(dataNodeLoader);
+	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
 	treeHelper.setDataNodeLoader(dataNodeLoader);
 	mimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	windowManager.setDataNodeLoader(dataNodeLoader);

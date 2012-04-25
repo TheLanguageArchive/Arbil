@@ -96,7 +96,7 @@ public class MetadataReaderTest {
 	};
 	for (String[] currentTest : testCases) {
 	    String mimeType = currentTest[0];
-	    ArbilMetadataReader instance = new ArbilMetadataReader(injector.sessionStorage, injector.messageDialogHandler);
+	    ArbilMetadataReader instance = new ArbilMetadataReader(injector.messageDialogHandler, injector.sessionStorage, injector.dataNodeLoader);
 	    String expResult = currentTest[1];
 	    String result = instance.getNodeTypeFromMimeType(mimeType);
 	    assertEquals(expResult, result);

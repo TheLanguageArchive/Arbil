@@ -59,7 +59,5 @@ public interface MetadataReader {
      * @return
      */
     int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, final String nodePath, String fullNodePath, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter);
-
-    boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode);
     
 }

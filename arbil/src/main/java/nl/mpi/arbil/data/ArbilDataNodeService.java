@@ -20,6 +20,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.data.metadatafile.ArbilMetadataReader;
+import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -38,22 +40,23 @@ public class ArbilDataNodeService {
     private final SessionStorage sessionStorage;
     private final MimeHashQueue mimeHashQueue;
     private final TreeHelper treeHelper;
-    private final MetadataReader metadataReader;
+    private final MetadataReader imdiMetadataReader;
     private final MetadataDomLoader imdiDomLoader;
 
-    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper, MetadataReader metadataReader) {
+    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
 	this.mimeHashQueue = mimeHashQueue;
 	this.treeHelper = treeHelper;
 	this.dataNodeLoader = dataNodeLoader;
-	this.metadataReader = metadataReader;
 
-	this.imdiDomLoader = new ImdiDomLoader(this, messageDialogHandler);
+	this.imdiMetadataReader = new ArbilMetadataReader(messageDialogHandler, sessionStorage, dataNodeLoader);
+	this.imdiDomLoader = new ImdiDomLoader(this, messageDialogHandler, imdiMetadataReader);
     }
 
-    public MetadataReader getMetadataReader() {
-	return metadataReader;
+    public MetadataReader getMetadataReader(ArbilDataNode dataNode) {
+	// TODO: If cmdi, return cmdimetadatareader
+	return imdiMetadataReader;
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {
@@ -139,7 +142,7 @@ public class ArbilDataNodeService {
 		    // Get source node
 		    ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
 		    // Check if it can be contained by destination node
-		    if (metadataReader.nodeCanExistInNode(dataNode, templateDataNode)) {
+		    if (nodeCanExistInNode(dataNode, templateDataNode)) {
 			// Add source to destination
 			new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
 		    } else {
@@ -581,6 +584,19 @@ public class ArbilDataNodeService {
 	    //childLinks = childLinksTemp.toArray(new String[][]{});
 	    dataNode.childArray = childLinksTemp.toArray(new ArbilDataNode[]{});
 	}
+    }
+
+    public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
+	String targetImdiPath = ImdiUtils.getNodePath((ArbilDataNode) targetDataNode);
+	String childPath = ImdiUtils.getNodePath((ArbilDataNode) childDataNode);
+	targetImdiPath = targetImdiPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
+	childPath = childPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
+	//        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
+	int targetBranchCount = targetImdiPath.replaceAll("[^(]*", "").length();
+	int childBranchCount = childPath.replaceAll("[^(]*", "").length();
+	//        System.out.println("targetBranchCount: " + targetBranchCount + " childBranchCount: " + childBranchCount);
+	boolean hasCorrectSubNodeCount = childBranchCount - targetBranchCount < 2;
+	return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Utilities (should probably be moved into a separate utility class)">

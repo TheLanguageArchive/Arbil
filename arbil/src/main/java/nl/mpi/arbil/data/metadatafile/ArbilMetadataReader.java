@@ -50,34 +50,12 @@ public class ArbilMetadataReader implements MetadataReader {
 
     private final MessageDialogHandler messageDialogHandler;
     private final SessionStorage sessionStorage;
-    private DataNodeLoader dataNodeLoader;
+    private final DataNodeLoader dataNodeLoader;
 
-    public void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
-	dataNodeLoader = dataNodeLoaderInstance;
-    }
-
-    public ArbilMetadataReader(SessionStorage sessionStorage, MessageDialogHandler messageDialogHandler) {
+    public ArbilMetadataReader(MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, DataNodeLoader dataNodeLoader) {
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
-    }
-    /**
-     * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
-     */
-    //public File selectedTemplateDirectory = null;
-    
-    // todo: this should probably be moved into the arbiltemplate class
-    @Override
-    public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
-	String targetImdiPath = ImdiUtils.getNodePath((ArbilDataNode) targetDataNode);
-	String childPath = ImdiUtils.getNodePath((ArbilDataNode) childDataNode);
-	targetImdiPath = targetImdiPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
-	childPath = childPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
-	//        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
-	int targetBranchCount = targetImdiPath.replaceAll("[^(]*", "").length();
-	int childBranchCount = childPath.replaceAll("[^(]*", "").length();
-	//        System.out.println("targetBranchCount: " + targetBranchCount + " childBranchCount: " + childBranchCount);
-	boolean hasCorrectSubNodeCount = childBranchCount - targetBranchCount < 2;
-	return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
+	this.dataNodeLoader = dataNodeLoader;
     }
 
     @Override
