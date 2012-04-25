@@ -15,6 +15,7 @@ import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -26,18 +27,18 @@ import org.xml.sax.SAXException;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ImdiDomLoader implements MetadataDomLoader {
+public class CmdiDomLoader implements MetadataDomLoader {
 
     private final ArbilDataNodeService dataNodeService;
     private final MessageDialogHandler messageDialogHandler;
     private final MetadataReader metadataReader;
 
-    public ImdiDomLoader(ArbilDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler, MetadataReader metadataReader) {
+    public CmdiDomLoader(ArbilDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler, MetadataReader metadataReader) {
 	this.dataNodeService = dataNodeService;
 	this.messageDialogHandler = messageDialogHandler;
 	this.metadataReader = metadataReader;
     }
-    
+
     public void loadMetadataDom(ArbilDataNode dataNode) {
 	if (dataNode.isLocal() && !dataNode.getFile().exists() && new File(dataNode.getFile().getAbsolutePath() + ".0").exists()) {
 	    // if the file is missing then try to find a valid history file
@@ -47,6 +48,7 @@ public class ImdiDomLoader implements MetadataDomLoader {
 	try {
 	    //set the string name to unknown, it will be updated in the tostring function
 	    dataNode.nodeText = "unknown";
+	    initComponentLinkReader(dataNode);
 	    updateMetadataChildNodes(dataNode);
 	} catch (Exception mue) {
 	    BugCatcherManager.getBugCatcher().logError(dataNode.getUrlString(), mue);
@@ -59,6 +61,14 @@ public class ImdiDomLoader implements MetadataDomLoader {
 		dataNode.fileNotFound = true;
 	    }
 	}
+    }
+
+    private void initComponentLinkReader(ArbilDataNode dataNode) {
+	// load the links from the cmdi file
+	// the links will be hooked to the relevent nodes when the rest of the xml is read
+	dataNode.cmdiComponentLinkReader = new CmdiComponentLinkReader();
+	dataNode.cmdiComponentLinkReader.readLinks(dataNode.getURI());
+
     }
 
     private void updateMetadataChildNodes(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
@@ -87,6 +97,8 @@ public class ImdiDomLoader implements MetadataDomLoader {
 //	}
 	// load the fields from the imdi file
 	metadataReader.iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
+	// Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
+	metadataReader.addUnreferencedResources(dataNode, parentChildTree, childLinks);
 	return childLinks.toArray(new String[][]{});
     }
 
