@@ -105,7 +105,6 @@ public class CmdiDomLoader implements MetadataDomLoader {
     }
 
     private void checkRemovedChildNodes(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
-	//ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
 	for (Map.Entry<ArbilDataNode, HashSet<ArbilDataNode>> entry : parentChildTree.entrySet()) {
 	    ArbilDataNode currentNode = entry.getKey();
 	    // System.out.println("setting childArray on: " + currentNode.getUrlString());
@@ -125,8 +124,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    }
 	}
     }
-    
-    
+
     private String getNamedAttributeValue(NamedNodeMap namedNodeMap, String attributeName) {
 	Node nameNode = namedNodeMap.getNamedItem(attributeName);
 	if (nameNode != null) {
@@ -166,14 +164,6 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	}
 	//        System.out.println("linkURI: " + linkURI.toString());
 	return linkURI;
-    }
-
-    private void showDomIdFoundMessage() {
-	if (!dataNodeLoader.nodesNeedSave()) {
-	    // Note TG: it may be good to add something like 'non-critical error' or something, so users feel safe to
-	    // ignore this if they do not know what it means.
-	    messageDialogHandler.addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
-	}
     }
 
     /**
@@ -217,16 +207,8 @@ public class CmdiDomLoader implements MetadataDomLoader {
 		    continue;
 		}
 
-		// get the xml node id
-		if (childNodeAttributes != null) {
-		    removeImdiNodeIds(childNodeAttributes, parentNode);
-		}
-
 		if (fullNodePath.length() == 0) {
 		    getTemplate(childNode, parentNode, childNodeAttributes);
-		}
-		if (localName.equals("Corpus")) {
-		    getImdiCatalogue(childNodeAttributes, parentNode, childLinks, parentChildTree);
 		}
 
 		final ArbilDataNode parentDomNode = parentNode.getParentDomNode();
@@ -251,7 +233,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
 			boolean isSingleton = false;
 			// Build URI for metaNode or subNode
 			final StringBuilder nodeURIStringBuilder = new StringBuilder(4).append(parentNode.getURI().toString()).append(pathUrlXpathSeparator).append(siblingNodePath);
-			if (maxOccurs > 1 || maxOccurs == -1 || !(parentDomNode.nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
+			if (maxOccurs > 1 || maxOccurs == -1) {
 			    isSingleton = maxOccurs == 1;
 			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
 			    metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
@@ -329,28 +311,26 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
 	    // and add all editable component attributes as field
 	    if (childNodeAttributes != null) {
-		if (parentNode.isCmdiMetaDataNode()) {
-		    for (int i = 0; i < childNodeAttributes.getLength(); i++) {
-			Node attrNode = childNodeAttributes.item(i);
-			String attrName = CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
-			String attrPath = siblingNodePath + ".@" + attrName;
-			String fullAttrPath = fullSubNodePath + ".@" + attrName;
-			if (!siblingNodePathCounter.containsKey(fullAttrPath)) {
-			    siblingNodePathCounter.put(fullAttrPath, 0);
-			}
-			if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath.replaceAll("\\(\\d*?\\)", ""))) {
-			    nodeOrderCounter = addEditableField(nodeOrderCounter,
-				    destinationNode,
-				    attrPath, //siblingNodePath,
-				    attrNode.getNodeValue(),
-				    siblingNodePathCounter,
-				    fullAttrPath, //fullSubNodePath,
-				    parentNode,
-				    childLinks,
-				    parentChildTree,
-				    null, // don't pass childNodeAttributes as they're the parent's attributes 
-				    true);
-			}
+		for (int i = 0; i < childNodeAttributes.getLength(); i++) {
+		    Node attrNode = childNodeAttributes.item(i);
+		    String attrName = CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
+		    String attrPath = siblingNodePath + ".@" + attrName;
+		    String fullAttrPath = fullSubNodePath + ".@" + attrName;
+		    if (!siblingNodePathCounter.containsKey(fullAttrPath)) {
+			siblingNodePathCounter.put(fullAttrPath, 0);
+		    }
+		    if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath.replaceAll("\\(\\d*?\\)", ""))) {
+			nodeOrderCounter = addEditableField(nodeOrderCounter,
+				destinationNode,
+				attrPath, //siblingNodePath,
+				attrNode.getNodeValue(),
+				siblingNodePathCounter,
+				fullAttrPath, //fullSubNodePath,
+				parentNode,
+				childLinks,
+				parentChildTree,
+				null, // don't pass childNodeAttributes as they're the parent's attributes 
+				true);
 		    }
 		}
 	    }
@@ -378,20 +358,6 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	return siblingCount;
     }
 
-    private void removeImdiNodeIds(NamedNodeMap attributesMap, ArbilDataNode parentNode) {
-	// look for node id attribites that should be removed from imdi files
-	if (attributesMap.getNamedItem("id") != null) {
-	    if (!parentNode.hasDomIdAttribute) {
-		if (!parentNode.isCmdiMetaDataNode()) {
-		    // only if this is an imdi file we will require the node to be saved which will remove the dom id attributes
-		    parentNode.hasDomIdAttribute = true;
-		    showDomIdFoundMessage();
-		    parentNode.setDataNodeNeedsSaveToDisk(null, false);
-		}
-	    }
-	} // end get the xml node id
-    }
-
     private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, boolean shouldAddCurrent) {
 
 	// Handle special attributes
@@ -414,22 +380,18 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	Map<String, Object> attributesValueMap = null;
 	boolean allowsLanguageId = false;
 	// For CMDI nodes, get field attribute paths from schema and values from document before creating arbil field
-	if (destinationNode.isCmdiMetaDataNode()) {
-	    final String nodePath = fullSubNodePath.replaceAll("\\(\\d+\\)", "");
-	    ArbilTemplate template = destinationNode.getNodeTemplate();
-	    attributePaths = template.getEditableAttributesForPath(nodePath);
-	    attributesValueMap = new HashMap<String, Object>();
-	    if (childNodeAttributes != null) {
-		for (int i = 0; i < childNodeAttributes.getLength(); i++) {
-		    final Node attrNode = childNodeAttributes.item(i);
-		    final String path = nodePath + ".@" + CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
-		    attributesValueMap.put(path, attrNode.getNodeValue());
-		}
+	final String nodePath = fullSubNodePath.replaceAll("\\(\\d+\\)", "");
+	ArbilTemplate template = destinationNode.getNodeTemplate();
+	attributePaths = template.getEditableAttributesForPath(nodePath);
+	attributesValueMap = new HashMap<String, Object>();
+	if (childNodeAttributes != null) {
+	    for (int i = 0; i < childNodeAttributes.getLength(); i++) {
+		final Node attrNode = childNodeAttributes.item(i);
+		final String path = nodePath + ".@" + CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
+		attributesValueMap.put(path, attrNode.getNodeValue());
 	    }
-	    allowsLanguageId = template.pathAllowsLanguageId(nodePath); //CMDI case where language id is optional as specified by schema
-	} else {
-	    allowsLanguageId = languageId != null; //IMDI case where language id comes from template
 	}
+	allowsLanguageId = template.pathAllowsLanguageId(nodePath);
 
 	// is a leaf not a branch
 	//            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
@@ -544,81 +506,39 @@ public class CmdiDomLoader implements MetadataDomLoader {
 
     private void getTemplate(Node childNode, ArbilDataNode parentNode, NamedNodeMap attributesMap) throws DOMException {
 	// if this is the first node and it is not metatranscript then it is not an imdi so get the clarin template
-	if (!childNode.getLocalName().equals("METATRANSCRIPT")) {
-	    // change made for clarin
-	    try {
-		// TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
-		//                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
-		//                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
-		//                    System.out.println("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
-		//                    System.out.println("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
-		String schemaLocationString = null;
-		Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
-		if (schemaLocationNode == null) {
-		    schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:schemaLocation");
-		}
-		if (schemaLocationNode != null) {
-		    schemaLocationString = schemaLocationNode.getNodeValue();
-		    String[] schemaLocation = schemaLocationString.split("\\s");
-		    schemaLocationString = schemaLocation[schemaLocation.length - 1];
-		    schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
-		} else {
-		    throw new Exception("Could not find the schema url: " + childNode.toString());
-		}
-		//if (schemaLocation != null && schemaLocation.length > 0) {
-		// this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
-		// this method also assumes that the xsd url is fully resolved
-		parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
-		/*
-		 * // TODO: pass the resource node to a class to handle the resources
-		 * childNode = childNode.getAttributes().getNamedItem("Components");
-		 * nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
-		 * break;
-		 */
-	    } catch (Exception exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
-		messageDialogHandler.addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
+	// change made for clarin
+	try {
+	    // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
+	    //                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
+	    //                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
+	    //                    System.out.println("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
+	    //                    System.out.println("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
+	    String schemaLocationString = null;
+	    Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
+	    if (schemaLocationNode == null) {
+		schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:schemaLocation");
 	    }
-	} else {
-	    // this is an imdi file so get an imdi template etc
-	    if (attributesMap != null) {
-		// these attributes exist only in the metatranscript node
-		Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
-		if (archiveHandleAtt != null) {
-		    parentNode.archiveHandle = archiveHandleAtt.getNodeValue();
-		} else {
-		    parentNode.archiveHandle = null;
-		}
-		Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
-		if (templateOriginatorAtt != null) {
-		    String templateOriginator = templateOriginatorAtt.getNodeValue();
-		    int separatorIndex = templateOriginator.indexOf(":");
-		    if (separatorIndex > -1) {
-			parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
-		    } else {
-			// TODO: this is redundant but is here for backwards compatability
-			Node templateTypeAtt = attributesMap.getNamedItem("Type");
-			if (templateTypeAtt != null) {
-			    String templateType = templateTypeAtt.getNodeValue();
-			    // most of the time this will return the default template, but if the named template exixts it will be used
-			    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
-			}
-		    }
-		}
+	    if (schemaLocationNode != null) {
+		schemaLocationString = schemaLocationNode.getNodeValue();
+		String[] schemaLocation = schemaLocationString.split("\\s");
+		schemaLocationString = schemaLocation[schemaLocation.length - 1];
+		schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
+	    } else {
+		throw new Exception("Could not find the schema url: " + childNode.toString());
 	    }
-	}
-    }
-
-    private void getImdiCatalogue(NamedNodeMap attributesMap, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws DOMException {
-	// get the imdi catalogue if it exists
-	Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
-	if (catalogueLinkAtt != null) {
-	    String catalogueLink = catalogueLinkAtt.getNodeValue();
-	    if (catalogueLink.length() > 0) {
-		URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
-		childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
-		parentChildTree.get(parentNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink));
-	    }
+	    //if (schemaLocation != null && schemaLocation.length > 0) {
+	    // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
+	    // this method also assumes that the xsd url is fully resolved
+	    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
+	    /*
+	     * // TODO: pass the resource node to a class to handle the resources
+	     * childNode = childNode.getAttributes().getNamedItem("Components");
+	     * nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
+	     * break;
+	     */
+	} catch (Exception exception) {
+	    BugCatcherManager.getBugCatcher().logError(exception);
+	    messageDialogHandler.addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
 	}
     }
 
