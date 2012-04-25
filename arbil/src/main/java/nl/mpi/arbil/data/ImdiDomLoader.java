@@ -37,13 +37,8 @@ public class ImdiDomLoader implements MetadataDomLoader {
 	this.messageDialogHandler = messageDialogHandler;
 	this.metadataReader = metadataReader;
     }
-    
+
     public void loadMetadataDom(ArbilDataNode dataNode) {
-	if (dataNode.isLocal() && !dataNode.getFile().exists() && new File(dataNode.getFile().getAbsolutePath() + ".0").exists()) {
-	    // if the file is missing then try to find a valid history file
-	    dataNodeService.copyLastHistoryToCurrent(dataNode);
-	    messageDialogHandler.addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
-	}
 	try {
 	    //set the string name to unknown, it will be updated in the tostring function
 	    dataNode.nodeText = "unknown";
