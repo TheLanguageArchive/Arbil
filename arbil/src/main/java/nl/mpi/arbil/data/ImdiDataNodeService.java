@@ -1,0 +1,437 @@
+package nl.mpi.arbil.data;
+
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Vector;
+import javax.swing.JOptionPane;
+import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.data.metadatafile.ImdiUtils;
+import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.TreeHelper;
+
+/**
+ *
+ * @author Twan Goosen <twan.goosen@mpi.nl>
+ */
+public class ImdiDataNodeService extends ArbilDataNodeService {
+
+    private final DataNodeLoader dataNodeLoader;
+    private final MessageDialogHandler messageDialogHandler;
+    private final SessionStorage sessionStorage;
+    private final MimeHashQueue mimeHashQueue;
+    private final TreeHelper treeHelper;
+    private final MetadataDomLoader imdiDomLoader;
+    private final MetadataDomLoader cmdiDomLoader;
+
+    public ImdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
+	super(dataNodeLoader, messageDialogHandler, mimeHashQueue);
+	
+	this.messageDialogHandler = messageDialogHandler;
+	this.sessionStorage = sessionStorage;
+	this.mimeHashQueue = mimeHashQueue;
+	this.treeHelper = treeHelper;
+	this.dataNodeLoader = dataNodeLoader;
+
+	this.imdiDomLoader = new ImdiDomLoader(dataNodeLoader, messageDialogHandler);
+	this.cmdiDomLoader = new CmdiDomLoader(dataNodeLoader, messageDialogHandler);
+    }
+
+    public boolean isEditable(ArbilDataNode dataNode) {
+	if (dataNode.isLocal()) {
+	    return (sessionStorage.pathIsInsideCache(dataNode.getFile()))
+		    || sessionStorage.pathIsInFavourites(dataNode.getFile());
+	} else {
+	    return false;
+
+	}
+    }
+
+    public boolean isFavorite(ArbilDataNode dataNode) {
+	if (!dataNode.isLocal()) {
+	    // only local files can be favourites
+	    return false;
+	}
+	return sessionStorage.pathIsInFavourites(dataNode.getFile());
+    }
+
+    public void pasteIntoNode(ArbilDataNode dataNode) {
+	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	Transferable transfer = clipboard.getContents(null);
+	try {
+	    String clipBoardString = "";
+	    Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
+	    if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
+		clipBoardString = clipBoardData.toString();
+		System.out.println("clipBoardString: " + clipBoardString);
+
+		String[] elements;
+		if (clipBoardString.contains("\n")) {
+		    elements = clipBoardString.split("\n");
+		} else {
+		    elements = new String[]{clipBoardString};
+		}
+		for (String element : elements) {
+		}
+		for (ArbilDataNode clipboardNode : pasteIntoNode(dataNode, elements)) {
+		    new MetadataBuilder().requestAddNode(dataNode, "copy of " + clipboardNode, clipboardNode);
+		}
+	    }
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
+    }
+
+    private Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings) {
+	try {
+	    ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
+	    boolean ignoreSaveChanges = false;
+	    for (String clipBoardString : clipBoardStrings) {
+		if (dataNode.isCorpus()) {
+		    if (MetadataFormat.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
+			ArbilDataNode clipboardNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
+			if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
+			    if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!dataNode.isSession() && !dataNode.isChildNode()))) {
+				if (dataNode.getFile().exists()) {
+				    if (!ignoreSaveChanges && clipboardNode.getNeedsSaveToDisk(false)) {
+					if (JOptionPane.CANCEL_OPTION == messageDialogHandler.showDialogBox(
+						"Some of the nodes to be copied contain unsaved changes.\nUnless they are saved, these changes will not be present in the resulting nodes. Continue anyway?", "Copying with unsaved changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+					    return new ArrayList<ArbilDataNode>(0);
+					} else {
+					    ignoreSaveChanges = true;
+					}
+				    }
+
+				    // this must use merge like favoirite to prevent instances end endless loops in corpus branches
+				    nodesToAdd.add(clipboardNode);
+				} else {
+				    messageDialogHandler.addMessageDialogToQueue("The target node's file does not exist", null);
+				}
+			    } else {
+				messageDialogHandler.addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
+			    }
+			} else {
+			    messageDialogHandler.addMessageDialogToQueue("The target file is not in the cache", null);
+			}
+		    } else {
+			messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
+		    }
+		} else if (dataNode.isMetaDataNode() || dataNode.isSession()) {
+		    // Get source node
+		    ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
+		    // Check if it can be contained by destination node
+		    if (nodeCanExistInNode(dataNode, templateDataNode)) {
+			// Add source to destination
+			new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
+		    } else {
+			// Invalid copy/paste...
+			messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
+		    }
+		} else { // Not corpus, session or metadata
+		    messageDialogHandler.addMessageDialogToQueue("Nodes of this type cannot be pasted into at this stage", null);
+		}
+	    }
+	    return nodesToAdd;
+	} catch (URISyntaxException ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	    return null;
+	}
+    }
+
+    public boolean addCorpusLink(ArbilDataNode dataNode, ArbilDataNode targetNode) {
+	boolean linkAlreadyExists = false;
+	if (targetNode.isCatalogue()) {
+	    if (dataNode.hasCatalogue()) {
+		//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only one catalogue can be added", null);
+		// prevent adding a second catalogue file
+		return false;
+	    }
+	}
+	for (String[] currentLinkPair : dataNode.getChildLinks()) {
+	    String currentChildPath = currentLinkPair[0];
+	    if (!targetNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
+		messageDialogHandler.addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
+		return false;
+	    }
+	    if (currentChildPath.equals(targetNode.getUrlString())) {
+		linkAlreadyExists = true;
+	    }
+	}
+	if (targetNode.getUrlString().equals(dataNode.getUrlString())) {
+	    messageDialogHandler.addMessageDialogToQueue("Cannot link or move a node into itself", null);
+	    return false;
+	}
+	if (linkAlreadyExists) {
+	    messageDialogHandler.addMessageDialogToQueue(targetNode + " already exists in " + this + " and will not be added again", null);
+	    return false;
+	} else {
+	    // if link is not already there
+	    // if needs saving then save now while you can
+	    // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
+	    if (dataNode.isNeedsSaveToDisk()) {
+		dataNode.saveChangesToCache(true);
+	    }
+	    try {
+		bumpHistory(dataNode.getFile());
+		copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
+		synchronized (dataNode.getParentDomLockObject()) {
+		    return dataNode.getMetadataUtils().addCorpusLink(dataNode.getURI(), new URI[]{targetNode.getURI()});
+		}
+	    } catch (IOException ex) {
+		// Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
+		BugCatcherManager.getBugCatcher().logError("I/O exception while moving node " + targetNode.toString() + " to " + this.toString(), ex);
+		messageDialogHandler.addMessageDialogToQueue("Could not move nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
+		return false;
+	    }
+	}
+    }
+
+    public void deleteCorpusLink(ArbilDataNode dataNode, ArbilDataNode[] targetImdiNodes) {
+	// TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
+	if (dataNode.nodeNeedsSaveToDisk) {
+	    dataNode.saveChangesToCache(false);
+	}
+	try {
+	    dataNode.bumpHistory();
+	    copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
+	    synchronized (dataNode.getParentDomLockObject()) {
+		System.out.println("deleting by corpus link");
+		URI[] copusUriList = new URI[targetImdiNodes.length];
+		for (int nodeCounter = 0; nodeCounter < targetImdiNodes.length; nodeCounter++) {
+		    //                if (targetImdiNodes[nodeCounter].hasResource()) {
+		    //                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getFullResourceURI(); // todo: should this resouce case be used here? maybe just the uri
+		    //                } else {
+		    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getURI();
+		    //                }
+		}
+		dataNode.getMetadataUtils().removeCorpusLink(dataNode.getURI(), copusUriList);
+		dataNode.getParentDomNode().loadArbilDom();
+	    }
+	    //        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
+	    ////            currentChildNode.clearIcon();
+	    //            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
+	    //        }
+	    for (ArbilDataNode removedChild : targetImdiNodes) {
+		removedChild.removeFromAllContainers();
+	    }
+	} catch (IOException ex) {
+	    // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
+	    BugCatcherManager.getBugCatcher().logError("I/O exception while deleting nodes from " + this.toString(), ex);
+	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
+	}
+
+	dataNode.getParentDomNode().clearIcon();
+	dataNode.getParentDomNode().clearChildIcons();
+	dataNode.clearIcon(); // this must be cleared so that the leaf / branch flag gets set
+    }
+
+    /**
+     * Inserts/sets resource location. Behavior will depend on node type
+     *
+     * @param location Location to insert/set
+     */
+    public void insertResourceLocation(ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
+	if (dataNode.isCmdiMetaDataNode()) {
+	    ArbilDataNode resourceNode = null;
+	    try {
+		resourceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(location);
+	    } catch (Exception ex) {
+		throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
+	    }
+	    if (resourceNode == null) {
+		throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
+	    }
+
+	    new MetadataBuilder().requestAddNode(dataNode, null, resourceNode);
+	} else {
+	    if (dataNode.hasResource()) {
+		dataNode.resourceUrlField.setFieldValue(location.toString(), true, false);
+	    }
+	}
+    }
+
+    public void addField(ArbilDataNode dataNode, ArbilField fieldToAdd) {
+	//        System.addField:out.println("addField: " + this.getUrlString() + " : " + fieldToAdd.xmlPath + " : " + fieldToAdd.getFieldValue());
+	ArbilField[] currentFieldsArray = dataNode.getFieldArray(fieldToAdd.getTranslateFieldName());
+	if (currentFieldsArray == null) {
+	    currentFieldsArray = new ArbilField[]{fieldToAdd};
+	} else {
+	    //            System.out.println("appendingField: " + fieldToAdd);
+	    ArbilField[] appendedFieldsArray = new ArbilField[currentFieldsArray.length + 1];
+	    System.arraycopy(currentFieldsArray, 0, appendedFieldsArray, 0, currentFieldsArray.length);
+	    appendedFieldsArray[appendedFieldsArray.length - 1] = fieldToAdd;
+	    currentFieldsArray = appendedFieldsArray;
+
+	    //            for (ImdiField tempField : currentFieldsArray) {
+	    //                System.out.println("appended fields: " + tempField);
+	    //            }
+	}
+	dataNode.addFieldArray(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
+
+	if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.getParentDataNode().isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile") */) {
+	    dataNode.resourceUrlField = fieldToAdd;
+	    mimeHashQueue.addToQueue(dataNode);
+	}
+    }
+
+    public ArbilDataNode loadArbilDataNode(Object registeringObject, URI localUri) {
+	return dataNodeLoader.getArbilDataNode(registeringObject, localUri);
+    }
+
+    public void reloadNode(ArbilDataNode dataNode) {
+	dataNode.getParentDomNode().nodeNeedsSaveToDisk = false; // clear any changes
+	//        if (!this.isImdi()) {
+	//            initNodeVariables();
+	//            //loadChildNodes();
+	//            clearIcon();
+	//            // TODO: this could just remove the decendant nodes and let the user re open them
+	//            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(this);
+	////            this.clearIcon();
+	//        } else {
+	////            if (getParentDomNode().isCorpus()) {
+	////                getParentDomNode().autoLoadChildNodes = true;
+	////            }
+	dataNodeLoader.requestReload(dataNode.getParentDomNode());
+	//        }
+    }
+
+    public void loadArbilDom(ArbilDataNode dataNode) {
+	if (dataNode.getParentDomNode() != dataNode) {
+	    dataNode.getParentDomNode().loadArbilDom();
+	} else {
+	    synchronized (dataNode.getParentDomLockObject()) {
+		dataNode.initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
+		if (!dataNode.isMetaDataNode() && !dataNode.isDirectory() && dataNode.isLocal()) {
+		    // if it is an not imdi or a loose file but not a direcotry then get the md5sum
+		    mimeHashQueue.addToQueue(dataNode);
+		    dataNode.setDataLoaded(true);
+		}
+		if (dataNode.isDirectory()) {
+		    getDirectoryLinks(dataNode);
+		    dataNode.setDataLoaded(true);
+		    //            clearIcon();
+		}
+		if (dataNode.isMetaDataNode()) {
+		    loadMetadataDom(dataNode);
+		}
+	    }
+	}
+    }
+
+    private void loadMetadataDom(ArbilDataNode dataNode) {
+	if (dataNode.isLocal() && !dataNode.getFile().exists() && new File(dataNode.getFile().getAbsolutePath() + ".0").exists()) {
+	    // if the file is missing then try to find a valid history file
+	    copyLastHistoryToCurrent(dataNode);
+	    messageDialogHandler.addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
+	}
+	getMetadataDomLoader(dataNode).loadMetadataDom(dataNode);
+	dataNode.setDataLoaded(true);
+    }
+
+    private MetadataDomLoader getMetadataDomLoader(ArbilDataNode dataNode) {
+	if (dataNode.isCmdiMetaDataNode()) {
+	    return cmdiDomLoader;
+	} else {
+	    return imdiDomLoader;
+	}
+    }
+
+    private void getDirectoryLinks(ArbilDataNode dataNode) {
+	File[] dirLinkArray = null;
+	File nodeFile = dataNode.getFile();
+	if (nodeFile != null && nodeFile.isDirectory()) {
+	    dirLinkArray = nodeFile.listFiles();
+	    Vector<ArbilDataNode> childLinksTemp = new Vector<ArbilDataNode>();
+	    for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
+		try {
+		    //                    System.out.println("nodeFile: " + nodeFile);
+		    //                    System.out.println("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
+		    URI childURI = dirLinkArray[linkCount].toURI();
+		    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNodeWithoutLoading(childURI);
+		    if (treeHelper.isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {
+			childLinksTemp.add(currentNode);
+		    }
+		} catch (Exception ex) {
+		    messageDialogHandler.addMessageDialogToQueue(dirLinkArray[linkCount] + " could not be loaded in\n" + dataNode.getUrlString(), "Load Directory");
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	    //childLinks = childLinksTemp.toArray(new String[][]{});
+	    dataNode.childArray = childLinksTemp.toArray(new ArbilDataNode[]{});
+	}
+    }
+
+    public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
+	String targetImdiPath = ImdiUtils.getNodePath((ArbilDataNode) targetDataNode);
+	String childPath = ImdiUtils.getNodePath((ArbilDataNode) childDataNode);
+	targetImdiPath = targetImdiPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
+	childPath = childPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
+	//        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
+	int targetBranchCount = targetImdiPath.replaceAll("[^(]*", "").length();
+	int childBranchCount = childPath.replaceAll("[^(]*", "").length();
+	//        System.out.println("targetBranchCount: " + targetBranchCount + " childBranchCount: " + childBranchCount);
+	boolean hasCorrectSubNodeCount = childBranchCount - targetBranchCount < 2;
+	return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
+    }
+
+    /**
+     * Saves the current changes from memory into a new imdi file on disk.
+     * Previous imdi files are renamed and kept as a history.
+     * the caller is responsible for reloading the node if that is required
+     */
+    public synchronized void saveChangesToCache(ArbilDataNode datanode) {
+	if (datanode != datanode.getParentDomNode()) {
+	    //        if (this.isImdiChild()) {
+	    saveChangesToCache(datanode.getParentDomNode());
+	    return;
+	}
+	System.out.println("saveChangesToCache");
+	ArbilJournal.getSingleInstance().clearFieldChangeHistory();
+	if (!datanode.isLocal()) {
+	    System.out.println("should not try to save remote files");
+	    return;
+	}
+	ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
+	Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
+	datanode.getAllFields(allFields);
+	for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
+	    {
+		ArbilField[] currentFieldArray = fieldsEnum.nextElement();
+		for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
+		    ArbilField currentField = currentFieldArray[fieldCounter];
+		    if (currentField.fieldNeedsSaveToDisk()) {
+			FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
+			currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
+			currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
+			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
+			currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
+			currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
+			currentFieldUpdateRequest.attributeValuesMap = currentField.getAttributeValuesMap();
+			fieldUpdateRequests.add(currentFieldUpdateRequest);
+		    }
+		}
+	    }
+	}
+	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
+	if (!result) {
+	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+	} else {
+	    datanode.nodeNeedsSaveToDisk = false;
+	    //            // update the icon to indicate the change
+	    //            setImdiNeedsSaveToDisk(null, false);
+	}
+	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
+    }
+}

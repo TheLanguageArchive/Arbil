@@ -15,7 +15,9 @@ public class ArbilDataNodeLoader extends DefaultDataNodeLoader {
 
     public ArbilDataNodeLoader(MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	super(new DataNodeLoaderThreadManager());
-	setDataNodeService(new ArbilDataNodeService(this, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper));
+	setImdiDataNodeService(new ImdiDataNodeService(this, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper));
+	//TODO: set cmdi implementation of data node service here
+	setCmdiDataNodeService(new ImdiDataNodeService(this, messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper));
 	setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", getThreadManager().isSchemaCheckLocalFiles()));
     }
 }

@@ -5,8 +5,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Document   : ArbilDataNodeLoader formerly known as ImdiLoader
+ * Document : ArbilDataNodeLoader formerly known as ImdiLoader
  * Created on : Dec 30, 2008, 3:04:39 PM
+ *
  * @author Peter.Withers@mpi.nl
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
@@ -15,15 +16,20 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
     private DataNodeLoaderThreadManager threadManager;
-    private ArbilDataNodeService dataNodeService;
+    private ArbilDataNodeService imdiDataNodeService;
+    private ArbilDataNodeService cmdiDataNodeService;
 
     public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager) {
 	System.out.println("ArbilDataNodeLoader init");
 	threadManager = loaderThreadManager;
     }
-    
-    protected final void setDataNodeService(ArbilDataNodeService dataNodeService){
-	this.dataNodeService = dataNodeService;
+
+    protected final void setImdiDataNodeService(ArbilDataNodeService dataNodeService) {
+	this.imdiDataNodeService = dataNodeService;
+    }
+
+    protected final void setCmdiDataNodeService(ArbilDataNodeService dataNodeService) {
+	this.cmdiDataNodeService = dataNodeService;
     }
 
 //    public ImdiTreeObject isImdiObjectLoaded(String localUrlString) {
@@ -187,7 +193,11 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     }
 
     public ArbilDataNode createNewDataNode(URI uri) {
-	return new ArbilDataNode(dataNodeService, uri);
+	if (ArbilDataNode.isPathCmdi(uri.toString())) {
+	    return new ArbilDataNode(cmdiDataNodeService, uri);
+	} else {
+	    return new ArbilDataNode(imdiDataNodeService, uri);
+	}
     }
 
     /**
