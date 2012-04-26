@@ -572,6 +572,17 @@ public class ArbilDataNodeService {
 	}
     }
 
+    /**
+     * Sets requested loading state to {@link LoadingState#LOADED} and performs a {@link #loadArbilDom() }
+     */
+    public void loadFullArbilDom(ArbilDataNode dataNode) {
+	dataNode.setLoadingState(ArbilDataNode.LoadingState.UNLOADED);
+	dataNode.setRequestedLoadingState(ArbilDataNode.LoadingState.LOADED);
+	dataNode.updateLoadingState(+1);
+	dataNode.loadArbilDom();
+	dataNode.updateLoadingState(-1);
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Utilities (should probably be moved into a separate utility class)">
     // TODO: this is not used yet but may be required for unicode paths
     public String urlEncodePath(String inputPath) {

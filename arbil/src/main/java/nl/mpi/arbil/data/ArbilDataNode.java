@@ -294,7 +294,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    }
 	}
     }
-    
+
     public void reloadNodeShallowly(){
 	dataNodeService.reloadNodeShallowly(this);
     }
@@ -305,6 +305,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public void loadArbilDom() {
 	dataNodeService.loadArbilDom(this);
+    }
+    
+    /**
+     * Sets requested loading state to {@link LoadingState#LOADED} and performs a {@link #loadArbilDom() 
+     */
+    public void loadFullArbilDom() {
+	dataNodeService.loadFullArbilDom(this);
     }
 
     /**
@@ -1144,6 +1151,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	return domParentNode;
     }
 
+    public synchronized void setParentDomNode(ArbilDataNode domParentNode) {
+	this.domParentNode = domParentNode;
+    }
+    
     public boolean isDirectory() {
 	return isDirectory;
     }
@@ -1387,7 +1398,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     /**
-     * @param loadingState the loading state to set
+     * @param loadingState the loading state to set. This will in any case set {@link #requestedLoadingState} to {@code null}.
      */
     public synchronized void setLoadingState(LoadingState loadingState) {
 	this.loadingState = loadingState;
@@ -1396,14 +1407,14 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     /**
      * @return the requested loading state. To be used by data node loaders to determine the level of loading. Can be null.
      */
-    public LoadingState getRequestedLoadingState() {
+    public synchronized LoadingState getRequestedLoadingState() {
 	return requestedLoadingState;
     }
 
     /**
      * @param requestedLoadingState the loading state to communicate to data node loaders
      */
-    public void setRequestedLoadingState(LoadingState requestedLoadingState) {
+    public synchronized void setRequestedLoadingState(LoadingState requestedLoadingState) {
 	this.requestedLoadingState = requestedLoadingState;
     }
 
@@ -1413,7 +1424,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public synchronized boolean isDataLoaded() {
 	return getLoadingState().equals(LoadingState.LOADED);
     }
-    
+
     public synchronized boolean isDataPartiallyLoaded() {
 	return !getLoadingState().equals(LoadingState.UNLOADED);
     }

@@ -348,10 +348,14 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 	boolean isExpanded = true;
 	ArbilNode[] childDataNodeArray = new ArbilNode[]{};
 	if (currentNode.getUserObject() instanceof ArbilNode) {
-	    ArbilNode curentDataNode = (ArbilNode) currentNode.getUserObject();
-	    if (curentDataNode != null) {
-		childDataNodeArray = curentDataNode.getChildArray();
+	    ArbilNode currentDataNode = (ArbilNode) currentNode.getUserObject();
+	    if (currentDataNode != null) {
+		childDataNodeArray = currentDataNode.getChildArray();
 		isExpanded = this.isExpanded(new TreePath((currentNode).getPath()));
+		if (isExpanded && currentDataNode instanceof ArbilDataNode && !currentDataNode.isLoading() && !currentDataNode.isDataLoaded()) {
+		    // Expanded nodes should be fully loaded
+		    ((ArbilDataNode) currentDataNode).loadFullArbilDom();
+		}
 	    }
 	}
 	Arrays.sort(childDataNodeArray);
