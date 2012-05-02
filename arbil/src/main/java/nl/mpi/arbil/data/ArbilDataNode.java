@@ -19,7 +19,6 @@ import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
@@ -28,6 +27,7 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
+import nl.mpi.metadata.api.model.MetadataElement;
 
 /**
  * Document : ArbilDataNode formerly known as ImdiTreeObject
@@ -38,6 +38,7 @@ import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 public class ArbilDataNode extends ArbilNode implements Comparable {
 
     private ArbilDataNodeService dataNodeService;
+    private MetadataElement metadataElement;
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
     private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
@@ -60,7 +61,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     private URI nodeUri;
     private boolean containerNode = false;
     public ArbilField resourceUrlField;
-    public CmdiComponentLinkReader cmdiComponentLinkReader = null;
     public boolean isDirectory;
     private ImageIcon icon;
     private boolean nodeEnabled;
@@ -1436,13 +1436,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     /**
-     * @return the cmdiComponentLinkReader
-     */
-    public CmdiComponentLinkReader getCmdiComponentLinkReader() {
-	return getParentDomNode().cmdiComponentLinkReader;
-    }
-
-    /**
      * @return the typeCheckerState
      */
     public TypeCheckerState getTypeCheckerState() {
@@ -1476,5 +1469,19 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      */
     public ArbilDataNodeService getDataNodeService() {
 	return dataNodeService;
+    }
+
+    /**
+     * @return the metadataElement
+     */
+    public MetadataElement getMetadataElement() {
+	return metadataElement;
+    }
+
+    /**
+     * @param metadataElement the metadataElement to set
+     */
+    public void setMetadataElement(MetadataElement metadataElement) {
+	this.metadataElement = metadataElement;
     }
 }

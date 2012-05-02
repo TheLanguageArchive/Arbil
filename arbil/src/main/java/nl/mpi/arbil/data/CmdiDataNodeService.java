@@ -10,11 +10,13 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.metadata.api.MetadataAPI;
 
 /**
  *
@@ -27,6 +29,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     private final SessionStorage sessionStorage;
     private final MimeHashQueue mimeHashQueue;
     private final MetadataDomLoader metadataDomLoader;
+    private final MetadataAPI metadataAPI;
 
     public CmdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper);
@@ -36,7 +39,9 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	this.mimeHashQueue = mimeHashQueue;
 	this.dataNodeLoader = dataNodeLoader;
 
-	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, messageDialogHandler);
+	this.metadataAPI = ArbilTemplateManager.getSingleInstance().getCmdiApi();
+
+	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, messageDialogHandler, metadataAPI);
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {

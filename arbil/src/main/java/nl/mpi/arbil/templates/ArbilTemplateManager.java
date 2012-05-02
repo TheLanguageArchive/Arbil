@@ -38,7 +38,7 @@ public class ArbilTemplateManager {
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
     private String[] builtInTemplates2 = {"Default", "Sign Language"}; // the first item in this list is the default template
-    private CMDIApi cmdiApi = new CMDIApi(new ArbilEntityResolver(null));
+    private CMDIApi cmdiApi = new CMDIApi();
 
 //    private ImdiTemplate defaultArbilTemplate;
     //public String[] builtInTemplates = {"Corpus Branch (internal)", "Session (internal)", "Catalogue (internal)", "Sign Language (internal)"};
@@ -166,6 +166,13 @@ public class ArbilTemplateManager {
 	    addDefaultImdiTemplates();
 	}
 	return selectedTamplates;
+    }
+
+    /**
+     * @return the cmdiApi
+     */
+    public CMDIApi getCmdiApi() {
+	return cmdiApi;
     }
 
     public static class MenuItemData {

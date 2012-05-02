@@ -42,6 +42,12 @@ import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.metadata.api.MetadataException;
+import nl.mpi.metadata.api.model.MetadataElement;
+import nl.mpi.metadata.api.model.ReferencingMetadataDocument;
+import nl.mpi.metadata.api.model.ReferencingMetadataElement;
+import nl.mpi.metadata.cmdi.api.model.CMDIDocument;
+import nl.mpi.metadata.cmdi.api.model.ResourceProxy;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -66,26 +72,26 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilComponentBuilder {
-    
+
     public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
     public static final String RESOURCE_ID_PREFIX = "res_";
     private static MessageDialogHandler messageDialogHandler;
-    
+
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     private static SessionStorage sessionStorage;
-    
+
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
     private static DataNodeLoader dataNodeLoader;
-    
+
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
     private HashMap<ArbilDataNode, SchemaType> nodeSchemaTypeMap = new HashMap<ArbilDataNode, SchemaType>();
-    
+
     public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
 	DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 	documentBuilderFactory.setValidating(false);
@@ -147,72 +153,24 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(iOException);
 	}
     }
-    
-    public URI insertResourceProxy(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) {
+
+    public URI insertResourceProxy(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) throws MetadataException {
 	// there is no need to save the node at this point because metadatabuilder has already done so
 	synchronized (arbilDataNode.getParentDomLockObject()) {
-	    String targetXmlPath = getTargetXmlPath(arbilDataNode);
-	    System.out.println("insertResourceProxy: " + targetXmlPath);
-//            File cmdiNodeFile = imdiTreeObject.getFile();
-//            String nodeFragment = "";
-
-	    String resourceProxyId = null;
-	    CmdiComponentLinkReader linkReader = arbilDataNode.getParentDomNode().cmdiComponentLinkReader;
-	    if (linkReader != null) {
-		resourceProxyId = linkReader.getProxyId(resourceNode.getUrlString());
+	    if (!(arbilDataNode.getMetadataElement() instanceof ReferencingMetadataElement)) {
+		throw new UnsupportedOperationException("Can only add resource proxy to CMDI");
 	    }
-	    boolean newResourceProxy = (resourceProxyId == null);
-	    if (newResourceProxy) {
-		// generate a uuid for new resource
-		resourceProxyId = RESOURCE_ID_PREFIX + UUID.randomUUID().toString();
-	    }
-	    try {
-		// load the dom
-		Document targetDocument = getDocument(arbilDataNode.getURI());
-		// insert the new section
-		try {
-		    try {
-			insertResourceProxyReference(targetDocument, targetXmlPath, resourceProxyId);
-		    } catch (TransformerException exception) {
-			BugCatcherManager.getBugCatcher().logError(exception);
-			return null;
-		    }
-//                printoutDocument(targetDocument);
-		    if (newResourceProxy) {
-			// load the schema
-			SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().getTemplateFile());
-			addNewResourceProxy(targetDocument, schemaType, resourceProxyId, resourceNode);
-		    } else {
-			// Increase counter for referencing nodes
-			linkReader.getResourceLink(resourceProxyId).addReferencingNode();
-		    }
-		} catch (Exception exception) {
-		    BugCatcherManager.getBugCatcher().logError(exception);
-		    return null;
-		}
-		// bump the history
-		arbilDataNode.bumpHistory();
-		// save the dom
-		savePrettyFormatting(targetDocument, arbilDataNode.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
-	    } catch (IOException exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
-		return null;
-	    } catch (ParserConfigurationException exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
-		return null;
-	    } catch (SAXException exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
-		return null;
-	    }
+	    final ReferencingMetadataElement element = (ReferencingMetadataElement) arbilDataNode.getMetadataElement();
+	    element.createMetadataReference(resourceNode.getURI(), resourceNode.getAnyMimeType());
 	    return arbilDataNode.getURI();
 	}
     }
-    
+
     public void setHeaderInfo(Document document, CmdiHeaderInfo headerInfo) throws TransformerException {
 	final String headerPath = "/:CMD/:Header";
-	
+
 	Node headerNode = XPathAPI.selectSingleNode(document.getFirstChild(), headerPath);
-	
+
 	if (headerNode != null) {
 	    setHeaderInfoItem(document, headerNode, "MdCreator", headerInfo.getMdCreator());
 	    setHeaderInfoItem(document, headerNode, "MdCreationDate", headerInfo.getMdCreationDate());
@@ -221,7 +179,7 @@ public class ArbilComponentBuilder {
 	    setHeaderInfoItem(document, headerNode, "MdCollectionDisplayName", headerInfo.getMdCollectionDisplayName());
 	}
     }
-    
+
     private void setHeaderInfoItem(Document document, Node headerNode, final String nodeName, final String value) throws DOMException, TransformerException {
 	Node childNode = XPathAPI.selectSingleNode(headerNode, "/:" + nodeName);
 	if (value != null) {
@@ -236,7 +194,7 @@ public class ArbilComponentBuilder {
 	    }
 	}
     }
-    
+
     private String getTargetXmlPath(ArbilDataNode arbilDataNode) {
 	String targetXmlPath = arbilDataNode.getURI().getFragment();
 	if (targetXmlPath == null) {
@@ -245,7 +203,7 @@ public class ArbilComponentBuilder {
 	}
 	return targetXmlPath;
     }
-    
+
     private void insertResourceProxyReference(Document targetDocument, String targetXmlPath, String resourceProxyId) throws TransformerException, DOMException {
 	//                    if (targetXmlPath == null) {
 	//                        targetXmlPath = ".CMD.Components";
@@ -263,128 +221,31 @@ public class ArbilComponentBuilder {
 	    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, resourceProxyId);
 	}
     }
-    
-    private void addNewResourceProxy(Document targetDocument, SchemaType firstChildSchemaType, String resourceProxyId, ArbilDataNode resourceNode) throws ArbilMetadataException, DOMException {
-	Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), firstChildSchemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
-	addedResourceNode.getAttributes().getNamedItem("id").setNodeValue(resourceProxyId);
-	for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
-	    String localName = childNode.getNodeName();
-	    if ("ResourceType".equals(localName)) {
-		if (resourceNode.isCmdiMetaDataNode()) {
-		    childNode.setTextContent("Metadata");
-		} else {
-		    ((Element) childNode).setAttribute("mimetype", resourceNode.mpiMimeType);
-		    childNode.setTextContent("Resource");
-		}
-	    }
-	    if ("ResourceRef".equals(localName)) {
-		childNode.setTextContent(resourceNode.getUrlString());
-	    }
-	}
-    }
-    
-    public boolean removeResourceProxyReferences(ArbilDataNode parent, Collection<String> resourceProxyReferences) {
+
+    public boolean removeResourceProxyReferences(ArbilDataNode parent, Collection<String> resourceProxyReferences) throws MetadataException {
 	synchronized (parent.getParentDomLockObject()) {
-	    CmdiComponentLinkReader linkReader = parent.getCmdiComponentLinkReader();
-	    if (linkReader == null) {
-		// We do need (and expect) and link reader here...
-		return false;
+	    if (!(parent.getMetadataElement() instanceof ReferencingMetadataElement)) {
+		throw new UnsupportedOperationException("Can only add resource proxy to CMDI");
 	    }
-	    
-	    HashSet<String> resourceProxyIds = new HashSet<String>(resourceProxyReferences.size());
-	    for (String reference : resourceProxyReferences) {
-		resourceProxyIds.add(linkReader.getProxyId(reference));
+	    final ReferencingMetadataElement element = (ReferencingMetadataElement) parent.getMetadataElement();
+	    if (!(element.getMetadataDocument() instanceof CMDIDocument)) {
+		throw new UnsupportedOperationException("Can only remove resource proxy from CMDIDocument");
 	    }
-	    String targetXmlPath = getTargetXmlPath(parent);
-	    System.out.println("removeResourceProxyReferences: " + targetXmlPath);
-	    try {
-		Document targetDocument = getDocument(parent.getURI());
-		// insert the new section
-		try {
-		    Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
-		    if (documentNode != null) { // Node is not there, nothing to check
-			Node previousRefNode = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
-			if (previousRefNode != null) {
-			    // Get old references
-			    String previousRefsValue = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE).getNodeValue();
-			    // Create new reference set excluding the ones to be removed
-			    StringBuilder newRefsValueSB = new StringBuilder();
-			    for (String ref : previousRefsValue.split(" ")) {
-				ref = ref.trim();
-				if (ref.length() > 0 && !resourceProxyIds.contains(ref)) {
-				    newRefsValueSB.append(ref).append(" ");
-				}
-			    }
-			    String newRefsValue = newRefsValueSB.toString().trim();
-			    if (newRefsValue.length() == 0) {
-				// No remaining references, remove ref attribute
-				((Element) documentNode).removeAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
-			    } else {
-				((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, newRefsValue);
-			    }
-			}
-		    }
-		} catch (TransformerException exception) {
-		    BugCatcherManager.getBugCatcher().logError(exception);
-		    return false;
+	    final CMDIDocument document = (CMDIDocument) element.getMetadataDocument();
+	    for (String resourceProxyReference : resourceProxyReferences) {
+		final ResourceProxy documentResourceProxy = document.getDocumentResourceProxy(resourceProxyReference);
+		if (documentResourceProxy != null) {
+		    element.removeReference(documentResourceProxy);
 		}
-
-		// Check whether proxy can be deleted
-		for (String id : resourceProxyIds) {
-		    CmdiResourceLink link = linkReader.getResourceLink(id);
-		    if (link == null) {
-			BugCatcherManager.getBugCatcher().logError(new NullPointerException("Resource link not found for id " + id));
-			return false;
-		    }
-		    link.removeReferencingNode();
-		    if (link.getReferencingNodesCount() == 0) {
-			// There was only one reference to this proxy and we deleted it, so remove the proxy
-			if (!removeResourceProxy(targetDocument, id)) {
-			    messageDialogHandler.addMessageDialogToQueue("Failed to remove resource proxy with id " + id, "Warning");
-			}
-		    }
-		}
-
-		// bump the history
-		parent.bumpHistory();
-		// save the dom
-		savePrettyFormatting(targetDocument, parent.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
-		return true;
-	    } catch (IOException exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
-	    } catch (ParserConfigurationException exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
-	    } catch (SAXException exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
 	    }
-	}
-	return false;
-    }
-
-    /**
-     * Removes the resource proxy with the specified id from the document.
-     * Note: THIS DOES NOT CHECK WHETHER THERE ARE ANY REFERENCES LEFT
-     *
-     * @param document Document to remove resource proxy from
-     * @param resourceProxyId Unique id (id="xyz") of resource proxy element
-     * @return Whether resource proxy was removed successfully
-     */
-    private boolean removeResourceProxy(Document document, String resourceProxyId) {
-	// Look for ResourceProxy node with specified id
-	Node proxyNode = getResourceProxyNode(document, resourceProxyId);
-	if (proxyNode != null) {
-	    // Node found. Remove from parent
-	    proxyNode.getParentNode().removeChild(proxyNode);
 	    return true;
-	} else {
-	    return false;
 	}
     }
-    
+
     public boolean updateResourceProxyReference(Document document, String resourceProxyId, URI referenceURI) {
 	return updateResourceProxyReference(document, resourceProxyId, referenceURI.toString());
     }
-    
+
     public boolean updateResourceProxyReference(Document document, String resourceProxyId, String reference) {
 	try {
 	    // Look for ResourceProxy node with specified id
@@ -398,7 +259,7 @@ public class ArbilComponentBuilder {
 	}
 	return false;
     }
-    
+
     public boolean removeChildNodes(ArbilDataNode arbilDataNode, String nodePaths[]) {
 	if (arbilDataNode.getNeedsSaveToDisk(false)) {
 	    arbilDataNode.saveChangesToCache(true);
@@ -419,7 +280,7 @@ public class ArbilComponentBuilder {
 			System.out.println("documentNodeName: " + documentNode != null ? documentNode.getNodeName() : "<null>");
 			selectedNodes.add(documentNode);
 		    }
-		    
+
 		}
 		// delete all the nodes now that the xpath is no longer relevant
 		System.out.println(selectedNodes.size());
@@ -456,7 +317,7 @@ public class ArbilComponentBuilder {
 	    return false;
 	}
     }
-    
+
     public boolean setFieldValues(ArbilDataNode arbilDataNode, FieldUpdateRequest[] fieldUpdates) {
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
@@ -483,9 +344,9 @@ public class ArbilComponentBuilder {
 				for (Map.Entry<String, Object> attributeEntry : currentFieldUpdate.attributeValuesMap.entrySet()) {
 				    final String attrPath = attributeEntry.getKey();
 				    final Object attrValue = attributeEntry.getValue();
-				    
+
 				    final Attr attrNode = getAttributeNodeFromPath(element, attrPath);
-				    
+
 				    if (attrValue == null || "".equals(attrValue)) {
 					// Null or empty, remove if set
 					if (attrNode != null) {
@@ -503,7 +364,7 @@ public class ArbilComponentBuilder {
 				    }
 				}
 			    }
-			    
+
 			    if (!arbilDataNode.isCmdiMetaDataNode()) { // isImdiMetadataNode()
 				Node languageNode = attributesMap.getNamedItem("LanguageId");
 				if (languageNode == null) {
@@ -526,8 +387,8 @@ public class ArbilComponentBuilder {
 				    }
 				}
 			    }
-			    
-			    
+
+
 			    if (!arbilDataNode.isCmdiMetaDataNode()) { // isImdiMetadataNode()
 				if (currentFieldUpdate.keyNameValue != null) {
 				    Node keyNameNode = attributesMap.getNamedItem("Name");
@@ -566,7 +427,7 @@ public class ArbilComponentBuilder {
 	    return false;
 	}
     }
-    
+
     public void testInsertFavouriteComponent() {
 	try {
 	    ArbilDataNode favouriteArbilDataNode1 = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
@@ -580,7 +441,7 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
-    
+
     public URI insertFavouriteComponent(ArbilDataNode destinationArbilDataNode, ArbilDataNode favouriteArbilDataNode) throws ArbilMetadataException {
 	URI returnUri = null;
 	// this node has already been saved in the metadatabuilder which called this
@@ -612,9 +473,9 @@ public class ArbilComponentBuilder {
 		    destinationXpath = favouriteXpathTrimmed.replaceFirst("\\.[^.]+$", "");
 		}
 		System.out.println("destinationXpath: " + destinationXpath);
-		
+
 		destinationXpath = alignDestinationPathWithTarget(destinationXpath, destinationArbilDataNode);
-		
+
 		Node destinationNode = selectSingleNode(destinationDocument, destinationXpath);
 		Node selectedNode = selectSingleNode(favouriteDocument, favouriteXpathTrimmed);
 		Node importedNode = destinationDocument.importNode(selectedNode, true);
@@ -705,7 +566,7 @@ public class ArbilComponentBuilder {
 	}
 	return destinationXpath;
     }
-    
+
     public static boolean canInsertNode(Node destinationNode, Node addableNode, int maxOccurs) {
 	if (maxOccurs > 0) {
 	    String addableName = addableNode.getLocalName();
@@ -728,11 +589,11 @@ public class ArbilComponentBuilder {
     }
     private final static Pattern attributePathPattern = Pattern.compile("^.*\\.@[^.]+$");
     private final static Pattern namespacePartPattern = Pattern.compile("\\{(.*)\\}");
-    
+
     public static boolean pathIsAttribute(String pathString) {
 	return attributePathPattern.matcher(pathString).matches();
     }
-    
+
     public static boolean pathIsAttribute(String[] pathTokens) {
 	return pathTokens.length > 0 && pathTokens[pathTokens.length - 1].startsWith("@");
     }
@@ -800,7 +661,7 @@ public class ArbilComponentBuilder {
 	    return null;
 	}
     }
-    
+
     public static Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
 	if (!canInsertNode(destinationNode, addableNode, maxOccurs)) {
 	    throw new ArbilMetadataException("The maximum nodes of this type have already been added.\n");
@@ -820,7 +681,7 @@ public class ArbilComponentBuilder {
 			System.out.println("insertbefore: " + childsName);
 			insertBeforeNode = childNodes.item(childCounter);
 			break outerloop;
-			
+
 		    }
 		}
 	    }
@@ -845,7 +706,7 @@ public class ArbilComponentBuilder {
 	}
 	return addedNode;
     }
-    
+
     private String checkTargetXmlPath(String targetXmlPath, String cmdiComponentId) {
 	// check for issues with the path
 	if (targetXmlPath == null) {
@@ -884,7 +745,7 @@ public class ArbilComponentBuilder {
 	    System.out.println("insertChildComponent: " + cmdiComponentId);
 	    System.out.println("targetXmlPath: " + targetXmlPath);
 	    targetXmlPath = checkTargetXmlPath(targetXmlPath, cmdiComponentId);
-	    
+
 	    System.out.println("trimmed targetXmlPath: " + targetXmlPath);
 	    //String targetXpath = targetNode.getURI().getFragment();
 	    //System.out.println("targetXpath: " + targetXpath);
@@ -971,7 +832,7 @@ public class ArbilComponentBuilder {
 	    }
 	}
     }
-    
+
     public void testRemoveArchiveHandles() {
 	try {
 	    Document workingDocument = getDocument(new URI("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi"));
@@ -981,7 +842,7 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
-    
+
     public void removeArchiveHandles(ArbilDataNode arbilDataNode) {
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    try {
@@ -993,7 +854,7 @@ public class ArbilComponentBuilder {
 	    }
 	}
     }
-    
+
     private static void removeImdiDomIds(Document targetDocument) {
 	String handleXpath = "/:METATRANSCRIPT[@id]|/:METATRANSCRIPT//*[@id]";
 	try {
@@ -1008,7 +869,7 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
-    
+
     private void removeArchiveHandles(Document targetDocument) {
 	String handleXpath = "/:METATRANSCRIPT[@ArchiveHandle]|/:METATRANSCRIPT//*[@ArchiveHandle]";
 	try {
@@ -1039,11 +900,11 @@ public class ArbilComponentBuilder {
 	}
 	return null;
     }
-    
+
     private String getPathForResourceProxynode(String resourceProxyId) {
 	return ".CMD.Resources.ResourceProxyList.ResourceProxy[@id='" + resourceProxyId + "']";
     }
-    
+
     private Node selectSingleNode(Document targetDocument, String targetXpath) throws TransformerException {
 	String tempXpathArray[] = convertImdiPathToXPathOptions(targetXpath);
 	if (tempXpathArray != null) {
@@ -1062,7 +923,7 @@ public class ArbilComponentBuilder {
 	BugCatcherManager.getBugCatcher().logError(new Exception("Xpath issue, no node found for: " + targetXpath));
 	return null;
     }
-    
+
     private String[] convertImdiPathToXPathOptions(String targetXpath) {
 	if (targetXpath == null) {
 	    return null;
@@ -1074,9 +935,9 @@ public class ArbilComponentBuilder {
 			targetXpath.replaceAll("\\.@([^.]*)$", "/@$1").replaceAll("\\.", "/:") // Attributes (.@) should not get colon hence the two steps
 		    };
 	}
-	
+
     }
-    
+
     private Node insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
 	System.out.println("insertSectionToXpath");
 	System.out.println("xsdPath: " + xsdPath);
@@ -1139,7 +1000,7 @@ public class ArbilComponentBuilder {
 //        documentNode.appendChild(currentElement);
 	System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
 	Node addedNode = constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
-	
+
 	System.out.println("insertBefore: " + insertBefore);
 	int maxOccurs;
 	if (foundProperty.getMaxOccurs() != null) {
@@ -1162,7 +1023,7 @@ public class ArbilComponentBuilder {
 	}
 	return addedNode;
     }
-    
+
     private boolean canInsertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
 	System.out.println("insertSectionToXpath");
 	System.out.println("xsdPath: " + xsdPath);
@@ -1216,13 +1077,13 @@ public class ArbilComponentBuilder {
 	    }
 	}
 	System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
-	
+
 	if (pathIsAttribute(xsdPath)) {
 	    return canInsertAttribute((Element) documentNode, foundProperty);
 	} else {
-	    
+
 	    Node addedNode = constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
-	    
+
 	    System.out.println("insertBefore: " + insertBefore);
 	    int maxOccurs;
 	    if (foundProperty.getMaxOccurs() != null) {
@@ -1242,7 +1103,7 @@ public class ArbilComponentBuilder {
 	    return true;
 	}
     }
-    
+
     private boolean canInsertAttribute(Element documentNode, SchemaProperty attributeSchemaProperty) {
 	final QName attrName = attributeSchemaProperty.getName();
 	if ((attrName.getNamespaceURI() != null && attrName.getNamespaceURI().length() > 0)
@@ -1255,7 +1116,7 @@ public class ArbilComponentBuilder {
 	    return true;
 	}
     }
-    
+
     public static String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
 	System.out.println("Calculating the added fragment");
 	// count siblings to get the correct child index for the fragment
@@ -1302,13 +1163,13 @@ public class ArbilComponentBuilder {
 	return nodePathString;
 	//return childStartElement.
     }
-    
+
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile, boolean addDummyData) {
 	System.out.println("createComponentFile: " + cmdiNodeFile + " : " + xsdFile);
 	try {
 	    Document workingDocument = getDocument(null);
 	    readSchema(workingDocument, xsdFile, addDummyData);
-	    
+
 	    savePrettyFormatting(workingDocument, new File(cmdiNodeFile));
 	    setDefaultCmdiHeaderInfo(cmdiNodeFile, xsdFile);
 	} catch (IOException e) {
@@ -1320,7 +1181,7 @@ public class ArbilComponentBuilder {
 	}
 	return cmdiNodeFile;
     }
-    
+
     private void setDefaultCmdiHeaderInfo(URI cmdiNodeFile, URI xsdFile) throws ParserConfigurationException, IOException, SAXException {
 	// Reload DOM, needed for XPathAPI
 	Document document = getDocument(cmdiNodeFile);
@@ -1350,7 +1211,7 @@ public class ArbilComponentBuilder {
 	    return schemaType;
 	}
     }
-    
+
     private SchemaType getFirstSchemaType(URL schemaFile) {
 	try {
 	    InputStream inputStream = schemaFile.openStream();
@@ -1380,7 +1241,7 @@ public class ArbilComponentBuilder {
 	}
 	return null;
     }
-    
+
     private void readSchema(Document workingDocument, URI xsdFile, boolean addDummyData) {
 	File schemaFile;
 	if (xsdFile.getScheme() == null || xsdFile.getScheme().length() == 0 || xsdFile.getScheme().toLowerCase().equals("file")) {
@@ -1396,7 +1257,7 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(e);
 	}
     }
-    
+
     private Node appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
 	if (schemaProperty.isAttribute()) {
 	    return appendAttributeNode(workingDocument, nameSpaceUri, (Element) parentElement, schemaProperty, addDummyData);
@@ -1404,7 +1265,7 @@ public class ArbilComponentBuilder {
 	    return appendElementNode(workingDocument, nameSpaceUri, parentElement, schemaProperty, addDummyData);
 	}
     }
-    
+
     private Attr appendAttributeNode(Document workingDocument, String nameSpaceUri, Element parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
 	Attr currentAttribute = workingDocument.createAttributeNS(schemaProperty.getName().getNamespaceURI(), schemaProperty.getName().getLocalPart());
 	if (schemaProperty.getDefaultText() != null) {
@@ -1413,7 +1274,7 @@ public class ArbilComponentBuilder {
 	parentElement.setAttributeNode(currentAttribute);
 	return currentAttribute;
     }
-    
+
     private Element appendElementNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
 //        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd", schemaProperty.getName().getLocalPart());
 	Element currentElement = workingDocument.createElementNS(CMD_NAMESPACE, schemaProperty.getName().getLocalPart());
@@ -1436,7 +1297,7 @@ public class ArbilComponentBuilder {
 	//currentElement.setTextContent(schemaProperty.getMinOccurs() + ":" + schemaProperty.getMinOccurs());
 	return currentElement;
     }
-    
+
     private Node constructXml(SchemaProperty currentSchemaProperty, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement, boolean addDummyData) {
 	Node returnNode = null;
 	// this must be tested against getting the actor description not the actor of an imdi profile instance
@@ -1505,7 +1366,7 @@ public class ArbilComponentBuilder {
 	}
 	return returnNode;
     }
-    
+
     private void printoutDocument(Document workingDocument) {
 	try {
 	    TransformerFactory tranFactory = TransformerFactory.newInstance();
@@ -1519,7 +1380,7 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(e);
 	}
     }
-    
+
     public void testWalk() {
 	try {
 	    //new CmdiComponentBuilder().readSchema();
