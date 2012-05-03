@@ -91,18 +91,17 @@ public class ImdiDomLoader implements MetadataDomLoader {
     }
 
     private void checkRemovedChildNodes(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
-	//ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
 	for (Map.Entry<ArbilDataNode, HashSet<ArbilDataNode>> entry : parentChildTree.entrySet()) {
 	    ArbilDataNode currentNode = entry.getKey();
 	    // System.out.println("setting childArray on: " + currentNode.getUrlString());
 	    // save the old child array
 	    ArbilDataNode[] oldChildArray = currentNode.childArray;
 	    // set the new child array
-	    currentNode.childArray = parentChildTree.get(currentNode).toArray(new ArbilDataNode[]{});
+	    currentNode.childArray = entry.getValue().toArray(new ArbilDataNode[]{});
 	    // check the old child array and for each that is no longer in the child array make sure they are removed from any containers (tables or trees)
 	    List currentChildList = Arrays.asList(currentNode.childArray);
 	    for (ArbilDataNode currentOldChild : oldChildArray) {
-		if (currentChildList.indexOf(currentOldChild) == -1) {
+		if (!currentChildList.contains(currentOldChild)) {
 		    // remove from any containers that its found in
 		    for (ArbilDataNodeContainer currentContainer : currentOldChild.getRegisteredContainers()) {
 			currentContainer.dataNodeRemoved(currentOldChild);
