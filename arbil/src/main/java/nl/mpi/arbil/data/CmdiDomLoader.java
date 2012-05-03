@@ -26,6 +26,9 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.metadata.api.MetadataAPI;
+import nl.mpi.metadata.api.model.MetadataContainer;
+import nl.mpi.metadata.api.model.MetadataElement;
+import nl.mpi.metadata.api.model.MetadataField;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -75,8 +78,47 @@ public class CmdiDomLoader implements MetadataDomLoader {
     private void updateMetadataChildNodes(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
 	Document nodDom = ArbilComponentBuilder.getDocument(dataNode.getURI());
 	HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree = new HashMap<ArbilDataNode, HashSet<ArbilDataNode>>();
-	dataNode.childLinks = loadMetadataChildNodes(dataNode, nodDom, parentChildTree);
+	loadMetadataChildNodes(dataNode, parentChildTree);
 	checkRemovedChildNodes(parentChildTree);
+    }
+
+    private void loadMetadataChildNodes(ArbilDataNode parentNode, HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
+	if (!parentChildTree.containsKey(parentNode)) {
+	    parentChildTree.put(parentNode, new HashSet<ArbilDataNode>());
+	}
+	final MetadataElement metadataElement = parentNode.getMetadataElement();
+	if (metadataElement instanceof MetadataContainer) {
+	    final MetadataContainer<MetadataElement> container = (MetadataContainer) metadataElement;
+	    iterateChildNodes(container, parentNode, parentChildTree);
+	}
+    }
+
+    private void iterateChildNodes(final MetadataContainer<MetadataElement> container, ArbilDataNode parentNode, HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
+	int fieldOrder = 0;
+	for (MetadataElement child : container.getChildren()) {
+	    if (child instanceof MetadataContainer) {
+		final StringBuilder nodeURIStringBuilder = new StringBuilder(4).append(parentNode.getURI().toString());
+		if (!parentNode.getUrlString().contains("#")) {
+		    nodeURIStringBuilder.append("#");
+		}
+		nodeURIStringBuilder.append(ArbilConstants.imdiPathSeparator);
+		nodeURIStringBuilder.append(child.getType().getName());
+		nodeURIStringBuilder.append("(0)"); // TODO: make functional
+		try {
+		    ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
+		    subNode.setMetadataElement(child);
+		    parentChildTree.get(parentNode).add(subNode);
+		    loadMetadataChildNodes(subNode, parentChildTree);
+		} catch (URISyntaxException usEx) {
+		    BugCatcherManager.getBugCatcher().logError("URISyntaxException while loading child nodes", usEx);
+		}
+	    } else if (child instanceof MetadataField) {
+		final MetadataField metadataField = (MetadataField) child;
+		ArbilField field = new ArbilField(fieldOrder++, parentNode, metadataField.getType().getPathString().replaceAll("/:", "."), metadataField.getValue().toString(), 0, false);
+		field.setMetadataField(metadataField);
+		parentNode.addField(field);
+	    }
+	}
     }
 
     private String[][] loadMetadataChildNodes(ArbilDataNode dataNode, Document nodDom, HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
