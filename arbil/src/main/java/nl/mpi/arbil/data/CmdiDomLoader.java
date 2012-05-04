@@ -29,6 +29,8 @@ import nl.mpi.metadata.api.MetadataAPI;
 import nl.mpi.metadata.api.model.MetadataContainer;
 import nl.mpi.metadata.api.model.MetadataElement;
 import nl.mpi.metadata.api.model.MetadataField;
+import nl.mpi.metadata.api.model.Reference;
+import nl.mpi.metadata.api.model.ReferencingMetadataElement;
 import nl.mpi.metadata.api.type.ContainedMetadataElementType;
 import nl.mpi.metadata.api.type.MetadataElementType;
 import org.w3c.dom.DOMException;
@@ -80,6 +82,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
     private void updateMetadataChildNodes(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
 	HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree = new HashMap<ArbilDataNode, HashSet<ArbilDataNode>>();
 	loadMetadataChildNodes(dataNode, parentChildTree);
+	// TODO: Add unreferenced resourece proxies
 	updateChildNodes(parentChildTree);
     }
 
@@ -95,7 +98,18 @@ public class CmdiDomLoader implements MetadataDomLoader {
     }
 
     private void iterateChildNodes(final MetadataContainer<MetadataElement> container, ArbilDataNode parentNode, HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
+	// Add internal child nodes
+	addMetadataChildNodes(container, parentNode, parentChildTree);
+	// Add references (resources + linked metadata)
+	if (container instanceof ReferencingMetadataElement) {
+	    addReferencedChildNodes(parentNode, (ReferencingMetadataElement<Reference>) container, parentChildTree);
+	}
+    }
+
+    private void addMetadataChildNodes(final MetadataContainer<MetadataElement> container, ArbilDataNode parentNode, HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
+	// Index for fields
 	int fieldOrder = 0;
+	// Iterate metadata children
 	for (MetadataElement child : container.getChildren()) {
 	    if (child instanceof MetadataContainer) {
 		if (isChildNode(child)) {
@@ -207,6 +221,13 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", "."), metadataField.getValue().toString(), 0, false);
 	field.setMetadataField(metadataField);
 	parentNode.addField(field);
+    }
+
+    private void addReferencedChildNodes(ArbilDataNode parentNode, ReferencingMetadataElement<Reference> container, HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
+	for (Reference reference : container.getReferences()) {
+	    ArbilDataNode referenceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(reference.getURI());
+	    parentChildTree.get(parentNode).add(referenceNode);
+	}
     }
 
     private String[][] loadMetadataChildNodes(ArbilDataNode dataNode, Document nodDom, HashMap<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
