@@ -41,7 +41,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 
 	this.metadataAPI = ArbilTemplateManager.getSingleInstance().getCmdiApi();
 
-	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, messageDialogHandler, metadataAPI);
+	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, metadataAPI);
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {

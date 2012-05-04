@@ -312,23 +312,6 @@ public class ImdiDomLoader implements MetadataDomLoader {
 	return nodeOrderCounter;
     }
 
-    private int countSiblings(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, ArbilDataNode parentNode, String localName) {
-	// todo: this might need to be revisited
-	// this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
-	int siblingCount = 1;
-	for (ArbilDataNode siblingNode : parentChildTree.get(parentNode)) {
-	    String siblingPath = siblingNode.getURI().getFragment();
-	    if (siblingPath != null) {
-		siblingPath = siblingPath.substring(siblingPath.lastIndexOf(".") + 1);
-		siblingPath = siblingPath.replaceAll("\\(\\d+\\)", "");
-		if (localName.equals(siblingPath)) {
-		    siblingCount++;
-		}
-	    }
-	}
-	return siblingCount;
-    }
-
     private void removeImdiNodeIds(NamedNodeMap attributesMap, ArbilDataNode parentNode) {
 	// look for node id attribites that should be removed from imdi files
 	if (attributesMap.getNamedItem("id") != null) {
