@@ -226,7 +226,6 @@ public class ImdiDomLoader implements MetadataDomLoader {
 		String siblingNodePath = childNodePath;
 		if (localName != null && childsMetaNode != null) {
 		    try {
-			ArbilDataNode metaNode = null;
 			String pathUrlXpathSeparator = "";
 			if (!parentNode.getUrlString().contains("#")) {
 			    pathUrlXpathSeparator = "#";
@@ -236,24 +235,27 @@ public class ImdiDomLoader implements MetadataDomLoader {
 			final StringBuilder nodeURIStringBuilder = new StringBuilder(4).append(parentNode.getURI().toString()).append(pathUrlXpathSeparator).append(siblingNodePath);
 
 			boolean isSingleton = maxOccurs == 1;
-			metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
-			metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
-			if (!parentChildTree.containsKey(metaNode)) {
-			    parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
-			}
+			ArbilDataNode metaNode = null;
 			if (!isSingleton) {
+			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
+			    metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
+			    if (!parentChildTree.containsKey(metaNode)) {
+				parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
+			    }
 			    // Add metanode to tree
 			    parentChildTree.get(parentNode).add(metaNode);
+			    siblingSpacer = new StringBuilder(3).append("(").append(parentChildTree.get(metaNode).size() + 1).append(")");
+			} else {
+			    // add brackets to conform with the imdi api notation
+			    siblingSpacer = new StringBuilder(3).append("(0)");
 			}
-
-			// add brackets to conform with the imdi api notation
-			siblingSpacer = new StringBuilder(3).append("(").append(parentChildTree.get(metaNode).size() + 1).append(")");
 			fullSubNodePath.append(siblingSpacer);
 			// For subnode URI 
 			nodeURIStringBuilder.append(siblingSpacer);
 			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
 
-			if (metaNode != null && !isSingleton) {
+			if (!isSingleton) {
+			    assert (metaNode != null);
 			    // Add subnode to metanode
 			    parentChildTree.get(metaNode).add(subNode);
 			    metaNode.setContainerNode(true);
