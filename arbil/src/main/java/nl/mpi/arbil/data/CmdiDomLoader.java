@@ -122,7 +122,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
 		}
 	    } else if (child instanceof MetadataField) {
 		// Add field
-		addField(fieldOrder, parentNode, (MetadataField) child);
+		addField(fieldOrder++, parentNode, (MetadataField) child);
 	    }
 	}
     }
@@ -198,7 +198,13 @@ public class CmdiDomLoader implements MetadataDomLoader {
     }
 
     private void addField(int fieldOrder, ArbilDataNode parentNode, final MetadataField metadataField) {
-	ArbilField field = new ArbilField(fieldOrder++, parentNode, metadataField.getType().getPathString().replaceAll("/:", "."), metadataField.getValue().toString(), 0, false);
+	String parentPath = parentNode.getMetadataElement().getType().getPathString();
+	String fieldPath = metadataField.getType().getPathString();
+	if (fieldPath.startsWith(parentPath)) {
+	    fieldPath = fieldPath.substring(parentPath.length());
+	}
+
+	ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", "."), metadataField.getValue().toString(), 0, false);
 	field.setMetadataField(metadataField);
 	parentNode.addField(field);
     }
