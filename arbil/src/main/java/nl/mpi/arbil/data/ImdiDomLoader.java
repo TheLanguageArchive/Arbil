@@ -247,7 +247,7 @@ public class ImdiDomLoader implements MetadataDomLoader {
 			    siblingSpacer = new StringBuilder(3).append("(").append(parentChildTree.get(metaNode).size() + 1).append(")");
 			} else {
 			    // add brackets to conform with the imdi api notation
-			    siblingSpacer = new StringBuilder(3).append("(0)");
+			    siblingSpacer = new StringBuilder(3).append("(1)");
 			}
 			fullSubNodePath.append(siblingSpacer);
 			// For subnode URI 
