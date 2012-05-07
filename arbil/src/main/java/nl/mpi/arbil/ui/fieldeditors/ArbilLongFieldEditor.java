@@ -46,9 +46,9 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
- *  Document   : ArbilLongFieldEditor
- *  Created on : Sep 14, 2010, 1:53:15 PM
- *  Author     : Peter Withers, Twan Goosen
+ * Document : ArbilLongFieldEditor
+ * Created on : Sep 14, 2010, 1:53:15 PM
+ * Author : Peter Withers, Twan Goosen
  */
 public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContainer {
 
@@ -432,6 +432,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     /**
      * Checks whether the key editor field has been changed, if so asks the user to go ahead and save pending changes, and finally
      * saves changes if the user agrees
+     *
      * @param cellFieldIndex
      * @return False if the user has canceled save changes. True otherwise (i.e. there are no changes or user agrees to save)
      */
@@ -455,8 +456,13 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	return true;
     }
 
+    public boolean isFullyLoadedNodeRequired() {
+	return true;
+    }
+
     /**
      * Data node is to be removed
+     *
      * @param dataNode Data node that should be removed
      */
     public void dataNodeRemoved(ArbilNode dataNode) {
@@ -465,6 +471,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     /**
      * Data node is clearing its icon
+     *
      * @param dataNode Data node that is clearing its icon
      */
     public void dataNodeIconCleared(ArbilNode dataNode) {
@@ -475,6 +482,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     /**
      * A new child node has been added to the destination node
+     *
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */

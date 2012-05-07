@@ -322,7 +322,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
         }
         if (parentTreeNode.getUserObject() instanceof ArbilDataNode) {
             if (((ArbilDataNode) parentTreeNode.getUserObject()).isDataLoaded()) {
-                ((ArbilDataNode) parentTreeNode.getUserObject()).reloadNode();
+                ((ArbilDataNode) parentTreeNode.getUserObject()).reloadNodeShallowly();
             }
         }
     }

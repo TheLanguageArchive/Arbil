@@ -28,6 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -519,6 +520,11 @@ public class ArbilDataNodeService {
 	return dataNodeLoader.getArbilDataNode(registeringObject, localUri);
     }
 
+    public void reloadNodeShallowly(ArbilDataNode dataNode) {
+	dataNode.getParentDomNode().nodeNeedsSaveToDisk = false; // clear any changes
+	dataNodeLoader.requestShallowReload(dataNode.getParentDomNode());
+    }
+
     public void reloadNode(ArbilDataNode dataNode) {
 	dataNode.getParentDomNode().nodeNeedsSaveToDisk = false; // clear any changes
 	//        if (!this.isImdi()) {
@@ -545,19 +551,36 @@ public class ArbilDataNodeService {
 		if (!dataNode.isMetaDataNode() && !dataNode.isDirectory() && dataNode.isLocal()) {
 		    // if it is an not imdi or a loose file but not a direcotry then get the md5sum
 		    mimeHashQueue.addToQueue(dataNode);
-		    dataNode.setDataLoaded(true);
+		    dataNode.setLoadingState(ArbilDataNode.LoadingState.LOADED);
 		}
 		if (dataNode.isDirectory()) {
 		    getDirectoryLinks(dataNode);
-		    dataNode.setDataLoaded(true);
+		    dataNode.setLoadingState(ArbilDataNode.LoadingState.LOADED);
 		    //            clearIcon();
 		}
 		if (dataNode.isMetaDataNode()) {
 		    loadMetadataDom(dataNode);
-		    dataNode.setDataLoaded(true);
+
+		    LoadingState requestedLoadingState = dataNode.getRequestedLoadingState();
+		    if (requestedLoadingState == null) {
+			requestedLoadingState = LoadingState.LOADED;
+		    }
+
+		    dataNode.setLoadingState(requestedLoadingState);
 		}
 	    }
 	}
+    }
+
+    /**
+     * Sets requested loading state to {@link LoadingState#LOADED} and performs a {@link #loadArbilDom() }
+     */
+    public void loadFullArbilDom(ArbilDataNode dataNode) {
+	dataNode.setLoadingState(ArbilDataNode.LoadingState.UNLOADED);
+	dataNode.setRequestedLoadingState(ArbilDataNode.LoadingState.LOADED);
+	dataNode.updateLoadingState(+1);
+	dataNode.loadArbilDom();
+	dataNode.updateLoadingState(-1);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Utilities (should probably be moved into a separate utility class)">
@@ -720,7 +743,8 @@ public class ArbilDataNodeService {
 //	    startNode = metadataNode;
 //	}
 	// load the fields from the imdi file
-	MetadataReader.getSingleInstance().iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
+	final boolean shallowLoading = LoadingState.PARTIAL.equals(dataNode.getRequestedLoadingState());
+	MetadataReader.getSingleInstance().iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0, shallowLoading);
 	if (dataNode.isCmdiMetaDataNode()) {
 	    // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
 	    MetadataReader.getSingleInstance().addUnreferencedResources(dataNode, parentChildTree, childLinks);

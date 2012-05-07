@@ -116,4 +116,9 @@ public abstract class ArbilRootNode extends ArbilNode {
     public boolean isDataLoaded() {
         return true;
     }
+
+    @Override
+    public boolean isDataPartiallyLoaded() {
+	return true;
+    }
 }

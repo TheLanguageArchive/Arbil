@@ -571,7 +571,7 @@ public class MetadataReader {
      */
     public int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, final String nodePath, String fullNodePath,
 	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
-	    , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) {
+	    , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter, boolean shallowLoading) {
 	//        System.out.println("iterateChildNodes: " + nodePath);
 	if (!parentChildTree.containsKey(parentNode)) {
 	    parentChildTree.put(parentNode, new HashSet<ArbilDataNode>());
@@ -631,6 +631,8 @@ public class MetadataReader {
 			if (maxOccurs > 1 || maxOccurs == -1 || !(parentDomNode.nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
 			    isSingleton = maxOccurs == 1;
 			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
+			    metaNode.setParentDomNode(parentDomNode);
+			    
 			    metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
 			    if (!parentChildTree.containsKey(metaNode)) {
 				parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
@@ -650,7 +652,8 @@ public class MetadataReader {
 			// For subnode URI 
 			nodeURIStringBuilder.append(siblingSpacer);
 			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
-
+			subNode.setParentDomNode(parentDomNode);
+			
 			if (metaNode != null && !isSingleton) {
 			    // Add subnode to metanode
 			    parentChildTree.get(metaNode).add(subNode);
@@ -674,8 +677,10 @@ public class MetadataReader {
 		} else {
 		    destinationNode = parentNode;
 		}
-		nodeOrderCounter = enterChildNodesRecursion(parentNode, childLinks, childNode, childNodeAttributes, destinationNode, localName,
-			parentNodePath, siblingNodePath, fullSubNodePath.toString(), parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+		if (!shallowLoading || destinationNode == parentDomNode) {
+		    nodeOrderCounter = enterChildNodesRecursion(parentNode, childLinks, childNode, childNodeAttributes, destinationNode, localName,
+			    parentNodePath, siblingNodePath, fullSubNodePath.toString(), parentChildTree, siblingNodePathCounter, nodeOrderCounter, shallowLoading);
+		}
 	    }
 	}
 	return nodeOrderCounter;
@@ -687,7 +692,8 @@ public class MetadataReader {
      */
     private int enterChildNodesRecursion(ArbilDataNode parentNode, Vector<String[]> childLinks, Node childNode, NamedNodeMap childNodeAttributes,
 	    ArbilDataNode destinationNode, String localName, String parentNodePath, String siblingNodePath, String fullSubNodePath,
-	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) throws DOMException {
+	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter, boolean shallowLoading) throws DOMException {
+
 	NodeList childNodes = childNode.getChildNodes();
 	boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
 		|| (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE));
@@ -733,8 +739,7 @@ public class MetadataReader {
 	    }
 	}
 
-	nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
-
+	nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter, shallowLoading);
 	return nodeOrderCounter;
     }
 
@@ -828,7 +833,7 @@ public class MetadataReader {
 		    childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
 		    ArbilDataNode descriptionLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink);
 		    descriptionLinkNode.isInfoLink = true;
-		    descriptionLinkNode.setDataLoaded(true);
+		    descriptionLinkNode.setLoadingState(ArbilDataNode.LoadingState.LOADED);
 		    parentChildTree.get(parentNode).add(descriptionLinkNode);
 		    descriptionLinkNode.addField(fieldToAdd);
 		}

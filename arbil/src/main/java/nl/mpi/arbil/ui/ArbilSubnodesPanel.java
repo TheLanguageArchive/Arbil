@@ -37,16 +37,16 @@ import nl.mpi.arbil.util.ArbilActionBuffer;
  *
  * +--ArbilSubnodesPanel---------------+
  * |+--++-----Content-----------------+|
- * ||P || TABLE                       ||
+ * ||P || TABLE ||
  * ||A || +---ArbilSubnodesPanel 1--+ ||
  * ||D || |+--+ +-----Content------+| ||
- * ||D || |+P + + TABLE            || ||
- * ||I || |+A + + {ASnPanel 1.1}   || ||
- * ||N || |+D + + {ASnPanel 1.2}   || ||
+ * ||D || |+P + + TABLE || ||
+ * ||I || |+A + + {ASnPanel 1.1} || ||
+ * ||N || |+D + + {ASnPanel 1.2} || ||
  * ||G || |+--+ +------------------+| ||
- * ||  || +-------------------------+ ||
- * ||  || {ArbilSubnodesPanel 2}       ||
- * ||  || {ArbilSubnodesPanel 3}       ||
+ * || || +-------------------------+ ||
+ * || || {ArbilSubnodesPanel 2} ||
+ * || || {ArbilSubnodesPanel 3} ||
  * |+--++-----------------------------+|
  * +-----------------------------------+
  *
@@ -148,6 +148,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     /**
      * Content panel contains a table for the node itself (if not empty)
      * and ArbilSubnodesPanels for each child node
+     *
      * @param dataNode
      * @param level
      * @return New content panel
@@ -210,6 +211,10 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 	panel.add(Box.createRigidArea(new Dimension(0, 10)));
     }
 
+    public boolean isFullyLoadedNodeRequired() {
+	return true;
+    }
+
     public void dataNodeRemoved(ArbilNode dataNode) {
 	if (dataNode == this.dataNode) {
 	    clear();
@@ -226,6 +231,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 
     /**
      * A new child node has been added to the destination node
+     *
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */

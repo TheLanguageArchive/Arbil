@@ -1,10 +1,9 @@
-
 package nl.mpi.arbil.data;
 
 import java.net.URI;
 
 /**
- * @author Peter.Withers@mpi.nl 
+ * @author Peter.Withers@mpi.nl
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public interface DataNodeLoader {
@@ -28,7 +27,9 @@ public interface DataNodeLoader {
 
     void removeNodesNeedingSave(ArbilDataNode savedNode);
 
-    void requestReload(ArbilDataNode currentDataNode);
+    void requestReload(ArbilDataNode dataNode);
+
+    public void requestShallowReload(ArbilDataNode dataNode);
 
     void requestReloadAllNodes();
 
@@ -42,8 +43,8 @@ public interface DataNodeLoader {
     void setSchemaCheckLocalFiles(boolean schemaCheckLocalFiles);
 
     void startLoaderThreads();
-    
+
     void stopLoaderThreads();
-    
+
     ArbilDataNode createNewDataNode(URI uri);
 }

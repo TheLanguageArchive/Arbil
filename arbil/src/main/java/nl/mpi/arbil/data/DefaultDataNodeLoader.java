@@ -3,10 +3,12 @@ package nl.mpi.arbil.data;
 import java.net.URI;
 import java.util.Hashtable;
 import java.util.Vector;
+import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
 
 /**
- * Document   : ArbilDataNodeLoader formerly known as ImdiLoader
+ * Document : ArbilDataNodeLoader formerly known as ImdiLoader
  * Created on : Dec 30, 2008, 3:04:39 PM
+ *
  * @author Peter.Withers@mpi.nl
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
@@ -21,8 +23,8 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 	System.out.println("ArbilDataNodeLoader init");
 	threadManager = loaderThreadManager;
     }
-    
-    protected final void setDataNodeService(ArbilDataNodeService dataNodeService){
+
+    protected final void setDataNodeService(ArbilDataNodeService dataNodeService) {
 	this.dataNodeService = dataNodeService;
     }
 
@@ -97,14 +99,26 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 	}
     }
 
-    // reload the node or if it is an imdichild node then reload its parent
-    @Override
     public void requestReload(ArbilDataNode currentDataNode) {
+	requestReload(currentDataNode, LoadingState.LOADED);
+    }
+
+    public void requestShallowReload(ArbilDataNode currentDataNode) {
+	requestReload(currentDataNode, LoadingState.PARTIAL);
+    }
+    
+    // reload the node or if it is an imdichild node then reload its parent
+    private void requestReload(ArbilDataNode currentDataNode, LoadingState loadingState) {
 	if (currentDataNode.isChildNode()) {
 	    currentDataNode = currentDataNode.getParentDomNode();
 	}
 	removeNodesNeedingSave(currentDataNode);
-//        if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
+
+	// Never override requested full load with partial load
+	if (!LoadingState.LOADED.equals(currentDataNode.getRequestedLoadingState())) {
+	    currentDataNode.setRequestedLoadingState(loadingState);
+	}
+
 	threadManager.addNodeToQueue(currentDataNode);
 //        }
     }

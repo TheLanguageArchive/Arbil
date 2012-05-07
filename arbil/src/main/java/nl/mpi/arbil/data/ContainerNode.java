@@ -147,6 +147,11 @@ public class ContainerNode extends ArbilNode implements Comparable {
     }
 
     @Override
+    public boolean isDataPartiallyLoaded() {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public boolean isDirectory() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

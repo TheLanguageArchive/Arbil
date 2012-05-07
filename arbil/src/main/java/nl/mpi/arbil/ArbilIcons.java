@@ -228,7 +228,7 @@ public class ArbilIcons {
     public ImageIcon getIconForNode(ArbilDataNode arbilNode) {
 	List<Icon> iconsList = new LinkedList<Icon>();
 
-	if (arbilNode.isLoading() || (arbilNode.getParentDomNode().isMetaDataNode() && !arbilNode.getParentDomNode().isDataLoaded())) {
+	if (arbilNode.isLoading() || (arbilNode.getParentDomNode().isMetaDataNode() && !arbilNode.getParentDomNode().isDataPartiallyLoaded())) {
 	    iconsList.add(loadingIcon);
 	}
 	if (arbilNode.isLocal()) {

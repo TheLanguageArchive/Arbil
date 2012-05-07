@@ -37,12 +37,20 @@ import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
  */
 public class ArbilDataNode extends ArbilNode implements Comparable {
 
+    public static enum LoadingState {
+
+	UNLOADED,
+	PARTIAL,
+	LOADED
+    }
     private ArbilDataNodeService dataNodeService;
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
     private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     protected ArbilDataNode[] childArray = new ArbilDataNode[0];
-    private boolean dataLoaded;
+    //private boolean dataLoaded;
+    private LoadingState loadingState = LoadingState.UNLOADED;
+    private LoadingState requestedLoadingState = null;
     public int resourceFileServerResponse = -1; // -1 = not set otherwise this will be the http response code
     public String hashString;
     public String mpiMimeType = null;
@@ -74,7 +82,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //    private boolean isFavourite;
     public String archiveHandle = null;
     public boolean hasDomIdAttribute = false; // used to requre a save (that will remove the dom ids) if a node has any residual dom id attributes
-    //    public boolean autoLoadChildNodes = false;
     //public Vector<String[]> addQueue;
     public boolean scrollToRequested = false;
     //    public Vector<ImdiTreeObject> mergeQueue;
@@ -84,6 +91,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
     private final static String NODE_LOADING_TEXT = "loading node...";
+    public static final String EMPTY_NODE_STRING_VALUE = "                      ";
 
     protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
 	super();
@@ -252,7 +260,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//            }
 	//        }
 	fieldHashtable = new Hashtable<String, ArbilField[]>();
-	dataLoaded = false;
+	loadingState = LoadingState.UNLOADED;
 	hashString = null;
 	//mpiMimeType = null;
 	matchesInCache = 0;
@@ -288,12 +296,23 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
     }
 
+    public void reloadNodeShallowly() {
+	dataNodeService.reloadNodeShallowly(this);
+    }
+
     public void reloadNode() {
 	dataNodeService.reloadNode(this);
     }
 
     public void loadArbilDom() {
 	dataNodeService.loadArbilDom(this);
+    }
+
+    /**
+     * Sets requested loading state to {@link LoadingState#LOADED} and performs a {@link #loadArbilDom()
+     */
+    public void loadFullArbilDom() {
+	dataNodeService.loadFullArbilDom(this);
     }
 
     /**
@@ -784,7 +803,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean isNodeTextDetermined() {
-	return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT);
+	return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT) && !lastNodeText.equals(EMPTY_NODE_STRING_VALUE);
     }
 
     public String refreshStringValue() {
@@ -795,8 +814,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    ////                if (nodeText != null && nodeText.length() > 0) {
 	    return lastNodeText;
 	    //            }
-	} else if (lastNodeText.equals(NODE_LOADING_TEXT) && getParentDomNode().dataLoaded) {
-	    lastNodeText = "                      ";
+	} else if (lastNodeText.equals(NODE_LOADING_TEXT) && isDataPartiallyLoaded()) {
+	    lastNodeText = EMPTY_NODE_STRING_VALUE;
 	}
 	//        if (commonFieldPathString != null && commonFieldPathString.length() > 0) {
 	//            // todo: use the commonFieldPathString as the node name if not display preference is set or the ones that are set have no value
@@ -909,7 +928,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
 
 	if (lastNodeText.length() == 0) {
-	    lastNodeText = "                      ";
+	    lastNodeText = EMPTY_NODE_STRING_VALUE;
 	}
 	return lastNodeText;// + "-" + clearIconCounterGlobal + "-" + clearIconCounter;
 	//            }
@@ -1133,6 +1152,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	return domParentNode;
     }
 
+    public synchronized void setParentDomNode(ArbilDataNode domParentNode) {
+	this.domParentNode = domParentNode;
+    }
+
     public boolean isDirectory() {
 	return isDirectory;
     }
@@ -1259,8 +1282,15 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     @Override
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
 	// Node is contained by some object so make sure it's fully loaded or at least loading
-	if (!getParentDomNode().dataLoaded && !isLoading()) {
-	    dataNodeService.reloadNode(this);
+	if (!isDataLoaded() && !isLoading()) {
+	    if (containerToAdd.isFullyLoadedNodeRequired()) {
+		dataNodeService.reloadNode(this);
+	    } else {
+		// Partial load required
+		if (!isDataPartiallyLoaded()) {
+		    dataNodeService.reloadNodeShallowly(this);
+		}
+	    }
 	    //dataNodeLoader.requestReload(getParentDomNode());
 	}
 	super.registerContainer(containerToAdd);
@@ -1358,21 +1388,46 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     private static ArbilNodeSorter favouriteSorter = new ArbilFavouritesSorter();
 
     /**
-     * @return the dataLoaded
+     * @return the loading state of this node (through its parent)
      */
-    public boolean isDataLoaded() {
+    public synchronized LoadingState getLoadingState() {
 	if (isChildNode()) {
-	    return getParentDomNode().dataLoaded;
+	    return getParentDomNode().getLoadingState();
 	} else {
-	    return dataLoaded;
+	    return loadingState;
 	}
     }
 
     /**
-     * @param dataLoaded the dataLoaded to set
+     * @param loadingState the loading state to set. This will in any case set {@link #requestedLoadingState} to {@code null}.
      */
-    public void setDataLoaded(boolean dataLoaded) {
-	this.dataLoaded = dataLoaded;
+    public synchronized void setLoadingState(LoadingState loadingState) {
+	this.loadingState = loadingState;
+    }
+
+    /**
+     * @return the requested loading state. To be used by data node loaders to determine the level of loading. Can be null.
+     */
+    public synchronized LoadingState getRequestedLoadingState() {
+	return requestedLoadingState;
+    }
+
+    /**
+     * @param requestedLoadingState the loading state to communicate to data node loaders
+     */
+    public synchronized void setRequestedLoadingState(LoadingState requestedLoadingState) {
+	this.requestedLoadingState = requestedLoadingState;
+    }
+
+    /**
+     * @return whether {@link #getParentDomNode() }'s {@link #getLoadingState() } equals {@link LoadingState#LOADED}
+     */
+    public synchronized boolean isDataLoaded() {
+	return getLoadingState().equals(LoadingState.LOADED);
+    }
+
+    public synchronized boolean isDataPartiallyLoaded() {
+	return !getLoadingState().equals(LoadingState.UNLOADED);
     }
 
     /**

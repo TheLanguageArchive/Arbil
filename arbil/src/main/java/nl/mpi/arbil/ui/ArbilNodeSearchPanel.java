@@ -324,6 +324,10 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	}
     }
 
+    public boolean isFullyLoadedNodeRequired() {
+	return true;
+    }
+    
     /**
      * Data node is to be removed from the container
      * @param dataNode Data node that should be removed

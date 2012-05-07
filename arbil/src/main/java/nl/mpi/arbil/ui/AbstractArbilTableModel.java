@@ -43,7 +43,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private String[] highFieldPaths = new String[]{};
     private String[] columnNames = new String[0];
     private Color cellColour[][] = new Color[0][0];
-    
+
     public AbstractArbilTableModel(ArbilFieldView tableFieldView) {
 	this.tableFieldView = tableFieldView;
     }
@@ -117,20 +117,27 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	}
     }
 
+    public boolean isFullyLoadedNodeRequired() {
+	return true;
+    }
+
     /**
      * Data node is clearing its icon
+     *
      * @param dataNode Data node that is clearing its icon
      */
     public abstract void dataNodeIconCleared(ArbilNode dataNode);
 
     /**
      * Data node is to be removed from the table
+     *
      * @param dataNode Data node that should be removed
      */
     public abstract void dataNodeRemoved(ArbilNode dataNode);
 
     /**
      * A new child node has been added to the destination node
+     *
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */

@@ -23,6 +23,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Implementation of AbstractArbilTableModel for the Swing UI
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableModel extends AbstractArbilTableModel implements ClipboardOwner {
@@ -131,6 +132,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 
     /**
      * Data node is to be removed from the table
+     *
      * @param dataNode Data node that should be removed
      */
     public void dataNodeRemoved(ArbilNode dataNode) {
@@ -143,6 +145,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 
     /**
      * Data node is clearing its icon
+     *
      * @param dataNode Data node that is clearing its icon
      */
     public void dataNodeIconCleared(ArbilNode dataNode) {
@@ -151,6 +154,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 
     /**
      * A new child node has been added to the destination node
+     *
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */
