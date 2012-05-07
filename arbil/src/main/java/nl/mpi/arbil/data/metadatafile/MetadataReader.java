@@ -631,6 +631,8 @@ public class MetadataReader {
 			if (maxOccurs > 1 || maxOccurs == -1 || !(parentDomNode.nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
 			    isSingleton = maxOccurs == 1;
 			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
+			    metaNode.setParentDomNode(parentDomNode);
+			    
 			    metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
 			    if (!parentChildTree.containsKey(metaNode)) {
 				parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
@@ -650,7 +652,8 @@ public class MetadataReader {
 			// For subnode URI 
 			nodeURIStringBuilder.append(siblingSpacer);
 			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
-
+			subNode.setParentDomNode(parentDomNode);
+			
 			if (metaNode != null && !isSingleton) {
 			    // Add subnode to metanode
 			    parentChildTree.get(metaNode).add(subNode);
