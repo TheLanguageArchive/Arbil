@@ -37,5 +37,5 @@ public interface ArbilDataNodeContainer {
      * @return whether a {@link ArbilDataNode.LoadingState#LOADED} state is required. If false, this indicates a 
      * {@link ArbilDataNode.LoadingState#PARTIAL} suffices.
      */
-    boolean isFulllyLoadedNodeRequired();
+    boolean isFullyLoadedNodeRequired();
 }

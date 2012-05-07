@@ -117,7 +117,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	}
     }
 
-    public boolean isFulllyLoadedNodeRequired() {
+    public boolean isFullyLoadedNodeRequired() {
 	return true;
     }
 

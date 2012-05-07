@@ -456,7 +456,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	return true;
     }
 
-    public boolean isFulllyLoadedNodeRequired() {
+    public boolean isFullyLoadedNodeRequired() {
 	return true;
     }
 

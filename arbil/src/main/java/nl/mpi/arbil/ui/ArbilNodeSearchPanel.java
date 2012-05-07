@@ -324,7 +324,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	}
     }
 
-    public boolean isFulllyLoadedNodeRequired() {
+    public boolean isFullyLoadedNodeRequired() {
 	return true;
     }
     

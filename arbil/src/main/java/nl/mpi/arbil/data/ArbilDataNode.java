@@ -1283,7 +1283,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
 	// Node is contained by some object so make sure it's fully loaded or at least loading
 	if (!isDataLoaded() && !isLoading()) {
-	    if (containerToAdd.isFulllyLoadedNodeRequired()) {
+	    if (containerToAdd.isFullyLoadedNodeRequired()) {
 		dataNodeService.reloadNode(this);
 	    } else {
 		// Partial load required

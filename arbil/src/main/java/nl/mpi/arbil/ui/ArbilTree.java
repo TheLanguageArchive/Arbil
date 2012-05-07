@@ -417,7 +417,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 	sortRunner.requestActionAndNotify();
     }
 
-    public boolean isFulllyLoadedNodeRequired() {
+    public boolean isFullyLoadedNodeRequired() {
 	return false;
     }
 

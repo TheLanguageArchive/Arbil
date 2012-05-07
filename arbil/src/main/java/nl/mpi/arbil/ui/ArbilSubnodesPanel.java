@@ -211,7 +211,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 	panel.add(Box.createRigidArea(new Dimension(0, 10)));
     }
 
-    public boolean isFulllyLoadedNodeRequired() {
+    public boolean isFullyLoadedNodeRequired() {
 	return true;
     }
 
