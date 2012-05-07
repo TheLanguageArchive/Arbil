@@ -243,6 +243,11 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     public void nodeUnselected(Object node) {
     }
 
+    public boolean isFullyLoadedNodeRequired() {
+	// Doesn't need deep loading
+	return false;
+    }
+
     public static class DetachableArbilWicketTreeModel implements IModel<TreeModel>, IDetachable {
 
 	private TreeModel treeModel;

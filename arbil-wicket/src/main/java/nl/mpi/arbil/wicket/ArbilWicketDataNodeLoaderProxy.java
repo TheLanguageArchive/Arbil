@@ -79,5 +79,9 @@ public class ArbilWicketDataNodeLoaderProxy implements DataNodeLoader{
     public ArbilDataNode createNewDataNode(URI uri) {
 	return getDataNodeLoader().createNewDataNode(uri);
     }
+
+    public void requestShallowReload(ArbilDataNode adn) {
+	getDataNodeLoader().requestShallowReload(adn);
+    }
     
 }
