@@ -80,51 +80,61 @@ public class CmdiDomLoader implements MetadataDomLoader {
     }
 
     private void iterateChildNodes(final CharSequence nodeUriBase, ArbilDataNode parentNode, final MetadataContainer<MetadataElement> container, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
-	// Add internal child nodes
-	addMetadataChildNodes(nodeUriBase, container, parentNode, parentChildTree);
-	// Add references (resources + linked metadata)
-	if (container instanceof ReferencingMetadataElement) {
-	    addReferencedChildNodes(parentNode, (ReferencingMetadataElement<Reference>) container, parentChildTree);
-	}
-    }
-
-    private void addMetadataChildNodes(final CharSequence nodeUriBase, final MetadataContainer<MetadataElement> container, ArbilDataNode parentNode, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
 	// Index for fields
 	int fieldOrder = 0;
 	// Iterate metadata children
 	for (MetadataElement child : container.getChildren()) {
 	    if (child instanceof MetadataContainer) {
 		final StringBuilder nodeURIStringBuilder = new StringBuilder(nodeUriBase);
-		if (isChildNode(child)) // Create a new child ArbilDataNode
-		{
-		    try {
-			final ArbilDataNode metaNode = getMetaNode(parentNode, child, parentChildTree, nodeURIStringBuilder);
-			final int index = (metaNode == null) ? 1 : parentChildTree.get(metaNode).size() + 1;
-			final ArbilDataNode subNode = createChildNode(nodeURIStringBuilder, child, index);
-
-			if (metaNode == null) {
-			    parentChildTree.get(parentNode).add(subNode);
-			} else {
-			    parentChildTree.get(metaNode).add(subNode);
-			}
-
-			// Create base path for child nodes 
-			// TODO: decide - maybe use parent base for metanodes so that path matches document structure?
-			nodeURIStringBuilder.append(ArbilConstants.imdiPathSeparator);
-			loadParentNodeChildNodes(nodeURIStringBuilder, subNode, parentChildTree);
-		    } catch (URISyntaxException usEx) {
-			BugCatcherManager.getBugCatcher().logError("URISyntaxException while loading child nodes", usEx);
-		    }
-		} else // Don't create child ArbilDataNode, iterate children of metadata element
-		{
+		if (isChildNode(child)) {
+		    // Create a new child ArbilDataNode
+		    createChildNode(nodeURIStringBuilder, parentNode, child, parentChildTree);
+		} else {
 		    // Append current node to base path for children that will be instantiated as ArbilDataNode
 		    nodeURIStringBuilder.append(child.getType().getName()).append(ArbilConstants.imdiPathSeparator);
+		    // Don't create child ArbilDataNode of element, continue to iterate its children
 		    iterateChildNodes(nodeURIStringBuilder, parentNode, (MetadataContainer) child, parentChildTree);
 		}
 	    } else if (child instanceof MetadataField) {
-		// Add field
-		addField(fieldOrder++, parentNode, (MetadataField) child);
+		// Add field to parent
+		addField(parentNode, (MetadataField) child, fieldOrder++);
 	    }
+	}
+	// Add references (resources + linked metadata)
+	if (container instanceof ReferencingMetadataElement) {
+	    addReferencedChildNodes(parentNode, (ReferencingMetadataElement<Reference>) container, parentChildTree);
+	}
+    }
+
+    private void createChildNode(final StringBuilder nodeURIStringBuilder, ArbilDataNode parentNode, MetadataElement child, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
+	try {
+	    // See if we should add node to meta node ('container node')
+	    final ArbilDataNode metaNode = getMetaNode(parentNode, child, parentChildTree, nodeURIStringBuilder);
+	    // Determine index among siblings
+	    final int index = (metaNode == null) ? 1 : parentChildTree.get(metaNode).size() + 1;
+
+	    // Completes the node URI
+	    nodeURIStringBuilder.append(child.getType().getName());
+	    nodeURIStringBuilder.append("(").append(index).append(")");
+
+	    // Load the new child node
+	    ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
+	    subNode.setMetadataElement(child);
+
+	    // Add to correct parent
+	    if (metaNode == null) {
+		parentChildTree.get(parentNode).add(subNode);
+	    } else {
+		parentChildTree.get(metaNode).add(subNode);
+	    }
+
+	    // Create base path for child nodes 
+	    // TODO: decide - maybe use parent base for metanodes so that path matches document structure?
+	    nodeURIStringBuilder.append(ArbilConstants.imdiPathSeparator);
+	    // Recursively load children of new node
+	    loadParentNodeChildNodes(nodeURIStringBuilder, subNode, parentChildTree);
+	} catch (URISyntaxException usEx) {
+	    BugCatcherManager.getBugCatcher().logError("URISyntaxException while loading child nodes", usEx);
 	}
     }
 
@@ -157,15 +167,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	return metaNode;
     }
 
-    private ArbilDataNode createChildNode(StringBuilder nodeURIStringBuilder, MetadataElement child, int index) throws URISyntaxException {
-	nodeURIStringBuilder.append(child.getType().getName());
-	nodeURIStringBuilder.append("(").append(index).append(")"); // TODO: make functional
-	ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
-	subNode.setMetadataElement(child);
-	return subNode;
-    }
-
-    private void addField(int fieldOrder, ArbilDataNode parentNode, final MetadataField metadataField) {
+    private void addField(ArbilDataNode parentNode, final MetadataField metadataField, int fieldOrder) {
 	String parentPath = parentNode.getMetadataElement().getType().getPathString();
 	String fieldPath = metadataField.getType().getPathString();
 	if (fieldPath.startsWith(parentPath)) {
