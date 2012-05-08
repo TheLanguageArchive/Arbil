@@ -234,7 +234,7 @@ public class MetadataBuilder {
 	}
     }
 
-    public void addNodeToRoot(final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
+    private void addNodeToRoot(final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	if (addableNode.isMetaDataNode()) {
 	    addMetaDataNode(null, nodeTypeDisplayNameLocal, addableNode);
 	} else {
@@ -565,7 +565,7 @@ public class MetadataBuilder {
      * Checks whether the component builder will be able to insert a node of
      * specified type in the specified target DOM
      */
-    public boolean canInsertFromTemplate(ArbilTemplate currentTemplate, String elementName, String targetXmlPath, Document targetImdiDom) throws ArbilMetadataException {
+    private boolean canInsertFromTemplate(ArbilTemplate currentTemplate, String elementName, String targetXmlPath, Document targetImdiDom) throws ArbilMetadataException {
 	// This may be done more efficiently, but for now we basically prepare
 	// an insertion up to the point we have the destination node and
 	// potentially addable node which we can pass to the component builder
@@ -674,7 +674,7 @@ public class MetadataBuilder {
 	return templateFileString;
     }
 
-    public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException {
+    private URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException {
 	System.out.println("insertFromTemplate: " + elementName + " : " + resourceUrl);
 	System.out.println("targetXpath: " + targetXmlPath);
 	String insertBefore = currentTemplate.getInsertBeforeOfTemplate(elementName);
@@ -807,7 +807,7 @@ public class MetadataBuilder {
 	linkNode.setTextContent(decodeUrlString);
     }
 
-    public static URI copyToDisk(URL sourceURL, File targetFile) {
+    private static URI copyToDisk(URL sourceURL, File targetFile) {
 	InputStream in = null;
 	OutputStream out = null;
 	try {
