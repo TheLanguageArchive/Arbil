@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.data;
 
 import java.io.File;
@@ -14,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import nl.mpi.arbil.ArbilConstants;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.metadata.api.MetadataAPI;
 import nl.mpi.metadata.api.model.MetadataContainer;
+import nl.mpi.metadata.api.model.MetadataDocument;
 import nl.mpi.metadata.api.model.MetadataElement;
 import nl.mpi.metadata.api.model.MetadataField;
 import nl.mpi.metadata.api.model.Reference;
@@ -40,9 +38,12 @@ public class CmdiDomLoader implements MetadataDomLoader {
 
     public void loadMetadataDom(ArbilDataNode dataNode) {
 	try {
-	    //set the string name to unknown, it will be updated in the tostring function
+	    // Set the string name to unknown, it will be updated in the tostring function
 	    dataNode.nodeText = "unknown";
-	    dataNode.setMetadataElement(metadataAPI.getMetadataDocument(dataNode.getURI().toURL()));
+	    // Get metadatadocument from API and set template on root
+	    final MetadataDocument metadataDocument = metadataAPI.getMetadataDocument(dataNode.getURI().toURL());
+	    dataNode.setMetadataElement(metadataDocument);
+	    dataNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(metadataDocument.getType().getSchemaLocation().toString());
 	    //start loading into parentChildTree
 	    Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree = new HashMap<ArbilDataNode, Set<ArbilDataNode>>();
 	    loadRootNodeChildNodes(dataNode, parentChildTree);
@@ -181,7 +182,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
 
     private void addReferencedChildNodes(ArbilDataNode parentNode, ReferencingMetadataElement<Reference> container, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
 	for (Reference reference : container.getReferences()) {
-	    ArbilDataNode referenceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(reference.getURI());
+	    ArbilDataNode referenceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(parentNode.getURI().resolve(reference.getURI()));
 	    parentChildTree.get(parentNode).add(referenceNode);
 	}
     }
