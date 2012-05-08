@@ -372,8 +372,7 @@ public class ImdiTemplate implements ArbilTemplate {
      * @param targetNodeUserObject The imdi node that will receive the new child.
      * @return An enumeration of Strings for the available child types, one of which will be passed to "listFieldsFor()".
      */
-    @Override
-    public Enumeration listTypesFor(Object targetNodeUserObject, boolean includeCorpusNodeEntries) {
+    public Enumeration<String[]> listTypesFor(Object targetNodeUserObject, boolean includeCorpusNodeEntries) {
 	// Get possible types for object
 	List<String[]> childTypes = getTypesFor(targetNodeUserObject, includeCorpusNodeEntries);
 	// Sort on field value (not name)

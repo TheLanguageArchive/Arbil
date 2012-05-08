@@ -21,24 +21,23 @@ import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.data.ImdiMetadataBuilder;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
-import nl.mpi.arbil.ui.ImportExportDialog;
-import nl.mpi.arbil.templates.ArbilTemplateManager;
-import nl.mpi.arbil.templates.ArbilTemplateManager.MenuItemData;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.templates.ArbilTemplateManager.MenuItemData;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
-import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import nl.mpi.arbil.util.XsdChecker;
 
 /**
  * Context menu for tree UI components
@@ -756,8 +755,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	    final MetadataBuilder mdBuilder = ((ArbilDataNode) targetNodeUserObject).getDataNodeService().getMetadataBuilder();
 
-	    for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
-		final String[] currentField = (String[]) menuItemName.nextElement();
+	    for (Enumeration<String[]> menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
+		final String[] currentField = menuItemName.nextElement();
 		final String nodeText = currentField[0];
 		final String nodeType = currentField[1];
 

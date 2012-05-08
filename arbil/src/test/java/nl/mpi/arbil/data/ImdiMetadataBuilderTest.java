@@ -145,8 +145,8 @@ public class ImdiMetadataBuilderTest {
 		//currentLevel.remove(currentLevelNode);
 		System.out.println(currentLevelNode.getUrlString());
 		// loop over all nodes and add one of every type that would be shown in the add menu for each node and sub node
-		for (Enumeration menuItemName = currentLevelNode.getParentDomNode().nodeTemplate.listTypesFor(currentLevelNode); menuItemName.hasMoreElements();) {
-		    String[] currentComponent = (String[]) menuItemName.nextElement();
+		for (Enumeration<String[]> menuItemName = currentLevelNode.getParentDomNode().nodeTemplate.listTypesFor(currentLevelNode); menuItemName.hasMoreElements();) {
+		    String[] currentComponent = menuItemName.nextElement();
 		    System.out.println(currentComponent[0] + " : " + currentComponent[1]);// + " : "+ currentField[2]);
 		    try {
 			URI linkUri = metadataBuilder.addChildNode(currentLevelNode, currentComponent[1], null, null, null);

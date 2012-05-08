@@ -75,14 +75,7 @@ public interface ArbilTemplate {
 
     List<String> listAllTemplates();
 
-    Enumeration listTypesFor(Object targetNodeUserObject);
-
-    /**
-     * This function is only a place holder and will be replaced.
-     * @param targetNodeUserObject The imdi node that will receive the new child.
-     * @return An enumeration of Strings for the available child types, one of which will be passed to "listFieldsFor()".
-     */
-    Enumeration listTypesFor(Object targetNodeUserObject, boolean includeCorpusNodeEntries);
+    Enumeration<String[]> listTypesFor(Object targetNodeUserObject);
 
     /**
      * @param dataNode Node that has to be checked

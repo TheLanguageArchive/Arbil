@@ -194,7 +194,7 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	return Collections.EMPTY_LIST;
     }
     
-    public Enumeration listTypesFor(Object targetNodeUserObject) {
+    public Enumeration<String[]> listTypesFor(Object targetNodeUserObject) {
 	return Collections.enumeration(Collections.EMPTY_SET);
     }
     
