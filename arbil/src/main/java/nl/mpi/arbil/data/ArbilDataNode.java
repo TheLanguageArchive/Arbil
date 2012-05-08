@@ -260,7 +260,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//            }
 	//        }
 	fieldHashtable = new Hashtable<String, ArbilField[]>();
-	loadingState = LoadingState.UNLOADED;
+	setLoadingState(LoadingState.UNLOADED);
 	hashString = null;
 	//mpiMimeType = null;
 	matchesInCache = 0;
