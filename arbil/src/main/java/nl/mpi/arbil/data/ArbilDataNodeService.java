@@ -103,6 +103,7 @@ public abstract class ArbilDataNodeService {
     }
 
     protected abstract MetadataDomLoader getMetadataDomLoader();
+    public abstract MetadataBuilder getMetadataBuilder();
 
     public void reloadNode(ArbilDataNode dataNode) {
 	dataNode.getParentDomNode().nodeNeedsSaveToDisk = false; // clear any changes
@@ -427,7 +428,7 @@ public abstract class ArbilDataNodeService {
 		for (String element : elements) {
 		}
 		for (ArbilDataNode clipboardNode : pasteIntoNode(dataNode, elements)) {
-		    new MetadataBuilder().requestAddNode(dataNode, "copy of " + clipboardNode, clipboardNode);
+		    getMetadataBuilder().requestAddNode(dataNode, "copy of " + clipboardNode, clipboardNode);
 		}
 	    }
 	} catch (Exception ex) {

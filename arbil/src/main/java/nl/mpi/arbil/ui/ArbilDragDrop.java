@@ -25,7 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.data.MetadataBuilder;
+import nl.mpi.arbil.data.ImdiMetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -539,7 +539,7 @@ public class ArbilDragDrop {
 			for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 			    final ArbilDataNode currentArbilNode = draggedArbilNodes[draggedCounter];
 			    System.out.println("dragged: " + currentArbilNode.toString());
-			    new MetadataBuilder().requestAddNode(dropTargetDataNode, "Resource", currentArbilNode);
+			    dropTargetDataNode.getDataNodeService().getMetadataBuilder().requestAddNode(dropTargetDataNode, "Resource", currentArbilNode);
 			}
 			return true;
 		    }
@@ -580,9 +580,9 @@ public class ArbilDragDrop {
 				// Favourite dropped on local tree 
 				if (dropTargetDataNode == null) {
 				    // Dropped to local corpus root node
-				    new MetadataBuilder().requestAddRootNode(currentNode, ((ArbilDataNode) currentNode).toString());
+				    currentNode.getDataNodeService().getMetadataBuilder().requestAddRootNode(currentNode, ((ArbilDataNode) currentNode).toString());
 				} else {
-				    new MetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
+				    dropTargetDataNode.getDataNodeService().getMetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
 				}
 			    } else if (!draggedFromLocalCorpus() && !(currentNode.isLocal() && sessionStorage.pathIsInsideCache(currentNode.getFile()))) {
 				// External file dropped on local tree; import file(s)
@@ -652,7 +652,7 @@ public class ArbilDragDrop {
 		    if (dropTargetDataNode.getDataNodeService().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			try {
 			    // Add source to destination
-			    new MetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);
+			    dropTargetDataNode.getDataNodeService().getMetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);
 			    addNodeResult = true;
 			} catch (ArbilMetadataException ex) {
 			    BugCatcherManager.getBugCatcher().logError(ex);

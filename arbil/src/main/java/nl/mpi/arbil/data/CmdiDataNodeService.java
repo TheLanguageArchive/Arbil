@@ -29,6 +29,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     private final SessionStorage sessionStorage;
     private final MimeHashQueue mimeHashQueue;
     private final MetadataDomLoader metadataDomLoader;
+    private final MetadataBuilder metadataBuilder;
     private final MetadataAPI metadataAPI;
 
     public CmdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
@@ -42,6 +43,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	this.metadataAPI = ArbilTemplateManager.getSingleInstance().getCmdiApi();
 
 	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, metadataAPI);
+	this.metadataBuilder = new CmdiMetadataBuilder();
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {
@@ -102,7 +104,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		    // Check if it can be contained by destination node
 		    if (nodeCanExistInNode(dataNode, templateDataNode)) {
 			// Add source to destination
-			new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
+			getMetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
 		    } else {
 			// Invalid copy/paste...
 			messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
@@ -222,7 +224,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
 	    }
 
-	    new MetadataBuilder().requestAddNode(dataNode, null, resourceNode);
+	    getMetadataBuilder().requestAddNode(dataNode, null, resourceNode);
 	} else {
 	    if (dataNode.hasResource()) {
 		dataNode.resourceUrlField.setFieldValue(location.toString(), true, false);
@@ -320,5 +322,10 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    //            setImdiNeedsSaveToDisk(null, false);
 	}
 	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
+    }
+
+    @Override
+    public MetadataBuilder getMetadataBuilder() {
+	return metadataBuilder;
     }
 }

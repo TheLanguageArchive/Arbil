@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
 
@@ -19,7 +18,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 public interface TreeHelper {
 
     void init();
-    
+
     int addDefaultCorpusLocations();
 
     boolean addLocation(URI addedLocation);
@@ -96,4 +95,12 @@ public interface TreeHelper {
     void saveLocations(ArbilDataNode[] nodesToAdd, ArbilDataNode[] nodesToRemove);
 
     void setShowHiddenFilesInTree(boolean showState);
+
+    /**
+     * Requests to add a new node of given type to root
+     *
+     * @param nodeType Name of node type
+     * @param nodeTypeDisplayName Name to display as node type
+     */
+    void requestRootAddNode(String nodeType, String nodeTypeDisplayName);
 }

@@ -18,16 +18,16 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Document   : MetadataBuilder
+ * Document   : ImdiMetadataBuilder
  * Created on : Nov 4, 2010, 10:46:21 PM
  * @author Peter.Withers@mpi.nl
  */
 @Ignore
-public class MetadataBuilderTest {
+public class ImdiMetadataBuilderTest {
 
     private static DataNodeLoader dataNodeloader;
     
-    public MetadataBuilderTest() {
+    public ImdiMetadataBuilderTest() {
     }
 
     @BeforeClass
@@ -58,7 +58,7 @@ public class MetadataBuilderTest {
 
     @Test
     public void testAddChildNodeJar() {
-        testAddChildNode(MetadataBuilderTest.class.getResource("/nl/mpi/arbil/data/clarin.eu_cr1_p_1271859438162.xsd").toExternalForm());
+        testAddChildNode(ImdiMetadataBuilderTest.class.getResource("/nl/mpi/arbil/data/clarin.eu_cr1_p_1271859438162.xsd").toExternalForm());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class MetadataBuilderTest {
         testAddChildNode(".METATRANSCRIPT.Session : this will fail as imdi add is currently handled by metadatareader and should be consolidated");
     }
     private void testAddChildNode(String currentTestTemplate) {
-        MetadataBuilder metadataBuilder = new MetadataBuilder();
+        ImdiMetadataBuilder metadataBuilder = new ImdiMetadataBuilder();
         ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 
         String[][] autoFields = new String[][]{

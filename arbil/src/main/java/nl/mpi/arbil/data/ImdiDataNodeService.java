@@ -27,6 +27,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
     private final SessionStorage sessionStorage;
     private final MimeHashQueue mimeHashQueue;
     private final MetadataDomLoader metadataDomLoader;
+    private final MetadataBuilder metadataBuilder;
 
     public ImdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper);
@@ -37,6 +38,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	this.dataNodeLoader = dataNodeLoader;
 
 	this.metadataDomLoader = new ImdiDomLoader(dataNodeLoader, messageDialogHandler);
+	this.metadataBuilder = new ImdiMetadataBuilder();
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {
@@ -97,7 +99,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 		    // Check if it can be contained by destination node
 		    if (nodeCanExistInNode(dataNode, templateDataNode)) {
 			// Add source to destination
-			new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
+			getMetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
 		    } else {
 			// Invalid copy/paste...
 			messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
@@ -217,7 +219,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 		throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
 	    }
 
-	    new MetadataBuilder().requestAddNode(dataNode, null, resourceNode);
+	    getMetadataBuilder().requestAddNode(dataNode, null, resourceNode);
 	} else {
 	    if (dataNode.hasResource()) {
 		dataNode.resourceUrlField.setFieldValue(location.toString(), true, false);
@@ -315,5 +317,10 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
     @Override
     public MetadataDomLoader getMetadataDomLoader() {
 	return metadataDomLoader;
+    }
+
+    @Override
+    public MetadataBuilder getMetadataBuilder() {
+	return metadataBuilder;
     }
 }

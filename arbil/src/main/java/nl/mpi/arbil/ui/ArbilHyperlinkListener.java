@@ -13,7 +13,7 @@ import javax.swing.event.HyperlinkListener;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.data.MetadataBuilder;
+import nl.mpi.arbil.data.ImdiMetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
@@ -141,13 +141,13 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 	ArbilDataNode addedImdiObject;
 	if (parentNode == null) {
 	    URI targetFileURI = sessionStorage.getNewArbilFileName(sessionStorage.getCacheDirectory(), nodeType);
-	    targetFileURI = new MetadataBuilder().addFromTemplate(new File(targetFileURI), nodeType);
+	    targetFileURI = parentNode.getDataNodeService().getMetadataBuilder().addFromTemplate(new File(targetFileURI), nodeType);
 	    addedImdiObject = dataNodeLoader.getArbilDataNode(null, targetFileURI);
 	    treeHelper.addLocation(targetFileURI);
 	    treeHelper.applyRootLocations();
 	} else {
 	    parentNode.saveChangesToCache(true);
-	    addedImdiObject = dataNodeLoader.getArbilDataNode(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
+	    addedImdiObject = dataNodeLoader.getArbilDataNode(null, parentNode.getDataNodeService().getMetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
 	}
 	addedImdiObject.waitTillLoaded();
 	windowManager.openFloatingTableOnce(new ArbilDataNode[]{addedImdiObject}, nodeTypeDisplayName);

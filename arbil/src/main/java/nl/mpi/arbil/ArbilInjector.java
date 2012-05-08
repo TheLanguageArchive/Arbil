@@ -14,7 +14,7 @@ import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.FieldChangeTriggers;
-import nl.mpi.arbil.data.MetadataBuilder;
+import nl.mpi.arbil.data.ImdiMetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
@@ -66,7 +66,7 @@ public abstract class ArbilInjector {
 	ArbilIcons.setVersionManager(versionManager);
 	ArbilMenuBar.setVersionManager(versionManager);
 	ArbilTableModel.setVersionManager(versionManager);
-	MetadataBuilder.setVersionManager(versionManager);
+	ImdiMetadataBuilder.setVersionManager(versionManager);
     }
 
     public void injectDataNodeLoader(DataNodeLoader dataNodeLoader) {
@@ -78,7 +78,7 @@ public abstract class ArbilInjector {
 	ArbilFieldPlaceHolder.setDataNodeLoader(dataNodeLoader);
 	ArbilSearch.setDataNodeLoader(dataNodeLoader);
 	ImportExportDialog.setDataNodeLoader(dataNodeLoader);
-	MetadataBuilder.setDataNodeLoader(dataNodeLoader);
+	ImdiMetadataBuilder.setDataNodeLoader(dataNodeLoader);
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
     
@@ -87,7 +87,7 @@ public abstract class ArbilInjector {
 	ArbilFavourites.setTreeHelper(treeHelper);
 	ArbilTree.setTreeHelper(treeHelper);
 	ImportExportDialog.setTreeHelper(treeHelper);
-	MetadataBuilder.setTreeHelper(treeHelper);
+	ImdiMetadataBuilder.setTreeHelper(treeHelper);
 	RemoteLocationsContent.setTreeHelper(treeHelper);
 	ArbilHyperlinkListener.setTreeHelper(treeHelper);
     }
@@ -106,14 +106,14 @@ public abstract class ArbilInjector {
 	CmdiTemplate.setMessageDialogHandler(messageDialogHandler);
 	FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
 	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
-	MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
+	ImdiMetadataBuilder.setMessageDialogHandler(messageDialogHandler);
 	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
     }
 
     public void injectWindowManager(WindowManager windowManager) {
 	ArbilTree.setWindowManager(windowManager);
 	ArbilVocabularies.setWindowManager(windowManager);
-	MetadataBuilder.setWindowManager(windowManager);
+	ImdiMetadataBuilder.setWindowManager(windowManager);
     }
 
     public void injectSessionStorage(SessionStorage sessionStorage) {
@@ -123,7 +123,7 @@ public abstract class ArbilInjector {
 	ArbilJournal.setSessionStorage(sessionStorage);
 	ArbilVocabularies.setSessionStorage(sessionStorage);
 	DocumentationLanguages.setSessionStorage(sessionStorage);
-	MetadataBuilder.setSessionStorage(sessionStorage);
+	ImdiMetadataBuilder.setSessionStorage(sessionStorage);
 	CmdiProfileReader.setSessionStorage(sessionStorage);
 	ProfilePreview.setSessionStorage(sessionStorage);
 	CmdiTemplate.setSessionStorage(sessionStorage);

@@ -21,6 +21,7 @@ import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.data.ImdiMetadataBuilder;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.ui.ImportExportDialog;
@@ -41,7 +42,7 @@ import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Context menu for tree UI components
- * 
+ *
  * @author Twan Goosen
  */
 public class TreeContextMenu extends ArbilContextMenu {
@@ -607,7 +608,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    });
 	    addItem(CATEGORY_IMPORT, PRIORITY_MIDDLE, reImportBranchMenuItem);
 	}
-	
+
 	setManualResourceLocationMenuItem.setText("Insert Manual Resource Location");
 	setManualResourceLocationMenuItem.addActionListener(new ActionListener() {
 
@@ -733,10 +734,10 @@ public class TreeContextMenu extends ArbilContextMenu {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 			    try {
 				if (leadSelectedTreeNode != null) {
-				    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+				    leadSelectedTreeNode.getDataNodeService().getMetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
 				} else {
 				    // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-				    new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+				    treeHelper.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
 				}
 			    } catch (Exception ex) {
 				BugCatcherManager.getBugCatcher().logError(ex);
@@ -753,7 +754,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	if (targetNodeUserObject instanceof ArbilDataNode) {
 	    final ArbilTemplate currentTemplate = ((ArbilDataNode) targetNodeUserObject).getNodeTemplate();
 
-	    MetadataBuilder mdBuilder = new MetadataBuilder();
+	    final MetadataBuilder mdBuilder = ((ArbilDataNode) targetNodeUserObject).getDataNodeService().getMetadataBuilder();
 
 	    for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
 		final String[] currentField = (String[]) menuItemName.nextElement();
@@ -783,11 +784,11 @@ public class TreeContextMenu extends ArbilContextMenu {
 					    "Adding a node will save pending changes to \""
 					    + leadSelectedTreeNode.getParentDomNode().toString()
 					    + "\" to disk. Do you want to proceed?", "Save pending changes?")) {
-					new MetadataBuilder().requestAddNode(leadSelectedTreeNode, nodeType, nodeText);
+					leadSelectedTreeNode.getDataNodeService().getMetadataBuilder().requestAddNode(leadSelectedTreeNode, nodeType, nodeText);
 				    }
 				} else {
 				    // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-				    new MetadataBuilder().requestRootAddNode(nodeType, ((JMenuItem) evt.getSource()).getText());
+				    treeHelper.requestRootAddNode(nodeType, ((JMenuItem) evt.getSource()).getText());
 				}
 			    } catch (Exception ex) {
 				BugCatcherManager.getBugCatcher().logError(ex);
@@ -850,9 +851,9 @@ public class TreeContextMenu extends ArbilContextMenu {
 			String favouriteUrlString = evt.getActionCommand();
 			ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNodeService.conformStringToUrl(favouriteUrlString));
 			if (leadSelectedTreeNode != null) {
-			    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateDataNode);
+			    templateDataNode.getDataNodeService().getMetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateDataNode);
 			} else {
-			    new MetadataBuilder().requestAddRootNode(templateDataNode, ((JMenuItem) evt.getSource()).getText());
+			    templateDataNode.getDataNodeService().getMetadataBuilder().requestAddRootNode(templateDataNode, ((JMenuItem) evt.getSource()).getText());
 			}
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
