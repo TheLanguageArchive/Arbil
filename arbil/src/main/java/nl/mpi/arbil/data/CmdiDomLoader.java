@@ -18,6 +18,7 @@ import nl.mpi.metadata.api.model.MetadataDocument;
 import nl.mpi.metadata.api.model.MetadataElement;
 import nl.mpi.metadata.api.model.MetadataField;
 import nl.mpi.metadata.api.model.Reference;
+import nl.mpi.metadata.api.model.ReferencingMetadataDocument;
 import nl.mpi.metadata.api.model.ReferencingMetadataElement;
 import nl.mpi.metadata.api.type.ContainedMetadataElementType;
 import nl.mpi.metadata.api.type.MetadataElementType;
@@ -52,6 +53,8 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    final CharSequence uriBase = getRootNodeChildrenUriBase(dataNode);
 	    // Start loading into parentChildTree
 	    loadParentNodeChildNodes(uriBase, dataNode, parentChildTree);
+	    // Add resources not referenced from the document to the root node
+	    addUnreferencedResources(dataNode, parentChildTree);
 	    // Apply map to nodes
 	    updateChildNodes(parentChildTree);
 	} catch (Exception mue) {
@@ -76,7 +79,6 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    //final StringBuilder nodeUriBase = getNodeUriBase(parentNode);
 	    iterateChildNodes(nodeUriBase, parentNode, (MetadataContainer) metadataElement, parentChildTree);
 	}
-	// TODO: Add unreferenced resource proxies
     }
 
     private void iterateChildNodes(final CharSequence nodeUriBase, ArbilDataNode parentNode, final MetadataContainer<MetadataElement> container, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
@@ -202,6 +204,23 @@ public class CmdiDomLoader implements MetadataDomLoader {
 			currentContainer.dataNodeRemoved(currentOldChild);
 		    }
 		}
+	    }
+	}
+    }
+
+    /**
+     * Adds all unreferenced resources to the provided dataNode
+     *
+     * @param dataNode node to add references to as children (root node)
+     * @param parentChildTree
+     */
+    private void addUnreferencedResources(final ArbilDataNode dataNode, final Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
+	final MetadataElement metadataElement = dataNode.getMetadataElement();
+	if (metadataElement instanceof ReferencingMetadataDocument) {
+	    // TODO: Skip referenced resource proxies
+	    for (Reference reference : ((ReferencingMetadataDocument<MetadataElement, Reference>) metadataElement).getDocumentReferences()) {
+		ArbilDataNode referenceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(dataNode.getURI().resolve(reference.getURI()));
+		parentChildTree.get(dataNode).add(referenceNode);
 	    }
 	}
     }
