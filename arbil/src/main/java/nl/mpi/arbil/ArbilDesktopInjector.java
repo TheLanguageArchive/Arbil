@@ -58,8 +58,8 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	windowManager.setTreeHelper(treeHelper);
 	sessionStorage.setTreeHelper(treeHelper);
 	injectTreeHelper(treeHelper);
-	
-	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+
+	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, windowManager, sessionStorage, mimeHashQueue, treeHelper, versionManager);
 	treeHelper.setDataNodeLoader(dataNodeLoader);
 	mimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	windowManager.setDataNodeLoader(dataNodeLoader);
@@ -68,6 +68,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     /**
      * Should not be called before injectHandlers()!!
+     *
      * @return the treeHelper
      */
     public ArbilTreeHelper getTreeHelper() {
@@ -76,6 +77,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     /**
      * Should not be called before injectHandlers()!!
+     *
      * @return the treeHelper
      */
     public ArbilMimeHashQueue getMimeHashQueue() {
@@ -84,6 +86,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     /**
      * Should not be called before injectHandlers()!!
+     *
      * @return the treeHelper
      */
     public ArbilWindowManager getWindowManager() {
@@ -92,6 +95,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     /**
      * Should not be called before injectHandlers()!!
+     *
      * @return the treeHelper
      */
     public ArbilDataNodeLoader getDataNodeLoader() {

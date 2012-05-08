@@ -43,39 +43,21 @@ import org.xml.sax.SAXException;
  */
 public class CmdiMetadataBuilder implements MetadataBuilder {
 
-    private static MessageDialogHandler messageDialogHandler;
+    private final MessageDialogHandler messageDialogHandler;
+    private final WindowManager windowManager;
+    private final SessionStorage sessionStorage;
+    private final TreeHelper treeHelper;
+    private final DataNodeLoader dataNodeLoader;
+    private final ApplicationVersionManager versionManager;
+    private final ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 
-    public static void setMessageDialogHandler(MessageDialogHandler handler) {
-	messageDialogHandler = handler;
-    }
-    private static WindowManager windowManager;
-
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
-    private static SessionStorage sessionStorage;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
-    private static TreeHelper treeHelper;
-
-    public static void setTreeHelper(TreeHelper treeHelperInstance) {
-	treeHelper = treeHelperInstance;
-    }
-    private static DataNodeLoader dataNodeLoader;
-
-    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
-	dataNodeLoader = dataNodeLoaderInstance;
-    }
-    private static ApplicationVersionManager versionManager;
-
-    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
-	versionManager = versionManagerInstance;
-    }
-    private ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
-
-    protected CmdiMetadataBuilder() {
+    public CmdiMetadataBuilder(MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
+	this.messageDialogHandler = messageDialogHandler;
+	this.windowManager = windowManager;
+	this.sessionStorage = sessionStorage;
+	this.treeHelper = treeHelper;
+	this.dataNodeLoader = dataNodeLoader;
+	this.versionManager = versionManager;
     }
 
     /**

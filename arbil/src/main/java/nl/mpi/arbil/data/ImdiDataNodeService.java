@@ -11,10 +11,12 @@ import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  *
@@ -29,7 +31,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
     private final MetadataDomLoader metadataDomLoader;
     private final MetadataBuilder metadataBuilder;
 
-    public ImdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
+    public ImdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper, ApplicationVersionManager versionManager) {
 	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper);
 
 	this.messageDialogHandler = messageDialogHandler;
@@ -38,7 +40,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	this.dataNodeLoader = dataNodeLoader;
 
 	this.metadataDomLoader = new ImdiDomLoader(dataNodeLoader, messageDialogHandler);
-	this.metadataBuilder = new ImdiMetadataBuilder();
+	this.metadataBuilder = new ImdiMetadataBuilder(messageDialogHandler, windowManager, sessionStorage, treeHelper, dataNodeLoader, versionManager);
     }
 
     public boolean isEditable(ArbilDataNode dataNode) {
