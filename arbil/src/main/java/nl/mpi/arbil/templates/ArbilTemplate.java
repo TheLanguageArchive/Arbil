@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
 
 /**
@@ -76,13 +75,6 @@ public interface ArbilTemplate {
     List<String> listAllTemplates();
 
     Enumeration<String[]> listTypesFor(Object targetNodeUserObject);
-
-    /**
-     * @param dataNode Node that has to be checked
-     * @param type XML path of candidate type for containment
-     * @return Whether any of the possible types matches the provided type
-     */
-    boolean nodeCanContainType(ArbilDataNode dataNode, String type);
 
     boolean pathCanHaveResource(String nodePath);
 

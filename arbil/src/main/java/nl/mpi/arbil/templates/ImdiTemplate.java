@@ -420,22 +420,6 @@ public class ImdiTemplate implements ArbilTemplate {
 	return childTypes;
     }
 
-    /**
-     * @param dataNode Node that has to be checked
-     * @param type XML path of candidate type for containment
-     * @return Whether any of the possible types matches the provided type
-     */
-    @Override
-    public boolean nodeCanContainType(ArbilDataNode dataNode, String type) {
-	for (String[] currentField : getTypesFor(dataNode, true)) {
-	    final String nodeType = currentField[1];
-	    if (nodeType.equals(type)) {
-		return true;
-	    }
-	}
-	return false;
-    }
-
     @Override
     public ArrayList<String> listAllTemplates() {
 	ArrayList<String> returnArrayList = new ArrayList<String>();
