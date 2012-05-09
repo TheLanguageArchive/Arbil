@@ -18,7 +18,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
@@ -83,37 +82,31 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
     public boolean canAddChildNode(final ArbilDataNode destinationNode, final String nodeType) {
 	final String targetXmlPath = destinationNode.getURI().getFragment();
 
-	synchronized (destinationNode.getParentDomLockObject()) {
-	    // Ignore CMDI metadata
-	    if (nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode()) {
-		// Check whether clarin sub node can be added
-		return arbilComponentBuilder.canInsertChildComponent(destinationNode, targetXmlPath, nodeType);
-	    } else {                // Ignore non-child nodes
-		if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType)) {
-		    // Do a quick pre-check whether there is a finite number of occurrences
-		    if (destinationNode.getNodeTemplate().getMaxOccursForTemplate(nodeType) >= 0) {
-			System.out.println("adding to current node");
-			try {
-			    Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
-			    if (nodDom == null) {
-				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
-			    } else {
-				return canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
-			    }
-			} catch (ParserConfigurationException ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
-			} catch (SAXException ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
-			} catch (IOException ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
-			} catch (ArbilMetadataException ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
+	synchronized (destinationNode.getParentDomLockObject()) {             // Ignore non-child nodes
+	    if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType)) {
+		// Do a quick pre-check whether there is a finite number of occurrences
+		if (destinationNode.getNodeTemplate().getMaxOccursForTemplate(nodeType) >= 0) {
+		    System.out.println("adding to current node");
+		    try {
+			Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
+			if (nodDom == null) {
+			    messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
+			} else {
+			    return canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
 			}
+		    } catch (ParserConfigurationException ex) {
+			BugCatcherManager.getBugCatcher().logError(ex);
+		    } catch (SAXException ex) {
+			BugCatcherManager.getBugCatcher().logError(ex);
+		    } catch (IOException ex) {
+			BugCatcherManager.getBugCatcher().logError(ex);
+		    } catch (ArbilMetadataException ex) {
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
-		// Other cases not handled
-		return true;
 	    }
+	    // Other cases not handled
+	    return true;
 	}
     }
 
@@ -231,32 +224,27 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
 	    sourceArbilNodeArray = new ArbilDataNode[]{addableNode};
 	}
 	for (ArbilDataNode currentArbilNode : sourceArbilNodeArray) {
-	    if (destinationNode.isCmdiMetaDataNode()) {
-		new ArbilComponentBuilder().insertResourceProxy(destinationNode, addableNode);
-		destinationNode.getParentDomNode().loadArbilDom();
+	    String nodeType;
+	    String favouriteUrlString = null;
+	    URI resourceUrl = null;
+	    String mimeType = null;
+	    if (currentArbilNode.isArchivableFile() && !currentArbilNode.isMetaDataNode()) {
+		nodeType = getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+		if (nodeType == null) {
+		    nodeType = handleUnknownMimetype(currentArbilNode);
+		}
+		resourceUrl = currentArbilNode.getURI();
+		mimeType = currentArbilNode.mpiMimeType;
+		nodeTypeDisplayName = "Resource";
 	    } else {
-		String nodeType;
-		String favouriteUrlString = null;
-		URI resourceUrl = null;
-		String mimeType = null;
-		if (currentArbilNode.isArchivableFile() && !currentArbilNode.isMetaDataNode()) {
-		    nodeType = getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
-		    if (nodeType == null) {
-			nodeType = handleUnknownMimetype(currentArbilNode);
-		    }
-		    resourceUrl = currentArbilNode.getURI();
-		    mimeType = currentArbilNode.mpiMimeType;
-		    nodeTypeDisplayName = "Resource";
-		} else {
-		    nodeType = ArbilFavourites.getSingleInstance().getNodeType(currentArbilNode, destinationNode);
-		    favouriteUrlString = currentArbilNode.getUrlString();
-		}
-		if (nodeType != null) {
-		    String targetXmlPath = destinationNode.getURI().getFragment();
-		    System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
-		    processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
-		    destinationNode.getParentDomNode().loadArbilDom();
-		}
+		nodeType = ArbilFavourites.getSingleInstance().getNodeType(currentArbilNode, destinationNode);
+		favouriteUrlString = currentArbilNode.getUrlString();
+	    }
+	    if (nodeType != null) {
+		String targetXmlPath = destinationNode.getURI().getFragment();
+		System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
+		processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
+		destinationNode.getParentDomNode().loadArbilDom();
 	    }
 	}
     }
@@ -341,7 +329,6 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
     }
 
     private ArbilDataNode processAddNodes(ArbilDataNode currentArbilNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
-
 	// make title for imdi table
 	String newTableTitleString = "new " + nodeTypeDisplayName;
 	if (currentArbilNode.isMetaDataNode() && currentArbilNode.getFile().exists()) {
@@ -355,14 +342,10 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
 	ArbilDataNode addedArbilNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 	if (addedArbilNode != null) {
 	    addedArbilNode.getParentDomNode().updateLoadingState(+1);
-	    ArbilNode destinationNode = currentArbilNode.getParentDomNode();
 	    try {
 		addedArbilNode.scrollToRequested = true;
 		if (currentArbilNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
 		    currentArbilNode.getParentDomNode().loadArbilDom();
-		} else {
-		    // Root node request, destination node should be corpus root node
-		    destinationNode = getLocalCorpusRootNode(destinationNode);
 		}
 		if (currentArbilNode.getParentDomNode() != addedArbilNode.getParentDomNode()) {
 		    addedArbilNode.getParentDomNode().loadArbilDom();
@@ -394,74 +377,44 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
 		if (destinationNode.getNeedsSaveToDisk(false)) {
 		    destinationNode.saveChangesToCache(false);
 		}
-		if (nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode()) {
-		    // Add clarin sub nodes
-		    addedNodePath = arbilComponentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
-		} else {
-		    if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
-			System.out.println("adding to current node");
-			try {
-			    Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
-			    if (nodDom == null) {
-				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
-			    } else {
-				addedNodePath = insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
-				destinationNode.bumpHistory();
-				ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
-				dataNodeLoader.requestReload(destinationNode);
-			    }
-			} catch (ParserConfigurationException ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
-			} catch (SAXException ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
-			} catch (IOException ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
-			}
-//            needsSaveToDisk = true;
-		    } else {
-			System.out.println("adding new node");
-			URI targetFileURI = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
-			if (CmdiProfileReader.pathIsProfile(nodeType)) {
-			    // Is CMDI profile
-			    try {
-				addedNodePath = arbilComponentBuilder.createComponentFile(targetFileURI, new URI(nodeType), false);
-				// TODO: some sort of warning like: "Could not add node of type: " + nodeType; would be useful here or downstream
-//                    if (addedNodePath == null) {
-//                      LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
-//                    }
-			    } catch (URISyntaxException ex) {
-				BugCatcherManager.getBugCatcher().logError(ex);
-				return null;
-			    }
+		if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
+		    System.out.println("adding to current node");
+		    try {
+			Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
+			if (nodDom == null) {
+			    messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
 			} else {
-			    addedNodePath = addFromTemplate(new File(targetFileURI), nodeType);
+			    addedNodePath = insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
+			    destinationNode.bumpHistory();
+			    ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
+			    dataNodeLoader.requestReload(destinationNode);
 			}
-			if (destinationNode.getFile().exists()) {
-			    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
-			    destinationNode.getParentDomNode().loadArbilDom();
-			} else {
-			    treeHelper.addLocation(addedNodePath);
-			    treeHelper.applyRootLocations();
-			}
+		    } catch (ParserConfigurationException ex) {
+			BugCatcherManager.getBugCatcher().logError(ex);
+		    } catch (SAXException ex) {
+			BugCatcherManager.getBugCatcher().logError(ex);
+		    } catch (IOException ex) {
+			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
-		    // CODE REMOVED: load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
+//            needsSaveToDisk = true;
+		} else {
+		    System.out.println("adding new node");
+		    URI targetFileURI = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
+		    addedNodePath = addFromTemplate(new File(targetFileURI), nodeType);
+		    if (destinationNode.getFile().exists()) {
+			destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
+			destinationNode.getParentDomNode().loadArbilDom();
+		    } else {
+			treeHelper.addLocation(addedNodePath);
+			treeHelper.applyRootLocations();
+		    }
 		}
+		// CODE REMOVED: load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
 	    }
 	} finally {
 	    destinationNode.updateLoadingState(-1);
 	}
 	return addedNodePath;
-    }
-
-    private ArbilNode getLocalCorpusRootNode(ArbilNode destinationNode) {
-	Object localTreeRoot = treeHelper.getLocalCorpusTreeModel().getRoot();
-	if (localTreeRoot instanceof DefaultMutableTreeNode) {
-	    Object userObject = ((DefaultMutableTreeNode) localTreeRoot).getUserObject();
-	    if (userObject instanceof ArbilRootNode) {
-		destinationNode = (ArbilRootNode) userObject;
-	    }
-	}
-	return destinationNode;
     }
 
     @Override
@@ -515,17 +468,7 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
     }
 
     private URL constructTemplateUrl(String templateType) {
-	URL templateUrl = null;
-	if (CmdiProfileReader.pathIsProfile(templateType)) {
-	    try {
-		return new URL(templateType);
-	    } catch (MalformedURLException ex) {
-		BugCatcherManager.getBugCatcher().logError(ex);
-		templateUrl = null;
-	    }
-	} else {
-	    templateUrl = ImdiMetadataBuilder.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
-	}
+	URL templateUrl = ImdiMetadataBuilder.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
 
 	if (templateUrl == null) {
 	    try {
