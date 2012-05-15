@@ -425,8 +425,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    System.out.println("deleting by child xml id link");
 	    // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
 	    //currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
-	    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-	    boolean result = componentBuilder.removeChildNodes(currentParent, deleteEntry.getValue().toArray(new String[]{}));
+	    boolean result = currentParent.getDataNodeService().getMetadataBuilder().removeChildNodes(currentParent, deleteEntry.getValue().toArray(new String[]{}));
 	    if (result) {
 		// Invalidate all thumbnails for the parent node. If MediaFiles are deleted, this prevents the thumbnails to get 'shifted'
 		// i.e. stick on the wrong note. This could perhaps be done a bit more sophisticated, it is not actually needed
@@ -448,14 +447,16 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     protected void deleteCmdiLinks(Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinks) {
-	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 	for (Entry<ArbilDataNode, List<ArbilDataNode>> deleteEntry : cmdiLinks.entrySet()) {
-	    ArrayList<String> references = new ArrayList<String>(deleteEntry.getValue().size());
-	    for (ArbilDataNode node : deleteEntry.getValue()) {
+	    final List<ArbilDataNode> referenceNodes = deleteEntry.getValue();
+	    final ArbilDataNode parentNode = deleteEntry.getKey();
+	    ArrayList<String> references = new ArrayList<String>(referenceNodes.size());
+	    for (ArbilDataNode node : referenceNodes) {
 		references.add(node.getUrlString());
 	    }
-	    if (componentBuilder.removeResourceProxyReferences(deleteEntry.getKey(), references)) {
-		deleteEntry.getKey().reloadNode();
+	    final CmdiMetadataBuilder metadataBuilder = (CmdiMetadataBuilder) parentNode.getDataNodeService().getMetadataBuilder();
+	    if (metadataBuilder.removeResourceProxyReferences(parentNode, references)) {
+		parentNode.reloadNode();
 	    } else {
 		messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
 	    }

@@ -14,7 +14,6 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.swing.JOptionPane;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -302,7 +301,7 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
 	    }
 	    ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
 	    ArbilDataNode addedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
-	    new ArbilComponentBuilder().removeArchiveHandles(addedNode);
+	    arbilComponentBuilder.removeArchiveHandles(addedNode);
 	    if (destinationNode == null) {
 		// Destination node null means add to tree root
 		treeHelper.addLocation(addedNodeUri);
@@ -319,7 +318,7 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
 		return;
 	    }
 	    addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);
-	    new ArbilComponentBuilder().removeArchiveHandles(destinationNode);
+	    arbilComponentBuilder.removeArchiveHandles(destinationNode);
 	}
 	if (destinationNode != null) {
 	    destinationNode.getParentDomNode().loadArbilDom();
@@ -765,5 +764,9 @@ public class ImdiMetadataBuilder implements MetadataBuilder {
 	    }
 	}
 	return null;
+    }
+
+    public boolean removeChildNodes(ArbilDataNode arbilDataNode, String[] nodePaths) {
+	return arbilComponentBuilder.removeChildNodes(arbilDataNode, nodePaths);
     }
 }

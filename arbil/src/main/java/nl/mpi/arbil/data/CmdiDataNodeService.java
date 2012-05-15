@@ -314,8 +314,9 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		}
 	    }
 	}
-	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-	boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
+	//TODO: set field values
+	//	boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
+	boolean result = false;
 	if (!result) {
 	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
 	} else {

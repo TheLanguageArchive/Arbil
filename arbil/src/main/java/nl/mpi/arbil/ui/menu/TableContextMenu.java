@@ -5,9 +5,8 @@ import java.util.Hashtable;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
-import nl.mpi.arbil.data.ArbilComponentBuilder;
-import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -203,8 +202,7 @@ public class TableContextMenu extends ArbilContextMenu {
 			    currentList.add(currentField.getFullXmlPath());
 			}
 			for (ArbilDataNode currentDataNode : selectedFieldHashtable.keySet()) {
-			    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-			    boolean result = componentBuilder.removeChildNodes(currentDataNode, (String[]) selectedFieldHashtable.get(currentDataNode).toArray(new String[]{}));
+			    boolean result = currentDataNode.getDataNodeService().getMetadataBuilder().removeChildNodes(currentDataNode, (String[]) selectedFieldHashtable.get(currentDataNode).toArray(new String[]{}));
 			    if (result) {
 				currentDataNode.reloadNode();
 			    } else {

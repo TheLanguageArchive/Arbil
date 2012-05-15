@@ -56,5 +56,6 @@ public interface MetadataBuilder {
      * @param addableNode Node to base new node on
      */
     void requestAddRootNode(final ArbilDataNode addableNode, final String nodeTypeDisplayNameLocal);
-    
+
+    boolean removeChildNodes(ArbilDataNode arbilDataNode, String nodePaths[]);
 }

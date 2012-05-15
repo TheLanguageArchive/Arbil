@@ -2,6 +2,7 @@ package nl.mpi.arbil.data;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -9,6 +10,10 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import nl.mpi.metadata.api.MetadataException;
+import nl.mpi.metadata.api.model.ReferencingMetadataElement;
+import nl.mpi.metadata.cmdi.api.model.CMDIDocument;
+import nl.mpi.metadata.cmdi.api.model.ResourceProxy;
 
 /**
  *
@@ -23,7 +28,6 @@ public class CmdiMetadataBuilder implements MetadataBuilder {
     private final TreeHelper treeHelper;
     private final DataNodeLoader dataNodeLoader;
     private final ApplicationVersionManager versionManager;
-    private final ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 
     public CmdiMetadataBuilder(MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
 	this.messageDialogHandler = messageDialogHandler;
@@ -61,7 +65,8 @@ public class CmdiMetadataBuilder implements MetadataBuilder {
 	    if (nodeType.startsWith(".")) {
 		// Check whether clarin sub node can be added
 		// TODO: Use metadata API
-		return arbilComponentBuilder.canInsertChildComponent(destinationNode, targetXmlPath, nodeType);
+		//return arbilComponentBuilder.canInsertChildComponent(destinationNode, targetXmlPath, nodeType);
+		return true;
 	    } else {
 		// Other cases not handled
 		return true;
@@ -184,7 +189,7 @@ public class CmdiMetadataBuilder implements MetadataBuilder {
 
 	//TODO: does the loop make sense for CMDI?
 	for (ArbilDataNode currentArbilNode : sourceArbilNodeArray) {
-	    new ArbilComponentBuilder().insertResourceProxy(destinationNode, addableNode);
+	    insertResourceProxy(destinationNode, addableNode);
 	    destinationNode.getParentDomNode().loadArbilDom();
 	}
     }
@@ -199,7 +204,6 @@ public class CmdiMetadataBuilder implements MetadataBuilder {
 	    }
 	    ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
 	    ArbilDataNode addedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
-	    new ArbilComponentBuilder().removeArchiveHandles(addedNode);
 	    if (destinationNode == null) {
 		// Destination node null means add to tree root
 		treeHelper.addLocation(addedNodeUri);
@@ -216,8 +220,8 @@ public class CmdiMetadataBuilder implements MetadataBuilder {
 		return;
 	    }
 	    //TODO: Use metadata API
-	    addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);
-	    new ArbilComponentBuilder().removeArchiveHandles(destinationNode);
+	    //addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);
+	    addedNodeUri = null;
 	}
 	if (destinationNode != null) {
 	    destinationNode.getParentDomNode().loadArbilDom();
@@ -278,7 +282,8 @@ public class CmdiMetadataBuilder implements MetadataBuilder {
 		if (nodeType.startsWith(".")) {
 		    // Add clarin sub nodes
 		    // TODO: use metadata API
-		    addedNodePath = arbilComponentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
+		    //addedNodePath = arbilComponentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
+		    addedNodePath = null;
 		}
 	    }
 	} finally {
@@ -291,5 +296,54 @@ public class CmdiMetadataBuilder implements MetadataBuilder {
     public URI addFromTemplate(File destinationFile, String templateType) {
 	//TODO: Use MetadataAPI
 	return null;
+    }
+
+    public boolean removeChildNodes(ArbilDataNode arbilDataNode, String[] nodePaths) {
+	// TODO: Use MetadataAPI
+	return false;
+    }
+
+    public boolean removeResourceProxyReferences(ArbilDataNode parent, Collection<String> resourceProxyReferences) {
+	//TODO: Use MetadataAPI
+	synchronized (parent.getParentDomLockObject()) {
+	    boolean success = true;
+	    if (!(parent.getMetadataElement() instanceof ReferencingMetadataElement)) {
+		throw new UnsupportedOperationException("Can only add resource proxy to CMDI");
+	    }
+	    final ReferencingMetadataElement element = (ReferencingMetadataElement) parent.getMetadataElement();
+	    if (!(element.getMetadataDocument() instanceof CMDIDocument)) {
+		throw new UnsupportedOperationException("Can only remove resource proxy from CMDIDocument");
+	    }
+	    final CMDIDocument document = (CMDIDocument) element.getMetadataDocument();
+	    for (String resourceProxyReference : resourceProxyReferences) {
+		final ResourceProxy documentResourceProxy = document.getDocumentResourceProxy(resourceProxyReference);
+		if (documentResourceProxy != null) {
+		    try {
+			element.removeReference(documentResourceProxy);
+		    } catch (MetadataException mdEx) {
+			BugCatcherManager.getBugCatcher().logError("Error while trying to remove reference to resource proxy " + resourceProxyReference, mdEx);
+			success = false;
+		    }
+		}
+	    }
+	    return success;
+	}
+    }
+
+    public URI insertResourceProxy(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) {
+	// there is no need to save the node at this point because metadatabuilder has already done so
+	synchronized (arbilDataNode.getParentDomLockObject()) {
+	    if (!(arbilDataNode.getMetadataElement() instanceof ReferencingMetadataElement)) {
+		throw new UnsupportedOperationException("Can only add resource proxy to CMDI");
+	    }
+	    final ReferencingMetadataElement element = (ReferencingMetadataElement) arbilDataNode.getMetadataElement();
+	    try {
+		element.createMetadataReference(resourceNode.getURI(), resourceNode.getAnyMimeType());
+		return arbilDataNode.getURI();
+	    } catch (MetadataException mdEx) {
+		BugCatcherManager.getBugCatcher().logError("Error while trying to insert resource proxy reference", mdEx);
+		return null;
+	    }
+	}
     }
 }

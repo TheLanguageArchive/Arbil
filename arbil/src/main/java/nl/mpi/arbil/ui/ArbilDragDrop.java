@@ -25,7 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.data.ImdiMetadataBuilder;
+import nl.mpi.arbil.data.CmdiMetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -33,8 +33,9 @@ import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
- * Document   :  ArbilDragDrop
- * Created on :  Tue Sep 09 15:02:56 CEST 2008
+ * Document : ArbilDragDrop
+ * Created on : Tue Sep 09 15:02:56 CEST 2008
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilDragDrop {
@@ -525,7 +526,7 @@ public class ArbilDragDrop {
 		dropTargetDataNode = (ArbilDataNode) dropTargetUserObject;
 		// Media files can be dropped onto CMDI's and on IMDI root Resources nodes
 		if (dropTargetDataNode.getParentDomNode().isCmdiMetaDataNode() && !selectionDraggedFromLocalCorpus
-			|| dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
+			|| dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild() */) {
 		    if (selectionContainsArchivableLocalFile == true
 			    && selectionContainsLocalFile == true
 			    && selectionContainsLocalDirectory == false
@@ -599,7 +600,7 @@ public class ArbilDragDrop {
 				if (!moveAll) {
 				    detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(),
 					    "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
-					    + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
+					    + /* " from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() + */ " to " + targetNodeName,
 					    "Arbil",
 					    JOptionPane.DEFAULT_OPTION,
 					    JOptionPane.PLAIN_MESSAGE,
@@ -671,9 +672,9 @@ public class ArbilDragDrop {
 				addNodeResult = false;
 			    }
 			} else {
-			    ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 			    // Add as ResourceProxy
-			    addNodeResult = null != arbilComponentBuilder.insertResourceProxy(dropTargetDataNode, currentNode);
+			    final CmdiMetadataBuilder mdBuilder = (CmdiMetadataBuilder) dropTargetDataNode.getDataNodeService().getMetadataBuilder();
+			    addNodeResult = null != mdBuilder.insertResourceProxy(dropTargetDataNode, currentNode);
 			}
 		    }
 		}

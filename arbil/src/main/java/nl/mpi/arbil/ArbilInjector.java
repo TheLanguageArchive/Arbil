@@ -68,7 +68,6 @@ public abstract class ArbilInjector {
     }
 
     public void injectDataNodeLoader(DataNodeLoader dataNodeLoader) {
-	ArbilComponentBuilder.setDataNodeLoader(dataNodeLoader);
 	ArbilCsvImporter.setDataNodeLoader(dataNodeLoader);
 	ArbilDataNodeTableCell.setDataNodeLoader(dataNodeLoader);
 	ArbilDataNodeArrayTableCell.setDataNodeLoader(dataNodeLoader);
@@ -111,7 +110,6 @@ public abstract class ArbilInjector {
     }
 
     public void injectSessionStorage(SessionStorage sessionStorage) {
-	ArbilComponentBuilder.setSessionStorage(sessionStorage);
 	ArbilEntityResolver.setSessionStorage(sessionStorage);
 	ArbilField.setSessionStorage(sessionStorage);
 	ArbilJournal.setSessionStorage(sessionStorage);

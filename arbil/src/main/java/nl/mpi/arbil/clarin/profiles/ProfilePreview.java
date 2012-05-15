@@ -3,11 +3,9 @@ package nl.mpi.arbil.clarin.profiles;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.ArbilTree;
@@ -37,8 +35,10 @@ public class ProfilePreview {
         try {
             File tempFile = File.createTempFile("ArbilPreview", ".cmdi", sessionStorage.getStorageDirectory());
             tempFile.deleteOnExit();
-            ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-            URI addedNodePath = componentBuilder.createComponentFile(tempFile.toURI(), new URI(uriString), true);
+	    // TODO: Use metadata API	    
+//            ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+//            URI addedNodePath = componentBuilder.createComponentFile(tempFile.toURI(), new URI(uriString), true);
+	    URI addedNodePath = null;
             ArbilDataNode demoNode = dataNodeLoader.getArbilDataNode(null, addedNodePath);
 //            ImdiTreeObject demoNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"));
             demoNode.waitTillLoaded();
@@ -58,8 +58,8 @@ public class ProfilePreview {
         } catch (IOException exception) {
             System.out.println(exception.getMessage());
             ///GuiHelper.linorgBugCatcher.logError(exception);
-        } catch (URISyntaxException exception) {
-            System.out.println(exception.getMessage());
+//        } catch (URISyntaxException exception) {
+//            System.out.println(exception.getMessage());
             //GuiHelper.linorgBugCatcher.logError(exception);
         }
         return returnString;
