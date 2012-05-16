@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.MetadataAPITemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -11,7 +13,11 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.metadata.api.MetadataException;
+import nl.mpi.metadata.api.model.MetadataContainer;
+import nl.mpi.metadata.api.model.MetadataElement;
 import nl.mpi.metadata.api.model.ReferencingMetadataElement;
+import nl.mpi.metadata.api.type.ContainedMetadataElementType;
+import nl.mpi.metadata.api.type.MetadataElementType;
 import nl.mpi.metadata.cmdi.api.model.CMDIDocument;
 import nl.mpi.metadata.cmdi.api.model.ResourceProxy;
 
@@ -39,24 +45,53 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
      * Checks whether the destinationNode in its current state supports adding a node of the specified type
      *
      * @param destinationNode Proposed destination node
-     * @param nodeType Full type name of the node to add
+     * @param nodeTypeString Full type name of the node to add
      * @return Whether the node can be added
      */
     @Override
-    public boolean canAddChildNode(final ArbilDataNode destinationNode, final String nodeType) {
-	final String targetXmlPath = destinationNode.getURI().getFragment();
-
-	synchronized (destinationNode.getParentDomLockObject()) {
-	    if (nodeType.startsWith(".")) {
-		// Check whether clarin sub node can be added
-		// TODO: Use metadata API
-		//return arbilComponentBuilder.canInsertChildComponent(destinationNode, targetXmlPath, nodeType);
-		return true;
-	    } else {
-		// Other cases not handled
-		return true;
-	    }
+    public boolean canAddChildNode(ArbilDataNode destinationNode, final String nodeTypeString) {
+	final MetadataElement metadataElement = destinationNode.getMetadataElement();
+	if (!(metadataElement instanceof MetadataContainer)) {
+	    // Target cannot contain children
+	    return false;
 	}
+
+	// Get type from type string
+	final MetadataElementType childType = getMetadataElementType(destinationNode, nodeTypeString);
+	if (!(childType instanceof ContainedMetadataElementType)) {
+	    // Type has to be containable
+	    return false;
+	}
+
+	// Check if target or one of its singleton children can contain the specified type
+	return canAddChildNode((MetadataContainer) metadataElement, (ContainedMetadataElementType) childType);
+    }
+
+    private boolean canAddChildNode(MetadataContainer<MetadataElement> container, ContainedMetadataElementType childType) {
+	if (container.canAddInstanceOfType(childType)) {
+	    return true;
+	} else {
+	    // Check 1:0..1 children
+	    for (MetadataElement child : container.getChildren()) {
+		if (child instanceof MetadataContainer) {
+		    if (((ContainedMetadataElementType) child.getType()).getMaxOccurences() == 1) {
+			if (canAddChildNode((MetadataContainer) child, childType)) {
+			    return true;
+			}
+		    }
+		}
+	    }
+	    return false;
+	}
+    }
+
+    private MetadataElementType getMetadataElementType(ArbilDataNode destinationNode, final String nodeTypeString) throws RuntimeException {
+	final ArbilTemplate nodeTemplate = destinationNode.getNodeTemplate();
+	if (!(nodeTemplate instanceof MetadataAPITemplate)) {
+	    throw new RuntimeException("Encountered CMDI node without MetadataAPITemplate");
+	}
+	final MetadataElementType childType = ((MetadataAPITemplate) nodeTemplate).getMetadataElement(nodeTypeString);
+	return childType;
     }
 
     @Override
@@ -101,9 +136,8 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 		BugCatcherManager.getBugCatcher().logError(new Exception("Attempt to add child node to local corpus root"));
 		return;
 	    }
-	    //TODO: Use metadata API
-	    //addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);
-	    addedNodeUri = null;
+	    //TODO: Use metadata API(?)
+	    addedNodeUri = new ArbilComponentBuilder().insertFavouriteComponent(destinationNode, addableNode);
 	}
 	if (destinationNode != null) {
 	    destinationNode.getParentDomNode().loadArbilDom();
