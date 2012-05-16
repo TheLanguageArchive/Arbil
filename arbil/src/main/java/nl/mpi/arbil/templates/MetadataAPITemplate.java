@@ -18,6 +18,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabularies;
@@ -71,7 +72,14 @@ public class MetadataAPITemplate implements ArbilTemplate {
     }
 
     private void readPaths(MetadataElementType type) {
-	elementPathMap.put(type.getPathString(), type);
+	final String pathString = type.getPathString();
+	if ("/".equals(pathString)) {
+	    elementPathMap.put(null, type);
+	} else {
+	    elementPathMap.put(pathString.replaceAll("/:", ArbilConstants.imdiPathSeparator), type);
+	}
+
+	// Recursively read child paths
 	if (type instanceof MetadataContainerElementType<?>) {
 	    for (MetadataElementType child : ((MetadataContainerElementType<?>) type).getContainableTypes()) {
 		readPaths(child);
@@ -79,9 +87,14 @@ public class MetadataAPITemplate implements ArbilTemplate {
 	}
     }
 
-    private MetadataElementType getMetadataElement(final String path) {
-	final String xPath = path == null ? "/" : path.replace(".", "/:");
-	return elementPathMap.get(xPath);
+    /**
+     *
+     * @param path path using the {@link ArbilConstants#imdiPathSeparator IMDI path separator}
+     * @return MetadataElementType, if it is present. Otherwise null
+     * @see ArbilConstants#imdiPathSeparator
+     */
+    public MetadataElementType getMetadataElement(final String path) {
+	return elementPathMap.get(path);
     }
 
     public String[][] getAutoFieldsArray() {
