@@ -21,6 +21,7 @@ import nl.mpi.arbil.util.WindowManager;
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
+ * @author Peter Withers <peter.withers@mpi.nl>
  */
 public class ImdiDataNodeService extends ArbilDataNodeService {
 

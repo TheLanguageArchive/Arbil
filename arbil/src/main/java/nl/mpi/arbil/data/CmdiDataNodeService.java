@@ -23,13 +23,13 @@ import nl.mpi.metadata.api.MetadataAPI;
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
+ * @author Peter Withers <peter.withers@mpi.nl>
  */
 public class CmdiDataNodeService extends ArbilDataNodeService {
 
     private final DataNodeLoader dataNodeLoader;
     private final MessageDialogHandler messageDialogHandler;
     private final SessionStorage sessionStorage;
-    private final MimeHashQueue mimeHashQueue;
     private final MetadataDomLoader metadataDomLoader;
     private final MetadataBuilder metadataBuilder;
     private final MetadataAPI metadataAPI;
@@ -39,7 +39,6 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
-	this.mimeHashQueue = mimeHashQueue;
 	this.dataNodeLoader = dataNodeLoader;
 
 	this.metadataAPI = ArbilTemplateManager.getSingleInstance().getCmdiApi();
@@ -210,52 +209,35 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     }
 
     /**
-     * Inserts/sets resource location. Behavior will depend on node type
+     * Inserts/sets resource location.
      *
      * @param location Location to insert/set
      */
     public void insertResourceLocation(ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
-	if (dataNode.isCmdiMetaDataNode()) {
-	    ArbilDataNode resourceNode = null;
-	    try {
-		resourceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(location);
-	    } catch (Exception ex) {
-		throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
-	    }
-	    if (resourceNode == null) {
-		throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
-	    }
-
-	    getMetadataBuilder().requestAddNode(dataNode, null, resourceNode);
-	} else {
-	    if (dataNode.hasResource()) {
-		dataNode.resourceUrlField.setFieldValue(location.toString(), true, false);
-	    }
+	ArbilDataNode resourceNode = null;
+	try {
+	    resourceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(location);
+	} catch (Exception ex) {
+	    throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
 	}
+	if (resourceNode == null) {
+	    throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
+	}
+
+	getMetadataBuilder().requestAddNode(dataNode, null, resourceNode);
     }
 
     public void addField(ArbilDataNode dataNode, ArbilField fieldToAdd) {
-	//        System.addField:out.println("addField: " + this.getUrlString() + " : " + fieldToAdd.xmlPath + " : " + fieldToAdd.getFieldValue());
 	ArbilField[] currentFieldsArray = dataNode.getFieldArray(fieldToAdd.getTranslateFieldName());
 	if (currentFieldsArray == null) {
 	    currentFieldsArray = new ArbilField[]{fieldToAdd};
 	} else {
-	    //            System.out.println("appendingField: " + fieldToAdd);
 	    ArbilField[] appendedFieldsArray = new ArbilField[currentFieldsArray.length + 1];
 	    System.arraycopy(currentFieldsArray, 0, appendedFieldsArray, 0, currentFieldsArray.length);
 	    appendedFieldsArray[appendedFieldsArray.length - 1] = fieldToAdd;
 	    currentFieldsArray = appendedFieldsArray;
-
-	    //            for (ImdiField tempField : currentFieldsArray) {
-	    //                System.out.println("appended fields: " + tempField);
-	    //            }
 	}
 	dataNode.addFieldArray(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
-
-	if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.getParentDataNode().isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile") */) {
-	    dataNode.resourceUrlField = fieldToAdd;
-	    mimeHashQueue.addToQueue(dataNode);
-	}
     }
 
     @Override

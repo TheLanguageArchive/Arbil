@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.data;
 
 import java.awt.Toolkit;
@@ -29,6 +25,7 @@ import nl.mpi.arbil.util.TreeHelper;
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
+ * @author Peter Withers <peter.withers@mpi.nl>
  */
 public abstract class ArbilDataNodeService {
 
