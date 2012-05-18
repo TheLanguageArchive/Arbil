@@ -1,8 +1,11 @@
 package nl.mpi.arbil.data;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.MetadataAPITemplate;
@@ -12,6 +15,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import nl.mpi.metadata.api.MetadataAPI;
 import nl.mpi.metadata.api.MetadataException;
 import nl.mpi.metadata.api.model.MetadataContainer;
 import nl.mpi.metadata.api.model.MetadataElement;
@@ -27,14 +31,16 @@ import nl.mpi.metadata.cmdi.api.model.ResourceProxy;
  * @author Peter Withers
  */
 public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
-
+    
     private final WindowManager windowManager;
     private final SessionStorage sessionStorage;
     private final TreeHelper treeHelper;
     private final DataNodeLoader dataNodeLoader;
-
-    public CmdiMetadataBuilder(MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
+    private final MetadataAPI metadataAPI;
+    
+    public CmdiMetadataBuilder(MetadataAPI metadataAPI, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
 	super(messageDialogHandler, windowManager, dataNodeLoader);
+	this.metadataAPI = metadataAPI;
 	this.windowManager = windowManager;
 	this.sessionStorage = sessionStorage;
 	this.treeHelper = treeHelper;
@@ -66,7 +72,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	// Check if target or one of its singleton children can contain the specified type
 	return canAddChildNode((MetadataContainer) metadataElement, (ContainedMetadataElementType) childType);
     }
-
+    
     private boolean canAddChildNode(MetadataContainer<MetadataElement> container, ContainedMetadataElementType childType) {
 	if (container.canAddInstanceOfType(childType)) {
 	    return true;
@@ -84,7 +90,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	    return false;
 	}
     }
-
+    
     private MetadataElementType getMetadataElementType(ArbilDataNode destinationNode, final String nodeTypeString) throws RuntimeException {
 	final ArbilTemplate nodeTemplate = destinationNode.getNodeTemplate();
 	if (!(nodeTemplate instanceof MetadataAPITemplate)) {
@@ -93,7 +99,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	final MetadataElementType childType = ((MetadataAPITemplate) nodeTemplate).getMetadataElement(nodeTypeString);
 	return childType;
     }
-
+    
     @Override
     protected final void addNonMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	ArbilDataNode[] sourceArbilNodeArray;
@@ -109,7 +115,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	    destinationNode.getParentDomNode().loadArbilDom();
 	}
     }
-
+    
     @Override
     protected final void addMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	URI addedNodeUri;
@@ -166,10 +172,26 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 		    destinationNode.saveChangesToCache(false);
 		}
 		if (nodeType.startsWith(".")) {
-		    // Add clarin sub nodes
-		    // TODO: use metadata API
-		    //addedNodePath = arbilComponentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
-		    addedNodePath = null;
+		    final MetadataElementType metadataElementType = getMetadataElementType(destinationNode, nodeType);
+		    final MetadataElement destinationElement = destinationNode.getMetadataElement();
+		    if (!(destinationElement instanceof MetadataContainer)) {
+			throw new RuntimeException("Cannot add child node to non-container MetadataElement");
+		    }
+		    MetadataElement addedChildNode = addChildNode((MetadataContainer) destinationElement, (ContainedMetadataElementType) metadataElementType);
+		    if (addedChildNode != null) {
+			try {
+			    destinationNode.bumpHistory();
+			    metadataAPI.writeMetadataDocument(destinationElement.getMetadataDocument(), new StreamResult(destinationNode.getFile()));
+			    dataNodeLoader.requestReload(destinationNode);
+			    //TODO: construct addedNodePath
+			} catch (IOException ioEx) {
+			    BugCatcherManager.getBugCatcher().logError(ioEx);
+			} catch (TransformerException tEx) {
+			    BugCatcherManager.getBugCatcher().logError(tEx);
+			} catch (MetadataException mdEx) {
+			    BugCatcherManager.getBugCatcher().logError(mdEx);
+			}
+		    }
 		}
 	    }
 	} finally {
@@ -177,18 +199,42 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	}
 	return addedNodePath;
     }
-
+    
+    private MetadataElement addChildNode(MetadataContainer<MetadataElement> container, ContainedMetadataElementType childType) {
+	if (container.canAddInstanceOfType(childType)) {
+	    try {
+		return metadataAPI.insertMetadataElement(container, childType);
+	    } catch (MetadataException mdEx) {
+		BugCatcherManager.getBugCatcher().logError("MetadataException while adding child node", mdEx);
+		return null;
+	    }
+	} else {
+	    // Check 1:0..1 children
+	    for (MetadataElement child : container.getChildren()) {
+		if (child instanceof MetadataContainer) {
+		    if (((ContainedMetadataElementType) child.getType()).getMaxOccurences() == 1) {
+			MetadataElement addedChildNode = addChildNode((MetadataContainer) child, childType);
+			if (addedChildNode != null) {
+			    return addedChildNode;
+			}
+		    }
+		}
+	    }
+	}
+	return null;
+    }
+    
     @Override
     public URI addFromTemplate(File destinationFile, String templateType) {
 	//TODO: Use MetadataAPI
 	return null;
     }
-
+    
     public boolean removeChildNodes(ArbilDataNode arbilDataNode, String[] nodePaths) {
 	// TODO: Use MetadataAPI
 	return false;
     }
-
+    
     public boolean removeResourceProxyReferences(ArbilDataNode parent, Collection<String> resourceProxyReferences) {
 	//TODO: Use MetadataAPI
 	synchronized (parent.getParentDomLockObject()) {
@@ -215,7 +261,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	    return success;
 	}
     }
-
+    
     public URI insertResourceProxy(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) {
 	// there is no need to save the node at this point because metadatabuilder has already done so
 	synchronized (arbilDataNode.getParentDomLockObject()) {
