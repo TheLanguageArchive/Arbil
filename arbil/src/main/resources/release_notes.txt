@@ -1,4 +1,4 @@
-ARBIL 2.4.x RELEASE NOTES
+ARBIL 2.5.x RELEASE NOTES
 ----------------------------------------
 $Date$ 
 $Revision$ (this means that the descriptions below apply to Arbil 2.4.x with x >= revision)
@@ -15,10 +15,11 @@ applicable, related ticket numbers from TRAC are included at the end of the desc
 
 The following functionality has been added to Arbil:
 
-
 ** CHANGES **
 
 These parts of the Arbil functionality have changed:
+
+- FAVOURITES: Favourites are now grouped by type. (#21)
 
 - CMDI PROFILES: Profiles are no longer downloaded automatically along with the profiles list. They
 get downloaded as soon as they are selected, or alternatively all profiles can be downloaded 
