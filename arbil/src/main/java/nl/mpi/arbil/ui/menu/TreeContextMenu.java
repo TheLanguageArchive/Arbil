@@ -19,7 +19,9 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.ContainerNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
@@ -88,17 +90,10 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
 
     private void setUpItems() {
-        int nodeLevel = -1;
-        int selectionCount = 0;
-        boolean showRemoveLocationsTasks = false;
-        boolean showAddLocationsTasks = false;
-        selectionCount = tree.getSelectionCount();
-        if (selectionCount > 0) {
-            nodeLevel = tree.getSelectionPath().getPathCount();
-        }
-
-        showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
-        showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
+	final int selectionCount = tree.getSelectionCount();
+	final int nodeLevel = (selectionCount > 0) ? tree.getSelectionPath().getPathCount() : -1;
+	final boolean showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
+	final boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 
         viewSelectedNodesMenuItem.setText("View Selected");
         viewSelectedSubnodesMenuItem.setText(leadSelectedTreeNode != null && leadSelectedTreeNode.isEditable() ? "Edit all Metadata" : "View all Metadata");
@@ -178,15 +173,15 @@ public class TreeContextMenu extends ArbilContextMenu {
             addToFavouritesMenuItem.setVisible(false);
         }
 
-        ArbilDataNode[] selectedNodes = tree.getSelectedNodes();
+	ArbilNode[] selectedNodes = tree.getAllSelectedNodes();
 
-        copyNodeUrlMenuItem.setVisible((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1);
-        viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
-        reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-        viewSelectedSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1
-                && selectedNodes[0].isMetaDataNode() && !tree.getSelectedNodes()[0].isCorpus());
-        editInLongFieldEditor.setVisible(selectionCount > 0 && nodeLevel > 1
-                && !selectedNodes[0].isEmptyMetaNode());
+	copyNodeUrlMenuItem.setVisible(((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1) && !(selectedNodes[0] instanceof ContainerNode));
+	viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1 && !(selectedNodes[0] instanceof ContainerNode));
+	reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1 && !(selectedNodes[0] instanceof ContainerNode));
+	viewSelectedSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1
+		&& selectedNodes[0].isMetaDataNode() && !selectedNodes[0].isCorpus() && !(selectedNodes[0] instanceof ContainerNode));
+	editInLongFieldEditor.setVisible(selectionCount > 0 && nodeLevel > 1
+		&& !selectedNodes[0].isEmptyMetaNode() && !(selectedNodes[0] instanceof ContainerNode));
     }
 
     private void setUpActions() {
