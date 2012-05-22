@@ -183,11 +183,11 @@ public class ContainerNode extends ArbilNode implements Comparable {
 
     @Override
     public boolean isResourceSet() {
-	throw new UnsupportedOperationException("Not supported yet.");
+	return false;
     }
 
     @Override
     public boolean isSession() {
-	throw new UnsupportedOperationException("Not supported yet.");
+	return false;
     }
 }
