@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,37 +27,37 @@ import nl.mpi.metadata.api.MetadataAPI;
  * @author Peter Withers <peter.withers@mpi.nl>
  */
 public class CmdiDataNodeService extends ArbilDataNodeService {
-
+    
     private final DataNodeLoader dataNodeLoader;
     private final MessageDialogHandler messageDialogHandler;
     private final SessionStorage sessionStorage;
     private final MetadataDomLoader metadataDomLoader;
     private final MetadataBuilder metadataBuilder;
     private final MetadataAPI metadataAPI;
-
+    
     public CmdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper, ApplicationVersionManager versionManager) {
 	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper);
-
+	
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
 	this.dataNodeLoader = dataNodeLoader;
-
+	
 	this.metadataAPI = ArbilTemplateManager.getSingleInstance().getCmdiApi();
-
+	
 	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, metadataAPI);
 	this.metadataBuilder = new CmdiMetadataBuilder(metadataAPI, messageDialogHandler, windowManager, sessionStorage, treeHelper, dataNodeLoader, versionManager);
     }
-
+    
     public boolean isEditable(ArbilDataNode dataNode) {
 	if (dataNode.isLocal()) {
 	    return (sessionStorage.pathIsInsideCache(dataNode.getFile()))
 		    || sessionStorage.pathIsInFavourites(dataNode.getFile());
 	} else {
 	    return false;
-
+	    
 	}
     }
-
+    
     public boolean isFavorite(ArbilDataNode dataNode) {
 	if (!dataNode.isLocal()) {
 	    // only local files can be favourites
@@ -64,7 +65,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return sessionStorage.pathIsInFavourites(dataNode.getFile());
     }
-
+    
     protected Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings) {
 	try {
 	    ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
@@ -120,7 +121,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    return null;
 	}
     }
-
+    
     public boolean addCorpusLink(ArbilDataNode dataNode, ArbilDataNode targetNode) {
 	boolean linkAlreadyExists = false;
 	if (targetNode.isCatalogue()) {
@@ -155,7 +156,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		dataNode.saveChangesToCache(true);
 	    }
 	    try {
-		bumpHistory(dataNode.getFile());
+		bumpHistory(dataNode);
 		copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
 		synchronized (dataNode.getParentDomLockObject()) {
 		    return dataNode.getMetadataUtils().addCorpusLink(dataNode.getURI(), new URI[]{targetNode.getURI()});
@@ -168,7 +169,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    }
 	}
     }
-
+    
     public void deleteCorpusLink(ArbilDataNode dataNode, ArbilDataNode[] targetImdiNodes) {
 	// TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
 	if (dataNode.nodeNeedsSaveToDisk) {
@@ -202,7 +203,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    BugCatcherManager.getBugCatcher().logError("I/O exception while deleting nodes from " + this.toString(), ex);
 	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
 	}
-
+	
 	dataNode.getParentDomNode().clearIcon();
 	dataNode.getParentDomNode().clearChildIcons();
 	dataNode.clearIcon(); // this must be cleared so that the leaf / branch flag gets set
@@ -223,10 +224,10 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	if (resourceNode == null) {
 	    throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
 	}
-
+	
 	getMetadataBuilder().requestAddNode(dataNode, null, resourceNode);
     }
-
+    
     public void addField(ArbilDataNode dataNode, ArbilField fieldToAdd) {
 	ArbilField[] currentFieldsArray = dataNode.getFieldArray(fieldToAdd.getTranslateFieldName());
 	if (currentFieldsArray == null) {
@@ -239,12 +240,12 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	dataNode.addFieldArray(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
     }
-
+    
     @Override
     public MetadataDomLoader getMetadataDomLoader() {
 	return metadataDomLoader;
     }
-
+    
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
 	String targetImdiPath = ImdiUtils.getNodePath((ArbilDataNode) targetDataNode);
 	String childPath = ImdiUtils.getNodePath((ArbilDataNode) childDataNode);
@@ -308,9 +309,16 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
-
+    
     @Override
     public MetadataBuilder getMetadataBuilder() {
 	return metadataBuilder;
+    }
+    
+    @Override
+    public File bumpHistory(ArbilDataNode dataNode) throws IOException {
+	File historyFile = super.bumpHistory(dataNode);
+	dataNode.getMetadataElement().getMetadataDocument().setFileLocation(historyFile.toURI());
+	return historyFile;
     }
 }

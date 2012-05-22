@@ -100,6 +100,7 @@ public abstract class ArbilDataNodeService {
     }
 
     protected abstract MetadataDomLoader getMetadataDomLoader();
+
     public abstract MetadataBuilder getMetadataBuilder();
 
     public void reloadNode(ArbilDataNode dataNode) {
@@ -219,7 +220,14 @@ public abstract class ArbilDataNodeService {
     }
     //</editor-fold>
 
-    public void bumpHistory(File dataNodeFile) throws IOException {
+    /**
+     *
+     * @param dataNodeFile
+     * @return new file name of the current version
+     * @throws IOException
+     */
+    public File bumpHistory(ArbilDataNode dataNode) throws IOException {
+	final File dataNodeFile = dataNode.getFile();
 	// update the files version number
 	//TODO: the template add does not create a new history file
 	int versionCounter = 0;
@@ -232,8 +240,9 @@ public abstract class ArbilDataNodeService {
 	while (new File(dataNodeFile.getAbsolutePath() + "." + versionCounter).exists()) {
 	    versionCounter++;
 	}
+	File lastFile = null;
 	while (versionCounter >= 0) {
-	    File lastFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
+	    lastFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
 	    versionCounter--;
 	    File nextFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
 	    if (versionCounter >= 0) {
@@ -248,6 +257,7 @@ public abstract class ArbilDataNodeService {
 		}
 	    }
 	}
+	return lastFile;
     }
 
     public void copyLastHistoryToCurrent(ArbilDataNode dataNode) {

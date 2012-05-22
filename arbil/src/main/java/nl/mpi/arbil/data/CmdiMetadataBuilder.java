@@ -17,7 +17,9 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.metadata.api.MetadataAPI;
+import nl.mpi.metadata.api.MetadataElementException;
 import nl.mpi.metadata.api.MetadataException;
+import nl.mpi.metadata.api.model.ContainedMetadataElement;
 import nl.mpi.metadata.api.model.MetadataContainer;
 import nl.mpi.metadata.api.model.MetadataDocument;
 import nl.mpi.metadata.api.model.MetadataElement;
@@ -182,20 +184,13 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 			}
 			MetadataElement addedChildNode = addChildNode((MetadataContainer) destinationElement, (ContainedMetadataElementType) metadataElementType);
 			if (addedChildNode != null) {
-			    try {
-				destinationNode.bumpHistory();
-				metadataAPI.writeMetadataDocument(destinationElement.getMetadataDocument(), new StreamResult(destinationNode.getFile()));
-				dataNodeLoader.requestReload(destinationNode);
-				//TODO: construct addedNodePath
-				final URI addedNodePath = null;
-				return addedNodePath;
-			    } catch (IOException ioEx) {
-				BugCatcherManager.getBugCatcher().logError(ioEx);
-			    } catch (TransformerException tEx) {
-				BugCatcherManager.getBugCatcher().logError(tEx);
-			    } catch (MetadataException mdEx) {
-				BugCatcherManager.getBugCatcher().logError(mdEx);
+			    if (!saveToDisk(destinationNode)) {
+				return null;
 			    }
+			    dataNodeLoader.requestReload(destinationNode);
+			    //TODO: construct addedNodePath
+			    final URI addedNodePath = null;
+			    return addedNodePath;
 			}
 		    }
 		    return null;
@@ -261,7 +256,47 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     }
 
     public boolean removeChildNodes(ArbilDataNode arbilDataNode, String[] nodePaths) {
-	// TODO: Use MetadataAPI
+	final MetadataDocument metadataDocument = arbilDataNode.getMetadataElement().getMetadataDocument();
+	final String documentXPath = metadataDocument.getType().getPathString() + "/:";
+	for (String nodePath : nodePaths) {
+	    if (!removeChildNode(metadataDocument, documentXPath, nodePath)) {
+		return false;
+	    }
+	}
+	return saveToDisk(arbilDataNode);
+    }
+
+    private boolean removeChildNode(MetadataDocument metadataDocument, final String documentXPath, final String nodePath) {
+	final String nodeXPath = nodePath.replaceAll("\\.", "/:").replaceAll("\\((\\d+)\\)", "[\\1]");
+	if (nodeXPath.startsWith(documentXPath)) {
+	    final String nodeRelativeXPath = nodeXPath.substring(documentXPath.length());
+	    final MetadataElement childElement = metadataDocument.getChildElement(nodeRelativeXPath);
+	    if (childElement instanceof ContainedMetadataElement) {
+		try {
+		    return ((ContainedMetadataElement) childElement).getParent().removeChildElement(childElement);
+		} catch (MetadataElementException ex) {
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	}
+	return false;
+    }
+
+    private boolean saveToDisk(ArbilDataNode destinationNode) {
+	try {
+	    destinationNode.bumpHistory();
+
+	    final MetadataDocument metadataDocument = destinationNode.getMetadataElement().getMetadataDocument();
+	    metadataAPI.writeMetadataDocument(metadataDocument, new StreamResult(destinationNode.getFile()));
+	    metadataDocument.setFileLocation(destinationNode.getFile().toURI());
+	    return true;
+	} catch (IOException ioEx) {
+	    BugCatcherManager.getBugCatcher().logError(ioEx);
+	} catch (TransformerException tEx) {
+	    BugCatcherManager.getBugCatcher().logError(tEx);
+	} catch (MetadataException mdEx) {
+	    BugCatcherManager.getBugCatcher().logError(mdEx);
+	}
 	return false;
     }
 

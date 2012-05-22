@@ -152,7 +152,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 		dataNode.saveChangesToCache(true);
 	    }
 	    try {
-		bumpHistory(dataNode.getFile());
+		bumpHistory(dataNode);
 		copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
 		synchronized (dataNode.getParentDomLockObject()) {
 		    return dataNode.getMetadataUtils().addCorpusLink(dataNode.getURI(), new URI[]{targetNode.getURI()});
