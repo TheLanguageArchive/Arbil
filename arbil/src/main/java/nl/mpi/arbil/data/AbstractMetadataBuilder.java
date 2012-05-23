@@ -16,8 +16,10 @@ public abstract class AbstractMetadataBuilder implements MetadataBuilder {
     private final MessageDialogHandler messageDialogHandler;
     private final WindowManager windowManager;
     private final DataNodeLoader dataNodeLoader;
+    private final ArbilDataNodeService dataNodeService;
 
-    public AbstractMetadataBuilder(MessageDialogHandler messageDialogHandler, WindowManager windowManager, DataNodeLoader dataNodeLoader) {
+    public AbstractMetadataBuilder(ArbilDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler, WindowManager windowManager, DataNodeLoader dataNodeLoader) {
+	this.dataNodeService = dataNodeService;
 	this.messageDialogHandler = messageDialogHandler;
 	this.windowManager = windowManager;
 	this.dataNodeLoader = dataNodeLoader;
@@ -45,7 +47,7 @@ public abstract class AbstractMetadataBuilder implements MetadataBuilder {
     @Override
     public void requestAddNode(final ArbilDataNode destinationNode, final String nodeType, final String nodeTypeDisplayName) {
 	if (destinationNode.getNeedsSaveToDisk(false)) {
-	    destinationNode.saveChangesToCache(true);
+	    dataNodeService.saveChangesToCache(destinationNode);
 	}
 	new Thread("requestAddNode") {
 
@@ -88,10 +90,10 @@ public abstract class AbstractMetadataBuilder implements MetadataBuilder {
 	    try {
 		addedArbilNode.scrollToRequested = true;
 		if (currentArbilNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
-		    currentArbilNode.getParentDomNode().loadArbilDom();
+		    dataNodeService.loadArbilDom(currentArbilNode.getParentDomNode());
 		}
 		if (currentArbilNode.getParentDomNode() != addedArbilNode.getParentDomNode()) {
-		    addedArbilNode.getParentDomNode().loadArbilDom();
+		    dataNodeService.loadArbilDom(addedArbilNode.getParentDomNode());
 		}
 	    } finally {
 		addedArbilNode.getParentDomNode().updateLoadingState(-1);
@@ -111,7 +113,7 @@ public abstract class AbstractMetadataBuilder implements MetadataBuilder {
     @Override
     public void requestAddNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) {
 	if (destinationNode.getNeedsSaveToDisk(false)) {
-	    destinationNode.saveChangesToCache(true);
+	    dataNodeService.saveChangesToCache(destinationNode);
 	}
 	// Start new thread to add the node to its destination
 	creatAddAddableNodeThread(destinationNode, nodeTypeDisplayNameLocal, addableNode).start();

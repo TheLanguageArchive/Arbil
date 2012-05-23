@@ -42,10 +42,12 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     private final TreeHelper treeHelper;
     private final DataNodeLoader dataNodeLoader;
     private final MetadataAPI metadataAPI;
+    private final ArbilDataNodeService dataNodeService;
 
-    public CmdiMetadataBuilder(MetadataAPI metadataAPI, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
-	super(messageDialogHandler, windowManager, dataNodeLoader);
+    public CmdiMetadataBuilder(MetadataAPI metadataAPI, ArbilDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
+	super(dataNodeService, messageDialogHandler, windowManager, dataNodeLoader);
 	this.metadataAPI = metadataAPI;
+	this.dataNodeService = dataNodeService;
 	this.windowManager = windowManager;
 	this.sessionStorage = sessionStorage;
 	this.treeHelper = treeHelper;
@@ -117,7 +119,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	//TODO: does the loop make sense for CMDI?
 	for (ArbilDataNode currentArbilNode : sourceArbilNodeArray) {
 	    insertResourceProxy(destinationNode, addableNode);
-	    destinationNode.getParentDomNode().loadArbilDom();
+	    dataNodeService.loadArbilDom(destinationNode.getParentDomNode());
 	}
     }
 
@@ -137,9 +139,9 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 		treeHelper.addLocation(addedNodeUri);
 		treeHelper.applyRootLocations();
 	    } else {
-		destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
+		destinationNode.getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
 	    }
-	    addedNode.loadArbilDom();
+	    dataNodeService.loadArbilDom(addedNode);
 	    addedNode.scrollToRequested = true;
 	} else {
 	    if (destinationNode == null) {
@@ -151,7 +153,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	    addedNodeUri = new ArbilComponentBuilder().insertFavouriteComponent(destinationNode, addableNode);
 	}
 	if (destinationNode != null) {
-	    destinationNode.getParentDomNode().loadArbilDom();
+	    dataNodeService.loadArbilDom(destinationNode.getParentDomNode());
 	}
 	String newTableTitleString = "new " + addableNode + (destinationNode == null ? "" : (" in " + destinationNode));
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
@@ -167,13 +169,13 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
 	System.out.println("targetXmlPath:: " + targetXmlPath);
 	if (destinationNode.getNeedsSaveToDisk(false)) {
-	    destinationNode.saveChangesToCache(true);
+	    dataNodeService.saveChangesToCache(destinationNode);
 	}
 	destinationNode.updateLoadingState(1);
 	try {
 	    synchronized (destinationNode.getParentDomLockObject()) {
 		if (destinationNode.getNeedsSaveToDisk(false)) {
-		    destinationNode.saveChangesToCache(false);
+		    dataNodeService.saveChangesToCache(destinationNode);
 		}
 		if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
 		    if (nodeType.startsWith(".")) {
@@ -184,7 +186,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 			}
 			MetadataElement addedChildNode = addChildNode((MetadataContainer) destinationElement, (ContainedMetadataElementType) metadataElementType);
 			if (addedChildNode != null) {
-			    if (!saveToDisk(destinationNode)) {
+			    if (!bumpHistoryAndSaveToDisk(destinationNode)) {
 				return null;
 			    }
 			    dataNodeLoader.requestReload(destinationNode);
@@ -263,7 +265,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 		return false;
 	    }
 	}
-	return saveToDisk(arbilDataNode);
+	return bumpHistoryAndSaveToDisk(arbilDataNode);
     }
 
     private boolean removeChildNode(MetadataDocument metadataDocument, final String documentXPath, final String nodePath) {
@@ -282,20 +284,13 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	return false;
     }
 
-    private boolean saveToDisk(ArbilDataNode destinationNode) {
+    private boolean bumpHistoryAndSaveToDisk(ArbilDataNode destinationNode) {
 	try {
-	    destinationNode.bumpHistory();
-
-	    final MetadataDocument metadataDocument = destinationNode.getMetadataElement().getMetadataDocument();
-	    metadataAPI.writeMetadataDocument(metadataDocument, new StreamResult(destinationNode.getFile()));
-	    metadataDocument.setFileLocation(destinationNode.getFile().toURI());
+	    dataNodeService.bumpHistory(destinationNode);
+	    dataNodeService.saveChangesToCache(destinationNode);
 	    return true;
 	} catch (IOException ioEx) {
 	    BugCatcherManager.getBugCatcher().logError(ioEx);
-	} catch (TransformerException tEx) {
-	    BugCatcherManager.getBugCatcher().logError(tEx);
-	} catch (MetadataException mdEx) {
-	    BugCatcherManager.getBugCatcher().logError(mdEx);
 	}
 	return false;
     }

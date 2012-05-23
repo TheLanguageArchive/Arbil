@@ -10,11 +10,11 @@ import nl.mpi.arbil.util.task.ArbilTask;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
 
 /**
- * Manages the loader threads and queues for loading ArbilDataNodes. 
+ * Manages the loader threads and queues for loading ArbilDataNodes.
  * Used by DataNodeLoader.
- * 
+ *
  * @see nl.mpi.arbil.data.DataNodeLoader
- * 
+ *
  * @author Peter Wither <peter.withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
@@ -235,7 +235,7 @@ public class DataNodeLoaderThreadManager {
 	}
     }
 
-    /***
+    /** *
      * Runnable that gets a node from the remote queue and loads it
      */
     private class RemoteLoader extends Loader {
@@ -246,7 +246,7 @@ public class DataNodeLoaderThreadManager {
 	}
 
 	protected void loadNode(ArbilDataNode currentArbilDataNode) {
-	    currentArbilDataNode.loadArbilDom();
+	    currentArbilDataNode.getDataNodeService().loadArbilDom(currentArbilDataNode);
 	    currentArbilDataNode.updateLoadingState(-1);
 	    currentArbilDataNode.clearIcon();
 	    currentArbilDataNode.clearChildIcons();
@@ -270,7 +270,7 @@ public class DataNodeLoaderThreadManager {
 	    if (currentArbilDataNode.getNeedsSaveToDisk(false)) {
 		currentArbilDataNode.saveChangesToCache(false);
 	    }
-	    currentArbilDataNode.loadArbilDom();
+	    currentArbilDataNode.getDataNodeService().loadArbilDom(currentArbilDataNode);
 	    if (isSchemaCheckLocalFiles()) {
 		if (currentArbilDataNode.isMetaDataNode()) {
 		    XsdChecker xsdChecker = new XsdChecker();

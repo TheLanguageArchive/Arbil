@@ -48,9 +48,11 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
     private final DataNodeLoader dataNodeLoader;
     private final ApplicationVersionManager versionManager;
     private final ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
+    private final ArbilDataNodeService dataNodeService;
 
-    public ImdiMetadataBuilder(MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
-	super(messageDialogHandler, windowManager, dataNodeLoader);
+    public ImdiMetadataBuilder(ArbilDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
+	super(dataNodeService, messageDialogHandler, windowManager, dataNodeLoader);
+	this.dataNodeService = dataNodeService;
 	this.messageDialogHandler = messageDialogHandler;
 	this.windowManager = windowManager;
 	this.sessionStorage = sessionStorage;
@@ -128,7 +130,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 		String targetXmlPath = destinationNode.getURI().getFragment();
 		System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
 		processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
-		destinationNode.getParentDomNode().loadArbilDom();
+		dataNodeService.loadArbilDom(destinationNode.getParentDomNode());
 	    }
 	}
     }
@@ -193,9 +195,9 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 		treeHelper.addLocation(addedNodeUri);
 		treeHelper.applyRootLocations();
 	    } else {
-		destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
+		destinationNode.getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
 	    }
-	    addedNode.loadArbilDom();
+	    dataNodeService.loadArbilDom(addedNode);
 	    addedNode.scrollToRequested = true;
 	} else {
 	    if (destinationNode == null) {
@@ -207,7 +209,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 	    arbilComponentBuilder.removeArchiveHandles(destinationNode);
 	}
 	if (destinationNode != null) {
-	    destinationNode.getParentDomNode().loadArbilDom();
+	    dataNodeService.loadArbilDom(destinationNode.getParentDomNode());
 	}
 	String newTableTitleString = "new " + addableNode + (destinationNode == null ? "" : (" in " + destinationNode));
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
@@ -223,14 +225,14 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 	System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
 	System.out.println("targetXmlPath:: " + targetXmlPath);
 	if (destinationNode.getNeedsSaveToDisk(false)) {
-	    destinationNode.saveChangesToCache(true);
+	    dataNodeService.saveChangesToCache(destinationNode);
 	}
 	URI addedNodePath = null;
 	destinationNode.updateLoadingState(1);
 	try {
 	    synchronized (destinationNode.getParentDomLockObject()) {
 		if (destinationNode.getNeedsSaveToDisk(false)) {
-		    destinationNode.saveChangesToCache(false);
+		    dataNodeService.saveChangesToCache(destinationNode);
 		}
 		if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
 		    System.out.println("adding to current node");
@@ -240,7 +242,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 			    messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
 			} else {
 			    addedNodePath = insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
-			    destinationNode.bumpHistory();
+			    dataNodeService.bumpHistory(destinationNode);
 			    ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
 			    dataNodeLoader.requestReload(destinationNode);
 			}
@@ -257,8 +259,8 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 		    URI targetFileURI = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
 		    addedNodePath = addFromTemplate(new File(targetFileURI), nodeType);
 		    if (destinationNode.getFile().exists()) {
-			destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
-			destinationNode.getParentDomNode().loadArbilDom();
+			destinationNode.getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
+			dataNodeService.loadArbilDom(destinationNode.getParentDomNode());
 		    } else {
 			treeHelper.addLocation(addedNodePath);
 			treeHelper.applyRootLocations();

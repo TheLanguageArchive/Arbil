@@ -14,9 +14,12 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Vector;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
@@ -33,12 +36,14 @@ public abstract class ArbilDataNodeService {
     private final MessageDialogHandler messageDialogHandler;
     private final MimeHashQueue mimeHashQueue;
     private final TreeHelper treeHelper;
+    private final SessionStorage sessionStorage;
 
-    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
+    public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, MimeHashQueue mimeHashQueue, TreeHelper treeHelper, SessionStorage sessionStorage) {
 	this.dataNodeLoader = dataNodeLoader;
 	this.messageDialogHandler = messageDialogHandler;
 	this.mimeHashQueue = mimeHashQueue;
 	this.treeHelper = treeHelper;
+	this.sessionStorage = sessionStorage;
     }
 
     public abstract void deleteCorpusLink(ArbilDataNode dataNode, ArbilDataNode[] targetImdiNodes);
@@ -49,10 +54,6 @@ public abstract class ArbilDataNodeService {
      * @param location Location to insert/set
      */
     public abstract void insertResourceLocation(ArbilDataNode dataNode, URI location) throws ArbilMetadataException;
-
-    public abstract boolean isEditable(ArbilDataNode dataNode);
-
-    public abstract boolean isFavorite(ArbilDataNode dataNode);
 
     public abstract boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode);
 
@@ -68,7 +69,7 @@ public abstract class ArbilDataNodeService {
 
     public void loadArbilDom(ArbilDataNode dataNode) {
 	if (dataNode.getParentDomNode() != dataNode) {
-	    dataNode.getParentDomNode().loadArbilDom();
+	    loadArbilDom(dataNode.getParentDomNode());
 	} else {
 	    synchronized (dataNode.getParentDomLockObject()) {
 		dataNode.initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
@@ -441,6 +442,56 @@ public abstract class ArbilDataNodeService {
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
+    }
+
+    /**
+     * Determines field update requests to be processed before savingD
+     *
+     * @param datanode
+     * @return
+     */
+    protected final ArrayList<FieldUpdateRequest> getFieldUpdateRequests(ArbilDataNode datanode) {
+	ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
+	Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
+	datanode.getAllFields(allFields);
+	for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
+	    {
+		ArbilField[] currentFieldArray = fieldsEnum.nextElement();
+		for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
+		    ArbilField currentField = currentFieldArray[fieldCounter];
+		    if (currentField.fieldNeedsSaveToDisk()) {
+			FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
+			currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
+			currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
+			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
+			currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
+			currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
+			currentFieldUpdateRequest.attributeValuesMap = currentField.getAttributeValuesMap();
+			fieldUpdateRequests.add(currentFieldUpdateRequest);
+		    }
+		}
+	    }
+	}
+	return fieldUpdateRequests;
+    }
+
+
+    public boolean isEditable(ArbilDataNode dataNode) {
+	if (dataNode.isLocal()) {
+	    return (sessionStorage.pathIsInsideCache(dataNode.getFile()))
+		    || sessionStorage.pathIsInFavourites(dataNode.getFile());
+	} else {
+	    return false;
+
+	}
+    }
+
+    public boolean isFavorite(ArbilDataNode dataNode) {
+	if (!dataNode.isLocal()) {
+	    // only local files can be favourites
+	    return false;
+	}
+	return sessionStorage.pathIsInFavourites(dataNode.getFile());
     }
 
     protected abstract Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings);

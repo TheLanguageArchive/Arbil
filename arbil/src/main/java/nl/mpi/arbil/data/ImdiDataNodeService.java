@@ -5,8 +5,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Vector;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
@@ -33,7 +31,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
     private final MetadataBuilder metadataBuilder;
 
     public ImdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper, ApplicationVersionManager versionManager) {
-	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper);
+	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper, sessionStorage);
 
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
@@ -41,25 +39,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	this.dataNodeLoader = dataNodeLoader;
 
 	this.metadataDomLoader = new ImdiDomLoader(dataNodeLoader, messageDialogHandler);
-	this.metadataBuilder = new ImdiMetadataBuilder(messageDialogHandler, windowManager, sessionStorage, treeHelper, dataNodeLoader, versionManager);
-    }
-
-    public boolean isEditable(ArbilDataNode dataNode) {
-	if (dataNode.isLocal()) {
-	    return (sessionStorage.pathIsInsideCache(dataNode.getFile()))
-		    || sessionStorage.pathIsInFavourites(dataNode.getFile());
-	} else {
-	    return false;
-
-	}
-    }
-
-    public boolean isFavorite(ArbilDataNode dataNode) {
-	if (!dataNode.isLocal()) {
-	    // only local files can be favourites
-	    return false;
-	}
-	return sessionStorage.pathIsInFavourites(dataNode.getFile());
+	this.metadataBuilder = new ImdiMetadataBuilder(this, messageDialogHandler, windowManager, sessionStorage, treeHelper, dataNodeLoader, versionManager);
     }
 
     protected Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings) {
@@ -149,7 +129,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	    // if needs saving then save now while you can
 	    // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
 	    if (dataNode.isNeedsSaveToDisk()) {
-		dataNode.saveChangesToCache(true);
+		saveChangesToCache(dataNode);
 	    }
 	    try {
 		bumpHistory(dataNode);
@@ -169,10 +149,10 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
     public void deleteCorpusLink(ArbilDataNode dataNode, ArbilDataNode[] targetImdiNodes) {
 	// TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
 	if (dataNode.nodeNeedsSaveToDisk) {
-	    dataNode.saveChangesToCache(false);
+	    saveChangesToCache(dataNode);
 	}
 	try {
-	    dataNode.bumpHistory();
+	    bumpHistory(dataNode);
 	    copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
 	    synchronized (dataNode.getParentDomLockObject()) {
 		System.out.println("deleting by corpus link");
@@ -185,7 +165,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 		    //                }
 		}
 		dataNode.getMetadataUtils().removeCorpusLink(dataNode.getURI(), copusUriList);
-		dataNode.getParentDomNode().loadArbilDom();
+		loadArbilDom(dataNode.getParentDomNode());
 	    }
 	    //        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
 	    ////            currentChildNode.clearIcon();
@@ -284,27 +264,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	    System.out.println("should not try to save remote files");
 	    return;
 	}
-	ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
-	Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
-	datanode.getAllFields(allFields);
-	for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
-	    {
-		ArbilField[] currentFieldArray = fieldsEnum.nextElement();
-		for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
-		    ArbilField currentField = currentFieldArray[fieldCounter];
-		    if (currentField.fieldNeedsSaveToDisk()) {
-			FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
-			currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
-			currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
-			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
-			currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
-			currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
-			currentFieldUpdateRequest.attributeValuesMap = currentField.getAttributeValuesMap();
-			fieldUpdateRequests.add(currentFieldUpdateRequest);
-		    }
-		}
-	    }
-	}
+	ArrayList<FieldUpdateRequest> fieldUpdateRequests = getFieldUpdateRequests(datanode);
 	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 	boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
 	if (!result) {

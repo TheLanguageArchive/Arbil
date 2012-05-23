@@ -39,7 +39,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     private ArbilDataNodeService dataNodeService;
     private MetadataElement metadataElement;
-    public MetadataUtils metadataUtils;
+    private MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
     private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     protected ArbilDataNode[] childArray = new ArbilDataNode[0];
