@@ -181,27 +181,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 		    dataNodeService.saveChangesToCache(destinationNode);
 		}
 		if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
-		    if (nodeType.startsWith(".")) {
-			final MetadataElementType metadataElementType = getMetadataElementType(destinationNode, nodeType);
-			final MetadataElement destinationElement = destinationNode.getMetadataElement();
-			if (!(destinationElement instanceof MetadataContainer)) {
-			    throw new RuntimeException("Cannot add child node to non-container MetadataElement");
-			}
-			MetadataElement addedChildNode = addChildNode((MetadataContainer) destinationElement, (ContainedMetadataElementType) metadataElementType);
-			if (addedChildNode != null) {
-			    try {
-				URI addedNodePath = getNodePathForMetadataElement(destinationNode, addedChildNode);
-				if (!bumpHistoryAndSaveToDisk(destinationNode)) {
-				    return null;
-				}
-				dataNodeLoader.requestReload(destinationNode);
-				return addedNodePath;
-			    } catch (URISyntaxException uriSEx) {
-				throw new RuntimeException("Invalid URI from metadata path" + addedChildNode.getPathString(), uriSEx);
-			    }
-			}
-		    }
-		    return null;
+		    return addMetadataChildNode(nodeType, destinationNode);
 		} else {
 		    final URI targetFileURI = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
 		    final URI addedNodePath = addFromTemplate(new File(targetFileURI), nodeType);
@@ -218,6 +198,30 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	} finally {
 	    destinationNode.updateLoadingState(-1);
 	}
+    }
+
+    private URI addMetadataChildNode(String nodeType, ArbilDataNode destinationNode) throws RuntimeException {
+	if (nodeType.startsWith(".")) {
+	    final MetadataElementType metadataElementType = getMetadataElementType(destinationNode, nodeType);
+	    final MetadataElement destinationElement = destinationNode.getMetadataElement();
+	    if (!(destinationElement instanceof MetadataContainer)) {
+		throw new RuntimeException("Cannot add child node to non-container MetadataElement");
+	    }
+	    MetadataElement addedChildNode = addChildNode((MetadataContainer) destinationElement, (ContainedMetadataElementType) metadataElementType);
+	    if (addedChildNode != null) {
+		try {
+		    URI addedNodePath = getNodePathForMetadataElement(destinationNode, addedChildNode);
+		    if (!bumpHistoryAndSaveToDisk(destinationNode)) {
+			return null;
+		    }
+		    dataNodeLoader.requestReload(destinationNode);
+		    return addedNodePath;
+		} catch (URISyntaxException uriSEx) {
+		    throw new RuntimeException("Invalid URI from metadata path" + addedChildNode.getPathString(), uriSEx);
+		}
+	    }
+	}
+	return null;
     }
 
     private URI getNodePathForMetadataElement(ArbilDataNode destinationNode, MetadataElement addedChildNode) throws URISyntaxException {
@@ -318,8 +322,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     private boolean bumpHistoryAndSaveToDisk(ArbilDataNode destinationNode) {
 	try {
 	    dataNodeService.bumpHistory(destinationNode);
-	    dataNodeService.saveToDisk(destinationNode);
-	    return true;
+	    return dataNodeService.saveToDisk(destinationNode);
 	} catch (IOException ioEx) {
 	    BugCatcherManager.getBugCatcher().logError(ioEx);
 	}
