@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -269,32 +272,47 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     }
 
     public boolean removeChildNodes(ArbilDataNode arbilDataNode, String[] nodePaths) {
-	// TODO: remove root node check (redundant, also gets done in MD API)
-	// TODO: first get elements to remove, then do actual delete (because path changes due to deletes)
-	final MetadataDocument metadataDocument = arbilDataNode.getMetadataElement().getMetadataDocument();
-	final String documentXPath = metadataDocument.getType().getPathString() + "/:";
-	for (String nodePath : nodePaths) {
-	    if (!removeChildNode(metadataDocument, documentXPath, nodePath)) {
-		return false;
-	    }
-	}
-	return bumpHistoryAndSaveToDisk(arbilDataNode);
-    }
-
-    private boolean removeChildNode(MetadataDocument metadataDocument, final String documentXPath, final String nodePath) {
-	final String nodeXPath = nodePath.replaceAll("\\.", "/:").replaceAll("\\((\\d+)\\)", "[$1]");
-	if (nodeXPath.startsWith(documentXPath)) {
-	    final String nodeRelativeXPath = nodeXPath.substring(documentXPath.length());
-	    final MetadataElement childElement = metadataDocument.getChildElement(nodeRelativeXPath);
-	    if (childElement instanceof ContainedMetadataElement) {
-		try {
-		    return ((ContainedMetadataElement) childElement).getParent().removeChildElement(childElement);
-		} catch (MetadataElementException ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
+	final List<ContainedMetadataElement> elementsToRemove = getElementsToRemove(arbilDataNode, Arrays.asList(nodePaths));
+	if (elementsToRemove != null) {
+	    if (removeElements(elementsToRemove)) {
+		return bumpHistoryAndSaveToDisk(arbilDataNode);
 	    }
 	}
 	return false;
+    }
+
+    /**
+     *
+     * @param arbilDataNode Node to remove from
+     * @param nodePaths paths of nodes to remove
+     * @return List of elements based on nodePaths. Null if an error was encountered.
+     */
+    private List<ContainedMetadataElement> getElementsToRemove(ArbilDataNode arbilDataNode, Collection<String> nodePaths) {
+	final MetadataDocument metadataDocument = arbilDataNode.getMetadataElement().getMetadataDocument();
+	final List<ContainedMetadataElement> elements = new ArrayList<ContainedMetadataElement>(nodePaths.size());
+	for (String nodePath : nodePaths) {
+	    final String nodeXPath = nodePath.replaceAll("\\.", "/:").replaceAll("\\((\\d+)\\)", "[$1]");
+	    final MetadataElement childElement = metadataDocument.getChildElement(nodeXPath);
+	    if (childElement instanceof ContainedMetadataElement) {
+		elements.add((ContainedMetadataElement) childElement);
+	    } else {
+		BugCatcherManager.getBugCatcher().logError("Child to remove not found or not ContainedMetadataElement for path " + nodeXPath, null);
+		return null;
+	    }
+	}
+	return elements;
+    }
+
+    private boolean removeElements(final List<ContainedMetadataElement> elements) {
+	for (ContainedMetadataElement element : elements) {
+	    try {
+		element.getParent().removeChildElement(element);
+	    } catch (MetadataElementException ex) {
+		BugCatcherManager.getBugCatcher().logError("Exception while trying to remove element " + element.getPathString(), ex);
+		return false;
+	    }
+	}
+	return true;
     }
 
     private boolean bumpHistoryAndSaveToDisk(ArbilDataNode destinationNode) {

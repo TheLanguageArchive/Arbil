@@ -87,7 +87,7 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
                     if (userObject instanceof ArbilDataNode) {
                         if (((ArbilDataNode) userObject).fileNotFound) {
                             toDeleteCount++;
-                        } else if (((ArbilDataNode) userObject).isEmptyMetaNode()) {
+                        } else if (((ArbilDataNode) userObject).isContainerNode()) {
                             toDeleteCount += ((ArbilDataNode) userObject).getChildCount();
                         } else {
                             toDeleteCount++;
