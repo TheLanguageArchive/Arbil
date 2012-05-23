@@ -42,9 +42,9 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     private final TreeHelper treeHelper;
     private final DataNodeLoader dataNodeLoader;
     private final MetadataAPI metadataAPI;
-    private final ArbilDataNodeService dataNodeService;
+    private final CmdiDataNodeService dataNodeService;
 
-    public CmdiMetadataBuilder(MetadataAPI metadataAPI, ArbilDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
+    public CmdiMetadataBuilder(MetadataAPI metadataAPI, CmdiDataNodeService dataNodeService, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, TreeHelper treeHelper, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
 	super(dataNodeService, messageDialogHandler, windowManager, dataNodeLoader);
 	this.metadataAPI = metadataAPI;
 	this.dataNodeService = dataNodeService;
@@ -269,6 +269,8 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     }
 
     public boolean removeChildNodes(ArbilDataNode arbilDataNode, String[] nodePaths) {
+	// TODO: remove root node check (redundant, also gets done in MD API)
+	// TODO: first get elements to remove, then do actual delete (because path changes due to deletes)
 	final MetadataDocument metadataDocument = arbilDataNode.getMetadataElement().getMetadataDocument();
 	final String documentXPath = metadataDocument.getType().getPathString() + "/:";
 	for (String nodePath : nodePaths) {
@@ -298,7 +300,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     private boolean bumpHistoryAndSaveToDisk(ArbilDataNode destinationNode) {
 	try {
 	    dataNodeService.bumpHistory(destinationNode);
-	    dataNodeService.saveChangesToCache(destinationNode);
+	    dataNodeService.saveToDisk(destinationNode);
 	    return true;
 	} catch (IOException ioEx) {
 	    BugCatcherManager.getBugCatcher().logError(ioEx);

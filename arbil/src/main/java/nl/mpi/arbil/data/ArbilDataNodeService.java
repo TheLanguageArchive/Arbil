@@ -227,38 +227,40 @@ public abstract class ArbilDataNodeService {
      * @return new file name of the current version
      * @throws IOException
      */
-    public File bumpHistory(ArbilDataNode dataNode) throws IOException {
-	final File dataNodeFile = dataNode.getFile();
-	// update the files version number
-	//TODO: the template add does not create a new history file
-	int versionCounter = 0;
-	File headVersion = dataNodeFile;
-	//        if the .x file (the last head) exist then replace the current with it
-	if (new File(dataNodeFile.getAbsolutePath() + ".x").exists()) {
-	    versionCounter++;
-	    headVersion = new File(dataNodeFile.getAbsolutePath() + ".x");
-	}
-	while (new File(dataNodeFile.getAbsolutePath() + "." + versionCounter).exists()) {
-	    versionCounter++;
-	}
-	File lastFile = null;
-	while (versionCounter >= 0) {
-	    lastFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
-	    versionCounter--;
-	    File nextFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
-	    if (versionCounter >= 0) {
-		System.out.println("renaming: " + nextFile + " : " + lastFile);
-		if (!nextFile.renameTo(lastFile)) {
-		    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
-		}
-	    } else {
-		System.out.println("renaming: " + headVersion + " : " + lastFile);
-		if (!headVersion.renameTo(lastFile)) {
-		    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
+    public File bumpHistory(final ArbilDataNode dataNode) throws IOException {
+	synchronized (dataNode.getParentDomLockObject()) {
+	    final File dataNodeFile = dataNode.getFile();
+	    // update the files version number
+	    //TODO: the template add does not create a new history file
+	    int versionCounter = 0;
+	    File headVersion = dataNodeFile;
+	    //        if the .x file (the last head) exist then replace the current with it
+	    if (new File(dataNodeFile.getAbsolutePath() + ".x").exists()) {
+		versionCounter++;
+		headVersion = new File(dataNodeFile.getAbsolutePath() + ".x");
+	    }
+	    while (new File(dataNodeFile.getAbsolutePath() + "." + versionCounter).exists()) {
+		versionCounter++;
+	    }
+	    File lastFile = null;
+	    while (versionCounter >= 0) {
+		lastFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
+		versionCounter--;
+		File nextFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
+		if (versionCounter >= 0) {
+		    System.out.println("renaming: " + nextFile + " : " + lastFile);
+		    if (!nextFile.renameTo(lastFile)) {
+			throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
+		    }
+		} else {
+		    System.out.println("renaming: " + headVersion + " : " + lastFile);
+		    if (!headVersion.renameTo(lastFile)) {
+			throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
+		    }
 		}
 	    }
+	    return lastFile;
 	}
-	return lastFile;
     }
 
     public void copyLastHistoryToCurrent(ArbilDataNode dataNode) {
@@ -474,7 +476,6 @@ public abstract class ArbilDataNodeService {
 	}
 	return fieldUpdateRequests;
     }
-
 
     public boolean isEditable(ArbilDataNode dataNode) {
 	if (dataNode.isLocal()) {

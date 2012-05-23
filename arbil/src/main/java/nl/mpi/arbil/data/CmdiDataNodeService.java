@@ -22,6 +22,8 @@ import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.metadata.api.MetadataAPI;
 import nl.mpi.metadata.api.MetadataException;
 import nl.mpi.metadata.api.model.MetadataDocument;
+import nl.mpi.metadata.api.model.MetadataElement;
+import nl.mpi.metadata.api.model.MetadataField;
 
 /**
  *
@@ -254,26 +256,52 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    saveChangesToCache(datanode.getParentDomNode());
 	    return;
 	}
-	System.out.println("saveChangesToCache");
-	ArbilJournal.getSingleInstance().clearFieldChangeHistory();
-	if (!datanode.isLocal()) {
-	    System.out.println("should not try to save remote files");
-	    return;
-	}
-	ArrayList<FieldUpdateRequest> fieldUpdateRequests = getFieldUpdateRequests(datanode);
-	boolean result = saveToDisk(datanode);
 
-	if (!result) {
-	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
-	} else {
-	    datanode.nodeNeedsSaveToDisk = false;
-	    //            // update the icon to indicate the change
-	    //            setImdiNeedsSaveToDisk(null, false);
+	synchronized (datanode.getParentDomLockObject()) {
+	    System.out.println("saveChangesToCache");
+	    ArbilJournal.getSingleInstance().clearFieldChangeHistory();
+	    if (!datanode.isLocal()) {
+		System.out.println("should not try to save remote files");
+		return;
+	    }
+
+	    if (updateFields(datanode)) {
+		if (saveToDisk(datanode)) {
+		    datanode.nodeNeedsSaveToDisk = false;
+		} else {
+		    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+		}
+	    }
 	}
-	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
 
-    private boolean saveToDisk(ArbilDataNode datanode) {
+    private boolean updateFields(ArbilDataNode datanode) throws IllegalArgumentException {
+	//TODO: Attributes and xml:lang
+	
+	final MetadataDocument document = datanode.getMetadataElement().getMetadataDocument();
+	ArrayList<FieldUpdateRequest> fieldUpdateRequests = getFieldUpdateRequests(datanode);
+	for (FieldUpdateRequest updateRequest : fieldUpdateRequests) {
+	    final String fieldXPath = updateRequest.fieldPath.replaceAll("\\.", "/:").replaceAll("\\((\\d+)\\)", "[$1]");
+	    try {
+		final MetadataElement childElement = document.getChildElement(fieldXPath);
+		if (childElement instanceof MetadataField) {
+		    MetadataField metadataField = (MetadataField) childElement;
+		    if (updateRequest.fieldOldValue.equals(metadataField.getValue())) {
+			metadataField.setValue(updateRequest.fieldNewValue);
+		    } else {
+			BugCatcherManager.getBugCatcher().logError("expecting \'" + updateRequest.fieldOldValue + "\' not \'" + metadataField.getValue() + "\' in " + fieldXPath, null);
+			return false;
+		    }
+		}
+	    } catch (IllegalArgumentException iaEx) {
+		BugCatcherManager.getBugCatcher().logError("Element cannot be retrieved by path", iaEx);
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    protected boolean saveToDisk(ArbilDataNode datanode) {
 	//TODO: set field values
 	//	boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
 	boolean result = false;
@@ -300,7 +328,9 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     @Override
     public File bumpHistory(ArbilDataNode dataNode) throws IOException {
 	File historyFile = super.bumpHistory(dataNode);
-	dataNode.getMetadataElement().getMetadataDocument().setFileLocation(historyFile.toURI());
+	if (historyFile != null) {
+	    dataNode.getMetadataElement().getMetadataDocument().setFileLocation(historyFile.toURI());
+	}
 	return historyFile;
     }
 }
