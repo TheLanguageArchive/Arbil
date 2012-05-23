@@ -186,13 +186,16 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 			}
 			MetadataElement addedChildNode = addChildNode((MetadataContainer) destinationElement, (ContainedMetadataElementType) metadataElementType);
 			if (addedChildNode != null) {
-			    if (!bumpHistoryAndSaveToDisk(destinationNode)) {
-				return null;
+			    try {
+				URI addedNodePath = getNodePathForMetadataElement(destinationNode, addedChildNode);
+				if (!bumpHistoryAndSaveToDisk(destinationNode)) {
+				    return null;
+				}
+				dataNodeLoader.requestReload(destinationNode);
+				return addedNodePath;
+			    } catch (URISyntaxException uriSEx) {
+				throw new RuntimeException("Invalid URI from metadata path" + addedChildNode.getPathString(), uriSEx);
 			    }
-			    dataNodeLoader.requestReload(destinationNode);
-			    //TODO: construct addedNodePath
-			    final URI addedNodePath = null;
-			    return addedNodePath;
 			}
 		    }
 		    return null;
@@ -212,6 +215,14 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	} finally {
 	    destinationNode.updateLoadingState(-1);
 	}
+    }
+
+    private URI getNodePathForMetadataElement(ArbilDataNode destinationNode, MetadataElement addedChildNode) throws URISyntaxException {
+	StringBuilder nodeURIStringBuilder = new StringBuilder(destinationNode.getFile().toURI().toString());
+	nodeURIStringBuilder.append("#");
+	nodeURIStringBuilder.append(addedChildNode.getPathString().replaceAll("/:", ".").replaceAll("\\[(\\d+)\\]", "($1)"));
+	URI addedNodePath = new URI(nodeURIStringBuilder.toString());
+	return addedNodePath;
     }
 
     private MetadataElement addChildNode(MetadataContainer<MetadataElement> container, ContainedMetadataElementType childType) {
