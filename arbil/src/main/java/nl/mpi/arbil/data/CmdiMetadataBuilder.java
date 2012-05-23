@@ -280,7 +280,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     }
 
     private boolean removeChildNode(MetadataDocument metadataDocument, final String documentXPath, final String nodePath) {
-	final String nodeXPath = nodePath.replaceAll("\\.", "/:").replaceAll("\\((\\d+)\\)", "[\\1]");
+	final String nodeXPath = nodePath.replaceAll("\\.", "/:").replaceAll("\\((\\d+)\\)", "[$1]");
 	if (nodeXPath.startsWith(documentXPath)) {
 	    final String nodeRelativeXPath = nodeXPath.substring(documentXPath.length());
 	    final MetadataElement childElement = metadataDocument.getChildElement(nodeRelativeXPath);
