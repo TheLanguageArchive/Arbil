@@ -205,11 +205,12 @@ public class CmdiProfilesPanel extends JPanel {
     }
 
     public synchronized void populateList() {
-        populateProfilesList();
-        if (firstLoad) {
-            parentFrame.pack();
-            firstLoad = false;
-        }
+	populateProfilesList();
+	if (firstLoad) {
+	    parentFrame.pack();
+	    TemplateDialogue.setDialogHeight(parentFrame);
+	    firstLoad = false;
+	}
     }
 
     protected void populateProfilesList() {
