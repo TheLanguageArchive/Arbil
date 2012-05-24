@@ -23,6 +23,7 @@ public class CmdiProfileSelectContent extends TextInstructionWizardContent {
 	profilesPanel = new CmdiProfilesPanel(wizardDialog);
 	profilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
 	profilesPanel.setPreferredSize(new Dimension(200, 300));
+	profilesPanel.setInstructionsVisible(false); // don't show instructions in addition to the one in the wizard
 	profilesPanel.setVisible(false); // do not show until content panel is visible
 
 	add(profilesPanel, BorderLayout.CENTER);
@@ -33,7 +34,7 @@ public class CmdiProfileSelectContent extends TextInstructionWizardContent {
     public void beforeShow() {
 	profilesPanel.setVisible(true);
 	profilesPanel.populateList();
-	profilesPanel.loadProfiles(false);
+	profilesPanel.loadProfileDescriptions(false);
     }
 
     @Override

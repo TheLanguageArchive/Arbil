@@ -291,7 +291,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		uniqueArray.add(location);
 	    }
 	}
-	
+
 	locationOptions = uniqueArray.toArray(new String[]{});
 	for (String currentLocationOption : locationOptions) {
 	    System.out.println("LocationOption: " + currentLocationOption);
