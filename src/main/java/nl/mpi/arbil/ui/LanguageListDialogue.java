@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.DocumentationLanguages;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -9,11 +8,12 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
+import nl.mpi.arbil.data.DocumentationLanguages;
 
 /**
- *  Document   : LanguageListDialogue
- *  Created on : Jul 6, 2010, 3:00:09 PM
- *  Author     : Peter Withers
+ * Document : LanguageListDialogue
+ * Created on : Jul 6, 2010, 3:00:09 PM
+ * Author : Peter Withers
  */
 public class LanguageListDialogue extends TemplateDialogue implements ActionListener {
 
@@ -30,6 +30,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 	templateDialogue.populateLists();
 	dialog.setContentPane(templateDialogue);
 	dialog.pack();
+	setDialogHeight(dialog);
 	dialog.setVisible(true);
     }
 

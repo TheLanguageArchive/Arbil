@@ -1,5 +1,7 @@
 package nl.mpi.arbil.ui;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -59,6 +61,8 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	internalTemplatesPanel.add(internalTemplatesButtonPanel, java.awt.BorderLayout.PAGE_END);
 
 	templatesScrollPane.setViewportView(templatesPanel);
+	templatesScrollPane.setSize(200,200);
+	templatesScrollPane.setMaximumSize(new Dimension(200,200));
 
 	internalTemplatesPanel.add(templatesScrollPane, java.awt.BorderLayout.CENTER);
 
@@ -177,6 +181,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	templateDialogue.populateLists();
 	templateDialogue.loadProfiles(false);
 	dialog.pack();
+	setDialogHeight(dialog);
 	dialog.setVisible(true);
     }
     public final static ActionListener templateSelectionListener = new ActionListener() {
@@ -190,6 +195,17 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	}
     };
 
+
+    protected static void setDialogHeight(JDialog dialog) {
+	// Make sure dialog height is substantially less than screen height, this fixes issues with windows task bar (yes I know..)
+	final Dimension dialogSize = dialog.getPreferredSize();
+	final double maxHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 60;
+	if (dialogSize.height >= maxHeight) {
+	    // 40 below for toolbar at bottom        
+	    dialog.setSize((int) dialogSize.getWidth(), (int) maxHeight);
+	}
+    }
+    
     public static void main(String[] args) {
 	ArbilDesktopInjector.injectHandlers();
 	TemplateDialogue.showTemplatesDialogue();

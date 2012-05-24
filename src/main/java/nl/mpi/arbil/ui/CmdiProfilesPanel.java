@@ -196,6 +196,7 @@ public class CmdiProfilesPanel extends JPanel {
 	populateProfilesList();
 	if (firstLoad) {
 	    parentFrame.pack();
+	    TemplateDialogue.setDialogHeight(parentFrame);
 	    firstLoad = false;
 	}
     }
