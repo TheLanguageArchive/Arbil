@@ -19,7 +19,7 @@
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
         <property name="JAVADOCDIR" value="${OUTPUTDIR}javadoc"/>
-        <property name="TypeCheckVersion" value="typechecker-1.6.5.jar"/>
+        <property name="TypeCheckVersion" value="typechecker-1.6.6.jar"/>
         <property name="pathToMpiTrunk" value="${SRCDIR}../../../../../../trunk/"/> <!-- pathToMpiTrunk is being used until a better method becomes available (such as when the required files are in a maven like repository) -->
         <!-- todo: add all the dependancies here like the type checker -->
     </target>
