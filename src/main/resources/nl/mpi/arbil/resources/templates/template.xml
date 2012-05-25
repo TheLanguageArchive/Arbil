@@ -60,13 +60,17 @@
         <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\.Email" Constraint=".+@.+"/>
+	<FieldConstraint FieldPath=".*\.Age" Constraint="([0-9]+)?(;[0-9]+)?(.[0-9]+)?(/([0-9]+)?(;[0-9]+)?(.[0-9]+)?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".*\(x\).TimePosition.Start" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".*\(x\).TimePosition.End" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
+	<FieldConstraint FieldPath=".*\.Languages.Language\(x\).Id"  Constraint="(ISO639(-1|-2|-3)?:.*)?|(RFC3066:.*)?|(RFC1766:.*)?|(SIL:.*)?|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Validation.Level" Constraint="[0-9]*|Unknown|Unspecified" />
         <!--<RequiredField FieldPath="*\(x\).Anonymized" Constraint="True|False|Unknown|Unspecified" />-->
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).CounterPosition.Start" Constraint="[0-9]*" />
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).CounterPosition.End" Constraint="[0-9]*" />
+	<FieldConstraint FieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language\(x\).Id"  Constraint="(ISO639(-1|-2|-3)?:.*)?|(RFC3066:.*)?|(RFC1766:.*)?|(SIL:.*)?|Unknown|Unspecified" />
+	<FieldConstraint FieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language\(x\).Id"  Constraint="(ISO639(-1|-2|-3)?:.*)?|(RFC3066:.*)?|(RFC1766:.*)?|(SIL:.*)?|Unknown|Unspecified" />
 <!--        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Link" Constraint="[^\d]+://.*" />
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Orthography" Constraint="true|false" />
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Morphology" Constraint="true|false" />
