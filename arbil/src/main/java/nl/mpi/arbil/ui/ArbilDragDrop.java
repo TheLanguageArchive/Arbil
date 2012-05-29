@@ -1,8 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.templates.ArbilFavourites;
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Container;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -22,10 +19,14 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.ArbilRootNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.CmdiMetadataBuilder;
+import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -161,8 +162,8 @@ public class ArbilDragDrop {
 	}
 
 	private boolean canDropToTarget(ArbilTree dropTree) {
-	    ArbilDataNode currentLeadSelection = dropTree.getLeadSelectionDataNode();
-	    if (currentLeadSelection == null) {
+	    ArbilNode currentLeadSelection = dropTree.getLeadSelectionNode();
+	    if (currentLeadSelection instanceof ArbilRootNode) {
 		// this check is for the root node of the trees
 		if (treeHelper.componentIsTheFavouritesTree(currentDropTarget)) {
 		    // allow drop to the favourites tree even when no selection is made
@@ -178,8 +179,7 @@ public class ArbilDragDrop {
 			    || selectionContainsArbilCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession || selectionContainsCmdiMetadata);
 		}
 		System.out.println("no tree check");
-		return false;
-	    } else {
+	    } else if (currentLeadSelection instanceof ArbilDataNode) {
 		// this check is for the child nodes of the trees
 		System.out.println("currentLeadSelection: " + currentLeadSelection.toString());
 //                todo: prevent dragging to self but allow dragging to other branch of parent session
@@ -187,8 +187,8 @@ public class ArbilDragDrop {
 //                todo: look for error in field triggers when merging from favourite (suppress trtiggeres when merging)
 		if (treeHelper.componentIsTheLocalCorpusTree(currentDropTarget)) {
 		    if (currentLeadSelection.isCmdiMetaDataNode()) {
-			return currentLeadSelection.canHaveResource();
-		    } else if (currentLeadSelection.isDirectory) {
+			return ((ArbilDataNode) currentLeadSelection).canHaveResource();
+		    } else if (((ArbilDataNode) currentLeadSelection).isDirectory) {
 			return false; // nothing can be dropped to a directory
 		    } else if (currentLeadSelection.isCorpus()) {
 			if ((selectionContainsArbilCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession) && !selectionContainsCmdiMetadata) {
@@ -210,11 +210,9 @@ public class ArbilDragDrop {
 			    return true;
 			}
 		    }
-		    return false;
-		} else {
-		    return false;
 		}
 	    }
+	    return false;
 	}
 
 	@Override
@@ -521,9 +519,16 @@ public class ArbilDragDrop {
 	    Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
 	    Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
 	    System.out.println("to: " + dropTargetUserObject.toString());
-	    ArbilDataNode dropTargetDataNode = null;
-	    if (dropTargetUserObject instanceof ArbilDataNode) {
-		dropTargetDataNode = (ArbilDataNode) dropTargetUserObject;
+
+	    final ArbilNode dropTargetNode;
+	    if (dropTargetUserObject instanceof ArbilNode) {
+		dropTargetNode = (ArbilNode) dropTargetUserObject;
+	    } else {
+		return false;
+	    }
+	    final ArbilDataNode dropTargetDataNode = (dropTargetNode instanceof ArbilDataNode) ? (ArbilDataNode) dropTargetNode : null;
+
+	    if (dropTargetDataNode != null) {
 		// Media files can be dropped onto CMDI's and on IMDI root Resources nodes
 		if (dropTargetDataNode.getParentDomNode().isCmdiMetaDataNode() && !selectionDraggedFromLocalCorpus
 			|| dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild() */) {
@@ -579,22 +584,20 @@ public class ArbilDragDrop {
 			if (!draggedIntoSelf) {
 			    if (currentNode.isFavorite()) {
 				// Favourite dropped on local tree 
-				if (dropTargetDataNode == null) {
+				if (dropTargetNode instanceof ArbilRootNode) {
 				    // Dropped to local corpus root node
-				    currentNode.getDataNodeService().getMetadataBuilder().requestAddRootNode(currentNode, ((ArbilDataNode) currentNode).toString());
+				    currentNode.getDataNodeService().getMetadataBuilder().requestAddRootNode(currentNode, currentNode.toString());
+				} else if (dropTargetDataNode != null) {
+				    dropTargetDataNode.getDataNodeService().getMetadataBuilder().requestAddNode(dropTargetDataNode, currentNode.toString(), currentNode);
 				} else {
-				    dropTargetDataNode.getDataNodeService().getMetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
+				    BugCatcherManager.getBugCatcher().logError("Cannot handle node type for drag/drop: " + dropTargetNode.getClass().toString(), null);
 				}
 			    } else if (!draggedFromLocalCorpus() && !(currentNode.isLocal() && sessionStorage.pathIsInsideCache(currentNode.getFile()))) {
 				// External file dropped on local tree; import file(s)
 				importNodeList.add(currentNode);
 			    } else {
 				// Moving file within local corpus
-				String targetNodeName = null;
-				// NOTE: FindBugs thinks this is always the case:
-				if (dropTargetUserObject instanceof ArbilNode) {
-				    targetNodeName = targetNode.getUserObject().toString();
-				}
+				final String targetNodeName = dropTargetNode.toString();
 				int detailsOption = 1;
 				//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
 				if (!moveAll) {
@@ -621,8 +624,8 @@ public class ArbilDragDrop {
 		if (importNodeList.size() > 0) {
 		    try {
 			ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
-			if (dropTargetUserObject instanceof ArbilDataNode) {
-			    importExportDialog.setDestinationNode((dropTargetDataNode));
+			if (dropTargetDataNode != null) {
+			    importExportDialog.setDestinationNode(dropTargetDataNode);
 			} // otherwise assume local corpus root node
 			importExportDialog.copyToCache(importNodeList);
 		    } catch (Exception e) {
@@ -631,10 +634,10 @@ public class ArbilDragDrop {
 		}
 		deleteMovedNodesOriginals(arbilNodesDeleteList);
 		// NOTE: FindBugs thinks this is always the case:
-		if (dropTargetUserObject instanceof ArbilDataNode) {
+		if (dropTargetDataNode != null) {
 		    // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
 //                                        ((ArbilDataNode) dropTargetUserObject).saveChangesToCache(false);
-		    (dropTargetDataNode).reloadNode();
+		    dropTargetDataNode.reloadNode();
 		} else {
 		    treeHelper.applyRootLocations();
 		}
