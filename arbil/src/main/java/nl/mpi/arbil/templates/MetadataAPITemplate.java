@@ -268,8 +268,7 @@ public class MetadataAPITemplate implements ArbilTemplate {
     }
 
     public boolean pathCanHaveResource(String nodePath) {
-	getMetadataElement(nodePath);
-	return false;
+	return true;
     }
 
     public String pathIsChildNode(String nodePath) {
