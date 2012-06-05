@@ -45,7 +45,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    final MetadataDocument metadataDocument = metadataAPI.getMetadataDocument(dataNode.getURI().toURL());
 	    dataNode.setMetadataElement(metadataDocument);
 	    // Set template on root
-	    dataNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(metadataDocument.getType().getSchemaLocation().toString());
+	    dataNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(metadataDocument.getDocumentType().getSchemaLocation().toString());
 
 	    // Map to keep nodes and their children
 	    final Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree = new HashMap<ArbilDataNode, Set<ArbilDataNode>>();

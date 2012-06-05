@@ -26,12 +26,13 @@ import nl.mpi.metadata.api.model.ContainedMetadataElement;
 import nl.mpi.metadata.api.model.MetadataContainer;
 import nl.mpi.metadata.api.model.MetadataDocument;
 import nl.mpi.metadata.api.model.MetadataElement;
+import nl.mpi.metadata.api.model.Reference;
+import nl.mpi.metadata.api.model.ReferencingMetadataDocument;
 import nl.mpi.metadata.api.model.ReferencingMetadataElement;
 import nl.mpi.metadata.api.type.ContainedMetadataElementType;
 import nl.mpi.metadata.api.type.MetadataDocumentType;
 import nl.mpi.metadata.api.type.MetadataElementType;
 import nl.mpi.metadata.cmdi.api.model.CMDIDocument;
-import nl.mpi.metadata.cmdi.api.model.ResourceProxy;
 
 /**
  *
@@ -119,9 +120,9 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	    sourceArbilNodeArray = new ArbilDataNode[]{addableNode};
 	}
 
-	//TODO: does the loop make sense for CMDI?
 	for (ArbilDataNode currentArbilNode : sourceArbilNodeArray) {
-	    insertResourceProxy(destinationNode, addableNode);
+	    insertResourceProxy(destinationNode, currentArbilNode);
+	    destinationNode.getDataNodeService().saveChangesToCache(destinationNode);
 	    dataNodeService.loadArbilDom(destinationNode.getParentDomNode());
 	}
     }
@@ -329,8 +330,13 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	return false;
     }
 
+    /**
+     *
+     * @param parent node to remove from
+     * @param resourceProxyReferences resource proxies to remove from parent
+     * @return true <em>iff</em> all resources have been removed
+     */
     public boolean removeResourceProxyReferences(ArbilDataNode parent, Collection<String> resourceProxyReferences) {
-	//TODO: Use MetadataAPI
 	synchronized (parent.getParentDomLockObject()) {
 	    boolean success = true;
 	    if (!(parent.getMetadataElement() instanceof ReferencingMetadataElement)) {
@@ -342,22 +348,54 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	    }
 	    final CMDIDocument document = (CMDIDocument) element.getMetadataDocument();
 	    for (String resourceProxyReference : resourceProxyReferences) {
-		final ResourceProxy documentResourceProxy = document.getDocumentResourceProxy(resourceProxyReference);
-		if (documentResourceProxy != null) {
-		    try {
-			element.removeReference(documentResourceProxy);
-		    } catch (MetadataException mdEx) {
-			BugCatcherManager.getBugCatcher().logError("Error while trying to remove reference to resource proxy " + resourceProxyReference, mdEx);
+		try {
+		    final URI referenceURI = new URI(resourceProxyReference);
+		    if (!removeReference(element, referenceURI, document)) {
+			// One or more failures -> make false (and keep)
 			success = false;
 		    }
+		} catch (URISyntaxException uriSEx) {
+		    // Resource proxy reference is not a correct URI
+		    BugCatcherManager.getBugCatcher().logError(uriSEx);
+		    success = false;
 		}
+	    }
+	    if (success) {
+		success = bumpHistoryAndSaveToDisk(parent);
 	    }
 	    return success;
 	}
     }
 
+    private boolean removeReference(ReferencingMetadataElement element, URI referenceURI, ReferencingMetadataDocument document) {
+	// Look for reference on document by URI
+	final Reference reference = document.getDocumentReferenceByURI(referenceURI);
+
+	if (reference != null) {
+	    try {
+		// Remove from element
+		Reference removedReference = element.removeReference(reference);
+		if (removedReference == null && element.equals(document)) {
+		    // Not referenced from element, but document reference
+		    removedReference = reference;
+		}
+		if (removedReference != null) {
+		    // Check if there are any remaining references
+		    if (document instanceof CMDIDocument
+			    && ((CMDIDocument) document).getResourceProxyReferences(removedReference).isEmpty()) {
+			// If not, remove from document
+			document.removeDocumentReference(removedReference);
+		    }
+		    return true;
+		}
+	    } catch (MetadataException mdEx) {
+		BugCatcherManager.getBugCatcher().logError("Error while trying to remove reference to resource proxy " + referenceURI, mdEx);
+	    }
+	}
+	return false;
+    }
+
     public URI insertResourceProxy(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) {
-	// there is no need to save the node at this point because metadatabuilder has already done so
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    if (!(arbilDataNode.getMetadataElement() instanceof ReferencingMetadataElement)) {
 		throw new UnsupportedOperationException("Can only add resource proxy to CMDI");
