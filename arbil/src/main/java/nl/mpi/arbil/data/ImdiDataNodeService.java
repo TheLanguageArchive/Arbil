@@ -277,6 +277,39 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
 
+    public String getNodeNameFromFields(ArbilDataNode dataNode) {
+	for (String currentPreferredName : dataNode.getNodeTemplate().getPreferredNameFields()) {
+	    for (ArbilField[] currentFieldArray : dataNode.getFields().values().toArray(new ArbilField[][]{})) {
+
+		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
+		// nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
+		// if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
+
+		if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
+		    for (ArbilField currentField : currentFieldArray) {
+			if (currentField != null) {
+			    if (currentField.toString().trim().length() > 0) {
+				return currentField.toString();
+			    }
+			}
+		    }
+		}
+	    }
+	    ArbilField[] currentFieldArray = dataNode.getFieldArray(currentPreferredName);
+	    if (currentFieldArray != null) {
+		for (ArbilField currentField : currentFieldArray) {
+		    if (currentField != null) {
+			if (currentField.toString().trim().length() > 0) {
+			    return currentField.toString();
+			}
+		    }
+		}
+	    }
+	}
+	// Nothing found...
+	return null;
+    }
+
     @Override
     public MetadataDomLoader getMetadataDomLoader() {
 	return metadataDomLoader;

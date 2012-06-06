@@ -277,7 +277,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 
     private boolean updateFields(ArbilDataNode datanode) throws IllegalArgumentException {
 	//TODO: Attributes and xml:lang
-	
+
 	final MetadataDocument document = datanode.getMetadataElement().getMetadataDocument();
 	ArrayList<FieldUpdateRequest> fieldUpdateRequests = getFieldUpdateRequests(datanode);
 	for (FieldUpdateRequest updateRequest : fieldUpdateRequests) {
@@ -318,6 +318,14 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    BugCatcherManager.getBugCatcher().logError(mdEx);
 	}
 	return result;
+    }
+
+    public String getNodeNameFromFields(ArbilDataNode dataNode) {
+	if (dataNode.getMetadataElement() != null) {
+	    return dataNode.getMetadataElement().getDisplayValue();
+	} else {
+	    return null;
+	}
     }
 
     @Override

@@ -62,6 +62,8 @@ public abstract class ArbilDataNodeService {
     public abstract void addField(ArbilDataNode dataNode, ArbilField fieldToAdd);
 
     public abstract void saveChangesToCache(ArbilDataNode datanode);
+    
+    public abstract String getNodeNameFromFields(ArbilDataNode dataNode);
 
     public ArbilDataNode loadArbilDataNode(Object registeringObject, URI localUri) {
 	return dataNodeLoader.getArbilDataNode(registeringObject, localUri);

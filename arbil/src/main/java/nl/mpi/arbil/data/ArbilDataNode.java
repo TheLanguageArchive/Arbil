@@ -201,7 +201,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public void setDataNodeNeedsSaveToDisk(ArbilField originatingField, boolean updateUI) {
-	dataNodeService.setDataNodeNeedsSaveToDisk(this, originatingField, updateUI);
+	getDataNodeService().setDataNodeNeedsSaveToDisk(this, originatingField, updateUI);
     }
 
     public String getAnyMimeType() {
@@ -290,11 +290,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public void reloadNode() {
-	dataNodeService.reloadNode(this);
+	getDataNodeService().reloadNode(this);
     }
 
     public void loadArbilDom() {
-	dataNodeService.loadArbilDom(this);
+	getDataNodeService().loadArbilDom(this);
     }
 
     /**
@@ -553,7 +553,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //    }
     // this is used to delete an IMDI node from a corpus branch
     public void deleteCorpusLink(ArbilDataNode[] targetImdiNodes) {
-	dataNodeService.deleteCorpusLink(this, targetImdiNodes);
+	getDataNodeService().deleteCorpusLink(this, targetImdiNodes);
     }
 
     public boolean hasCatalogue() {
@@ -569,11 +569,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean addCorpusLink(ArbilDataNode targetImdiNode) {
-	return dataNodeService.addCorpusLink(this, targetImdiNode);
+	return getDataNodeService().addCorpusLink(this, targetImdiNode);
     }
 
     public void pasteIntoNode() {
-	dataNodeService.pasteIntoNode(this);
+	getDataNodeService().pasteIntoNode(this);
     }
 
     /**
@@ -582,11 +582,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * the caller is responsible for reloading the node if that is required
      */
     public synchronized void saveChangesToCache(boolean updateUI) {
-	dataNodeService.saveChangesToCache(this);
+	getDataNodeService().saveChangesToCache(this);
     }
 
     public void addField(ArbilField fieldToAdd) {
-	dataNodeService.addField(this, fieldToAdd);
+	getDataNodeService().addField(this, fieldToAdd);
     }
 
     /**
@@ -803,7 +803,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//            // todo: use the commonFieldPathString as the node name if not display preference is set or the ones that are set have no value
 	//            nodeText = commonFieldPathString;
 	//        }
-	final String fieldName = getNodeNameFromFields();
+	final String fieldName = getDataNodeService().getNodeNameFromFields(this);
 	if (fieldName != null) {
 	    nodeText = fieldName;
 	}
@@ -861,64 +861,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//            }
     }
 
-    private String getNodeNameFromFields() {
-	boolean preferredNameFieldExists = false;
-
-	getLabelString:
-	for (String currentPreferredName : this.getNodeTemplate().getPreferredNameFields()) {
-	    for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
-
-		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
-		// nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
-		// if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
-
-		if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
-		    preferredNameFieldExists = true;
-		    for (ArbilField currentField : currentFieldArray) {
-			if (currentField != null) {
-			    if (currentField.toString().trim().length() > 0) {
-				return currentField.toString();
-			    }
-			}
-		    }
-		}
-	    }
-	    ArbilField[] currentFieldArray = getFieldArray(currentPreferredName);
-	    if (currentFieldArray != null) {
-		for (ArbilField currentField : currentFieldArray) {
-		    if (currentField != null) {
-			if (currentField.toString().trim().length() > 0) {
-			    return currentField.toString();
-			}
-		    }
-		}
-	    }
-	}
-	// Nothing found thus far...
-	if (this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//* && fieldHashtable.size() > 0 && domParentImdi == this */) {
-	    String unamedText;
-	    String nodeFragmentName = this.getURI().getFragment();
-	    if (nodeFragmentName != null) {
-		nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
-		unamedText = nodeFragmentName;
-	    } else if (this.nodeTemplate != null) {
-		//            if (this.getNodeTemplate().preferredNameFields.length == 0) {
-		//                nodeText = "no field specified to name this node (" + this.nodeTemplate.getTemplateName() + ")";
-		//            } else {
-		unamedText = this.nodeTemplate.getTemplateName();
-	    } else {
-		unamedText = "";
-	    }
-	    if (preferredNameFieldExists) {
-		return unamedText + " (unnamed)";
-	    } else {
-		return unamedText;
-	    }
-	} else {
-	    return null;
-	}
-    }
-
     /**
      * Tests if there is file associated with this node and if it is an archivable type.
      * The file could be either a resource file (getResource) or a loose file (getUrlString).
@@ -956,7 +898,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @param location Location to insert/set
      */
     public void insertResourceLocation(URI location) throws ArbilMetadataException {
-	dataNodeService.insertResourceLocation(this, location);
+	getDataNodeService().insertResourceLocation(this, location);
     }
 
     /**
@@ -1040,7 +982,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean resurrectHistory(String historyVersion) {
-	return dataNodeService.resurrectHistory(this, historyVersion);
+	return getDataNodeService().resurrectHistory(this, historyVersion);
     }
 
     /*
@@ -1048,7 +990,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * This will also have the effect of deleting the file until the dom is saved thereby recreating the file that was bumped into history
      */
     public void bumpHistory() throws IOException {
-	dataNodeService.bumpHistory(this);
+	getDataNodeService().bumpHistory(this);
     }
 
     /**
@@ -1125,7 +1067,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 		try {
 		    //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
 		    // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
-		    domParentNode = dataNodeService.loadArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
+		    domParentNode = getDataNodeService().loadArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
 		    //                    System.out.println("nodeUri: " + nodeUri);
 		} catch (URISyntaxException ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
@@ -1226,7 +1168,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean isEditable() {
-	return dataNodeService.isEditable(this);
+	return getDataNodeService().isEditable(this);
     }
 
     /**
@@ -1264,7 +1206,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
 	// Node is contained by some object so make sure it's fully loaded or at least loading
 	if (!getParentDomNode().dataLoaded && !isLoading()) {
-	    dataNodeService.reloadNode(this);
+	    getDataNodeService().reloadNode(this);
 	    //dataNodeLoader.requestReload(getParentDomNode());
 	}
 	super.registerContainer(containerToAdd);
@@ -1334,7 +1276,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public boolean isFavorite() {
 	// Is being cached because comparator checks this every time
 	if (isFavorite == null) {
-	    isFavorite = dataNodeService.isFavorite(this);
+	    isFavorite = getDataNodeService().isFavorite(this);
 	}
 	return isFavorite;
 
