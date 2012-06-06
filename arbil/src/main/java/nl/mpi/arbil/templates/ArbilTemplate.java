@@ -43,11 +43,6 @@ public interface ArbilTemplate {
     String getParentOfField(String targetFieldPath);
 
     /**
-     * @return the preferredNameFields
-     */
-    String[] getPreferredNameFields();
-
-    /**
      * @return the requiredFields
      */
     String[] getRequiredFields();

@@ -638,7 +638,6 @@ public class ImdiTemplate implements ArbilTemplate {
     /**
      * @return the preferredNameFields
      */
-    @Override
     public String[] getPreferredNameFields() {
 	return preferredNameFields;
     }

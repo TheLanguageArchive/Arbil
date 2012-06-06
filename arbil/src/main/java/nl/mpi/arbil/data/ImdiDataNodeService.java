@@ -8,6 +8,7 @@ import java.util.Collection;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
+import nl.mpi.arbil.templates.ImdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -278,7 +279,7 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
     }
 
     public String getNodeNameFromFields(ArbilDataNode dataNode) {
-	for (String currentPreferredName : dataNode.getNodeTemplate().getPreferredNameFields()) {
+	for (String currentPreferredName : ((ImdiTemplate) dataNode.getNodeTemplate()).getPreferredNameFields()) {
 	    for (ArbilField[] currentFieldArray : dataNode.getFields().values().toArray(new ArbilField[][]{})) {
 
 		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
