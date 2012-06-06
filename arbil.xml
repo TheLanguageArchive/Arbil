@@ -51,7 +51,7 @@
             todir="${distributionDirectory}"
             package="${package.name}"
             section="science"
-            depends="sun-java5-jre | sun-java6-jre, ffmpeg, imagemagick"            
+            depends="sun-java5-jre | sun-java6-jre | openjdk-7-jre, ffmpeg, imagemagick"            
         > <!-- homepage="http://www.lat-mpi.eu/tools/arbil" deb doesn't support the "homepage" attribute -->
             <version upstream="${arbil.current.major}.${arbil.current.minor}" debian="${arbil.current.revision}"/>
             <maintainer name="Peter Withers" email="Peter.Withers@mpi.nl"/>
