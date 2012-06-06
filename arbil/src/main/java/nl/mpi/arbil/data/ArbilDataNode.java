@@ -802,64 +802,9 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//            // todo: use the commonFieldPathString as the node name if not display preference is set or the ones that are set have no value
 	//            nodeText = commonFieldPathString;
 	//        }
-	boolean foundPreferredNameField = false;
-	boolean preferredNameFieldExists = false;
-
-	//final String nodePath = getNodePath();
-	getLabelString:
-	for (String currentPreferredName : this.getNodeTemplate().getPreferredNameFields()) {
-	    for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
-
-		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
-		// nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
-		// if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
-
-		if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
-		    preferredNameFieldExists = true;
-		    for (ArbilField currentField : currentFieldArray) {
-			if (currentField != null) {
-			    if (currentField.toString().trim().length() > 0) {
-				nodeText = currentField.toString();
-				foundPreferredNameField = true;
-				break getLabelString;
-			    }
-			}
-		    }
-		}
-	    }
-	    ArbilField[] currentFieldArray = getFieldArray(currentPreferredName);
-	    if (currentFieldArray != null) {
-		for (ArbilField currentField : currentFieldArray) {
-		    if (currentField != null) {
-			if (currentField.toString().trim().length() > 0) {
-			    nodeText = currentField.toString();
-			    //                            System.out.println("nodeText: " + nodeText);
-			    foundPreferredNameField = true;
-			    break getLabelString;
-			}
-		    }
-		}
-	    }
-	}
-	if (!foundPreferredNameField && this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//* && fieldHashtable.size() > 0 && domParentImdi == this */) {
-	    String unamedText;
-	    String nodeFragmentName = this.getURI().getFragment();
-	    if (nodeFragmentName != null) {
-		nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
-		unamedText = nodeFragmentName;
-	    } else if (this.nodeTemplate != null) {
-		//            if (this.getNodeTemplate().preferredNameFields.length == 0) {
-		//                nodeText = "no field specified to name this node (" + this.nodeTemplate.getTemplateName() + ")";
-		//            } else {
-		unamedText = this.nodeTemplate.getTemplateName();
-	    } else {
-		unamedText = "";
-	    }
-	    if (preferredNameFieldExists) {
-		nodeText = unamedText + " (unnamed)";
-	    } else {
-		nodeText = unamedText;
-	    }
+	final String fieldName = getNodeNameFromFields();
+	if (fieldName != null) {
+	    nodeText = fieldName;
 	}
 	//        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && fieldHashtable.size() > 0) {
 	//            // only if no name has been found and only for cmdi nodes and only when this is the dom parent node
@@ -913,6 +858,65 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
 	return lastNodeText;// + "-" + clearIconCounterGlobal + "-" + clearIconCounter;
 	//            }
+    }
+
+    private String getNodeNameFromFields() {
+	boolean preferredNameFieldExists = false;
+
+	getLabelString:
+	for (String currentPreferredName : this.getNodeTemplate().getPreferredNameFields()) {
+	    for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
+
+		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
+		// nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
+		// if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
+
+		if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
+		    preferredNameFieldExists = true;
+		    for (ArbilField currentField : currentFieldArray) {
+			if (currentField != null) {
+			    if (currentField.toString().trim().length() > 0) {
+				return currentField.toString();
+			    }
+			}
+		    }
+		}
+	    }
+	    ArbilField[] currentFieldArray = getFieldArray(currentPreferredName);
+	    if (currentFieldArray != null) {
+		for (ArbilField currentField : currentFieldArray) {
+		    if (currentField != null) {
+			if (currentField.toString().trim().length() > 0) {
+			    return currentField.toString();
+			}
+		    }
+		}
+	    }
+	}
+	
+	// Nothing found thus far...
+	if (this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//* && fieldHashtable.size() > 0 && domParentImdi == this */) {
+	    String unamedText;
+	    String nodeFragmentName = this.getURI().getFragment();
+	    if (nodeFragmentName != null) {
+		nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
+		unamedText = nodeFragmentName;
+	    } else if (this.nodeTemplate != null) {
+		//            if (this.getNodeTemplate().preferredNameFields.length == 0) {
+		//                nodeText = "no field specified to name this node (" + this.nodeTemplate.getTemplateName() + ")";
+		//            } else {
+		unamedText = this.nodeTemplate.getTemplateName();
+	    } else {
+		unamedText = "";
+	    }
+	    if (preferredNameFieldExists) {
+		return unamedText + " (unnamed)";
+	    } else {
+		return unamedText;
+	    }
+	} else {
+	    return null;
+	}
     }
 
     /**
