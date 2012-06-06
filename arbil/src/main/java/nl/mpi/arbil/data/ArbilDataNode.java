@@ -84,6 +84,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
     private final static String NODE_LOADING_TEXT = "loading node...";
+    public static final String EMPTY_NODE_STRING_VALUE = "                      ";
 
     protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
 	super();
@@ -784,7 +785,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean isNodeTextDetermined() {
-	return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT);
+	return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT) && !lastNodeText.equals(EMPTY_NODE_STRING_VALUE);
     }
 
     public String refreshStringValue() {
@@ -796,7 +797,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    return lastNodeText;
 	    //            }
 	} else if (lastNodeText.equals(NODE_LOADING_TEXT) && getParentDomNode().dataLoaded) {
-	    lastNodeText = "                      ";
+	    lastNodeText = EMPTY_NODE_STRING_VALUE;
 	}
 	//        if (commonFieldPathString != null && commonFieldPathString.length() > 0) {
 	//            // todo: use the commonFieldPathString as the node name if not display preference is set or the ones that are set have no value
@@ -854,7 +855,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
 
 	if (lastNodeText.length() == 0) {
-	    lastNodeText = "                      ";
+	    lastNodeText = EMPTY_NODE_STRING_VALUE;
 	}
 	return lastNodeText;// + "-" + clearIconCounterGlobal + "-" + clearIconCounter;
 	//            }
@@ -893,7 +894,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 		}
 	    }
 	}
-	
 	// Nothing found thus far...
 	if (this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//* && fieldHashtable.size() > 0 && domParentImdi == this */) {
 	    String unamedText;
