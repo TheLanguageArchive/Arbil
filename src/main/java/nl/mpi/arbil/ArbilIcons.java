@@ -1,6 +1,5 @@
 package nl.mpi.arbil;
 
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.net.HttpURLConnection;
@@ -9,6 +8,7 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -16,8 +16,9 @@ import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
- * Document   : ArbilIcons
- * Created on : 
+ * Document : ArbilIcons
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  *
  */
@@ -338,7 +339,9 @@ public class ArbilIcons {
 	    }
 	}
 	// add missing file icon
-	if ((arbilNode.fileNotFound || arbilNode.resourceFileNotFound())) {
+	if (arbilNode.fileNotFound) {
+	    iconsList.add(missingRedIcon);
+	} else if (arbilNode.resourceFileNotFound()) {
 	    if (arbilNode.isResourceSet()) {
 		// Resource is set but file not found, this is an error
 		iconsList.add(missingRedIcon);
