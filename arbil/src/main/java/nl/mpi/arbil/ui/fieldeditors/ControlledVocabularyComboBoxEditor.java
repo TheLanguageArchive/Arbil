@@ -4,10 +4,10 @@
  */
 package nl.mpi.arbil.ui.fieldeditors;
 
-import nl.mpi.arbil.ui.TypeAheadComboBoxEditor;
 import javax.swing.JComboBox;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabulary;
+import nl.mpi.arbil.ui.TypeAheadComboBoxEditor;
 
 /**
  * Text editor intended for use with ControlledVocabularyComboBox
@@ -30,6 +30,7 @@ public class ControlledVocabularyComboBoxEditor extends TypeAheadComboBoxEditor 
 
     /**
      * Local convenience method. Gets item from vocabulary
+     *
      * @param index
      * @return
      */
@@ -48,7 +49,6 @@ public class ControlledVocabularyComboBoxEditor extends TypeAheadComboBoxEditor 
     protected boolean isOpen() {
 	return targetField.isVocabularyOpen();
     }
-    
     private ArbilVocabulary vocabulary;
     private ArbilField targetField;
 }
