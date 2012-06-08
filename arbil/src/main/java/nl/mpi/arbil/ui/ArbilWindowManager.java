@@ -455,10 +455,15 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                     showMessageThreadrunning = true;
                     if (messagesCanBeShown) {
                         while (messageDialogQueue.size() > 0) {
-                            String messageTitle = messageDialogQueue.keys().nextElement();
-                            String messageText = messageDialogQueue.remove(messageTitle);
+                            final String messageTitle = messageDialogQueue.keys().nextElement();
+                            final String messageText = messageDialogQueue.remove(messageTitle);
                             if (messageText != null) {
-                                JOptionPane.showMessageDialog(getMainFrame(), messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
+                                SwingUtilities.invokeLater(new Runnable() {
+
+                                    public void run() {
+                                        JOptionPane.showMessageDialog(getMainFrame(), messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
+                                    }
+                                });
                             }
                         }
                     }
