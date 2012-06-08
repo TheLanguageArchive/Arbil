@@ -24,25 +24,26 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 
     /**
      * Gets requested item from vocabulary by index
+     *
      * @param index
      * @return Requested item
      */
     protected abstract String getItemAt(int index);
 
     /**
-     * 
+     *
      * @return Total number of items
      */
     protected abstract int getItemsCount();
 
     /**
-     * 
+     *
      * @return Whether multiple items can be entered
      */
     protected abstract boolean isList();
 
     /**
-     * 
+     *
      * @return Whether arbitrary items can be entered
      */
     protected abstract boolean isOpen();
@@ -50,13 +51,14 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
     protected boolean isItemsDeletable() {
 	return false;
     }
-    
-    protected boolean deleteItem(Object item){
+
+    protected boolean deleteItem(Object item) {
 	return false;
     }
 
     /**
      * Constructor. Call init() after this!
+     *
      * @param editor Editor component
      * @param initialValue Initial value for editor
      * @param originalValue Original value for editor (will revert to this at escape)
@@ -76,7 +78,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
     }
 
     /**
-     * Initializes editor. Initializes key and focus listeners and the timer. Must be called in constructor! 
+     * Initializes editor. Initializes key and focus listeners and the timer. Must be called in constructor!
      */
     protected final void init() {
 	getTextField().addKeyListener(keyListener);
@@ -102,6 +104,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 
     /**
      * Implements ComboBoxEditor getItem
+     *
      * @param anObject
      */
     public Object getItem() {
@@ -130,13 +133,14 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 
     /**
      * Implements ComboBoxEditor setItem
+     *
      * @param item
      */
     public void setItem(Object item) {
 	if (!typingAhead) {
 	    String itemString = item.toString();
 	    // Decide what to do, depending on whether there are multiple values
-	    if (itemString.indexOf(ControlledVocabularyComboBoxEditor.SEPARATOR()) >= 0) {
+	    if (isList() && itemString.indexOf(ControlledVocabularyComboBoxEditor.SEPARATOR()) >= 0) {
 		// Set item value for entire text
 		getTextField().setText(itemString);
 	    } else {
@@ -246,29 +250,39 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 
     /**
      * Tries to find an item that matches the given text
+     *
      * @param text Text to find match for
      * @return Index of matching item, guaranteed to be a String; -1 if no match
      */
     private int getMatchingItem(String text) {
 	if (null != text && text.length() > 0) {
-	    int itemsCount = getItemsCount();
+
+	    final int itemsCount = getItemsCount();
 
 	    // Try previous match first, in many cases it will match and there's
 	    // no need to iterate over all items
 	    if (previousMatch >= 0
 		    && previousMatch < itemsCount
-		    && ((String) getItemAt(previousMatch)).toLowerCase().startsWith(text.toLowerCase())) {
+		    && ((String) getItemAt(previousMatch)).equalsIgnoreCase(text)) {
 		return previousMatch;
 	    }
 
+	    int shortestMatch = -1;
 	    for (int i = 0; i < itemsCount; i++) {
 		String item = getItemAt(i);
 		if (item != null) {
-		    if (item.regionMatches(true, 0, text, 0, text.length())) {
-			previousMatch = i;
-			return i;
+		    // If first find or shorter match, compare to text
+		    if (shortestMatch < 0 || item.length() < shortestMatch) {
+			if (item.regionMatches(true, 0, text, 0, text.length())) {
+			    previousMatch = i;
+			    shortestMatch = item.length();
+			}
 		    }
 		}
+	    }
+	    // only if item found
+	    if (shortestMatch >= 0) {
+		return previousMatch;
 	    }
 	}
 	return -1;
@@ -277,25 +291,31 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
     // EDITOR MANIPULATION & ACCESS HELPER METHODS
     /**
      * Creates a sanitized string of the current value(s) of the editor
+     *
      * @return
      */
     private String getCurrentValueString() {
-	StringTokenizer st = new StringTokenizer(getTextField().getText(), Character.toString(SEPARATOR()));
-	StringBuilder sb = new StringBuilder(st.countTokens());
-	while (st.hasMoreTokens()) {
-	    String token = st.nextToken().trim();
-	    if (token.length() > 0) {
-		sb.append(token);
-		if (st.hasMoreTokens()) {
-		    sb.append(SEPARATOR());
+	if (!isList()) {
+	    return getTextField().getText();
+	} else {
+	    StringTokenizer st = new StringTokenizer(getTextField().getText(), Character.toString(SEPARATOR()));
+	    StringBuilder sb = new StringBuilder(st.countTokens());
+	    while (st.hasMoreTokens()) {
+		String token = st.nextToken().trim();
+		if (token.length() > 0) {
+		    sb.append(token);
+		    if (st.hasMoreTokens()) {
+			sb.append(SEPARATOR());
+		    }
 		}
 	    }
+	    return sb.toString();
 	}
-	return sb.toString();
     }
 
     /**
      * Gets value of the current (determined by caret position) text
+     *
      * @return
      */
     private String getEditorValue() {
@@ -303,7 +323,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 	int lastIndex = value.length();
 	String separator = Character.toString(SEPARATOR());
 
-	if (!value.contains(separator)) {
+	if (!isList() || !value.contains(separator)) {
 	    return value;
 	} else {
 	    int[] startEnd = getEditorCurrentStartEnd();
@@ -314,6 +334,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
     /**
      * Set the value of the CURRENT editor sub-item (i.e. whatever is between
      * the separators closest to the caret position
+     *
      * @param value
      */
     private void setEditorValue(String value) {
@@ -365,6 +386,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 
     /**
      * Gets index for currentValues array that corresponds with current caret position in editor
+     *
      * @return
      */
     private int getEditorIndex() {
@@ -388,8 +410,8 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 
 	// Target should be in list and not equal to current target
 	if (target >= 0 && target != comboBox.getSelectedIndex()) {
-	    // Target should not be multi-valued
-	    if (comboBox.getItemAt(target).toString().indexOf(SEPARATOR()) >= 0) {
+	    // Target should not be multi-valued (in case of list editor)
+	    if (isList() && comboBox.getItemAt(target).toString().indexOf(SEPARATOR()) >= 0) {
 		target = Math.min(target + 1, comboBox.getItemCount() - 1);
 	    }
 	    comboBox.setSelectedIndex(target);
@@ -483,6 +505,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 
     /**
      * Delay used for auto complete, except in closed lists where long delay is used
+     *
      * @return Short typeahead delay, can be overridden
      * @see TYPEAHEAD_DELAY_LONG()
      */
@@ -492,7 +515,8 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 
     /**
      * Delay used for auto complete in <em>closed lists</em>, given users a chance to enforce their non-matching input
-     * @return Long typeahead delay, can be overridden. 
+     *
+     * @return Long typeahead delay, can be overridden.
      * @see TYPEAHEAD_DELAY_SHORT()
      */
     protected static int TYPEAHEAD_DELAY_LONG() {
