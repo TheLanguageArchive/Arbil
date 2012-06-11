@@ -46,7 +46,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	this.setName("rightSplitPane");
 
 	previewHiddenColumnLabel = new javax.swing.JLabel(" ");
-	previewTable = new ArbilTable(new ArbilTableModel(), "Preview");
+	previewTable = new ArbilTable(new ArbilTableModel(null), "Preview");
 	previewTable.getArbilTableModel().setHiddenColumnsLabel(previewHiddenColumnLabel);
 	initCopyPaste();
 
