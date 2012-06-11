@@ -92,6 +92,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     boolean showMessageThreadrunning = false;
     private Collection<ArbilTaskListener> taskListeners = new HashSet<ArbilTaskListener>();
     private ApplicationVersionManager versionManager;
+    private ImageBoxRenderer imageBoxRenderer;
 
     public void setVersionManager(ApplicationVersionManager versionManagerInstance) {
         versionManager = versionManagerInstance;
@@ -110,6 +111,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
         dataNodeLoader = dataNodeLoaderInstance;
+    }
+
+    public void setImageBoxRenderer(ImageBoxRenderer imageBoxRenderer) {
+        this.imageBoxRenderer = imageBoxRenderer;
     }
 
     public ArbilWindowManager() {
@@ -1033,7 +1038,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public void openSearchTable(ArbilNode[] selectedNodes, String frameTitle) {
         // Create tabel with model and split panel to show it in
-        ArbilTableModel resultsTableModel = new ArbilTableModel();
+        ArbilTableModel resultsTableModel = new ArbilTableModel(imageBoxRenderer);
         ArbilTable arbilTable = new ArbilTable(resultsTableModel, frameTitle);
         arbilTable.setAllowNodeDrop(false);
         ArbilSplitPanel tablePanel = new ArbilSplitPanel(arbilTable);
@@ -1177,7 +1182,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                 frameTitle = "Selection";
             }
         }
-        ArbilTableModel arbilTableModel = fieldView == null ? new ArbilTableModel() : new ArbilTableModel(fieldView);
+        ArbilTableModel arbilTableModel = fieldView == null ? new ArbilTableModel(imageBoxRenderer) : new ArbilTableModel(fieldView, imageBoxRenderer);
         ArbilTable arbilTable = new ArbilTable(arbilTableModel, frameTitle);
         ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
         arbilTableModel.addArbilDataNodes(rowNodesArray);
@@ -1223,7 +1228,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             }
         }
 
-        ArbilSubnodesScrollPane scrollPane = new ArbilSubnodesScrollPane(arbilDataNode);
+        ArbilSubnodesScrollPane scrollPane = new ArbilSubnodesScrollPane(arbilDataNode, imageBoxRenderer);
         JInternalFrame tableFrame = createWindow(frameTitle, scrollPane);
         tableFrame.addInternalFrameListener(scrollPane.getInternalFrameListener());
         if (window != null && window.length > 0) {
