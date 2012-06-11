@@ -5,7 +5,7 @@ import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
 
@@ -15,8 +15,9 @@ import nl.mpi.arbil.data.ArbilNode;
  *
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilTreeRenderer extends JLabel implements TreeCellRenderer {
+public class ArbilTreeRenderer extends DefaultTreeCellRenderer {
 
+    @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         JLabel returnComponent = this;
         this.setForeground(tree.getForeground());
