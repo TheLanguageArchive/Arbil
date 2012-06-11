@@ -414,7 +414,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
     }
 
     protected String getRenderedText(ArbilTableCell data) {
-	return new ArbilTableCellRenderer(data).getText();
+        return data.toString();
     }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
