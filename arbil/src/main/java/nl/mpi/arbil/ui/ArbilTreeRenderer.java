@@ -12,12 +12,15 @@ import nl.mpi.arbil.data.ArbilNode;
 /**
  * Document : ArbilTreeRenderer
  * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTreeRenderer extends JLabel implements TreeCellRenderer {
 
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         JLabel returnComponent = this;
+        this.setForeground(tree.getForeground());
+        this.setBackground(tree.getBackground());
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
         if (node.getUserObject() instanceof ArbilNode) {
             ArbilNode arbilNode = (ArbilNode) node.getUserObject();
@@ -47,6 +50,8 @@ public class ArbilTreeRenderer extends JLabel implements TreeCellRenderer {
         if (selected) {
             returnComponent.setOpaque(true);
             returnComponent.setBackground(tree.getBackground().darker());
+        } else {
+            returnComponent.setOpaque(false);
         }
         return returnComponent;
     }
