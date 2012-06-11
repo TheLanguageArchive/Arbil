@@ -3,6 +3,7 @@ package nl.mpi.arbil;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.ImageBoxRenderer;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
@@ -23,78 +24,89 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     private ArbilMimeHashQueue mimeHashQueue;
     private ArbilWindowManager windowManager;
     private ArbilDataNodeLoader dataNodeLoader;
+    private ImageBoxRenderer imageBoxRenderer;
 
     public synchronized void injectHandlers() {
-	injectHandlers(new ApplicationVersionManager(new ArbilVersion()));
+        injectHandlers(new ApplicationVersionManager(new ArbilVersion()));
     }
 
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
     public synchronized void injectHandlers(final ApplicationVersionManager versionManager) {
-	injectVersionManager(versionManager);
+        injectVersionManager(versionManager);
 
-	final ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
-	injectSessionStorage(sessionStorage);
+        final ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
+        injectSessionStorage(sessionStorage);
 
-	BugCatcherManager.setBugCatcher(new ArbilBugCatcher(sessionStorage, versionManager));
+        BugCatcherManager.setBugCatcher(new ArbilBugCatcher(sessionStorage, versionManager));
 
-	windowManager = new ArbilWindowManager();
-	windowManager.setSessionStorage(sessionStorage);
-	windowManager.setVersionManager(versionManager);
+        windowManager = new ArbilWindowManager();
+        windowManager.setSessionStorage(sessionStorage);
+        windowManager.setVersionManager(versionManager);
+        imageBoxRenderer = new ImageBoxRenderer();
+        windowManager.setImageBoxRenderer(imageBoxRenderer);
 
-	final MessageDialogHandler messageDialogHandler = windowManager;
-	sessionStorage.setMessageDialogHandler(messageDialogHandler);
-	injectDialogHandler(messageDialogHandler);
+        final MessageDialogHandler messageDialogHandler = windowManager;
+        sessionStorage.setMessageDialogHandler(messageDialogHandler);
+        injectDialogHandler(messageDialogHandler);
 
-	sessionStorage.setWindowManager(windowManager);
-	injectWindowManager(windowManager);
+        sessionStorage.setWindowManager(windowManager);
+        injectWindowManager(windowManager);
 
-	mimeHashQueue = new ArbilMimeHashQueue(windowManager, sessionStorage);
-	mimeHashQueue.setMessageDialogHandler(messageDialogHandler);
-	injectMimeHashQueue(mimeHashQueue);
+        mimeHashQueue = new ArbilMimeHashQueue(windowManager, sessionStorage);
+        mimeHashQueue.setMessageDialogHandler(messageDialogHandler);
+        injectMimeHashQueue(mimeHashQueue);
 
-	treeHelper = new ArbilTreeHelper(sessionStorage, messageDialogHandler);
-	windowManager.setTreeHelper(treeHelper);
-	sessionStorage.setTreeHelper(treeHelper);
-	injectTreeHelper(treeHelper);
+        treeHelper = new ArbilTreeHelper(sessionStorage, messageDialogHandler);
+        windowManager.setTreeHelper(treeHelper);
+        sessionStorage.setTreeHelper(treeHelper);
+        injectTreeHelper(treeHelper);
 
-	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
-	treeHelper.setDataNodeLoader(dataNodeLoader);
-	mimeHashQueue.setDataNodeLoader(dataNodeLoader);
-	windowManager.setDataNodeLoader(dataNodeLoader);
-	injectDataNodeLoader(dataNodeLoader);
+        dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+        treeHelper.setDataNodeLoader(dataNodeLoader);
+        mimeHashQueue.setDataNodeLoader(dataNodeLoader);
+        windowManager.setDataNodeLoader(dataNodeLoader);
+        injectDataNodeLoader(dataNodeLoader);
     }
 
     /**
      * Should not be called before injectHandlers()!!
+     *
      * @return the treeHelper
      */
     public ArbilTreeHelper getTreeHelper() {
-	return treeHelper;
+        return treeHelper;
     }
 
     /**
      * Should not be called before injectHandlers()!!
+     *
      * @return the treeHelper
      */
     public ArbilMimeHashQueue getMimeHashQueue() {
-	return mimeHashQueue;
+        return mimeHashQueue;
     }
 
     /**
      * Should not be called before injectHandlers()!!
+     *
      * @return the treeHelper
      */
     public ArbilWindowManager getWindowManager() {
-	return windowManager;
+        return windowManager;
     }
 
     /**
      * Should not be called before injectHandlers()!!
+     *
      * @return the treeHelper
      */
     public ArbilDataNodeLoader getDataNodeLoader() {
-	return dataNodeLoader;
+        return dataNodeLoader;
+    }
+
+    public ImageBoxRenderer getImageBoxRenderer() {
+        return imageBoxRenderer;
     }
 }
