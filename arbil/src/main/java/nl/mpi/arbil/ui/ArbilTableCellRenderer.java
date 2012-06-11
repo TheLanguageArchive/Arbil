@@ -43,6 +43,14 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
 //        Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         ArbilTableCell cellObject = ((ArbilTableCell) value);
         Object cellContent = getCellContent(cellObject);
+        this.setBackground(table.getBackground());
+        setColours(cellContent, isSelected);
+        if (cellObject == null) {
+            setText("");
+        } else {
+            setText(cellObject.toString());
+        }
+        setIcon(getIcon(cellContent));
         // ArbilField may have to be decorated with an icon
         if (cellContent instanceof ArbilField) {
             Icon icon = ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellContent);
@@ -51,13 +59,6 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
                 return new ArbilIconCellPanel(this, icon);
             }
         }
-        setColours(cellContent, isSelected);
-        if (cellObject == null) {
-            setText("");
-        } else {
-            setText(cellObject.toString());
-        }
-        setIcon(getIcon(cellContent));
         return this;
     }
 
