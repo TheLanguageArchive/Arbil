@@ -18,10 +18,12 @@ import nl.mpi.arbil.data.ArbilNode;
 public class ArbilTreeRenderer extends DefaultTreeCellRenderer {
 
     @Override
-    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+    synchronized public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         JLabel returnComponent = this;
-        this.setForeground(tree.getForeground());
-        this.setBackground(tree.getBackground());
+        returnComponent.setForeground(tree.getForeground());
+        returnComponent.setBackground(tree.getBackground());
+        returnComponent.setIcon(null); // setting the icon to null to avoid a null pointer later in the set icon where it tries to testthe icon width/hight
+        returnComponent.setText(null);
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
         if (node.getUserObject() instanceof ArbilNode) {
             ArbilNode arbilNode = (ArbilNode) node.getUserObject();
@@ -44,9 +46,8 @@ public class ArbilTreeRenderer extends DefaultTreeCellRenderer {
             }
         } else if (node.getUserObject() instanceof JLabel) {
             // create the object with parameters so the jvm has a chance to reused objects in memory
-            returnComponent = new JLabel(((JLabel) node.getUserObject()).getText(), ((JLabel) node.getUserObject()).getIcon(), JLabel.LEFT);
-        } else {
-            return new JLabel();
+            returnComponent.setText(((JLabel) node.getUserObject()).getText());
+            returnComponent.setIcon(((JLabel) node.getUserObject()).getIcon());
         }
         if (selected) {
             returnComponent.setOpaque(true);
