@@ -10,7 +10,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
-import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -228,23 +227,19 @@ public class ImdiTemplate implements ArbilTemplate {
     public boolean isArbilChildNode(String childType) {
 	boolean returnValue = false;
 	if (childType != null) {
-	    if (CmdiProfileReader.pathIsProfile(childType)) {
-		returnValue = false;
-	    } else {
-		returnValue = true;
-		String childTypeTemp = (childType + ".xml").substring(1);
-		for (String[] currentTemplate : rootTemplatesArray) {
-		    if (childTypeTemp.equals(currentTemplate[0])) {
-			returnValue = false;
-		    }
-		}
-		if (returnValue) {
-		    // this has been added to resolve an issue detecting custom templates
+	    returnValue = true;
+	    String childTypeTemp = (childType + ".xml").substring(1);
+	    for (String[] currentTemplate : rootTemplatesArray) {
+		if (childTypeTemp.equals(currentTemplate[0])) {
 		    returnValue = false;
-		    for (String[] currentTemplate : getTemplatesArray()) {
-			if (childTypeTemp.equals(currentTemplate[0])) {
-			    returnValue = true;
-			}
+		}
+	    }
+	    if (returnValue) {
+		// this has been added to resolve an issue detecting custom templates
+		returnValue = false;
+		for (String[] currentTemplate : getTemplatesArray()) {
+		    if (childTypeTemp.equals(currentTemplate[0])) {
+			returnValue = true;
 		    }
 		}
 	    }
