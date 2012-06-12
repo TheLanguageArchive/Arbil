@@ -584,8 +584,11 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 			    newData[rowCounter][columnCounter] = new DefaultArbilTableCell(new ArbilFieldPlaceHolder(fieldNames[columnCounter], currentNode));
 			}
 		    } else {
-			// populate the cell with any the child nodes for the current child nodes column
-			newData[rowCounter][columnCounter] = new ArbilDataNodeArrayTableCell(currentNode.getChildNodesArray(columnNamesTemp[columnCounter]));
+			final ArbilDataNode[] childNodes = currentNode.getChildNodesArray(columnNamesTemp[columnCounter]);
+			if (childNodes != null) {
+			    // populate the cell with any the child nodes for the current child nodes column
+			    newData[rowCounter][columnCounter] = new ArbilDataNodeArrayTableCell(childNodes);
+			}
 			// prevent null values
 			if (newData[rowCounter][columnCounter] == null) {
 			    newData[rowCounter][columnCounter] = new DefaultArbilTableCell("");
