@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
+import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -80,12 +80,14 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
     }
 
     public synchronized List<ArbilVocabularyItem> getAllLanguagesForImdi() {
+	//TODO: Move this into service (unify imdi/cmdi)
 	return ArbilVocabularies.getSingleInstance().getVocabulary(null, getLanguageVocabularyUrlForImdi()).getVocabularyItemsUnfiltered();
     }
 
     public synchronized List<ArbilVocabularyItem> getAllLanguagesForCmdi() {
+	//TODO: Move this into service (unify imdi/cmdi)
 	try {
-	    CmdiTemplate profile = (CmdiTemplate) ArbilTemplateManager.getSingleInstance().getCmdiTemplate(getLanguageVocabularyUrlForCmdi());
+	    ArbilTemplate profile = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(getLanguageVocabularyUrlForCmdi());
 	    if (profile != null) {
 		ArbilVocabulary vocab = profile.getFieldVocabulary(getLanguageVocabularyPathForCmdi());
 		if (vocab != null) {

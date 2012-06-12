@@ -17,6 +17,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -62,8 +63,10 @@ public abstract class ArbilDataNodeService {
     public abstract void addField(ArbilDataNode dataNode, ArbilField fieldToAdd);
 
     public abstract void saveChangesToCache(ArbilDataNode datanode);
-    
+
     public abstract String getNodeNameFromFields(ArbilDataNode dataNode);
+
+    public abstract List<ArbilVocabularyItem> getLanguageItems();
 
     public ArbilDataNode loadArbilDataNode(Object registeringObject, URI localUri) {
 	return dataNodeLoader.getArbilDataNode(registeringObject, localUri);

@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
@@ -309,6 +310,11 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	}
 	// Nothing found...
 	return null;
+    }
+
+    @Override
+    public List<ArbilVocabularyItem> getLanguageItems() {
+	return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForImdi();
     }
 
     @Override

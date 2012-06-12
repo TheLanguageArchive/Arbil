@@ -7,17 +7,14 @@ import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
- *  Document   : LanguageIdBox
- *  Created on : Sep 14, 2010, 3:58:33 PM
- *  Author     : Peter Withers
+ * Document : LanguageIdBox
+ * Created on : Sep 14, 2010, 3:58:33 PM
+ * Author : Peter Withers
  */
 public class LanguageIdBox extends JComboBox {
 
@@ -29,7 +26,7 @@ public class LanguageIdBox extends JComboBox {
 //        if (fieldLanguageId != null) {
 	ArbilVocabularyItem selectedItem = null;
 	this.setEditable(false);
-	List<ArbilVocabularyItem> languageItemArray = getLanguageItems(cellField.getParentDataNode());
+	List<ArbilVocabularyItem> languageItemArray = cellField.getParentDataNode().getDataNodeService().getLanguageItems();
 	if (languageItemArray != null) {
 	    Collections.sort(languageItemArray);
 	    for (ArbilVocabularyItem currentItem : languageItemArray) {
@@ -72,14 +69,6 @@ public class LanguageIdBox extends JComboBox {
 	}
 	if (parentCellRect != null) {
 	    this.setPreferredSize(new Dimension(languageSelectWidth, parentCellRect.height));
-	}
-    }
-
-    private List<ArbilVocabularyItem> getLanguageItems(final ArbilDataNode parentDataNode) {
-	if (parentDataNode.getNodeTemplate() instanceof CmdiTemplate) {
-	    return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
-	} else {
-	    return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForImdi();
 	}
     }
 }

@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
@@ -340,5 +341,10 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    dataNode.getMetadataElement().getMetadataDocument().setFileLocation(historyFile.toURI());
 	}
 	return historyFile;
+    }
+
+    @Override
+    public List<ArbilVocabularyItem> getLanguageItems() {
+	return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
     }
 }
