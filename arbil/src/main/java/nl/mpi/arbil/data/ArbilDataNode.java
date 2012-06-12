@@ -19,9 +19,6 @@ import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.metadatafile.CmdiUtils;
-import nl.mpi.arbil.data.metadatafile.ImdiUtils;
-import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
@@ -39,7 +36,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     private ArbilDataNodeService dataNodeService;
     private MetadataElement metadataElement;
-    private MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
     private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     protected ArbilDataNode[] childArray = new ArbilDataNode[0];
@@ -91,9 +87,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//        addQueue = new Vector<String[]>();
 	this.dataNodeService = dataNodeService;
 	nodeUri = localUri;
-	if (nodeUri != null) {
-	    metadataUtils = ArbilDataNode.getMetadataUtils(nodeUri.toString());
-	}
 	initNodeVariables();
     }
 
@@ -138,19 +131,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     static public boolean isStringChildNode(String urlString) {
 	return urlString.contains("#."); // anything with a fragment is a sub node //urlString.contains("#.METATRANSCRIPT") || urlString.contains("#.CMD"); // change made for clarin
-    }
-
-    static public MetadataUtils getMetadataUtils(String urlString) {
-	if (MetadataFormat.isPathCmdi(urlString)) {
-	    return new CmdiUtils();
-	} else if (MetadataFormat.isPathImdi(urlString)) {
-	    return new ImdiUtils();
-	}
-	return null;
-    }
-
-    public MetadataUtils getMetadataUtils() {
-	return metadataUtils;
     }
 
     // end static methods for testing imdi file and object types

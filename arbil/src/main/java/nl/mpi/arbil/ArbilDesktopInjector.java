@@ -2,6 +2,7 @@ package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.service.DataNodeServiceLocator;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -64,6 +65,8 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	mimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	windowManager.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
+	
+	injectDataNodeServiceLocator(dataNodeLoader);
     }
 
     /**
@@ -78,7 +81,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     /**
      * Should not be called before injectHandlers()!!
      *
-     * @return the treeHelper
+     * @return the mimeHashQueue
      */
     public ArbilMimeHashQueue getMimeHashQueue() {
 	return mimeHashQueue;
@@ -87,7 +90,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     /**
      * Should not be called before injectHandlers()!!
      *
-     * @return the treeHelper
+     * @return the windowManager
      */
     public ArbilWindowManager getWindowManager() {
 	return windowManager;
@@ -96,7 +99,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     /**
      * Should not be called before injectHandlers()!!
      *
-     * @return the treeHelper
+     * @return the dataNodeLoader
      */
     public ArbilDataNodeLoader getDataNodeLoader() {
 	return dataNodeLoader;

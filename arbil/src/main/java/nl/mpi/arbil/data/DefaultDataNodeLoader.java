@@ -3,6 +3,7 @@ package nl.mpi.arbil.data;
 import java.net.URI;
 import java.util.Hashtable;
 import java.util.Vector;
+import nl.mpi.arbil.data.service.DataNodeServiceLocator;
 
 /**
  * Document : ArbilDataNodeLoader formerly known as ImdiLoader
@@ -15,11 +16,11 @@ public abstract class DefaultDataNodeLoader implements DataNodeLoader {
 
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
-    private DataNodeLoaderThreadManager threadManager;
+    private final DataNodeLoaderThreadManager threadManager;
 
     public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager) {
 	System.out.println("ArbilDataNodeLoader init");
-	threadManager = loaderThreadManager;
+	this.threadManager = loaderThreadManager;
     }
 
 //    public ImdiTreeObject isImdiObjectLoaded(String localUrlString) {
@@ -183,10 +184,10 @@ public abstract class DefaultDataNodeLoader implements DataNodeLoader {
     }
 
     public ArbilDataNode createNewDataNode(URI uri) {
-	return new ArbilDataNode(getDataNodeServiceForUri(uri), uri);
+	return new ArbilDataNode(getServiceLocator().getDataNodeServiceForUri(uri), uri);
     }
 
-    protected abstract ArbilDataNodeService getDataNodeServiceForUri(URI uri);
+    protected abstract DataNodeServiceLocator getServiceLocator();
 
     /**
      * @return the threadManager

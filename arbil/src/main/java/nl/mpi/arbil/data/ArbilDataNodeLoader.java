@@ -1,6 +1,7 @@
 package nl.mpi.arbil.data;
 
 import java.net.URI;
+import nl.mpi.arbil.data.service.DataNodeServiceLocator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -15,7 +16,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilDataNodeLoader extends DefaultDataNodeLoader {
+public class ArbilDataNodeLoader extends DefaultDataNodeLoader implements DataNodeServiceLocator {
 
     private final ArbilDataNodeService imdiDataNodeService;
     private final ArbilDataNodeService cmdiDataNodeService;
@@ -27,12 +28,16 @@ public class ArbilDataNodeLoader extends DefaultDataNodeLoader {
 	setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", getThreadManager().isSchemaCheckLocalFiles()));
     }
 
-    @Override
-    protected ArbilDataNodeService getDataNodeServiceForUri(URI uri) {
+    public ArbilDataNodeService getDataNodeServiceForUri(URI uri) {
 	if (ArbilDataNode.isPathCmdi(uri.getPath())) {
 	    return cmdiDataNodeService;
 	} else {
 	    return imdiDataNodeService;
 	}
+    }
+
+    @Override
+    protected DataNodeServiceLocator getServiceLocator() {
+	return this;
     }
 }

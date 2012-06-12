@@ -17,7 +17,7 @@ import nl.mpi.arbil.data.FieldChangeTriggers;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
-import nl.mpi.arbil.data.metadatafile.ImdiUtils;
+import nl.mpi.arbil.data.service.DataNodeServiceLocator;
 import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -100,7 +100,6 @@ public abstract class ArbilInjector {
 	ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);
 	CmdiTemplate.setMessageDialogHandler(messageDialogHandler);
 	FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
-	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
 	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
     }
 
@@ -122,5 +121,9 @@ public abstract class ArbilInjector {
 	XsdChecker.setSessionStorage(sessionStorage);
 	ApplicationVersionManager.setSessionStorage(sessionStorage);
 	ArbilTemplateManager.setSessionStorage(sessionStorage);
+    }
+    
+    public void injectDataNodeServiceLocator(DataNodeServiceLocator serviceLocator){
+	ArbilFavourites.setServiceLocator(serviceLocator);
     }
 }

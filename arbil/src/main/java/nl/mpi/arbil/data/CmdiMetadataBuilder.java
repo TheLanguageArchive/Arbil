@@ -136,14 +136,14 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 	    } else {
 		addedNodeUri = sessionStorage.getNewArbilFileName(sessionStorage.getSaveLocation(""), addableNode.getURI().getPath());
 	    }
-	    ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
+	    addableNode.getDataNodeService().copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
 	    ArbilDataNode addedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 	    if (destinationNode == null) {
 		// Destination node null means add to tree root
 		treeHelper.addLocation(addedNodeUri);
 		treeHelper.applyRootLocations();
 	    } else {
-		destinationNode.getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
+		destinationNode.getDataNodeService().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
 	    }
 	    dataNodeService.loadArbilDom(addedNode);
 	    addedNode.scrollToRequested = true;

@@ -17,7 +17,6 @@ import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -168,7 +167,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 		JOptionPane.PLAIN_MESSAGE)) {
 	    String originalMime = currentArbilNode.mpiMimeType;
 	    currentArbilNode.mpiMimeType = null;
-	    if (new ImdiUtils().overrideTypecheckerDecision(new ArbilDataNode[]{currentArbilNode})) {
+	    if (dataNodeService.overrideTypecheckerDecision(new ArbilDataNode[]{currentArbilNode})) {
 		// Try again
 		return getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
 	    } else {
@@ -187,7 +186,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 	    } else {
 		addedNodeUri = sessionStorage.getNewArbilFileName(sessionStorage.getSaveLocation(""), addableNode.getURI().getPath());
 	    }
-	    ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
+	    addableNode.getDataNodeService().copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
 	    ArbilDataNode addedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 	    arbilComponentBuilder.removeArchiveHandles(addedNode);
 	    if (destinationNode == null) {
@@ -195,7 +194,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 		treeHelper.addLocation(addedNodeUri);
 		treeHelper.applyRootLocations();
 	    } else {
-		destinationNode.getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
+		destinationNode.getDataNodeService().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
 	    }
 	    dataNodeService.loadArbilDom(addedNode);
 	    addedNode.scrollToRequested = true;
@@ -259,7 +258,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 		    URI targetFileURI = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
 		    addedNodePath = addFromTemplate(new File(targetFileURI), nodeType);
 		    if (destinationNode.getFile().exists()) {
-			destinationNode.getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
+			destinationNode.getDataNodeService().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
 			dataNodeService.loadArbilDom(destinationNode.getParentDomNode());
 		    } else {
 			treeHelper.addLocation(addedNodePath);

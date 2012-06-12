@@ -13,14 +13,16 @@ import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.service.DataNodeServiceLocator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
- * Document   : ArbilFavourites
+ * Document : ArbilFavourites
  * Created on : Mar 3, 2009, 11:19:14 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFavourites {
@@ -39,6 +41,11 @@ public class ArbilFavourites {
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
+    }
+    private static DataNodeServiceLocator serviceLocator;
+
+    public static void setServiceLocator(DataNodeServiceLocator serviceLocatorInstance) {
+	serviceLocator = serviceLocatorInstance;
     }
     //    private Hashtable<String, ImdiTreeObject> userFavourites;
     static private ArbilFavourites singleInstance = null;
@@ -111,7 +118,7 @@ public class ArbilFavourites {
 	    URI baseUri = new URI(imdiUri.toString().split("#")[0]);
 	    String fileSuffix = imdiUri.getPath().substring(imdiUri.getPath().lastIndexOf("."));
 	    File destinationFile = File.createTempFile("fav-", fileSuffix, sessionStorage.getFavouritesDir());
-	    ArbilDataNode.getMetadataUtils(baseUri.toString()).copyMetadataFile(baseUri, destinationFile, makeLinksAbsolute(imdiUri), true);
+	    serviceLocator.getDataNodeServiceForUri(baseUri).copyMetadataFile(baseUri, destinationFile, makeLinksAbsolute(imdiUri), true);
 
 	    URI copiedFileURI = destinationFile.toURI();
 	    // creating a uri with separate parameters could cause the url to be reencoded
@@ -139,7 +146,8 @@ public class ArbilFavourites {
 
     /**
      * Creates update array for CMDI resource links that need to be made absolute before being put into favorites
-     * @param imdiUri 
+     *
+     * @param imdiUri
      * @return update array for resource links with items for links that currently are not absolute. For IMDI will return null.
      */
     private URI[][] makeLinksAbsolute(URI imdiUri) {

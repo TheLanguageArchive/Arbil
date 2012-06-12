@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.metadatafile.ImdiUtils;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -146,7 +146,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		bumpHistory(dataNode);
 		copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
 		synchronized (dataNode.getParentDomLockObject()) {
-		    return dataNode.getMetadataUtils().addCorpusLink(dataNode.getURI(), new URI[]{targetNode.getURI()});
+		    return addCorpusLink(dataNode.getURI(), new URI[]{targetNode.getURI()});
 		}
 	    } catch (IOException ex) {
 		// Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
@@ -175,7 +175,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getURI();
 		    //                }
 		}
-		dataNode.getMetadataUtils().removeCorpusLink(dataNode.getURI(), copusUriList);
+		removeCorpusLink(dataNode.getURI(), copusUriList);
 		loadArbilDom(dataNode.getParentDomNode());
 	    }
 	    //        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
@@ -234,8 +234,8 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     }
 
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
-	String targetImdiPath = ImdiUtils.getNodePath((ArbilDataNode) targetDataNode);
-	String childPath = ImdiUtils.getNodePath((ArbilDataNode) childDataNode);
+	String targetImdiPath = getNodePath((ArbilDataNode) targetDataNode);
+	String childPath = getNodePath((ArbilDataNode) childDataNode);
 	targetImdiPath = targetImdiPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
 	childPath = childPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
 	//        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
@@ -346,5 +346,50 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     @Override
     public List<ArbilVocabularyItem> getLanguageItems() {
 	return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
+    }
+
+    public boolean addCorpusLink(URI nodeURI, URI[] linkURI) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
+	// TODO: Use metadata API
+	return false;
+    }
+
+    /**
+     * Returns all ResourceLinks in the specified file that are CMDI metadata instances
+     *
+     * @param nodeURI
+     * @return
+     */
+    public URI[] getCorpusLinks(URI nodeURI) {
+	ArrayList<URI> returnUriList = new ArrayList<URI>();
+	// Get resource links in file
+	CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
+	ArrayList<CmdiComponentLinkReader.CmdiResourceLink> links = cmdiComponentLinkReader.readLinks(nodeURI);
+	if (links != null) {
+	    // Traverse links
+	    for (CmdiComponentLinkReader.CmdiResourceLink link : links) {
+		try {
+		    URI linkUri = link.getLinkUri();
+		    if (linkUri != null && ArbilDataNode.isPathCmdi(linkUri.toString())) {
+			// Link is CMDI metadata, include in result
+			if (!linkUri.isAbsolute()) {
+			    // Resolve to absolute path
+			    linkUri = nodeURI.resolve(linkUri);
+			}
+			returnUriList.add(linkUri);
+		    }
+		} catch (URISyntaxException ex) {
+		    BugCatcherManager.getBugCatcher().logError("Invalid link URI found in " + nodeURI.toString(), ex);
+		}
+	    }
+	}
+	return returnUriList.toArray(new URI[]{});
+    }
+
+    public boolean removeCorpusLink(URI nodeURI, URI[] linkURI) {
+	throw new UnsupportedOperationException("Not supported.");
     }
 }

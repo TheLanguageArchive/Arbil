@@ -1,6 +1,7 @@
 package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.data.service.DataNodeServiceLocator;
 import nl.mpi.arbil.search.ArbilRemoteSearch;
 import nl.mpi.arbil.ui.ArbilDragDrop;
 import nl.mpi.arbil.ui.ArbilFieldViewTableModel;
@@ -113,6 +114,11 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilMenuBar.setDataNodeLoader(dataNodeLoader);
 	TreeContextMenu.setDataNodeLoader(dataNodeLoader);
     }
-    
-    
+
+    @Override
+    public void injectDataNodeServiceLocator(DataNodeServiceLocator serviceLocator) {
+	super.injectDataNodeServiceLocator(serviceLocator);
+	ImportExportDialog.setServiceLocator(serviceLocator);
+    }
+
 }

@@ -40,12 +40,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
-import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
+import nl.mpi.arbil.data.service.DataNodeServiceLocator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -53,12 +54,13 @@ import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
- * Document   : ImportExportDialog
- * Created on : 
+ * Document : ImportExportDialog
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ImportExportDialog {
-
+    
     private JDialog searchDialog;
     private JPanel searchPanel;
     private JPanel inputNodePanel;
@@ -109,36 +111,41 @@ public class ImportExportDialog {
     Vector<URI> metaDataCopyErrors = new Vector<URI>();
     Vector<URI> fileCopyErrors = new Vector<URI>();
     private static TreeHelper treeHelper;
-
+    
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
     }
     private static DataNodeLoader dataNodeLoader;
-
+    
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
     private static SessionStorage sessionStorage;
-
+    
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
     private static WindowManager windowManager;
-
+    
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
     }
     private static MessageDialogHandler dialogHandler;
-
+    
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
 	dialogHandler = dialogHandlerInstance;
     }
-
+    private static DataNodeServiceLocator serviceLocator;
+    
+    public static void setServiceLocator(DataNodeServiceLocator serviceLocatorInstance) {
+	serviceLocator = serviceLocatorInstance;
+    }
+    
     private void setNodesPanel(ArbilDataNode selectedNode, JPanel nodePanel) {
 	JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
 	nodePanel.add(currentLabel);
     }
-
+    
     private void setNodesPanel(Vector selectedNodes, JPanel nodePanel) {
 //            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
 //        nodePanel.setLayout(new java.awt.GridLayout());
@@ -149,21 +156,21 @@ public class ImportExportDialog {
 	    nodePanel.add(currentLabel);
 	}
     }
-
+    
     private void setLocalCacheToNodesPanel(JPanel nodePanel) {
 	DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot();
 	ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
 	JLabel currentLabel = new JLabel(rootArbilNode.toString(), rootArbilNode.getIcon(), JLabel.CENTER);
 	nodePanel.add(currentLabel);
     }
-
+    
     private void setLocalFileToNodesPanel(JPanel nodePanel, File destinationDirectory) {
 	DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeHelper.getLocalDirectoryTreeModel().getRoot();
 	ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
 	JLabel currentLabel = new JLabel(destinationDirectory.getPath(), rootArbilNode.getIcon(), JLabel.CENTER);
 	nodePanel.add(currentLabel);
     }
-
+    
     public void importArbilBranch() {
 	File[] selectedFiles = dialogHandler.showFileSelectBox("Import", false, true, true);
 	if (selectedFiles != null) {
@@ -175,7 +182,7 @@ public class ImportExportDialog {
 	    copyToCache(importNodeVector);
 	}
     }
-
+    
     public void selectExportDirectoryAndExport(ArbilDataNode[] localCorpusSelectedNodes) {
 	// make sure the chosen directory is empty
 	// export the tree, maybe adjusting resource links so that resource files do not need to be copied
@@ -185,7 +192,7 @@ public class ImportExportDialog {
 	    exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
 	}
     }
-
+    
     private void exportFromCache(Vector localSelectedNodes, File destinationDirectory) {
 	selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
@@ -200,7 +207,7 @@ public class ImportExportDialog {
 	exportDestinationDirectory = destinationDirectory;
 	searchDialog.setVisible(true);
     }
-
+    
     public void copyToCache(ArbilDataNode[] localSelectedNodes) {
 	copyToCache(new Vector(Arrays.asList(localSelectedNodes)));
     }
@@ -210,7 +217,7 @@ public class ImportExportDialog {
 	destinationNode = localDestinationNode;
 	setNodesPanel(destinationNode, outputNodePanel);
     }
-
+    
     public void copyToCache(Vector localSelectedNodes) {
 	selectedNodes = localSelectedNodes;
 	searchDialog.setTitle("Import Branch");
@@ -224,7 +231,7 @@ public class ImportExportDialog {
 	}
 	searchDialog.setVisible(true);
     }
-
+    
     private boolean selectedNodesContainDataNode() {
 	Enumeration selectedNodesEnum = selectedNodes.elements();
 	while (selectedNodesEnum.hasMoreElements()) {
@@ -234,7 +241,7 @@ public class ImportExportDialog {
 	}
 	return false;
     }
-
+    
     private void showDetails(boolean showFlag) {
 	// showFlag is false the first time this is called when the dialog is initialised so we need to make sure that pack gets called in this case
 	// otherwise try to prevent chenging the window size when not required
@@ -268,7 +275,7 @@ public class ImportExportDialog {
 	dialogHandler.offerUserToSaveChanges();
 	searchDialog = new JDialog(JOptionPane.getFrameForComponent(windowManager.getMainFrame()), true);
 	searchDialog.addWindowStateListener(new WindowAdapter() {
-
+	    
 	    @Override
 	    public void windowStateChanged(WindowEvent e) {
 		if ((e.getNewState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
@@ -281,7 +288,7 @@ public class ImportExportDialog {
 	});
 	//searchDialog.setUndecorated(true);
 	searchDialog.addWindowListener(new WindowAdapter() {
-
+	    
 	    public void windowClosing(WindowEvent e) {
 		stopSearch = true;
 		downloadAbortFlag.abortDownload = true;
@@ -300,10 +307,10 @@ public class ImportExportDialog {
 	//searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.PAGE_AXIS));
 	searchDialog.getContentPane().setLayout(new BorderLayout());
 	searchDialog.add(searchPanel, BorderLayout.CENTER);
-
+	
 	JPanel inOutNodePanel = new JPanel();
 	inOutNodePanel.setLayout(new BoxLayout(inOutNodePanel, BoxLayout.PAGE_AXIS));
-
+	
 	JPanel inputNodeLabelPanel = new JPanel();
 	inputNodeLabelPanel.setLayout(new BorderLayout());
 	inputNodePanel = new JPanel();
@@ -311,7 +318,7 @@ public class ImportExportDialog {
 	inputNodeLabelPanel.add(new JLabel("From: "), BorderLayout.LINE_START);
 	inputNodeLabelPanel.add(inputNodePanel, BorderLayout.CENTER);
 	inOutNodePanel.add(inputNodeLabelPanel);
-
+	
 	JPanel outputNodeLabelPanel = new JPanel();
 	outputNodeLabelPanel.setLayout(new BorderLayout());
 	outputNodePanel = new JPanel();
@@ -319,10 +326,10 @@ public class ImportExportDialog {
 	outputNodeLabelPanel.add(new JLabel("To: "), BorderLayout.LINE_START);
 	outputNodeLabelPanel.add(outputNodePanel, BorderLayout.CENTER);
 	inOutNodePanel.add(outputNodeLabelPanel);
-
+	
 	detailsCheckBox = new JCheckBox("Show Details and Options", false);
 	detailsCheckBox.addActionListener(new ActionListener() {
-
+	    
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    showDetails(detailsCheckBox.isSelected());
@@ -336,12 +343,12 @@ public class ImportExportDialog {
 	detailsCheckBoxPanel.setLayout(new java.awt.GridLayout());
 	detailsCheckBoxPanel.add(detailsCheckBox);
 	inOutNodePanel.add(detailsCheckBoxPanel);
-
+	
 	searchPanel.add(inOutNodePanel, BorderLayout.NORTH);
-
+	
 	detailsPanel = new JPanel();
 	detailsPanel.setLayout(new BorderLayout());
-
+	
 	copyFilesCheckBox = new JCheckBox("Copy Resource Files (if available)", false);
 	renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true);
 	renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", true);
@@ -351,13 +358,13 @@ public class ImportExportDialog {
 	// NOTE TG 11/4/2011: In ticket #679 it was decided to disable shibboleth authentication until the entire chain is functional.
 	// This requires some work on the server.
 	shibbolethCheckBox.setEnabled(false);
-
+	
 	shibbolethPanel = new JPanel();
 	shibbolethCheckBox.setVisible(false);
 	shibbolethPanel.setVisible(false);
-
+	
 	shibbolethCheckBox.addActionListener(new ActionListener() {
-
+	    
 	    public void actionPerformed(ActionEvent e) {
 		if (shibbolethCheckBox.isSelected()) {
 		    if (shibbolethNegotiator == null) {
@@ -372,7 +379,7 @@ public class ImportExportDialog {
 	    }
 	});
 	copyFilesCheckBox.addActionListener(new ActionListener() {
-
+	    
 	    public void actionPerformed(ActionEvent e) {
 		shibbolethCheckBox.setVisible(copyFilesCheckBox.isSelected());
 		shibbolethPanel.setVisible(copyFilesCheckBox.isSelected());
@@ -390,13 +397,13 @@ public class ImportExportDialog {
 	detailsTopPanel.setLayout(new BoxLayout(detailsTopPanel, BoxLayout.PAGE_AXIS));
 	JPanel detailsTopCheckBoxPanel = new JPanel();
 	detailsTopCheckBoxPanel.setLayout(new BoxLayout(detailsTopCheckBoxPanel, BoxLayout.PAGE_AXIS));
-
+	
 	detailsTopCheckBoxPanel.add(renameFileToNodeName);
 	detailsTopCheckBoxPanel.add(renameFileToLamusFriendlyName);
 	detailsTopCheckBoxPanel.add(overwriteCheckBox);
 	detailsTopCheckBoxPanel.add(copyFilesCheckBox);
 	detailsTopCheckBoxPanel.add(shibbolethCheckBox);
-
+	
 	JPanel paddingPanel = new JPanel();
 	paddingPanel.setLayout(new BoxLayout(paddingPanel, BoxLayout.LINE_AXIS));
 	JPanel leftPadding = new JPanel();
@@ -407,29 +414,29 @@ public class ImportExportDialog {
 	detailsTopPanel.add(paddingPanel);
 	detailsTopPanel.add(shibbolethPanel);
 	detailsPanel.add(detailsTopPanel, BorderLayout.NORTH);
-
+	
 	detailsTabPane = new JTabbedPane();
-
+	
 	taskOutput = new JTextArea(5, 20);
 	taskOutput.setMargin(new Insets(5, 5, 5, 5));
 	taskOutput.setEditable(false);
 	detailsTabPane.add("Process Details", new JScrollPane(taskOutput));
-
+	
 	xmlOutput = new JTextArea(5, 20);
 	xmlOutput.setMargin(new Insets(5, 5, 5, 5));
 	xmlOutput.setEditable(false);
 	detailsTabPane.add("Validation Errors", new JScrollPane(xmlOutput));
-
+	
 	resourceCopyOutput = new JTextArea(5, 20);
 	resourceCopyOutput.setMargin(new Insets(5, 5, 5, 5));
 	resourceCopyOutput.setEditable(false);
 	detailsTabPane.add("Resource Copy Errors", new JScrollPane(resourceCopyOutput));
-
+	
 	detailsPanel.add(detailsTabPane, BorderLayout.CENTER);
-
+	
 	bottomPanel = new JPanel();
 	bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.PAGE_AXIS));
-
+	
 	progressFoundLabel = new JLabel(progressFoundLabelText);
 	progressProcessedLabel = new JLabel(progressProcessedLabelText);
 	progressAlreadyInCacheLabel = new JLabel(progressAlreadyInCacheLabelText);
@@ -438,12 +445,12 @@ public class ImportExportDialog {
 	resourceCopyErrorsLabel = new JLabel(resourceCopyErrorsLabelText);
 	showInTableButton = new JButton("Show errors in table");
 	diskSpaceLabel = new JLabel(diskFreeLabelText);
-
+	
 	progressAlreadyInCacheLabel.setForeground(Color.darkGray);
 	progressFailedLabel.setForeground(Color.red);
 	progressXmlErrorsLabel.setForeground(Color.red);
 	resourceCopyErrorsLabel.setForeground(Color.red);
-
+	
 	bottomPanel.add(new SaveCurrentSettingsPanel(this, null));
 	bottomPanel.add(progressFoundLabel);
 	bottomPanel.add(progressProcessedLabel);
@@ -453,7 +460,7 @@ public class ImportExportDialog {
 	bottomPanel.add(resourceCopyErrorsLabel);
 	bottomPanel.add(showInTableButton);
 	bottomPanel.add(diskSpaceLabel);
-
+	
 	resourceProgressLabel = new JLabel(" ");
 	bottomPanel.add(resourceProgressLabel);
 
@@ -462,16 +469,16 @@ public class ImportExportDialog {
 //        bottomPanel.add(bottomInnerPanel);
 //        detailsPanel.add(bottomPanel, BorderLayout.SOUTH);
 	detailsPanel.add(bottomPanel, BorderLayout.SOUTH);
-
+	
 	searchPanel.add(detailsPanel, BorderLayout.CENTER);
-
+	
 	JPanel buttonsPanel = new JPanel(new FlowLayout());
-
+	
 	stopButton = new JButton("Stop");
 	startButton = new JButton("Start");
 	stopButton.setEnabled(false);
 	buttonsPanel.add(stopButton);
-
+	
 	progressBar = new JProgressBar(0, 100);
 	progressBar.setValue(0);
 	progressBar.setStringPainted(true);
@@ -485,14 +492,14 @@ public class ImportExportDialog {
 //        buttonsPanel.add(resourceProgressBar);
 
 	buttonsPanel.add(startButton);
-
+	
 	searchPanel.add(buttonsPanel, BorderLayout.SOUTH);
-
+	
 	searchDialog.setLocationRelativeTo(targetComponent);
-
+	
 	showInTableButton.setEnabled(false);
 	showInTableButton.addActionListener(new ActionListener() {
-
+	    
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    if (metaDataCopyErrors.size() > 0) {
@@ -512,9 +519,9 @@ public class ImportExportDialog {
 		}
 	    }
 	});
-
+	
 	startButton.addActionListener(new ActionListener() {
-
+	    
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    performCopy();
@@ -524,7 +531,7 @@ public class ImportExportDialog {
 	    }
 	});
 	stopButton.addActionListener(new ActionListener() {
-
+	    
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    stopSearch = true;
@@ -536,7 +543,7 @@ public class ImportExportDialog {
 		}
 	    }
 	});
-
+	
 	taskOutput.append("The details of the import / export process will be displayed here.\n");
 	xmlOutput.append("When the metadata files are imported or exported they will be validated (for XML schema conformance) and any errors will be reported here.\n");
 	resourceCopyOutput.append("If copying of resource files is selected, any file copy errors will be reported here.\n");
@@ -545,12 +552,12 @@ public class ImportExportDialog {
 	showDetails(detailsCheckBox.isSelected()); // showDetails no longer calls pack()
 	searchDialog.pack();
     }
-
+    
     private void appendToTaskOutput(String lineOfText) {
 	taskOutput.append(lineOfText + "\n");
 	taskOutput.setCaretPosition(taskOutput.getText().length());
     }
-
+    
     private void setUItoRunningState() {
 	stopButton.setEnabled(true);
 	startButton.setEnabled(false);
@@ -560,7 +567,7 @@ public class ImportExportDialog {
 	taskOutput.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	searchDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
-
+    
     private void setUItoStoppedState() {
 	Toolkit.getDefaultToolkit().beep();
 	taskOutput.setCursor(null);
@@ -645,10 +652,10 @@ public class ImportExportDialog {
 //        searchPanel.setVisible(false);
 	createPerformCopyThread("performCopy").start();
     }
-
+    
     private Thread createPerformCopyThread(String threadName) {
 	return new Thread(threadName) {
-
+	    
 	    int freeGbWarningPoint = 3;
 	    int xsdErrors = 0;
 	    int totalLoaded = 0;
@@ -658,13 +665,13 @@ public class ImportExportDialog {
 	    String finalMessageString = "";
 	    File directoryForSizeTest;
 	    boolean testFreeSpace;
-
+	    
 	    @Override
 	    public void run() {
 		String javaVersionString = System.getProperty("java.version");
 		// TG: Apparently test not required for version >= 1.5 (2011/2/3)
 		testFreeSpace = !(javaVersionString.startsWith("1.4.") || javaVersionString.startsWith("1.5."));
-
+		
 		directoryForSizeTest = exportDestinationDirectory != null
 			? exportDestinationDirectory
 			: sessionStorage.getCacheDirectory();
@@ -676,7 +683,7 @@ public class ImportExportDialog {
 		} else {
 		    resourceCopyOutput.append("'Copy Resource Files' is not selected: No resource files will be downloaded, however they will be still accessible via the web server." + "\n");
 		}
-
+		
 		try {
 		    // Copy the selected nodes
 		    copyElements(selectedNodes.elements());
@@ -703,7 +710,7 @@ public class ImportExportDialog {
 		    windowManager.openFileInExternalApplication(exportDestinationDirectory.toURI());
 		}
 	    }
-
+	    
 	    private void copyElements(Enumeration selectedNodesEnum) {
 		XsdChecker xsdChecker = new XsdChecker();
 		waitTillVisible();
@@ -755,7 +762,7 @@ public class ImportExportDialog {
 		    selectedNodes.removeAllElements();
 		}
 	    }
-
+	    
 	    private void copyElement(Object currentElement, ArrayList<URI> getList, Hashtable<URI, RetrievableFile> seenFiles, ArrayList<URI> doneList, XsdChecker xsdChecker, ArrayList<ArbilDataNode> finishedTopNodes) {
 		URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
 		getList.add(currentGettableUri);
@@ -771,7 +778,7 @@ public class ImportExportDialog {
 		    finishedTopNodes.add(dataNodeLoader.getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
 		}
 	    }
-
+	    
 	    private void copyFile(RetrievableFile currentRetrievableFile, Hashtable<URI, RetrievableFile> seenFiles, ArrayList<URI> doneList, ArrayList<URI> getList, XsdChecker xsdChecker) {
 		try {
 		    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
@@ -787,12 +794,9 @@ public class ImportExportDialog {
 			    }
 			    journalActionString = "export";
 			}
-			MetadataUtils currentMetdataUtil = ArbilDataNode.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
-			if (currentMetdataUtil == null) {
-			    throw new ArbilMetadataException("Metadata format could not be determined");
-			}
+			final ArbilDataNodeService dataNodeService = serviceLocator.getDataNodeServiceForUri(currentRetrievableFile.sourceURI); // Get using uri
 			ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
-			URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
+			URI[] linksUriArray = dataNodeService.getCorpusLinks(currentRetrievableFile.sourceURI);
 			if (linksUriArray != null) {
 			    copyLinks(linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
 			}
@@ -820,7 +824,7 @@ public class ImportExportDialog {
 				    BugCatcherManager.getBugCatcher().logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
 				}
 			    }
-			    currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
+			    dataNodeService.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
 			    ArbilJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
 			    String checkerResult;
 			    checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile);
@@ -867,7 +871,7 @@ public class ImportExportDialog {
 		    testFreeSpace();
 		}
 	    }
-
+	    
 	    private void copyLinks(URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
 		for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
 		    System.out.println("Link: " + linksUriArray[linkCount].toString());
@@ -922,7 +926,7 @@ public class ImportExportDialog {
 		    }
 		}
 	    }
-
+	    
 	    private void testFreeSpace() {
 		try {
 		    int freeGBytes = (int) (directoryForSizeTest.getFreeSpace() / 1073741824);
@@ -948,18 +952,18 @@ public class ImportExportDialog {
 ///////////////////////////////////////////
 
     private class RetrievableFile {
-
+	
 	public RetrievableFile(URI sourceURILocal, File destinationDirectoryLocal) {
 	    sourceURI = sourceURILocal;
 	    destinationDirectory = destinationDirectoryLocal;
 	}
-
+	
 	private String makeFileNameLamusFriendly(String fileNameString) {
 	    String friendlyFileName = fileNameString.replaceAll("[^A-Za-z0-9-]", "_");
 	    friendlyFileName = friendlyFileName.replaceAll("__+", "_");
 	    return friendlyFileName;
 	}
-
+	
 	public void calculateUriFileName() {
 	    if (destinationDirectory != null) {
 		destinationFile = sessionStorage.getExportPath(sourceURI.toString(), destinationDirectory.getPath());
@@ -968,7 +972,7 @@ public class ImportExportDialog {
 	    }
 	    childDestinationDirectory = destinationDirectory;
 	}
-
+	
 	public void calculateTreeFileName(boolean lamusFriendly) {
 	    final int suffixSeparator = sourceURI.toString().lastIndexOf(".");
 	    if (suffixSeparator > 0) {

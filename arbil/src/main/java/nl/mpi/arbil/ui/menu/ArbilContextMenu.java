@@ -14,14 +14,13 @@ import javax.swing.JSeparator;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
-import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Abstract base class for context menus
- * 
+ *
  * @author Twan Goosen
  */
 public abstract class ArbilContextMenu extends JPopupMenu {
@@ -129,7 +128,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    new ImdiUtils().overrideTypecheckerDecision(selectedTreeNodes);
+		    leadSelectedTreeNode.getDataNodeService().overrideTypecheckerDecision(selectedTreeNodes);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}

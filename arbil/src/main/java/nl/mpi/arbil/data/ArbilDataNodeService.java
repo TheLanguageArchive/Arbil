@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+import javax.swing.JOptionPane;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -67,6 +69,14 @@ public abstract class ArbilDataNodeService {
     public abstract String getNodeNameFromFields(ArbilDataNode dataNode);
 
     public abstract List<ArbilVocabularyItem> getLanguageItems();
+
+    public abstract boolean addCorpusLink(URI nodeURI, URI linkURI[]);
+
+    public abstract boolean removeCorpusLink(URI nodeURI, URI linkURI[]);
+
+    public abstract boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws ArbilMetadataException;
+
+    public abstract URI[] getCorpusLinks(URI nodeURI) throws ArbilMetadataException;
 
     public ArbilDataNode loadArbilDataNode(Object registeringObject, URI localUri) {
 	return dataNodeLoader.getArbilDataNode(registeringObject, localUri);
@@ -498,6 +508,55 @@ public abstract class ArbilDataNodeService {
 	    return false;
 	}
 	return sessionStorage.pathIsInFavourites(dataNode.getFile());
+    }
+
+    /**
+     * Lets the user override type checker decision about mimetype and archivability
+     * TODO: Find a better place for this method (it's not related to a specific data node of any type)
+     *
+     * @param selectedNodes
+     * @return Whether action was carried out (not canceled)
+     */
+    public boolean overrideTypecheckerDecision(ArbilDataNode[] selectedNodes) {
+	String titleString = "Override Type Checker Decision";
+	String messageString = "The type checker does not recognise the selected file(s), which means that they\nare not an archivable type. This action will override that decision and allow you\nto add the file(s) to a session, as either media or written resources,\nhowever it might not be possible to import the result to the corpus server.";
+	String[] optionStrings = {"WrittenResource", "MediaFile", "Cancel"};
+	int userSelection = messageDialogHandler.showDialogBox(messageString, titleString, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, optionStrings, optionStrings[2]);
+	if (optionStrings[userSelection].equals("WrittenResource") || optionStrings[userSelection].equals("MediaFile")) {
+	    for (ArbilDataNode currentNode : selectedNodes) {
+		if (currentNode.mpiMimeType == null) {
+		    currentNode.mpiMimeType = "Manual/" + optionStrings[userSelection];
+		    currentNode.typeCheckerMessage = "Manually overridden (might not be compatible with the archive)";
+		    currentNode.clearIcon();
+		}
+	    }
+	    return true;
+	}
+	return false;
+    }
+
+    public final String getNodePath(ArbilDataNode targetDataNode) {
+	//TODO: this should probably be moved into the imditreeobject
+	String xpath;
+	if (targetDataNode.isSession()) {
+	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session";
+	} else if (targetDataNode.isCatalogue()) {
+	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Catalogue";
+	} else {
+	    xpath = ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Corpus";
+	}
+	Object[] nodePathArray = ((ArbilDataNode) targetDataNode).getUrlString().split("#");
+	//        System.out.println("nodePath0: " + nodePathArray[0]);
+	if (nodePathArray.length > 1) {
+	    String nodePath = nodePathArray[1].toString();
+	    xpath = nodePath;
+	    //            System.out.println("nodePath1: " + nodePath);
+	    // convert the dot path to xpath
+	    //            xpath = nodePath.replaceAll("(\\(.?\\))?\\.", ".");
+	    //                xpath = nodePath.replaceAll("(\\(.?\\))?", "/");
+	    //            System.out.println("xpath: " + xpath);
+	}
+	return xpath;
     }
 
     protected abstract Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings);
