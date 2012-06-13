@@ -153,14 +153,19 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 		BugCatcherManager.getBugCatcher().logError(new Exception("Attempt to add child node to local corpus root"));
 		return;
 	    }
-	    //TODO: Use metadata API(?)
-	    addedNodeUri = new ArbilComponentBuilder().insertFavouriteComponent(destinationNode, addableNode);
+	    addedNodeUri = insertFavouriteComponent(destinationNode, addableNode);
 	}
 	if (destinationNode != null) {
 	    dataNodeService.loadArbilDom(destinationNode.getParentDomNode());
 	}
 	String newTableTitleString = "new " + addableNode + (destinationNode == null ? "" : (" in " + destinationNode));
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
+    }
+
+    @Override
+    public URI insertFavouriteComponent(ArbilDataNode destinationArbilDataNode, ArbilDataNode favouriteArbilDataNode) throws ArbilMetadataException {
+	//TODO: Use metadata API(?)
+	throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**

@@ -20,7 +20,6 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilRootNode;
@@ -670,7 +669,7 @@ public class ArbilDragDrop {
 		    } else {
 			if (currentNode.isCmdiMetaDataNode() && currentNode.isChildNode()) {
 			    try {
-				addNodeResult = null != new ArbilComponentBuilder().insertFavouriteComponent(dropTargetDataNode, currentNode);
+				addNodeResult = null != dropTargetDataNode.getDataNodeService().getMetadataBuilder().insertFavouriteComponent(dropTargetDataNode, currentNode);
 			    } catch (ArbilMetadataException ex) {
 				addNodeResult = false;
 			    }

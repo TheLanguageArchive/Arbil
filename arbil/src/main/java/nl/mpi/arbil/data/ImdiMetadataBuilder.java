@@ -204,7 +204,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 		BugCatcherManager.getBugCatcher().logError(new Exception("Attempt to add child node to local corpus root"));
 		return;
 	    }
-	    addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);
+	    addedNodeUri = insertFavouriteComponent(destinationNode, addableNode);
 	    arbilComponentBuilder.removeArchiveHandles(destinationNode);
 	}
 	if (destinationNode != null) {
@@ -212,6 +212,10 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
 	}
 	String newTableTitleString = "new " + addableNode + (destinationNode == null ? "" : (" in " + destinationNode));
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
+    }
+
+    public URI insertFavouriteComponent(ArbilDataNode destinationArbilDataNode, ArbilDataNode favouriteArbilDataNode) throws ArbilMetadataException {
+	return arbilComponentBuilder.insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode);
     }
 
     /**

@@ -58,4 +58,6 @@ public interface MetadataBuilder {
     void requestAddRootNode(final ArbilDataNode addableNode, final String nodeTypeDisplayNameLocal);
 
     boolean removeChildNodes(ArbilDataNode arbilDataNode, String nodePaths[]);
+
+    URI insertFavouriteComponent(ArbilDataNode destinationArbilDataNode, ArbilDataNode favouriteArbilDataNode) throws ArbilMetadataException;
 }
