@@ -8,7 +8,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -42,15 +41,13 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilComponentBuilder {
-    
-    public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
-    public static final String RESOURCE_ID_PREFIX = "res_";
+
     private static MessageDialogHandler messageDialogHandler;
-    
+
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
-    
+
     public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
 	DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 	documentBuilderFactory.setValidating(false);
@@ -112,14 +109,14 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(iOException);
 	}
     }
-    
+
     public boolean removeChildNodes(ArbilDataNode arbilDataNode, String nodePaths[]) {
 	if (arbilDataNode.getNeedsSaveToDisk(false)) {
 	    arbilDataNode.saveChangesToCache(true);
 	}
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    System.out.println("remove from parent nodes: " + arbilDataNode);
-	    File cmdiNodeFile = arbilDataNode.getFile();
+	    File nodeFile = arbilDataNode.getFile();
 	    try {
 		Document targetDocument = getDocument(arbilDataNode.getURI());
 		// collect up all the nodes to be deleted without changing the xpath
@@ -133,7 +130,7 @@ public class ArbilComponentBuilder {
 			System.out.println("documentNodeName: " + documentNode != null ? documentNode.getNodeName() : "<null>");
 			selectedNodes.add(documentNode);
 		    }
-		    
+
 		}
 		// delete all the nodes now that the xpath is no longer relevant
 		System.out.println(selectedNodes.size());
@@ -153,7 +150,7 @@ public class ArbilComponentBuilder {
 		// bump the history
 		arbilDataNode.bumpHistory();
 		// save the dom
-		savePrettyFormatting(targetDocument, cmdiNodeFile);
+		savePrettyFormatting(targetDocument, nodeFile);
 		for (String currentNodePath : nodePaths) {
 		    // todo log to jornal file
 		}
@@ -170,12 +167,12 @@ public class ArbilComponentBuilder {
 	    return false;
 	}
     }
-    
+
     public boolean setFieldValues(ArbilDataNode arbilDataNode, FieldUpdateRequest[] fieldUpdates) {
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
 	    System.out.println("setFieldValues: " + arbilDataNode);
-	    File cmdiNodeFile = arbilDataNode.getFile();
+	    File nodeFile = arbilDataNode.getFile();
 	    try {
 		Document targetDocument = getDocument(arbilDataNode.getURI());
 		for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
@@ -197,9 +194,9 @@ public class ArbilComponentBuilder {
 				for (Map.Entry<String, Object> attributeEntry : currentFieldUpdate.attributeValuesMap.entrySet()) {
 				    final String attrPath = attributeEntry.getKey();
 				    final Object attrValue = attributeEntry.getValue();
-				    
+
 				    final Attr attrNode = getAttributeNodeFromPath(element, attrPath);
-				    
+
 				    if (attrValue == null || "".equals(attrValue)) {
 					// Null or empty, remove if set
 					if (attrNode != null) {
@@ -217,37 +214,19 @@ public class ArbilComponentBuilder {
 				    }
 				}
 			    }
-			    
-			    if (!arbilDataNode.isCmdiMetaDataNode()) { // isImdiMetadataNode()
-				Node languageNode = attributesMap.getNamedItem("LanguageId");
-				if (languageNode == null) {
-				    languageNode = attributesMap.getNamedItem("xml:lang");
-				}
-				if (languageNode != null) {
-				    languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
-				}
-			    } else {
-				Node languageNode = attributesMap.getNamedItem("xml:lang");
-				if (languageNode == null) {
-				    if (currentFieldUpdate.fieldLanguageId != null) {
-					((Element) documentNode).setAttribute("xml:lang", currentFieldUpdate.fieldLanguageId);
-				    }
-				} else {
-				    if (currentFieldUpdate.fieldLanguageId == null) {
-					((Element) documentNode).removeAttribute("xml:lang");
-				    } else {
-					languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
-				    }
-				}
+
+			    Node languageNode = attributesMap.getNamedItem("LanguageId");
+			    if (languageNode == null) {
+				languageNode = attributesMap.getNamedItem("xml:lang");
 			    }
-			    
-			    
-			    if (!arbilDataNode.isCmdiMetaDataNode()) { // isImdiMetadataNode()
-				if (currentFieldUpdate.keyNameValue != null) {
-				    Node keyNameNode = attributesMap.getNamedItem("Name");
-				    if (keyNameNode != null) {
-					keyNameNode.setNodeValue(currentFieldUpdate.keyNameValue);
-				    }
+			    if (languageNode != null) {
+				languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
+			    }
+
+			    if (currentFieldUpdate.keyNameValue != null) {
+				Node keyNameNode = attributesMap.getNamedItem("Name");
+				if (keyNameNode != null) {
+				    keyNameNode.setNodeValue(currentFieldUpdate.keyNameValue);
 				}
 			    }
 			}
@@ -256,7 +235,7 @@ public class ArbilComponentBuilder {
 		// bump the history
 		arbilDataNode.bumpHistory();
 		// save the dom
-		savePrettyFormatting(targetDocument, cmdiNodeFile);
+		savePrettyFormatting(targetDocument, nodeFile);
 		for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
 		    // log to jornal file
 		    ArbilJournal.getSingleInstance().saveJournalEntry(arbilDataNode.getUrlString(), currentFieldUpdate.fieldPath, currentFieldUpdate.fieldOldValue, currentFieldUpdate.fieldNewValue, "save");
@@ -280,7 +259,7 @@ public class ArbilComponentBuilder {
 	    return false;
 	}
     }
-    
+
     public URI insertFavouriteComponent(ArbilDataNode destinationArbilDataNode, ArbilDataNode favouriteArbilDataNode) throws ArbilMetadataException {
 	URI returnUri = null;
 	// this node has already been saved in the metadatabuilder which called this
@@ -312,9 +291,9 @@ public class ArbilComponentBuilder {
 		    destinationXpath = favouriteXpathTrimmed.replaceFirst("\\.[^.]+$", "");
 		}
 		System.out.println("destinationXpath: " + destinationXpath);
-		
+
 		destinationXpath = alignDestinationPathWithTarget(destinationXpath, destinationArbilDataNode);
-		
+
 		Node destinationNode = selectSingleNode(destinationDocument, destinationXpath);
 		Node selectedNode = selectSingleNode(favouriteDocument, favouriteXpathTrimmed);
 		Node importedNode = destinationDocument.importNode(selectedNode, true);
@@ -405,7 +384,7 @@ public class ArbilComponentBuilder {
 	}
 	return destinationXpath;
     }
-    
+
     public static boolean canInsertNode(Node destinationNode, Node addableNode, int maxOccurs) {
 	if (maxOccurs > 0) {
 	    String addableName = addableNode.getLocalName();
@@ -428,13 +407,9 @@ public class ArbilComponentBuilder {
     }
     private final static Pattern attributePathPattern = Pattern.compile("^.*\\.@[^.]+$");
     private final static Pattern namespacePartPattern = Pattern.compile("\\{(.*)\\}");
-    
-    public static boolean pathIsAttribute(String pathString) {
+
+    private boolean pathIsAttribute(String pathString) {
 	return attributePathPattern.matcher(pathString).matches();
-    }
-    
-    public static boolean pathIsAttribute(String[] pathTokens) {
-	return pathTokens.length > 0 && pathTokens[pathTokens.length - 1].startsWith("@");
     }
 
     /**
@@ -442,7 +417,7 @@ public class ArbilComponentBuilder {
      * @param path Full path (e.g. .CMD.Component.Test.@myattr) of attribute
      * @return Attribute, if found
      */
-    public static Attr getAttributeNodeFromPath(Element parent, final String path) {
+    private Attr getAttributeNodeFromPath(Element parent, final String path) {
 	try {
 	    if (pathIsAttribute(path)) {
 		final String attributePart = path.replaceAll("^.*@", ""); // remove path suffix (including @) so only attribute remains
@@ -466,7 +441,7 @@ public class ArbilComponentBuilder {
      * @param path Full path (e.g. .CMD.Component.Test.@myattr) of attribute
      * @return Successful creation
      */
-    public static boolean addAttributeNodeFromPath(Element parent, final String path, final String value) {
+    private boolean addAttributeNodeFromPath(Element parent, final String path, final String value) {
 	try {
 	    if (pathIsAttribute(path)) {
 		final String attributePart = path.replaceAll("^.*@", ""); // remove path suffix (including @) so only attribute remains
@@ -486,21 +461,6 @@ public class ArbilComponentBuilder {
 	return false;
     }
 
-    /**
-     * URLEncode and replace dots so dots, slashes and colons in string won't interfere with node path structure
-     *
-     * @param nsURI
-     * @return Encoded nsURI
-     */
-    public static String encodeNsUriForAttributePath(String nsURI) {
-	try {
-	    return URLEncoder.encode(nsURI, "UTF-8").replace(".", "%2E");
-	} catch (UnsupportedEncodingException ex) {
-	    BugCatcherManager.getBugCatcher().logError(ex);
-	    return null;
-	}
-    }
-    
     public static Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
 	if (!canInsertNode(destinationNode, addableNode, maxOccurs)) {
 	    throw new ArbilMetadataException("The maximum nodes of this type have already been added.\n");
@@ -520,7 +480,7 @@ public class ArbilComponentBuilder {
 			System.out.println("insertbefore: " + childsName);
 			insertBeforeNode = childNodes.item(childCounter);
 			break outerloop;
-			
+
 		    }
 		}
 	    }
@@ -545,7 +505,7 @@ public class ArbilComponentBuilder {
 	}
 	return addedNode;
     }
-    
+
     public void removeArchiveHandles(ArbilDataNode arbilDataNode) {
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    try {
@@ -557,7 +517,7 @@ public class ArbilComponentBuilder {
 	    }
 	}
     }
-    
+
     private static void removeImdiDomIds(Document targetDocument) {
 	String handleXpath = "/:METATRANSCRIPT[@id]|/:METATRANSCRIPT//*[@id]";
 	try {
@@ -572,7 +532,7 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
-    
+
     private void removeArchiveHandles(Document targetDocument) {
 	String handleXpath = "/:METATRANSCRIPT[@ArchiveHandle]|/:METATRANSCRIPT//*[@ArchiveHandle]";
 	try {
@@ -587,7 +547,7 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
     }
-    
+
     private Node selectSingleNode(Document targetDocument, String targetXpath) throws TransformerException {
 	String tempXpathArray[] = convertImdiPathToXPathOptions(targetXpath);
 	if (tempXpathArray != null) {
@@ -606,7 +566,7 @@ public class ArbilComponentBuilder {
 	BugCatcherManager.getBugCatcher().logError(new Exception("Xpath issue, no node found for: " + targetXpath));
 	return null;
     }
-    
+
     private String[] convertImdiPathToXPathOptions(String targetXpath) {
 	if (targetXpath == null) {
 	    return null;
@@ -618,9 +578,9 @@ public class ArbilComponentBuilder {
 			targetXpath.replaceAll("\\.@([^.]*)$", "/@$1").replaceAll("\\.", "/:") // Attributes (.@) should not get colon hence the two steps
 		    };
 	}
-	
+
     }
-    
+
     public static String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
 	System.out.println("Calculating the added fragment");
 	// count siblings to get the correct child index for the fragment
