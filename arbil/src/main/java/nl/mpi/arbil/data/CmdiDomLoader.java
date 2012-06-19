@@ -198,7 +198,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    }
 	}
 
-	final ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", "."), metadataField.getValue().toString(), 0, allowsLanguageId, attributePaths, attributesValueMap);
+	final ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", ArbilConstants.imdiPathSeparator), metadataField.getValue().toString(), 0, allowsLanguageId, attributePaths, attributesValueMap);
 	field.setMetadataField(metadataField);
 	parentNode.addField(field);
     }

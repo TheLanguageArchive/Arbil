@@ -16,6 +16,7 @@ import java.util.Calendar;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
@@ -399,7 +400,7 @@ public class ImdiMetadataBuilder extends AbstractMetadataBuilder {
     private static String xPathFromTargetRef(String targetRef) {
 	String targetXpath = targetRef;
 	// convert to xpath for the api
-	targetXpath = targetXpath.replace(".", "/:");
+	targetXpath = targetXpath.replace(ArbilConstants.imdiPathSeparator, "/:");
 	targetXpath = targetXpath.replace(")", "]");
 	targetXpath = targetXpath.replace("(", "[");
 	return targetXpath;

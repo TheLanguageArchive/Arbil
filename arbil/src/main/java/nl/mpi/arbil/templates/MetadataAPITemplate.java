@@ -248,7 +248,7 @@ public class MetadataAPITemplate implements ArbilTemplate {
 		
 		if (addFields && (minOccurences != 1 || maxOccurences != 1)) {
 		    // If optional or multiple, add to array
-		    types.add(new String[]{type.getName(), type.getPathString().replaceAll("/:", ".")});
+		    types.add(new String[]{type.getName(), type.getPathString().replaceAll("/:", ArbilConstants.imdiPathSeparator)});
 		}
 		
 		if (type instanceof MetadataContainerElementType) {

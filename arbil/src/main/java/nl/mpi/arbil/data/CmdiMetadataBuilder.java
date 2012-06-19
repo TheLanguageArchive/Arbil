@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.MetadataAPITemplate;
@@ -208,7 +209,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     }
 
     private URI addMetadataChildNode(String nodeType, ArbilDataNode destinationNode) throws RuntimeException {
-	if (nodeType.startsWith(".")) {
+	if (nodeType.startsWith(ArbilConstants.imdiPathSeparator)) {
 	    final MetadataElementType metadataElementType = getMetadataElementType(destinationNode, nodeType);
 	    final MetadataElement destinationElement = destinationNode.getMetadataElement();
 	    if (!(destinationElement instanceof MetadataContainer)) {
@@ -234,7 +235,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     private URI getNodePathForMetadataElement(ArbilDataNode destinationNode, MetadataElement addedChildNode) throws URISyntaxException {
 	StringBuilder nodeURIStringBuilder = new StringBuilder(destinationNode.getFile().toURI().toString());
 	nodeURIStringBuilder.append("#");
-	nodeURIStringBuilder.append(addedChildNode.getPathString().replaceAll("/:", ".").replaceAll("\\[(\\d+)\\]", "($1)"));
+	nodeURIStringBuilder.append(addedChildNode.getPathString().replaceAll("/:", ArbilConstants.imdiPathSeparator).replaceAll("\\[(\\d+)\\]", "($1)"));
 	URI addedNodePath = new URI(nodeURIStringBuilder.toString());
 	return addedNodePath;
     }
