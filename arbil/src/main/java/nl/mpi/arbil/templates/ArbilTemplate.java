@@ -82,6 +82,4 @@ public interface ArbilTemplate {
     boolean readTemplate();
     
     List<String[]> getEditableAttributesForPath(final String path);
-    
-    public boolean pathAllowsLanguageId(String path);
 }

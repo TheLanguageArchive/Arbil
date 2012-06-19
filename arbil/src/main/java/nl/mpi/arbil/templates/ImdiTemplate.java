@@ -694,9 +694,4 @@ public class ImdiTemplate implements ArbilTemplate {
 	// CMDI only at this point
 	return Collections.emptyList();
     }
-
-    public boolean pathAllowsLanguageId(String path) {
-	// CMDI only at this point
-	return false;
-    }
 }

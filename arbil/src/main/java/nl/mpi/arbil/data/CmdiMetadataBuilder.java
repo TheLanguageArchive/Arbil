@@ -193,6 +193,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
 		    final URI addedNodePath = addFromTemplate(new File(targetFileURI), nodeType);
 		    if (destinationNode.getFile().exists()) {
 			//TODO: Add as link to the existing document (see ImdiMetadataBuilder)
+			throw new UnsupportedOperationException("TODO: Add as link to the existing document");
 		    } else {
 			// Add to tree root
 			treeHelper.addLocation(addedNodePath);

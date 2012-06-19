@@ -13,6 +13,7 @@ import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.metadata.api.MetadataAPI;
+import nl.mpi.metadata.api.model.LanguageSpecifier;
 import nl.mpi.metadata.api.model.MetadataContainer;
 import nl.mpi.metadata.api.model.MetadataDocument;
 import nl.mpi.metadata.api.model.MetadataElement;
@@ -168,13 +169,14 @@ public class CmdiDomLoader implements MetadataDomLoader {
     }
 
     private void addField(ArbilDataNode parentNode, final MetadataField metadataField, int fieldOrder) {
-	String parentPath = parentNode.getMetadataElement().getType().getPathString();
+	final String parentPath = parentNode.getMetadataElement().getType().getPathString();
 	String fieldPath = metadataField.getType().getPathString();
 	if (fieldPath.startsWith(parentPath)) {
 	    fieldPath = fieldPath.substring(parentPath.length());
 	}
+	final boolean allowsLanguageId = metadataField instanceof LanguageSpecifier;
 
-	ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", "."), metadataField.getValue().toString(), 0, false);
+	final ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", "."), metadataField.getValue().toString(), 0, allowsLanguageId);
 	field.setMetadataField(metadataField);
 	parentNode.addField(field);
     }
