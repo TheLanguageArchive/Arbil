@@ -3,6 +3,7 @@ package nl.mpi.arbil.data;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,12 +18,15 @@ import nl.mpi.metadata.api.model.LanguageSpecifier;
 import nl.mpi.metadata.api.model.MetadataContainer;
 import nl.mpi.metadata.api.model.MetadataDocument;
 import nl.mpi.metadata.api.model.MetadataElement;
+import nl.mpi.metadata.api.model.MetadataElementAttributeContainer;
 import nl.mpi.metadata.api.model.MetadataField;
 import nl.mpi.metadata.api.model.Reference;
 import nl.mpi.metadata.api.model.ReferencingMetadataDocument;
 import nl.mpi.metadata.api.model.ReferencingMetadataElement;
 import nl.mpi.metadata.api.type.ContainedMetadataElementType;
+import nl.mpi.metadata.api.type.MetadataElementAttributeType;
 import nl.mpi.metadata.api.type.MetadataElementType;
+import nl.mpi.metadata.cmdi.api.model.impl.AttributeImpl;
 
 /**
  *
@@ -175,8 +179,26 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    fieldPath = fieldPath.substring(parentPath.length());
 	}
 	final boolean allowsLanguageId = metadataField instanceof LanguageSpecifier;
+	List<String[]> attributePaths = null;
+	Map<String, Object> attributesValueMap = null;
 
-	final ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", "."), metadataField.getValue().toString(), 0, allowsLanguageId);
+	if (metadataField instanceof MetadataElementAttributeContainer) {
+	    attributePaths = new ArrayList<String[]>();
+	    attributesValueMap = new HashMap<String, Object>();
+
+	    for (MetadataElementAttributeType attributeType : metadataField.getType().getAttributes()) {
+		//{path, display name, insert before, cardinality(?)}
+		final String[] attributePathArray = new String[]{attributeType.getPathString(), attributeType.getName(), "", "1"};
+		attributePaths.add(attributePathArray);
+	    }
+
+	    for (AttributeImpl attribute : ((MetadataElementAttributeContainer<? extends AttributeImpl>) metadataField).getAttributes()) {
+		final String attributePath = attribute.getPathString().replaceAll("/:", ArbilConstants.imdiPathSeparator).replaceAll("\\[(\\d+)\\]", "($1)");
+		attributesValueMap.put(attributePath, attribute.getValue());
+	    }
+	}
+
+	final ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", "."), metadataField.getValue().toString(), 0, allowsLanguageId, attributePaths, attributesValueMap);
 	field.setMetadataField(metadataField);
 	parentNode.addField(field);
     }

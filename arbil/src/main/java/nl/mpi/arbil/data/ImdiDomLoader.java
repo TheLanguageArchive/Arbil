@@ -336,17 +336,12 @@ public class ImdiDomLoader implements MetadataDomLoader {
 	    cvType = getNamedAttributeValue(childNodeAttributes, "Type");
 	    cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
 	    languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
-	    if (languageId == null) {
-		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
-	    }
 	    keyName = getNamedAttributeValue(childNodeAttributes, "Name");
 	}
 
 	List<String[]> attributePaths = null;
 	Map<String, Object> attributesValueMap = null;
-	boolean allowsLanguageId = false;
-	allowsLanguageId = languageId != null; //IMDI case where language id comes from template
-
+	final boolean allowsLanguageId = languageId != null;
 	// is a leaf not a branch
 	//            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
 	ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath), allowsLanguageId, attributePaths, attributesValueMap);
