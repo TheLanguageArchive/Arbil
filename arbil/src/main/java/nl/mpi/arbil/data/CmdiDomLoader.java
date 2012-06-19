@@ -215,10 +215,13 @@ public class CmdiDomLoader implements MetadataDomLoader {
     private void addUnreferencedResources(final ArbilDataNode dataNode, final Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
 	final MetadataElement metadataElement = dataNode.getMetadataElement();
 	if (metadataElement instanceof ReferencingMetadataDocument) {
-	    // TODO: Skip referenced resource proxies
-	    for (Reference reference : ((ReferencingMetadataDocument<MetadataElement, Reference>) metadataElement).getDocumentReferences()) {
-		ArbilDataNode referenceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(dataNode.getURI().resolve(reference.getURI()));
-		parentChildTree.get(dataNode).add(referenceNode);
+	    final ReferencingMetadataDocument<MetadataElement, Reference> document = (ReferencingMetadataDocument<MetadataElement, Reference>) metadataElement;
+	    for (Reference reference : document.getDocumentReferences()) {
+		// Check if resource proxy is unreferenced
+		if (document.getResourceProxyReferences(reference).isEmpty()) {
+		    ArbilDataNode referenceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(dataNode.getURI().resolve(reference.getURI()));
+		    parentChildTree.get(dataNode).add(referenceNode);
+		}
 	    }
 	}
     }
