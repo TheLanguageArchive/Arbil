@@ -18,14 +18,17 @@ import nl.mpi.metadata.api.model.MetadataField;
  */
 public class ArbilField implements Serializable {
 
-    private transient ArbilDataNode parentDataNode;
+    //TODO: Encapsulate public fields
+    public final String xmlPath;
+    public final String originalFieldValue;
+    protected final boolean allowsLanguageId;
+    private final int siblingCount;
+    private final List<String[]> attributePaths;
+    private final int fieldOrder;
     private URI parentDataNodeURI;
-    public String xmlPath;
     private String translatedPath = null;
-    private String fieldValue = "";
-    public String originalFieldValue = fieldValue;
+    private String fieldValue;
     private String cvUrlString;
-    private int fieldOrder = -1;
     private ArbilVocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
     private boolean vocabularyIsOpen;
@@ -33,17 +36,16 @@ public class ArbilField implements Serializable {
     private boolean attributeField;
     private String keyName = null;
     private String originalKeyName = null;
-    protected boolean allowsLanguageId;
     private String languageId = null;
     private String originalLanguageId = null;
     private int isRequiredField = -1;
     private int canValidateField = -1;
-    private int siblingCount;
     private static SessionStorage sessionStorage;
-    private List<String[]> attributePaths;
     private Map<String, Object> attributeValuesMap;
     private Map<String, Object> originalAttributeValuesMap;
     private MetadataField metadataField;
+    private transient ArbilDataNode parentDataNode;
+
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
@@ -572,7 +574,7 @@ public class ArbilField implements Serializable {
     /**
      * @param parentDataNode the parentDataNode to set
      */
-    public final synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
+    public synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
 	this.parentDataNode = parentDataNode;
 	this.parentDataNodeURI = parentDataNode != null ? parentDataNode.getURI() : null;
     }
@@ -594,5 +596,4 @@ public class ArbilField implements Serializable {
     public void setMetadataField(MetadataField metadataField) {
 	this.metadataField = metadataField;
     }
-
 }
