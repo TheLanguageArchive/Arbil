@@ -78,6 +78,15 @@ public abstract class ArbilDataNodeService {
 
     public abstract URI[] getCorpusLinks(URI nodeURI) throws ArbilMetadataException;
 
+    /**
+     *
+     * @param field field to create pretty name for
+     * @return name for field for display in tables etc
+     *
+     * @see #addLanguageIdToFieldName(nl.mpi.arbil.data.ArbilField, java.lang.String)
+     */
+    public abstract String getTranslateFieldName(ArbilField field);
+
     public ArbilDataNode loadArbilDataNode(Object registeringObject, URI localUri) {
 	return dataNodeLoader.getArbilDataNode(registeringObject, localUri);
     }
@@ -557,6 +566,25 @@ public abstract class ArbilDataNodeService {
 	    //            System.out.println("xpath: " + xpath);
 	}
 	return xpath;
+    }
+
+    /**
+     * Common method for adding language id to field name (if option set in session storage)
+     * TODO: Move to cell renderer (?)
+     *
+     * @param field field to create name for
+     * @param fieldName field name base to append to
+     * @return resulting field name
+     */
+    protected String addLanguageIdToFieldName(ArbilField field, String fieldName) {
+	if (sessionStorage.loadBoolean("useLanguageIdInColumnName", false)) {
+	    final String languageId = field.getLanguageId();
+	    // add the language id to the column name if available
+	    if (languageId != null && languageId.length() > 0) {
+		return fieldName + " [" + languageId + "]";
+	    }
+	}
+	return fieldName;
     }
 
     protected abstract Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings);

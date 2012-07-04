@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerException;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.templates.ImdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -541,6 +542,22 @@ public class ImdiDataNodeService extends ArbilDataNodeService {
 	    BugCatcherManager.getBugCatcher().logError(new Exception("The IMDI API returned null for: " + imdiURI.toString()));
 	    BugCatcherManager.getBugCatcher().logError("The following is the last known error from the API: ", new Exception(api.getMessage()));
 	}
+    }
+
+    @Override
+    public String getTranslateFieldName(ArbilField field) {
+	String fieldName = field.xmlPath;
+
+	// replace the xml paths with user friendly node names
+	fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session" + ArbilConstants.imdiPathSeparator + "MDGroup", "");
+	fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session", "");
+	fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Corpus", "");
+	fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Catalogue", "");
+
+	if (fieldName.startsWith(".")) {
+	    fieldName = fieldName.substring(1);
+	}
+	return addLanguageIdToFieldName(field, fieldName);
     }
 
     @Override

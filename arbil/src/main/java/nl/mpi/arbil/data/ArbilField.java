@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.metadata.api.model.MetadataField;
 
@@ -493,46 +492,7 @@ public class ArbilField implements Serializable {
 
     public String getTranslateFieldName() {
 	if (translatedPath == null) {
-	    String fieldName = xmlPath;
-	    // TODO: move this to the imdischema class
-	    // replace the xml paths with user friendly node names
-//            fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session" + ArbilConstants.imdiPathSeparator + "Resources" + ArbilConstants.imdiPathSeparator + "WrittenResource", "WrittenResource");
-//            fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session" + ArbilConstants.imdiPathSeparator + "MDGroup" + ArbilConstants.imdiPathSeparator + "Actors" + ArbilConstants.imdiPathSeparator + "Actor", "Actors");
-//            fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session" + ArbilConstants.imdiPathSeparator + "Resources" + ArbilConstants.imdiPathSeparator + "Anonyms", "Anonyms");
-//            fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session" + ArbilConstants.imdiPathSeparator + "Resources" + ArbilConstants.imdiPathSeparator + "MediaFile", "MediaFiles");
-//            fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session" + ArbilConstants.imdiPathSeparator + "MDGroup", "");
-	    fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session" + ArbilConstants.imdiPathSeparator + "MDGroup", "");
-	    fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Session", "");
-	    fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Corpus", "");
-	    fieldName = fieldName.replace(ArbilConstants.imdiPathSeparator + "METATRANSCRIPT" + ArbilConstants.imdiPathSeparator + "Catalogue", "");
-
-	    // todo: the following path contraction should really be done in the templates rather than here
-	    // todo: these filter strings should really be read from the metadata format
-	    // handle the clarin path names
-	    fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
-	    // handle the kinoath path names
-	    fieldName = fieldName.replaceFirst("^\\.Kinnate\\.CustomData\\.", "");
-//                    if (attributeName.equals("Name")) {
-	    if (fieldName.endsWith("Keys.Key")) {
-//                System.out.println("Found key for: " + xmlPath);
-		//String keyValue = getFieldAttribute("Name");
-		if (keyName != null) {
-//                    System.out.println("Key value valid: " + keyValue.toString());
-		    fieldName = fieldName + ArbilConstants.imdiPathSeparator + keyName;
-		}
-//                xmlPath = xmlPath + ArbilConstants.imdiPathSeparator + attributeValue;
-
-	    }
-	    if (fieldName.startsWith(".")) {
-		fieldName = fieldName.substring(1);
-	    }
-	    if (sessionStorage.loadBoolean("useLanguageIdInColumnName", false)) {
-		// add the language id to the column name if available
-		if (getLanguageId() != null && getLanguageId().length() > 0) {
-		    fieldName = fieldName + " [" + getLanguageId() + "]";
-		}
-	    }
-	    translatedPath = fieldName;
+	    translatedPath = parentDataNode.getDataNodeService().getTranslateFieldName(this);
 	}
 //        System.out.println("xmlPath: " + xmlPath);
 //        System.out.println("translatedPath: " + translatedPath);
@@ -564,7 +524,7 @@ public class ArbilField implements Serializable {
     /**
      * @return the parentDataNode
      */
-    public synchronized ArbilDataNode getParentDataNode() {
+    public final synchronized ArbilDataNode getParentDataNode() {
 	if (parentDataNode == null && parentDataNodeURI != null) {
 	    parentDataNode = dataNodeLoader.getArbilDataNode(null, parentDataNodeURI);
 	}
@@ -574,7 +534,7 @@ public class ArbilField implements Serializable {
     /**
      * @param parentDataNode the parentDataNode to set
      */
-    public synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
+    public final synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
 	this.parentDataNode = parentDataNode;
 	this.parentDataNodeURI = parentDataNode != null ? parentDataNode.getURI() : null;
     }

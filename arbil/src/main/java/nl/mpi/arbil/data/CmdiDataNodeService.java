@@ -10,6 +10,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
+import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -391,5 +392,24 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 
     public boolean removeCorpusLink(URI nodeURI, URI[] linkURI) {
 	throw new UnsupportedOperationException("Not supported.");
+    }
+
+    @Override
+    public String getTranslateFieldName(ArbilField field) {
+	String fieldName = field.xmlPath;
+
+	// todo: these filter strings should really be read from the metadata format
+	// handle the clarin path names
+	fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
+	// handle the kinoath path names
+	fieldName = fieldName.replaceFirst("^\\.Kinnate\\.CustomData\\.", "");
+
+	if (fieldName.startsWith(".")) {
+	    fieldName = fieldName.substring(1);
+	}
+	
+	fieldName = fieldName.replaceAll("\\(\\d\\)", "");
+
+	return addLanguageIdToFieldName(field, fieldName);
     }
 }
