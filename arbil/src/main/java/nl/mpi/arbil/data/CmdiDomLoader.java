@@ -14,6 +14,7 @@ import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.metadata.api.MetadataAPI;
+import nl.mpi.metadata.api.model.ContainedMetadataElement;
 import nl.mpi.metadata.api.model.LanguageSpecifier;
 import nl.mpi.metadata.api.model.MetadataContainer;
 import nl.mpi.metadata.api.model.MetadataDocument;
@@ -173,11 +174,6 @@ public class CmdiDomLoader implements MetadataDomLoader {
     }
 
     private void addField(ArbilDataNode parentNode, final MetadataField metadataField, int fieldOrder) {
-	final String parentPath = parentNode.getMetadataElement().getType().getPathString();
-	String fieldPath = metadataField.getType().getPathString();
-	if (fieldPath.startsWith(parentPath)) {
-	    fieldPath = fieldPath.substring(parentPath.length());
-	}
 	final boolean allowsLanguageId = metadataField instanceof LanguageSpecifier;
 	List<String[]> attributePaths = null;
 	Map<String, Object> attributesValueMap = null;
@@ -198,9 +194,24 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    }
 	}
 
-	final ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath.replaceAll("/:", ArbilConstants.imdiPathSeparator), metadataField.getValue().toString(), 0, allowsLanguageId, attributePaths, attributesValueMap);
+	final String fieldPath = getPathForField(metadataField, parentNode);
+	final ArbilField field = new ArbilField(fieldOrder, parentNode, fieldPath, metadataField.getValue().toString(), 0, allowsLanguageId, attributePaths, attributesValueMap);
 	field.setMetadataField(metadataField);
 	parentNode.addField(field);
+    }
+
+    private String getPathForField(final MetadataField metadataField, ArbilDataNode parentNode) {
+	String fieldPath = metadataField.getPathString();
+	// If parent is not the root...
+	if (parentNode.getMetadataElement() instanceof ContainedMetadataElement) {
+	    //Try constructing a relative path
+	    final String parentPath = parentNode.getMetadataElement().getPathString();
+	    if (fieldPath.startsWith(parentPath)) {
+		fieldPath = fieldPath.substring(parentPath.length());
+	    }
+	}
+	// Convert from XPATH to IMDI path style
+	return fieldPath.replaceAll("/:", ArbilConstants.imdiPathSeparator).replaceAll("\\[(\\d+)\\]", "($1)");
     }
 
     private void addReferencedChildNodes(ArbilDataNode parentNode, ReferencingMetadataElement<Reference> container, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
