@@ -69,12 +69,12 @@
 		    <finalName>${output.jarname}</finalName>
 		    <outputDirectory>${output.directory}</outputDirectory>
 		    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>${application.mainClass}</mainClass>
-                            <classpathPrefix>lib/</classpathPrefix>
-                        </manifest>
-                    </archive>
+			<manifest>
+			    <addClasspath>true</addClasspath>
+			    <mainClass>${application.mainClass}</mainClass>
+			    <classpathPrefix>lib/</classpathPrefix>
+			</manifest>
+		    </archive>
 		    <excludes>
 			<exclude>nl/mpi/arbil/resources/**/readme.txt</exclude>
 			<exclude>nl/mpi/arbil/resources/icons/svg-files/**</exclude>
@@ -294,4 +294,169 @@
 	    <url>http://maven-timestamp-plugin.googlecode.com/svn/trunk/repository</url>
 	</pluginRepository>
     </pluginRepositories>
+    
+    <profiles>
+	<profile>
+	    <id>generateHelp</id>
+	    <properties>
+		<output.help.directory.base>${basedir}/target/generated-resources/help</output.help.directory.base>
+		<output.help.directory.result>${output.help.directory.base}/arbil/</output.help.directory.result>
+	    </properties>
+	    <build>
+		<plugins>
+		    <!-- Plugin to create HTML form DocBook sources -->
+		    <plugin>
+			<groupId>com.agilejava.docbkx</groupId>
+			<artifactId>docbkx-maven-plugin</artifactId>
+			<version>2.0.14</version>
+			<dependencies>
+			    <dependency>
+				<groupId>org.docbook</groupId>
+				<artifactId>docbook-xml</artifactId>
+				<version>4.4</version>
+				<scope>runtime</scope>
+			    </dependency>
+			</dependencies>
+			<executions>
+			    <execution>
+				<goals>
+				    <goal>generate-xhtml</goal>
+				</goals>
+				<phase>generate-resources</phase>
+			    </execution>
+			</executions>
+			<configuration>
+			    <chunkedOutput>true</chunkedOutput>
+			    <targetDirectory>${output.help.directory.base}</targetDirectory>
+			    <xhtmlCustomization>src/docbkx/mydocbook2xhtml.xsl</xhtmlCustomization>
+			</configuration>
+		    </plugin>
+		    <!-- Plugin to create index XML from DocBook HTML -->
+		    <plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>xml-maven-plugin</artifactId>
+			<version>1.0</version>
+			<executions>
+			    <execution>
+				<goals>
+				    <goal>transform</goal>
+				</goals>
+				<phase>generate-resources</phase>
+			    </execution>
+			</executions>
+			<configuration>
+			    <transformationSets>
+				<!-- We only want to transform the index xhtml to an XML that's easy to process -->
+				<transformationSet>
+				    <dir>${output.help.directory.result}</dir>
+				    <outputDir>${output.help.directory.result}</outputDir>
+				    <stylesheet>src/docbkx/helptoc.xsl</stylesheet>
+				    <includes>
+					<include>arbil.html</include>
+				    </includes>
+				    <fileMappers>
+					<!-- Map arbil.html -> arbil.xml -->
+					<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+					    <targetExtension>.xml</targetExtension>
+					</fileMapper>
+				    </fileMappers>
+				</transformationSet>
+			    </transformationSets>
+			</configuration>
+		    </plugin>
+		    <!-- Plugin to copy resources into package -->
+		    <plugin>
+			<artifactId>maven-resources-plugin</artifactId>
+			<version>2.5</version>
+			<executions>
+			    <execution>
+				<id>copy-resources</id>
+				<phase>process-resources</phase>
+				<goals>
+				    <goal>copy-resources</goal>
+				</goals>
+				<configuration>
+				    <outputDirectory>${basedir}/target/classes/nl/mpi/arbil/resources/html/help</outputDirectory>
+				    <resources>          
+					<resource>
+					    <directory>${output.help.directory.result}</directory>
+					    <includes>
+						<!-- XML index -->
+						<include>arbil.xml</include>
+						<!-- Help contents (as HTML) -->
+						<include>*.html</include>
+					    </includes>
+					</resource>
+				    </resources>              
+				</configuration>            
+			    </execution>
+			</executions>
+		    </plugin>
+		</plugins>
+
+		<!-- FO stuff -->
+<!--		<plugin>
+			<groupId>com.agilejava.docbkx</groupId>
+			<artifactId>docbkx-maven-plugin</artifactId>
+			<version>2.0.14</version>
+			<dependencies>
+			    <dependency>
+				<groupId>org.docbook</groupId>
+				<artifactId>docbook-xml</artifactId>
+				<version>4.4</version>
+				<scope>runtime</scope>
+			    </dependency>
+			</dependencies>
+			<executions>
+			    <execution>
+				<goals>
+				    <goal>generate-xhtml</goal>
+			    <goal>generate-html</goal>
+			    <goal>generate-pdf</goal>
+				</goals>
+				<phase>generate-resources</phase>
+			<phase>pre-site</phase>
+			    </execution>
+			</executions>
+			<configuration>
+			    <chunkedOutput>true</chunkedOutput>
+			    <targetDirectory>${output.help.directory.base}</targetDirectory>
+			    <xhtmlCustomization>src/docbkx/mydocbook2xhtml.xsl</xhtmlCustomization>
+		    <foCustomization>src/docbkx/mydocbook2fo.xsl</foCustomization>
+		    <htmlCustomization>src/docbkx/mydocbook2html.xsl</htmlCustomization>
+		    <externalFOPConfiguration>src/docbkx/fop.xconf</externalFOPConfiguration>
+		    <imgSrcPath>src/docbkx/images/</imgSrcPath>
+		    <symbolFontFamily>Arial Unicode MS</symbolFontFamily>		    
+		    <fonts>
+			<font>
+			    <name>Arial Unicode MS</name>
+			    <style>normal</style>
+			    <weight>normal</weight>
+			    <embedFile>src/docbkx/Arial-Unicode.ttf</embedFile>
+			    <metricsFile>target/fonts/Arial-Unicode-metrics.xml</metricsFile>
+			</font>
+		    </fonts>
+			</configuration>
+		    </plugin>-->
+	    <!-- Generate font metrics file -->
+<!--	    <plugin>
+		<groupId>com.agilejava.docbkx</groupId>
+		<artifactId>docbkx-fop-support</artifactId>
+		<version>2.0.14</version>
+		<executions>
+		    <execution>
+			<phase>generate-resources</phase>
+			<goals>
+			    <goal>generate</goal>
+			</goals>
+			<configuration>
+			    <ansi>true</ansi>
+			</configuration>
+		    </execution>
+		</executions>
+	    </plugin>-->
+	    </build>
+	</profile>
+    </profiles>
+    
 </project>

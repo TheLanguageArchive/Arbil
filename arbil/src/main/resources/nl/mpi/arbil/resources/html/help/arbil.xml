@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<helpToc>
+    <item>
+        <file>ch01.html</file>
+        <name>THIS IS A STUB!</name>
+        <subitems>
+            <item>
+                <file>ch01s01.html</file>
+                <name>To replace...</name>
+            </item>
+            <item>
+                <file>ch01s02.html</file>
+                <name>build with 'generateHelp' profile</name>
+            </item>
+        </subitems>
+    </item>
+    <item>
+        <file>ch02.html</file>
+        <name>WILL BE REPLACED IN BUILD</name>
+    </item>
+</helpToc>
