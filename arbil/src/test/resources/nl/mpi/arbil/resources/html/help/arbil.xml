@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<helpToc>
+    <item>
+        <file>FirstFile.html</file>
+        <name>First name</name>
+        <subitems>
+            <item>
+                <file>FirstFileFirstChild.html</file>
+                <name>First child name</name>
+            </item>
+            <item>
+                <file>FirstFileSecondChild.html</file>
+                <name>Second child name</name>
+            </item>
+        </subitems>
+    </item>
+    <item>
+        <file>SecondFile.html</file>
+        <name>Second name</name>
+    </item>
+</helpToc>
