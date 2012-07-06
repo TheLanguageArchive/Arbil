@@ -398,6 +398,11 @@
 				    <resources>          
 					<resource>
 					    <directory>${basedir}/src/main/docbook/images</directory>
+					    <includes>
+						<!-- We don't want any other file types (e.g. svg) because Swing won't support them -->
+						<include>%regex[(?i).*\.jpg$]</include>
+						<include>%regex[(?i).*\.png$]</include>
+					    </includes>
 					</resource>
 				    </resources>          
 				</configuration>            
