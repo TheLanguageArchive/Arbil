@@ -34,17 +34,24 @@ public class ArbilHelp extends javax.swing.JPanel {
     private final DefaultMutableTreeNode rootContentsNode;
 
     static private ArbilHelp singleInstance = null;
-    static synchronized public ArbilHelp getSingleInstance() throws IOException, SAXException {
+    static synchronized public ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
 	//TODO: This should not be a singleton...
-	System.out.println("LinorgHelp getSingleInstance");
 	if (singleInstance == null) {
 	    final String helpResourceBase = "/nl/mpi/arbil/resources/html/help/";
-	    singleInstance = new ArbilHelp(helpResourceBase, helpResourceBase + "arbil.xml");
+	    singleInstance = new ArbilHelp(ArbilHelp.class, helpResourceBase, helpResourceBase + "arbil.xml");
 	}
 	return singleInstance;
     }
 
-    private ArbilHelp(final String helpResourceBase, final String indexXml) throws IOException, SAXException {
+    /**
+     * 
+     * @param resourcesClass Class for getting resources
+     * @param helpResourceBase specification of base package for help resources
+     * @param indexXml xml that specifies 
+     * @throws IOException
+     * @throws SAXException 
+     */
+    public ArbilHelp(final Class resourcesClass, final String helpResourceBase, final String indexXml) throws IOException, SAXException {
 	initComponents();
 
 	this.helpResourceBase = helpResourceBase;

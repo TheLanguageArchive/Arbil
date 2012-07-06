@@ -223,7 +223,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //                                destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
 //                                destinationDirectory.mkdir();
 //                            } catch (Exception e) {
-//                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", titleText, JOptionPane.PLAIN_MESSAGE);
+//                                JOptionPane.showMessageDialog(LinorgWindowManager.getArbilHelpInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", titleText, JOptionPane.PLAIN_MESSAGE);
 //                            }
 //                        }
 		    if (destinationDirectory.exists()) {
@@ -234,7 +234,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			    if (showConfirmDialogBox("The selected export directory is not empty.\nTo continue will create dupicates of existing files.\nDo you want to continue?", titleText)) {
 				return destinationDirectory;
 			    }
-			    //JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
+			    //JOptionPane.showMessageDialog(LinorgWindowManager.getArbilHelpInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
 			}
 		    }
 		}
@@ -519,7 +519,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	if (!treeHelper.locationsHaveBeenAdded()) {
 	    System.out.println("no local locations found, showing help window");
 	    try {
-		ArbilHelp helpComponent = ArbilHelp.getSingleInstance();
+		ArbilHelp helpComponent = ArbilHelp.getArbilHelpInstance();
 		if (null == focusWindow(ArbilHelp.helpWindowTitle)) {
 		    createWindow(ArbilHelp.helpWindowTitle, helpComponent);
 		}
@@ -1351,7 +1351,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		    //System.out.println(ex.getMessage());
-		    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+		    //LinorgWindowManager.getArbilHelpInstance().openUrlWindow(nodeName, nodeUrl);
 		}
 	    } else {
 		try {
@@ -1359,7 +1359,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		    //System.out.println(ex.getMessage());
-		    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+		    //LinorgWindowManager.getArbilHelpInstance().openUrlWindow(nodeName, nodeUrl);
 		}
 	    }
 	}

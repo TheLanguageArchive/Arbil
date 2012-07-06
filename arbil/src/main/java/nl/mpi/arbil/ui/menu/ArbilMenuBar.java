@@ -176,7 +176,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private ArbilHelp getArbilHelp() {
 	try {
-	    return ArbilHelp.getSingleInstance();
+	    return ArbilHelp.getArbilHelpInstance();
 	} catch (IOException ioEx) {
 	    dialogHandler.addMessageDialogToQueue("I/O error while trying to read help system! See error log for details.", "Error");
 	    BugCatcherManager.getBugCatcher().logError(ioEx);
@@ -280,7 +280,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    try {
 			//			String userName = containerApplet.getParameter("UserName");
 			if (containerApplet != null) {
-			    //LinorgWindowManager.getSingleInstance().openUrlWindowOnce("Log out", new URL(logoutUrl));
+			    //LinorgWindowManager.getArbilHelpInstance().openUrlWindowOnce("Log out", new URL(logoutUrl));
 			    containerApplet.getAppletContext().showDocument(new URL(logoutUrl));
 			}
 		    } catch (MalformedURLException ex) {
@@ -323,7 +323,7 @@ public class ArbilMenuBar extends JMenuBar {
 	//                    ImdiTree sourceTree = (ImdiTree) currentFocusOwner;
 	//                    ImdiTreeObject[] selectedImdiNodes = sourceTree.getSelectedNodes();
 	//                    if (selectedImdiNodes == null) {
-	//                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No node selected", "Copy");
+	//                        LinorgWindowManager.getArbilHelpInstance().addMessageDialogToQueue("No node selected", "Copy");
 	//                    } else {
 	//                        sourceTree.copyNodeUrlToClipboard(selectedImdiNodes);
 	//                    }
@@ -447,7 +447,7 @@ public class ArbilMenuBar extends JMenuBar {
 			    dialogHandler.offerUserToSaveChanges();
 			    File[] selectedFiles = dialogHandler.showDirectorySelectBox("Move Local Corpus Storage Directory", false);
 			    if (selectedFiles != null && selectedFiles.length > 0) {
-				//fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
+				//fileChooser.setCurrentDirectory(LinorgSessionStorage.getArbilHelpInstance().getCacheDirectory());
 				sessionStorage.changeCacheDirectory(selectedFiles[0], true);
 			    }
 			} catch (Exception ex) {
@@ -872,7 +872,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
 //
 //    private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-//	final ArbilHelp arbilHelp = getArbilHelp();
+//	final ArbilHelp arbilHelp = getArbilHelpInstance();
 //	if (arbilHelp != null) {
 //	    if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
 //		// forcus existing or create a new help window
@@ -885,7 +885,7 @@ public class ArbilMenuBar extends JMenuBar {
 //    private void populateStorageLocationMenu(JMenu storageMenu) {
 //        storageMenu.removeAll();
 //        ButtonGroup storageMenuButtonGroup = new ButtonGroup();
-//        String[] storageLocaations = LinorgSessionStorage.getSingleInstance().getLocationOptions();
+//        String[] storageLocaations = LinorgSessionStorage.getArbilHelpInstance().getLocationOptions();
 //        Arrays.sort(storageLocaations);
 //        ArrayList<String> addedPaths = new ArrayList<String>();
 //        for (String currentTemplateName : storageLocaations) {
@@ -901,14 +901,14 @@ public class ArbilMenuBar extends JMenuBar {
 //                    public void actionPerformed(java.awt.event.ActionEvent evt) {
 //                        try {
 //                            saveApplicationState();
-//                            LinorgSessionStorage.getSingleInstance().changeStorageDirectory(evt.getActionCommand());
-//                            // LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
+//                            LinorgSessionStorage.getArbilHelpInstance().changeStorageDirectory(evt.getActionCommand());
+//                            // LinorgWindowManager.getArbilHelpInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
 //                        } catch (Exception e) {
 //                            BugCatcherManager.getBugCatcher().logError(e);
 //                        }
 //                    }
 //                });
-//                templateMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().storageDirectory.equals(new File(currentTemplateName)));
+//                templateMenuItem.setSelected(LinorgSessionStorage.getArbilHelpInstance().storageDirectory.equals(new File(currentTemplateName)));
 //                storageMenuButtonGroup.add(templateMenuItem);
 //                storageMenu.add(templateMenuItem);
 //            }
@@ -917,7 +917,7 @@ public class ArbilMenuBar extends JMenuBar {
 //    }
     private boolean saveApplicationState() {
 	if (dataNodeLoader.nodesNeedSave()) {
-	    // TODO: why is LinorgWindowManager.getSingleInstance().offerUserToSaveChanges(); not used?
+	    // TODO: why is LinorgWindowManager.getArbilHelpInstance().offerUserToSaveChanges(); not used?
 	    switch (JOptionPane.showConfirmDialog(this, "Save changes before exiting?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 		case JOptionPane.NO_OPTION:
 		    break;
@@ -939,7 +939,7 @@ public class ArbilMenuBar extends JMenuBar {
     private void saveState(boolean saveWindows) {
 	ArbilFieldViews.getSingleInstance().saveViewsToFile();
 	// linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
-	// TreeHelper.getSingleInstance().saveLocations(null, null); no need to do this here but it must be done when ever a change is made
+	// TreeHelper.getArbilHelpInstance().saveLocations(null, null); no need to do this here but it must be done when ever a change is made
 	if (saveWindows) {
 	    windowManager.saveWindowStates();
 	}
@@ -989,10 +989,10 @@ public class ArbilMenuBar extends JMenuBar {
 //        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
 //            public void actionPerformed(java.awt.event.ActionEvent evt) {
 //                try {
-//                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
+//                    LinorgWindowManager.getArbilHelpInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
     //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
 //                    System.out.println("setting template: " + evt.getActionCommand());
-//                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
+//                    ArbilTemplateManager.getArbilHelpInstance().setCurrentTemplate(evt.getActionCommand());
 //                } catch (Exception e) {
 //                    BugCatcherManager.getBugCatcher().logError(e);
 //                }
@@ -1012,22 +1012,22 @@ public class ArbilMenuBar extends JMenuBar {
 //        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
 //            public void actionPerformed(java.awt.event.ActionEvent evt) {
 //                try {
-//                    String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", LinorgWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+//                    String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getArbilHelpInstance().linorgFrame, "Enter the name for the new template", LinorgWindowManager.getArbilHelpInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
 //                    // if the user cancels the directory string will be a empty string.
-//                    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
-//                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
+//                    if (ArbilTemplateManager.getArbilHelpInstance().getTemplateFile(newDirectoryName).exists()) {
+//                        LinorgWindowManager.getArbilHelpInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
 //                    }
-//                    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
+//                    File freshTemplateFile = ArbilTemplateManager.getArbilHelpInstance().createTemplate(newDirectoryName);
 //                    if (freshTemplateFile != null) {
-//                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
-//                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
+//                        GuiHelper.getArbilHelpInstance().openFileInExternalApplication(freshTemplateFile.toURI());
+//                        GuiHelper.getArbilHelpInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
 //                    } else {
-//                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
+//                        LinorgWindowManager.getArbilHelpInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
 //                    }
-////                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
+////                    LinorgWindowManager.getArbilHelpInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
 //                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
 ////                    System.out.println("setting template: " + evt.getActionCommand());
-////                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
+////                    ArbilTemplateManager.getArbilHelpInstance().setCurrentTemplate(evt.getActionCommand());
 //                } catch (Exception e) {
 //                    BugCatcherManager.getBugCatcher().logError(e);
 //                }
@@ -1039,11 +1039,11 @@ public class ArbilMenuBar extends JMenuBar {
 //        templateMenu.removeAll();
 //        ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
 //        int templateCount = 0;
-//        addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, "", "Default", ArbilTemplateManager.getSingleInstance().getCurrentTemplate());
-//        for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
+//        addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, "", "Default", ArbilTemplateManager.getArbilHelpInstance().getCurrentTemplate());
+//        for (String currentTemplateName : ArbilTemplateManager.getArbilHelpInstance().getAvailableTemplates()) {
 //            String templatePath = templatesDir.getPath() + File.separatorChar + currentTemplateName;
 //            if (new File(templatePath).isDirectory()) {
-//            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentTemplateName, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
+//            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentTemplateName, ArbilTemplateManager.getArbilHelpInstance().getCurrentTemplateName());
 //            templateCount++;
 //            }
 //        }
@@ -1058,7 +1058,7 @@ public class ArbilMenuBar extends JMenuBar {
 //            templateMenu.add(new JSeparator());
 //        }
 //        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
-//            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentCmdiProfile.name, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
+//            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentCmdiProfile.name, ArbilTemplateManager.getArbilHelpInstance().getCurrentTemplateName());
 //            templateCount++;
 //        }
 //    }
