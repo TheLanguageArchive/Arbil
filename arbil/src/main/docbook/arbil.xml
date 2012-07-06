@@ -3,7 +3,7 @@
 <book>
   <bookinfo>
     <orgname>Max Planck Institute for Psycholinguistics, Nijmegen, The Netherlands</orgname>
-    <date>May 2012</date>
+    <date>23 June 2012</date>
     <subtitle>Arbil</subtitle>
     <subtitle>for editing and managing IMDI metadata</subtitle>
     <releaseinfo>Arbil manual</releaseinfo>
@@ -245,6 +245,9 @@
         </mediaobject>
       </figure>
     </para>
+    <para>Starting Arbil can be done in two ways, either by webstart or by downloading the
+      programme, see <ulink url="http://tla.mpi.nl/tools/tla-tools/arbil">here</ulink>. Note that
+      webstart will not work for OpenJDK 7; in this case download the installer version.</para>
   </chapter>
   <chapter id="Ch_Basics">
     <title>Set-up</title>
@@ -400,7 +403,7 @@
           can apply this option to every branch of the corpora. To do so, first check<link
             linkend="image_overwrite_local_changes">Show details and options</link> box; in the
           window that appears select the function <link linkend="image_overwrite_local_changes"
-            >overwrite local changes</link>.</para>
+            >Overwrite local changes</link>.</para>
         <figure>
           <title>Show details and options</title>
           <mediaobject>
@@ -913,7 +916,7 @@
       <para>It will often be the case that a piece of information (e.g.. continent, country, address
         etc.) has to be repeated across the sessions. Instead of typing this data in every session,
         you can copy-paste it at once into all the relevant fields. Choose the relevant sessions by
-        holding Ctrl and click on them. Then right click one of the selected items and choose
+        holding Ctrl and clicking on them. Then right click one of the selected items and choose
           <emphasis role="italic">View/Edit</emphasis>. You will see a window appearing in which you
         can edit the sessions.</para>
       <para>To edit the selected sessions, take the following steps:</para>
@@ -1319,7 +1322,7 @@
     <title>Exiting Arbil</title>
     <para>Before exiting Arbil make sure that you have saved all your changes. This can easily be
       done by the key short-cut CTRL+S.</para>
-    <para>You can exit Arbil by closing the main window, or through file -> exit on Windows or
+    <para>You can exit Arbil by closing the main window, or through file -> exit on Wi§ndows or
       Linux, or Arbil -> <emphasis role="italic">quit Arbil </emphasis>on Mac OS. In case of unsaved
       changes a message will appear and ask if you wish to <emphasis role="italic">save changes
         before exiting</emphasis>; choose <emphasis role="italic">yes</emphasis> or <emphasis
@@ -1334,23 +1337,23 @@
       <tgroup cols="2">
         <tbody>
           <row>
-            <entry> CTRL/&#8984;+A</entry>
+            <entry>CTRL/CMD+A</entry>
             <entry>Select all</entry>
           </row>
           <row>
-            <entry>CTRL/&#8984;+F</entry>
+            <entry>CTRL/CMD+F</entry>
             <entry>Find &amp; Replace </entry>
           </row>
           <row>
-            <entry>CTRL/&#x2318;+S</entry>
+            <entry>CTRL/CMD+S</entry>
             <entry>Save</entry>
           </row>
           <row>
-            <entry>CTRL/&#x2318;+W</entry>
+            <entry>CTRL/CMD+W</entry>
             <entry>Close topmost window</entry>
           </row>
           <row>
-            <entry>CTRL/&#x2318;+SHIFT+W</entry>
+            <entry>CTRL/CMD+SHIFT+W</entry>
             <entry>Close all windows</entry>
           </row>
           <row>
@@ -1358,7 +1361,7 @@
             <entry>Next window</entry>
           </row>
           <row>
-            <entry>CTRL/&#x2318;+SHIFT+TAB</entry>
+            <entry>CTRL/CMD+SHIFT+TAB</entry>
             <entry>Previous window</entry>
           </row>
           <row>
@@ -1381,19 +1384,19 @@
       <tgroup cols="2">
         <tbody>
           <row>
-            <entry>CTRL/&#x2318;+A</entry>
+            <entry>CTRL/CMD+A</entry>
             <entry>Select all</entry>
           </row>
           <row>
-            <entry>CTRL/&#x2318;+C</entry>
+            <entry>CTRL/CMD+C</entry>
             <entry>Copy</entry>
           </row>
           <row>
-            <entry>CTRL/&#x2318;+V</entry>
+            <entry>CTRL/CMD+V</entry>
             <entry>Paste</entry>
           </row>
           <row>
-            <entry>CTRL/&#x2318;+Z</entry>
+            <entry>CTRL/CMD+Z</entry>
             <entry>Undo</entry>
           </row>
           <row>
