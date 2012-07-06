@@ -297,10 +297,11 @@
     
     <profiles>
 	<profile>
-	    <id>generateHelp</id>
+	    <id>generate-help</id>
 	    <properties>
 		<output.help.directory.base>${basedir}/target/generated-resources/help</output.help.directory.base>
 		<output.help.directory.result>${output.help.directory.base}/arbil/</output.help.directory.result>
+		<resources.help.directory>${basedir}/target/classes/nl/mpi/arbil/resources/html/help</resources.help.directory>
 	    </properties>
 	    <build>
 		<plugins>
@@ -327,8 +328,10 @@
 			</executions>
 			<configuration>
 			    <chunkedOutput>true</chunkedOutput>
+			    <sourceDirectory>${basedir}/src/main/docbook</sourceDirectory>
 			    <targetDirectory>${output.help.directory.base}</targetDirectory>
-			    <xhtmlCustomization>src/docbkx/mydocbook2xhtml.xsl</xhtmlCustomization>
+			    <xhtmlCustomization>src/main/docbook/mydocbook2xhtml.xsl</xhtmlCustomization>
+<!--			    <includes>arbil.xml</includes>-->
 			</configuration>
 		    </plugin>
 		    <!-- Plugin to create index XML from DocBook HTML -->
@@ -345,12 +348,15 @@
 			    </execution>
 			</executions>
 			<configuration>
+			    <catalogs>
+				<catalog>${basedir}/src/main/docbook/catalog/catalog.xml</catalog>
+			    </catalogs>
 			    <transformationSets>
-				<!-- We only want to transform the index xhtml to an XML that's easy to process -->
+				<!-- Transform the index xhtml to an XML that's easy to process -->
 				<transformationSet>
 				    <dir>${output.help.directory.result}</dir>
-				    <outputDir>${output.help.directory.result}</outputDir>
-				    <stylesheet>src/docbkx/helptoc.xsl</stylesheet>
+				    <outputDir>${resources.help.directory}</outputDir> <!-- output to resources directory -->
+				    <stylesheet>${basedir}/src/main/docbook/helptoc.xsl</stylesheet>
 				    <includes>
 					<include>arbil.html</include>
 				    </includes>
@@ -360,6 +366,18 @@
 					    <targetExtension>.xml</targetExtension>
 					</fileMapper>
 				    </fileMappers>
+				</transformationSet>
+				<!-- Strip everything but body from other html files -->
+				<transformationSet>
+				    <dir>${output.help.directory.result}</dir>
+				    <outputDir>${resources.help.directory}</outputDir> <!-- output to resources directory -->
+				    <stylesheet>${basedir}/src/main/docbook/extractbody.xsl</stylesheet>
+				    <includes>
+					<include>*.html</include>
+				    </includes>
+				    <excludes>
+					<exclude>arbil.html</exclude>
+				    </excludes>
 				</transformationSet>
 			    </transformationSets>
 			</configuration>
@@ -376,18 +394,12 @@
 				    <goal>copy-resources</goal>
 				</goals>
 				<configuration>
-				    <outputDirectory>${basedir}/target/classes/nl/mpi/arbil/resources/html/help</outputDirectory>
+				    <outputDirectory>${resources.help.directory}/images</outputDirectory>
 				    <resources>          
 					<resource>
-					    <directory>${output.help.directory.result}</directory>
-					    <includes>
-						<!-- XML index -->
-						<include>arbil.xml</include>
-						<!-- Help contents (as HTML) -->
-						<include>*.html</include>
-					    </includes>
+					    <directory>${basedir}/src/main/docbook/images</directory>
 					</resource>
-				    </resources>              
+				    </resources>          
 				</configuration>            
 			    </execution>
 			</executions>
