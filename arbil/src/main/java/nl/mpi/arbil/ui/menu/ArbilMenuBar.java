@@ -15,6 +15,7 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -50,6 +51,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import org.xml.sax.SAXException;
 
 /**
  * ArbilMenuBar.java
@@ -170,6 +172,19 @@ public class ArbilMenuBar extends JMenuBar {
 	initHelpMenu();
 
 	setUpHotKeys();
+    }
+
+    private ArbilHelp getArbilHelp() {
+	try {
+	    return ArbilHelp.getSingleInstance();
+	} catch (IOException ioEx) {
+	    dialogHandler.addMessageDialogToQueue("I/O error while trying to read help system! See error log for details.", "Error");
+	    BugCatcherManager.getBugCatcher().logError(ioEx);
+	} catch (SAXException saxEx) {
+	    dialogHandler.addMessageDialogToQueue("Parser error while trying to read help system! See error log for details.", "Error");
+	    BugCatcherManager.getBugCatcher().logError(saxEx);
+	}
+	return null;
     }
 
     private void initFileMenu() {
@@ -754,20 +769,20 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(shortCutKeysjMenuItem);
-	printHelpMenuItem.setText("Print Help File");
-	printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    printHelpMenuItemActionPerformed(evt);
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
-	    }
-	});
-	helpMenu.add(printHelpMenuItem);
+//	printHelpMenuItem.setText("Print Help File");
+//	printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+//		try {
+//		    printHelpMenuItemActionPerformed(evt);
+//		} catch (Exception ex) {
+//		    BugCatcherManager.getBugCatcher().logError(ex);
+//		}
+//	    }
+//	});
+//	printHelpMenuItem.setVisible(false);
+//	helpMenu.add(printHelpMenuItem);
 	this.add(helpMenu);
-	printHelpMenuItem.setVisible(false);
     }
 
     private void setUpHotKeys() {
@@ -827,17 +842,22 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	ArbilHelp helpComponent = ArbilHelp.getSingleInstance();
-	if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
-	    windowManager.createWindow(ArbilHelp.helpWindowTitle, helpComponent);
+	final ArbilHelp helpComponent = getArbilHelp();
+	if (helpComponent != null) {
+	    if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
+		windowManager.createWindow(ArbilHelp.helpWindowTitle, helpComponent);
+	    }
+	    helpComponent.setCurrentPage(ArbilHelp.SHOTCUT_KEYS_PAGE);
 	}
-	helpComponent.setCurrentPage(ArbilHelp.SHOTCUT_KEYS_PAGE);
     }
 
     private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
-	    // forcus existing or create a new help window
-	    windowManager.createWindow(ArbilHelp.helpWindowTitle, ArbilHelp.getSingleInstance());
+	final ArbilHelp arbilHelp = getArbilHelp();
+	if (arbilHelp != null) {
+	    if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
+		// forcus existing or create a new help window
+		windowManager.createWindow(ArbilHelp.helpWindowTitle, getArbilHelp());
+	    }
 	}
     }
 
@@ -850,14 +870,17 @@ public class ArbilMenuBar extends JMenuBar {
 	    System.out.println(e.getMessage());
 	}
     }
-
-    private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
-	    // forcus existing or create a new help window
-	    windowManager.createWindow(ArbilHelp.helpWindowTitle, ArbilHelp.getSingleInstance());
-	}
-	ArbilHelp.getSingleInstance().printAsOneFile();
-    }
+//
+//    private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
+//	final ArbilHelp arbilHelp = getArbilHelp();
+//	if (arbilHelp != null) {
+//	    if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
+//		// forcus existing or create a new help window
+//		windowManager.createWindow(ArbilHelp.helpWindowTitle, arbilHelp);
+//	    }
+//	    arbilHelp.printAsOneFile();
+//	}
+//    }
 
 //    private void populateStorageLocationMenu(JMenu storageMenu) {
 //        storageMenu.removeAll();

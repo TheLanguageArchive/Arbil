@@ -1,8 +1,5 @@
 package nl.mpi.arbil.help;
 
-import nl.mpi.arbil.help.HelpIndex;
-import nl.mpi.arbil.help.HelpItemsParser;
-import nl.mpi.arbil.help.HelpItem;
 import java.io.InputStream;
 import org.junit.Test;
 

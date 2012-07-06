@@ -98,7 +98,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilContextMenu.setMessageDialogHandler(messageDialogHandler);
 	TableContextMenu.setMessageDialogHandler(messageDialogHandler);
 	RemoteServerSearchTermPanel.setMessageDialogHandler(messageDialogHandler);
-	ArbilHelp.setMessageDialogHandler(messageDialogHandler);
 	ArbilMenuBar.setMessageDialogHandler(messageDialogHandler);
 	TreeContextMenu.setMessageDialogHandler(messageDialogHandler);
 	ImportExportDialog.setMessageDialogHandler(messageDialogHandler);
