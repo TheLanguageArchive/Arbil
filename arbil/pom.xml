@@ -272,14 +272,17 @@
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-jxr-plugin</artifactId>
+		<version>2.3</version>
 	    </plugin>
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-javadoc-plugin</artifactId>
+		<version>2.8.1</version>
 	    </plugin>
 	    <plugin>
 		<groupId>org.codehaus.mojo</groupId>
 		<artifactId>findbugs-maven-plugin</artifactId>
+		<version>2.5.1</version>
 		<configuration>
 		    <findbugsXmlOutput>True</findbugsXmlOutput>
 		    <threshold>Normal</threshold>
@@ -382,33 +385,31 @@
 			    </transformationSets>
 			</configuration>
 		    </plugin>
-		    <!-- Plugin to copy resources into package -->
 		    <plugin>
-			<artifactId>maven-resources-plugin</artifactId>
-			<version>2.5</version>
+			<groupId>nl.mpi</groupId>
+			<artifactId>imgscalr-maven-plugin</artifactId>
+			<version>1.0-SNAPSHOT</version>
 			<executions>
 			    <execution>
-				<id>copy-resources</id>
-				<phase>process-resources</phase>
+				<phase>generate-resources</phase>
 				<goals>
-				    <goal>copy-resources</goal>
+				    <goal>scale</goal>
 				</goals>
-				<configuration>
-				    <outputDirectory>${resources.help.directory}/images</outputDirectory>
-				    <resources>          
-					<resource>
-					    <directory>${basedir}/src/main/docbook/images</directory>
-					    <includes>
-						<!-- We don't want any other file types (e.g. svg) because Swing won't support them -->
-						<include>%regex[(?i).*\.jpg$]</include>
-						<include>%regex[(?i).*\.png$]</include>
-					    </includes>
-					</resource>
-				    </resources>          
-				</configuration>            
 			    </execution>
 			</executions>
-		    </plugin>
+			<configuration>
+			    <files>
+				<directory>${basedir}/src/main/docbook/images</directory>
+				<includes>
+				    <!-- We don't want any other file types (e.g. svg) because Swing won't support them -->
+				    <include>%regex[(?i).*\.jpg$]</include>
+				    <include>%regex[(?i).*\.png$]</include>
+				</includes>
+			    </files>
+			    <outputDirectory>${resources.help.directory}/images</outputDirectory>
+			    <targetWidth>400</targetWidth>
+			</configuration>
+		    </plugin>		    
 		</plugins>
 
 		<!-- FO stuff -->
@@ -474,6 +475,5 @@
 	    </plugin>-->
 	    </build>
 	</profile>
-    </profiles>
-    
+    </profiles>   
 </project>
