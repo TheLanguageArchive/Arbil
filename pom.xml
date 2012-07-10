@@ -10,9 +10,9 @@
   <version>1.0</version>
   <description>Parent pom for Arbil</description>
   <modules>
+    <module>imgscalr-maven-plugin</module>
     <module>arbil</module>
     <module>arbil-wicket</module>
-    <module>imgscalr-maven-plugin</module>
   </modules>
 
   <scm>
