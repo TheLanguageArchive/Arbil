@@ -12,6 +12,7 @@
   <modules>
     <module>arbil</module>
     <module>arbil-wicket</module>
+    <module>imgscalr-maven-plugin</module>
   </modules>
 
   <scm>
