@@ -333,7 +333,7 @@
 			    <chunkedOutput>true</chunkedOutput>
 			    <sourceDirectory>${basedir}/src/main/docbook</sourceDirectory>
 			    <targetDirectory>${output.help.directory.base}</targetDirectory>
-			    <xhtmlCustomization>src/main/docbook/mydocbook2xhtml.xsl</xhtmlCustomization>
+			    <xhtmlCustomization>${basedir}/src/main/docbook/mydocbook2xhtml.xsl</xhtmlCustomization>
 <!--			    <includes>arbil.xml</includes>-->
 			</configuration>
 		    </plugin>
