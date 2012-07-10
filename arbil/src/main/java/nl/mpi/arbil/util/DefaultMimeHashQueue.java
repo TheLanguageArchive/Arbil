@@ -1,15 +1,12 @@
 package nl.mpi.arbil.util;
 
-import java.net.URISyntaxException;
-import java.util.concurrent.ThreadFactory;
-import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -19,6 +16,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
@@ -192,7 +192,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
 	private boolean changedSinceLastSave = false;
 	private ArbilDataNode currentDataNode;
-	private int serverPermissionsChecked = 0;
 	private int processed;
 
 	public void run() {
@@ -513,7 +512,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		is = new FileInputStream(new File(fileUri));
 		byte[] buff = new byte[1024];
 		byte[] md5sum;
-		int i = 0;
+		int i;
 		while ((i = is.read(buff)) > 0) {
 		    digest.update(buff, 0, i);
 		    long downloadDelay = System.currentTimeMillis() - startTime;

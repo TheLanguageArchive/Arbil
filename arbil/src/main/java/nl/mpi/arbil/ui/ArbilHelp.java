@@ -32,8 +32,8 @@ public class ArbilHelp extends javax.swing.JPanel {
     private final String helpResourceBase;
     private final DefaultTreeModel helpTreeModel;
     private final DefaultMutableTreeNode rootContentsNode;
-
     static private ArbilHelp singleInstance = null;
+
     static synchronized public ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
 	//TODO: This should not be a singleton...
 	if (singleInstance == null) {
@@ -44,21 +44,25 @@ public class ArbilHelp extends javax.swing.JPanel {
     }
 
     /**
-     * 
+     *
      * @param resourcesClass Class for getting resources
      * @param helpResourceBase specification of base package for help resources
-     * @param indexXml xml that specifies 
+     * @param indexXml xml that specifies
      * @throws IOException
-     * @throws SAXException 
+     * @throws SAXException
      */
     public ArbilHelp(final Class resourcesClass, final String helpResourceBase, final String indexXml) throws IOException, SAXException {
 	initComponents();
 
 	this.helpResourceBase = helpResourceBase;
 
-	final InputStream helpStream = getClass().getResourceAsStream(indexXml);
 	final HelpItemsParser parser = new HelpItemsParser();
-	helpIndex = parser.parse(helpStream);
+	final InputStream helpStream = getClass().getResourceAsStream(indexXml);
+	try {
+	    helpIndex = parser.parse(helpStream);
+	} finally {
+	    helpStream.close();
+	}
 
 	jTextPane1.setContentType("text/html");
 	((HTMLDocument) jTextPane1.getDocument()).setBase(this.getClass().getResource(helpResourceBase));
@@ -176,8 +180,15 @@ public class ArbilHelp extends javax.swing.JPanel {
 			    completeHelpText.append(helpLine);
 			}
 		    } catch (IOException ioEx) {
-			completeHelpText.append("<strong>I/O exception while reading help contents</strong>");
+			completeHelpText.append("<p><strong>I/O exception while reading help contents</strong></p>");
 			BugCatcherManager.getBugCatcher().logError(ioEx);
+		    } finally {
+			try {
+			    bufferedHelpReader.close();
+			} catch (IOException ioEx) {
+			    completeHelpText.append("<p><strong>I/O exception while close stream</strong></p>");
+			    BugCatcherManager.getBugCatcher().logError(ioEx);
+			}
 		    }
 		}
 		jTextPane1.setText(completeHelpText.toString());
