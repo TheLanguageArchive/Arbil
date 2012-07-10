@@ -6,6 +6,10 @@
   <artifactId>imgscalr-maven-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
+  <configuration>
+      <source>1.5</source>
+      <target>1.5</target>
+  </configuration>
   
   <description>
       A simple wrapper around imgscalr, the Java Image Scaling Library
