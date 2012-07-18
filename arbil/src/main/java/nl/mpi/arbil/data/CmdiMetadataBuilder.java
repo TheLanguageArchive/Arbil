@@ -330,6 +330,7 @@ public class CmdiMetadataBuilder extends AbstractMetadataBuilder {
     private boolean bumpHistoryAndSaveToDisk(ArbilDataNode destinationNode) {
 	try {
 	    dataNodeService.bumpHistory(destinationNode);
+	    //TODO: call saveChangesToCache()
 	    return dataNodeService.saveToDisk(destinationNode);
 	} catch (IOException ioEx) {
 	    BugCatcherManager.getBugCatcher().logError(ioEx);

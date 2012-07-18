@@ -7,10 +7,10 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
-import nl.mpi.arbil.ArbilConstants;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -25,7 +25,10 @@ import nl.mpi.metadata.api.MetadataAPI;
 import nl.mpi.metadata.api.MetadataException;
 import nl.mpi.metadata.api.model.MetadataDocument;
 import nl.mpi.metadata.api.model.MetadataElement;
+import nl.mpi.metadata.api.model.MetadataElementAttribute;
+import nl.mpi.metadata.api.model.MetadataElementAttributeContainer;
 import nl.mpi.metadata.api.model.MetadataField;
+import nl.mpi.metadata.api.type.MetadataElementAttributeType;
 
 /**
  *
@@ -33,27 +36,27 @@ import nl.mpi.metadata.api.model.MetadataField;
  * @author Peter Withers <peter.withers@mpi.nl>
  */
 public class CmdiDataNodeService extends ArbilDataNodeService {
-
+    
     private final DataNodeLoader dataNodeLoader;
     private final MessageDialogHandler messageDialogHandler;
     private final SessionStorage sessionStorage;
     private final MetadataDomLoader metadataDomLoader;
     private final MetadataBuilder metadataBuilder;
     private final MetadataAPI metadataAPI;
-
+    
     public CmdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper, ApplicationVersionManager versionManager) {
 	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper, sessionStorage);
-
+	
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
 	this.dataNodeLoader = dataNodeLoader;
-
+	
 	this.metadataAPI = ArbilTemplateManager.getSingleInstance().getCmdiApi();
-
+	
 	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, metadataAPI);
 	this.metadataBuilder = new CmdiMetadataBuilder(metadataAPI, this, messageDialogHandler, windowManager, sessionStorage, treeHelper, dataNodeLoader, versionManager);
     }
-
+    
     protected Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings) {
 	try {
 	    ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
@@ -109,7 +112,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    return null;
 	}
     }
-
+    
     public boolean addCorpusLink(ArbilDataNode dataNode, ArbilDataNode targetNode) {
 	boolean linkAlreadyExists = false;
 	if (targetNode.isCatalogue()) {
@@ -157,7 +160,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    }
 	}
     }
-
+    
     public void deleteCorpusLink(ArbilDataNode dataNode, ArbilDataNode[] targetImdiNodes) {
 	// TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
 	if (dataNode.nodeNeedsSaveToDisk) {
@@ -191,7 +194,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    BugCatcherManager.getBugCatcher().logError("I/O exception while deleting nodes from " + this.toString(), ex);
 	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
 	}
-
+	
 	dataNode.getParentDomNode().clearIcon();
 	dataNode.getParentDomNode().clearChildIcons();
 	dataNode.clearIcon(); // this must be cleared so that the leaf / branch flag gets set
@@ -212,10 +215,10 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	if (resourceNode == null) {
 	    throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
 	}
-
+	
 	getMetadataBuilder().requestAddNode(dataNode, null, resourceNode);
     }
-
+    
     public void addField(ArbilDataNode dataNode, ArbilField fieldToAdd) {
 	ArbilField[] currentFieldsArray = dataNode.getFieldArray(fieldToAdd.getTranslateFieldName());
 	if (currentFieldsArray == null) {
@@ -228,12 +231,12 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	dataNode.addFieldArray(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
     }
-
+    
     @Override
     public MetadataDomLoader getMetadataDomLoader() {
 	return metadataDomLoader;
     }
-
+    
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
 	String targetImdiPath = getNodePath((ArbilDataNode) targetDataNode);
 	String childPath = getNodePath((ArbilDataNode) childDataNode);
@@ -258,7 +261,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    saveChangesToCache(datanode.getParentDomNode());
 	    return;
 	}
-
+	
 	synchronized (datanode.getParentDomLockObject()) {
 	    System.out.println("saveChangesToCache");
 	    ArbilJournal.getSingleInstance().clearFieldChangeHistory();
@@ -266,7 +269,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		System.out.println("should not try to save remote files");
 		return;
 	    }
-
+	    
 	    if (updateFields(datanode)) {
 		if (saveToDisk(datanode)) {
 		    datanode.nodeNeedsSaveToDisk = false;
@@ -276,9 +279,9 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    }
 	}
     }
-
+    
     private boolean updateFields(ArbilDataNode datanode) throws IllegalArgumentException {
-	//TODO: Attributes and xml:lang
+	//TODO: xml:lang
 
 	final MetadataDocument document = datanode.getMetadataElement().getMetadataDocument();
 	ArrayList<FieldUpdateRequest> fieldUpdateRequests = getFieldUpdateRequests(datanode);
@@ -287,12 +290,25 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    try {
 		final MetadataElement childElement = document.getChildElement(fieldXPath);
 		if (childElement instanceof MetadataField) {
-		    MetadataField metadataField = (MetadataField) childElement;
+		    final MetadataField metadataField = (MetadataField) childElement;
 		    if (updateRequest.fieldOldValue.equals(metadataField.getValue())) {
 			metadataField.setValue(updateRequest.fieldNewValue);
 		    } else {
 			BugCatcherManager.getBugCatcher().logError("expecting \'" + updateRequest.fieldOldValue + "\' not \'" + metadataField.getValue() + "\' in " + fieldXPath, null);
 			return false;
+		    }
+		    
+		    final Map<String, Object> attributeValuesMap = updateRequest.attributeValuesMap;
+		    if (metadataField instanceof MetadataElementAttributeContainer
+			    && attributeValuesMap != null
+			    && attributeValuesMap.size() > 0) {
+			try {
+			    updateAttributes(metadataField, (MetadataElementAttributeContainer) metadataField, attributeValuesMap);
+			} catch (MetadataException mdEx) {
+			    messageDialogHandler.addMessageDialogToQueue("Error while trying to update attributes", "Error");
+			    BugCatcherManager.getBugCatcher().logError("Exception while updating attributes", mdEx);
+			    return false;
+			}
 		    }
 		}
 	    } catch (IllegalArgumentException iaEx) {
@@ -302,10 +318,57 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return true;
     }
+    
+    private <T extends MetadataElementAttribute> void updateAttributes(final MetadataField metadataField, final MetadataElementAttributeContainer<T> attributeContainer, final Map<String, Object> attributeValuesMap) throws MetadataException {
+	for (Map.Entry<String, Object> attributeEntry : attributeValuesMap.entrySet()) {
+	    final String attrPath = attributeEntry.getKey().replaceAll(".*/@([^/]+)$", "$1");
+	    final Object attrValue = attributeEntry.getValue();
 
+	    // Find original attribute
+	    T originalAttribute = null;
+	    for (T attribute : attributeContainer.getAttributes()) {
+		if (attribute.getType().getName().equals(attrPath)) {
+		    originalAttribute = attribute;
+		    break;
+		}
+	    }
+	    
+	    if (attrValue == null || "".equals(attrValue)) {
+		// Null or empty, remove if originally set
+		if (originalAttribute != null) {
+		    attributeContainer.removeAttribute(originalAttribute);
+		}
+	    } else {
+		// Value has been set, apply to document
+		if (originalAttribute == null) {
+		    // No original attribute, create it. Get type first
+		    final MetadataElementAttributeType attributeType = getAttributeType(metadataField, attrPath);
+		    if (attributeType != null) {
+			// Type found. Add by type
+			MetadataElementAttribute newAttribute = metadataAPI.insertAttribute(attributeContainer, attributeType);
+			// Assign value from map
+			newAttribute.setValue(attrValue);
+		    } else {
+			BugCatcherManager.getBugCatcher().logError("No attribute type found in field type for " + attrPath, null);
+		    }
+		} else {
+		    // Modify on existing attribute
+		    originalAttribute.setValue(attrValue.toString());
+		}
+	    }
+	}
+    }
+    
+    private MetadataElementAttributeType getAttributeType(final MetadataField metadataField, final String attrPath) {
+	for (MetadataElementAttributeType type : metadataField.getType().getAttributes()) {
+	    if (type.getName().equals(attrPath)) {
+		return type;
+	    }
+	}
+	return null;
+    }
+    
     protected boolean saveToDisk(ArbilDataNode datanode) {
-	//TODO: set field values
-	//	boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
 	boolean result = false;
 	try {
 	    final MetadataDocument metadataDocument = datanode.getMetadataElement().getMetadataDocument();
@@ -321,7 +384,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return result;
     }
-
+    
     public String getNodeNameFromFields(ArbilDataNode dataNode) {
 	if (dataNode.getMetadataElement() != null) {
 	    return dataNode.getMetadataElement().getDisplayValue();
@@ -329,12 +392,12 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    return null;
 	}
     }
-
+    
     @Override
     public MetadataBuilder getMetadataBuilder() {
 	return metadataBuilder;
     }
-
+    
     @Override
     public File bumpHistory(ArbilDataNode dataNode) throws IOException {
 	File historyFile = super.bumpHistory(dataNode);
@@ -343,16 +406,16 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return historyFile;
     }
-
+    
     @Override
     public List<ArbilVocabularyItem> getLanguageItems() {
 	return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
     }
-
+    
     public boolean addCorpusLink(URI nodeURI, URI[] linkURI) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
     public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
 	// TODO: Use metadata API
 	return false;
@@ -389,11 +452,11 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return returnUriList.toArray(new URI[]{});
     }
-
+    
     public boolean removeCorpusLink(URI nodeURI, URI[] linkURI) {
 	throw new UnsupportedOperationException("Not supported.");
     }
-
+    
     @Override
     public String getTranslateFieldName(ArbilField field) {
 	String fieldName = field.xmlPath;
@@ -403,13 +466,13 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 	// handle the kinoath path names
 	fieldName = fieldName.replaceFirst("^\\.Kinnate\\.CustomData\\.", "");
-
+	
 	if (fieldName.startsWith(".")) {
 	    fieldName = fieldName.substring(1);
 	}
 	
 	fieldName = fieldName.replaceAll("\\(\\d\\)", "");
-
+	
 	return addLanguageIdToFieldName(field, fieldName);
     }
 }
