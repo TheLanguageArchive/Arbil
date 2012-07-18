@@ -321,13 +321,13 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     
     private <T extends MetadataElementAttribute> void updateAttributes(final MetadataField metadataField, final MetadataElementAttributeContainer<T> attributeContainer, final Map<String, Object> attributeValuesMap) throws MetadataException {
 	for (Map.Entry<String, Object> attributeEntry : attributeValuesMap.entrySet()) {
-	    final String attrPath = attributeEntry.getKey().replaceAll(".*/@([^/]+)$", "$1");
+	    final String attrPath = attributeEntry.getKey();
 	    final Object attrValue = attributeEntry.getValue();
 
 	    // Find original attribute
 	    T originalAttribute = null;
 	    for (T attribute : attributeContainer.getAttributes()) {
-		if (attribute.getType().getName().equals(attrPath)) {
+		if (attribute.getType().getPathString().equals(attrPath)) {
 		    originalAttribute = attribute;
 		    break;
 		}
@@ -361,7 +361,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
     
     private MetadataElementAttributeType getAttributeType(final MetadataField metadataField, final String attrPath) {
 	for (MetadataElementAttributeType type : metadataField.getType().getAttributes()) {
-	    if (type.getName().equals(attrPath)) {
+	    if (type.getPathString().equals(attrPath)) {
 		return type;
 	    }
 	}

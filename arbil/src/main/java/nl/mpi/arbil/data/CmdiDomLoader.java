@@ -189,7 +189,7 @@ public class CmdiDomLoader implements MetadataDomLoader {
 	    }
 
 	    for (AttributeImpl attribute : ((MetadataElementAttributeContainer<? extends AttributeImpl>) metadataField).getAttributes()) {
-		final String attributePath = attribute.getPathString().replaceAll("/:", ArbilConstants.imdiPathSeparator).replaceAll("\\[(\\d+)\\]", "($1)");
+		final String attributePath = attribute.getType().getPathString();
 		attributesValueMap.put(attributePath, attribute.getValue());
 	    }
 	}
