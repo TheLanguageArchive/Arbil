@@ -101,7 +101,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 
 	if (!model.isCmdiSelected()) {
 	    // Remove all selected CMDI profiles
-	    for (String template : templateManager.getSelectedTemplateArrayList().toArray(new String[]{})) {
+	    for (String template : templateManager.getSelectedTemplates().toArray(new String[]{})) {
 		if (template.startsWith(ArbilTemplateManager.CLARIN_PREFIX)) {
 		    templateManager.removeSelectedTemplates(template);
 		}

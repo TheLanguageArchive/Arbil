@@ -1,29 +1,32 @@
 package nl.mpi.arbil.templates;
 
-import java.io.IOException;
-import nl.mpi.arbil.util.DownloadAbortFlag;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
-import nl.mpi.arbil.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Hashtable;
+import java.util.List;
 import javax.swing.ImageIcon;
+import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.DownloadAbortFlag;
 
 /**
  * ArbilTemplateManager.java
  * Created on Jul 15, 2009, 11:56:57 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplateManager {
 
     public static final String CLARIN_PREFIX = "clarin:";
+    public static final String CUSTOM_PREFIX = "custom:";
     private static BugCatcher bugCatcher;
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
@@ -50,6 +53,7 @@ public class ArbilTemplateManager {
 
     /**
      * Create new template of the given name from default
+     *
      * @param selectedTemplate Name of the new template. Cannot be empty or equal to the name of a built in template
      * @return File handle to the newly created template file, or null if the request is invalid
      */
@@ -155,7 +159,19 @@ public class ArbilTemplateManager {
 	}
     }
 
-    public ArrayList<String> getSelectedTemplateArrayList() {
+    public List<String> getCMDIProfileHrefs() {
+	final List<String> profilesToReload = new ArrayList<String>();
+	for (String templateString : getSelectedTemplates()) {
+	    if (templateString.startsWith(ArbilTemplateManager.CUSTOM_PREFIX) || templateString.startsWith(ArbilTemplateManager.CLARIN_PREFIX)) {
+		// Remove prefix
+		final String xsdHref = templateString.replaceFirst("^[a-zA-Z]+:", "");
+		profilesToReload.add(xsdHref);
+	    }
+	}
+	return profilesToReload;
+    }
+
+    public List<String> getSelectedTemplates() {
 	ArrayList<String> selectedTamplates = new ArrayList<String>();
 	try {
 	    selectedTamplates.addAll(Arrays.asList(loadSelectedTemplates()));
@@ -219,7 +235,7 @@ public class ArbilTemplateManager {
 	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
 	} else if (location.startsWith("custom:")) {
 	    menuItem.type = MenuItemData.Type.CMDI;
-	    
+
 	    String currentString = location.substring("custom:".length());
 	    String customName = currentString.replaceAll("[/.]xsd$", "");
 	    if (customName.contains("/")) {
