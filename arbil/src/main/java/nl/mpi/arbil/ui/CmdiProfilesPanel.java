@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -27,7 +28,7 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class CmdiProfilesPanel extends JPanel {
 
-    private boolean firstLoad = true;
+    private final JDialog parentFrame;
     private static WindowManager windowManager;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
@@ -43,41 +44,53 @@ public class CmdiProfilesPanel extends JPanel {
     private javax.swing.JProgressBar profileReloadProgressBar;
     protected javax.swing.JCheckBox profileSelectionCheckBox;
     private javax.swing.JScrollPane clarinScrollPane;
-    private javax.swing.JButton reloadButton;
-    private JDialog parentFrame;
+    private javax.swing.JButton reloadListButton;
+    private javax.swing.JButton reloadProfilesButton;
     private javax.swing.JButton downloadAllButton;
     private JTextArea profileInstructionsArea;
+    private boolean firstLoad = true;
 
     public CmdiProfilesPanel(JDialog parentFrameLocal) {
         this.parentFrame = parentFrameLocal;
 
-        profileReloadPanel = new javax.swing.JPanel();
-        profileReloadProgressBar = new javax.swing.JProgressBar();
-        clarinScrollPane = new javax.swing.JScrollPane();
-        profileSelectionCheckBox = new JCheckBox();
-        reloadButton = new javax.swing.JButton();
-        downloadAllButton = new javax.swing.JButton();
-        clarinPanel = new javax.swing.JPanel();
-        JPanel profileReloadTopPanel = new JPanel();
-        setLayout(new java.awt.BorderLayout());
+	profileReloadPanel = new javax.swing.JPanel();
+	profileReloadProgressBar = new javax.swing.JProgressBar();
+	clarinScrollPane = new javax.swing.JScrollPane();
+	profileSelectionCheckBox = new JCheckBox();
+	reloadListButton = new javax.swing.JButton();
+	reloadProfilesButton = new javax.swing.JButton();
+	downloadAllButton = new javax.swing.JButton();
+	clarinPanel = new javax.swing.JPanel();
+	JPanel profileReloadTopPanel = new JPanel();
+	setLayout(new java.awt.BorderLayout());
 
 //	profileReloadPanel.setLayout(new javax.swing.BoxLayout(profileReloadPanel, javax.swing.BoxLayout.PAGE_AXIS));
         profileReloadPanel.setLayout(new BorderLayout());
         profileReloadPanel.setAlignmentX(SwingConstants.LEFT);
         profileReloadTopPanel.setLayout(new javax.swing.BoxLayout(profileReloadTopPanel, javax.swing.BoxLayout.LINE_AXIS));
 
-        reloadButton.setText("Reload Clarin Profiles");
-        reloadButton.setToolTipText("Download the latest clarin profiles");
-        reloadButton.addActionListener(new java.awt.event.ActionListener() {
+	reloadListButton.setText("Refresh list");
+	reloadListButton.setToolTipText("Download the latest clarin profiles");
+	reloadListButton.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                reloadButtonActionPerformed(evt);
-            }
-        });
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		reloadListButtonActionPerformed(evt);
+	    }
+	});
 
-        downloadAllButton.setText("Download all profiles");
-        downloadAllButton.setToolTipText("Download all profiles for offline use (including unselected profiles)");
-        downloadAllButton.addActionListener(new java.awt.event.ActionListener() {
+
+	reloadProfilesButton.setText("Reload selection");
+	reloadProfilesButton.setToolTipText("Clear cached copies and re-download the selected profiles");
+	reloadProfilesButton.addActionListener(new java.awt.event.ActionListener() {
+
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		reloadProfilesButtonActionPerformed(evt);
+	    }
+	});
+
+	downloadAllButton.setText("Download all");
+	downloadAllButton.setToolTipText("Download all profiles for offline use (including unselected profiles)");
+	downloadAllButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 downloadAllButtonActionPerformed(evt);
@@ -87,11 +100,12 @@ public class CmdiProfilesPanel extends JPanel {
         profileSelectionCheckBox.setText("Only load profiles selected for manual editing");
         profileSelectionCheckBox.setSelected(CmdiProfileReader.getSingleInstance().getSelection() == ProfileSelection.SELECTED);
 
-        profileReloadTopPanel.add(reloadButton);
-        profileReloadTopPanel.add(downloadAllButton);
-        profileReloadTopPanel.add(profileReloadProgressBar);
-        profileReloadPanel.add(profileReloadTopPanel, BorderLayout.CENTER);
-        profileReloadPanel.add(profileSelectionCheckBox, BorderLayout.SOUTH);
+	profileReloadTopPanel.add(reloadListButton);
+	profileReloadTopPanel.add(reloadProfilesButton);
+	profileReloadTopPanel.add(downloadAllButton);
+	profileReloadTopPanel.add(profileReloadProgressBar);
+	profileReloadPanel.add(profileReloadTopPanel, BorderLayout.CENTER);
+	profileReloadPanel.add(profileSelectionCheckBox, BorderLayout.SOUTH);
 
         add(profileReloadPanel, java.awt.BorderLayout.PAGE_END);
 
@@ -156,21 +170,26 @@ public class CmdiProfilesPanel extends JPanel {
         profileInstructionsArea.setVisible(visible);
     }
 
+    private void showProgressBar(boolean show) {
+	reloadListButton.setVisible(!show);
+	reloadProfilesButton.setVisible(!show);
+	downloadAllButton.setVisible(!show);
+	profileSelectionCheckBox.setEnabled(!show);
+	profileReloadProgressBar.setVisible(show);
+    }
+
     /**
      * @param forceUpdate whether to force update even if cached copies not out of date
      * @param updateProfilesCache whether to update the profiles cache as well (i.e. in addition to the profiles list)
      */
     private void loadProfiles(final boolean forceUpdate, final boolean updateProfilesCache) {
-        CmdiProfileReader.getSingleInstance().setSelection(
-                profileSelectionCheckBox.isSelected() ? ProfileSelection.SELECTED : ProfileSelection.ALL);
-        clarinPanel.removeAll();
-        clarinPanel.add(new JTextField("Loading, please wait..."));
-        reloadButton.setVisible(false);
-        downloadAllButton.setVisible(false);
-        profileSelectionCheckBox.setEnabled(false);
-        profileReloadProgressBar.setVisible(true);
-        this.doLayout();
-        new Thread("loadProfiles") {
+	CmdiProfileReader.getSingleInstance().setSelection(
+		profileSelectionCheckBox.isSelected() ? ProfileSelection.SELECTED : ProfileSelection.ALL);
+	clarinPanel.removeAll();
+	clarinPanel.add(new JTextField("Loading, please wait..."));
+	showProgressBar(true);
+	doLayout();
+	new Thread("loadProfiles") {
 
             @Override
             public void run() {
@@ -182,22 +201,72 @@ public class CmdiProfilesPanel extends JPanel {
                 }
                 SwingUtilities.invokeLater(new Runnable() {
 
-                    public void run() {
-                        profileReloadProgressBar.setVisible(false);
-                        reloadButton.setVisible(true);
-                        downloadAllButton.setVisible(true);
-                        profileSelectionCheckBox.setEnabled(true);
-                        populateList();
-                        doLayout();
-                    }
-                });
+		    public void run() {
+			showProgressBar(false);
+			populateList();
+			doLayout();
+		    }
+		});
 
             }
         }.start();
     }
 
-    private void reloadButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void reloadListButtonActionPerformed(java.awt.event.ActionEvent evt) {
         loadProfileDescriptions(true);
+    }
+
+    private void reloadProfilesButtonActionPerformed(ActionEvent evt) {
+	SwingUtilities.invokeLater(new Runnable() {
+
+	    public void run() {
+		showProgressBar(true);
+		profileReloadProgressBar.setIndeterminate(true);
+		profileReloadProgressBar.setString("");
+		doLayout();
+	    }
+	});
+
+	new Thread() {
+
+	    @Override
+	    public void run() {
+		// Get CMDI profiles from selected templates
+		final List<String> profilesToReload = ArbilTemplateManager.getSingleInstance().getCMDIProfileHrefs();
+
+		SwingUtilities.invokeLater(new Runnable() {
+
+		    public void run() {
+			profileReloadProgressBar.setIndeterminate(false);
+			profileReloadProgressBar.setMinimum(0);
+			profileReloadProgressBar.setMaximum(profilesToReload.size() + 1);
+			profileReloadProgressBar.setValue(1);
+		    }
+		});
+
+		// Reload each of them
+		for (String xsdHref : profilesToReload) {
+		    CmdiProfileReader.getSingleInstance().storeProfileInCache(xsdHref, 0);
+		    SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+			    profileReloadProgressBar.setValue(profileReloadProgressBar.getValue() + 1);
+			}
+		    });
+		}
+
+		SwingUtilities.invokeLater(new Runnable() {
+
+		    public void run() {
+			profileReloadProgressBar.setValue(0);
+			showProgressBar(false);
+			doLayout();
+
+			dialogHandler.addMessageDialogToQueue("The profiles have been re-downloaded. You need to restart Arbil in order to apply any changes.", "Restart Arbil");
+		    }
+		});
+	    }
+	}.start();
     }
 
     private void downloadAllButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -214,44 +283,44 @@ public class CmdiProfilesPanel extends JPanel {
     }
 
     protected void populateProfilesList() {
-        ArrayList<String> selectedTemplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList();
+	List<String> selectedTemplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplates();
 
-        // add clarin types
-        ArrayList<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
-        final CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
-        for (final CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
-            final String templateId = ArbilTemplateManager.CLARIN_PREFIX + currentCmdiProfile.getXsdHref();
-            JCheckBox clarinProfileCheckBox;
-            clarinProfileCheckBox = new JCheckBox();
-            clarinProfileCheckBox.setText(currentCmdiProfile.name);
-            clarinProfileCheckBox.setName(currentCmdiProfile.name);
-            clarinProfileCheckBox.setActionCommand(templateId);
-            clarinProfileCheckBox.setSelected(selectedTemplates.contains(templateId));
-            clarinProfileCheckBox.setToolTipText(currentCmdiProfile.description);
-            clarinProfileCheckBox.addActionListener(TemplateDialogue.templateSelectionListener);
-            clarinProfileCheckBox.addActionListener(new DownloadSchemaActionListener(clarinProfileCheckBox, cmdiProfileReader, currentCmdiProfile.getXsdHref()));
-            checkBoxArray.add(clarinProfileCheckBox);
-        }
-        for (String currentSepectedProfile : selectedTemplates) {
-            if (currentSepectedProfile.startsWith("custom:")) {
-                String customUrlString = currentSepectedProfile.substring("custom:".length());
-                String customName = currentSepectedProfile.replaceAll("[/.]xsd$", "");
-                if (customName.contains("/")) {
-                    customName = customName.substring(customName.lastIndexOf("/") + 1);
-                }
-                JCheckBox clarinProfileCheckBox;
-                clarinProfileCheckBox = new JCheckBox();
-                clarinProfileCheckBox.setText(customName);
-                clarinProfileCheckBox.setName(customName);
-                clarinProfileCheckBox.setActionCommand(currentSepectedProfile);
-                clarinProfileCheckBox.setSelected(true);
-                clarinProfileCheckBox.setToolTipText("custom profile, uncheck to remove");
-                clarinProfileCheckBox.addActionListener(TemplateDialogue.templateSelectionListener);
-                clarinProfileCheckBox.addActionListener(new DownloadSchemaActionListener(clarinProfileCheckBox, cmdiProfileReader, customUrlString));
-                checkBoxArray.add(clarinProfileCheckBox);
-            }
-        }
-        TemplateDialogue.addSorted(clarinPanel, checkBoxArray);
+	// add clarin types
+	List<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
+	final CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
+	for (final CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
+	    final String templateId = ArbilTemplateManager.CLARIN_PREFIX + currentCmdiProfile.getXsdHref();
+	    JCheckBox clarinProfileCheckBox;
+	    clarinProfileCheckBox = new JCheckBox();
+	    clarinProfileCheckBox.setText(currentCmdiProfile.name);
+	    clarinProfileCheckBox.setName(currentCmdiProfile.name);
+	    clarinProfileCheckBox.setActionCommand(templateId);
+	    clarinProfileCheckBox.setSelected(selectedTemplates.contains(templateId));
+	    clarinProfileCheckBox.setToolTipText(currentCmdiProfile.description);
+	    clarinProfileCheckBox.addActionListener(TemplateDialogue.templateSelectionListener);
+	    clarinProfileCheckBox.addActionListener(new DownloadSchemaActionListener(clarinProfileCheckBox, cmdiProfileReader, currentCmdiProfile.getXsdHref()));
+	    checkBoxArray.add(clarinProfileCheckBox);
+	}
+	for (String currentSepectedProfile : selectedTemplates) {
+	    if (currentSepectedProfile.startsWith(ArbilTemplateManager.CUSTOM_PREFIX)) {
+		String customUrlString = currentSepectedProfile.substring(ArbilTemplateManager.CUSTOM_PREFIX.length());
+		String customName = currentSepectedProfile.replaceAll("[/.]xsd$", "");
+		if (customName.contains("/")) {
+		    customName = customName.substring(customName.lastIndexOf("/") + 1);
+		}
+		JCheckBox clarinProfileCheckBox;
+		clarinProfileCheckBox = new JCheckBox();
+		clarinProfileCheckBox.setText(customName);
+		clarinProfileCheckBox.setName(customName);
+		clarinProfileCheckBox.setActionCommand(currentSepectedProfile);
+		clarinProfileCheckBox.setSelected(true);
+		clarinProfileCheckBox.setToolTipText("custom profile, uncheck to remove");
+		clarinProfileCheckBox.addActionListener(TemplateDialogue.templateSelectionListener);
+		clarinProfileCheckBox.addActionListener(new DownloadSchemaActionListener(clarinProfileCheckBox, cmdiProfileReader, customUrlString));
+		checkBoxArray.add(clarinProfileCheckBox);
+	    }
+	}
+	TemplateDialogue.addSorted(clarinPanel, checkBoxArray);
     }
 
     private static class DownloadSchemaActionListener implements ActionListener {

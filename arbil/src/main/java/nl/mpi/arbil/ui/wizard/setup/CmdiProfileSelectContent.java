@@ -9,16 +9,15 @@ import nl.mpi.arbil.ui.CmdiProfilesPanel;
 
 /**
  * ArbilWizard content that lets the user select CMDI profiles
+ *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class CmdiProfileSelectContent extends TextInstructionWizardContent {
 
-    private final ArbilSetupWizardModel model;
     private CmdiProfilesPanel profilesPanel;
 
     public CmdiProfileSelectContent(ArbilSetupWizardModel model, JDialog wizardDialog) {
 	super("/nl/mpi/arbil/resources/html/wizard/CmdiProfileSelect.html");
-	this.model = model;
 
 	profilesPanel = new CmdiProfilesPanel(wizardDialog);
 	profilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
@@ -70,11 +69,11 @@ public class CmdiProfileSelectContent extends TextInstructionWizardContent {
     }
 
     /**
-     * 
+     *
      * @return Whether at least one CMDI profile has been selected
      */
     private boolean profilesSelected() {
-	for (String template : ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList()) {
+	for (String template : ArbilTemplateManager.getSingleInstance().getSelectedTemplates()) {
 	    if (template.startsWith(ArbilTemplateManager.CLARIN_PREFIX)) {
 		return true;
 	    }

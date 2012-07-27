@@ -1,13 +1,13 @@
 package nl.mpi.arbil.ui;
 
 import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -124,7 +124,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	populateLists();
     }
 
-    protected static void addSorted(JPanel targetPanel, ArrayList<JCheckBox> checkBoxArray) {
+    protected static void addSorted(JPanel targetPanel, List<JCheckBox> checkBoxArray) {
 	targetPanel.removeAll();
 	targetPanel.setLayout(new javax.swing.BoxLayout(targetPanel, javax.swing.BoxLayout.PAGE_AXIS));
 	Collections.sort(checkBoxArray, new Comparator() {
@@ -139,8 +139,8 @@ public class TemplateDialogue extends javax.swing.JPanel {
     }
 
     protected void populateLists() {
-	ArrayList<String> selectedTamplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList();
-	ArrayList<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
+	List<String> selectedTamplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplates();
+	List<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
 	// add built in types
 	for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).getRootTemplatesArray()) {
 	    JCheckBox templateCheckBox;

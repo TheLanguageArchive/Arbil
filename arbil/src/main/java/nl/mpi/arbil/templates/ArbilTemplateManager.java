@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
@@ -27,6 +28,7 @@ import nl.mpi.arbil.util.DownloadAbortFlag;
 public class ArbilTemplateManager {
 
     public static final String CLARIN_PREFIX = "clarin:";
+    public static final String CUSTOM_PREFIX = "custom:";
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -154,7 +156,19 @@ public class ArbilTemplateManager {
 	}
     }
 
-    public ArrayList<String> getSelectedTemplateArrayList() {
+    public List<String> getCMDIProfileHrefs() {
+	final List<String> profilesToReload = new ArrayList<String>();
+	for (String templateString : getSelectedTemplates()) {
+	    if (templateString.startsWith(ArbilTemplateManager.CUSTOM_PREFIX) || templateString.startsWith(ArbilTemplateManager.CLARIN_PREFIX)) {
+		// Remove prefix
+		final String xsdHref = templateString.replaceFirst("^[a-zA-Z]+:", "");
+		profilesToReload.add(xsdHref);
+	    }
+	}
+	return profilesToReload;
+    }
+
+    public List<String> getSelectedTemplates() {
 	ArrayList<String> selectedTamplates = new ArrayList<String>();
 	try {
 	    selectedTamplates.addAll(Arrays.asList(loadSelectedTemplates()));
@@ -380,8 +394,9 @@ public class ArbilTemplateManager {
     /**
      * Gets a CMDI template by namespace string. Each template gets loaded only once, so callers might end
      * up in a queue.
+     *
      * @param nameSpaceString
-     * @return 
+     * @return
      */
     public ArbilTemplate getCmdiTemplate(String nameSpaceString) {
 	if (nameSpaceString != null) {
