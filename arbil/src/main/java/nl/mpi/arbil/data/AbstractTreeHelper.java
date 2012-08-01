@@ -30,9 +30,8 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
- * Document : ArbilTreeHelper
+ * Document   : ArbilTreeHelper
  * Created on :
- *
  * @author Peter.Withers@mpi.nl
  * @author Twan.Goosen@mpi.nl
  */
@@ -289,24 +288,26 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     @Override
     public boolean addLocation(URI addedLocation) {
-        System.out.println("addLocation: " + addedLocation.toString());
-        // make sure the added location url matches that of the imdi node format
-        ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
-        if (addedLocationObject != null) {
-            saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
-            loadLocationsList();
-            return true;
-        }
-        return false;
+	System.out.println("addLocation: " + addedLocation.toString());
+	// make sure the added location url matches that of the imdi node format
+	ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
+	//TODO: Synchronize this
+	if (addedLocationObject != null) {
+	    saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
+	    loadLocationsList();
+	    return true;
+	}
+	return false;
     }
 
     @Override
     public void removeLocation(ArbilDataNode removeObject) {
-        if (removeObject != null) {
-            saveLocations(null, new ArbilDataNode[]{removeObject});
-            removeObject.removeFromAllContainers();
-            loadLocationsList();
-        }
+	if (removeObject != null) {
+	    //TODO: Synchronize this
+	    saveLocations(null, new ArbilDataNode[]{removeObject});
+	    removeObject.removeFromAllContainers();
+	    loadLocationsList();
+	}
     }
 
     @Override

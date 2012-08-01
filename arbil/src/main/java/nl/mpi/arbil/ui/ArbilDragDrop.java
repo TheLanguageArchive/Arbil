@@ -543,11 +543,9 @@ public class ArbilDragDrop {
 			    && selectionContainsLocal == true
 			    && selectionContainsRemote == false) {
 			System.out.println("ok to add local file");
-			for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
-			    final ArbilDataNode currentArbilNode = draggedArbilNodes[draggedCounter];
-			    System.out.println("dragged: " + currentArbilNode.toString());
-			    new MetadataBuilder().requestAddNode(dropTargetDataNode, "Resource", currentArbilNode);
-			}
+
+			System.out.println("dragged: " + draggedArbilNodes.toString());
+			new MetadataBuilder().requestAddNodes(dropTargetDataNode, "Resource", draggedArbilNodes);
 			return true;
 		    }
 		}
@@ -657,7 +655,7 @@ public class ArbilDragDrop {
 		    if (MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			try {
 			    // Add source to destination
-			    new MetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);
+			    new MetadataBuilder().addNodes(dropTargetDataNode, new String[]{currentNode.toString()}, new ArbilDataNode[]{currentNode});
 			    addNodeResult = true;
 			} catch (ArbilMetadataException ex) {
 			    BugCatcherManager.getBugCatcher().logError(ex);
