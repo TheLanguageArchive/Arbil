@@ -67,7 +67,6 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 		    // cause the parent node to be loaded
 		    currentDataNode.getParentDomNode();
 		} else if (MetadataFormat.isPathMetadata(currentDataNode.getUrlString()) || ArbilDataNode.isPathHistoryFile(currentDataNode.getUrlString())) {
-		    currentDataNode.updateLoadingState(+1);
 		    threadManager.addNodeToQueue(currentDataNode);
 		} else if (!MetadataFormat.isPathMetadata(currentDataNode.getUrlString())) {
 //                    currentImdiObject.clearIcon(); // do not do this
@@ -106,7 +105,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     public void requestShallowReload(ArbilDataNode currentDataNode) {
 	requestReload(currentDataNode, LoadingState.PARTIAL);
     }
-    
+
     // reload the node or if it is an imdichild node then reload its parent
     private void requestReload(ArbilDataNode currentDataNode, LoadingState loadingState) {
 	if (currentDataNode.isChildNode()) {

@@ -777,11 +777,12 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	if (this != getParentDomNode()) {
 	    getParentDomNode().updateLoadingState(countChange);
 	} else {
+	    final boolean wasLoading = isLoading();
 	    synchronized (loadingCountLock) {
 		isLoadingCount += countChange;
 	    }
 //            System.out.println("isLoadingCount: " + isLoadingCount);
-	    if (!isLoading()) {
+	    if (wasLoading != isLoading()) {
 		//                    this.notifyAll();
 		clearChildIcons();
 		clearIcon();

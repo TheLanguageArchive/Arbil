@@ -10,11 +10,11 @@ import nl.mpi.arbil.util.task.ArbilTask;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
 
 /**
- * Manages the loader threads and queues for loading ArbilDataNodes. 
+ * Manages the loader threads and queues for loading ArbilDataNodes.
  * Used by DataNodeLoader.
- * 
+ *
  * @see nl.mpi.arbil.data.DataNodeLoader
- * 
+ *
  * @author Peter Wither <peter.withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
@@ -43,6 +43,7 @@ public class DataNodeLoaderThreadManager {
 	if (ArbilDataNode.isStringLocal(nodeToAdd.getUrlString())) {
 	    synchronized (arbilLocalNodesToInit) {
 		if (!arbilLocalNodesToInit.contains(nodeToAdd)) {
+		    nodeToAdd.updateLoadingState(+1);
 		    arbilLocalNodesToInit.addElement(nodeToAdd);
 		    arbilLocalNodesToInit.notifyAll();
 		}
@@ -50,6 +51,7 @@ public class DataNodeLoaderThreadManager {
 	} else {
 	    synchronized (arbilRemoteNodesToInit) {
 		if (!arbilRemoteNodesToInit.contains(nodeToAdd)) {
+		    nodeToAdd.updateLoadingState(+1);
 		    arbilRemoteNodesToInit.addElement(nodeToAdd);
 		    arbilRemoteNodesToInit.notifyAll();
 		}
@@ -235,7 +237,7 @@ public class DataNodeLoaderThreadManager {
 	}
     }
 
-    /***
+    /** *
      * Runnable that gets a node from the remote queue and loads it
      */
     private class RemoteLoader extends Loader {
