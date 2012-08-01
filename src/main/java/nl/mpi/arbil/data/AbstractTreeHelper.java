@@ -30,7 +30,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : ArbilTreeHelper
- * Created on : 
+ * Created on :
  * @author Peter.Withers@mpi.nl
  */
 public abstract class AbstractTreeHelper implements TreeHelper {
@@ -271,6 +271,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	System.out.println("addLocation: " + addedLocation.toString());
 	// make sure the added location url matches that of the imdi node format
 	ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
+	//TODO: Synchronize this
 	if (addedLocationObject != null) {
 	    saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
 	    loadLocationsList();
@@ -282,6 +283,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     @Override
     public void removeLocation(ArbilDataNode removeObject) {
 	if (removeObject != null) {
+	    //TODO: Synchronize this
 	    saveLocations(null, new ArbilDataNode[]{removeObject});
 	    removeObject.removeFromAllContainers();
 	    loadLocationsList();
