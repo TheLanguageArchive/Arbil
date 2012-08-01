@@ -145,6 +145,7 @@ public class MetadataBuilder {
 	    public void run() {
 		ArbilNode addedNode = null;
 		destinationNode.updateLoadingState(1);
+		try {
 		synchronized (destinationNode.getParentDomLockObject()) {
 		    try {
 			System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
@@ -155,9 +156,46 @@ public class MetadataBuilder {
 			messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
 		    }
 		}
+		} finally {
 		destinationNode.updateLoadingState(-1);
+		}
 		if (addedNode != null) {
 		    destinationNode.triggerNodeAdded(addedNode);
+		}
+	    }
+
+	    private ArbilDataNode processAddNodes(ArbilDataNode destinationNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
+
+		// make title for imdi table
+		String newTableTitleString = "new " + nodeTypeDisplayName;
+		if (destinationNode.isMetaDataNode() && destinationNode.getFile().exists()) {
+		    newTableTitleString = newTableTitleString + " in " + destinationNode.toString();
+		}
+
+		System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
+		// Create child node
+		URI addedNodeUri = addChildNode(destinationNode, nodeType, targetXmlPath, resourceUri, mimeType);
+		// Get the newly created data node
+		ArbilDataNode addedArbilNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
+		refreshNodes(destinationNode, addedArbilNode);
+		windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
+		return addedArbilNode;
+	    }
+
+	    private void refreshNodes(ArbilDataNode destinationNode, ArbilDataNode addedArbilNode) {
+		if (addedArbilNode != null) {
+		    addedArbilNode.getParentDomNode().updateLoadingState(+1);
+		    try {
+			addedArbilNode.scrollToRequested = true;
+			if (destinationNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
+			    destinationNode.getParentDomNode().loadArbilDom();
+			}
+			if (destinationNode.getParentDomNode() != addedArbilNode.getParentDomNode()) {
+			    addedArbilNode.getParentDomNode().loadArbilDom();
+			}
+		    } finally {
+			addedArbilNode.getParentDomNode().updateLoadingState(-1);
+		    }
 		}
 	    }
 	}.start();
@@ -282,6 +320,11 @@ public class MetadataBuilder {
     }
 
     private void addNonMetaDataNode(final ArbilDataNode destinationNode, final List<String> nodeTypeDisplayNames, final List<ArbilDataNode> addableNodes) throws ArbilMetadataException {
+
+	List<URI> addedNodeURIs = new ArrayList<URI>(addableNodes.size());
+
+	destinationNode.getParentDomNode().updateLoadingState(+1);
+	try {
 	for (int i = 0; i < addableNodes.size(); i++) {
 	    final ArbilDataNode addableNode = addableNodes.get(i);
 	    String nodeTypeDisplayName = nodeTypeDisplayNames.get(i);
@@ -294,18 +337,18 @@ public class MetadataBuilder {
 	    for (ArbilDataNode currentArbilNode : sourceArbilNodeArray) {
 		if (destinationNode.isCmdiMetaDataNode()) {
 		    new ArbilComponentBuilder().insertResourceProxy(destinationNode, addableNode);
-		    destinationNode.getParentDomNode().loadArbilDom();
+//		    destinationNode.getParentDomNode().loadArbilDom();
 		} else {
 		    String nodeType;
 		    String favouriteUrlString = null;
-		    URI resourceUrl = null;
+			URI resourceUri = null;
 		    String mimeType = null;
 		    if (currentArbilNode.isArchivableFile() && !currentArbilNode.isMetaDataNode()) {
 			nodeType = MetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
 			if (nodeType == null) {
 			    nodeType = handleUnknownMimetype(currentArbilNode);
 			}
-			resourceUrl = currentArbilNode.getURI();
+			    resourceUri = currentArbilNode.getURI();
 			mimeType = currentArbilNode.mpiMimeType;
 			nodeTypeDisplayName = "Resource";
 		    } else {
@@ -314,12 +357,25 @@ public class MetadataBuilder {
 		    }
 		    if (nodeType != null) {
 			String targetXmlPath = destinationNode.getURI().getFragment();
-			System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
-			processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
-			destinationNode.getParentDomNode().loadArbilDom();
+			    System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUri);
+
+			    // Create child node
+			    URI addedNodeUri = addChildNode(destinationNode, nodeType, targetXmlPath, resourceUri, mimeType);
+			    addedNodeURIs.add(addedNodeUri);
 		    }
 		}
 	    }
+	}
+
+	    // Adding done, reload desination node
+	    destinationNode.scrollToRequested = true;
+	    destinationNode.getParentDomNode().loadArbilDom();
+	} finally {
+	    destinationNode.getParentDomNode().updateLoadingState(-1);
+    }
+	if (addedNodeURIs.size() > 0) {
+	    String title = String.format("New %1$s in %2$s", (addedNodeURIs.size() == 1 ? "resource" : "resources"), destinationNode.toString());
+	    windowManager.openFloatingTableOnce(addedNodeURIs.toArray(new URI[]{}), title);
 	}
     }
 
@@ -384,37 +440,6 @@ public class MetadataBuilder {
 	    String newTableTitleString = "new " + addableNode + (destinationNode == null ? "" : (" in " + destinationNode));
 	    windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
 	}
-    }
-
-    private ArbilDataNode processAddNodes(ArbilDataNode currentArbilNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
-
-	// make title for imdi table
-	String newTableTitleString = "new " + nodeTypeDisplayName;
-	if (currentArbilNode.isMetaDataNode() && currentArbilNode.getFile().exists()) {
-	    newTableTitleString = newTableTitleString + " in " + currentArbilNode.toString();
-	}
-
-	System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
-	// Create child node
-	URI addedNodeUri = addChildNode(currentArbilNode, nodeType, targetXmlPath, resourceUri, mimeType);
-	// Get the newly created data node
-	ArbilDataNode addedArbilNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
-	if (addedArbilNode != null) {
-	    addedArbilNode.getParentDomNode().updateLoadingState(+1);
-	    try {
-		addedArbilNode.scrollToRequested = true;
-		if (currentArbilNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
-		    currentArbilNode.getParentDomNode().loadArbilDom();
-		}
-		if (currentArbilNode.getParentDomNode() != addedArbilNode.getParentDomNode()) {
-		    addedArbilNode.getParentDomNode().loadArbilDom();
-		}
-	    } finally {
-		addedArbilNode.getParentDomNode().updateLoadingState(-1);
-	    }
-	}
-	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
-	return addedArbilNode;
     }
 
     /**
