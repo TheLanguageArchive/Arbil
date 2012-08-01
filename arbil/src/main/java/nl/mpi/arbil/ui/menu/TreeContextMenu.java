@@ -33,6 +33,7 @@ import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.FavouriteSelectBox;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -90,10 +91,10 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
 
     private void setUpItems() {
-	final int selectionCount = tree.getSelectionCount();
-	final int nodeLevel = (selectionCount > 0) ? tree.getSelectionPath().getPathCount() : -1;
-	final boolean showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
-	final boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
+        final int selectionCount = tree.getSelectionCount();
+        final int nodeLevel = (selectionCount > 0) ? tree.getSelectionPath().getPathCount() : -1;
+        final boolean showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
+        final boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 
         viewSelectedNodesMenuItem.setText("View Selected");
         viewSelectedSubnodesMenuItem.setText(leadSelectedTreeNode != null && leadSelectedTreeNode.isEditable() ? "Edit all Metadata" : "View all Metadata");
@@ -132,6 +133,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
                 // set up the favourites menu
                 addFromFavouritesMenu.setVisible(true);
+                addResourcesFavouritesMenu.setVisible(true);
             }
             if (tree == getTreePanel().localDirectoryTree) {
                 removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
@@ -173,15 +175,15 @@ public class TreeContextMenu extends ArbilContextMenu {
             addToFavouritesMenuItem.setVisible(false);
         }
 
-	ArbilNode[] selectedNodes = tree.getAllSelectedNodes();
+        ArbilNode[] selectedNodes = tree.getAllSelectedNodes();
 
-	copyNodeUrlMenuItem.setVisible(((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1) && !(selectedNodes[0] instanceof ContainerNode));
-	viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1 && !(selectedNodes[0] instanceof ContainerNode));
-	reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1 && !(selectedNodes[0] instanceof ContainerNode));
-	viewSelectedSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1
-		&& selectedNodes[0].isMetaDataNode() && !selectedNodes[0].isCorpus() && !(selectedNodes[0] instanceof ContainerNode));
-	editInLongFieldEditor.setVisible(selectionCount > 0 && nodeLevel > 1
-		&& !selectedNodes[0].isEmptyMetaNode() && !(selectedNodes[0] instanceof ContainerNode));
+        copyNodeUrlMenuItem.setVisible(((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1) && !(selectedNodes[0] instanceof ContainerNode));
+        viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1 && !(selectedNodes[0] instanceof ContainerNode));
+        reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1 && !(selectedNodes[0] instanceof ContainerNode));
+        viewSelectedSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1
+                && selectedNodes[0].isMetaDataNode() && !selectedNodes[0].isCorpus() && !(selectedNodes[0] instanceof ContainerNode));
+        editInLongFieldEditor.setVisible(selectionCount > 0 && nodeLevel > 1
+                && !selectedNodes[0].isEmptyMetaNode() && !(selectedNodes[0] instanceof ContainerNode));
     }
 
     private void setUpActions() {
@@ -344,6 +346,26 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         });
         addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addFromFavouritesMenu);
+
+        addResourcesFavouritesMenu.setText("Add Bulk Resources via Favourites");
+        addResourcesFavouritesMenu.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    final FavouriteSelectBox favouriteSelectBox = new FavouriteSelectBox(leadSelectedTreeNode);
+                    File[] selectedFiles = dialogHandler.showFileSelectBox("Add Bulk Resources", false, true, null, MessageDialogHandler.DialogueType.open, favouriteSelectBox);
+//                    File[] selectedFiles = dialogHandler.showDirectorySelectBox("Add Resources", true);
+                    if (selectedFiles != null && selectedFiles.length > 0) {
+                        for (File currentDirectory : selectedFiles) {
+//                            treeHelper.addLocationInteractive(currentDirectory.toURI());
+                        }
+                    }
+                } catch (Exception ex) {
+                    BugCatcherManager.getBugCatcher().logError(ex);
+                }
+            }
+        });
+//        addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addResourcesFavouritesMenu);
 
         if (leadSelectedTreeNode != null && leadSelectedTreeNode.isContainerNode()) {
             addToFavouritesMenuItem.setText("Add Children To Favourites List");
@@ -828,16 +850,13 @@ public class TreeContextMenu extends ArbilContextMenu {
             // No lead selected tree node, so pass local corpus root node
             targetObject = ((DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot()).getUserObject();
         }
-        for (Enumeration menuItemName = ArbilFavourites.getSingleInstance().listFavouritesFor(targetObject); menuItemName.hasMoreElements();) {
-            String[] currentField = (String[]) menuItemName.nextElement();
-//            System.out.println("MenuText: " + currentField[0]);
-//            System.out.println("ActionCommand: " + currentField[1]);
-
+        for (ArbilDataNode menuItemName : ArbilFavourites.getSingleInstance().listFavouritesFor(targetObject)) {
             JMenuItem addFavouriteMenuItem;
             addFavouriteMenuItem = new JMenuItem();
-            addFavouriteMenuItem.setText(currentField[0]);
-            addFavouriteMenuItem.setName(currentField[0]);
-            addFavouriteMenuItem.setActionCommand(currentField[1]);
+            addFavouriteMenuItem.setText(menuItemName.toString());
+            addFavouriteMenuItem.setName(menuItemName.toString());
+            addFavouriteMenuItem.setActionCommand(menuItemName.getUrlString());
+            addFavouriteMenuItem.setIcon(menuItemName.getIcon());
             addFavouriteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -972,6 +991,7 @@ public class TreeContextMenu extends ArbilContextMenu {
         deleteMenuItem.setVisible(false);
         viewSelectedNodesMenuItem.setVisible(false);
         addFromFavouritesMenu.setVisible(false);
+        addResourcesFavouritesMenu.setVisible(false);
         //viewChangesMenuItem.setVisible(false);
         //sendToServerMenuItem.setVisible(false);
         validateMenuItem.setVisible(false);
@@ -989,6 +1009,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
     private ArbilTree tree;
     private JMenu addFromFavouritesMenu = new JMenu();
+    private JMenuItem addResourcesFavouritesMenu = new JMenuItem();
     private JMenuItem addLocalDirectoryMenuItem = new JMenuItem();
     private JCheckBoxMenuItem showHiddenFilesMenuItem = new JCheckBoxMenuItem();
     private JMenuItem addDefaultLocationsMenuItem = new JMenuItem();
