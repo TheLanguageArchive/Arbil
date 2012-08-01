@@ -11,6 +11,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.templates.ArbilFavourites;
 
 /**
@@ -20,15 +21,16 @@ import nl.mpi.arbil.templates.ArbilFavourites;
  */
 public class FavouriteSelectBox extends JPanel {
 
-    final ArbilDataNode targetNode;
+    final ArbilNode targetNode;
     final JCheckBox metadataFilePerResourceCheckBox;
     final JCheckBox copyDirectoryStructureCheckBox;
+    final JList favouriteList;
 
-    public FavouriteSelectBox(ArbilDataNode targetNode) {
+    public FavouriteSelectBox(ArbilNode targetNode) {
         this.targetNode = targetNode;
         this.setLayout(new BorderLayout());
         this.setBorder(BorderFactory.createTitledBorder("Suitable Favourites"));
-        final JList favouriteList = new JList(ArbilFavourites.getSingleInstance().listFavouritesFor(targetNode));
+        favouriteList = new JList(ArbilFavourites.getSingleInstance().listFavouritesFor(targetNode));
         favouriteList.setCellRenderer(new DefaultListCellRenderer() {
 
             @Override
@@ -52,5 +54,21 @@ public class FavouriteSelectBox extends JPanel {
         copyDirectoryStructureCheckBox = new JCheckBox("Copy directory structure", false);
         optionsPanel.add(copyDirectoryStructureCheckBox);
         this.add(optionsPanel, BorderLayout.PAGE_END);
+    }
+
+    public ArbilDataNode getSelectedFavouriteNode() {
+        return (ArbilDataNode) favouriteList.getSelectedValue();
+    }
+
+    public ArbilNode getTargetNode() {
+        return targetNode;
+    }
+
+    public boolean getCopyDirectoryStructure() {
+        return this.copyDirectoryStructureCheckBox.isSelected();
+    }
+
+    public boolean getMetadataFilePerResource() {
+        return this.metadataFilePerResourceCheckBox.isSelected();
     }
 }

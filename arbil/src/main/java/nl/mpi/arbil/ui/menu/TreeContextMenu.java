@@ -352,20 +352,31 @@ public class TreeContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    final FavouriteSelectBox favouriteSelectBox = new FavouriteSelectBox(leadSelectedTreeNode);
+                    // handle add actions on the root tree node
+                    ArbilNode targetObject = leadSelectedTreeNode;
+                    if (targetObject == null) {
+                        // No lead selected tree node, so pass local corpus root node
+                        targetObject = (ArbilNode) (((DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot()).getUserObject());
+                    }
+                    final FavouriteSelectBox favouriteSelectBox = new FavouriteSelectBox(targetObject);
                     File[] selectedFiles = dialogHandler.showFileSelectBox("Add Bulk Resources", false, true, null, MessageDialogHandler.DialogueType.open, favouriteSelectBox);
-//                    File[] selectedFiles = dialogHandler.showDirectorySelectBox("Add Resources", true);
                     if (selectedFiles != null && selectedFiles.length > 0) {
-                        for (File currentDirectory : selectedFiles) {
-//                            treeHelper.addLocationInteractive(currentDirectory.toURI());
-                        }
+//                        BulkResourcesAdder bulkResourcesAdder = new BulkResourcesAdder(dialogHandler, favouriteSelectBox.getTargetNode(), favouriteSelectBox.getSelectedFavouriteNode(), selectedFiles);
+//                        bulkResourcesAdder.setCopyDirectoryStructure(favouriteSelectBox.getCopyDirectoryStructure());
+//                        bulkResourcesAdder.setMetadataFilePerResource(favouriteSelectBox.getMetadataFilePerResource());
+//                        bulkResourcesAdder.doBulkAdd();
+//                        if (favouriteSelectBox.getTargetNode() instanceof ArbilDataNode) {
+                        new MetadataBuilder().requestAddNodeAndResources(favouriteSelectBox.getTargetNode(), "Add Bulk Resources", favouriteSelectBox.getSelectedFavouriteNode(), selectedFiles, favouriteSelectBox.getCopyDirectoryStructure(), favouriteSelectBox.getMetadataFilePerResource());
+//                        } else {
+//                            new MetadataBuilder().requestAddRootNode(favouriteSelectBox.getSelectedFavouriteNode(), ((JMenuItem) evt.getSource()).getText());
+//                        }
                     }
                 } catch (Exception ex) {
                     BugCatcherManager.getBugCatcher().logError(ex);
                 }
             }
         });
-//        addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addResourcesFavouritesMenu);
+        addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addResourcesFavouritesMenu);
 
         if (leadSelectedTreeNode != null && leadSelectedTreeNode.isContainerNode()) {
             addToFavouritesMenuItem.setText("Add Children To Favourites List");
