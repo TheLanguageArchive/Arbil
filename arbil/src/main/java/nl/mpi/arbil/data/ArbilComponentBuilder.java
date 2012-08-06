@@ -463,80 +463,8 @@ public class ArbilComponentBuilder {
 	    File cmdiNodeFile = arbilDataNode.getFile();
 	    try {
 		Document targetDocument = getDocument(arbilDataNode.getURI());
-		for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
-		    System.out.println("currentFieldUpdate: " + currentFieldUpdate.fieldPath);
-		    // todo: search for and remove any reource links referenced by this node or its sub nodes
-		    Node documentNode = selectSingleNode(targetDocument, currentFieldUpdate.fieldPath);
-		    if (currentFieldUpdate.fieldOldValue.equals(documentNode.getTextContent())) {
-			documentNode.setTextContent(currentFieldUpdate.fieldNewValue);
-		    } else {
-			BugCatcherManager.getBugCatcher().logError(new Exception("expecting \'" + currentFieldUpdate.fieldOldValue + "\' not \'" + documentNode.getTextContent() + "\' in " + currentFieldUpdate.fieldPath));
-			return false;
-		    }
-		    if (!(documentNode instanceof Attr)) { // Attributes obviously don't have an attributesMap
-			NamedNodeMap attributesMap = documentNode.getAttributes();
-			if (attributesMap != null) {
-			    if (currentFieldUpdate.attributeValuesMap != null && documentNode instanceof Element) {
-				// Traverse values from attribute map
-				final Element element = (Element) documentNode;
-				for (Map.Entry<String, Object> attributeEntry : currentFieldUpdate.attributeValuesMap.entrySet()) {
-				    final String attrPath = attributeEntry.getKey();
-				    final Object attrValue = attributeEntry.getValue();
-
-				    final Attr attrNode = getAttributeNodeFromPath(element, attrPath);
-
-				    if (attrValue == null || "".equals(attrValue)) {
-					// Null or empty, remove if set
-					if (attrNode != null) {
-					    element.removeAttributeNode(attrNode);
-					}
-				    } else {
-					// Value has been set, apply to document
-					if (attrNode != null) {
-					    // Modify on existing attribute
-					    attrNode.setValue(attrValue.toString());
-					} else {
-					    // Set new attribute
-					    addAttributeNodeFromPath(element, attrPath, attrValue.toString());
-					}
-				    }
-				}
-			    }
-
-			    if (!arbilDataNode.isCmdiMetaDataNode()) { // isImdiMetadataNode()
-				Node languageNode = attributesMap.getNamedItem("LanguageId");
-				if (languageNode == null) {
-				    languageNode = attributesMap.getNamedItem("xml:lang");
-				}
-				if (languageNode != null) {
-				    languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
-				}
-			    } else {
-				Node languageNode = attributesMap.getNamedItem("xml:lang");
-				if (languageNode == null) {
-				    if (currentFieldUpdate.fieldLanguageId != null) {
-					((Element) documentNode).setAttribute("xml:lang", currentFieldUpdate.fieldLanguageId);
-				    }
-				} else {
-				    if (currentFieldUpdate.fieldLanguageId == null) {
-					((Element) documentNode).removeAttribute("xml:lang");
-				    } else {
-					languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
-				    }
-				}
-			    }
-
-
-			    if (!arbilDataNode.isCmdiMetaDataNode()) { // isImdiMetadataNode()
-				if (currentFieldUpdate.keyNameValue != null) {
-				    Node keyNameNode = attributesMap.getNamedItem("Name");
-				    if (keyNameNode != null) {
-					keyNameNode.setNodeValue(currentFieldUpdate.keyNameValue);
-				    }
-				}
-			    }
-			}
-		    }
+		if (!doFieldUpdates(fieldUpdates, targetDocument, arbilDataNode)) {
+		    return false;
 		}
 		// bump the history
 		arbilDataNode.bumpHistory();
@@ -566,17 +494,94 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    public void testInsertFavouriteComponent() {
-	try {
-	    ArbilDataNode favouriteArbilDataNode1 = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
-	    ArbilDataNode favouriteArbilDataNode2 = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
-	    ArbilDataNode destinationArbilDataNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
-	    insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode1);
-	    insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode2);
-	} catch (URISyntaxException exception) {
-	    BugCatcherManager.getBugCatcher().logError(exception);
-	} catch (ArbilMetadataException exception) {
-	    BugCatcherManager.getBugCatcher().logError(exception);
+    private boolean doFieldUpdates(FieldUpdateRequest[] fieldUpdates, Document targetDocument, ArbilDataNode arbilDataNode) throws DOMException, TransformerException {
+	for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
+	    System.out.println("currentFieldUpdate: " + currentFieldUpdate.fieldPath);
+	    // todo: search for and remove any reource links referenced by this node or its sub nodes
+	    final Node documentNode = selectSingleNode(targetDocument, currentFieldUpdate.fieldPath);
+	    if (currentFieldUpdate.fieldOldValue.equals(documentNode.getTextContent())) {
+		documentNode.setTextContent(currentFieldUpdate.fieldNewValue);
+	    } else {
+		BugCatcherManager.getBugCatcher().logError(new Exception("expecting \'" + currentFieldUpdate.fieldOldValue + "\' not \'" + documentNode.getTextContent() + "\' in " + currentFieldUpdate.fieldPath));
+		return false;
+	    }
+	    if (documentNode instanceof Element) { // Attributes obviously don't have an attributesMap
+		final NamedNodeMap attributesMap = documentNode.getAttributes();
+		if (attributesMap != null) {
+		    doUpdateAttributes(currentFieldUpdate, (Element) documentNode, arbilDataNode, attributesMap);
+		}
+	    }
+	}
+	return true;
+    }
+
+    private void doUpdateAttributes(FieldUpdateRequest currentFieldUpdate, Element element, ArbilDataNode arbilDataNode, NamedNodeMap attributesMap) throws DOMException {
+	final Map<String, Object> attributeValuesMap = currentFieldUpdate.attributeValuesMap;
+	if (attributeValuesMap != null) {
+	    // Traverse values from attribute map
+	    for (Map.Entry<String, Object> attributeEntry : attributeValuesMap.entrySet()) {
+		updateAttribute(element, attributeEntry.getKey(), attributeEntry.getValue());
+	    }
+	}
+
+	if (arbilDataNode.isCmdiMetaDataNode()) {
+	    updateCmdiAttributes(attributesMap, currentFieldUpdate, element);
+	} else {
+	    updateImdiAttributes(attributesMap, currentFieldUpdate);
+	}
+    }
+
+    private void updateAttribute(Element element, String attrPath, Object attrValue) throws DOMException {
+	final Attr attrNode = getAttributeNodeFromPath(element, attrPath);
+
+	if (attrValue == null || "".equals(attrValue)) {
+	    // Null or empty, remove if set
+	    if (attrNode != null) {
+		element.removeAttributeNode(attrNode);
+	    }
+	} else {
+	    // Value has been set, apply to document
+	    if (attrNode != null) {
+		// Modify on existing attribute
+		attrNode.setValue(attrValue.toString());
+	    } else {
+		// Set new attribute
+		addAttributeNodeFromPath(element, attrPath, attrValue.toString());
+	    }
+	}
+    }
+
+    private void updateCmdiAttributes(NamedNodeMap attributesMap, FieldUpdateRequest currentFieldUpdate, Element element) throws DOMException {
+	Node languageNode = attributesMap.getNamedItem("xml:lang");
+	if (languageNode == null) {
+	    if (currentFieldUpdate.fieldLanguageId != null) {
+		element.setAttribute("xml:lang", currentFieldUpdate.fieldLanguageId);
+	    }
+	} else {
+	    if (currentFieldUpdate.fieldLanguageId == null) {
+		element.removeAttribute("xml:lang");
+	    } else {
+		languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
+	    }
+	}
+    }
+
+    private void updateImdiAttributes(NamedNodeMap attributesMap, FieldUpdateRequest currentFieldUpdate) throws DOMException {
+	// isImdiMetadataNode()
+	Node languageNode = attributesMap.getNamedItem("LanguageId");
+	if (languageNode == null) {
+	    languageNode = attributesMap.getNamedItem("xml:lang");
+	}
+	if (languageNode != null) {
+	    languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
+	}
+
+
+	if (currentFieldUpdate.keyNameValue != null) {
+	    Node keyNameNode = attributesMap.getNamedItem("Name");
+	    if (keyNameNode != null) {
+		keyNameNode.setNodeValue(currentFieldUpdate.keyNameValue);
+	    }
 	}
     }
 
