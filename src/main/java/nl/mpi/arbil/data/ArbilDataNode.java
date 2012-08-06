@@ -53,8 +53,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- * Document   : ArbilDataNode formerly known as ImdiTreeObject
- * 
+ * Document : ArbilDataNode formerly known as ImdiTreeObject
+ *
  * @author Peter Withers <peter.withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
@@ -320,6 +320,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Searches for pending changes in this node or one of its subnodes
+     *
      * @return Whether this node or any of its descendants has changed fields
      * @see hasChangedFields()
      */
@@ -678,6 +679,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //        }
     /**
      * Count the next level of child nodes. (non recursive)
+     *
      * @return An integer of the next level of child nodes including corpus links and Arbil child nodes.
      */
     public int getChildCount() {
@@ -687,6 +689,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Calls getAllChildren(Vector<ArbilDataNode> allChildren) and returns the result as an array
+     *
      * @return an array of all the child nodes
      */
     public ArbilDataNode[] getAllChildren() {
@@ -697,6 +700,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Used to get all the Arbil child nodes (all levels) of a session or all the nodes contained in a corpus (one level only).
+     *
      * @param An empty vector, to which all the child nodes will be added.
      */
     public void getAllChildren(Vector<ArbilDataNode> allChildren) {
@@ -713,6 +717,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Gets an array of the children of this node.
+     *
      * @return An array of the next level child nodes.
      */
     public ArbilDataNode[] getChildArray() {
@@ -722,6 +727,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     /**
      * Gets the second level child nodes from the fist level child node matching the child type string.
      * Used to populate the child nodes in the table cell.
+     *
      * @param childType The name of the first level child to query.
      * @return An object array of all second level child nodes in the first level node.
      */
@@ -736,6 +742,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Recursively checks all subnodes and their URI fragments, tries to find a match to the provided path
+     *
      * @param path Path to match
      * @return Matching child node, if found. Otherwise null
      */
@@ -769,6 +776,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     /**
      * create a subdirectory based on the file name of the node
      * if that fails then the current directory will be returned
+     *
      * @return
      */
     public File getSubDirectory() {
@@ -824,103 +832,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Tests if this node has child nodes even if they are not yet loaded.
+     *
      * @return boolean
      */
     public boolean canHaveChildren() {
 	return childArray.length > 0;
     }
 
-    //    /*
-    //     * gets an array of
-    //     */
-    //    public int[] getRecursiveChildCount() {
-    ////        debugOut("getChildCount: " + this.toString());
-    //        int[] returnArray = new int[2];
-    //        returnArray[0] = 0;
-    //        returnArray[1] = 0;
-    //        if (imdiDataLoaded) {
-    //            returnArray[1] += 1; // count this node
-    //            Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-    //            while (nodesToAddEnumeration.hasMoreElements()) {
-    //                // count the child nodes
-    //                int[] childCount = ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).getRecursiveChildCount();
-    //                returnArray[0] += childCount[0];
-    //                returnArray[1] += childCount[1];
-    //            }
-    //        } else {
-    //            if (this.isImdi()) {
-    //                returnArray[0] = 1;
-    //            }
-    //        }
-    //        return returnArray;
-    //    }
-    //    public void loadNextLevelOfChildren(long stopTime) {
-    ////        debugOut("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
-    //        if (System.currentTimeMillis() > stopTime) {
-    //            return;
-    //        }
-    //        if (this.isImdi()) {
-    //            if (getParentDomNode().imdiDataLoaded) {
-    //                Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-    //                while (nodesToAddEnumeration.hasMoreElements()) {
-    //                    // load one level of child nodes
-    //                    ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).loadNextLevelOfChildren(stopTime);
-    //                    //((ImdiTreeObject) nodesToAddEnumeration.nextElement()).();
-    //                }
-    //            }
-    //        }
-    ////        debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
-    //    }
-    /**
-     * Vector gets populated with all fields relevant to the parent node
-     * that includes all indinodechild fields but not from any other imdi file
-     * @param allFields Vector to populate
-     */
-    private void getAllFields(Vector<ArbilField[]> allFields) {
-	System.out.println("getAllFields: " + this.toString());
-	allFields.addAll(fieldHashtable.values());
-	for (ArbilDataNode currentChild : childArray) {
-	    if (currentChild.isChildNode()) {
-		currentChild.getAllFields(allFields);
-	    }
-	}
-    }
-
-    //    public void deleteFromParentDom(String[] childNodeXmlIdArray) {
-    ////        System.out.println("deleteFromParentDom: " + childNodeXmlIdArray);
-    //        if (this.isImdiChild()) {
-    //            this.domParentImdi.deleteFromParentDom(new String[]{this.xmlNodeId});
-    //        } else {
-    //            // save the node if it need saving
-    //            if (needsSaveToDisk) {
-    //                saveChangesToCache(false);
-    //            }
-    ////            System.out.println("attempting to remove nodes");
-    //            try {
-    //                OurURL inUrlLocal = new OurURL(nodeUri.toURL());
-    //                Document nodDom;
-    //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
-    //                for (String currentNodeXmlId : childNodeXmlIdArray) {
-    //                    IMDIElement target = new IMDIElement(null, currentNodeXmlId);
-    //                    api.removeIMDIElement(nodDom, target);
-    //                }
-    //                api.writeDOM(nodDom, this.getFile(), false);
-    //                reloadNode();
-    //            } catch (Exception ex) {
-    //                bugCatcher.logError(ex);
-    //            }
-    //        }
-    //    }
-    //    public void deleteFeilds(ImdiField[] targetImdiFields) {
-    //        ArrayList<String> pathList = new ArrayList<String>();
-    //        for (ImdiField currentField : targetImdiFields) {
-    //            pathList.add(currentField.getFullXmlPath());
-    //        }
-    //        CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
-    //        boolean result = componentBuilder.removeChildNodes(this, pathList.toArray(new String[]{}));
-    //
-    ////        deleteFromDomViaId(domIdList.toArray(new String[]{}));
-    //    }
     // this is used to delete an IMDI node from a corpus branch
     public void deleteCorpusLink(ArbilDataNode[] targetImdiNodes) {
 	// TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
@@ -1118,10 +1036,24 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
 	System.out.println("saveChangesToCache");
 	ArbilJournal.getSingleInstance().clearFieldChangeHistory();
-	if (!this.isLocal() /*nodeUri.getScheme().toLowerCase().startsWith("http") */) {
+	if (!this.isLocal() /* nodeUri.getScheme().toLowerCase().startsWith("http") */) {
 	    System.out.println("should not try to save remote files");
 	    return;
 	}
+	ArrayList<FieldUpdateRequest> fieldUpdateRequests = createFieldUpdateRequests();
+	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
+	if (!result) {
+	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+	} else {
+	    this.nodeNeedsSaveToDisk = false;
+	    //            // update the icon to indicate the change
+	    //            setImdiNeedsSaveToDisk(null, false);
+	}
+	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
+    }
+
+    private ArrayList<FieldUpdateRequest> createFieldUpdateRequests() {
 	ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
 	Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
 	getAllFields(allFields);
@@ -1143,21 +1075,30 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 		}
 	    }
 	}
-	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-	boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
-	if (!result) {
-	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
-	} else {
-	    this.nodeNeedsSaveToDisk = false;
-	    //            // update the icon to indicate the change
-	    //            setImdiNeedsSaveToDisk(null, false);
+	return fieldUpdateRequests;
+    }
+
+    /**
+     * Vector gets populated with all fields relevant to the parent node
+     * that includes all indinodechild fields but not from any other imdi file
+     *
+     * @param allFields Vector to populate
+     */
+    private void getAllFields(Vector<ArbilField[]> allFields) {
+	System.out.println("getAllFields: " + this.toString());
+	allFields.addAll(fieldHashtable.values());
+	for (ArbilDataNode currentChild : childArray) {
+	    if (currentChild.isChildNode()) {
+		currentChild.getAllFields(allFields);
+	    }
 	}
-	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
 
     /**
      * Saves the node dom into the local cache.
-     * Before this is called it is recommended to confirm that the destinationDirectory path already exist and is correct, otherwise unintended directories maybe created
+     * Before this is called it is recommended to confirm that the destinationDirectory path already exist and is correct, otherwise
+     * unintended directories maybe created
+     *
      * @param nodDom The dom for this node that will be saved.
      * @return A string path of the saved location.
      */
@@ -1217,7 +1158,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
 	fieldHashtable.put(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
 
-	if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.getParentDataNode().isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
+	if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.getParentDataNode().isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile") */) {
 	    resourceUrlField = fieldToAdd;
 	    mimeHashQueue.addToQueue(this);
 	}
@@ -1225,6 +1166,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Adds a field to the imdi node and creates imdi child nodes if required.
+     *
      * @param fieldToAdd The field to be added.
      * @param childLevel For internal use and should be zero. Used to track the distance in imdi child nodes from the imdi node.
      * @param addedImdiNodes Returns with all the imdi child nodes that have been added during the process.
@@ -1299,6 +1241,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     /**
      * Gets the fields in this node, this does not include any imdi child fields.
      * To get all fields relevant the imdi file use "getAllFields()" which includes imdi child fields.
+     *
      * @return A hashtable of the fields
      */
     public Hashtable<String, ArbilField[]> getFields() {
@@ -1309,6 +1252,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Returns the fields of this data note sorted by field order
+     *
      * @return
      */
     public List<ArbilField[]> getFieldsSorted() {
@@ -1344,6 +1288,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //    }
     /**
      * Compares this node to another based on its type and string value.
+     *
      * @return The string comparison result.
      */
     public int compareTo(Object o) throws ClassCastException {
@@ -1360,7 +1305,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * If isLoading(), i.e. loading state > 0, waits for loading state to become 0
-     * @return 
+     *
+     * @return
      */
     public synchronized boolean waitTillLoaded() {
 	System.out.println("waitTillLoaded");
@@ -1440,11 +1386,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	getLabelString:
 	for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
 	    for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
-		
+
 		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
 		// nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
 		// if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
-		
+
 		if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
 		    preferredNameFieldExists = true;
 		    for (ArbilField currentField : currentFieldArray) {
@@ -1472,7 +1418,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 		}
 	    }
 	}
-	if (!foundPreferredNameField && this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//*&& fieldHashtable.size() > 0 && domParentImdi == this*/) {
+	if (!foundPreferredNameField && this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//* && fieldHashtable.size() > 0 && domParentImdi == this */) {
 	    String unamedText;
 	    String nodeFragmentName = this.getURI().getFragment();
 	    if (nodeFragmentName != null) {
@@ -1549,6 +1495,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     /**
      * Tests if there is file associated with this node and if it is an archivable type.
      * The file could be either a resource file (getResource) or a loose file (getUrlString).
+     *
      * @return boolean
      */
     public boolean isArchivableFile() {
@@ -1557,6 +1504,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Tests if a resource file (local or remote) is associated with this node.
+     *
      * @return boolean
      */
     public boolean hasResource() {
@@ -1577,6 +1525,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Inserts/sets resource location. Behavior will depend on node type
+     *
      * @param location Location to insert/set
      */
     public void insertResourceLocation(URI location) throws ArbilMetadataException {
@@ -1601,6 +1550,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Tests if a local resource file is associated with this node.
+     *
      * @return boolean
      */
     public boolean hasLocalResource() {
@@ -1634,6 +1584,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Gets the ULR string of the resource file if it is available.
+     *
      * @return a URL string of the resource file
      */
     private String getResource() {
@@ -1818,6 +1769,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Resolves the full path to a resource file if it exists.
+     *
      * @return The path to remote resource if it exists.
      */
     public URI getFullResourceURI() {
@@ -1863,6 +1815,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Gets the ULR string provided when the node was created.
+     *
      * @return a URL string of the IMDI
      */
     public String getUrlString() {
@@ -1878,6 +1831,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * Gets the ArbilDataNode parent of an imdi child node.
      * The returned node will be able to reload/save the dom for this node.
      * Only relevant for imdi child nodes.
+     *
      * @return ArbilDataNode
      */
     public synchronized ArbilDataNode getParentDomNode() {
@@ -1904,7 +1858,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean isMetaDataNode() {
-	if (nodeUri != null /* && nodDom != null*/) {
+	if (nodeUri != null /* && nodDom != null */) {
 	    if (isChildNode()) {
 		return true;
 	    } else {
@@ -1915,7 +1869,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean isCmdiMetaDataNode() {
-	if (nodeUri != null /* && nodDom != null*/) {
+	if (nodeUri != null /* && nodDom != null */) {
 	    if (isChildNode()) {
 		return getParentDomNode().isCmdiMetaDataNode();
 	    } else {
@@ -1926,7 +1880,9 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     /**
-     * Tests if this node represents an imdi file or if if it represents a child node from an imdi file (created by adding fields with child nodes).
+     * Tests if this node represents an imdi file or if if it represents a child node from an imdi file (created by adding fields with child
+     * nodes).
+     *
      * @return boolean
      */
     public boolean isChildNode() {
@@ -1944,6 +1900,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Tests if this node is a meta node that contains no fields and only child nodes, such as the Languages, Actors, MediaFiles nodes etc..
+     *
      * @return boolean
      */
     public boolean isEmptyMetaNode() {
@@ -1991,6 +1948,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     /**
      * Returns the URI object for this node.
+     *
      * @return A URI that this node represents.
      */
     public URI getURI() {
@@ -2111,6 +2069,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * If not already done calculates the required icon for this node in its current state.
      * Once calculated the stored icon will be returned.
      * To clear the icon and recalculate it "clearIcon()" should be called.
+     *
      * @return The icon for this node.
      */
     public ImageIcon getIcon() {
