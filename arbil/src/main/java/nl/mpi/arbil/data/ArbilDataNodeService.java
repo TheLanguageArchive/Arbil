@@ -314,6 +314,20 @@ public class ArbilDataNodeService {
 	    return;
 	}
 	ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
+	createFieldUpdateRequests(datanode, fieldUpdateRequests);
+	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
+	if (!result) {
+	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+	} else {
+	    datanode.nodeNeedsSaveToDisk = false;
+	    //            // update the icon to indicate the change
+	    //            setImdiNeedsSaveToDisk(null, false);
+	}
+	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
+    }
+
+    private void createFieldUpdateRequests(ArbilDataNode datanode, ArrayList<FieldUpdateRequest> fieldUpdateRequests) {
 	Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
 	datanode.getAllFields(allFields);
 	for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
@@ -334,16 +348,6 @@ public class ArbilDataNodeService {
 		}
 	    }
 	}
-	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-	boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
-	if (!result) {
-	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
-	} else {
-	    datanode.nodeNeedsSaveToDisk = false;
-	    //            // update the icon to indicate the change
-	    //            setImdiNeedsSaveToDisk(null, false);
-	}
-	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
 
     public void setDataNodeNeedsSaveToDisk(ArbilDataNode dataNode, ArbilField originatingField, boolean updateUI) {

@@ -477,47 +477,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	return childArray.length > 0;
     }
 
-    //    /*
-    //     * gets an array of
-    //     */
-    //    public int[] getRecursiveChildCount() {
-    ////        debugOut("getChildCount: " + this.toString());
-    //        int[] returnArray = new int[2];
-    //        returnArray[0] = 0;
-    //        returnArray[1] = 0;
-    //        if (imdiDataLoaded) {
-    //            returnArray[1] += 1; // count this node
-    //            Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-    //            while (nodesToAddEnumeration.hasMoreElements()) {
-    //                // count the child nodes
-    //                int[] childCount = ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).getRecursiveChildCount();
-    //                returnArray[0] += childCount[0];
-    //                returnArray[1] += childCount[1];
-    //            }
-    //        } else {
-    //            if (this.isImdi()) {
-    //                returnArray[0] = 1;
-    //            }
-    //        }
-    //        return returnArray;
-    //    }
-    //    public void loadNextLevelOfChildren(long stopTime) {
-    ////        debugOut("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
-    //        if (System.currentTimeMillis() > stopTime) {
-    //            return;
-    //        }
-    //        if (this.isImdi()) {
-    //            if (getParentDomNode().imdiDataLoaded) {
-    //                Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-    //                while (nodesToAddEnumeration.hasMoreElements()) {
-    //                    // load one level of child nodes
-    //                    ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).loadNextLevelOfChildren(stopTime);
-    //                    //((ImdiTreeObject) nodesToAddEnumeration.nextElement()).();
-    //                }
-    //            }
-    //        }
-    ////        debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
-    //    }
     /**
      * Vector gets populated with all fields relevant to the parent node
      * that includes all indinodechild fields but not from any other imdi file
@@ -534,41 +493,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
     }
 
-    //    public void deleteFromParentDom(String[] childNodeXmlIdArray) {
-    ////        System.out.println("deleteFromParentDom: " + childNodeXmlIdArray);
-    //        if (this.isImdiChild()) {
-    //            this.domParentImdi.deleteFromParentDom(new String[]{this.xmlNodeId});
-    //        } else {
-    //            // save the node if it need saving
-    //            if (needsSaveToDisk) {
-    //                saveChangesToCache(false);
-    //            }
-    ////            System.out.println("attempting to remove nodes");
-    //            try {
-    //                OurURL inUrlLocal = new OurURL(nodeUri.toURL());
-    //                Document nodDom;
-    //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
-    //                for (String currentNodeXmlId : childNodeXmlIdArray) {
-    //                    IMDIElement target = new IMDIElement(null, currentNodeXmlId);
-    //                    api.removeIMDIElement(nodDom, target);
-    //                }
-    //                api.writeDOM(nodDom, this.getFile(), false);
-    //                reloadNode();
-    //            } catch (Exception ex) {
-    //                bugCatcher.logError(ex);
-    //            }
-    //        }
-    //    }
-    //    public void deleteFeilds(ImdiField[] targetImdiFields) {
-    //        ArrayList<String> pathList = new ArrayList<String>();
-    //        for (ImdiField currentField : targetImdiFields) {
-    //            pathList.add(currentField.getFullXmlPath());
-    //        }
-    //        CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
-    //        boolean result = componentBuilder.removeChildNodes(this, pathList.toArray(new String[]{}));
-    //
-    ////        deleteFromDomViaId(domIdList.toArray(new String[]{}));
-    //    }
     // this is used to delete an IMDI node from a corpus branch
     public void deleteCorpusLink(ArbilDataNode[] targetImdiNodes) {
 	dataNodeService.deleteCorpusLink(this, targetImdiNodes);
@@ -608,80 +532,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     /**
-     * Adds a field to the imdi node and creates imdi child nodes if required.
-     *
-     * @param fieldToAdd The field to be added.
-     * @param childLevel For internal use and should be zero. Used to track the distance in imdi child nodes from the imdi node.
-     * @param addedImdiNodes Returns with all the imdi child nodes that have been added during the process.
-     * @param useCache If true the the imdi file will be saved to the cache.
-     */
-    //    private void addField(ImdiField fieldToAdd, int childLevel, Vector addedImdiNodes) {
-    //        // TODO: modify this so that each child node gets the full filename and full xml path
-    ////            if (isImdi()) {
-    ////                if (fieldLabel.startsWith("Session.")) {
-    ////                    fieldLabel = fieldLabel.substring(8);
-    ////                } else if (fieldLabel.startsWith("Corpus.")) {
-    ////                    fieldLabel = fieldLabel.substring(7);
-    ////                }
-    ////            }
-    //        //fieldUrl.substring(firstSeparator + 1)
-    //        // TODO: move this and we write to imdischema
-    //        int nextChildLevel = fieldToAdd.translatedPath.replace(")", "(").indexOf("(", childLevel);
-    //        debugOut("fieldLabel: " + fieldToAdd.translatedPath + " cellValue: " + fieldToAdd.fieldValue + " childLevel: " + childLevel + " nextChildLevel: " + nextChildLevel);
-    //        if (nextChildLevel == -1) {
-    //            // add the label to this level node
-    ////                if (fieldLabel == null) fieldLabel = "oops null";
-    ////                if (fieldValue == null) fieldValue = "oops null";
-    //            String childsLabel = fieldToAdd.translatedPath.substring(childLevel);
-    //            fieldHashtable.put(childsLabel, fieldToAdd);
-    //
-    ////                if (childsLabel.endsWith(".Date")) {
-    ////                    DateFormat df = new SimpleDateFormat("yyyy-MM-DD");
-    ////                    try {
-    ////                        nodeDate = df.parse(fieldToAdd.fieldValue);
-    ////                        if (minNodeDate == null) {
-    ////                            minNodeDate = nodeDate;
-    ////                            maxNodeDate = nodeDate;
-    ////                        }
-    ////                        if (nodeDate.before(minNodeDate)) {
-    ////                            minNodeDate = nodeDate;
-    ////                        }
-    ////                        if (nodeDate.after(maxNodeDate)) {
-    ////                            maxNodeDate = nodeDate;
-    ////                        }
-    ////                    } catch (Exception ex) {
-    ////                        System.err.println(ex.getMessage());
-    ////                    }
-    ////                }
-    //            // if the node contains a ResourceLink then save the location in resourceUrlString and create a hash for the file
-    //            if (childsLabel.equals(MetadataReader.imdiPathSeparator + "ResourceLink")) {
-    ////                        // resolve the relative location of the file
-    ////                        File resourceFile = new File(this.getFile().getParent(), fieldToAdd.fieldValue);
-    ////                        resourceUrlString = resourceFile.getCanonicalPath();
-    //                resourceUrlString = fieldToAdd.fieldValue;
-    ////                if (useCache) {
-    ////                    linorgSessionStorage.getFromCache(getFullResourceURI());
-    ////                }
-    //                mimeHashQueue.addToQueue(this);
-    //            }
-    //        } else {
-    //            // pass the label to the child nodes
-    //            String childsName = fieldToAdd.translatedPath.substring(childLevel, nextChildLevel);
-    //            //String parentName = fieldLabel.substring(0, firstSeparator);
-    //            debugOut("childsName: " + childsName);
-    //            if (!childrenHashtable.containsKey(childsName)) {
-    //                ImdiTreeObject tempImdiTreeObject = imdiLoader.getImdiObject(childsName, this.getUrlString() + "#" + fieldToAdd.xmlPath);
-    //                if (addedImdiNodes != null) {
-    //                    addedImdiNodes.add(tempImdiTreeObject);
-    //                }
-    //                tempImdiTreeObject.imdiDataLoaded = true;
-    ////                System.out.println("adding to list of child nodes 3: " + tempImdiTreeObject);
-    //                childrenHashtable.put(childsName, tempImdiTreeObject);
-    //            }
-    //            ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldToAdd, nextChildLevel + 1, addedImdiNodes);
-    //        }
-    //    }
-    /**
      * Gets the fields in this node, this does not include any imdi child fields.
      * To get all fields relevant the imdi file use "getAllFields()" which includes imdi child fields.
      *
@@ -704,31 +554,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	return fieldArrays;
     }
 
-    //    public String getCommonFieldPathString() {
-    //        // find repetitious path strings in the fields for this node so they can be omitted from the table display
-    //        if (commonFieldPathString == null) {
-    //            if (fieldHashtable.size() < 2) {
-    //                // if there is only one field name then it would be reduced to zero length which we do not want
-    //                commonFieldPathString = "";
-    //            } else {
-    //                String commonPath = null;
-    //                for (ImdiField[] currentField : fieldHashtable.values()) {
-    //                    if (commonPath == null) {
-    //                        commonPath = currentField[0].xmlPath;
-    //                    } else {
-    //                        int matchingIndex = commonPath.length();
-    //                        while (matchingIndex > 0 && !commonPath.substring(0, matchingIndex).equals(currentField[0].xmlPath.substring(0, matchingIndex))) {
-    //                            System.out.println("matchingIndex: " + matchingIndex + "\t" + commonPath.substring(0, matchingIndex));
-    //                            matchingIndex--;
-    //                        }
-    //                        commonPath = commonPath.substring(0, matchingIndex);
-    //                    }
-    //                }
-    //                commonFieldPathString = commonPath;
-    //            }
-    //        }
-    //        return commonFieldPathString;
-    //    }
     /**
      * Compares this node to another based on its type and string value.
      *
