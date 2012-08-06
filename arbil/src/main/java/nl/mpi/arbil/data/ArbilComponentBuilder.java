@@ -83,21 +83,27 @@ public class ArbilComponentBuilder {
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
-    private HashMap<ArbilDataNode, SchemaType> nodeSchemaTypeMap = new HashMap<ArbilDataNode, SchemaType>();
 
-    public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
+    private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
 	DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 	documentBuilderFactory.setValidating(false);
 	documentBuilderFactory.setNamespaceAware(true);
 	DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-	Document document;
+	return documentBuilder;
+    }
+    private HashMap<ArbilDataNode, SchemaType> nodeSchemaTypeMap = new HashMap<ArbilDataNode, SchemaType>();
+
+    public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
 	if (inputUri == null) {
-	    document = documentBuilder.newDocument();
+	    return getNewDocument();
 	} else {
 	    String decodeUrlString = URLDecoder.decode(inputUri.toString(), "UTF-8");
-	    document = documentBuilder.parse(decodeUrlString);
+	    return getDocumentBuilder().parse(decodeUrlString);
 	}
-	return document;
+    }
+
+    public static Document getNewDocument() throws ParserConfigurationException {
+	return getDocumentBuilder().newDocument();
     }
 
 //    private Document createDocument(File inputFile) throws ParserConfigurationException, SAXException, IOException {
@@ -1310,7 +1316,7 @@ public class ArbilComponentBuilder {
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile, boolean addDummyData) {
 	System.out.println("createComponentFile: " + cmdiNodeFile + " : " + xsdFile);
 	try {
-	    Document workingDocument = getDocument(null);
+	    Document workingDocument = getNewDocument();
 	    readSchema(workingDocument, xsdFile, addDummyData);
 
 	    savePrettyFormatting(workingDocument, new File(cmdiNodeFile));
@@ -1517,45 +1523,4 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(e);
 	}
     }
-
-    public void testWalk() {
-	try {
-	    //new CmdiComponentBuilder().readSchema();
-	    //File xsdFile = LinorgSessionStorage.getSingleInstance().getFromCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", 5);
-	    Document workingDocument = getDocument(null);
-
-	    //Create instance of DocumentBuilderFactory
-	    //DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    //Get the DocumentBuilder
-	    //DocumentBuilder docBuilder = factory.newDocumentBuilder();
-	    //Create blank DOM Document
-	    //Document doc = docBuilder.newDocument();
-
-	    //create the root element
-//            Element root = workingDocument.createElement("root");
-//            //all it to the xml tree
-//            workingDocument.appendChild(root);
-//
-//            //create a comment
-//            Comment comment = workingDocument.createComment("This is comment");
-//            //add in the root element
-//            root.appendChild(comment);
-//
-//            //create child element
-//            Element childElement = workingDocument.createElement("Child");
-//            //Add the atribute to the child
-//            childElement.setAttribute("attribute1", "The value of Attribute 1");
-//            root.appendChild(childElement);
-
-	    readSchema(workingDocument, new URI("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264769926773/xsd"), true);
-	    printoutDocument(workingDocument);
-	} catch (Exception e) {
-	    BugCatcherManager.getBugCatcher().logError(e);
-	}
-    }
-//    public static void main(String args[]) {
-//        //new CmdiComponentBuilder().testWalk();
-//        //new CmdiComponentBuilder().testRemoveArchiveHandles();
-//        new ArbilComponentBuilder().testInsertFavouriteComponent();
-//    }
 }
