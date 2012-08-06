@@ -2,7 +2,7 @@ package nl.mpi.arbil.clarin;
 
 import java.net.URI;
 import java.util.Date;
-import org.apache.xmlbeans.XmlDateTime;
+import org.apache.xmlbeans.XmlDate;
 
 /**
  * Class to represent the information stored in the /CMD/Header element of CMDI instances
@@ -66,7 +66,7 @@ public class CmdiHeaderInfo {
 	}
 
 	// Prepare date/time in proper format
-	final XmlDateTime dateTime = XmlDateTime.Factory.newInstance();
+	final XmlDate dateTime = XmlDate.Factory.newInstance();
 	dateTime.setDateValue(new Date());
 
 	// Create and initialize header info object
