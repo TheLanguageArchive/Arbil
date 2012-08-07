@@ -270,12 +270,21 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		return;
 	    }
 
-	    if (updateFields(datanode)) {
-		if (saveToDisk(datanode)) {
-		    datanode.nodeNeedsSaveToDisk = false;
-		} else {
-		    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+	    boolean success = updateFields(datanode);
+	    if (success) {
+		try {
+		    bumpHistory(datanode);
+		    success = saveToDisk(datanode);
+		    if (success) {
+			datanode.nodeNeedsSaveToDisk = false;
+		    }
+		} catch (IOException ioEx) {
+		    success = false;
+		    BugCatcherManager.getBugCatcher().logError("An exception occurred while saving data node history", ioEx);
 		}
+	    }
+	    if (!success) {
+		messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
 	    }
 	}
     }
