@@ -36,27 +36,27 @@ import nl.mpi.metadata.api.type.MetadataElementAttributeType;
  * @author Peter Withers <peter.withers@mpi.nl>
  */
 public class CmdiDataNodeService extends ArbilDataNodeService {
-    
+
     private final DataNodeLoader dataNodeLoader;
     private final MessageDialogHandler messageDialogHandler;
     private final SessionStorage sessionStorage;
     private final MetadataDomLoader metadataDomLoader;
     private final MetadataBuilder metadataBuilder;
     private final MetadataAPI metadataAPI;
-    
+
     public CmdiDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, WindowManager windowManager, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper, ApplicationVersionManager versionManager) {
 	super(dataNodeLoader, messageDialogHandler, mimeHashQueue, treeHelper, sessionStorage);
-	
+
 	this.messageDialogHandler = messageDialogHandler;
 	this.sessionStorage = sessionStorage;
 	this.dataNodeLoader = dataNodeLoader;
-	
+
 	this.metadataAPI = ArbilTemplateManager.getSingleInstance().getCmdiApi();
-	
+
 	this.metadataDomLoader = new CmdiDomLoader(dataNodeLoader, metadataAPI);
 	this.metadataBuilder = new CmdiMetadataBuilder(metadataAPI, this, messageDialogHandler, windowManager, sessionStorage, treeHelper, dataNodeLoader, versionManager);
     }
-    
+
     protected Collection<ArbilDataNode> pasteIntoNode(ArbilDataNode dataNode, String[] clipBoardStrings) {
 	try {
 	    ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
@@ -112,7 +112,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    return null;
 	}
     }
-    
+
     public boolean addCorpusLink(ArbilDataNode dataNode, ArbilDataNode targetNode) {
 	boolean linkAlreadyExists = false;
 	if (targetNode.isCatalogue()) {
@@ -160,7 +160,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    }
 	}
     }
-    
+
     public void deleteCorpusLink(ArbilDataNode dataNode, ArbilDataNode[] targetImdiNodes) {
 	// TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
 	if (dataNode.nodeNeedsSaveToDisk) {
@@ -194,7 +194,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    BugCatcherManager.getBugCatcher().logError("I/O exception while deleting nodes from " + this.toString(), ex);
 	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
 	}
-	
+
 	dataNode.getParentDomNode().clearIcon();
 	dataNode.getParentDomNode().clearChildIcons();
 	dataNode.clearIcon(); // this must be cleared so that the leaf / branch flag gets set
@@ -215,10 +215,10 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	if (resourceNode == null) {
 	    throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
 	}
-	
+
 	getMetadataBuilder().requestAddNode(dataNode, null, resourceNode);
     }
-    
+
     public void addField(ArbilDataNode dataNode, ArbilField fieldToAdd) {
 	ArbilField[] currentFieldsArray = dataNode.getFieldArray(fieldToAdd.getTranslateFieldName());
 	if (currentFieldsArray == null) {
@@ -231,12 +231,12 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	dataNode.addFieldArray(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
     }
-    
+
     @Override
     public MetadataDomLoader getMetadataDomLoader() {
 	return metadataDomLoader;
     }
-    
+
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
 	String targetImdiPath = getNodePath((ArbilDataNode) targetDataNode);
 	String childPath = getNodePath((ArbilDataNode) childDataNode);
@@ -261,7 +261,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    saveChangesToCache(datanode.getParentDomNode());
 	    return;
 	}
-	
+
 	synchronized (datanode.getParentDomLockObject()) {
 	    System.out.println("saveChangesToCache");
 	    ArbilJournal.getSingleInstance().clearFieldChangeHistory();
@@ -269,7 +269,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		System.out.println("should not try to save remote files");
 		return;
 	    }
-	    
+
 	    if (updateFields(datanode)) {
 		if (saveToDisk(datanode)) {
 		    datanode.nodeNeedsSaveToDisk = false;
@@ -279,7 +279,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    }
 	}
     }
-    
+
     private boolean updateFields(ArbilDataNode datanode) throws IllegalArgumentException {
 	//TODO: xml:lang
 
@@ -297,7 +297,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 			BugCatcherManager.getBugCatcher().logError("expecting \'" + updateRequest.fieldOldValue + "\' not \'" + metadataField.getValue() + "\' in " + fieldXPath, null);
 			return false;
 		    }
-		    
+
 		    final Map<String, Object> attributeValuesMap = updateRequest.attributeValuesMap;
 		    if (metadataField instanceof MetadataElementAttributeContainer
 			    && attributeValuesMap != null
@@ -318,7 +318,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return true;
     }
-    
+
     private <T extends MetadataElementAttribute> void updateAttributes(final MetadataField metadataField, final MetadataElementAttributeContainer<T> attributeContainer, final Map<String, Object> attributeValuesMap) throws MetadataException {
 	for (Map.Entry<String, Object> attributeEntry : attributeValuesMap.entrySet()) {
 	    final String attrPath = attributeEntry.getKey();
@@ -332,7 +332,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 		    break;
 		}
 	    }
-	    
+
 	    if (attrValue == null || "".equals(attrValue)) {
 		// Null or empty, remove if originally set
 		if (originalAttribute != null) {
@@ -358,7 +358,7 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    }
 	}
     }
-    
+
     private MetadataElementAttributeType getAttributeType(final MetadataField metadataField, final String attrPath) {
 	for (MetadataElementAttributeType type : metadataField.getType().getAttributes()) {
 	    if (type.getPathString().equals(attrPath)) {
@@ -367,14 +367,13 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return null;
     }
-    
+
     protected boolean saveToDisk(ArbilDataNode datanode) {
-	boolean result = false;
 	try {
 	    final MetadataDocument metadataDocument = datanode.getMetadataElement().getMetadataDocument();
 	    metadataAPI.writeMetadataDocument(metadataDocument, new StreamResult(datanode.getFile()));
 	    metadataDocument.setFileLocation(datanode.getFile().toURI());
-	    result = true;
+	    return true;
 	} catch (IOException ioEx) {
 	    BugCatcherManager.getBugCatcher().logError(ioEx);
 	} catch (TransformerException tEx) {
@@ -382,9 +381,9 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	} catch (MetadataException mdEx) {
 	    BugCatcherManager.getBugCatcher().logError(mdEx);
 	}
-	return result;
+	return false;
     }
-    
+
     public String getNodeNameFromFields(ArbilDataNode dataNode) {
 	if (dataNode.getMetadataElement() != null) {
 	    return dataNode.getMetadataElement().getDisplayValue();
@@ -392,12 +391,12 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	    return null;
 	}
     }
-    
+
     @Override
     public MetadataBuilder getMetadataBuilder() {
 	return metadataBuilder;
     }
-    
+
     @Override
     public File bumpHistory(ArbilDataNode dataNode) throws IOException {
 	File historyFile = super.bumpHistory(dataNode);
@@ -406,16 +405,16 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return historyFile;
     }
-    
+
     @Override
     public List<ArbilVocabularyItem> getLanguageItems() {
 	return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
     }
-    
+
     public boolean addCorpusLink(URI nodeURI, URI[] linkURI) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
 	// TODO: Use metadata API
 	return false;
@@ -452,11 +451,11 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	}
 	return returnUriList.toArray(new URI[]{});
     }
-    
+
     public boolean removeCorpusLink(URI nodeURI, URI[] linkURI) {
 	throw new UnsupportedOperationException("Not supported.");
     }
-    
+
     @Override
     public String getTranslateFieldName(ArbilField field) {
 	String fieldName = field.xmlPath;
@@ -466,13 +465,13 @@ public class CmdiDataNodeService extends ArbilDataNodeService {
 	fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 	// handle the kinoath path names
 	fieldName = fieldName.replaceFirst("^\\.Kinnate\\.CustomData\\.", "");
-	
+
 	if (fieldName.startsWith(".")) {
 	    fieldName = fieldName.substring(1);
 	}
-	
+
 	fieldName = fieldName.replaceAll("\\(\\d\\)", "");
-	
+
 	return addLanguageIdToFieldName(field, fieldName);
     }
 }
