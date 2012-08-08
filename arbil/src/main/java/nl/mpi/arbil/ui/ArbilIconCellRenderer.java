@@ -40,6 +40,13 @@ public class ArbilIconCellRenderer extends JPanel {
     public Icon getRightIcon() {
         return rightIcon;
     }
+
+    @Override
+    public void doLayout() {
+        // When layout is done, check whether the icon should be shown (depending on current width)
+        rightIconLabel.setVisible(rightIcon != null && getWidth() >= ArbilIconCellPanel.minWidthForIcon + rightIcon.getIconWidth());
+        super.doLayout();
+    }
     JLabel rightIconLabel = new JLabel() {
 
         @Override
