@@ -53,6 +53,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     Rectangle parentCellRect = null;
     ArbilDataNode registeredOwner = null;
     JPanel editorPanel;
+    ArbilTableCellRenderer arbilTableCellRenderer;
     JLabel button;
     String fieldName;
     Component editorComponent = null;
@@ -84,6 +85,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     };
 
     public ArbilTableCellEditor() {
+        arbilTableCellRenderer = new ArbilTableCellRenderer();
         button = new JLabel("...");
         editorPanel = new JPanel();
         button.addKeyListener(new java.awt.event.KeyListener() {
@@ -428,7 +430,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
         parentTable = (ArbilTable) table;
         parentCellRect = parentTable.getCellRect(row, column, false);
-        ArbilTableCellRenderer cellRenderer = (ArbilTableCellRenderer) table.getCellRenderer(row, column);
+        ArbilIconCellRenderer cellRenderer = // we call getTableCellRendererComponent so that the renderer gets updated to the required state
+                (ArbilIconCellRenderer) arbilTableCellRenderer.getTableCellRendererComponent(table, valueObject, isSelected, true, row, column);
         try {
             convertCellValue(value);
         } catch (ArbilMetadataException ex) {
@@ -437,9 +440,9 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         }
 
         // Create and add 'button', which is the non-editor mode component for the cell
-        button.setText(cellRenderer.getText());
-        button.setForeground(cellRenderer.getForeground());
-        button.setIcon(cellRenderer.getIcon());
+        button.setText(arbilTableCellRenderer.getText());
+        button.setForeground(arbilTableCellRenderer.getForeground());
+        button.setIcon(arbilTableCellRenderer.getIcon());
         editorPanel.setBackground(table.getSelectionBackground());
         editorPanel.setLayout(new BorderLayout());
         editorPanel.add(button);
