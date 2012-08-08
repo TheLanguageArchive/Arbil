@@ -13,7 +13,7 @@ import javax.swing.JPanel;
  */
 public class ArbilIconCellPanel extends JPanel {
 
-    private static int minWidthForIcon = 120;
+    protected static int minWidthForIcon = 120;
     private Icon icon;
     private JLabel iconLabel;
 
