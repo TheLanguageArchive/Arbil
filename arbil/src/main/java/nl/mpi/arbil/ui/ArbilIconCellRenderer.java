@@ -1,0 +1,167 @@
+package nl.mpi.arbil.ui;
+
+import java.awt.BorderLayout;
+import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+/**
+ * Document : ArbilIconCellRenderer
+ * Panel that wraps the table cell renderer allowing an icon to be added at either end of the label
+ * Created on : Aug 8, 2012, 11:53:10 AM
+ * Author : Peter Withers
+ */
+public class ArbilIconCellRenderer extends JPanel {
+
+    // the this class overrides any events that might cause issues in the parent table: 
+    // validate, invalidate, revalidate, repaint, and firePropertyChange methods are no-ops and isOpaque is overriden
+    final private JLabel cellRendererComponent;
+
+    public ArbilIconCellRenderer(JLabel cellRendererComponent) {
+        this.cellRendererComponent = cellRendererComponent;
+        this.setLayout(new BorderLayout());
+        this.add(cellRendererComponent, BorderLayout.CENTER);
+        this.add(rightIconLabel, BorderLayout.LINE_END);
+    }
+
+    public void setIcons(Icon leftIcon, Icon rightIcon) {
+        cellRendererComponent.setIcon(leftIcon);
+        cellRendererComponent.setHorizontalTextPosition(SwingConstants.LEADING);
+        rightIconLabel.setIcon(rightIcon);
+        rightIconLabel.setHorizontalTextPosition(SwingConstants.TRAILING);
+        rightIconLabel.setBackground(cellRendererComponent.getBackground());
+    }
+    JLabel rightIconLabel = new JLabel() {
+
+        @Override
+        public void validate() {
+        }
+
+        @Override
+        public void invalidate() {
+        }
+
+        @Override
+        public void revalidate() {
+        }
+
+        @Override
+        public void repaint() {
+        }
+
+        @Override
+        public void repaint(long tm) {
+        }
+
+        @Override
+        public void repaint(int x, int y, int width, int height) {
+        }
+
+        @Override
+        public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
+        }
+
+        @Override
+        public void firePropertyChange(String propertyName, int oldValue, int newValue) {
+        }
+
+        @Override
+        public void firePropertyChange(String propertyName, char oldValue, char newValue) {
+        }
+
+        @Override
+        protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        }
+
+        @Override
+        public void firePropertyChange(String propertyName, byte oldValue, byte newValue) {
+        }
+
+        @Override
+        public void firePropertyChange(String propertyName, short oldValue, short newValue) {
+        }
+
+        @Override
+        public void firePropertyChange(String propertyName, long oldValue, long newValue) {
+        }
+
+        @Override
+        public void firePropertyChange(String propertyName, float oldValue, float newValue) {
+        }
+
+        @Override
+        public void firePropertyChange(String propertyName, double oldValue, double newValue) {
+        }
+
+        @Override
+        public boolean isOpaque() {
+            return cellRendererComponent.isOpaque();
+        }
+    };
+
+//    @Override
+//    public void validate() {
+//    }
+
+    @Override
+    public void invalidate() {
+    }
+
+    @Override
+    public void revalidate() {
+    }
+
+    @Override
+    public void repaint() {
+    }
+
+    @Override
+    public void repaint(long tm) {
+    }
+
+    @Override
+    public void repaint(int x, int y, int width, int height) {
+    }
+
+    @Override
+    public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
+    }
+
+    @Override
+    public void firePropertyChange(String propertyName, int oldValue, int newValue) {
+    }
+
+    @Override
+    public void firePropertyChange(String propertyName, char oldValue, char newValue) {
+    }
+
+    @Override
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+    }
+
+    @Override
+    public void firePropertyChange(String propertyName, byte oldValue, byte newValue) {
+    }
+
+    @Override
+    public void firePropertyChange(String propertyName, short oldValue, short newValue) {
+    }
+
+    @Override
+    public void firePropertyChange(String propertyName, long oldValue, long newValue) {
+    }
+
+    @Override
+    public void firePropertyChange(String propertyName, float oldValue, float newValue) {
+    }
+
+    @Override
+    public void firePropertyChange(String propertyName, double oldValue, double newValue) {
+    }
+
+    @Override
+    public boolean isOpaque() {
+        return cellRendererComponent.isOpaque();
+    }
+}
