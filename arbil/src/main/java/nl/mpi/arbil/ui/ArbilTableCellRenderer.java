@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.ui;
 
 import java.awt.Color;
@@ -21,6 +17,8 @@ import nl.mpi.arbil.data.ArbilTableCell;
  */
 public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
 
+    final ArbilIconCellRenderer arbilIconCellRenderer;
+
     public int getRequiredWidth(FontMetrics fontMetrics, ArbilTableCell cellObject) {
         Object cellContent = getCellContent(cellObject);
         String currentCellString = getText();
@@ -39,30 +37,31 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        // TODO: this might be a better place to set the backgound and text colours
-//        Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         ArbilTableCell cellObject = ((ArbilTableCell) value);
-        Object cellContent = getCellContent(cellObject);
-        this.setBackground(table.getBackground());
-        setColours(cellContent, isSelected);
+        String textValue;
         if (cellObject == null) {
-            setText("");
+            textValue = "";
         } else {
-            setText(cellObject.toString());
+            textValue = cellObject.toString();
         }
-        setIcon(getIcon(cellContent));
+        super.getTableCellRendererComponent(table, textValue, isSelected, hasFocus, row, column); // this is needed to set the default colours on the cell
+        Object cellContent = getCellContent(cellObject);
+        setColours(cellContent, isSelected);
+        Icon leftIcon = getIcon(cellContent);
+        Icon rightIcon = null;
         // ArbilField may have to be decorated with an icon
         if (cellContent instanceof ArbilField) {
-            Icon icon = ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellContent);
-            if (icon != null) {
-                // An icon exists for this field, so wrap component with icon panel
-                return new ArbilIconCellPanel(this, icon);
-            }
+            rightIcon = ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellContent);
+            // we cannot wrap the cell renderer because doing so will remove it from the table casusing rendering issues, so we just set the icon for the current label renderer
+//                // An icon exists for this field, so wrap component with icon panel
+//                return new ArbilIconCellPanel(this, icon);
         }
-        return this;
+        arbilIconCellRenderer.setIcons(leftIcon, rightIcon);
+        return arbilIconCellRenderer;
     }
 
     public ArbilTableCellRenderer() {
+        arbilIconCellRenderer = new ArbilIconCellRenderer(this);
     }
 
     protected final void setColours(Object cellContent, boolean isSelected) {
@@ -79,11 +78,11 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
                 // Value has changed since last save
                 super.setForeground(Color.blue);
             }
-        }
-        if (cellContent instanceof ArbilField && ((ArbilField) cellContent).isRequiredField() && ((ArbilField) cellContent).getFieldValue().length() == 0) {
-            super.setForeground(Color.RED);
-        } else if (cellContent instanceof ArbilField && !((ArbilField) cellContent).fieldValueValidates()) {
-            super.setForeground(Color.RED);
+            if (cellContent instanceof ArbilField && ((ArbilField) cellContent).isRequiredField() && ((ArbilField) cellContent).getFieldValue().length() == 0) {
+                super.setForeground(Color.RED);
+            } else if (cellContent instanceof ArbilField && !((ArbilField) cellContent).fieldValueValidates()) {
+                super.setForeground(Color.RED);
+            }
         }
     }
 
