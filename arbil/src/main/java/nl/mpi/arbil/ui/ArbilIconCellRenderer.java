@@ -8,7 +8,7 @@ import javax.swing.SwingConstants;
 
 /**
  * Document : ArbilIconCellRenderer
- * Panel that wraps the table cell renderer allowing an icon to be added at either end of the label
+ * Panel that wraps the table cell renderer allowing an icon to be added at either end of the label while complying to EDT requirements
  * Created on : Aug 8, 2012, 11:53:10 AM
  * Author : Peter Withers
  */
@@ -17,6 +17,8 @@ public class ArbilIconCellRenderer extends JPanel {
     // the this class overrides any events that might cause issues in the parent table: 
     // validate, invalidate, revalidate, repaint, and firePropertyChange methods are no-ops and isOpaque is overriden
     final private JLabel cellRendererComponent;
+    Icon leftIcon = null;
+    Icon rightIcon = null;
 
     public ArbilIconCellRenderer(JLabel cellRendererComponent) {
         this.cellRendererComponent = cellRendererComponent;
@@ -26,11 +28,17 @@ public class ArbilIconCellRenderer extends JPanel {
     }
 
     public void setIcons(Icon leftIcon, Icon rightIcon) {
+        this.leftIcon = leftIcon;
+        this.rightIcon = rightIcon;
         cellRendererComponent.setIcon(leftIcon);
-        cellRendererComponent.setHorizontalTextPosition(SwingConstants.LEADING);
+        cellRendererComponent.setHorizontalTextPosition(SwingConstants.TRAILING);
         rightIconLabel.setIcon(rightIcon);
-        rightIconLabel.setHorizontalTextPosition(SwingConstants.TRAILING);
+        rightIconLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         rightIconLabel.setBackground(cellRendererComponent.getBackground());
+    }
+
+    public Icon getRightIcon() {
+        return rightIcon;
     }
     JLabel rightIconLabel = new JLabel() {
 
@@ -103,7 +111,6 @@ public class ArbilIconCellRenderer extends JPanel {
 //    @Override
 //    public void validate() {
 //    }
-
     @Override
     public void invalidate() {
     }
