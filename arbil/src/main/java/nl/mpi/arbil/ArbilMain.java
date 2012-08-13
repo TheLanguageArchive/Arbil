@@ -133,7 +133,7 @@ public class ArbilMain extends javax.swing.JFrame {
 		// Successfully set handlers, now remove redundant options from menu bar
 		arbilMenuBar.setMacOsMenu(true);
 	    }
-	} catch (IllegalStateException exception) {
+	} catch (RuntimeException exception) {
 	    System.err.println("Could not configure MacOS application handlers");
 	    if (exception != null) {
 		System.err.println(exception);

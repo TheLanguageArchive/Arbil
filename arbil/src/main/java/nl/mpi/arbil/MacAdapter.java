@@ -12,16 +12,17 @@ import java.lang.reflect.Proxy;
 public abstract class MacAdapter {
 
     /**
-     * Initializes handlers for 'Quit' and 'About' options on MacOS (application menu + CMD-Q)
+     * Initializes handlers for 'Quit' and 'About' options on MacOS (application menu and CMD-Q)
      * This is done using reflection so that no compile or run time errors occur on systems that are not Mac
      * and do not have the required classes available...
-     * 
-     * The about item only gets shown if {@link #shouldShowAbout() } return true (the default implementation does this).
      *
-     * @return whether initializing the handlers was successful; if false, this can usually be interpreted as the system
-     * not being
+     * <p>The about item only gets shown if {@link #shouldShowAbout() } returns true (the default implementation does this).</p>
+     *
+     * @throws RuntimeException if an exception occurred while accessing the MacOS application API, will be wrapped in this exception
+     * @return whether initializing the handlers was successful; if false, this should be interpreted as the system
+     * not being MacOS
      */
-    public boolean initMacApplicationHandlers() throws IllegalStateException {
+    public boolean initMacApplicationHandlers() throws RuntimeException {
 	try {
 	    // Get application class
 	    final Class applicationClass = Class.forName("com.apple.eawt.Application");
@@ -37,22 +38,22 @@ public abstract class MacAdapter {
 		}
 		return true;
 	    } catch (IllegalAccessException ex) {
-		throw new IllegalStateException(ex);
+		throw new RuntimeException(ex);
 	    } catch (IllegalArgumentException ex) {
-		throw new IllegalStateException(ex);
+		throw new RuntimeException(ex);
 	    } catch (InvocationTargetException ex) {
-		throw new IllegalStateException(ex);
+		throw new RuntimeException(ex);
 	    } catch (NoSuchMethodException ex) {
-		throw new IllegalStateException(ex);
+		throw new RuntimeException(ex);
 	    } catch (SecurityException ex) {
-		throw new IllegalStateException(ex);
+		throw new RuntimeException(ex);
 	    } catch (ClassNotFoundException ex) {
-		throw new IllegalStateException(ex);
+		throw new RuntimeException(ex);
 	    }
 	} catch (ClassNotFoundException ex) {
-	    // Application class not found - not on a Mac or not supported for some other reason. Fail silently.
+	    // Application class not found - not on a Mac or not supported for some other reason
+	    return false;
 	}
-	return false;
     }
 
     private void initMacQuitHandler(Class applicationClass, Object application) throws IllegalArgumentException, IllegalAccessException, ClassNotFoundException, SecurityException, NoSuchMethodException, InvocationTargetException {
