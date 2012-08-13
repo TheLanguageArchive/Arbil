@@ -1,8 +1,6 @@
 package nl.mpi.arbil;
 
 import java.awt.BorderLayout;
-import nl.mpi.arbil.ui.menu.ArbilMenuBar;
-import nl.mpi.arbil.util.ApplicationVersionManager;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationHandler;
@@ -14,6 +12,8 @@ import nl.mpi.arbil.ui.ArbilTaskStatusBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.AuthenticatorStub;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -47,7 +47,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	    public void run() {
 		final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
 		try {
-		    new ArbilMain(versionManager);
+		    new ArbilMain(versionManager).run();
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -64,10 +64,11 @@ public class ArbilMain extends javax.swing.JFrame {
 	this.treeHelper = injector.getTreeHelper();
 	this.windowManager = injector.getWindowManager();
 	this.mimeHashQueue = injector.getMimeHashQueue();
+    }
 
+    public void run() {
 	initApplication();
 	initUI();
-
 	checkFirstRun();
     }
 
@@ -78,7 +79,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	} catch (SecurityException sEx) {
 	    BugCatcherManager.getBugCatcher().logError("Failed to set custom Authenticator. Default authentication dialogs may appear.", sEx);
 	}
-	
+
 	treeHelper.init();
 	mimeHashQueue.init();
     }
@@ -218,6 +219,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
     /**
      * Sets a MacOS application handler
+     *
      * @param applicationClass Application class (com.apple.eawt.Application)
      * @param application Application instance
      * @param interfaceName Name of handler interface
