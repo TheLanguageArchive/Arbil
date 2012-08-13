@@ -3,6 +3,7 @@ package nl.mpi.arbil;
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import nl.mpi.arbil.MacAdapter.MacAdapterException;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilTaskStatusBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
@@ -133,7 +134,7 @@ public class ArbilMain extends javax.swing.JFrame {
 		// Successfully set handlers, now remove redundant options from menu bar
 		arbilMenuBar.setMacOsMenu(true);
 	    }
-	} catch (RuntimeException exception) {
+	} catch (MacAdapterException exception) {
 	    System.err.println("Could not configure MacOS application handlers");
 	    if (exception != null) {
 		System.err.println(exception);

@@ -18,11 +18,11 @@ public abstract class MacAdapter {
      *
      * <p>The about item only gets shown if {@link #shouldShowAbout() } returns true (the default implementation does this).</p>
      *
-     * @throws RuntimeException if an exception occurred while accessing the MacOS application API, will be wrapped in this exception
+     * @throws MacAdapterException if an exception occurred while accessing the MacOS application API, will be wrapped in this exception
      * @return whether initializing the handlers was successful; if false, this should be interpreted as the system
      * not being MacOS
      */
-    public boolean initMacApplicationHandlers() throws RuntimeException {
+    public boolean initMacApplicationHandlers() throws MacAdapterException {
 	try {
 	    // Get application class
 	    final Class applicationClass = Class.forName("com.apple.eawt.Application");
@@ -38,17 +38,17 @@ public abstract class MacAdapter {
 		}
 		return true;
 	    } catch (IllegalAccessException ex) {
-		throw new RuntimeException(ex);
+		throw new MacAdapterException(ex);
 	    } catch (IllegalArgumentException ex) {
-		throw new RuntimeException(ex);
+		throw new MacAdapterException(ex);
 	    } catch (InvocationTargetException ex) {
-		throw new RuntimeException(ex);
+		throw new MacAdapterException(ex);
 	    } catch (NoSuchMethodException ex) {
-		throw new RuntimeException(ex);
+		throw new MacAdapterException(ex);
 	    } catch (SecurityException ex) {
-		throw new RuntimeException(ex);
+		throw new MacAdapterException(ex);
 	    } catch (ClassNotFoundException ex) {
-		throw new RuntimeException(ex);
+		throw new MacAdapterException(ex);
 	    }
 	} catch (ClassNotFoundException ex) {
 	    // Application class not found - not on a Mac or not supported for some other reason
@@ -127,5 +127,20 @@ public abstract class MacAdapter {
      */
     protected boolean shouldShowAbout() {
 	return true;
+    }
+
+    public class MacAdapterException extends Exception {
+
+	public MacAdapterException(String message) {
+	    super(message);
+	}
+
+	public MacAdapterException(Throwable cause) {
+	    super(cause);
+	}
+
+	public MacAdapterException(String message, Throwable cause) {
+	    super(message, cause);
+	}
     }
 }
