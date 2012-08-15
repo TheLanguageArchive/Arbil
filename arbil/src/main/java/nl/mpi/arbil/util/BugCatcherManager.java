@@ -1,5 +1,7 @@
 package nl.mpi.arbil.util;
 
+import nl.mpi.arbil.plugin.PluginException;
+
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
@@ -13,40 +15,45 @@ public class BugCatcherManager {
      * @return the bugCatcher
      */
     public static synchronized BugCatcher getBugCatcher() {
-	if (bugCatcher == null) {
-	    if (fallBackBugCatcher == null) {
-		System.err.println("BugCatcher requested but no instance has been configured. Using fallback BugCatcher.");
-		fallBackBugCatcher = new FallbackBugCatcher();
-	    }
-	    return fallBackBugCatcher;
-	} else {
-	    return bugCatcher;
-	}
+        if (bugCatcher == null) {
+            if (fallBackBugCatcher == null) {
+                System.err.println("BugCatcher requested but no instance has been configured. Using fallback BugCatcher.");
+                fallBackBugCatcher = new FallbackBugCatcher();
+            }
+            return fallBackBugCatcher;
+        } else {
+            return bugCatcher;
+        }
     }
 
     /**
      * @param aBugCatcher the bugCatcher to set
      */
     public static synchronized void setBugCatcher(BugCatcher aBugCatcher) {
-	bugCatcher = aBugCatcher;
+        bugCatcher = aBugCatcher;
     }
 
     /**
-     * Fallback BugCatcher implementation that simply puts the logs on the standard error output
+     * Fallback BugCatcher implementation that simply puts the logs on the
+     * standard error output
      */
     private static class FallbackBugCatcher implements BugCatcher {
 
-	public void logError(Exception exception) {
-	    if (exception != null) {
-		exception.printStackTrace(System.err);
-	    }
-	}
+        public void logError(Exception exception) {
+            if (exception != null) {
+                exception.printStackTrace(System.err);
+            }
+        }
 
-	public void logError(String messageString, Exception exception) {
-	    System.err.println(messageString);
-	    if (exception != null) {
-		exception.printStackTrace(System.err);
-	    }
-	}
+        public void logError(String messageString, Exception exception) {
+            System.err.println(messageString);
+            if (exception != null) {
+                exception.printStackTrace(System.err);
+            }
+        }
+
+        public void logException(PluginException exception) {
+            logError("plugin error: ", exception);;
+        }
     }
 }
