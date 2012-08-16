@@ -2,9 +2,10 @@ package nl.mpi.arbil.wicket;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.filechooser.FileFilter;
+import nl.mpi.arbil.plugin.PluginDialogHandler.DialogueType;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.wicket.Session;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, Map<String, FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
 	logger.info("showFileSelectBox");
 	throw new UnsupportedOperationException("Not supported yet.");
     }

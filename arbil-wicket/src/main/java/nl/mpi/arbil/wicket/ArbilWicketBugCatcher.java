@@ -1,5 +1,6 @@
 package nl.mpi.arbil.wicket;
 
+import nl.mpi.arbil.plugin.PluginException;
 import nl.mpi.arbil.util.BugCatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,5 +19,9 @@ public class ArbilWicketBugCatcher implements BugCatcher {
     
     public void logError(String messageString, Exception exception) {
 	logger.error(messageString, exception);
+    }
+    
+    public void logException(PluginException exception) {
+	logError(null, exception);
     }
 }
