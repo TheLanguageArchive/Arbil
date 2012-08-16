@@ -55,6 +55,8 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
+import nl.mpi.arbil.plugin.PluginDialogHandler;
+import nl.mpi.arbil.plugin.PluginDialogHandler.DialogueType;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
@@ -292,7 +294,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	return showFileSelectBox(titleText, true, multipleSelect, fileFilterMap, DialogueType.custom, null);
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, HashMap<String, FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, Map<String, javax.swing.filechooser.FileFilter> fileFilterMap, PluginDialogHandler.DialogueType dialogueType, JComponent customAccessory){
 	// test for os: if mac or file then awt else for other and directory use swing
 	// save/load last directory accoring to the title of the dialogue
 	//Hashtable<String, File> fileSelectLocationsHashtable;
@@ -353,7 +355,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	return returnFile;
     }
 
-    private JFileChooser createFileChooser(HashMap<String, FileFilter> fileFilterMap) {
+    private JFileChooser createFileChooser(Map<String, FileFilter> fileFilterMap) {
 	JFileChooser fileChooser = new JFileChooser();
 	if (fileFilterMap != null) {
 	    for (FileFilter filter : fileFilterMap.values()) {
@@ -367,7 +369,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	return fileChooser;
     }
 
-    private void storeSelectedMetadataFileFilter(HashMap<String, FileFilter> fileFilterMap, JFileChooser fileChooser) {
+    private void storeSelectedMetadataFileFilter(Map<String, FileFilter> fileFilterMap, JFileChooser fileChooser) {
 	// Store selected file filter
 	FileFilter selectedFilter = fileChooser.getFileFilter();
 	if (selectedFilter != null && fileFilterMap != null) {
