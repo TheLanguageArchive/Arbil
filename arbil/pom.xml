@@ -8,7 +8,7 @@
     <name>Arbil</name>
     <organization> 
 	<name>The Language Archive</name> 
-	<url>http://www.lat-mpi.eu/</url>
+	<url>http://tla.mpi.nl/tools/tla-tools</url>
     </organization>
     <scm>
 	<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
