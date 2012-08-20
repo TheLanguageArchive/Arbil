@@ -171,8 +171,9 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    final URI baseUri = getClass().getResource(helpResourceBase).toURI();
 	    if (itemURL.toString().startsWith(baseUri.toString())) {
 		URI relativeURI = baseUri.relativize(itemURL.toURI());
-		// Update index, which will show the help item if found
-		return updateIndex(relativeURI.toString());
+		// Update index, which will show the help item if found. Use only path, i.e. ignore the fragment
+		// TODO: Keep fragment info
+		return updateIndex(relativeURI.getPath().toString());
 	    }
 	} catch (URISyntaxException usEx) {
 	    BugCatcherManager.getBugCatcher().logError(usEx);
@@ -245,12 +246,13 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    // Node found, set selection
 	    indexTree.setSelectionPath(new TreePath(selectionItem.getPath()));
 	    return true;
-	} else{
+	} else {
 	    return false;
 	}
     }
 
     private DefaultMutableTreeNode findChild(DefaultMutableTreeNode root, String itemResource) {
+	// TODO: Traverse collapsed children
 	for (int i = 0; i < root.getChildCount(); i++) {
 	    DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) root.getChildAt(i);
 	    Object userObject = childNode.getUserObject();
@@ -260,6 +262,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 		    return childNode;
 		}
 	    }
+
 	    DefaultMutableTreeNode findChild = findChild(childNode, itemResource);
 	    if (findChild != null) {
 		return findChild;
