@@ -77,7 +77,7 @@ public class CmdiUtils implements MetadataUtils {
     }
 
     /**
-     * Returns all ResourceLinks in the specified file that are CMDI metadata instances
+     * Returns all ResourceLinks in the specified file
      * @param nodeURI
      * @return 
      */
@@ -91,7 +91,7 @@ public class CmdiUtils implements MetadataUtils {
 	    for (CmdiResourceLink link : links) {
 		try {
 		    URI linkUri = link.getLinkUri();
-		    if (linkUri != null && ArbilDataNode.isPathCmdi(linkUri.toString())) {
+		    if (linkUri != null) {
 			// Link is CMDI metadata, include in result
 			if (!linkUri.isAbsolute()) {
 			    // Resolve to absolute path
