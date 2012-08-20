@@ -4,6 +4,7 @@ import nl.mpi.arbil.data.ArbilField;
 import java.awt.Component;
 import java.awt.Container;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -16,13 +17,17 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import org.xml.sax.SAXException;
 
 /**
- * Document   : ArbilHyperlinkListener
- * Created on : 
+ * Document : ArbilHyperlinkListener
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilHyperlinkListener implements HyperlinkListener {
@@ -122,6 +127,17 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 		}
 
 	    } else if (evt.getURL() != null) {
+		try {
+		    // Try to open in ArbilHelp
+		    if (ArbilHelp.getArbilHelpInstance().showHelpItem(evt.getURL())) {
+			return;
+		    }
+		} catch (IOException ioEx) {
+		    BugCatcherManager.getBugCatcher().logError(ioEx);
+		} catch (SAXException saxEx) {
+		    BugCatcherManager.getBugCatcher().logError(saxEx);
+		}
+		// Could not be opened in ArbilHelp, tell window manager to show
 		windowManager.openUrlWindowOnce(evt.getURL().toString(), evt.getURL());
 	    }
 	}

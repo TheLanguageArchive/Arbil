@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Enumeration;
 import javax.swing.SwingUtilities;
 import javax.swing.text.html.HTMLDocument;
@@ -163,6 +166,20 @@ public class ArbilHelp extends javax.swing.JPanel {
 	}
     }
 
+    public boolean showHelpItem(URL itemURL) {
+	try {
+	    final URI baseUri = getClass().getResource(helpResourceBase).toURI();
+	    if (itemURL.toString().startsWith(baseUri.toString())) {
+		URI relativeURI = baseUri.relativize(itemURL.toURI());
+		// Update index, which will show the help item if found
+		return updateIndex(relativeURI.toString());
+	    }
+	} catch (URISyntaxException usEx) {
+	    BugCatcherManager.getBugCatcher().logError(usEx);
+	}
+	return false;
+    }
+
     private void showHelpItem(final String itemResource) {
 	final StringBuilder completeHelpText = new StringBuilder();
 	final InputStream itemStream = getClass().getResourceAsStream(helpResourceBase + itemResource);
@@ -198,10 +215,56 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    }
 	}
 	jTextPane1.setText(completeHelpText.toString());
+	updateIndex(itemResource);
     }
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTree indexTree;
+
+    /**
+     * Sets the selection of the index tree to the item that refers to the specified file
+     *
+     * @param itemResource file to select
+     */
+    private boolean updateIndex(String itemResource) {
+	// First check current selection
+	DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) indexTree.getSelectionPath().getLastPathComponent();
+	if (lastPathComponent.getUserObject() instanceof HelpItem) {
+	    if (((HelpItem) lastPathComponent.getUserObject()).getFile().equals(itemResource)) {
+		// Selection is equal to specified item, do not change selection
+		return true;
+	    }
+	}
+
+	// Search node with specified resource
+	DefaultMutableTreeNode root = (DefaultMutableTreeNode) indexTree.getModel().getRoot();
+	DefaultMutableTreeNode selectionItem = findChild(root, itemResource);
+	if (selectionItem != null) {
+	    // Node found, set selection
+	    indexTree.setSelectionPath(new TreePath(selectionItem.getPath()));
+	    return true;
+	} else{
+	    return false;
+	}
+    }
+
+    private DefaultMutableTreeNode findChild(DefaultMutableTreeNode root, String itemResource) {
+	for (int i = 0; i < root.getChildCount(); i++) {
+	    DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) root.getChildAt(i);
+	    Object userObject = childNode.getUserObject();
+	    if (userObject instanceof HelpItem) {
+		HelpItem helpItem = (HelpItem) userObject;
+		if (helpItem.getFile().equals(itemResource)) {
+		    return childNode;
+		}
+	    }
+	    DefaultMutableTreeNode findChild = findChild(childNode, itemResource);
+	    if (findChild != null) {
+		return findChild;
+	    }
+	}
+	return null;
+    }
 }
