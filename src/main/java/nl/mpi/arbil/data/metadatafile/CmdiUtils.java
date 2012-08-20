@@ -13,7 +13,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.BugCatcher;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -83,7 +82,7 @@ public class CmdiUtils implements MetadataUtils {
     }
 
     /**
-     * Returns all ResourceLinks in the specified file that are CMDI metadata instances
+     * Returns all ResourceLinks in the specified file
      * @param nodeURI
      * @return 
      */
@@ -97,7 +96,7 @@ public class CmdiUtils implements MetadataUtils {
 	    for (CmdiResourceLink link : links) {
 		try {
 		    URI linkUri = link.getLinkUri();
-		    if (linkUri != null && ArbilDataNode.isPathCmdi(linkUri.toString())) {
+		    if (linkUri != null) {
 			// Link is CMDI metadata, include in result
 			if (!linkUri.isAbsolute()) {
 			    // Resolve to absolute path
