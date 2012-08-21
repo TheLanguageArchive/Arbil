@@ -24,11 +24,13 @@ import java.util.Enumeration;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
@@ -142,14 +144,12 @@ public class ArbilMenuBar extends JMenuBar {
     private PreviewSplitPanel previewSplitPanel;
     private JApplet containerApplet = null;
     private JMenuItem exitMenuItem = new JMenuItem() {
-
 	@Override
 	public boolean isVisible() {
 	    return !isMacOsMenu();
 	}
     };
     private JMenuItem aboutMenuItem = new JMenuItem() {
-
 	@Override
 	public boolean isVisible() {
 	    return !isMacOsMenu();
@@ -190,7 +190,6 @@ public class ArbilMenuBar extends JMenuBar {
     private void initFileMenu() {
 	fileMenu.setText("File");
 	fileMenu.addMenuListener(new MenuListener() {
-
 	    public void menuCanceled(MenuEvent evt) {
 	    }
 
@@ -205,7 +204,6 @@ public class ArbilMenuBar extends JMenuBar {
 	saveFileMenuItem.setText("Save Changes");
 	saveFileMenuItem.setEnabled(false);
 	saveFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    windowManager.stopEditingInCurrentWindow();
@@ -219,7 +217,6 @@ public class ArbilMenuBar extends JMenuBar {
 	showChangedNodesMenuItem.setText("Show Modified Nodes");
 	showChangedNodesMenuItem.setEnabled(false);
 	showChangedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArrayList<ArbilDataNode> individualChangedNodes = new ArrayList<ArbilDataNode>();
@@ -242,7 +239,6 @@ public class ArbilMenuBar extends JMenuBar {
 	fileMenu.add(showChangedNodesMenuItem);
 	importMenuItem.setText("Import...");
 	importMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    importMenuItemActionPerformed(evt);
@@ -254,7 +250,6 @@ public class ArbilMenuBar extends JMenuBar {
 	fileMenu.add(importMenuItem);
 	exitMenuItem.setText("Exit");
 	exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    exitMenuItemActionPerformed(evt);
@@ -274,7 +269,6 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	    JMenuItem logoutButton = new JMenuItem("Log Out (" + loggedInUserName + ")");
 	    logoutButton.addActionListener(new java.awt.event.ActionListener() {
-
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    String logoutUrl = containerApplet.getParameter("LogoutUrl");
 		    try {
@@ -297,7 +291,6 @@ public class ArbilMenuBar extends JMenuBar {
     private void initEditMenu() {
 	editMenu.setText("Edit");
 	editMenu.addMenuListener(new javax.swing.event.MenuListener() {
-
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
 
@@ -343,7 +336,6 @@ public class ArbilMenuBar extends JMenuBar {
 	undoMenuItem.setText("Undo");
 	undoMenuItem.setEnabled(false);
 	undoMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
@@ -356,7 +348,6 @@ public class ArbilMenuBar extends JMenuBar {
 	redoMenuItem.setText("Redo");
 	redoMenuItem.setEnabled(false);
 	redoMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
@@ -388,7 +379,6 @@ public class ArbilMenuBar extends JMenuBar {
 
 	templatesMenu.setText("Templates & Profiles...");
 	templatesMenu.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    TemplateDialogue.showTemplatesDialogue();
@@ -426,7 +416,6 @@ public class ArbilMenuBar extends JMenuBar {
 
 	setCacheDirectoryMenu.setText("Local Corpus Storage Directory");
 	setCacheDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
-
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
 
@@ -441,7 +430,6 @@ public class ArbilMenuBar extends JMenuBar {
 		JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
 		changeCacheDirectoryMenuItem.setText("Move Local Corpus Storage Directory...");
 		changeCacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 		    public void actionPerformed(java.awt.event.ActionEvent evt) {
 			try {
 			    dialogHandler.offerUserToSaveChanges();
@@ -482,7 +470,6 @@ public class ArbilMenuBar extends JMenuBar {
 	editPreferredLanguagesMenuItem.setText("Edit IMDI Language List...");
 	editPreferredLanguagesMenuItem.setEnabled(true);
 	editPreferredLanguagesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		LanguageListDialogue.showLanguageDialogue();
 	    }
@@ -491,7 +478,6 @@ public class ArbilMenuBar extends JMenuBar {
 
 	updateAllLoadedVocabulariesMenuItem.setText("Re-download Current Vocabularies");
 	updateAllLoadedVocabulariesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		ArbilVocabularies.getSingleInstance().redownloadCurrentlyLoadedVocabularies();
 	    }
@@ -508,7 +494,6 @@ public class ArbilMenuBar extends JMenuBar {
 //        showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.META_MASK));
 	showSelectionPreviewCheckBoxMenuItem.setText("Show Selection Preview");
 	showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
@@ -524,7 +509,6 @@ public class ArbilMenuBar extends JMenuBar {
 	showStatusBarMenuItem.setState(sessionStorage.loadBoolean("showStatusBar", false));
 	showStatusBarMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
 	showStatusBarMenuItem.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		windowManager.setStatusBarVisible(showStatusBarMenuItem.getState());
 		sessionStorage.saveBoolean("showStatusBar", showStatusBarMenuItem.getState());
@@ -540,7 +524,6 @@ public class ArbilMenuBar extends JMenuBar {
 	copyNewResourcesCheckBoxMenuItem.setText("Copy new resources into cache");
 	copyNewResourcesCheckBoxMenuItem.setToolTipText("When adding a new resource to a session this options will copy the file into the local cache rather than linking to its current location. This option can make a considerable difference to disk use if you are handling large files.");
 	copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
-
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		MetadataReader.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
 		sessionStorage.saveBoolean("copyNewResources", copyNewResourcesCheckBoxMenuItem.isSelected());
@@ -552,7 +535,6 @@ public class ArbilMenuBar extends JMenuBar {
 	checkResourcePermissionsCheckBoxMenuItem.setText("Check permissions for remote resources");
 	checkResourcePermissionsCheckBoxMenuItem.setToolTipText("This option checks the server permissions for remote resources and shows icons accordingly.");
 	checkResourcePermissionsCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
-
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		mimeHashQueue.setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
 		sessionStorage.saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
@@ -565,7 +547,6 @@ public class ArbilMenuBar extends JMenuBar {
 	schemaCheckLocalFiles.setSelected(dataNodeLoader.isSchemaCheckLocalFiles());
 	schemaCheckLocalFiles.setToolTipText("This option checks all local metadata files for XML conformance every time they are loaded. If the metadata file does not validate against the schema it will be highlighted red in the tree.");
 	schemaCheckLocalFiles.addItemListener(new java.awt.event.ItemListener() {
-
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		dataNodeLoader.setSchemaCheckLocalFiles(schemaCheckLocalFiles.isSelected());
 		sessionStorage.saveBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles.isSelected());
@@ -576,7 +557,6 @@ public class ArbilMenuBar extends JMenuBar {
 	trackTableSelectionCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("trackTableSelection", false));
 	trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
 	trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    sessionStorage.saveBoolean("useLanguageIdInColumnName", trackTableSelectionCheckBoxMenuItem.getState());
@@ -593,7 +573,6 @@ public class ArbilMenuBar extends JMenuBar {
 	useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("useLanguageIdInColumnName", false));
 	useLanguageIdInColumnNameCheckBoxMenuItem.setText("Show Language in Column Name");
 	useLanguageIdInColumnNameCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    dialogHandler.offerUserToSaveChanges();
@@ -612,7 +591,6 @@ public class ArbilMenuBar extends JMenuBar {
 
 	viewMenu.setText("Column View for new tables");
 	viewMenu.addMenuListener(new MenuListener() {
-
 	    public void menuCanceled(MenuEvent evt) {
 	    }
 
@@ -643,7 +621,6 @@ public class ArbilMenuBar extends JMenuBar {
 
 	resetWindowsMenuItem.setText("Reset window locations");
 	resetWindowsMenuItem.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		if (dialogHandler.showConfirmDialogBox("Reset all windows to default size and location?", "Reset windows")) {
 		    windowManager.resetWindows();
@@ -653,7 +630,6 @@ public class ArbilMenuBar extends JMenuBar {
 
 	closeWindowsMenuItem.setText("Close all windows");
 	closeWindowsMenuItem.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		if (dialogHandler.showConfirmDialogBox("Close all windows?", "Close windows")) {
 		    windowManager.closeAllWindows();
@@ -671,7 +647,6 @@ public class ArbilMenuBar extends JMenuBar {
     private void initHelpMenu() {
 	helpMenu.setText("Help");
 	helpMenu.addMenuListener(new MenuListener() {
-
 	    public void menuCanceled(MenuEvent evt) {
 	    }
 
@@ -684,7 +659,6 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	aboutMenuItem.setText("About");
 	aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    aboutMenuItemActionPerformed(evt);
@@ -697,7 +671,6 @@ public class ArbilMenuBar extends JMenuBar {
 	helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
 	helpMenuItem.setText("Help");
 	helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    helpMenuItemActionPerformed(evt);
@@ -709,7 +682,6 @@ public class ArbilMenuBar extends JMenuBar {
 	helpMenu.add(helpMenuItem);
 	setupWizardMenuItem.setText("Run setup wizard");
 	setupWizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, "yes");
 		ArbilWizard wizard = new ArbilSetupWizard(windowManager.getMainFrame());
@@ -719,7 +691,6 @@ public class ArbilMenuBar extends JMenuBar {
 	helpMenu.add(setupWizardMenuItem);
 	arbilForumMenuItem.setText("Arbil Forum (Website)");
 	arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    windowManager.openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
@@ -731,7 +702,6 @@ public class ArbilMenuBar extends JMenuBar {
 	helpMenu.add(arbilForumMenuItem);
 	viewErrorLogMenuItem.setText("View Error Log");
 	viewErrorLogMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    windowManager.openFileInExternalApplication(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).toURI());
@@ -743,7 +713,6 @@ public class ArbilMenuBar extends JMenuBar {
 	helpMenu.add(viewErrorLogMenuItem);
 	checkForUpdatesMenuItem.setText("Check for Updates");
 	checkForUpdatesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    if (!versionManager.forceUpdateCheck()) {
@@ -759,7 +728,6 @@ public class ArbilMenuBar extends JMenuBar {
 	helpMenu.add(checkForUpdatesMenuItem);
 	shortCutKeysjMenuItem.setText("Short Cut Keys");
 	shortCutKeysjMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    shortCutKeysjMenuItemActionPerformed(evt);
@@ -793,7 +761,6 @@ public class ArbilMenuBar extends JMenuBar {
 	redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
 
 	Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-
 	    public void eventDispatched(AWTEvent event) {
 //                System.out.println("KeyEvent.paramString: " + ((KeyEvent) event).paramString());
 		if ((((KeyEvent) event).isMetaDown() || ((KeyEvent) event).isControlDown()) && event.getID() == KeyEvent.KEY_RELEASED) {
@@ -856,7 +823,12 @@ public class ArbilMenuBar extends JMenuBar {
 	if (arbilHelp != null) {
 	    if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
 		// forcus existing or create a new help window
-		windowManager.createWindow(ArbilHelp.helpWindowTitle, getArbilHelp());
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			JInternalFrame helpWindow = windowManager.createWindow(ArbilHelp.helpWindowTitle, getArbilHelp());
+			helpWindow.setSize(800, 600);
+		    }
+		});
 	    }
 	}
     }
@@ -969,7 +941,6 @@ public class ArbilMenuBar extends JMenuBar {
 	    viewLabelRadioButtonMenuItem.setText(currentMenuName);
 	    viewLabelRadioButtonMenuItem.setName(currentMenuName);
 	    viewLabelRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    try {
 			ArbilFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());

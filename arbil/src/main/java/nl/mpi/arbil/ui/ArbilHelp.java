@@ -29,7 +29,7 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilHelp extends javax.swing.JPanel {
-    
+
     final static public String SHOTCUT_KEYS_PAGE = "Short Cut Keys";
     final static public String INTRODUCTION_PAGE = "2. Quick Introduction";
     final static public String helpWindowTitle = "Help Viewer";
@@ -38,7 +38,7 @@ public class ArbilHelp extends javax.swing.JPanel {
     private final DefaultTreeModel helpTreeModel;
     private final DefaultMutableTreeNode rootContentsNode;
     static private ArbilHelp singleInstance = null;
-    
+
     static synchronized public ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
 	//TODO: This should not be a singleton...
 	if (singleInstance == null) {
@@ -58,9 +58,9 @@ public class ArbilHelp extends javax.swing.JPanel {
      */
     public ArbilHelp(final Class resourcesClass, final String helpResourceBase, final String indexXml) throws IOException, SAXException {
 	initComponents();
-	
+
 	this.helpResourceBase = helpResourceBase;
-	
+
 	final HelpItemsParser parser = new HelpItemsParser();
 	final InputStream helpStream = getClass().getResourceAsStream(indexXml);
 	try {
@@ -68,20 +68,20 @@ public class ArbilHelp extends javax.swing.JPanel {
 	} finally {
 	    helpStream.close();
 	}
-	
+
 	helpTextPane.setContentType("text/html");
 	((HTMLDocument) helpTextPane.getDocument()).setBase(this.getClass().getResource(helpResourceBase));
 	indexTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	
+
 	rootContentsNode = new DefaultMutableTreeNode("Contents");
 	helpTreeModel = new DefaultTreeModel(rootContentsNode, true);
 	indexTree.setModel(helpTreeModel);
-	
+
 	populateIndex(rootContentsNode);
-	
+
 	indexTree.setSelectionRow(1);
     }
-    
+
     private DefaultMutableTreeNode findNode(DefaultMutableTreeNode currentNode, String helpPage) {
 	System.out.println("currentNode: " + currentNode);
 	if (currentNode.getUserObject().toString().equals(helpPage)) {
@@ -98,7 +98,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	}
 	return null;
     }
-    
+
     public void setCurrentPage(String helpPage) {
 	DefaultMutableTreeNode foundNode = findNode(rootContentsNode, helpPage);
 	if (foundNode != null) {
@@ -111,14 +111,14 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    });
 	}
     }
-    
+
     private void populateIndex(DefaultMutableTreeNode root) {
 	for (HelpItem item : helpIndex.getSubItems()) {
 	    populateIndex(root, item);
 	}
 	helpTreeModel.reload(root);
     }
-    
+
     private void populateIndex(DefaultMutableTreeNode parent, HelpItem item) {
 	DefaultMutableTreeNode itemNode = new DefaultMutableTreeNode(item, item.getSubItems().size() > 0);
 	//helpTreeModel.insertNodeInto(node, parent, parent.getChildCount());
@@ -127,7 +127,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    populateIndex(itemNode, subItem);
 	}
     }
-    
+
     private void initComponents() {
 	indexTree = new javax.swing.JTree();
 	indexTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
@@ -135,28 +135,28 @@ public class ArbilHelp extends javax.swing.JPanel {
 		indexTreeValueChanged(evt);
 	    }
 	});
-	
+
 	indexScrollPane = new javax.swing.JScrollPane();
 	indexScrollPane.setViewportView(indexTree);
-	
+
 	helpTextPane = new javax.swing.JTextPane();
 	helpTextPane.addHyperlinkListener(new ArbilHyperlinkListener());
 	helpTextPane.setMinimumSize(new Dimension(100, 100));
 	helpTextPane.setContentType("text/html;charset=UTF-8");
 	helpTextPane.setEditable(false);
-	
+
 	helpTextScrollPane = new javax.swing.JScrollPane();
 	helpTextScrollPane.setViewportView(helpTextPane);
-	
+
 	jSplitPane1 = new javax.swing.JSplitPane();
-	jSplitPane1.setDividerLocation(300);
+	jSplitPane1.setDividerLocation(250);
 	jSplitPane1.setLeftComponent(indexScrollPane);
 	jSplitPane1.setRightComponent(helpTextScrollPane);
-	
+
 	setLayout(new java.awt.BorderLayout());
 	add(jSplitPane1, java.awt.BorderLayout.CENTER);
     }
-    
+
     private void indexTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {
 	DefaultMutableTreeNode node = (DefaultMutableTreeNode) indexTree.getLastSelectedPathComponent();
 	if (node != null) {
@@ -166,7 +166,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    }
 	}
     }
-    
+
     public boolean showHelpItem(URL itemURL) {
 	try {
 	    final URI baseUri = getClass().getResource(helpResourceBase).toURI();
@@ -181,7 +181,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	}
 	return false;
     }
-    
+
     private void showHelpItem(final String itemResource) {
 	final StringBuilder completeHelpText = new StringBuilder();
 	final InputStream itemStream = getClass().getResourceAsStream(helpResourceBase + itemResource);
@@ -247,7 +247,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    return false;
 	}
     }
-    
+
     private DefaultMutableTreeNode findChild(DefaultMutableTreeNode root, String itemResource) {
 	for (int i = 0; i < root.getChildCount(); i++) {
 	    DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) root.getChildAt(i);
@@ -258,7 +258,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 		    return childNode;
 		}
 	    }
-	    
+
 	    DefaultMutableTreeNode findChild = findChild(childNode, itemResource);
 	    if (findChild != null) {
 		return findChild;
