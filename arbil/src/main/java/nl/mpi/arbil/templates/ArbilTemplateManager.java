@@ -115,7 +115,7 @@ public class ArbilTemplateManager {
 //        }
 //    }
     public File getTemplateDirectory() {
-	return new File(sessionStorage.getStorageDirectory(), "templates");
+	return new File(sessionStorage.getProjectDirectory(), "templates");
     }
 
     public void addSelectedTemplates(String templateString) {

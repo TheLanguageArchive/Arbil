@@ -41,10 +41,9 @@ public class TreeHelperTest extends ArbilTest {
     @Override
     protected SessionStorage newSessionStorage() {
         return new MockSessionStorage() {
-
             @Override
             public final String[] loadStringArray(String filename) throws IOException {
-                File currentConfigFile = new File(getStorageDirectory(), filename + ".config");
+                File currentConfigFile = new File(getApplicationSettingsDirectory(), filename + ".config");
                 if (currentConfigFile.exists()) {
                     ArrayList<String> stringArrayList = new ArrayList<String>();
                     FileInputStream fstream = new FileInputStream(currentConfigFile);
@@ -71,8 +70,8 @@ public class TreeHelperTest extends ArbilTest {
             @Override
             public final void saveStringArray(String filename, String[] storableValue) throws IOException {
                 // save the location list to a text file that admin-users can read and hand edit if they really want to
-                File destinationConfigFile = new File(getStorageDirectory(), filename + ".config");
-                File tempConfigFile = new File(getStorageDirectory(), filename + ".config.tmp");
+                File destinationConfigFile = new File(getApplicationSettingsDirectory(), filename + ".config");
+                File tempConfigFile = new File(getApplicationSettingsDirectory(), filename + ".config.tmp");
 
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), "UTF8"));
                 for (String currentString : storableValue) {

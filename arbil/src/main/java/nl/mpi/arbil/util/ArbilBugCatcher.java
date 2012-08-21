@@ -31,7 +31,7 @@ public class ArbilBugCatcher implements BugCatcher {
 
     private void removeOldLogs() {
         // remove all previous error logs for this version other than the one for this build number
-        File errorLogFile = new File(sessionStorage.getStorageDirectory(), "linorgerror.log");
+        File errorLogFile = new File(sessionStorage.getApplicationSettingsDirectory(), "linorgerror.log");
         if (errorLogFile.exists()) {
             errorLogFile.delete();
         }
@@ -39,11 +39,11 @@ public class ArbilBugCatcher implements BugCatcher {
         ApplicationVersion appVersion = versionManager.getApplicationVersion();
         String currentApplicationVersionMatch = "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-";
         String currentLogFileMatch = getCurrentVersionLogFileName(appVersion);
-        for (String currentFile : sessionStorage.getStorageDirectory().list()) {
+        for (String currentFile : sessionStorage.getApplicationSettingsDirectory().list()) {
             if (currentFile.startsWith(currentApplicationVersionMatch)) {
                 if (!currentFile.startsWith(currentLogFileMatch)) {
                     System.out.println("deleting old log file: " + currentFile);
-                    if (!new File(sessionStorage.getStorageDirectory(), currentFile).delete()) {
+                    if (!new File(sessionStorage.getApplicationSettingsDirectory(), currentFile).delete()) {
                         System.out.println("Did not delete old log file: " + currentFile);
                     }
                 }
@@ -53,7 +53,7 @@ public class ArbilBugCatcher implements BugCatcher {
     private int captureCount = 0;
 
     public static File getLogFile(SessionStorage sessionStorage, ApplicationVersion appVersion) {
-        File file = new File(sessionStorage.getStorageDirectory(), getCurrentVersionLogFileName(appVersion));
+        File file = new File(sessionStorage.getApplicationSettingsDirectory(), getCurrentVersionLogFileName(appVersion));
         if (!file.exists()) {
             startNewLogFile(file, sessionStorage, appVersion);
         }
@@ -74,7 +74,9 @@ public class ArbilBugCatcher implements BugCatcher {
                     + "Operating System: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version") + System.getProperty("line.separator")
                     + "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor") + System.getProperty("line.separator")
                     + "User: " + System.getProperty("user.name") + System.getProperty("line.separator")
-                    + "Storage directory: " + sessionStorage.getStorageDirectory().toString() + System.getProperty("line.separator")
+                    + "Storage directory: " + sessionStorage.getApplicationSettingsDirectory().toString() + System.getProperty("line.separator")
+                    + "Project directory: " + sessionStorage.getProjectDirectory().toString() + System.getProperty("line.separator")
+                    + "Project working directory: " + sessionStorage.getProjectWorkingDirectory().toString() + System.getProperty("line.separator")
                     + "Log started: " + new Date().toString() + System.getProperty("line.separator"));
             errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
             errorLogFile.close();
@@ -91,7 +93,7 @@ public class ArbilBugCatcher implements BugCatcher {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
             String formattedDate = formatter.format(new Date());
             String formattedCount = myFormat.format(Integer.valueOf(captureCount));
-            ImageIO.write(screenShot, "JPG", new File(sessionStorage.getStorageDirectory(), "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
+            ImageIO.write(screenShot, "JPG", new File(sessionStorage.getApplicationSettingsDirectory(), "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
             captureCount++;
         } catch (Exception e) {
             System.err.println("Exception when creating screenshot: " + e);

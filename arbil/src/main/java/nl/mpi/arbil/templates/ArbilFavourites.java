@@ -54,8 +54,8 @@ public class ArbilFavourites {
     // this is not used now but should be kept in case some users need to import locations from olde versions of the application
     public void convertOldFormatLocationListsX() {
         try {
-            File oldLocationsFile = new File(sessionStorage.getStorageDirectory(), "locationsList");
-            File oldFavouritesFile = new File(sessionStorage.getStorageDirectory(), "selectedFavourites");
+            File oldLocationsFile = new File(sessionStorage.getProjectDirectory(), "locationsList");
+            File oldFavouritesFile = new File(sessionStorage.getProjectDirectory(), "selectedFavourites");
             if (oldLocationsFile.exists()) {
                 Vector<String> locationsList = (Vector<String>) sessionStorage.loadObject("locationsList");
                 if (oldFavouritesFile.exists()) {

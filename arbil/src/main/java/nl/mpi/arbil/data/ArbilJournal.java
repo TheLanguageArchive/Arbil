@@ -138,7 +138,7 @@ public class ArbilJournal {
 	boolean returnValue = false;
 	FileWriter journalFile = null;
 	try {
-	    journalFile = new FileWriter(new File(sessionStorage.getStorageDirectory(), "linorgjornal.log"), true);
+	    journalFile = new FileWriter(new File(sessionStorage.getProjectDirectory(), "ChangeJournal.log"), true);
 	    System.out.println("Journal: " + imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue);
 	    journalFile.append("\"" + imdiUrl + imdiNodePath + "\",\"" + oldValue + "\",\"" + newValue + "\",\"" + eventType + "\"\n");
 	    journalFile.close();

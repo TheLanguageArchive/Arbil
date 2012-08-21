@@ -45,8 +45,8 @@ public interface WindowManager {
 
     void saveWindowStates();
     //void stopEditingInCurrentWindow();
-    
+
     boolean openFileInExternalApplication(URI targetUri);
-    
+
     void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser);
 }

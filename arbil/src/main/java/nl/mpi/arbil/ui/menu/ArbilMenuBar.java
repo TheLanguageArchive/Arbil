@@ -425,7 +425,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    public void menuSelected(javax.swing.event.MenuEvent evt) {
 		setCacheDirectoryMenu.removeAll();
 		JMenuItem cacheDirectoryMenuItem = new JMenuItem();
-		cacheDirectoryMenuItem.setText(sessionStorage.getCacheDirectory().getAbsolutePath());
+		cacheDirectoryMenuItem.setText(sessionStorage.getProjectWorkingDirectory().getAbsolutePath());
 		cacheDirectoryMenuItem.setEnabled(false);
 		JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
 		changeCacheDirectoryMenuItem.setText("Move Local Corpus Storage Directory...");

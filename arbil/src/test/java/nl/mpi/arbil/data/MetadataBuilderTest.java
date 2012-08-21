@@ -111,7 +111,7 @@ public class MetadataBuilderTest {
             {"TargetLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).TargetLanguage"}
         };
 	ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
-        URI targetFileURI = sessionStorage.getNewArbilFileName(sessionStorage.getCacheDirectory(), currentTestTemplate);
+        URI targetFileURI = sessionStorage.getNewArbilFileName(sessionStorage.getProjectWorkingDirectory(), currentTestTemplate);
         //            try {
         //                        targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(eniryFileURI), "Entity");
         //                        gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);

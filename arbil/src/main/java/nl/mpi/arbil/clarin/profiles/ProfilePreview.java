@@ -35,7 +35,7 @@ public class ProfilePreview {
         String returnString = "";
         //ArbilTemplateManager.getSingleInstance().getCmdiTemplate(returnString);
         try {
-            File tempFile = File.createTempFile("ArbilPreview", ".cmdi", sessionStorage.getStorageDirectory());
+            File tempFile = File.createTempFile("ArbilPreview", ".cmdi", sessionStorage.getApplicationSettingsDirectory());
             tempFile.deleteOnExit();
             ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
             URI addedNodePath = componentBuilder.createComponentFile(tempFile.toURI(), new URI(uriString), true);

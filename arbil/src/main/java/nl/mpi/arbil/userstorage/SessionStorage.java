@@ -26,13 +26,6 @@ public interface SessionStorage extends PluginSessionStorage {
     void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles);
 
     /**
-     * Tests that the cache directory exists and creates it if it does not.
-     *
-     * @return Boolean
-     */
-    File getCacheDirectory();
-
-    /**
      * Removes the cache path component from a path string and appends it to the
      * destination directory. Then tests for and creates the directory structure
      * in the destination directory if requred.
