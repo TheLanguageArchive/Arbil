@@ -7,8 +7,7 @@
 	<html>
 	    <head>
 		<style type="text/css">
-			h1 { text-align: center; font-size:125%; background: #ede2cd; margin:0; padding: 5px; } 
-			h2 { text-align: left; font-size:110%; background: #ede2cd; margin:0; padding: 2px; } 
+			h1, h2 { text-align: center; font-size:125%; background: #ede2cd; margin:0; padding: 5px; } 
 			body { color:Black; font-family:Arial,Helvetica,sans-serif; font-size:100%; font-size-adjust:none; font-style:normal; font-variant:normal; font-weight:normal; line-height:1.25em; background: #F4F1EB; padding-bottom: 10px; } 
 			p {padding-left: 5px; padding-right: 5px; }
 		</style>
