@@ -13,7 +13,7 @@
   <xsl:param name="saxon.character.representation" select="'entity;decimal'" />
 
   <xsl:param name="suppress.navigation" select="1" /> <!-- no navigation on pages -->
-  <xsl:param name="chapter.autolabel" select="0" /> <!-- no chapter labels -->
+  <xsl:param name="chapter.autolabel" select="1" /> <!-- chapter labels -->
     
   <xsl:param name="base.dir" select="'nl/mpi/arbil/resources/html/help/'" />
   
