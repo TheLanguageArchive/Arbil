@@ -13,6 +13,7 @@ import nl.mpi.arbil.util.DownloadAbortFlag;
 /**
  * Proxy for the ArbilWicketSessionStorage that is contained in the session that makes
  * the request. To be injected into Arbil core classes.
+ *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
@@ -26,8 +27,16 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 	getSessionStorage().changeCacheDirectory(preferedCacheDirectory, moveFiles);
     }
 
-    public File getCacheDirectory() {
-	return getSessionStorage().getCacheDirectory();
+    public File getApplicationSettingsDirectory() {
+	return getSessionStorage().getApplicationSettingsDirectory();
+    }
+
+    public File getProjectDirectory() {
+	return getSessionStorage().getProjectDirectory();
+    }
+
+    public File getProjectWorkingDirectory() {
+	return getSessionStorage().getProjectWorkingDirectory();
     }
 
     public File getExportPath(String pathString, String destinationDirectory) {
@@ -108,10 +117,6 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 
     public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	return getSessionStorage().updateCache(pathString, shibbolethNegotiator, expireCacheCopy, followRedirects, abortFlag, progressLabel);
-    }
-
-    public File getStorageDirectory() {
-	return getSessionStorage().getStorageDirectory();
     }
 
     public File getTypeCheckerConfig() {
