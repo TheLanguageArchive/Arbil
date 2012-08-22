@@ -20,7 +20,15 @@ public class ArbilWicketSessionStorage implements SessionStorage {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public File getCacheDirectory() {
+    public File getApplicationSettingsDirectory() {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public File getProjectDirectory() {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public File getProjectWorkingDirectory() {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -101,10 +109,6 @@ public class ArbilWicketSessionStorage implements SessionStorage {
     }
 
     public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public File getStorageDirectory() {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
