@@ -257,10 +257,6 @@
 	    <name>MPI LAT Repository</name>
 	    <url>http://lux15.mpi.nl/nexus/content/groups/public/</url>
 	</repository>
-	<repository>
-	    <id>sonatype</id>
-	    <url>https://oss.sonatype.org/content/groups/public</url>
-	</repository>
     </repositories>
     <reporting>
 	<plugins>
