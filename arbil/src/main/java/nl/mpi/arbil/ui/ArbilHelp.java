@@ -61,10 +61,17 @@ public class ArbilHelp extends javax.swing.JPanel {
 
 	final HelpItemsParser parser = new HelpItemsParser();
 	final InputStream helpStream = getClass().getResourceAsStream(indexXml);
-	try {
-	    helpIndex = parser.parse(helpStream);
-	} finally {
-	    helpStream.close();
+	if (helpStream != null) {
+	    try {
+		helpIndex = parser.parse(helpStream);
+	    } finally {
+		helpStream.close();
+	    }
+	} else {
+	    helpIndex = new HelpIndex();
+	    final HelpItem helpItem = new HelpItem();
+	    helpItem.setName("Help contents not found");
+	    helpIndex.addSubItem(helpItem);
 	}
 
 	helpTextPane.setContentType("text/html");
@@ -222,10 +229,15 @@ public class ArbilHelp extends javax.swing.JPanel {
      * @param itemResource file to select
      */
     private boolean updateIndex(String itemResource) {
+	if (itemResource == null) {
+	    return false;
+	}
+
 	// First check current selection
 	DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) indexTree.getSelectionPath().getLastPathComponent();
 	if (lastPathComponent.getUserObject() instanceof HelpItem) {
-	    if (((HelpItem) lastPathComponent.getUserObject()).getFile().equals(itemResource)) {
+	    final HelpItem helpItem = (HelpItem) lastPathComponent.getUserObject();
+	    if (itemResource.equals(helpItem.getFile())) {
 		// Selection is equal to specified item, do not change selection
 		return true;
 	    }
