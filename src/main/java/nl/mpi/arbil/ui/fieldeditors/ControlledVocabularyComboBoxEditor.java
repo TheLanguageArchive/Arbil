@@ -7,6 +7,7 @@ package nl.mpi.arbil.ui.fieldeditors;
 import javax.swing.JComboBox;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabulary;
+import nl.mpi.arbil.data.ArbilVocabularyItem;
 import nl.mpi.arbil.ui.TypeAheadComboBoxEditor;
 
 /**
@@ -34,8 +35,8 @@ public class ControlledVocabularyComboBoxEditor extends TypeAheadComboBoxEditor 
      * @param index
      * @return
      */
-    protected String getItemAt(int index) {
-	return vocabulary.getVocabularyItems().get(index).itemDisplayName;
+    protected ArbilVocabularyItem getItemAt(int index) {
+	return vocabulary.getVocabularyItems().get(index);
     }
 
     protected int getItemsCount() {

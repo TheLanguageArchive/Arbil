@@ -20,7 +20,7 @@ public class ArbilVocabularyItem implements Comparable, Serializable {
     }
 
     /**
-     * 
+     *
      * @return Value for vocabulary item: itemCode if it is set, otherwise display name
      */
     public String getValue() {
@@ -30,18 +30,22 @@ public class ArbilVocabularyItem implements Comparable, Serializable {
 	    return itemDisplayName;
 	}
     }
-    
-    public String getDisplayValue(){
-	if(itemDisplayName != null){
+
+    public String getDisplayValue() {
+	if (itemDisplayName != null) {
 	    return itemDisplayName;
-	} else{
+	} else {
 	    return itemCode;
 	}
+    }
+    
+    public boolean hasItemCode() {
+	return itemCode != null;
     }
 
     @Override
     public String toString() {
-	return itemDisplayName;
+	return getDisplayValue();
     }
 
     public int compareTo(Object otherObject) {

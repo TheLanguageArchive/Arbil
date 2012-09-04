@@ -28,7 +28,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
      * @param index
      * @return Requested item
      */
-    protected abstract String getItemAt(int index);
+    protected abstract Object getItemAt(int index);
 
     /**
      *
@@ -214,7 +214,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 	int matchIndex = getMatchingItem(currentEditorValue);
 	if (matchIndex >= 0) {
 	    // Match found
-	    String match = getItemAt(matchIndex);
+	    Object match = getItemAt(matchIndex);
 	    if (comboBox != null) {
 		// Make combobox jump to the selected item
 		comboBox.setSelectedItem(match);
@@ -227,7 +227,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 	    getTextField().setCaretPosition(position);
 	    // Select remaining part of match
 	    getTextField().setSelectionStart(position);
-	    getTextField().setSelectionEnd(position + match.length() - currentEditorValue.length());
+	    getTextField().setSelectionEnd(position + match.toString().length() - currentEditorValue.length());
 	}
 	typingAhead = false;
     }
@@ -263,13 +263,13 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
 	    // no need to iterate over all items
 	    if (previousMatch >= 0
 		    && previousMatch < itemsCount
-		    && ((String) getItemAt(previousMatch)).equalsIgnoreCase(text)) {
+		    && (getItemAt(previousMatch).toString()).equalsIgnoreCase(text)) {
 		return previousMatch;
 	    }
 
 	    int shortestMatch = -1;
 	    for (int i = 0; i < itemsCount; i++) {
-		String item = getItemAt(i);
+		String item = getItemAt(i).toString();
 		if (item != null) {
 		    // If first find or shorter match, compare to text
 		    if (shortestMatch < 0 || item.length() < shortestMatch) {
@@ -337,14 +337,15 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Seriali
      *
      * @param value
      */
-    private void setEditorValue(String value) {
+    private void setEditorValue(Object value) {
+	String stringValue = value.toString();
 	int[] startEnd = getEditorCurrentStartEnd();
 	String text = getTextField().getText();
 	getTextField().setText(
 		text.substring(0, startEnd[0]) // everything before
-		.concat(value) // insert value
+		.concat(stringValue) // insert value
 		.concat(text.substring(startEnd[1]))); // everything after
-	getTextField().setCaretPosition(startEnd[0] + value.length());
+	getTextField().setCaretPosition(startEnd[0] + stringValue.length());
 
     }
 
