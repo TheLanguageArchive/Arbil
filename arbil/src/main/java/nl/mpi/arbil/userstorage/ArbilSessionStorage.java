@@ -186,8 +186,8 @@ public class ArbilSessionStorage implements SessionStorage {
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
         File fromDirectory = getProjectWorkingDirectory();
-        if (!preferedCacheDirectory.getAbsolutePath().contains("ArbilWorkingFiles") && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
-            preferedCacheDirectory = new File(preferedCacheDirectory, "ArbilWorkingFiles");
+        if (!preferedCacheDirectory.getAbsolutePath().contains(getProjectDirectoryName()) && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
+            preferedCacheDirectory = new File(preferedCacheDirectory, getProjectDirectoryName());
         }
         // this moving of files is not relevant for projects and it does not work across devices so it has been removed, it should be replaced by the projects functionality
         if (!moveFiles || JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
@@ -374,7 +374,7 @@ public class ArbilSessionStorage implements SessionStorage {
         System.out.println("uriPath: " + uriPath);
         int foundPos = uriPath.indexOf("imdicache");
         if (foundPos == -1) {
-            foundPos = uriPath.indexOf("ArbilWorkingFiles");
+            foundPos = uriPath.indexOf(getProjectDirectoryName());
             if (foundPos == -1) {
                 return null;
             }
@@ -435,6 +435,13 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     /**
+     * @return the name of the project directory
+     */
+    private String getProjectDirectoryName() {
+        return "ArbilWorkingFiles";
+    }
+
+    /**
      * Tests that the project directory exists and creates it if it does not.
      *
      * @return the project working files directory
@@ -454,7 +461,7 @@ public class ArbilSessionStorage implements SessionStorage {
                     if (new File(getApplicationSettingsDirectory(), "imdicache").exists()) {
                         localCacheDirectory = new File(getApplicationSettingsDirectory(), "imdicache");
                     } else {
-                        localCacheDirectory = new File(getApplicationSettingsDirectory(), "ArbilWorkingFiles");
+                        localCacheDirectory = new File(getApplicationSettingsDirectory(), getProjectDirectoryName());
                     }
                 }
                 saveString("cacheDirectory", localCacheDirectory.getAbsolutePath());
@@ -788,7 +795,7 @@ public class ArbilSessionStorage implements SessionStorage {
         System.out.println("pathString: " + pathString);
         System.out.println("destinationDirectory: " + destinationDirectory);
         String cachePath = pathString;
-        for (String testDirectory : new String[]{"imdicache", "ArbilWorkingFiles"}) {
+        for (String testDirectory : new String[]{"imdicache", getProjectDirectoryName()}) {
             if (pathString.contains(testDirectory)) {
                 cachePath = destinationDirectory + cachePath.substring(cachePath.lastIndexOf(testDirectory) + testDirectory.length()); // this path must be inside the cache for this to work correctly
             }
@@ -849,7 +856,7 @@ public class ArbilSessionStorage implements SessionStorage {
      */
     public File getSaveLocation(String pathString) {
         pathString = preProcessPathString(pathString);
-        for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", "ArbilWorkingFiles"}) {
+        for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", getProjectDirectoryName()}) {
             if (pathString.indexOf(searchString) > -1) {
                 logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
                 pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
