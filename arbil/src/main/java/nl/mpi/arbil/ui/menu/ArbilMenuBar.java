@@ -620,7 +620,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initPluginMenu() {
-        this.add(new PluginMenu(PluginService.getInstance(), new ArbilPluginManager(sessionStorage, windowManager)));
+        this.add(new PluginMenu(PluginService.getInstance(), new ArbilPluginManager(sessionStorage, windowManager, dataNodeLoader, BugCatcherManager.getBugCatcher())));
     }
 
     private void initWindowMenu() {
