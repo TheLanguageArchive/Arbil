@@ -412,7 +412,7 @@ public class ArbilDataNodeService {
             } else {
                 System.out.println("renaming: " + headVersion + " : " + lastFile);
                 if (!headVersion.renameTo(lastFile)) {
-                    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
+                    throw new IOException("Error while copying history files for metadata. Could not rename " + headVersion.toString() + " to " + lastFile.toString());
                 }
             }
         }
