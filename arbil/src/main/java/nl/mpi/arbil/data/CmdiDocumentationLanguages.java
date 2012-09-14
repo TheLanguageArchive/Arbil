@@ -15,7 +15,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  * Created on : Jul 6, 2010, 4:05:46 PM
  * Author : Peter Withers
  */
-public class CmdiDocumentationLanguages {
+public class CmdiDocumentationLanguages extends DocumentationLanguages {
 
     private static SessionStorage sessionStorage;
 
@@ -30,7 +30,7 @@ public class CmdiDocumentationLanguages {
     private static String cmdiLanguageVocabularyUrl = null;
     private static String cmdiLanguageVocabularyPath = null;
 
-    public synchronized static String getLanguageVocabularyUrlForCmdi() {
+    public synchronized static String getLanguageVocabularyUrl() {
 	if (cmdiLanguageVocabularyUrl == null) {
 	    cmdiLanguageVocabularyUrl = sessionStorage.loadString(CMDI_LANGUAGE_VOCABULARY_URL_KEY);
 	    if (cmdiLanguageVocabularyUrl == null) {
@@ -41,7 +41,7 @@ public class CmdiDocumentationLanguages {
 	return cmdiLanguageVocabularyUrl;
     }
 
-    public synchronized static String getLanguageVocabularyPathForCmdi() {
+    public synchronized static String getLanguageVocabularyPath() {
 	if (cmdiLanguageVocabularyPath == null) {
 	    cmdiLanguageVocabularyPath = sessionStorage.loadString(CMDI_LANGUAGE_VOCABULARY_PATH_KEY);
 	    if (cmdiLanguageVocabularyPath == null) {
@@ -55,18 +55,19 @@ public class CmdiDocumentationLanguages {
 
     public synchronized static CmdiDocumentationLanguages getSingleInstance() {
 	if (singleInstance == null) {
-	    singleInstance = new CmdiDocumentationLanguages();
+	    singleInstance = new CmdiDocumentationLanguages(SELECTED_LANGUAGES_KEY, sessionStorage);
 	}
 	return singleInstance;
     }
 
-    private CmdiDocumentationLanguages() {
+    private CmdiDocumentationLanguages(String selectedLanguagesKey, SessionStorage sessionStorage) {
+	super(selectedLanguagesKey, sessionStorage);
     }
 
-    public synchronized List<ArbilVocabularyItem> getAllLanguagesForCmdi() {
-	CmdiTemplate profile = (CmdiTemplate) ArbilTemplateManager.getSingleInstance().getCmdiTemplate(getLanguageVocabularyUrlForCmdi());
+    public synchronized List<ArbilVocabularyItem> getAllLanguages() {
+	CmdiTemplate profile = (CmdiTemplate) ArbilTemplateManager.getSingleInstance().getCmdiTemplate(getLanguageVocabularyUrl());
 	if (profile != null) {
-	    ArbilVocabulary vocab = profile.getFieldVocabulary(getLanguageVocabularyPathForCmdi());
+	    ArbilVocabulary vocab = profile.getFieldVocabulary(getLanguageVocabularyPath());
 	    if (vocab != null) {
 		return vocab.getVocabularyItems();
 	    }
@@ -74,50 +75,8 @@ public class CmdiDocumentationLanguages {
 	return null;
     }
 
-    public List<ArbilVocabularyItem> getLanguageListSubsetForCmdi() {
+    public List<ArbilVocabularyItem> getLanguageListSubset() {
 	// No subset for CMDI yet, selection from dialog only applies to IMDI
-	return getAllLanguagesForCmdi();
-    }
-
-    public synchronized void addselectedLanguage(String templateString) {
-	List<String> selectedLanguages = getSelectedLanguages();
-	if (selectedLanguages == null) {
-	    selectedLanguages = Collections.singletonList(templateString);
-	} else {
-	    selectedLanguages.add(templateString);
-	}
-	saveSelectedLanguages(selectedLanguages);
-    }
-
-    private ArrayList<String> getSelectedLanguages() {
-	ArrayList<String> selectedLanguages = new ArrayList<String>();
-	try {
-	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(SELECTED_LANGUAGES_KEY)));
-	} catch (Exception e) {
-	    BugCatcherManager.getBugCatcher().logError("No selectedLanguages file, will create one now.", e);
-	    return null;
-	}
-	return selectedLanguages;
-    }
-
-    public synchronized void removeselectedLanguages(String templateString) {
-	ArrayList<String> selectedLanguages = new ArrayList<String>();
-	try {
-	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(SELECTED_LANGUAGES_KEY)));
-	    while (selectedLanguages.contains(templateString)) {
-		selectedLanguages.remove(templateString);
-	    }
-	} catch (IOException ex) {
-	    BugCatcherManager.getBugCatcher().logError(ex);
-	}
-	saveSelectedLanguages(selectedLanguages);
-    }
-
-    private void saveSelectedLanguages(List<String> selectedLanguages) {
-	try {
-	    sessionStorage.saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));
-	} catch (IOException ex) {
-	    BugCatcherManager.getBugCatcher().logError(ex);
-	}
+	return getAllLanguages();
     }
 }

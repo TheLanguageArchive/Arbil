@@ -16,9 +16,9 @@ import nl.mpi.arbil.data.CmdiDocumentationLanguages;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
- *  Document   : LanguageIdBox
- *  Created on : Sep 14, 2010, 3:58:33 PM
- *  Author     : Peter Withers
+ * Document : LanguageIdBox
+ * Created on : Sep 14, 2010, 3:58:33 PM
+ * Author : Peter Withers
  */
 public class LanguageIdBox extends JComboBox {
 
@@ -49,7 +49,6 @@ public class LanguageIdBox extends JComboBox {
 		this.setSelectedItem(defaultLanguageDropDownValue);
 	    }
 	    this.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    try {
 			if (LanguageIdBox.this.getSelectedItem() instanceof ArbilVocabularyItem) {
@@ -78,9 +77,9 @@ public class LanguageIdBox extends JComboBox {
 
     private List<ArbilVocabularyItem> getLanguageItems(final ArbilDataNode parentDataNode) {
 	if (parentDataNode.getNodeTemplate() instanceof CmdiTemplate) {
-	    return CmdiDocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
+	    return CmdiDocumentationLanguages.getSingleInstance().getLanguageListSubset();
 	} else {
-	    return ImdiDocumentationLanguages.getSingleInstance().getLanguageListSubsetForImdi();
+	    return ImdiDocumentationLanguages.getSingleInstance().getLanguageListSubset();
 	}
     }
 }

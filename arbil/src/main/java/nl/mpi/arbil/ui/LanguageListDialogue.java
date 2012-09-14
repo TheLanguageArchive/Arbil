@@ -54,7 +54,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the field language select box for IMDI"));
 	List<String> selectedLanguages = ImdiDocumentationLanguages.getSingleInstance().getSelectedLanguagesArrayList();
 	checkBoxArray = new ArrayList<JCheckBox>();
-	for (ArbilVocabularyItem currentTemplate : ImdiDocumentationLanguages.getSingleInstance().getAllLanguagesForImdi()) {
+	for (ArbilVocabularyItem currentTemplate : ImdiDocumentationLanguages.getSingleInstance().getAllLanguages()) {
 	    JCheckBox languageCheckBox;
 	    languageCheckBox = new JCheckBox();
 	    languageCheckBox.setText(currentTemplate.itemDisplayName);
