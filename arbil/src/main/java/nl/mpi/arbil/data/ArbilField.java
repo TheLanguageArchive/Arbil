@@ -407,8 +407,8 @@ public class ArbilField implements Serializable {
 	if (hasVocabularyType) {
 	    if (cvUrlString != null && cvUrlString.length() > 0) {
 		fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
-		if (cvUrlString.equals(DocumentationLanguages.getLanguageVocabularyUrlForImdi())) {
-		    fieldVocabulary.setFilter(DocumentationLanguages.getSingleInstance());
+		if (cvUrlString.equals(ImdiDocumentationLanguages.getLanguageVocabularyUrlForImdi())) {
+		    fieldVocabulary.setFilter(ImdiDocumentationLanguages.getSingleInstance());
 		}
 	    }
 	} else {

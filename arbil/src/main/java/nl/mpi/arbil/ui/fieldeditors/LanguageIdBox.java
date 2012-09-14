@@ -9,9 +9,10 @@ import java.util.List;
 import javax.swing.JComboBox;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.DocumentationLanguages;
+import nl.mpi.arbil.data.ImdiDocumentationLanguages;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
+import nl.mpi.arbil.data.CmdiDocumentationLanguages;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
@@ -77,9 +78,9 @@ public class LanguageIdBox extends JComboBox {
 
     private List<ArbilVocabularyItem> getLanguageItems(final ArbilDataNode parentDataNode) {
 	if (parentDataNode.getNodeTemplate() instanceof CmdiTemplate) {
-	    return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
+	    return CmdiDocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
 	} else {
-	    return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForImdi();
+	    return ImdiDocumentationLanguages.getSingleInstance().getLanguageListSubsetForImdi();
 	}
     }
 }

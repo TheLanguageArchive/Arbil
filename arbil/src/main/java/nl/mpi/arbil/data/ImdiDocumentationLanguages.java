@@ -5,17 +5,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
-import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
- * Document : DocumentationLanguages
+ * Document : ImdiDocumentationLanguages
  * Created on : Jul 6, 2010, 4:05:46 PM
  * Author : Peter Withers
  */
-public class DocumentationLanguages implements ArbilVocabularyFilter {
+public class ImdiDocumentationLanguages implements ArbilVocabularyFilter {
 
     private static SessionStorage sessionStorage;
 
@@ -23,16 +21,10 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	sessionStorage = sessionStorageInstance;
     }
     private static final String IMDI_LANGUAGE_VOCABULARY_URL_KEY = "LanguageVocabularyUrl";
-    private static final String CMDI_LANGUAGE_VOCABULARY_URL_KEY = "CmdiLanguageVocabularyUrl";
-    private static final String CMDI_LANGUAGE_VOCABULARY_PATH_KEY = "CmdiLanguageVocabularyPath";
     private static final String SELECTED_LANGUAGES_KEY = "selectedLanguages";
     private static final String OLD_MPI_LANGUAGE_VOCABULARY_URL = "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml";
     private static final String MPI_LANGUAGE_VOCABULARY_URL = "http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml";
-    public static final String CMDI_VOCABULARY_URL = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/components/clarin.eu:cr1:c_1271859438110/xsd";
-    public static final String CMDI_VOCABULARY_PATH = ".CMD.Components.ISO639.iso-639-3-code";
     private static String imdiLanguageVocabularyUrl = null;
-    private static String cmdiLanguageVocabularyUrl = null;
-    private static String cmdiLanguageVocabularyPath = null;
 
     public synchronized static String getLanguageVocabularyUrlForImdi() {
 	if (imdiLanguageVocabularyUrl == null) {
@@ -44,53 +36,21 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	}
 	return imdiLanguageVocabularyUrl;
     }
+    
+    private static ImdiDocumentationLanguages singleInstance = null;
 
-    public synchronized static String getLanguageVocabularyUrlForCmdi() {
-	if (cmdiLanguageVocabularyUrl == null) {
-	    cmdiLanguageVocabularyUrl = sessionStorage.loadString(CMDI_LANGUAGE_VOCABULARY_URL_KEY);
-	    if (cmdiLanguageVocabularyUrl == null) {
-		cmdiLanguageVocabularyUrl = CMDI_VOCABULARY_URL;
-		sessionStorage.saveString(CMDI_LANGUAGE_VOCABULARY_URL_KEY, cmdiLanguageVocabularyUrl);
-	    }
-	}
-	return cmdiLanguageVocabularyUrl;
-    }
-
-    public synchronized static String getLanguageVocabularyPathForCmdi() {
-	if (cmdiLanguageVocabularyPath == null) {
-	    cmdiLanguageVocabularyPath = sessionStorage.loadString(CMDI_LANGUAGE_VOCABULARY_PATH_KEY);
-	    if (cmdiLanguageVocabularyPath == null) {
-		cmdiLanguageVocabularyPath = CMDI_VOCABULARY_PATH;
-		sessionStorage.saveString(CMDI_LANGUAGE_VOCABULARY_PATH_KEY, cmdiLanguageVocabularyPath);
-	    }
-	}
-	return cmdiLanguageVocabularyPath;
-    }
-    private static DocumentationLanguages singleInstance = null;
-
-    public synchronized static DocumentationLanguages getSingleInstance() {
+    public synchronized static ImdiDocumentationLanguages getSingleInstance() {
 	if (singleInstance == null) {
-	    singleInstance = new DocumentationLanguages();
+	    singleInstance = new ImdiDocumentationLanguages();
 	}
 	return singleInstance;
     }
 
-    private DocumentationLanguages() {
+    private ImdiDocumentationLanguages() {
     }
 
     public synchronized List<ArbilVocabularyItem> getAllLanguagesForImdi() {
 	return ArbilVocabularies.getSingleInstance().getVocabulary(null, getLanguageVocabularyUrlForImdi()).getVocabularyItemsUnfiltered();
-    }
-
-    public synchronized List<ArbilVocabularyItem> getAllLanguagesForCmdi() {
-	CmdiTemplate profile = (CmdiTemplate) ArbilTemplateManager.getSingleInstance().getCmdiTemplate(getLanguageVocabularyUrlForCmdi());
-	if (profile != null) {
-	    ArbilVocabulary vocab = profile.getFieldVocabulary(getLanguageVocabularyPathForCmdi());
-	    if (vocab != null) {
-		return vocab.getVocabularyItems();
-	    }
-	}
-	return null;
     }
 
     public synchronized List<String> getSelectedLanguagesArrayList() {
@@ -102,11 +62,6 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
 	    BugCatcherManager.getBugCatcher().logError("No selectedLanguages file, will create one now.", e);
 	    return addDefaultLanguages();
 	}
-    }
-
-    public List<ArbilVocabularyItem> getLanguageListSubsetForCmdi() {
-	// No subset for CMDI yet, selection from dialog only applies to IMDI
-	return getAllLanguagesForCmdi();
     }
 
     public List<ArbilVocabularyItem> getLanguageListSubsetForImdi() {
