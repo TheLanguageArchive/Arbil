@@ -36,12 +36,12 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import nl.mpi.arbil.ArbilIcons;
-import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.ui.ArbilTable;
+import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -127,7 +127,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	// todo: add all unused attributes as editable text
 	editorFrame = windowManager.createWindow(getWindowTitle(), this);
 	editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
-
 	    @Override
 	    public void internalFrameClosed(InternalFrameEvent e) {
 		// deregister component from imditreenode
@@ -249,13 +248,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	// Start separate thread to get the help string as this may involve a http request and parsing, don't want to wait for that...
 	new Thread() {
-
 	    @Override
 	    public void run() {
 		final String helpString = parentArbilDataNode.getNodeTemplate().getHelpStringForField(fullXmlPath);
 		// Set field description on event dispatching thread
 		SwingUtilities.invokeLater(new Runnable() {
-
 		    public void run() {
 			fieldDescription.setText(helpString);
 		    }
@@ -347,7 +344,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private void requestFocusFor(final JComponent component) {
 	EventQueue.invokeLater(new Runnable() {
-
 	    public void run() {
 		component.requestFocusInWindow();
 	    }
@@ -528,13 +524,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	setNavigationEnabled();
     }
     private Action nextAction = new AbstractAction() {
-
 	public void actionPerformed(ActionEvent e) {
 	    moveAdjacent(+1);
 	}
     };
     private Action previousAction = new AbstractAction() {
-
 	public void actionPerformed(ActionEvent e) {
 	    moveAdjacent(-1);
 	}
@@ -553,7 +547,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	    // Action that switches to the next tab (if there is one)
 	    put("nextTab", new AbstractAction() {
-
 		public void actionPerformed(ActionEvent e) {
 		    changeTab(+1);
 		}
@@ -561,7 +554,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	    // Action that switches to the previous tab (if there is one)
 	    put("previousTab", new AbstractAction() {
-
 		public void actionPerformed(ActionEvent e) {
 		    changeTab(-1);
 		}
@@ -600,7 +592,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     }
     // NOTE: Not serializable!
     private FocusListener editorFocusListener = new FocusListener() {
-
 	public void focusGained(FocusEvent e) {
 	}
 
@@ -714,7 +705,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	private void initChangeKeyNameButton() {
 	    changeKeyNameButton = new JButton(new AbstractAction() {
-
 		public void actionPerformed(ActionEvent e) {
 		    enableEditMode();
 		}
@@ -740,7 +730,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	 * Action that saves the entered key name
 	 */
 	private Action keyNameSaveAction = new AbstractAction("KeyNameOk") {
-
 	    public void actionPerformed(ActionEvent e) {
 		if (checkSaveKeyEditorField(cellFieldIndex)) {
 		    disableEditMode();
@@ -751,7 +740,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	 * Action that cancels the editing of the key name
 	 */
 	private Action keyNameCancelAction = new AbstractAction("KeyNameCancel") {
-
 	    public void actionPerformed(ActionEvent e) {
 		disableEditMode();
 	    }

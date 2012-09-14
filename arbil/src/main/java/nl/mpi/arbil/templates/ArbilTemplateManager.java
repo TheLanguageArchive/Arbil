@@ -286,7 +286,6 @@ public class ArbilTemplateManager {
 	    returnArray[insertableCounter] = createMenuItemForTemplate(locationsArray[insertableCounter]);
 	}
 	Arrays.sort(returnArray, new Comparator() {
-
 	    public int compare(Object firstItem, Object secondItem) {
 		return (((MenuItemData) firstItem).menuText.compareToIgnoreCase(((MenuItemData) secondItem).menuText));
 	    }
@@ -457,7 +456,7 @@ public class ArbilTemplateManager {
      * @return Loaded CMDI template
      */
     private ArbilTemplate loadCmdiTemplateProfile(String nameSpaceString) {
-	CmdiTemplate cmdiTemplate = new CmdiTemplate();
+	CmdiTemplate cmdiTemplate = new CmdiTemplate(sessionStorage);
 	cmdiTemplate.loadTemplate(nameSpaceString);
 	cmdiTemplate.startLoadingDatacategoryDescriptions();
 	templatesHashTable.put(nameSpaceString, cmdiTemplate);
@@ -475,7 +474,7 @@ public class ArbilTemplateManager {
 	    return getDefaultTemplate(); // if the template string is not provided the default template is used
 	}
 	if (!templatesHashTable.containsKey(templateName)) {
-	    ArbilTemplate returnTemplate = new ArbilTemplate();
+	    ArbilTemplate returnTemplate = new ArbilTemplate(sessionStorage);
 	    if (returnTemplate.readTemplate(getTemplateFile(templateName), templateName)) {
 		templatesHashTable.put(templateName, returnTemplate);
 		return returnTemplate;

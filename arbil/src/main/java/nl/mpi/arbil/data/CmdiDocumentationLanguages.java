@@ -1,14 +1,9 @@
 package nl.mpi.arbil.data;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  * Document : ImdiDocumentationLanguages
@@ -17,11 +12,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  */
 public class CmdiDocumentationLanguages extends DocumentationLanguages {
 
-    private static SessionStorage sessionStorage;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
+    private SessionStorage sessionStorage;
     private static final String CMDI_LANGUAGE_VOCABULARY_URL_KEY = "CmdiLanguageVocabularyUrl";
     private static final String CMDI_LANGUAGE_VOCABULARY_PATH_KEY = "CmdiLanguageVocabularyPath";
     private static final String SELECTED_LANGUAGES_KEY = "selectedLanguagesCmdi";
@@ -30,7 +21,7 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
     private static String cmdiLanguageVocabularyUrl = null;
     private static String cmdiLanguageVocabularyPath = null;
 
-    public synchronized static String getLanguageVocabularyUrl() {
+    public synchronized String getLanguageVocabularyUrl() {
 	if (cmdiLanguageVocabularyUrl == null) {
 	    cmdiLanguageVocabularyUrl = sessionStorage.loadString(CMDI_LANGUAGE_VOCABULARY_URL_KEY);
 	    if (cmdiLanguageVocabularyUrl == null) {
@@ -41,7 +32,7 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
 	return cmdiLanguageVocabularyUrl;
     }
 
-    public synchronized static String getLanguageVocabularyPath() {
+    public synchronized String getLanguageVocabularyPath() {
 	if (cmdiLanguageVocabularyPath == null) {
 	    cmdiLanguageVocabularyPath = sessionStorage.loadString(CMDI_LANGUAGE_VOCABULARY_PATH_KEY);
 	    if (cmdiLanguageVocabularyPath == null) {
@@ -51,17 +42,9 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
 	}
 	return cmdiLanguageVocabularyPath;
     }
-    private static CmdiDocumentationLanguages singleInstance = null;
 
-    public synchronized static CmdiDocumentationLanguages getSingleInstance() {
-	if (singleInstance == null) {
-	    singleInstance = new CmdiDocumentationLanguages(SELECTED_LANGUAGES_KEY, sessionStorage);
-	}
-	return singleInstance;
-    }
-
-    private CmdiDocumentationLanguages(String selectedLanguagesKey, SessionStorage sessionStorage) {
-	super(selectedLanguagesKey, sessionStorage);
+    public CmdiDocumentationLanguages(SessionStorage sessionStorage) {
+	super(SELECTED_LANGUAGES_KEY, sessionStorage);
     }
 
     public synchronized List<ArbilVocabularyItem> getAllLanguages() {
@@ -77,6 +60,7 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
 
     public List<ArbilVocabularyItem> getLanguageListSubset() {
 	// No subset for CMDI yet, selection from dialog only applies to IMDI
+	//TODO: Sort (but not too often)
 	return getAllLanguages();
     }
 }

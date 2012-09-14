@@ -8,7 +8,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
-import nl.mpi.arbil.data.ImdiDocumentationLanguages;
+import nl.mpi.arbil.data.DocumentationLanguages;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -23,10 +24,12 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
     }
-    ArrayList<JCheckBox> checkBoxArray;
+    private ArrayList<JCheckBox> checkBoxArray;
+    private final DocumentationLanguages documentationLanguages;
 
     public LanguageListDialogue(JDialog parentFrameLocal) {
 	super(parentFrameLocal);
+	documentationLanguages = ArbilTemplateManager.getSingleInstance().getDefaultTemplate().getDocumentationLanguages();
     }
 
     public static void showLanguageDialogue() {
@@ -42,9 +45,9 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 
     public void actionPerformed(ActionEvent e) {
 	if (((JCheckBox) e.getSource()).isSelected()) {
-	    ImdiDocumentationLanguages.getSingleInstance().addselectedLanguage(e.getActionCommand());
+	    documentationLanguages.addselectedLanguage(e.getActionCommand());
 	} else {
-	    ImdiDocumentationLanguages.getSingleInstance().removeselectedLanguages(e.getActionCommand());
+	    documentationLanguages.removeselectedLanguages(e.getActionCommand());
 	}
     }
 
@@ -52,9 +55,9 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
     protected void populateLists() {
 	cmdiProfilesPanel.getParent().remove(cmdiProfilesPanel);
 	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the field language select box for IMDI"));
-	List<String> selectedLanguages = ImdiDocumentationLanguages.getSingleInstance().getSelectedLanguagesArrayList();
+	List<String> selectedLanguages = documentationLanguages.getSelectedLanguagesArrayList();
 	checkBoxArray = new ArrayList<JCheckBox>();
-	for (ArbilVocabularyItem currentTemplate : ImdiDocumentationLanguages.getSingleInstance().getAllLanguages()) {
+	for (ArbilVocabularyItem currentTemplate : documentationLanguages.getAllLanguages()) {
 	    JCheckBox languageCheckBox;
 	    languageCheckBox = new JCheckBox();
 	    languageCheckBox.setText(currentTemplate.itemDisplayName);
@@ -70,22 +73,20 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 	JButton selectAllButton = new JButton();
 	selectAllButton.setText("Select All");
 	selectAllButton.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		for (JCheckBox currentCheckBox : checkBoxArray) {
 		    currentCheckBox.setSelected(true);
-		    ImdiDocumentationLanguages.getSingleInstance().addselectedLanguage(currentCheckBox.getActionCommand());
+		    documentationLanguages.addselectedLanguage(currentCheckBox.getActionCommand());
 		}
 	    }
 	});
 	JButton selectNoneButton = new JButton();
 	selectNoneButton.setText("Clear Selection");
 	selectNoneButton.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		for (JCheckBox currentCheckBox : checkBoxArray) {
 		    currentCheckBox.setSelected(false);
-		    ImdiDocumentationLanguages.getSingleInstance().removeselectedLanguages(currentCheckBox.getActionCommand());
+		    documentationLanguages.removeselectedLanguages(currentCheckBox.getActionCommand());
 		}
 	    }
 	});

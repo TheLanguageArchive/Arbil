@@ -65,6 +65,10 @@ public abstract class DocumentationLanguages {
 	//.toArray(new ArbilVocabularyItem[]{});
     }
 
+    /**
+     *
+     * @return Sorted selection of documentation languages
+     */
     public abstract List<ArbilVocabularyItem> getLanguageListSubset();
 
     protected ArrayList<String> getSelectedLanguages() {

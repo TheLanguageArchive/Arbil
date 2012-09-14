@@ -11,9 +11,7 @@ import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilVocabularies;
-import nl.mpi.arbil.data.CmdiDocumentationLanguages;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.data.ImdiDocumentationLanguages;
 import nl.mpi.arbil.data.FieldChangeTriggers;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
@@ -34,7 +32,6 @@ import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.RemoteLocationsContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -85,7 +82,7 @@ public abstract class ArbilInjector {
 	MetadataReader.setDataNodeLoader(dataNodeLoader);
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
-    
+
     public void injectTreeHelper(TreeHelper treeHelper) {
 	//Inject tree helper
 	ArbilFavourites.setTreeHelper(treeHelper);
@@ -127,13 +124,10 @@ public abstract class ArbilInjector {
 	ArbilField.setSessionStorage(sessionStorage);
 	ArbilJournal.setSessionStorage(sessionStorage);
 	ArbilVocabularies.setSessionStorage(sessionStorage);
-	ImdiDocumentationLanguages.setSessionStorage(sessionStorage);
-	CmdiDocumentationLanguages.setSessionStorage(sessionStorage);
 	MetadataBuilder.setSessionStorage(sessionStorage);
 	MetadataReader.setSessionStorage(sessionStorage);
 	CmdiProfileReader.setSessionStorage(sessionStorage);
 	ProfilePreview.setSessionStorage(sessionStorage);
-	CmdiTemplate.setSessionStorage(sessionStorage);
 	ArbilFavourites.setSessionStorage(sessionStorage);
 	XsdChecker.setSessionStorage(sessionStorage);
 	ApplicationVersionManager.setSessionStorage(sessionStorage);

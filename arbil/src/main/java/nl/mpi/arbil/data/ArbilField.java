@@ -10,8 +10,9 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
- * Document   : ArbilField
+ * Document : ArbilField
  * Created on : Wed Dec 03 13:29:30 CET 2008
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilField implements Serializable {
@@ -53,18 +54,19 @@ public class ArbilField implements Serializable {
 
     /**
      * Creates arbil field with no field attributes from the schema
+     *
      * @param fieldOrderLocal
      * @param localParentDataNode
      * @param tempPath
      * @param tempValue
-     * @param tempSiblingCount 
+     * @param tempSiblingCount
      */
     public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount, boolean allowsLanguageId) {
 	this(fieldOrderLocal, localParentDataNode, tempPath, tempValue, tempSiblingCount, allowsLanguageId, null, null);
     }
 
     /**
-     * 
+     *
      * @param fieldOrderLocal
      * @param parentDataNode
      * @param xmlPath
@@ -200,7 +202,7 @@ public class ArbilField implements Serializable {
     }
 
     /**
-     * 
+     *
      * @return The value of the field as it should be represented in the XML (e.g. item code rather than display name)
      */
     public String getFieldValueForXml() {
@@ -348,7 +350,8 @@ public class ArbilField implements Serializable {
 
     /**
      * Gets paths of editable field attributes
-     * @return List of template paths. Template path is string array with [path,description,...] 
+     *
+     * @return List of template paths. Template path is string array with [path,description,...]
      * @see nl.mpi.arbil.templates.ArbilTemplate
      */
     public synchronized List<String[]> getAttributePaths() {
@@ -356,7 +359,7 @@ public class ArbilField implements Serializable {
     }
 
     /**
-     * 
+     *
      * @return Whether there schema support editable attributes on this field
      */
     public synchronized boolean hasEditableFieldAttributes() {
@@ -373,6 +376,7 @@ public class ArbilField implements Serializable {
 
     /**
      * Gets the value of an editable field attribute
+     *
      * @param attributePath Path to get value for
      * @return Value for path (null if not set)
      */
@@ -385,6 +389,7 @@ public class ArbilField implements Serializable {
 
     /**
      * Sets the value for an editable field attribute
+     *
      * @param attributePath Path to set value on
      * @param value Null to unset
      */
@@ -407,8 +412,11 @@ public class ArbilField implements Serializable {
 	if (hasVocabularyType) {
 	    if (cvUrlString != null && cvUrlString.length() > 0) {
 		fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
-		if (cvUrlString.equals(ImdiDocumentationLanguages.getLanguageVocabularyUrlForImdi())) {
-		    fieldVocabulary.setFilter(ImdiDocumentationLanguages.getSingleInstance());
+		DocumentationLanguages documentationLanguages = getParentDataNode().getNodeTemplate().getDocumentationLanguages();
+		if (documentationLanguages instanceof ImdiDocumentationLanguages) {
+		    if (cvUrlString.equals(((ImdiDocumentationLanguages) documentationLanguages).getLanguageVocabularyUrlForImdi())) {
+			fieldVocabulary.setFilter((ImdiDocumentationLanguages) documentationLanguages);
+		    }
 		}
 	    }
 	} else {
@@ -499,7 +507,7 @@ public class ArbilField implements Serializable {
 	    fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue", "");
 
 	    // todo: the following path contraction should really be done in the templates rather than here
-            // todo: these filter strings should really be read from the metadata format
+	    // todo: these filter strings should really be read from the metadata format
 	    // handle the clarin path names
 	    fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 	    // handle the kinoath path names
@@ -569,5 +577,9 @@ public class ArbilField implements Serializable {
     public final synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
 	this.parentDataNode = parentDataNode;
 	this.parentDataNodeURI = parentDataNode != null ? parentDataNode.getURI() : null;
+    }
+
+    public DocumentationLanguages getDocumentationLanguages() {
+	return getParentDataNode().getNodeTemplate().getDocumentationLanguages();
     }
 }

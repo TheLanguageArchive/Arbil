@@ -33,7 +33,9 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilVocabulary;
+import nl.mpi.arbil.data.CmdiDocumentationLanguages;
 import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -58,6 +60,7 @@ import org.xml.sax.SAXException;
 /**
  * CmdiTemplate.java
  * Created on March 10, 2010, 17:34:45 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class CmdiTemplate extends ArbilTemplate {
@@ -65,7 +68,7 @@ public class CmdiTemplate extends ArbilTemplate {
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
     public static final String LANGUAGE_ATTRIBUTE = String.format("{%1$s}lang", ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")); // {http://www.w3.org/XML/1998/namespace}lang
     /**
-     * Attributes that are reserved by CMDI and should show up as editable. 
+     * Attributes that are reserved by CMDI and should show up as editable.
      * Namespace URI's should appear encoded in this list
      */
     public final static Collection<String> RESERVED_ATTRIBUTES = Collections.unmodifiableCollection(Arrays.asList(
@@ -81,10 +84,11 @@ public class CmdiTemplate extends ArbilTemplate {
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
-    private static SessionStorage sessionStorage;
+    private final SessionStorage sessionStorage;
 
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
+    public CmdiTemplate(SessionStorage sessionStorage) {
+	super(new CmdiDocumentationLanguages(sessionStorage));
+	this.sessionStorage = sessionStorage;
     }
     private String nameSpaceString;
     // todo: these filter strings should really be read from the metadata format
@@ -266,7 +270,6 @@ public class CmdiTemplate extends ArbilTemplate {
 		}
 	    }
 	    Collections.sort(childTypes, new Comparator() {
-
 		public int compare(Object o1, Object o2) {
 		    String value1 = ((String[]) o1)[0];
 		    String value2 = ((String[]) o2)[0];
@@ -529,13 +532,13 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     /**
-     * 
+     *
      * Gets labels for vocabulary enumerations like:
-     * 
+     *
      * <xs:enumeration	value="csu"
-     *			dcr:datcat="http://cdb.iso.org/lg/CDB-00138674-001" 
-     *			ann:label="Central Sudanic languages"/>
-     * 
+     * dcr:datcat="http://cdb.iso.org/lg/CDB-00138674-001"
+     * ann:label="Central Sudanic languages"/>
+     *
      * @param vocabularyName Name of the vocabulary in the profile schema
      * @return HashMap that has [value => label] mapping for the vocabulary
      * @throws TransformerException Thrown on node selection through XPathAPI if transformation fails
@@ -618,7 +621,6 @@ public class CmdiTemplate extends ArbilTemplate {
      */
     public synchronized void startLoadingDatacategoryDescriptions() {
 	Runnable descriptionLoader = new Runnable() {
-
 	    public void run() {
 		for (String dcUri : dataCategoriesMap.values()) {
 		    synchronized (CmdiTemplate.this) {
@@ -662,11 +664,12 @@ public class CmdiTemplate extends ArbilTemplate {
 
     /**
      * Reads the description for a given data category (identified by dcUri) from its DCIF
+     *
      * @param dcUri URI that identifies the data category
      * @return Description string found in DCIF. Null if none found.
      * @throws ParserConfigurationException
      * @throws SAXException
-     * @throws IOException 
+     * @throws IOException
      */
     private String readDescriptionForDataCategory(String dcUri) throws ParserConfigurationException, SAXException, IOException {
 	String datCatURI = dcUri.concat(DATCAT_URI_DESCRIPTION_POSTFIX);
@@ -712,7 +715,7 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     /**
-     * 
+     *
      * @param pathTokens Path tokens, assuming that pathIsAttribute(pathTokens)
      * @return Whether this is an editable attribute
      */
@@ -730,15 +733,16 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     public static void main(String args[]) {
-	new ArbilDesktopInjector().injectHandlers();
-	CmdiTemplate template = new CmdiTemplate();
+	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
+	injector.injectHandlers();
+	CmdiTemplate template = new CmdiTemplate(new ArbilSessionStorage());
 	template.loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1289827960126/xsd");
     }
     /**
-     * Compares for display preference. Paths of equal length get grouped together. Within those groups, ordering is on basis of displayPriority 
+     * Compares for display preference. Paths of equal length get grouped together. Within those groups, ordering is on basis of
+     * displayPriority
      */
     private static Comparator<String[]> displayNamePreferenceComparator = new Comparator<String[]>() {
-
 	public int compare(String[] o1, String[] o2) {
 	    int depthComp = getPathLength(o1[0]) - getPathLength(o2[0]);
 	    if (depthComp == 0) {
