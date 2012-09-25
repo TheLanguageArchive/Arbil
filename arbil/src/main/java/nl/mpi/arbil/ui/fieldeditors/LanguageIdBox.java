@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
 import nl.mpi.arbil.data.ArbilField;
@@ -26,9 +25,8 @@ public class LanguageIdBox extends JComboBox {
 //        if (fieldLanguageId != null) {
 	ArbilVocabularyItem selectedItem = null;
 	this.setEditable(false);
-	List<ArbilVocabularyItem> languageItemArray = cellField.getDocumentationLanguages().getLanguageListSubset();
+	List<ArbilVocabularyItem> languageItemArray = cellField.getDocumentationLanguages().getSortedLanguageListSubset();
 	if (languageItemArray != null) {
-	    Collections.sort(languageItemArray);
 	    for (ArbilVocabularyItem currentItem : languageItemArray) {
 		this.addItem(currentItem);
 		// the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#

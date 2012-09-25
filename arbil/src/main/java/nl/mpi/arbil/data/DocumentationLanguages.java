@@ -66,7 +66,7 @@ public abstract class DocumentationLanguages {
      *
      * @return Sorted selection of documentation languages
      */
-    public abstract List<ArbilVocabularyItem> getLanguageListSubset();
+    public abstract List<ArbilVocabularyItem> getSortedLanguageListSubset();
 
     protected ArrayList<String> getSelectedLanguages() {
 	ArrayList<String> selectedLanguages = new ArrayList<String>();

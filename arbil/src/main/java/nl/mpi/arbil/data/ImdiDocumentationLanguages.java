@@ -1,6 +1,7 @@
 package nl.mpi.arbil.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
@@ -40,14 +41,16 @@ public class ImdiDocumentationLanguages extends DocumentationLanguages implement
 	return ArbilVocabularies.getSingleInstance().getVocabulary(null, getLanguageVocabularyUrlForImdi()).getVocabularyItemsUnfiltered();
     }
 
-    public List<ArbilVocabularyItem> getLanguageListSubset() {
-	//TODO: Sort (but not too often)
-	return getLanguageListSubset(getAllLanguages());
+    public List<ArbilVocabularyItem> getSortedLanguageListSubset() {
+	//TODO: Do this sorting only when required (i.e. cache sorted list)
+	List<ArbilVocabularyItem> allLanguages = getAllLanguages();
+	Collections.sort(allLanguages);
+	return getLanguageListSubset(allLanguages);
     }
 
     public List<ArbilVocabularyItem> filterVocabularyItems(List<ArbilVocabularyItem> items) {
 	List<ArbilVocabularyItem> vocabClone = new ArrayList<ArbilVocabularyItem>(items);
-	vocabClone.retainAll(getLanguageListSubset());
+	vocabClone.retainAll(getSortedLanguageListSubset());
 	return vocabClone;
     }
 }

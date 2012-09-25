@@ -6,7 +6,7 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
- * Document : ImdiDocumentationLanguages
+ * Document : CmdiDocumentationLanguages
  * Created on : Jul 6, 2010, 4:05:46 PM
  *
  * @author Peter Withers
@@ -14,7 +14,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  */
 public class CmdiDocumentationLanguages extends DocumentationLanguages {
 
-    private SessionStorage sessionStorage;
+    private final SessionStorage sessionStorage;
     private static final String CMDI_LANGUAGE_VOCABULARY_URL_KEY = "CmdiLanguageVocabularyUrl";
     private static final String CMDI_LANGUAGE_VOCABULARY_PATH_KEY = "CmdiLanguageVocabularyPath";
     private static final String SELECTED_LANGUAGES_KEY = "selectedLanguagesCmdi";
@@ -45,8 +45,9 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
 	return cmdiLanguageVocabularyPath;
     }
 
-    public CmdiDocumentationLanguages(SessionStorage sessionStorage) {
+    public CmdiDocumentationLanguages(final SessionStorage sessionStorage) {
 	super(SELECTED_LANGUAGES_KEY, sessionStorage);
+	this.sessionStorage = sessionStorage;
     }
 
     public synchronized List<ArbilVocabularyItem> getAllLanguages() {
@@ -60,9 +61,9 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
 	return null;
     }
 
-    public List<ArbilVocabularyItem> getLanguageListSubset() {
+    public List<ArbilVocabularyItem> getSortedLanguageListSubset() {
 	// No subset for CMDI yet, selection from dialog only applies to IMDI
-	//TODO: Sort (but not too often)
+	//TODO: Sort (but not too often, i.e. cache sorted list)
 	return getAllLanguages();
     }
 }
