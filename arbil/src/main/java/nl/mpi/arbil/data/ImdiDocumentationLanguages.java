@@ -43,9 +43,9 @@ public class ImdiDocumentationLanguages extends DocumentationLanguages implement
 
     public List<ArbilVocabularyItem> getSortedLanguageListSubset() {
 	//TODO: Do this sorting only when required (i.e. cache sorted list)
-	List<ArbilVocabularyItem> allLanguages = getAllLanguages();
-	Collections.sort(allLanguages);
-	return getLanguageListSubset(allLanguages);
+	List<ArbilVocabularyItem> languages = getLanguageListSubset(getAllLanguages());
+	Collections.sort(languages);
+	return languages;
     }
 
     public List<ArbilVocabularyItem> filterVocabularyItems(List<ArbilVocabularyItem> items) {

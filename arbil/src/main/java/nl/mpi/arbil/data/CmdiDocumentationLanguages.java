@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import java.util.Collections;
 import java.util.List;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -22,6 +23,8 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
     public static final String CMDI_VOCABULARY_PATH = ".CMD.Components.ISO639.iso-639-3-code";
     private static String cmdiLanguageVocabularyUrl = null;
     private static String cmdiLanguageVocabularyPath = null;
+    private List<ArbilVocabularyItem> languages;
+    private List<ArbilVocabularyItem> sortedLanguages;
 
     public synchronized String getLanguageVocabularyUrl() {
 	if (cmdiLanguageVocabularyUrl == null) {
@@ -51,6 +54,14 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
     }
 
     public synchronized List<ArbilVocabularyItem> getAllLanguages() {
+	// Assumption is that language list doesn't change
+	if (languages == null) {
+	    languages = getLanguages();
+	}
+	return languages;
+    }
+
+    private synchronized List<ArbilVocabularyItem> getLanguages() {
 	CmdiTemplate profile = (CmdiTemplate) ArbilTemplateManager.getSingleInstance().getCmdiTemplate(getLanguageVocabularyUrl());
 	if (profile != null) {
 	    ArbilVocabulary vocab = profile.getFieldVocabulary(getLanguageVocabularyPath());
@@ -61,9 +72,15 @@ public class CmdiDocumentationLanguages extends DocumentationLanguages {
 	return null;
     }
 
-    public List<ArbilVocabularyItem> getSortedLanguageListSubset() {
+    public synchronized List<ArbilVocabularyItem> getSortedLanguageListSubset() {
 	// No subset for CMDI yet, selection from dialog only applies to IMDI
-	//TODO: Sort (but not too often, i.e. cache sorted list)
-	return getAllLanguages();
+	if (sortedLanguages == null) {
+	    // TODO: Subset here as soon as feature (language selection dialog for CMDI) available
+	    sortedLanguages = getAllLanguages();
+	    if (sortedLanguages != null) {
+		Collections.sort(sortedLanguages);
+	    }
+	}
+	return sortedLanguages;
     }
 }
