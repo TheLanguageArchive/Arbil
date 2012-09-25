@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.data;
 
 import java.io.IOException;
@@ -14,6 +10,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  *
+ * @author Peter Withers
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public abstract class DocumentationLanguages {

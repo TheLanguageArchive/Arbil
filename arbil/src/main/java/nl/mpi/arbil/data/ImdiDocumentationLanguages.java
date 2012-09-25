@@ -7,7 +7,9 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 /**
  * Document : ImdiDocumentationLanguages
  * Created on : Jul 6, 2010, 4:05:46 PM
- * Author : Peter Withers
+ *
+ * @author Peter Withers
+ * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ImdiDocumentationLanguages extends DocumentationLanguages implements ArbilVocabularyFilter {
 
