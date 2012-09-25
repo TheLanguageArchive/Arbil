@@ -8,15 +8,15 @@ import java.io.Serializable;
 
 public class ArbilVocabularyItem implements Comparable, Serializable {
 
-    public String itemDisplayName;
-    public String itemCode;
-    public String followUpVocabulary;
+    public final String itemDisplayName;
+    public final String itemCode;
+    public final String followUpVocabulary;
     public String descriptionString;
 
-    public ArbilVocabularyItem(String languageNameLocal, String languageCodeLocal, String followUpVocabularyLocal) {
-	itemDisplayName = languageNameLocal;
-	itemCode = languageCodeLocal;
-	followUpVocabulary = followUpVocabularyLocal;
+    public ArbilVocabularyItem(String itemDisplayName, String itemCode, String followUpVocabulary) {
+	this.itemDisplayName = itemDisplayName;
+	this.itemCode = itemCode;
+	this.followUpVocabulary = followUpVocabulary;
     }
 
     /**
@@ -38,7 +38,7 @@ public class ArbilVocabularyItem implements Comparable, Serializable {
 	    return itemCode;
 	}
     }
-    
+
     public boolean hasItemCode() {
 	return itemCode != null;
     }

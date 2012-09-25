@@ -61,7 +61,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 //    Object[] cellValue;
     JTextField keyEditorFields[] = null;
     JComponent fieldEditors[] = null;
-    JComboBox fieldLanguageBoxs[] = null;
+    LanguageIdBox fieldLanguageBoxs[] = null;
     JInternalFrame editorFrame = null;
     private FieldAttributesTableModel[] attributeTableModels;
     private JTable attributesTable[] = null;
@@ -148,6 +148,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private JPanel createLanguageBox(final int cellFieldIndex) {
 	fieldLanguageBoxs[cellFieldIndex] = new LanguageIdBox(arbilFields[cellFieldIndex], null);
+	fieldLanguageBoxs[cellFieldIndex].init();
 	JPanel languagePanel = new JPanel(new BorderLayout());
 	languagePanel.add(new JLabel("Language:"), BorderLayout.LINE_START);
 	if (parentArbilDataNode.getParentDomNode().isEditable()) {
@@ -164,7 +165,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	fieldEditors = new JComponent[arbilFields.length];
 	keyEditorFields = new JTextField[arbilFields.length];
-	fieldLanguageBoxs = new JComboBox[arbilFields.length];
+	fieldLanguageBoxs = new LanguageIdBox[arbilFields.length];
 	attributeTableModels = new FieldAttributesTableModel[arbilFields.length];
 	attributesTable = new JTable[arbilFields.length];
 
