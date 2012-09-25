@@ -2,12 +2,9 @@ package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -21,7 +18,6 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -39,17 +35,17 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import nl.mpi.arbil.ArbilIcons;
-import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.ui.ArbilTable;
+import nl.mpi.arbil.ui.ArbilWindowManager;
 
 /**
- *  Document   : ArbilLongFieldEditor
- *  Created on : Sep 14, 2010, 1:53:15 PM
- *  Author     : Peter Withers, Twan Goosen
+ * Document : ArbilLongFieldEditor
+ * Created on : Sep 14, 2010, 1:53:15 PM
+ * Author : Peter Withers, Twan Goosen
  */
 public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContainer {
 
@@ -62,7 +58,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 //    Object[] cellValue;
     JTextField keyEditorFields[] = null;
     JComponent fieldEditors[] = null;
-    JComboBox fieldLanguageBoxs[] = null;
+    LanguageIdBox fieldLanguageBoxs[] = null;
     JInternalFrame editorFrame = null;
     private FieldAttributesTableModel[] attributeTableModels;
     private JTable attributesTable[] = null;
@@ -114,7 +110,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	// todo: add all unused attributes as editable text
 	editorFrame = ArbilWindowManager.getSingleInstance().createWindow(getWindowTitle(), this);
 	editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
-
 	    @Override
 	    public void internalFrameClosed(InternalFrameEvent e) {
 		// deregister component from imditreenode
@@ -136,6 +131,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private JPanel createLanguageBox(final int cellFieldIndex) {
 	fieldLanguageBoxs[cellFieldIndex] = new LanguageIdBox(arbilFields[cellFieldIndex], null);
+	fieldLanguageBoxs[cellFieldIndex].init();
 	JPanel languagePanel = new JPanel(new BorderLayout());
 	languagePanel.add(new JLabel("Language:"), BorderLayout.LINE_START);
 	if (parentArbilDataNode.getParentDomNode().isEditable()) {
@@ -152,7 +148,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	fieldEditors = new JComponent[arbilFields.length];
 	keyEditorFields = new JTextField[arbilFields.length];
-	fieldLanguageBoxs = new JComboBox[arbilFields.length];
+	fieldLanguageBoxs = new LanguageIdBox[arbilFields.length];
 	attributeTableModels = new FieldAttributesTableModel[arbilFields.length];
 	attributesTable = new JTable[arbilFields.length];
 
@@ -236,13 +232,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	// Start separate thread to get the help string as this may involve a http request and parsing, don't want to wait for that...
 	new Thread() {
-
 	    @Override
 	    public void run() {
 		final String helpString = parentArbilDataNode.getNodeTemplate().getHelpStringForField(fullXmlPath);
 		// Set field description on event dispatching thread
 		SwingUtilities.invokeLater(new Runnable() {
-
 		    public void run() {
 			fieldDescription.setText(helpString);
 		    }
@@ -334,7 +328,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private void requestFocusFor(final JComponent component) {
 	EventQueue.invokeLater(new Runnable() {
-
 	    public void run() {
 		component.requestFocusInWindow();
 	    }
@@ -419,6 +412,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     /**
      * Checks whether the key editor field has been changed, if so asks the user to go ahead and save pending changes, and finally
      * saves changes if the user agrees
+     *
      * @param cellFieldIndex
      * @return False if the user has canceled save changes. True otherwise (i.e. there are no changes or user agrees to save)
      */
@@ -444,6 +438,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     /**
      * Data node is to be removed
+     *
      * @param dataNode Data node that should be removed
      */
     public void dataNodeRemoved(ArbilNode dataNode) {
@@ -452,6 +447,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     /**
      * Data node is clearing its icon
+     *
      * @param dataNode Data node that is clearing its icon
      */
     public void dataNodeIconCleared(ArbilNode dataNode) {
@@ -462,6 +458,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     /**
      * A new child node has been added to the destination node
+     *
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */
@@ -507,13 +504,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	setNavigationEnabled();
     }
     private Action nextAction = new AbstractAction() {
-
 	public void actionPerformed(ActionEvent e) {
 	    moveAdjacent(+1);
 	}
     };
     private Action previousAction = new AbstractAction() {
-
 	public void actionPerformed(ActionEvent e) {
 	    moveAdjacent(-1);
 	}
@@ -532,7 +527,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	    // Action that switches to the next tab (if there is one)
 	    put("nextTab", new AbstractAction() {
-
 		public void actionPerformed(ActionEvent e) {
 		    changeTab(+1);
 		}
@@ -540,7 +534,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	    // Action that switches to the previous tab (if there is one)
 	    put("previousTab", new AbstractAction() {
-
 		public void actionPerformed(ActionEvent e) {
 		    changeTab(-1);
 		}
@@ -579,7 +572,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     }
     // NOTE: Not serializable!
     private FocusListener editorFocusListener = new FocusListener() {
-
 	public void focusGained(FocusEvent e) {
 	}
 
@@ -693,7 +685,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
 	private void initChangeKeyNameButton() {
 	    changeKeyNameButton = new JButton(new AbstractAction() {
-
 		public void actionPerformed(ActionEvent e) {
 		    enableEditMode();
 		}
@@ -719,7 +710,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	 * Action that saves the entered key name
 	 */
 	private Action keyNameSaveAction = new AbstractAction("KeyNameOk") {
-
 	    public void actionPerformed(ActionEvent e) {
 		if (checkSaveKeyEditorField(cellFieldIndex)) {
 		    disableEditMode();
@@ -730,7 +720,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	 * Action that cancels the editing of the key name
 	 */
 	private Action keyNameCancelAction = new AbstractAction("KeyNameCancel") {
-
 	    public void actionPerformed(ActionEvent e) {
 		disableEditMode();
 	    }

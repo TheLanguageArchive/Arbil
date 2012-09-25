@@ -289,7 +289,6 @@ public class ArbilTemplateManager {
 	    returnArray[insertableCounter] = createMenuItemForTemplate(locationsArray[insertableCounter]);
 	}
 	Arrays.sort(returnArray, new Comparator() {
-
 	    public int compare(Object firstItem, Object secondItem) {
 		return (((MenuItemData) firstItem).menuText.compareToIgnoreCase(((MenuItemData) secondItem).menuText));
 	    }
@@ -397,7 +396,7 @@ public class ArbilTemplateManager {
 	if (nameSpaceString != null) {
 	    CmdiTemplate cmdiTemplate = (CmdiTemplate) templatesHashTable.get(nameSpaceString);
 	    if (cmdiTemplate == null) {
-		cmdiTemplate = new CmdiTemplate();
+		cmdiTemplate = new CmdiTemplate(sessionStorage);
 		cmdiTemplate.loadTemplate(nameSpaceString);
 		cmdiTemplate.startLoadingDatacategoryDescriptions();
 		templatesHashTable.put(nameSpaceString, cmdiTemplate);
@@ -410,12 +409,11 @@ public class ArbilTemplateManager {
     }
 
     public ArbilTemplate getTemplate(String templateName) {
-	ArbilTemplate returnTemplate = new ArbilTemplate();
 	if (templateName == null || templateName.length() < 1) {
 	    return getDefaultTemplate(); // if the template string is not provided the default template is used
 	}
 	if (!templatesHashTable.containsKey(templateName)) {
-//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
+	    ArbilTemplate returnTemplate = new ArbilTemplate(sessionStorage);
 	    if (returnTemplate.readTemplate(getTemplateFile(templateName), templateName)) {
 		templatesHashTable.put(templateName, returnTemplate);
 		return returnTemplate;

@@ -36,8 +36,9 @@ import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 
 /**
- * Document   : ArbilTableCellEditor
- * Created on : 
+ * Document : ArbilTableCellEditor
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableCellEditor extends AbstractCellEditor implements TableCellEditor {
@@ -55,7 +56,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     Vector<Component> componentsWithFocusListners = new Vector();
     private static ArbilBugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
     private final MouseListener fieldMouseAdapter = new java.awt.event.MouseAdapter() {
-
 	@Override
 	public void mouseReleased(MouseEvent evt) {
 	    parentTable.checkPopup(evt, false);
@@ -81,7 +81,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	button = new JLabel("...");
 	editorPanel = new JPanel();
 	button.addKeyListener(new java.awt.event.KeyListener() {
-
 	    public void keyTyped(KeyEvent evt) {
 	    }
 
@@ -125,7 +124,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	final ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, currentCellString, (ArbilField) cellValue[selectedField], cvComboBox);
 	cvComboBox.setEditor(cvcbEditor);
 	cvComboBox.addPopupMenuListener(new PopupMenuListener() {
-
 	    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 	    }
 
@@ -151,7 +149,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	final String currentCellString = cellValue[selectedField].toString();
 	ArbilFieldEditor editorTextField = new ArbilFieldEditor(getEditorText(lastKeyInt, lastKeyChar, currentCellString));
 	editorTextField.addKeyListener(new java.awt.event.KeyListener() {
-
 	    public void keyTyped(KeyEvent evt) {
 		if (isStartLongFieldKey(evt)) {
 		    // if this is a long start long field event the we don't want that key appended so it is not passed on here
@@ -177,7 +174,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	if (cellValue[selectedField] instanceof ArbilField) {
 	    if (((ArbilField) cellValue[selectedField]).isAllowsLanguageId()) {
 		// this is an ImdiField that has a fieldLanguageId
-		JComboBox fieldLanguageBox = new LanguageIdBox((ArbilField) cellValue[selectedField], parentCellRect);
+		LanguageIdBox fieldLanguageBox = new LanguageIdBox((ArbilField) cellValue[selectedField], parentCellRect);
+		fieldLanguageBox.init();
 		editorPanel.add(fieldLanguageBox);
 		addFocusListener(fieldLanguageBox);
 	    }
@@ -257,7 +255,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     private void addFocusListener(Component targetComponent) {
 	componentsWithFocusListners.add(targetComponent);
 	targetComponent.addFocusListener(new FocusListener() {
-
 	    public void focusGained(FocusEvent e) {
 	    }
 
@@ -351,8 +348,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
 	} else if (cellValue.length == 1 && cellValue[0] instanceof ArbilFieldPlaceHolder) {
 	    /* Cell value is field place holder, meaning that the node does not
-	    contain the selected field and may not be able to. Investigate, and
-	    initiate editor if possible */
+	     contain the selected field and may not be able to. Investigate, and
+	     initiate editor if possible */
 	    // TODO: implement editing field placeholders
 //            final String xmlPath = ((ArbilFieldPlaceHolder) cellValue[0]).getFieldName();
 //            final ArbilDataNode dataNode = ((ArbilFieldPlaceHolder) cellValue[0]).getArbilDataNode();
@@ -440,7 +437,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	addFocusListener(button);
 	//table.requestFocusInWindow();
 	SwingUtilities.invokeLater(new Runnable() {
-
 	    public void run() {
 		button.requestFocusInWindow();
 	    }

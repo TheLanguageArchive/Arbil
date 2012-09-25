@@ -4,84 +4,129 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.DocumentationLanguages;
-import nl.mpi.arbil.ui.GuiHelper;
+import javax.swing.SwingUtilities;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
+import nl.mpi.arbil.ui.GuiHelper;
 
 /**
- *  Document   : LanguageIdBox
- *  Created on : Sep 14, 2010, 3:58:33 PM
- *  Author     : Peter Withers
+ * Document : LanguageIdBox
+ * Created on : Sep 14, 2010, 3:58:33 PM
+ * Author : Peter Withers
  */
 public class LanguageIdBox extends JComboBox {
 
     public final static int languageSelectWidth = 100;
-    static String defaultLanguageDropDownValue = "<select>";
+    private final static String defaultLanguageDropDownValue = "<select>";
+    private final static String initializingDropDownValue = "initializing...";
+    private final ArbilField cellField;
 
-    public LanguageIdBox(final ArbilField cellField, Rectangle parentCellRect) {
-	String fieldLanguageId = cellField.getLanguageId();
-//        if (fieldLanguageId != null) {
-	System.out.println("Has LanguageId");
-	ArbilVocabularyItem selectedItem = null;
+    /**
+     * Constucts a language id box for a field. After construction, the box will be disabled and containg a single "initializing..." item.
+     * Call {@link #init() } to make it ready for use.
+     *
+     * @param cellField
+     * @param parentCellRect
+     * @see #init()
+     */
+    public LanguageIdBox(ArbilField cellField, Rectangle parentCellRect) {
+	this.cellField = cellField;
 	this.setEditable(false);
-	List<ArbilVocabularyItem> languageItemArray = getLanguageItems(cellField.getParentDataNode());
-	if (languageItemArray != null) {
-	    Collections.sort(languageItemArray);
-	    for (ArbilVocabularyItem currentItem : languageItemArray) {
-		this.addItem(currentItem);
-		// the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
-		if (fieldLanguageId != null
-			&& (fieldLanguageId.equals(currentItem.itemCode) || fieldLanguageId.equals(currentItem.descriptionString))) {
-		    selectedItem = currentItem;
-		}
-	    }
-	    this.addItem(defaultLanguageDropDownValue);
-
-	    if (selectedItem != null) {
-		System.out.println("selectedItem: " + selectedItem);
-		this.setSelectedItem(selectedItem);
-	    } else {
-		this.setSelectedItem(defaultLanguageDropDownValue);
-	    }
-	    this.addActionListener(new ActionListener() {
-
-		public void actionPerformed(ActionEvent e) {
-		    try {
-			if (LanguageIdBox.this.getSelectedItem() instanceof ArbilVocabularyItem) {
-			    ArbilVocabularyItem selectedLanguage = (ArbilVocabularyItem) LanguageIdBox.this.getSelectedItem();
-			    String languageCode = selectedLanguage.itemCode;
-			    if (languageCode == null) {
-				// the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
-				languageCode = selectedLanguage.descriptionString;
-			    }
-			    cellField.setLanguageId(languageCode, true, false);
-			} else {
-			    if (defaultLanguageDropDownValue.equals(LanguageIdBox.this.getSelectedItem())) {
-				cellField.setLanguageId(null, true, false);
-			    }
-			}
-		    } catch (Exception ex) {
-			GuiHelper.linorgBugCatcher.logError(ex);
-		    }
-		}
-	    });
-	}
 	if (parentCellRect != null) {
 	    this.setPreferredSize(new Dimension(languageSelectWidth, parentCellRect.height));
 	}
+
+	addItem(initializingDropDownValue);
+	// Disable until initialized
+	setEnabled(false);
     }
 
-    private List<ArbilVocabularyItem> getLanguageItems(final ArbilDataNode parentDataNode) {
-	if (parentDataNode.getNodeTemplate() instanceof CmdiTemplate) {
-	    return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForCmdi();
-	} else {
-	    return DocumentationLanguages.getSingleInstance().getLanguageListSubsetForImdi();
+    /**
+     * Adds all items to the box and sets the selection according to the field model. When finished, enables the box.
+     * <strong>Call only once</strong>.
+     */
+    public void init() {
+
+	new Thread() {
+	    @Override
+	    public void run() {
+		final String fieldLanguageId = cellField.getLanguageId();
+		final List<ArbilVocabularyItem> languageItemArray = cellField.getDocumentationLanguages().getSortedLanguageListSubset();
+		if (languageItemArray != null) {
+		    // Load and add language items
+		    setItems(languageItemArray, fieldLanguageId);
+		    // Add the action listener, should be done on EDT
+		    SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+			    setActionListener();
+			    // Box was disabled on construction, now initialization is complete we can re-enable
+			    setEnabled(true);
+			}
+		    });
+		}
+	    }
+	}.start();
+    }
+
+    private void setItems(final List<ArbilVocabularyItem> languageItemArray, final String fieldLanguageId) {
+	final ArbilVocabularyItem selectedItem = findSelectedItem(fieldLanguageId, languageItemArray);
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		addItems(languageItemArray, selectedItem);
+	    }
+	});
+    }
+
+    private ArbilVocabularyItem findSelectedItem(final String fieldLanguageId, final List<ArbilVocabularyItem> languageItemArray) {
+	ArbilVocabularyItem selectedItem = null;
+	if (fieldLanguageId != null) {
+	    for (final ArbilVocabularyItem currentItem : languageItemArray) {
+		// the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
+		if (fieldLanguageId.equals(currentItem.itemCode) || fieldLanguageId.equals(currentItem.descriptionString)) {
+		    selectedItem = currentItem;
+		    break;
+		}
+	    }
 	}
+	return selectedItem;
+    }
+
+    private void addItems(final List<ArbilVocabularyItem> languageItemArray, final ArbilVocabularyItem selectedItem) {
+	removeItem(initializingDropDownValue);
+	for (final ArbilVocabularyItem currentItem : languageItemArray) {
+	    addItem(currentItem);
+	}
+	addItem(defaultLanguageDropDownValue);
+	if (selectedItem != null) {
+	    setSelectedItem(selectedItem);
+	} else {
+	    setSelectedItem(defaultLanguageDropDownValue);
+	}
+    }
+
+    private void setActionListener() {
+	addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		try {
+		    if (LanguageIdBox.this.getSelectedItem() instanceof ArbilVocabularyItem) {
+			final ArbilVocabularyItem selectedLanguage = (ArbilVocabularyItem) LanguageIdBox.this.getSelectedItem();
+			String languageCode = selectedLanguage.itemCode;
+			if (languageCode == null) {
+			    // the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
+			    languageCode = selectedLanguage.descriptionString;
+			}
+			cellField.setLanguageId(languageCode, true, false);
+		    } else {
+			if (defaultLanguageDropDownValue.equals(LanguageIdBox.this.getSelectedItem())) {
+			    cellField.setLanguageId(null, true, false);
+			}
+		    }
+		} catch (Exception ex) {
+		    GuiHelper.linorgBugCatcher.logError(ex);
+		}
+	    }
+	});
     }
 }

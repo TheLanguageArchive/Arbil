@@ -38,8 +38,8 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.BinaryMetadataReader;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -100,7 +100,7 @@ public abstract class ArbilInjector {
 	MetadataReader.setDataNodeLoader(dataNodeLoader);
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
-    
+
     public static void injectMimeHashQueue(MimeHashQueue mimeHashQueue){
 	ArbilDataNode.setMimeHashQueue(mimeHashQueue);
     }
@@ -188,12 +188,10 @@ public abstract class ArbilInjector {
 	ArbilField.setSessionStorage(sessionStorage);
 	ArbilJournal.setSessionStorage(sessionStorage);
 	ArbilVocabularies.setSessionStorage(sessionStorage);
-	DocumentationLanguages.setSessionStorage(sessionStorage);
 	MetadataBuilder.setSessionStorage(sessionStorage);
 	MetadataReader.setSessionStorage(sessionStorage);
 	CmdiProfileReader.setSessionStorage(sessionStorage);
 	ProfilePreview.setSessionStorage(sessionStorage);
-	CmdiTemplate.setSessionStorage(sessionStorage);
 	ArbilFavourites.setSessionStorage(sessionStorage);
 	XsdChecker.setSessionStorage(sessionStorage);
 	ApplicationVersionManager.setSessionStorage(sessionStorage);
