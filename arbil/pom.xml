@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
-        <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
+    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
     <!--<version>${arbil.majorVersion}.${arbil.minorVersion}.33237-${arbil.branch}</version>-->
     <name>Arbil</name>
     <organization> 
@@ -250,13 +250,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>kinnate-plugins-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>plugins-core</artifactId>
+            <version>0.0.33011</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>pluginloader</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.0.33291</version>
         </dependency>
     </dependencies>
     <repositories>
