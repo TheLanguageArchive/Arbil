@@ -1,16 +1,14 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
-import java.awt.Component;
 import javax.swing.JComboBox;
-import javax.swing.JList;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
 
 /**
  * Editable combo box that has the items of a controlled vocabulary in it.
- * Use with ControlledVocabularyComboBoxEditor
+ * Use with {@link ControlledVocabularyComboBoxEditor}.
+ * Rendering of list items is done by a {@link ControlledVocabularyComboBoxRenderer}.
  *
  * Document : ControlledVocabularyComboBox
  * Created on : Wed Oct 07 11:07:30 CET 2009
@@ -18,6 +16,7 @@ import nl.mpi.arbil.data.ArbilVocabularyItem;
  * @author Peter.Withers@mpi.nl
  * @author Twan.Goosen@mpi.nl
  * @see ControlledVocabularyComboBoxEditor
+ * @see ControlledVocabularyComboBoxRenderer
  */
 public class ControlledVocabularyComboBox extends JComboBox {
 
@@ -33,7 +32,6 @@ public class ControlledVocabularyComboBox extends JComboBox {
 	}
 
 	this.setUI(new javax.swing.plaf.basic.BasicComboBoxUI());
-
 	this.setRenderer(new ControlledVocabularyComboBoxRenderer());
     }
 
