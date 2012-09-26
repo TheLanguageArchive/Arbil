@@ -35,6 +35,7 @@ public class ArbilHelp extends javax.swing.JPanel {
     private final String helpResourceBase;
     private final DefaultTreeModel helpTreeModel;
     private final DefaultMutableTreeNode rootContentsNode;
+    private final Class resourcesClass;
     static private ArbilHelp singleInstance = null;
 
     static synchronized public ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
@@ -48,9 +49,9 @@ public class ArbilHelp extends javax.swing.JPanel {
 
     /**
      *
-     * @param resourcesClass Class for getting resources
-     * @param helpResourceBase specification of base package for help resources
-     * @param indexXml xml that specifies
+     * @param resourcesClass Class for accessing resources (through {@link Class#getResourceAsStream(java.lang.String) })
+     * @param helpResourceBase specification of base package (accessible from resourcesClass) for help resources
+     * @param indexXml xml that specifies the contents of the help resources
      * @throws IOException
      * @throws SAXException
      */
@@ -58,9 +59,10 @@ public class ArbilHelp extends javax.swing.JPanel {
 	initComponents();
 
 	this.helpResourceBase = helpResourceBase;
+	this.resourcesClass = resourcesClass;
 
 	final HelpItemsParser parser = new HelpItemsParser();
-	final InputStream helpStream = getClass().getResourceAsStream(indexXml);
+	final InputStream helpStream = resourcesClass.getResourceAsStream(indexXml);
 	if (helpStream != null) {
 	    try {
 		helpIndex = parser.parse(helpStream);
@@ -75,7 +77,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	}
 
 	helpTextPane.setContentType("text/html");
-	((HTMLDocument) helpTextPane.getDocument()).setBase(this.getClass().getResource(helpResourceBase));
+	((HTMLDocument) helpTextPane.getDocument()).setBase(resourcesClass.getResource(helpResourceBase));
 	indexTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
 	rootContentsNode = new DefaultMutableTreeNode("Contents");
@@ -171,7 +173,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 
     public boolean showHelpItem(URL itemURL) {
 	try {
-	    final URI baseUri = getClass().getResource(helpResourceBase).toURI();
+	    final URI baseUri = resourcesClass.getResource(helpResourceBase).toURI();
 	    if (itemURL.toString().startsWith(baseUri.toString())) {
 		URI relativeURI = baseUri.relativize(itemURL.toURI());
 		// Update index, which will show the help item if found. Use only path, i.e. ignore the fragment
@@ -186,7 +188,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 
     private void showHelpItem(final String itemResource) {
 	final StringBuilder completeHelpText = new StringBuilder();
-	final InputStream itemStream = getClass().getResourceAsStream(helpResourceBase + itemResource);
+	final InputStream itemStream = resourcesClass.getResourceAsStream(helpResourceBase + itemResource);
 	if (itemStream == null) {
 	    completeHelpText.append("Page not found");
 	} else {
