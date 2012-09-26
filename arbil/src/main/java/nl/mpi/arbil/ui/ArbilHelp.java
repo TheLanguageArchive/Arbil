@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import javax.swing.SwingUtilities;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -178,7 +179,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 		URI relativeURI = baseUri.relativize(itemURL.toURI());
 		// Update index, which will show the help item if found. Use only path, i.e. ignore the fragment
 		// TODO: Keep fragment info
-		return updateIndex(relativeURI.getPath().toString());
+		return updateIndex(relativeURI.getPath().toString(), relativeURI.getFragment());
 	    }
 	} catch (URISyntaxException usEx) {
 	    BugCatcherManager.getBugCatcher().logError(usEx);
@@ -225,12 +226,27 @@ public class ArbilHelp extends javax.swing.JPanel {
     private javax.swing.JTextPane helpTextPane;
     private javax.swing.JTree indexTree;
 
+    private boolean updateIndex(final String itemResource, final String fragment) {
+	if (updateIndex(itemResource)) {
+	    if (fragment != null) {
+		//TODO: Jump to fragment. The code below may not do this reliably
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			helpTextPane.scrollToReference(fragment);
+		    }
+		});
+	    }
+	    return true;
+	}
+	return false;
+    }
+
     /**
      * Sets the selection of the index tree to the item that refers to the specified file
      *
      * @param itemResource file to select
      */
-    private boolean updateIndex(String itemResource) {
+    private boolean updateIndex(final String itemResource) {
 	if (itemResource == null) {
 	    return false;
 	}
