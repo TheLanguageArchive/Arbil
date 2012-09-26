@@ -1,16 +1,14 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
-import java.awt.Component;
 import javax.swing.JComboBox;
-import javax.swing.JList;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
 
 /**
  * Editable combo box that has the items of a controlled vocabulary in it.
- * Use with ControlledVocabularyComboBoxEditor
+ * Use with {@link ControlledVocabularyComboBoxEditor}.
+ * Rendering of list items is done by a {@link ControlledVocabularyComboBoxRenderer}.
  *
  * Document : ControlledVocabularyComboBox
  * Created on : Wed Oct 07 11:07:30 CET 2009
@@ -18,6 +16,7 @@ import nl.mpi.arbil.data.ArbilVocabularyItem;
  * @author Peter.Withers@mpi.nl
  * @author Twan.Goosen@mpi.nl
  * @see ControlledVocabularyComboBoxEditor
+ * @see ControlledVocabularyComboBoxRenderer
  */
 public class ControlledVocabularyComboBox extends JComboBox {
 
@@ -33,30 +32,7 @@ public class ControlledVocabularyComboBox extends JComboBox {
 	}
 
 	this.setUI(new javax.swing.plaf.basic.BasicComboBoxUI());
-
-	this.setRenderer(new BasicComboBoxRenderer() {
-	    @Override
-	    public Component getListCellRendererComponent(JList jlist, Object o, int i, boolean bln, boolean bln1) {
-		// TODO: Create a more distinct separation of display value and code; this will probably require
-		// a panel rather than a label which requires custom initialization (for the reuse).
-		// Display value on the left, code on the right in a lighter shade would look nice.
-		
-		// Call super, which initializes the renderer
-		super.getListCellRendererComponent(jlist, o, i, bln, bln1);
-		if (o instanceof ArbilVocabularyItem) {
-		    final ArbilVocabularyItem item = (ArbilVocabularyItem) o;
-		    if (item.hasItemCode()) {
-			// Show code and diplay value seperately
-			setText(String.format("%1$s [%2$s]", item.getDisplayValue(), item.getValue()));
-		    } else {
-			// Only show display value (there is no code, so value and display are the same)
-			setText(item.getDisplayValue());
-		    }
-		}
-		// The renderer is the component (same object gets reused, see implementation of BasicComboBoxRenderer)
-		return this;
-	    }
-	});
+	this.setRenderer(new ControlledVocabularyComboBoxRenderer());
     }
 
     public String getCurrentValue() {
