@@ -61,7 +61,8 @@
         metadata set, please see <ulink url="http://www.lat-mpi.eu/tools/imdi/">the LAT
           website</ulink>).</para>
       <para>For a less detailed program description, see the <ulink
-          url="http://www.lat-mpi.eu/tools/arbil/">Arbil User Guide</ulink>.</para>
+          url="http://www.mpi.nl/corpus/html/arbil-imdi_ug/index.html">Arbil User
+        Guide</ulink>.</para>
       <para>We encourage you to provide feedback, comments, and suggestions so that we can improve
         the documentation to better meet your needs. Also, in case of problems that are not
         addressed anywhere in this guide, please use the <ulink
@@ -77,12 +78,12 @@
         remote locations while still in the field. Changes you make in Arbil will <emphasis
           role="underline">not</emphasis> affect the archive.</para>
       <para>Arbil consists of 6 working areas as shown in the figure below:</para>
-      <para>- 1) <emphasis role="bold">The</emphasis>
+      <para>- 1) <emphasis role="bold">The Menu Bar</emphasis> allows you to access the main
+        commands </para>
+      <para>- 2) <emphasis role="bold">The</emphasis>
         <link linkend="Sec_Remote_Corpus"><emphasis role="bold">Remote Corpus</emphasis></link>
         contains locations from the Language Archive. This is where you can view corpora and choose
         to import.</para>
-      <para>- 2) <emphasis role="bold">The Menu Bar</emphasis> allows you to access the main
-        commands </para>
       <para>- 3) <emphasis role="bold">The</emphasis>
         <link linkend="Sec_Local_Corpus"><emphasis role="bold">Local Corpus</emphasis></link>
         contains the user's main working area. This is where corpora from the Remote Corpus can be
@@ -137,7 +138,7 @@
       <para>4) Stored session elements, such as common actors, can be added to the local corpus from
         the <emphasis role="italic">favourites</emphasis>.</para>
       <para>5) Once your metadata have been edited correctly and your desired media files have been
-        added to your sessions, you can export the node to a directory (folder) on your
+        added to your sessions, you can export the metadata files to a directory (folder) on your
         computer.</para>
       <para>In order to create a new node, add a node in the Local Corpus and follow the same
         steps.</para>
@@ -176,8 +177,7 @@
         file) </para><para><inlinegraphic fileref="images/remote_server_icon.png"/> The file is on
         the remote server (read only) </para><para><inlinegraphic fileref="images/R%20n%20L.png"/>
           The file is located in the local corpus but has been imported from the remote
-          server</para><para><inlinegraphic fileref="images/corpus_branch_icon.png"/> Corpus branch </para><para><inlinegraphic fileref="images/catalogue_icon.png"/>Catalogue</para><para><inlinegraphic fileref="images/session%20icon.png"/> IMDI
-        session</para><para><inlinegraphic fileref="images/right.png"/>Closed node (sub-components
+          server</para><para><inlinegraphic fileref="images/corpus_branch_icon.png"/> Corpus branch </para><para><inlinegraphic fileref="images/catalogue_icon.png"/>Catalogue</para><para><inlinegraphic fileref="images/session_icon.png"/> IMDI session</para><para><inlinegraphic fileref="images/right.png"/>Closed node (sub-components
         are folded)</para><para>
         <inlinegraphic fileref="images/down.png"/>Open node (direct sub-components are
         displayed</para><para><inlinegraphic fileref="images/imdi_contains_data.png"/> IMDI node that contains data </para>
@@ -256,14 +256,15 @@
       <para>It is important to understand the distinction between the following as these elements
         are essential to the internal structure of Arbil:</para>
       <para><emphasis role="italic">corpus node</emphasis>, <inlinegraphic fileref="images/corpus_branch_icon.png"/></para>
-      <para><emphasis role="italic">corpus session</emphasis><inlinegraphic fileref="images/session%20icon.png"/></para>
+      <para><emphasis role="italic">corpus session</emphasis><inlinegraphic
+          fileref="images/session_icon.png"/></para>
       <para><emphasis role="italic">corpus catalogue</emphasis>
         <inlinegraphic fileref="images/catalogue_icon.png" contentdepth="80%"/></para>
       <para>IMDI is organized hierarchically meaning that any number of other corpus nodes can fall
         under each <emphasis role="italic">corpus node</emphasis><inlinegraphic
           fileref="images/corpus_branch_icon.png"/> . These nodes do not describe resources but are
         meant to construct the corpus structure only. It is the<emphasis role="italic"> session
-          nodes</emphasis><inlinegraphic fileref="images/session%20icon.png"/> which include
+          nodes</emphasis><inlinegraphic fileref="images/session_icon.png"/> which include
         information about the actors, content, media file, project, source and written
         resources.</para>
       <para>A <emphasis role="italic">corpus catalogue,</emphasis><inlinegraphic
@@ -557,10 +558,10 @@
       <para>The tab <emphasis role="italic">Favourites</emphasis> is meant for storing session
         elements that you would like to re-use in new sessions, such as <emphasis role="italic"
           >actor, language elements, location</emphasis> etc. Session elements that can be saved in
-        Favourites are: IMDI sessions (<inlinegraphic fileref="images/session%20icon.png"/>),
-        actors, content elements etc). If you have a number of elements in your Favourite List and
-        you are not certain what the content of a given element is, you can always place the cursor
-        over it and wait for the tool tip (information window) to appear.</para>
+        Favourites are: IMDI sessions (<inlinegraphic fileref="images/session_icon.png"/>), actors,
+        content elements etc). If you have a number of elements in your Favourite List and you are
+        not certain what the content of a given element is, you can always place the cursor over it
+        and wait for the tool tip (information window) to appear.</para>
       <figure>
         <title>Favourites List</title>
         <screenshot>
@@ -630,7 +631,7 @@
         <title>Adding a new corpus branch</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Add%20corpus%20node.png" contentdepth="50%" scalefit="1"
+            <imagedata fileref="images/Add_corpus_node.png" contentdepth="50%" scalefit="1"
               width="50%"/>
           </imageobject>
         </mediaobject>
@@ -771,8 +772,7 @@
         <title>Adding a written resource by dragging and dropping</title>
           <mediaobject>
             <imageobject>
-            <imagedata
-              fileref="images/Adding%20a%20written%20resource%20by%20dragging%20and%20dropping.png"
+            <imagedata fileref="images/Adding_a_written resource_by_dragging and_dropping.png"
               contentdepth="100%" scalefit="1" width="100%"/>
           </imageobject>
           </mediaobject>
@@ -781,8 +781,8 @@
         <title>Adding a media file via the menu</title>
           <mediaobject>
             <imageobject>
-            <imagedata fileref="images/Adding%20a%20media%20file%20via%20the%20menu.png"
-              contentdepth="100%" scalefit="1" width="100%"/>
+            <imagedata fileref="images/Adding_a_media_file via_the_menu.png" contentdepth="100%"
+              scalefit="1" width="100%"/>
           </imageobject>
           </mediaobject>
       </figure>
@@ -796,7 +796,7 @@
           <title>Insert  manual remote resources</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/add%20remote%20resources%20manually.png" contentdepth="60%"
+              <imagedata fileref="images/add_remote_resources_manually.png" contentdepth="60%"
                 scalefit="1" width="100%"/>
             </imageobject>
           </mediaobject>
@@ -841,7 +841,7 @@
         <title>Editing</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/simple%20editing.png" contentdepth="100%" scalefit="1"
+            <imagedata fileref="images/simple_editing.png" contentdepth="100%" scalefit="1"
               width="100%"/>
           </imageobject>
         </mediaobject>
@@ -865,7 +865,7 @@
         <title>Closed vocabularies</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Closed%20vocabularies.png" contentdepth="100%" scalefit="1"
+            <imagedata fileref="images/Closed_vocabularies.png" contentdepth="100%" scalefit="1"
               width="100%"/>
           </imageobject>
         </mediaobject>
@@ -905,8 +905,8 @@
         <title>Long Field Editor</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/long%20field%20editor.png" contentdepth="100%"
-              scalefit="1" width="100%"/>
+            <imagedata fileref="images/long_field_editor.png" contentdepth="100%" scalefit="1"
+              width="100%"/>
           </imageobject>
         </mediaobject>
       </figure>      
@@ -932,8 +932,8 @@
         <title>Pasting data into multiple cells</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Pasting%20data%20into%20multiple%20cells.png"
-              contentdepth="100%" scalefit="1" width="100%"/>
+            <imagedata fileref="images/Pasting_data_into multiple_cells.png" contentdepth="100%"
+              scalefit="1" width="100%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -1000,9 +1000,9 @@
           <title>Find and Replace</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/find%20and%20replace.png" scalefit="1" contentdepth="100%"
-                width="100%"/>
-            </imageobject>
+                <imagedata fileref="images/find_and_replace.png" scalefit="1" contentdepth="100%"
+                  width="100%"/>
+              </imageobject>
           </mediaobject>
         </figure>
       </para>
@@ -1020,7 +1020,7 @@
           <title>Edit/view all metadata</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/edit all metadata.png" contentdepth="100%" scalefit="1"
+              <imagedata fileref="images/edit_all_metadata.png" contentdepth="100%" scalefit="1"
                 width="100%"/>
             </imageobject>
           </mediaobject>
@@ -1043,7 +1043,7 @@
           <title>Choosing columns</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/choose%20collumns_a.png" contentdepth="100%" scalefit="1"
+              <imagedata fileref="images/choose_collumns_a.png" contentdepth="100%" scalefit="1"
                 width="100%"/>
             </imageobject>
           </mediaobject>
@@ -1084,7 +1084,7 @@
         <title>Hiding one column</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="100%" fileref="images/hide one collumn.png" scalefit="1"
+            <imagedata contentdepth="100%" fileref="images/hide_one_collumn.png" scalefit="1"
               width="100%"/>
           </imageobject>
         </mediaobject>
@@ -1097,7 +1097,7 @@
         <title>Saving Column View</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="100%" fileref="images/saving collumn view.png" scalefit="1"
+            <imagedata contentdepth="100%" fileref="images/saving_collumn_view.png" scalefit="1"
               width="100%"/>
           </imageobject>
         </mediaobject>
@@ -1122,8 +1122,8 @@
           <title>Setting new default column view</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/default%20collumn%20view.png" contentdepth="50%"
-                scalefit="1" width="50%"/>
+              <imagedata fileref="images/default_collumn view.png" contentdepth="50%" scalefit="1"
+                width="50%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -1202,7 +1202,7 @@
           <title>Searching Remote Corpus</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/searching%20remote%20corpus.png" contentdepth="43%"
+              <imagedata fileref="images/searching_remote_corpus.png" contentdepth="43%"
                 scalefit="1"/>
             </imageobject>
           </mediaobject>
