@@ -25,7 +25,8 @@ import org.xml.sax.SAXException;
  * Document : ArbilHelp.java
  * Created on : March 9, 2009, 1:38 PM
  *
- * @author Peter.Withers@mpi.nl
+ * @author Peter Withers <Peter.Withers@mpi.nl>
+ * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilHelp extends javax.swing.JPanel {
 
@@ -42,8 +43,8 @@ public class ArbilHelp extends javax.swing.JPanel {
     static synchronized public ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
 	//TODO: This should not be a singleton...
 	if (singleInstance == null) {
-	    final String helpResourceBase = "/nl/mpi/arbil/resources/html/help/";
-	    singleInstance = new ArbilHelp(ArbilHelp.class, helpResourceBase, helpResourceBase + "arbil.xml");
+	    final String helpResourceBase = "/nl/mpi/arbil/resources/html/help/arbil-imdi/";
+	    singleInstance = new ArbilHelp(ArbilHelp.class, helpResourceBase, helpResourceBase + "arbil-imdi.xml");
 	}
 	return singleInstance;
     }
