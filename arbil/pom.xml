@@ -34,6 +34,9 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <includes>
+                    <include>**/version.properties</include>
+                </includes>
             </resource>
         </resources>
         <plugins>
@@ -423,64 +426,64 @@
 
                 <!-- FO stuff -->
                 <!--		<plugin>
-                                                                                         			<groupId>com.agilejava.docbkx</groupId>
-                                                                                         			<artifactId>docbkx-maven-plugin</artifactId>
-                                                                                         			<version>2.0.14</version>
-                                                                                         			<dependencies>
-                                                                                         			    <dependency>
-                                                                                                                                                                        				<groupId>org.docbook</groupId>
-                                                                                                                                                                        				<artifactId>docbook-xml</artifactId>
-                                                                                                                                                                        				<version>4.4</version>
-                                                                                                                                                                        				<scope>runtime</scope>
-                                                                                         			    </dependency>
-                                                                                         			</dependencies>
-                                                                                         			<executions>
-                                                                                         			    <execution>
-                                                                                                                                                                        				<goals>
-                                                                                                                                                                        				    <goal>generate-xhtml</goal>
-                                                                                         			    <goal>generate-html</goal>
-                                                                                         			    <goal>generate-pdf</goal>
-                                                                                                                                                                        				</goals>
-                                                                                                                                                                        				<phase>generate-resources</phase>
-                                                                                         			<phase>pre-site</phase>
-                                                                                         			    </execution>
-                                                                                         			</executions>
-                                                                                         			<configuration>
-                                                                                         			    <chunkedOutput>true</chunkedOutput>
-                                                                                         			    <targetDirectory>${output.help.directory.base}</targetDirectory>
-                                                                                         			    <xhtmlCustomization>src/docbkx/mydocbook2xhtml.xsl</xhtmlCustomization>
+                                                                                                                 			<groupId>com.agilejava.docbkx</groupId>
+                                                                                                                 			<artifactId>docbkx-maven-plugin</artifactId>
+                                                                                                                 			<version>2.0.14</version>
+                                                                                                                 			<dependencies>
+                                                                                                                 			    <dependency>
+                                                                                                                                                                                                                        				<groupId>org.docbook</groupId>
+                                                                                                                                                                                                                        				<artifactId>docbook-xml</artifactId>
+                                                                                                                                                                                                                        				<version>4.4</version>
+                                                                                                                                                                                                                        				<scope>runtime</scope>
+                                                                                                                 			    </dependency>
+                                                                                                                 			</dependencies>
+                                                                                                                 			<executions>
+                                                                                                                 			    <execution>
+                                                                                                                                                                                                                        				<goals>
+                                                                                                                                                                                                                        				    <goal>generate-xhtml</goal>
+                                                                                                                 			    <goal>generate-html</goal>
+                                                                                                                 			    <goal>generate-pdf</goal>
+                                                                                                                                                                                                                        				</goals>
+                                                                                                                                                                                                                        				<phase>generate-resources</phase>
+                                                                                                                 			<phase>pre-site</phase>
+                                                                                                                 			    </execution>
+                                                                                                                 			</executions>
+                                                                                                                 			<configuration>
+                                                                                                                 			    <chunkedOutput>true</chunkedOutput>
+                                                                                                                 			    <targetDirectory>${output.help.directory.base}</targetDirectory>
+                                                                                                                 			    <xhtmlCustomization>src/docbkx/mydocbook2xhtml.xsl</xhtmlCustomization>
           		    <foCustomization>src/docbkx/mydocbook2fo.xsl</foCustomization>
           		    <htmlCustomization>src/docbkx/mydocbook2html.xsl</htmlCustomization>
           		    <externalFOPConfiguration>src/docbkx/fop.xconf</externalFOPConfiguration>
           		    <imgSrcPath>src/docbkx/images/</imgSrcPath>
           		    <symbolFontFamily>Arial Unicode MS</symbolFontFamily>		    
           		    <fonts>
-                                                                                         			<font>
-                                                                                         			    <name>Arial Unicode MS</name>
-                                                                                         			    <style>normal</style>
-                                                                                         			    <weight>normal</weight>
-                                                                                         			    <embedFile>src/docbkx/Arial-Unicode.ttf</embedFile>
-                                                                                         			    <metricsFile>target/fonts/Arial-Unicode-metrics.xml</metricsFile>
-                                                                                         			</font>
+                                                                                                                 			<font>
+                                                                                                                 			    <name>Arial Unicode MS</name>
+                                                                                                                 			    <style>normal</style>
+                                                                                                                 			    <weight>normal</weight>
+                                                                                                                 			    <embedFile>src/docbkx/Arial-Unicode.ttf</embedFile>
+                                                                                                                 			    <metricsFile>target/fonts/Arial-Unicode-metrics.xml</metricsFile>
+                                                                                                                 			</font>
           		    </fonts>
-                                                                                         			</configuration>
+                                                                                                                 			</configuration>
           		    </plugin>-->
                 <!-- Generate font metrics file -->
                 <!--	    <plugin>
-                                                                                          		<groupId>com.agilejava.docbkx</groupId>
-                                                                                          		<artifactId>docbkx-fop-support</artifactId>
-                                                                                          		<version>2.0.14</version>
-                                                                                          		<executions>
-                                                                                          		    <execution>
-                                                                                                                                                                         			<phase>generate-resources</phase>
-                                                                                                                                                                         			<goals>
-                                                                                                                                                                         			    <goal>generate</goal>
-                                                                                                                                                                         			</goals>
-                                                                                                                                                                         			<configuration>
-                                                                                                                                                                         			    <ansi>true</ansi>
-                                                                                                                                                                         			</configuration>
-                                                                                          		    </execution>
-                                                                                          		</executions>
+                                                                                                                  		<groupId>com.agilejava.docbkx</groupId>
+                                                                                                                  		<artifactId>docbkx-fop-support</artifactId>
+                                                                                                                  		<version>2.0.14</version>
+                                                                                                                  		<executions>
+                                                                                                                  		    <execution>
+                                                                                                                                                                                                                         			<phase>generate-resources</phase>
+                                                                                                                                                                                                                         			<goals>
+                                                                                                                                                                                                                         			    <goal>generate</goal>
+                                                                                                                                                                                                                         			</goals>
+                                                                                                                                                                                                                         			<configuration>
+                                                                                                                                                                                                                         			    <ansi>true</ansi>
+                                                                                                                                                                                                                         			</configuration>
+                                                                                                                  		    </execution>
+                                                                                                                  		</executions>
            	    </plugin>-->
             </build>
         </profile>
