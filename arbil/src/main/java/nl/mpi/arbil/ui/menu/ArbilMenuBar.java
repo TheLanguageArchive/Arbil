@@ -821,7 +821,8 @@ public class ArbilMenuBar extends JMenuBar {
             if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
                 windowManager.createWindow(ArbilHelp.helpWindowTitle, helpComponent);
             }
-            helpComponent.setCurrentPage(ArbilHelp.SHOTCUT_KEYS_PAGE);
+	    //TODO: Decide whether to show IMDI or CMDI help (possibly based on previous state)
+            helpComponent.setCurrentPage(ArbilHelp.IMDI_HELPSET, ArbilHelp.SHOTCUT_KEYS_PAGE);
         }
     }
 

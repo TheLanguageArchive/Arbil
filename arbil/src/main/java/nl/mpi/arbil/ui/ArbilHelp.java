@@ -9,6 +9,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -33,18 +41,22 @@ public class ArbilHelp extends javax.swing.JPanel {
     final static public String SHOTCUT_KEYS_PAGE = "Shortcut Keys";
     final static public String INTRODUCTION_PAGE = "Overview";
     final static public String helpWindowTitle = "Help Viewer";
-    private final HelpIndex helpIndex;
-    private final String helpResourceBase;
-    private final DefaultTreeModel helpTreeModel;
-    private final DefaultMutableTreeNode rootContentsNode;
-    private final Class resourcesClass;
+    final static public String DEFAULT_HELPSET = "Help";
+    final static public String IMDI_HELPSET = "IMDI";
+    final static public String CMDI_HELPSET = "CMDI";
+    private HelpTree currentTree;
+    private final Map<String, HelpTree> helpTrees;
     static private ArbilHelp singleInstance = null;
 
-    static synchronized public ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
+    public static synchronized ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
 	//TODO: This should not be a singleton...
 	if (singleInstance == null) {
-	    final String helpResourceBase = "/nl/mpi/arbil/resources/html/help/arbil-imdi/";
-	    singleInstance = new ArbilHelp(ArbilHelp.class, helpResourceBase, helpResourceBase + "arbil-imdi.xml");
+	    final String imdiHelpResourceBase = "/nl/mpi/arbil/resources/html/help/arbil-imdi/";
+	    final HelpResourceSet imdiHelpSet = new HelpResourceSet(IMDI_HELPSET, ArbilHelp.class, imdiHelpResourceBase, imdiHelpResourceBase + "arbil-imdi.xml");
+	    final String cmdiHelpResourceBase = "/nl/mpi/arbil/resources/html/help/arbil-cmdi/";
+	    final HelpResourceSet cmdiHelpSet = new HelpResourceSet(CMDI_HELPSET, ArbilHelp.class, cmdiHelpResourceBase, cmdiHelpResourceBase + "arbil-cmdi.xml");
+
+	    singleInstance = new ArbilHelp(Arrays.asList(imdiHelpSet, cmdiHelpSet));
 	}
 	return singleInstance;
     }
@@ -58,47 +70,64 @@ public class ArbilHelp extends javax.swing.JPanel {
      * @throws SAXException
      */
     public ArbilHelp(final Class resourcesClass, final String helpResourceBase, final String indexXml) throws IOException, SAXException {
+	this(Collections.singletonList(new HelpResourceSet(DEFAULT_HELPSET, resourcesClass, helpResourceBase, indexXml)));
+    }
+
+    public ArbilHelp(final List<HelpResourceSet> helpSets) throws IOException, SAXException {
 	initComponents();
 
-	this.helpResourceBase = helpResourceBase;
-	this.resourcesClass = resourcesClass;
-
 	final HelpItemsParser parser = new HelpItemsParser();
-	final InputStream helpStream = resourcesClass.getResourceAsStream(indexXml);
+	this.helpTrees = new LinkedHashMap<String, HelpTree>(helpSets.size());
+	for (HelpResourceSet helpSet : helpSets) {
+	    HelpTree helpTree = createHelpTree(helpSet, parser);
+	    helpTrees.put(helpSet.getName(), helpTree);
+	}
+
+	currentTree = helpTrees.values().iterator().next();
+	currentTree.getIndexTree().setSelectionRow(1);
+
+	initHelpTreeTabs();
+    }
+
+    private HelpTree createHelpTree(HelpResourceSet helpSet, final HelpItemsParser parser) throws SAXException, IOException {
+	HelpTree helpTree = new HelpTree(helpSet);
+	initHelpTreeComponents(helpTree);
+	final InputStream helpStream = helpSet.getResourcesClass().getResourceAsStream(helpSet.getIndexXml());
 	if (helpStream != null) {
 	    try {
-		helpIndex = parser.parse(helpStream);
+		helpTree.setHelpIndex(parser.parse(helpStream));
 	    } finally {
 		helpStream.close();
 	    }
 	} else {
-	    helpIndex = new HelpIndex();
+	    HelpIndex helpIndex = new HelpIndex();
 	    final HelpItem helpItem = new HelpItem();
 	    helpItem.setName("Help contents not found");
 	    helpIndex.addSubItem(helpItem);
+	    helpTree.setHelpIndex(helpIndex);
 	}
-
 	helpTextPane.setContentType("text/html");
-	((HTMLDocument) helpTextPane.getDocument()).setBase(resourcesClass.getResource(helpResourceBase));
-	indexTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	((HTMLDocument) helpTextPane.getDocument()).setBase(helpSet.getResourcesClass().getResource(helpSet.getHelpResourceBase()));
+	helpTree.getIndexTree().getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	helpTree.setRootContentsNode(new DefaultMutableTreeNode("Contents"));
+	helpTree.setHelpTreeModel(new DefaultTreeModel(helpTree.getRootContentsNode(), true));
+	helpTree.getIndexTree().setModel(helpTree.getHelpTreeModel());
+	populateIndex(helpTree);
+	return helpTree;
+    }
 
-	rootContentsNode = new DefaultMutableTreeNode("Contents");
-	helpTreeModel = new DefaultTreeModel(rootContentsNode, true);
-	indexTree.setModel(helpTreeModel);
-
-	populateIndex(rootContentsNode);
-
-	indexTree.setSelectionRow(1);
+    private HelpTree getHelpTree(String resourceSetName) {
+	return helpTrees.get(resourceSetName);
     }
 
     /**
      *
      * @param helpPage page title <strong>without section number</strong> of the help page (file name will be looked up)
      */
-    public void setCurrentPage(String helpPage) {
-	final HelpItem helpFile = getHelpFileByName(helpIndex, helpPage);
+    public void setCurrentPage(String helpSet, String helpPage) {
+	final HelpItem helpFile = getHelpFileByName(getHelpTree(helpSet).getHelpIndex(), helpPage);
 	if (helpFile != null) {
-	    showHelpItem(helpFile.getFile());
+	    showHelpItem(getHelpTree(helpSet), helpFile.getFile());
 	} else {
 	    BugCatcherManager.getBugCatcher().logError(new Exception("Help page not found: " + helpPage));
 	}
@@ -118,11 +147,12 @@ public class ArbilHelp extends javax.swing.JPanel {
 	return null;
     }
 
-    private void populateIndex(DefaultMutableTreeNode root) {
-	for (HelpItem item : helpIndex.getSubItems()) {
-	    populateIndex(root, item);
+    private void populateIndex(HelpTree tree) {
+	final DefaultMutableTreeNode rootNode = tree.getRootContentsNode();
+	for (HelpItem item : tree.getHelpIndex().getSubItems()) {
+	    populateIndex(rootNode, item);
 	}
-	helpTreeModel.reload(root);
+	tree.getHelpTreeModel().reload(rootNode);
     }
 
     private void populateIndex(DefaultMutableTreeNode parent, HelpItem item) {
@@ -135,16 +165,6 @@ public class ArbilHelp extends javax.swing.JPanel {
     }
 
     private void initComponents() {
-	indexTree = new javax.swing.JTree();
-	indexTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-	    public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-		indexTreeValueChanged(evt);
-	    }
-	});
-
-	indexScrollPane = new javax.swing.JScrollPane();
-	indexScrollPane.setViewportView(indexTree);
-
 	helpTextPane = new javax.swing.JTextPane();
 	helpTextPane.addHyperlinkListener(new ArbilHyperlinkListener());
 	helpTextPane.setMinimumSize(new Dimension(100, 100));
@@ -156,31 +176,56 @@ public class ArbilHelp extends javax.swing.JPanel {
 
 	jSplitPane1 = new javax.swing.JSplitPane();
 	jSplitPane1.setDividerLocation(250);
-	jSplitPane1.setLeftComponent(indexScrollPane);
 	jSplitPane1.setRightComponent(helpTextScrollPane);
 
 	setLayout(new java.awt.BorderLayout());
 	add(jSplitPane1, java.awt.BorderLayout.CENTER);
     }
 
+    private void initHelpTreeComponents(HelpTree helpTree) {
+	JTree indexTree = new javax.swing.JTree();
+	indexTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+	    public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+		indexTreeValueChanged(evt);
+	    }
+	});
+	helpTree.setIndexTree(indexTree);
+
+	JScrollPane indexScrollPane = new JScrollPane();
+	indexScrollPane.setViewportView(indexTree);
+	helpTree.setIndexScrollPane(indexScrollPane);
+    }
+
+    private void initHelpTreeTabs() {
+	//TODO: If only one helpTree, skip the tabs
+	JTabbedPane tabbedPane = new JTabbedPane();
+	for (HelpTree tree : helpTrees.values()) {
+	    tabbedPane.add(tree.getHelpResourceSet().getName(), tree.getIndexScrollPane());
+	}
+	jSplitPane1.setLeftComponent(tabbedPane);
+    }
+
     private void indexTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {
-	DefaultMutableTreeNode node = (DefaultMutableTreeNode) indexTree.getLastSelectedPathComponent();
+	DefaultMutableTreeNode node = (DefaultMutableTreeNode) currentTree.getIndexTree().getLastSelectedPathComponent();
 	if (node != null) {
 	    Object nodeInfo = node.getUserObject();
 	    if (nodeInfo instanceof HelpItem) {
-		showHelpItem(((HelpItem) nodeInfo).getFile());
+		showHelpItem(currentTree, ((HelpItem) nodeInfo).getFile());
 	    }
 	}
     }
 
-    public boolean showHelpItem(URL itemURL) {
+    public boolean showHelpItem(String helpSetName, URL itemURL) {
+	final HelpTree helpTree = getHelpTree(helpSetName);
+	final HelpResourceSet helpSet = helpTree.getHelpResourceSet();
+
 	try {
-	    final URI baseUri = resourcesClass.getResource(helpResourceBase).toURI();
+	    final URI baseUri = helpSet.getResourcesClass().getResource(helpSet.getHelpResourceBase()).toURI();
 	    if (itemURL.toString().startsWith(baseUri.toString())) {
 		URI relativeURI = baseUri.relativize(itemURL.toURI());
 		// Update index, which will show the help item if found. Use only path, i.e. ignore the fragment
 		// TODO: Keep fragment info
-		return updateIndex(relativeURI.getPath().toString(), relativeURI.getFragment());
+		return updateIndex(helpTree, relativeURI.getPath().toString(), relativeURI.getFragment());
 	    }
 	} catch (URISyntaxException usEx) {
 	    BugCatcherManager.getBugCatcher().logError(usEx);
@@ -188,9 +233,11 @@ public class ArbilHelp extends javax.swing.JPanel {
 	return false;
     }
 
-    private void showHelpItem(final String itemResource) {
+    private void showHelpItem(HelpTree helpTree, final String itemResource) {
+	final HelpResourceSet helpSet = helpTree.getHelpResourceSet();
+
 	final StringBuilder completeHelpText = new StringBuilder();
-	final InputStream itemStream = resourcesClass.getResourceAsStream(helpResourceBase + itemResource);
+	final InputStream itemStream = helpSet.getResourcesClass().getResourceAsStream(helpSet.getHelpResourceBase() + itemResource);
 	if (itemStream == null) {
 	    completeHelpText.append("Page not found");
 	} else {
@@ -219,16 +266,14 @@ public class ArbilHelp extends javax.swing.JPanel {
 	helpTextPane.setText(completeHelpText.toString());
 	// Scroll to top
 	helpTextPane.setCaretPosition(0);
-	updateIndex(itemResource);
+	updateIndex(helpTree, itemResource);
     }
-    private javax.swing.JScrollPane indexScrollPane;
     private javax.swing.JScrollPane helpTextScrollPane;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextPane helpTextPane;
-    private javax.swing.JTree indexTree;
 
-    private boolean updateIndex(final String itemResource, final String fragment) {
-	if (updateIndex(itemResource)) {
+    private boolean updateIndex(final HelpTree tree, final String itemResource, final String fragment) {
+	if (updateIndex(tree, itemResource)) {
 	    if (fragment != null) {
 		//TODO: Jump to fragment. The code below may not do this reliably
 		SwingUtilities.invokeLater(new Runnable() {
@@ -247,13 +292,13 @@ public class ArbilHelp extends javax.swing.JPanel {
      *
      * @param itemResource file to select
      */
-    private boolean updateIndex(final String itemResource) {
+    private boolean updateIndex(final HelpTree tree, final String itemResource) {
 	if (itemResource == null) {
 	    return false;
 	}
 
 	// First check current selection
-	DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) indexTree.getSelectionPath().getLastPathComponent();
+	DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) tree.getIndexTree().getSelectionPath().getLastPathComponent();
 	if (lastPathComponent.getUserObject() instanceof HelpItem) {
 	    final HelpItem helpItem = (HelpItem) lastPathComponent.getUserObject();
 	    if (itemResource.equals(helpItem.getFile())) {
@@ -263,14 +308,14 @@ public class ArbilHelp extends javax.swing.JPanel {
 	}
 
 	// Search node with specified resource
-	DefaultMutableTreeNode root = (DefaultMutableTreeNode) indexTree.getModel().getRoot();
+	DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getIndexTree().getModel().getRoot();
 	DefaultMutableTreeNode selectionItem = findChild(root, itemResource);
 	if (selectionItem != null) {
 	    // Node found, set selection
 	    final TreePath treePath = new TreePath(selectionItem.getPath());
-	    indexTree.setSelectionPath(treePath);
+	    tree.getIndexTree().setSelectionPath(treePath);
 	    // And scroll to it
-	    indexTree.scrollPathToVisible(treePath);
+	    tree.getIndexTree().scrollPathToVisible(treePath);
 	    return true;
 	} else {
 	    return false;
@@ -294,5 +339,94 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    }
 	}
 	return null;
+    }
+
+    public static class HelpResourceSet {
+
+	private final String name;
+	private final Class resourcesClass;
+	private final String helpResourceBase;
+	private final String indexXml;
+
+	public HelpResourceSet(String name, Class resourcesClass, String helpResourceBase, String indexXml) {
+	    this.name = name;
+	    this.resourcesClass = resourcesClass;
+	    this.helpResourceBase = helpResourceBase;
+	    this.indexXml = indexXml;
+	}
+
+	public String getName() {
+	    return name;
+	}
+
+	public Class getResourcesClass() {
+	    return resourcesClass;
+	}
+
+	public String getHelpResourceBase() {
+	    return helpResourceBase;
+	}
+
+	public String getIndexXml() {
+	    return indexXml;
+	}
+    }
+
+    private static class HelpTree {
+
+	private final HelpResourceSet helpResourceSet;
+	private HelpIndex helpIndex;
+	private javax.swing.JTree indexTree;
+	private DefaultTreeModel helpTreeModel;
+	private DefaultMutableTreeNode rootContentsNode;
+	private javax.swing.JScrollPane indexScrollPane;
+
+	public JScrollPane getIndexScrollPane() {
+	    return indexScrollPane;
+	}
+
+	public void setIndexScrollPane(JScrollPane indexScrollPane) {
+	    this.indexScrollPane = indexScrollPane;
+	}
+
+	public DefaultTreeModel getHelpTreeModel() {
+	    return helpTreeModel;
+	}
+
+	public void setHelpTreeModel(DefaultTreeModel helpTreeModel) {
+	    this.helpTreeModel = helpTreeModel;
+	}
+
+	public DefaultMutableTreeNode getRootContentsNode() {
+	    return rootContentsNode;
+	}
+
+	public void setRootContentsNode(DefaultMutableTreeNode rootContentsNode) {
+	    this.rootContentsNode = rootContentsNode;
+	}
+
+	public HelpTree(HelpResourceSet helpResourceSet) {
+	    this.helpResourceSet = helpResourceSet;
+	}
+
+	public HelpIndex getHelpIndex() {
+	    return helpIndex;
+	}
+
+	public void setHelpIndex(HelpIndex helpIndex) {
+	    this.helpIndex = helpIndex;
+	}
+
+	public JTree getIndexTree() {
+	    return indexTree;
+	}
+
+	public void setIndexTree(JTree indexTree) {
+	    this.indexTree = indexTree;
+	}
+
+	public HelpResourceSet getHelpResourceSet() {
+	    return helpResourceSet;
+	}
     }
 }

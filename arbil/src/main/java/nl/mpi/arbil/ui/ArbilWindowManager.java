@@ -250,7 +250,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public File[] showMetadataFileSelectBox(String titleText, boolean multipleSelect) {
 	HashMap<String, FileFilter> fileFilterMap = new HashMap<String, FileFilter>(2);
 	fileFilterMap.put("Metadata Files", new FileFilter() {
-
 	    @Override
 	    public boolean accept(File selectedFile) {
 		if (selectedFile.isDirectory()) {
@@ -280,7 +279,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	HashMap fileFilterMap = new HashMap<String, FileFilter>(2);
 	// this filter is only cosmetic but gives the user an indication of what to select
 	FileFilter imdiFileFilter = new FileFilter() {
-
 	    public String getDescription() {
 		return "Directories";
 	    }
@@ -294,7 +292,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	return showFileSelectBox(titleText, true, multipleSelect, fileFilterMap, DialogueType.custom, null);
     }
 
-    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, Map<String, javax.swing.filechooser.FileFilter> fileFilterMap, PluginDialogHandler.DialogueType dialogueType, JComponent customAccessory){
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, Map<String, javax.swing.filechooser.FileFilter> fileFilterMap, PluginDialogHandler.DialogueType dialogueType, JComponent customAccessory) {
 	// test for os: if mac or file then awt else for other and directory use swing
 	// save/load last directory accoring to the title of the dialogue
 	//Hashtable<String, File> fileSelectLocationsHashtable;
@@ -453,7 +451,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private synchronized void showMessageDialogQueue() {
 	if (!showMessageThreadrunning) {
 	    new Thread("showMessageThread") {
-
 		public void run() {
 		    try {
 			sleep(100);
@@ -467,7 +464,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			    final String messageText = messageDialogQueue.remove(messageTitle);
 			    if (messageText != null) {
 				SwingUtilities.invokeLater(new Runnable() {
-
 				    public void run() {
 					JOptionPane.showMessageDialog(getMainFrame(), messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
 				    }
@@ -525,7 +521,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		if (null == focusWindow(ArbilHelp.helpWindowTitle)) {
 		    createWindow(ArbilHelp.helpWindowTitle, helpComponent);
 		}
-		helpComponent.setCurrentPage(ArbilHelp.INTRODUCTION_PAGE);
+		helpComponent.setCurrentPage(ArbilHelp.IMDI_HELPSET, ArbilHelp.INTRODUCTION_PAGE);
 	    } catch (IOException ex) {
 		// Ignore, don't show help window
 		BugCatcherManager.getBugCatcher().logError(ex);
@@ -753,7 +749,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	windowFrame.setName(currentWindowName);
 	windowMenuItem.setActionCommand(currentWindowName);
 	windowMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    focusWindow(evt.getActionCommand());
@@ -763,7 +758,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	});
 	windowFrame.addInternalFrameListener(new InternalFrameAdapter() {
-
 	    @Override
 	    public void internalFrameClosed(InternalFrameEvent e) {
 		String windowName = e.getInternalFrame().getName();
@@ -856,7 +850,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //        });
 
 	Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-
 	    public void eventDispatched(AWTEvent e) {
 		boolean isKeybordRepeat = false;
 		if (e instanceof KeyEvent) {
@@ -999,7 +992,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	// Add frame listener that puts windows with negative y-positions back on the desktop pane
 	currentInternalFrame.addInternalFrameListener(new InternalFrameAdapter() {
-
 	    @Override
 	    public void internalFrameDeactivated(InternalFrameEvent e) {
 		fixLocation(e.getInternalFrame());
