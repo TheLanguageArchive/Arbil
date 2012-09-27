@@ -254,13 +254,18 @@
 	<dependency>
 	    <groupId>${project.groupId}</groupId>
 	    <artifactId>plugins-core</artifactId>
-	    <version>0.0.33366-pretesting</version>
+	    <version>0.0.33389-pretesting</version>
 	</dependency>
 	<dependency>
 	    <groupId>nl.mpi</groupId>
 	    <artifactId>pluginloader</artifactId>
-	    <version>0.0.33291-pretesting</version>
+	    <version>0.0.33392-pretesting</version>
 	</dependency>
+<!--        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>metedata-search</artifactId>
+            <version>0.0-SNAPSHOT</version>
+        </dependency>-->
     </dependencies>
     <repositories>
 	<repository>
