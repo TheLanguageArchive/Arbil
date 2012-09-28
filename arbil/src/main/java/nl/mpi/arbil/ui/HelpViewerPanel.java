@@ -34,8 +34,9 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import org.xml.sax.SAXException;
 
 /**
- * Document : ArbilHelp.java
- * Created on : March 9, 2009, 1:38 PM
+ * A panel to view help resource sets consisting of an index file and a set of HTML pages and linked images.
+ * This evolved from a class formerly known as ArbilHelp. A class by that name still exists but now is an Arbil specific extention
+ * of this class.
  *
  * @author Peter Withers <Peter.Withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>

@@ -6,16 +6,14 @@ import java.util.Arrays;
 import org.xml.sax.SAXException;
 
 /**
- * Document : ArbilHelp.java
- * Created on : March 9, 2009, 1:38 PM
- *
- * @author Peter Withers <Peter.Withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilHelp extends HelpViewerPanel {
 
     public final static String IMDI_HELPSET = "IMDI";
+    public static final String IMDI_URL_PATTERN = "arbil-imdi";
     public final static String CMDI_HELPSET = "CMDI";
+    public static final String CMDI_URL_PATTERN = "arbil-cmdi";
     private final static String IMDI_HELP_RESOURCE_BASE = "/nl/mpi/arbil/resources/html/help/arbil-imdi/";
     private final static HelpResourceSet IMDI_HELP_SET = new HelpResourceSet(IMDI_HELPSET, ArbilHelp.class, IMDI_HELP_RESOURCE_BASE, IMDI_HELP_RESOURCE_BASE + "arbil-imdi.xml");
     private final static String CMDI_HELP_RESOURCE_BASE = "/nl/mpi/arbil/resources/html/help/arbil-cmdi/";
@@ -23,9 +21,7 @@ public class ArbilHelp extends HelpViewerPanel {
     private static ArbilHelp singleInstance = null;
 
     public static synchronized ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
-	//TODO: This should not be a singleton...
 	if (singleInstance == null) {
-
 	    singleInstance = new ArbilHelp();
 	}
 	return singleInstance;
@@ -37,9 +33,9 @@ public class ArbilHelp extends HelpViewerPanel {
 
     @Override
     public boolean showHelpItem(URL itemURL) {
-	if (itemURL.toString().contains("arbil-imdi")) {
+	if (itemURL.toString().contains(IMDI_URL_PATTERN)) {
 	    return showHelpItem(IMDI_HELPSET, itemURL);
-	} else if (itemURL.toString().contains("arbil-cmdi")) {
+	} else if (itemURL.toString().contains(CMDI_URL_PATTERN)) {
 	    return showHelpItem(CMDI_HELPSET, itemURL);
 	} else {
 	    // Refuse to deal with other types of URLS
