@@ -129,7 +129,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 		try {
 		    // Try to open in ArbilHelp
 		    // TODO: Determine IMDI/CDMI from URL
-		    if (ArbilHelp.getArbilHelpInstance().showHelpItem(ArbilHelp.CMDI_HELPSET, evt.getURL())) {
+		    if (ArbilHelp.getArbilHelpInstance().showHelpItem(evt.getURL())) {
 			return;
 		    }
 		} catch (IOException ioEx) {

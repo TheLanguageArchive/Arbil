@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import org.xml.sax.SAXException;
 
@@ -32,5 +33,17 @@ public class ArbilHelp extends HelpViewerPanel {
 
     public ArbilHelp() throws IOException, SAXException {
 	super(Arrays.asList(IMDI_HELP_SET, CMDI_HELP_SET));
+    }
+
+    @Override
+    public boolean showHelpItem(URL itemURL) {
+	if (itemURL.toString().contains("arbil-imdi")) {
+	    return showHelpItem(IMDI_HELPSET, itemURL);
+	} else if (itemURL.toString().contains("arbil-cmdi")) {
+	    return showHelpItem(CMDI_HELPSET, itemURL);
+	} else {
+	    // Refuse to deal with other types of URLS
+	    return false;
+	}
     }
 }

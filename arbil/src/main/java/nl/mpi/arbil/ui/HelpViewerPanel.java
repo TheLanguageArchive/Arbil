@@ -253,7 +253,26 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	}
     }
 
-    public boolean showHelpItem(String helpSetName, URL itemURL) {
+    /**
+     * Shows the help item; in this implementation the {@link #DEFAULT_HELPSET default help set} is used.
+     * Other implementation may override this logic (e.g. determining the help set from the URL)
+     *
+     * @param itemURL URL of help item to show
+     * @return Whether the help item was successfully retrieved and shown
+     * @see #showHelpItem(java.lang.String, java.net.URL)
+     */
+    public boolean showHelpItem(URL itemURL) {
+	return showHelpItem(DEFAULT_HELPSET, itemURL);
+    }
+
+    /**
+     * Shows the help item from the specified help resource set
+     *
+     * @param helpSetName Name of the help set that contains the specified help item
+     * @param itemURL URL of help item to show
+     * @return Whether the help item was successfully retrieved and shown
+     */
+    protected final boolean showHelpItem(String helpSetName, URL itemURL) {
 	final HelpTree helpTree = getHelpTree(helpSetName);
 	final HelpResourceSet helpSet = helpTree.getHelpResourceSet();
 
