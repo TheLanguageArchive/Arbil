@@ -9,15 +9,20 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -44,8 +49,13 @@ public class ArbilHelp extends javax.swing.JPanel {
     final static public String DEFAULT_HELPSET = "Help";
     final static public String IMDI_HELPSET = "IMDI";
     final static public String CMDI_HELPSET = "CMDI";
+    private JTabbedPane tabbedPane;
+    private JScrollPane helpTextScrollPane;
+    private JSplitPane jSplitPane1;
+    private JTextPane helpTextPane;
     private HelpTree currentTree;
-    private final Map<String, HelpTree> helpTrees;
+    private final Map<String, HelpTree> helpTreesMap;
+    private final List<HelpTree> helpTrees;
     static private ArbilHelp singleInstance = null;
 
     public static synchronized ArbilHelp getArbilHelpInstance() throws IOException, SAXException {
@@ -73,19 +83,29 @@ public class ArbilHelp extends javax.swing.JPanel {
 	this(Collections.singletonList(new HelpResourceSet(DEFAULT_HELPSET, resourcesClass, helpResourceBase, indexXml)));
     }
 
+    /**
+     *
+     * @param helpSets Help resource sets to include (each will create a tab with a tree). Should contain at least one item.
+     * @throws IOException
+     * @throws SAXException
+     */
     public ArbilHelp(final List<HelpResourceSet> helpSets) throws IOException, SAXException {
+	if (helpSets.size() < 1) {
+	    throw new IllegalArgumentException("Should provide at least one help resource set");
+	}
+
 	initComponents();
 
 	final HelpItemsParser parser = new HelpItemsParser();
-	this.helpTrees = new LinkedHashMap<String, HelpTree>(helpSets.size());
+	this.helpTrees = new ArrayList<HelpTree>(helpSets.size());
+	this.helpTreesMap = new HashMap<String, HelpTree>(helpSets.size());
 	for (HelpResourceSet helpSet : helpSets) {
 	    HelpTree helpTree = createHelpTree(helpSet, parser);
-	    helpTrees.put(helpSet.getName(), helpTree);
+	    helpTrees.add(helpTree);
+	    helpTreesMap.put(helpSet.getName(), helpTree);
 	}
 
-	currentTree = helpTrees.values().iterator().next();
-	currentTree.getIndexTree().setSelectionRow(1);
-
+	currentTree = helpTrees.get(0);
 	initHelpTreeTabs();
     }
 
@@ -106,8 +126,6 @@ public class ArbilHelp extends javax.swing.JPanel {
 	    helpIndex.addSubItem(helpItem);
 	    helpTree.setHelpIndex(helpIndex);
 	}
-	helpTextPane.setContentType("text/html");
-	((HTMLDocument) helpTextPane.getDocument()).setBase(helpSet.getResourcesClass().getResource(helpSet.getHelpResourceBase()));
 	helpTree.getIndexTree().getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 	helpTree.setRootContentsNode(new DefaultMutableTreeNode("Contents"));
 	helpTree.setHelpTreeModel(new DefaultTreeModel(helpTree.getRootContentsNode(), true));
@@ -117,7 +135,7 @@ public class ArbilHelp extends javax.swing.JPanel {
     }
 
     private HelpTree getHelpTree(String resourceSetName) {
-	return helpTrees.get(resourceSetName);
+	return helpTreesMap.get(resourceSetName);
     }
 
     /**
@@ -186,7 +204,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	JTree indexTree = new javax.swing.JTree();
 	indexTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
 	    public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-		indexTreeValueChanged(evt);
+		indexTreeValueChanged();
 	    }
 	});
 	helpTree.setIndexTree(indexTree);
@@ -198,14 +216,32 @@ public class ArbilHelp extends javax.swing.JPanel {
 
     private void initHelpTreeTabs() {
 	//TODO: If only one helpTree, skip the tabs
-	JTabbedPane tabbedPane = new JTabbedPane();
-	for (HelpTree tree : helpTrees.values()) {
+	tabbedPane = new JTabbedPane();
+	for (HelpTree tree : helpTrees) {
 	    tabbedPane.add(tree.getHelpResourceSet().getName(), tree.getIndexScrollPane());
 	}
+	tabbedPane.addChangeListener(new ChangeListener() {
+	    public void stateChanged(ChangeEvent e) {
+		updateTabState();
+	    }
+	});
 	jSplitPane1.setLeftComponent(tabbedPane);
+	updateTabState();
     }
 
-    private void indexTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {
+    private void updateTabState() {
+	currentTree = helpTrees.get(tabbedPane.getSelectedIndex());
+	((HTMLDocument) helpTextPane.getDocument()).setBase(currentTree.getHelpResourceSet().getResourcesClass().getResource(currentTree.getHelpResourceSet().getHelpResourceBase()));
+	if (currentTree.getIndexTree().getSelectionCount() == 0) {
+	    // Select first node so that there is a selection for this tree
+	    currentTree.getIndexTree().setSelectionRow(1);
+	} else {
+	    // Trigger update for existing selection of new current tree
+	    indexTreeValueChanged();
+	}
+    }
+
+    private void indexTreeValueChanged() {
 	DefaultMutableTreeNode node = (DefaultMutableTreeNode) currentTree.getIndexTree().getLastSelectedPathComponent();
 	if (node != null) {
 	    Object nodeInfo = node.getUserObject();
@@ -268,9 +304,6 @@ public class ArbilHelp extends javax.swing.JPanel {
 	helpTextPane.setCaretPosition(0);
 	updateIndex(helpTree, itemResource);
     }
-    private javax.swing.JScrollPane helpTextScrollPane;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTextPane helpTextPane;
 
     private boolean updateIndex(final HelpTree tree, final String itemResource, final String fragment) {
 	if (updateIndex(tree, itemResource)) {
