@@ -106,7 +106,7 @@ public class ArbilHelp extends javax.swing.JPanel {
 	}
 
 	currentTree = helpTrees.get(0);
-	initHelpTreeTabs();
+	initIndexPane();
     }
 
     private HelpTree createHelpTree(HelpResourceSet helpSet, final HelpItemsParser parser) throws SAXException, IOException {
@@ -214,12 +214,28 @@ public class ArbilHelp extends javax.swing.JPanel {
 	helpTree.setIndexScrollPane(indexScrollPane);
     }
 
+    /**
+     * Initializes the index pane (split pane left component). Depending on the number of help resource sets, this is either a single
+     * scrolling tree or a tab pane containing a number of trees.
+     */
+    private void initIndexPane() {
+	if (helpTrees.size() > 1) {
+	    // Create a panel with a tab for each tree
+	    initHelpTreeTabs();
+	} else {
+	    // Current tree is the only tree
+	    jSplitPane1.setLeftComponent(currentTree.getIndexScrollPane());
+	    ((HTMLDocument) helpTextPane.getDocument()).setBase(currentTree.getHelpResourceSet().getResourcesClass().getResource(currentTree.getHelpResourceSet().getHelpResourceBase()));
+	}
+    }
+
     private void initHelpTreeTabs() {
 	//TODO: If only one helpTree, skip the tabs
 	tabbedPane = new JTabbedPane();
 	for (HelpTree tree : helpTrees) {
 	    tabbedPane.add(tree.getHelpResourceSet().getName(), tree.getIndexScrollPane());
 	}
+	// Add a handler for when the selected tab changes
 	tabbedPane.addChangeListener(new ChangeListener() {
 	    public void stateChanged(ChangeEvent e) {
 		updateTabState();
@@ -230,14 +246,16 @@ public class ArbilHelp extends javax.swing.JPanel {
     }
 
     private void updateTabState() {
-	currentTree = helpTrees.get(tabbedPane.getSelectedIndex());
-	((HTMLDocument) helpTextPane.getDocument()).setBase(currentTree.getHelpResourceSet().getResourcesClass().getResource(currentTree.getHelpResourceSet().getHelpResourceBase()));
-	if (currentTree.getIndexTree().getSelectionCount() == 0) {
-	    // Select first node so that there is a selection for this tree
-	    currentTree.getIndexTree().setSelectionRow(1);
-	} else {
-	    // Trigger update for existing selection of new current tree
-	    indexTreeValueChanged();
+	if (tabbedPane != null) {
+	    currentTree = helpTrees.get(tabbedPane.getSelectedIndex());
+	    ((HTMLDocument) helpTextPane.getDocument()).setBase(currentTree.getHelpResourceSet().getResourcesClass().getResource(currentTree.getHelpResourceSet().getHelpResourceBase()));
+	    if (currentTree.getIndexTree().getSelectionCount() == 0) {
+		// Select first node so that there is a selection for this tree
+		currentTree.getIndexTree().setSelectionRow(1);
+	    } else {
+		// Trigger update for existing selection of new current tree
+		indexTreeValueChanged();
+	    }
 	}
     }
 
