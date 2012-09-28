@@ -174,7 +174,7 @@
 	<dependency>
 	    <groupId>${project.groupId}</groupId>
 	    <artifactId>plugins-core</artifactId>
-	    <version>0.0-pretesting-SNAPSHOT</version>
+	    <version>0.0.33389-pretesting</version>
 	</dependency>
 	<dependency>
 	    <groupId>junit</groupId>
