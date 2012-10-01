@@ -586,26 +586,26 @@
     <para>This chapter focuses on how to develop the structure of the Local Corpus.</para>
     <sect1 id="Sec_Adding_new_Node">
       <title>Adding components and/or elements</title>
-      <para>Once you have created/imported a corpus, you can add new components or elements to any
-        corpus node of the Local Corpus. To do this, right click on a corpus node, scroll down to
-          <emphasis role="italic">Add</emphasis> and choose the components or elements that belong
-        to the imported profile(s). Notice that at the same time a window pops up, in which you can
-        edit the metadata of the new corpus node (such as corpus name etc.).Notice how some elements
-        have the <inlinegraphic fileref="images/imdi_contains_data.png" contentdepth="50%"/> icon,
-        whereas others have a icon<inlinegraphic fileref="images/new%20field.png" contentdepth="50%"
-        />. The <inlinegraphic fileref="images/imdi_contains_data.png" contentdepth="50%"/> icon
-        represents a component that will be displayed in the hierarchy whereas the <inlinegraphic
-          fileref="images/new%20field.png" contentdepth="50%"/> icon adds a new field (discussed
-        below).</para>
-      <figure>
-        <title>Adding a new corpus branch</title>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="images/Add_corpus_node.png" contentdepth="50%" scalefit="1"
-              width="50%"/>
-          </imageobject>
-        </mediaobject>
-      </figure>
+      <para>Once you have created/imported a collection, you can add new components or elements to
+        any corpus node of the Local Corpus. To do this, right click on a corpus node, scroll down
+        to <emphasis role="italic">Add</emphasis> and choose the components or elements that belong
+        to the imported profile(s). Notice that in the below figure 4.1 the profile "Comic book" has
+        been selected. The components and elements which are displayed belong to that specific
+        profile. Different ones will appear accordigly for each profile you decide to use.</para>
+      <para>Notice how some elements have the <inlinegraphic fileref="images/imdi_contains_data.png"
+          contentdepth="60%"/> icon, whereas others have a <inlinegraphic
+          fileref="images/new field.png" contentdepth="60%"/> icon. The <inlinegraphic
+          fileref="images/imdi_contains_data.png" contentdepth="60%"/> icon represents a component
+        that will be displayed in the hierarchy whereas the <inlinegraphic
+          fileref="images/new field.png" contentwidth="" contentdepth="60%"/> icon adds a new field
+        (discussed below).<figure>
+          <title>Adding a new component or element</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/cmdi_Add_a_new_component.png" contentdepth="50%"/>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
     </sect1>
     <sect1 id="Sec_Adding_More_Descriptions">
       <title>Adding more field components (??????????)</title>
@@ -639,7 +639,7 @@
       </para>
     </sect1>
     <sect1 id="Sec_Adding_Resource_Files">
-      <title>Adding resource files to a session</title>
+      <title>Adding resource files to a metadata document</title>
       <para>There are two ways of adding resource files (e.g. audio, video etc.) to a
         session:</para>
       <para>(1) The easiest way is to drag and drop a given element from the Working Directory to a
@@ -674,14 +674,14 @@
       <para/>
       <para>It is also possible to add resources, either from a remote location, i.e. the archive or
         the web, manually. This can be done by right clicking on a node that supports a resource
-        location (IMDI media file or written resource) select "insert manual resource location" and
-        add the URL in the window that appears.</para>
+        location (IMDI media file or written resource) select <emphasis role="italic">Insert Manual
+          Resource Location</emphasis> and add the URL in the window that appears.</para>
       <para>
         <figure>
           <title>Insert  manual remote resources</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/add_remote_resources_manually.png" contentdepth="60%"
+              <imagedata fileref="images/cmdi_insert_manual_remote_resource.png" contentdepth="50%"
                 scalefit="1" width="100%"/>
             </imageobject>
           </mediaobject>
@@ -707,7 +707,7 @@
     <sect1>
       <title>Saving changes</title>
       <para>The changes to your files are not made automatically. You have to save them yourself. To
-        save the changes made in your local corpus, right click on the node and choose <emphasis
+        save the changes made in your Local Corpus, right click on the node and choose <emphasis
           role="italic">Save Changes to Disk</emphasis> or use the key short cut (i.e.
         Ctrl+S/cmd+S).</para>
     </sect1>
@@ -731,12 +731,12 @@
           </imageobject>
         </mediaobject>
       </figure>
-      <para>Some of the cells have a closed <inlinegraphic fileref="images/vocabulary_closed.png"
-          contentdepth="50%"/>,vocabulary (figure 5.2). When you double click the field you need, a
-        drop-down menu will appear showing you available default values from which you can choose
-        the one that fits your data. In controlled vocabulary fields 'type-ahead' functionality is
-        available; to confirm a suggestion, press ENTER or type a comma in multi-CV to add another
-        value.</para>
+      <para>Some of the cells have a closed vocabulary, <inlinegraphic
+          fileref="images/vocabulary_closed.png" contentdepth="50%"/>, (figure 5.2). When you double
+        click the field you need, a drop-down menu will appear showing you available default values
+        from which you can choose the one that fits your data. In controlled vocabulary fields
+        'type-ahead' functionality is available; to confirm a suggestion, press ENTER or type a
+        comma in multi-CV to add another value.</para>
       <figure>
         <title>Closed vocabularies</title>
         <mediaobject>
