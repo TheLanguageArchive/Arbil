@@ -64,7 +64,7 @@
 		    </entries>
 		</configuration>
 	    </plugin>
-	    <!--Plugin to create HTML form DocBook sources--> 
+	    <!-- Plugin to create HTML form DocBook sources --> 
 	    <plugin>
 		<groupId>com.agilejava.docbkx</groupId>
 		<artifactId>docbkx-maven-plugin</artifactId>
@@ -93,7 +93,7 @@
 		    <xhtmlCustomization>${basedir}/src/main/docbook/mydocbook2xhtml.xsl</xhtmlCustomization>
 		</configuration>
 	    </plugin>
-	    <!--Plugin to create index XML from DocBook HTML--> 
+	    <!-- Plugin to create index XML from DocBook HTML --> 
 	    <plugin>
 		<groupId>org.codehaus.mojo</groupId>
 		<artifactId>xml-maven-plugin</artifactId>
@@ -111,7 +111,7 @@
 			<catalog>${basedir}/src/main/docbook/catalog/catalog.xml</catalog>
 		    </catalogs>
 		    <transformationSets>
-			<!--Transform the index xhtml to an XML that's easy to process--> 
+			<!-- Transform the index xhtml to an XML that's easy to process --> 
 			<transformationSet>
 			    <dir>${output.help.directory.result}</dir>
 			    <outputDir>${resources.help.directory}</outputDir>  output to resources directory 
@@ -121,13 +121,13 @@
 				<include>arbil-cmdi/arbil-cmdi.html</include>
 			    </includes>
 			    <fileMappers>
-				<!--Map arbil.html -> arbil.xml--> 
+				<!-- Map arbil.html -> arbil.xml --> 
 				<fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
 				    <targetExtension>.xml</targetExtension>
 				</fileMapper>
 			    </fileMappers>
 			</transformationSet>
-			<!--Strip everything but body from other html files--> 
+			<!-- Strip everything but body from other html files --> 
 			<transformationSet>
 			    <dir>${output.help.directory.result}</dir>
 			    <outputDir>${resources.help.directory}</outputDir>  output to resources directory 
@@ -159,7 +159,7 @@
 		    <files>
 			<directory>${basedir}/src/main/docbook/images</directory>
 			<includes>
-			    We don't want any other file types (e.g. svg) because Swing won't support them 
+			    <!--We don't want any other file types (e.g. svg) because Swing won't support them--> 
 			    <include>%regex[(?i).*\.jpg$]</include>
 			    <include>%regex[(?i).*\.png$]</include>
 			</includes>
