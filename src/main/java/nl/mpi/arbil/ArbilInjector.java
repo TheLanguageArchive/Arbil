@@ -35,6 +35,7 @@ import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.HelpViewerPanel;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -135,6 +136,7 @@ public abstract class ArbilInjector {
 	CmdiTemplate.setBugCatcher(bugCatcher);
 	CmdiUtils.setBugCatcher(bugCatcher);
 	DocumentationLanguages.setBugCatcher(bugCatcher);
+	HelpViewerPanel.setBugCatcher(bugCatcher);
 	ImdiUtils.setBugCatcher(bugCatcher);
 	MetadataBuilder.setBugCatcher(bugCatcher);
 	MetadataReader.setBugCatcher(bugCatcher);

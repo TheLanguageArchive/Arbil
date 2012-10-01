@@ -1,13 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import java.awt.Point;
-import java.util.Arrays;
-import nl.mpi.arbil.util.WindowManager;
-import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.ui.menu.ArbilMenuBar;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -16,17 +8,20 @@ import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,16 +48,24 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.table.TableCellEditor;
-import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
+import org.xml.sax.SAXException;
 
 /**
- * Document   : ArbilWindowManager
- * Created on : 
+ * Document : ArbilWindowManager
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
@@ -252,7 +255,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    FileDialog fileDialog = new FileDialog(linorgFrame);
 	    if (requireMetadataFiles) {
 		fileDialog.setFilenameFilter(new FilenameFilter() {
-
 		    public boolean accept(File dir, String name) {
 			return name.toLowerCase().endsWith(".imdi");
 		    }
@@ -273,7 +275,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    if (directorySelectOnly) {
 		// this filter is only cosmetic but gives the user an indication of what to select
 		FileFilter imdiFileFilter = new FileFilter() {
-
 		    public String getDescription() {
 			return "Directories";
 		    }
@@ -416,7 +417,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private synchronized void showMessageDialogQueue() {
 	if (!showMessageThreadrunning) {
 	    new Thread("showMessageThread") {
-
 		public void run() {
 		    try {
 			sleep(100);
@@ -478,11 +478,19 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()) {
 	    System.out.println("no local locations found, showing help window");
-	    ArbilHelp helpComponent = ArbilHelp.getSingleInstance();
-	    if (null == focusWindow(ArbilHelp.helpWindowTitle)) {
-		createWindow(ArbilHelp.helpWindowTitle, helpComponent);
+	    try {
+		ArbilHelp helpComponent = ArbilHelp.getArbilHelpInstance();
+		if (null == focusWindow(ArbilHelp.helpWindowTitle)) {
+		    createWindow(ArbilHelp.helpWindowTitle, helpComponent);
+		}
+		helpComponent.setCurrentPage(ArbilHelp.IMDI_HELPSET, ArbilHelp.INTRODUCTION_PAGE);
+	    } catch (IOException ex) {
+		// Ignore, don't show help window
+		GuiHelper.linorgBugCatcher.logError(ex);
+	    } catch (SAXException ex) {
+		// Ignore, don't show help window
+		GuiHelper.linorgBugCatcher.logError(ex);
 	    }
-	    helpComponent.setCurrentPage(ArbilHelp.INTRODUCTION_PAGE);
 	}
 	startKeyListener();
 	setMessagesCanBeShown(true);
@@ -703,7 +711,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	windowFrame.setName(currentWindowName);
 	windowMenuItem.setActionCommand(currentWindowName);
 	windowMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    focusWindow(evt.getActionCommand());
@@ -713,7 +720,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	});
 	windowFrame.addInternalFrameListener(new InternalFrameAdapter() {
-
 	    @Override
 	    public void internalFrameClosed(InternalFrameEvent e) {
 		String windowName = e.getInternalFrame().getName();
@@ -806,7 +812,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //        });
 
 	Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-
 	    public void eventDispatched(AWTEvent e) {
 		boolean isKeybordRepeat = false;
 		if (e instanceof KeyEvent) {
@@ -949,7 +954,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	// Add frame listener that puts windows with negative y-positions back on the desktop pane
 	currentInternalFrame.addInternalFrameListener(new InternalFrameAdapter() {
-
 	    @Override
 	    public void internalFrameDeactivated(InternalFrameEvent e) {
 		fixLocation(e.getInternalFrame());
@@ -1128,9 +1132,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     /**
-     * 
+     *
      * @param rowNodesArray
-     * @param frameTitle 
+     * @param frameTitle
      * @param window Array in which created window is inserted (at index 0). If left null, this is skipped
      * @param fieldView Field view to initialize table model with. If left null, the default field view will be used
      * @return Table model for newly created table window
@@ -1161,6 +1165,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     /**
      * Opens a new window containing a scrollpane with a nested collection of tables
      * for the specified node and all of its subnodes.
+     *
      * @param arbilDataNode Node to open window for
      * @param frameTitle Title of window to be created
      */
@@ -1256,7 +1261,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     private void addToFileFilterMap(final String name, final String extension) {
 	fileFilterMap.put(name, new FileFilter() {
-
 	    @Override
 	    public boolean accept(File selectedFile) {
 		final String extensionLowerCase = extension.toLowerCase();

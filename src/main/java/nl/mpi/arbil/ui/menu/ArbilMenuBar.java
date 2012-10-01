@@ -1,21 +1,15 @@
 package nl.mpi.arbil.ui.menu;
 
-import java.awt.event.ActionEvent;
-import nl.mpi.arbil.data.ArbilJournal;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.ArbilVocabularies;
-import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.ui.ImportExportDialog;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -30,20 +24,28 @@ import javax.swing.JSeparator;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.ui.TemplateDialogue;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilJournal;
+import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.ui.ArbilHelp;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
+import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import org.xml.sax.SAXException;
 
 /**
  * ArbilMenuBar.java
@@ -694,20 +696,20 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(shortCutKeysjMenuItem);
-	printHelpMenuItem.setText("Print Help File");
-	printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    printHelpMenuItemActionPerformed(evt);
-		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(ex);
-		}
-	    }
-	});
-	helpMenu.add(printHelpMenuItem);
+//	printHelpMenuItem.setText("Print Help File");
+//	printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+//		try {
+//		    printHelpMenuItemActionPerformed(evt);
+//		} catch (Exception ex) {
+//		    GuiHelper.linorgBugCatcher.logError(ex);
+//		}
+//	    }
+//	});
+//	helpMenu.add(printHelpMenuItem);
 	this.add(helpMenu);
-	printHelpMenuItem.setVisible(false);
+//	printHelpMenuItem.setVisible(false);
     }
 
     private void setUpHotKeys() {
@@ -766,18 +768,33 @@ public class ArbilMenuBar extends JMenuBar {
 	ArbilWindowManager.getSingleInstance().openAboutPage();
     }
 
+    
+
+    private ArbilHelp getArbilHelp() {
+        try {
+            return ArbilHelp.getArbilHelpInstance();
+        } catch (IOException ioEx) {
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("I/O error while trying to read help system! See error log for details.", "Error");
+            GuiHelper.linorgBugCatcher.logError(ioEx);
+        } catch (SAXException saxEx) {
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Parser error while trying to read help system! See error log for details.", "Error");
+            GuiHelper.linorgBugCatcher.logError(saxEx);
+        }
+        return null;
+    }
+    
     private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	ArbilHelp helpComponent = ArbilHelp.getSingleInstance();
+	ArbilHelp helpComponent = getArbilHelp();
 	if (null == ArbilWindowManager.getSingleInstance().focusWindow(ArbilHelp.helpWindowTitle)) {
 	    ArbilWindowManager.getSingleInstance().createWindow(ArbilHelp.helpWindowTitle, helpComponent);
 	}
-	helpComponent.setCurrentPage(ArbilHelp.SHOTCUT_KEYS_PAGE);
+	helpComponent.setCurrentPage(ArbilHelp.IMDI_HELPSET, ArbilHelp.SHOTCUT_KEYS_PAGE);
     }
 
     private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 	if (null == ArbilWindowManager.getSingleInstance().focusWindow(ArbilHelp.helpWindowTitle)) {
 	    // forcus existing or create a new help window
-	    ArbilWindowManager.getSingleInstance().createWindow(ArbilHelp.helpWindowTitle, ArbilHelp.getSingleInstance());
+	    ArbilWindowManager.getSingleInstance().createWindow(ArbilHelp.helpWindowTitle, getArbilHelp());
 	}
     }
 
@@ -789,14 +806,6 @@ public class ArbilMenuBar extends JMenuBar {
 	    GuiHelper.linorgBugCatcher.logError(e);
 	    System.out.println(e.getMessage());
 	}
-    }
-
-    private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	if (null == ArbilWindowManager.getSingleInstance().focusWindow(ArbilHelp.helpWindowTitle)) {
-	    // forcus existing or create a new help window
-	    ArbilWindowManager.getSingleInstance().createWindow(ArbilHelp.helpWindowTitle, ArbilHelp.getSingleInstance());
-	}
-	ArbilHelp.getSingleInstance().printAsOneFile();
     }
 
 //    private void populateStorageLocationMenu(JMenu storageMenu) {
