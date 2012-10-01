@@ -94,8 +94,8 @@
         <title>Arbil workspace</title>
           <mediaobject>
             <imageobject>
-            <imagedata fileref="images/Working_Area.jpg" contentdepth="100%" scalefit="1"
-              width="100%"/>
+            <imagedata fileref="images/cmdi_Arbil_workspace.png" contentdepth="60%" scalefit="1"
+              width="80%"/>
           </imageobject>
           </mediaobject>
       </figure>
@@ -617,8 +617,8 @@
           <title>Standard field name</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/EditorCata.png" contentdepth="100%" scalefit="1"
-                width="100%"/>
+              <imagedata fileref="images/cmdi_Standard_field_name.png" contentdepth="60%"
+                scalefit="1" width="70%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -640,38 +640,22 @@
     </sect1>
     <sect1 id="Sec_Adding_Resource_Files">
       <title>Adding resource files to a metadata document</title>
-      <para>There are two ways of adding resource files (e.g. audio, video etc.) to a
-        session:</para>
-      <para>(1) The easiest way is to drag and drop a given element from the Working Directory to a
-        session node. All information about the resource (e.g.. its size, type etc.) will be filled
-        in automatically.</para>
-      <para>(2) It is also possible to add it by right clicking on a session node and choosing
-          <emphasis role="italic">Add</emphasis> ><emphasis role="italic">Media File</emphasis> or
-          <emphasis role="italic">Add</emphasis> > <emphasis role="italic">Written
-          Resource</emphasis>. In the latter case however you will have to fill in manually the
-        location of the file, its media type, format and size in the window that will appear.</para>
+      <para>The easiest way to add resource files (e.g. audio, video etc.) to a metadata document is
+        to drag and drop a given element from the Working Directory to any existing node in a
+        metadata document . All information about the resource (e.g.. its size, type etc.) will be
+        filled in automatically.</para>
       <para>Note that not all file types are archivable. If a file is not archivable, you will not
         be able to drag and drop it (any problem with the file will be illustrated by the
           <inlinegraphic contentdepth="60%" fileref="images/file.png"/> icon).</para>
       <figure>
-        <title>Adding a written resource by dragging and dropping</title>
+        <title>Adding a resource by dragging and dropping</title>
           <mediaobject>
             <imageobject>
-            <imagedata fileref="images/Adding_a_written resource_by_dragging and_dropping.png"
-              contentdepth="100%" scalefit="1" width="100%"/>
+            <imagedata fileref="images/cmdi_Adding a resource by dragging and dropping.png"
+              contentdepth="50%" scalefit="1" width="40%"/>
           </imageobject>
           </mediaobject>
       </figure>
-      <figure>
-        <title>Adding a media file via the menu</title>
-          <mediaobject>
-            <imageobject>
-            <imagedata fileref="images/Adding_a_media_file via_the_menu.png" contentdepth="100%"
-              scalefit="1" width="100%"/>
-          </imageobject>
-          </mediaobject>
-      </figure>
-      <para/>
       <para>It is also possible to add resources, either from a remote location, i.e. the archive or
         the web, manually. This can be done by right clicking on a node that supports a resource
         location (IMDI media file or written resource) select <emphasis role="italic">Insert Manual
@@ -691,9 +675,9 @@
     <sect1 id="Sec_Moving_Sessions">
       <title>Moving instances</title>
       <para>Arbil allows to move both corpus and session nodes from one location to another. To do
-        it, select in your Local Corpus a corpus/session you would like to move and drag and drop it
-        to the new location. It is also possible to move subnodes of sessions, e.g. Actors, across
-        sessions.</para>
+        it, select in your Local Corpus a instance or a collection you would like to move and drag
+        and drop it to the new location. It is also possible to move subnodes of collection, e.g.
+        Actors, across sessions.</para>
       
     </sect1>
     <sect1 id="Sec_Deleting_Corpus_Elements">
@@ -716,18 +700,19 @@
     <title>Editing the metadata</title>
     <sect1 id="Sec_One_Cell_Editing">
       <title>Editing one cell</title>
-      <para>To edit a corpus or session just click on it (A), or select it and choose <emphasis
-          role="italic">view selected</emphasis> (B). In the window that appears, click on the field
-        you want to change. Type in the new value and press <emphasis role="italic">Enter</emphasis>
-        to go to the next value. If the value you have typed is too long for the cell, the <emphasis
-          role="italic">long field editor</emphasis> will open automatically in order to edit this
-          value.<link linkend="sec_Long_field_editor">section 5.2</link></para>
+      <para>To edit a metadata docuement or a collection just click on it (A), or select it and
+        choose <emphasis role="italic">View Selected</emphasis> (B). In the window that appears,
+        click on the field you want to change. Type in the new value and press <emphasis
+          role="italic">Enter</emphasis> to go to the next value. If the value you have typed is too
+        long for the cell, the <emphasis role="italic">Long Field Editor</emphasis> will open
+        automatically in order to edit this value. (<link linkend="sec_Long_field_editor">section
+          5.2</link>)</para>
       <figure>
         <title>Editing</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/simple_editing.png" contentdepth="100%" scalefit="1"
-              width="100%"/>
+            <imagedata fileref="images/cmdi_simple_editing.png" contentdepth="40%" scalefit="1"
+              width="50%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -741,11 +726,32 @@
         <title>Closed vocabularies</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Closed_vocabularies.png" contentdepth="100%" scalefit="1"
-              width="100%"/>
+            <imagedata fileref="images/Closed_vocabularies.png" contentdepth="60%" scalefit="1"
+              width="70%"/>
           </imageobject>
         </mediaobject>
       </figure>
+    </sect1>
+    <sect1>
+      <title>Attributes</title>
+      <para>It is possible to fill in or modify fields which contain attributes by right clicking on
+        a selected node and choosing <emphasis role="italic">View Selected</emphasis>. Once the node
+        has been displayed, the attributes fields are ready to be edited. There is also the
+        possibility of working on them through the <emphasis role="italic">Long Field
+          Editor</emphasis>. Here, in case of long descriptions, one or more attribute fields can be
+        edited.                                                        </para>
+      <para>Note that wheter attributes are present or not depends on the profile that has been
+        selected.</para>
+      <para>
+        <figure>
+          <title>Attributes</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/cmdi_edit_attributes.png" contentdepth="50%"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </para>
     </sect1>
     <sect1 id="sec_Long_field_editor">
       <title>Long field editor</title>
@@ -778,15 +784,15 @@
     <sect1 id="Sec_Editing_Multiple_Cells">
       <title>Editing multiple cells</title>
       <para>It will often be the case that a piece of information (e.g.. continent, country, address
-        etc.) has to be repeated across the sessions. Instead of typing this data in every session,
-        you can copy-paste it at once into all the relevant fields. Choose the relevant sessions by
-        holding Ctrl and clicking on them. Then right click one of the selected items and choose
-          <emphasis role="italic">View/Edit</emphasis>. You will see a window appearing in which you
-        can edit the sessions.</para>
-      <para>To edit the selected sessions, take the following steps:</para>
-      <para>1. Fill one of the session fields / choose a default value from the drop-down menu that
-        you need (e.g. Country). If one of these session fields is already filled in with the
-        relevant information, skip this step.</para>
+        etc.) has to be repeated across the metadata docuements. Instead of typing this data in
+        every docuement, you can copy-paste it at once into all the relevant fields. Choose the
+        relevant metadata docuements by holding Ctrl and clicking on them. Then right click one of
+        the selected items and choose <emphasis role="italic">View Selected</emphasis>. You will see
+        a window appearing in which you can edit the docuements.</para>
+      <para>To edit the selected metadata docuements, take the following steps:</para>
+      <para>1. Fill one of the fields / choose a default value from the drop-down menu that you need
+        (e.g. Country). If one of these fields is already filled in with the relevant information,
+        skip this step.</para>
       <para>2. Right click on one of the selected cell and select <emphasis role="italic"
           >Copy</emphasis>.</para>
       <para>3. Select the fields where you want to paste the copied information (one by one) by
@@ -796,13 +802,13 @@
         <title>Pasting data into multiple cells</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/Pasting_data_into multiple_cells.png" contentdepth="100%"
-              scalefit="1" width="100%"/>
+            <imagedata fileref="images/cmdi_pasting_data_into_multiple_cells.png" contentdepth="40%"
+              scalefit="1" width="40%"/>
           </imageobject>
         </mediaobject>
       </figure>
       <para>If you want to copy a value into <emphasis role="underline">all</emphasis> the cells of
-        a certain column, select the field you want you copy, right click it and chose <emphasis
+        a certain column, select the field you want to copy, right click it and chose <emphasis
           role="italic">Copy Cell to Whole Column</emphasis>. All the cells in the column will be
         changed accordingly. Note, however, that this option is only applicable to one column at a
         time.</para>
@@ -811,8 +817,8 @@
         <title>Copying the value of a cell to all the cells of a column</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="100%" fileref="images/copy_to_whole_column1a.png" scalefit="1"
-              width="100%"/>
+            <imagedata contentdepth="60%" fileref="images/cmdi_copy_to-the_whole_column.png"
+              scalefit="1" width="100%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -823,7 +829,7 @@
         <title>Copying values from columns in one metadata file</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/coping_two_columns_a.png" contentdepth="40%"/>
+            <imagedata fileref="images/cmdi_copy_values_from_columns.png" contentdepth="60%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -839,7 +845,8 @@
           <title>Pasting values from two columns into several metadata files</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/pasting_two_columns2_a.png" contentdepth="70%"/>
+              <imagedata fileref="images/cmdi_pasting_values_two_columns.png" contentdepth="70%"
+                width="40%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -876,16 +883,16 @@
       <title>Editing All Metadata of a Subnode </title>
       <para>It is also possible for the user of Arbil to get access to all metadata under a node in
         a hierarchical order (figure 5.10), as the order of the (sub)sessions, so as to edit them.
-        To do this, right click on a session on the tree view and select "<emphasis role="italic"
-          >edit all metadata</emphasis>" (this function cannot be used on Corpus nodes). Editing can
-        be done in all cells in the way it has already been described.</para>
+        To do this, right click on a metadata docuement on the tree view and select "<emphasis
+          role="italic">Edit All Metadata</emphasis>" (this function cannot be used on Corpus
+        nodes). Editing can be done in all cells in the way it has already been described.</para>
       <para>
         <figure>
           <title>Edit/view all metadata</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/edit_all_metadata.png" contentdepth="100%" scalefit="1"
-                width="100%"/>
+              <imagedata fileref="images/cmdi_edit_all-metadata.png" contentdepth="40%" scalefit="1"
+                width="40%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -907,8 +914,8 @@
           <title>Choosing columns</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/choose_collumns_a.png" contentdepth="100%" scalefit="1"
-                width="100%"/>
+              <imagedata fileref="images/cmdi_choosing_columns.png" contentdepth="60%" scalefit="1"
+                width="80%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -935,8 +942,8 @@
           <title>Editing column view</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/editing-column-view.png" contentwidth="60%" scalefit="1"
-                width="60%"/>
+              <imagedata fileref="images/editing-column-view.png" contentwidth="50%" scalefit="1"
+                width="50%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -948,7 +955,7 @@
         <title>Hiding one column</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="100%" fileref="images/hide_one_collumn.png" scalefit="1"
+            <imagedata contentdepth="100%" fileref="images/cmdi_hide_one_column.png" scalefit="1"
               width="100%"/>
           </imageobject>
         </mediaobject>
@@ -961,7 +968,7 @@
         <title>Saving Column View</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="100%" fileref="images/saving_collumn_view.png" scalefit="1"
+            <imagedata contentdepth="100%" fileref="images/cmdi_saving_column_view.png" scalefit="1"
               width="100%"/>
           </imageobject>
         </mediaobject>
@@ -1011,7 +1018,7 @@
         <title>Highlighting cells</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="50%" fileref="images/highlighting_cells1.png" scalefit="1"
+            <imagedata contentdepth="50%" fileref="images/cmdi_highlighting_cells.png" scalefit="1"
               width="100%"/>
           </imageobject>
         </mediaobject>
@@ -1023,16 +1030,16 @@
     <sect1 id="Sec_Searching">
       <title>Searching Local Corpus</title>
       <para>The search option allows you to find a value(s) throughout either the Local Corpus or
-        the Remote Corpus (paragraph 6.2). To do that, right click on a given node you want to
-        search in and select <emphasis role="italic">Search</emphasis> (you might also choose a
-        number of nodes by holding Ctrl and clicking on them). A window will appear in which you can
-        specify where exactly you want to search e.g. within Corpus, Session, Catalogue, Actor
-        etc.</para>
+        the Remote Corpus. To do that, right click on a given node you want to search in and select
+          <emphasis role="italic">Search</emphasis> (you might also choose a number of nodes by
+        holding Ctrl and clicking on them). A window will appear in which you can specify where
+        exactly you want to search e.g. within Corpus, Session, Catalogue, Actor etc.</para>
       <figure>
         <title>Selecting search locations</title>
           <mediaobject>
             <imageobject>
-            <imagedata contentdepth="100%" fileref="images/searching.png" scalefit="1" width="90%"/>
+            <imagedata contentdepth="60%" fileref="images/cmdi_selecting_search_location.png"
+              scalefit="1" width="40%"/>
           </imageobject>
           </mediaobject>
       </figure>
@@ -1059,16 +1066,18 @@
   
     <sect1 id="Exporting_data_from_Arbil">
       <title>Exporting data from Arbil</title>
-      <para>After creating new corpus branches or editing corpora from an already existing archive,
-        you can save your files and upload them to the appropriate archive. In order to do this you
-        need to export your files from Arbil. To do this select the modified nodes or a branch that
-        contains the modified parts, right click them and select <emphasis role="italic">Export</emphasis>. A dialogue box will pop up, in which you choose the location of the
-        export and the name of the file. To complete the export, click on <emphasis role="italic">Export Branch Destination Directory</emphasis>.</para>
+      <para>After creating new branches or editing collections from an already existing archive, you
+        can save your files and upload them to the appropriate storage folder. In order to do this
+        you need to export your files from Arbil. To do this select the modified nodes or a branch
+        that contains the modified parts, right click them and select <emphasis role="italic"
+          >Export</emphasis>. A dialogue box will pop up, in which you choose the location of the
+        export and the name of the file. To complete the export, click on <emphasis role="italic"
+          >Export Branch Destination Directory</emphasis>.</para>
       <figure>
         <title>Exporting files</title>
           <mediaobject>
             <imageobject>
-            <imagedata contentdepth="50%" fileref="images/exporting files.png" scalefit="1"
+            <imagedata contentdepth="50%" fileref="images/cmdi_Exporting_files.png" scalefit="1"
               width="50%"/>
           </imageobject>
           </mediaobject>
@@ -1089,60 +1098,60 @@
         <title>Export window with details</title>
           <mediaobject>
             <imageobject>
-            <imagedata contentdepth="40%" fileref="images/exporting_details1.png" scalefit="1"
-              width="40%"/>
+            <imagedata contentdepth="40%" fileref="images/cmdi_export_window_with_details.png"
+              scalefit="1" width="40%"/>
           </imageobject>
           </mediaobject>
       </figure>
       <para>The options <emphasis role="italic">Rename Metadata Files</emphasis> and <emphasis
-          role="italic">Limit Characters in File Names </emphasis>are already checked. The option
+          role="italic">Limit Characters in File Names </emphasis>is already checked. The option
           <emphasis role="italic">Copy Resource Files</emphasis> are explained in the <link
-          linkend="Sec_Import_to_Local_Corpus">import to Local Corpus section</link> (3.3.1).</para>
+          linkend="Sec_Import_to_Local_Corpus"><emphasis role="italic">Import to Local
+            Corpus</emphasis> section</link> (3.2.1).</para>
     </sect1>
     <sect1>
       <title>Importing data into Arbil</title>
       <para>In Arbil there is a number of possibilities to import the data. The first way to import
         data is from the Remote corpus to the Local corpus by right clicking on the remote corpus
-        and selecting import to local corpus, or by "drag and drop". </para>
+        and selecting <emphasis role="italic">Import to Local Corpus</emphasis>, or by drag and
+        drop. </para>
       <para>In the case you want to import data from you local computer disk, or the network, you
         can do this from the  menu bar by going to <emphasis role="italic">Files</emphasis>,
           <emphasis role="italic">Import</emphasis> and then selecting the data from your local
         disk, or the network; your data is imported at the root level. </para>
       <para><emphasis role="italic">Import Branch</emphasis> (i.e.. importing a piece of your
         corpus) gives you the ability to import part of your corpus from your disk to the Local
-        corpus. <emphasis role="italic">Reimport</emphasis> (i.e.. re-importing form the remote
-        corpus): in order to make changes to a corpus you have already exported to the Remote corpus
-        via Lamus it is essential to reimport it to the Local corpus and select <emphasis
-          role="italic">overwrite changes</emphasis>. </para>
+        Corpus. <emphasis role="italic">Reimport</emphasis> (i.e.. re-importing form the Remote
+        Corpus).</para>
       <para><emphasis role="italic">Import CSV</emphasis> (i.e. in the table format) gives you the
-        ability to import edited data in the Local corpus in the form of a table (for details see
+        ability to import edited data in the Local Corpus in the form of a table (for details see
         section <link linkend="Sec_using_an_external_editor">7.3</link> below).</para>
     </sect1>
     <sect1>
       <title id="Sec_using_an_external_editor">Using an External Editor</title>
-      <para>As has been noted already, it is possible to open, view and modify the data using
+      <para>As is has already been noticed, it is possible to open, view and modify the data using
         external editors such as spread sheets or text editors. Overall the process is done by
         moving data from Arbil to the external editor, making the necessary changes, and then moving
         them back to Arbil. </para>
       <para>Moving data back to Arbil however posses some restrictions; for example, if you copy
         multiple rows in a table, the data format cannot be pasted back into Arbil. However it can
         still be viewed and edited in an external editor. For this reason after editing data in an
-        external editor, such as Microsoft Excel, you can save you your data in csv format, and then
+        external editor, such as Microsoft Excel, you can save your data in CSV format, and then
         import them to Arbil by right clicking on the preferred node and selecting <emphasis
-          role="italic">import CSV</emphasis>. This way gives you the ability to import the data in
+          role="italic">Import CSV</emphasis>. This way gives you the ability to import the data in
         a table format; in any other case you will have to import the edited data column by column,
         but not all at once.</para>
-      <para>If cells in a table corresponding to a single metadata file are copied, then the data
-        will be in a format that can then be pasted back into any table in Arbil, provided that the
-        data maintains the same formatting.</para>
+      <para>If some cells in a table, which correspond to a single metadata file, are copied, the
+        data will be in a format that can then be pasted back into any table in Arbil, provided that
+        the data maintains the same formatting.</para>
       <para>To open data in an external editor i.e. Ms Excel, select and copy the data from the
-        table , then paste them in the editor you wish to use.</para>
+        table then paste them in the editor you wish to use.</para>
       <figure>
         <title>Editing data in an External editor</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="100%" fileref="images/external-editor.png" scalefit="1"
-              width="100%"/>
+            <imagedata contentdepth="100%" fileref="images/cmdi_editing_in_external_editor.png"
+              scalefit="1" width="100%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -1150,13 +1159,14 @@
     <sect1>
       <title>External application</title>
       <para>By selecting <emphasis role="italic">Open in External Application</emphasis> you can
-        view, and edit, resourses and metadata in the application that your computer chooses by
+        view and edit resourses and metadata in the application that your computer chooses by
         default, such as a media player for a video file, or a text editor for a text file.</para>
       <figure>
         <title>Viewing data in external application</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/exploring_viewing_data_otherwise1.png" contentdepth="38%"/>
+            <imagedata fileref="images/cmdi_viewing_in_external_application.png" contentdepth="40%"
+            />
           </imageobject>
         </mediaobject>
       </figure>
@@ -1164,13 +1174,13 @@
   <chapter>
     <title>Exiting Arbil</title>
     <para>Before exiting Arbil make sure that you have saved all your changes. This can easily be
-      done by the key short-cut CTRL+S.</para>
-    <para>You can exit Arbil by closing the main window, or through file -> exit on Wi§ndows or
-      Linux, or Arbil -> <emphasis role="italic">quit Arbil </emphasis>on Mac OS. In case of unsaved
-      changes a message will appear and ask if you wish to <emphasis role="italic">save changes
-        before exiting</emphasis>; choose <emphasis role="italic">yes</emphasis> or <emphasis
-        role="italic">no</emphasis>, Arbil is now closed.</para>
-    <para> </para>
+      done by the key short-cut CTRL/CMD+S.</para>
+    <para>You can exit Arbil by closing the main window, or through <emphasis role="italic"
+        >File</emphasis> -> <emphasis role="italic">Exit</emphasis> on Windows or Linux, or Arbil ->
+        <emphasis role="italic">Quit Arbil </emphasis>on Mac OS. In case of unsaved changes a
+      message will appear and ask if you wish to <emphasis role="italic">Save Changes Before
+        Exiting</emphasis>; choose <emphasis role="italic">Yes</emphasis> or <emphasis role="italic"
+        >No</emphasis>, Arbil is now closed.</para>
   </chapter>
     <chapter>
     <title>Shortcut Keys</title>
