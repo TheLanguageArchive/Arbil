@@ -280,15 +280,27 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	try {
 	    final URI baseUri = helpSet.getResourcesClass().getResource(helpSet.getHelpResourceBase()).toURI();
 	    if (itemURL.toString().startsWith(baseUri.toString())) {
-		URI relativeURI = baseUri.relativize(itemURL.toURI());
-		// Update index, which will show the help item if found. Use only path, i.e. ignore the fragment
-		// TODO: Keep fragment info
-		return updateIndex(helpTree, relativeURI.getPath().toString(), relativeURI.getFragment());
+		URI relativeURI = getRelativeURI(baseUri, itemURL.toURI());
+		// Update index, which will show the help item if found.
+		final String itemPath = relativeURI.getPath();
+		if (itemPath != null) {
+		    return updateIndex(helpTree, itemPath.toString(), relativeURI.getFragment());
+		}
 	    }
 	} catch (URISyntaxException usEx) {
 	    BugCatcherManager.getBugCatcher().logError(usEx);
 	}
 	return false;
+    }
+
+    private URI getRelativeURI(final URI baseUri, URI itemURI) throws URISyntaxException {
+	if (baseUri.getScheme().equals("jar") && itemURI.getScheme().equals("jar")) {
+	    URI baseInternalUri = new URI(baseUri.getSchemeSpecificPart());
+	    URI itemInternalUri = new URI(itemURI.getSchemeSpecificPart());
+	    return baseInternalUri.relativize(itemInternalUri);
+	} else {
+	    return baseUri.relativize(itemURI);
+	}
     }
 
     private void showHelpItem(HelpTree helpTree, final String itemResource) {
