@@ -212,6 +212,8 @@ http://tla.mpi.nl/tools/tla-tools/arbil/
         <getLibFile fileName="commons-logging-1.1.jar"/>
         <getLibFile fileName="commons-beanutils-1.8.0.jar"/>
         <getLibFile fileName="xmlpublic.jar"/>
+        <getLibFile fileName="arbil-help-2.5.33408-pretesting.jar"/>
+        <getLibFile fileName="plugins-core-0.0.33389-pretesting.jar"/>
     </target>
     <target name="jar" depends="setproperties, compile, getFallbackFiles, copyJarFilesToLib, updateJnlpAndAppletHtml" description="create a Jar file"><!--copyFilesForXSL -->
         <!--check that the icon exists and fail if not-->
@@ -237,7 +239,7 @@ http://tla.mpi.nl/tools/tla-tools/arbil/
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.ArbilMain"/>
                 <!--TODO: (currently removed due to inclusion in the installer for windows) consider preventing the imagemagick jar being on the class path for windows due to the effect it might have on other os -->
-                <attribute name="Class-Path" value="lib/mpi-util-1.0.0.jar lib/corpusstructure-api-1.7.3.jar lib/imdi-api-1.1.2.jar lib/log4j-1.2.14.jar lib/Saxon-HE-9.4.jar lib/${TypeCheckVersion} lib/xalan-2.7.1.jar lib/xercesImpl-2.9.0.jar lib/bcprov-jdk15-143.jar lib/slcshttps_jdk15_v0.2.jar lib/xbean.jar lib/commons-digester-2.0.jar lib/commons-logging-1.1.jar lib/commons-beanutils-1.8.0.jar lib/xmlpublic.jar" />
+                <attribute name="Class-Path" value="lib/mpi-util-1.0.0.jar lib/corpusstructure-api-1.7.3.jar lib/imdi-api-1.1.2.jar lib/log4j-1.2.14.jar lib/Saxon-HE-9.4.jar lib/${TypeCheckVersion} lib/xalan-2.7.1.jar lib/xercesImpl-2.9.0.jar lib/bcprov-jdk15-143.jar lib/slcshttps_jdk15_v0.2.jar lib/xbean.jar lib/commons-digester-2.0.jar lib/commons-logging-1.1.jar lib/commons-beanutils-1.8.0.jar lib/xmlpublic.jar lib/arbil-help-2.5.33408-pretesting.jar lib/plugins-core-0.0.33389-pretesting.jar" />
             </manifest>
         </jar>
     </target>
