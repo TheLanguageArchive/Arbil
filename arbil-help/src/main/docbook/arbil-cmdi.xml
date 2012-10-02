@@ -20,6 +20,11 @@
   </bookinfo>
   <chapter id="Ch_Introduction">
     <title>Introduction</title>
+    <para>Arbil is an application for arranging research material and associated metadata into a
+      format appropriate for archiving. </para>
+    <para>Arbil is designed so that it can be used off line in remote locations. The data can be
+      entered at any stage in part or as a whole. When an internet connection is available the work
+      can then be transferred to the main archive via Lamus.</para>
     <section id="Sec_General_Information">
       <title>General Information</title>
       <para/>
@@ -28,13 +33,13 @@
         to be submited to a metadata repository. CMDI intances mainly comprise of profiles and
         components.</para>
       <para>In addition, to create collections of CMDI instances Arbil allows you to view all the
-        corpora in the Archive or any other remote location (provided you have access rights). As
-        well as to edit Corpora from the archive. </para>
+        collections in the Archive or any other remote location (provided you have access rights).
+        As well as to edit collections from the archive. </para>
       <para/>
       <para> In short, Arbil allows you to: </para>
       <para>1) View the Archive</para>
       <para>2) Import metadata from the Archive &amp; edit.</para>
-      <para>3) Create new corpora, with new metadata and media files.</para>
+      <para>3) Create new collections, with new metadata and media files.</para>
       <para>4) Export the CMDI files, ready to be archived</para>
       <para/>
       <para>Changes you make to remote metadata will <emphasis role="underline"><emphasis
@@ -45,8 +50,8 @@
         more powerful user interface and functionality. This manual contains detailed information on
         how to use Arbil in order to create new new collections of CMDI instances and modify
         existing ones. It does not explain the internal structure of CMDI (for more information on
-        the CMDI metadata, please see the<ulink url="http://www.clarin.eu/cmdi">Clarin</ulink>
-        website.</para>
+        the CMDI metadata, please see the <ulink url="http://www.clarin.eu/cmdi">Clarin
+          website</ulink> .</para>
       <para>For a less detailed program description, see the <ulink
           url="http://www.lat-mpi.eu/tools/arbil/">Arbil User Guide</ulink>.    ***********CHANGE
         THIS LINK************</para>
@@ -59,10 +64,10 @@
       <title>Overview</title>
       <para>The way you start working on your data is twofold: </para>
       <para>a) you either create a new collection of CMDI instances or </para>
-      <para>b) make a copy of an already existing collection from the server and edit it. Either
-        way, the files you create/edit will be saved on your computer (in the so called <emphasis
-          role="bold">Local Corpus</emphasis>). This enables you to work off-line in remote
-        locations while still in the field. Changes you make in Arbil will <emphasis
+      <para>b) make a copy of an already existing collection from the server and edit it.                                                                                                                                 </para>
+      <para>Either way, the files you create/edit will be saved on your computer (in the so called
+          <emphasis role="bold">Local Corpus</emphasis>). This enables you to work off-line in
+        remote locations while still in the field. Changes you make in Arbil will <emphasis
           role="underline">not</emphasis> affect the remote metadata.</para>
       <para>Arbil consists of 6 working areas as shown in the figure below:</para>
       <para>- 1) <emphasis role="bold">The Menu Bar</emphasis> allows you to access the main
@@ -103,11 +108,11 @@
     <section id="Sec_Work_Flow">
       <title>Work flow</title>
       <para>When working with Arbil, you have to decide whether you are going to <link
-          linkend="Sec_Remote_Corpus" role="bold">work on an existing corpus from the Remote
-          Corpus</link> or <link linkend="Sec_New_Corpora" role="bold">create a new corpus</link>.
-        Assuming that you intend to edit metadata in the Archive and add additional media files, you
-        follow the steps 1-5 below. </para>
-      <para>The Arbil work flow for editing a corpus is as follows:</para>
+          linkend="Sec_Remote_Corpus" role="bold">work on an existing collection of instances from
+          the Remote Corpus</link> or <link linkend="Sec_New_Corpora" role="bold">create a new
+          collection of instances</link>. Assuming that you intend to edit metadata in the Archive
+        and add additional media files, you follow the steps 1-6 below. </para>
+      <para>The Arbil work flow for editing a collection of CMDI instances is as follows:</para>
       <para>1) Browse the Remote Corpus and locate the metadata which you intend to edit; drag the
         metadata from the Remote Corpus pane into the Local Corpus pane so as to import them. </para>
       <para>2) Now that the remote metadata are located in the Local Corpus, you may edit them
@@ -118,19 +123,21 @@
         folder on your computer to Arbil. This means that any media files in this folder will appear
         in the Working directory area so that <link linkend="Sec_Adding_Resource_Files" role="bold"
           >Resource files can be added</link> to the nodes in your Local Corpus. To add files to
-        your new corpus, drag and drop them from the <emphasis role="italic">files</emphasis> to the
-          <emphasis role="italic">local corpus </emphasis>. Now you can edit the metadata following
-        step 2.</para>
+        your new collection, drag and drop them from the <emphasis role="italic">Files</emphasis> to
+        the <emphasis role="italic">Local Corpus </emphasis>. Now you can edit the metadata
+        following step 2.</para>
       <para>4) Stored profile components, such as common actors, can be added to the local corpus
         from the <emphasis role="italic">favourites</emphasis>.</para>
       <para>5) Once your metadata have been edited correctly and your desired media files have been
         added, you can export the metadata files to a directory (folder) on your computer, ready to
         be uploaded to a metadata repository.</para>
+      <para>6) At last, you can decide to make public your metadata. The location thereof depends on
+        the institution.</para>
       <figure>
         <title>Arbil Work flow </title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="80%" fileref="images/Arbil_workflow_cmdi.png" scalefit="1"
+            <imagedata contentdepth="60%" fileref="images/cmdi_Arbil_Workflow.png" scalefit="1"
               width="100%"/>
           </imageobject>
         </mediaobject>
@@ -139,11 +146,11 @@
         operations displayed in the figure above, can usually be triggered by right-clicking on
         elements in the Local Corpus, or via "drag and drop" (e.g.. clicking on an element in the
         Remote Corpus, holding the mouse key, and dragging the element to the Local Corpus, or to a
-        corpus node within the Local Corpus). Media files (i. e. audio and video recordings) and
-        written resources can also be added to nodes via "drag and drop" from the Working
-        Directories tree in the Files tab. Only for importing metadata files from the file system
-        (e.g. previously exported metadata) to the local corpus root, one has to access the File
-        menu in Arbil's menu bar. </para>
+        node within the Local Corpus). Media files (i. e. audio and video recordings) and written
+        resources can also be added to nodes via "drag and drop" from the Working Directories tree
+        in the Files tab. Only for importing metadata files from the file system (e.g. previously
+        exported metadata) to the Local Corpus root, one has to access the File menu in Arbil's menu
+        bar. </para>
     </section>
     <section><title>Arbil icons</title><para>The following table defines graphical icons used by
         Abril:</para><para/>
@@ -182,7 +189,7 @@
     <title>Starting Arbil</title>
     <para>When you open Arbil for the first time the <emphasis role="italic">wizard</emphasis>
       appears and gives you the ability to configure Arbil to your needs. The first window is a
-      welcome window, press <emphasis role="italic">next</emphasis> to move to the second step of
+      welcome window, press <emphasis role="italic">Next</emphasis> to move to the second step of
       the wizard. In this window you select the metadata format i.e. IMDI or CMDI; you can choose
       one of them or both. In this manual we will assume just CMDI. The third window gives you the
       ability to choose the corpora and/or the profiles that will appear in the <emphasis
@@ -195,8 +202,8 @@
       this list so that it will be available on the root level of the tree in the <emphasis
         role="italic">Remote corpus box</emphasis>. After finishing with <emphasis role="italic"
         >Remote locations</emphasis> press <emphasis role="italic">next</emphasis> and then the
-        <emphasis role="italic">finish</emphasis> button. You can reopen the wizard through the
-        <emphasis role="italic">help</emphasis> menu by choosing <emphasis role="italic">Run setup
+        <emphasis role="italic">Finish</emphasis> button. You can reopen the wizard through the
+        <emphasis role="italic">Help</emphasis> menu by choosing <emphasis role="italic">Run setup
         wizard</emphasis>.</para>
     <para>
       <figure>
@@ -215,13 +222,21 @@
           </imageobject>
         </mediaobject>
       </figure>
+      <figure>
+        <title>Select CMDI profile</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/cmdi_Select_Cmdi_profile.png" contentdepth="50%"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
     </para>
     <para>
       <figure>
         <title>Remote locations</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/wizard.png" contentwidth="50%"/>
+            <imagedata fileref="images/cmdi_Arbil_Wizard.png" contentwidth="50%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -229,6 +244,7 @@
     <para>Starting Arbil can be done in two ways, either by web start or by downloading the
       programme, see <ulink url="http://tla.mpi.nl/tools/tla-tools/arbil">here</ulink>. Note that
       webstart will not work for OpenJDK 7; in this case download the installer version.</para>
+    <para/>
   </chapter>
   <chapter id="Ch_Basics">
     <title>Set-up</title>
@@ -237,7 +253,7 @@
       <para>The Remote Corpus contains all the remote metadata. Currently it is not possible to
           <emphasis role="underline">add </emphasis>anything to the remote corpus or edit it in
         general. It is primarily used to view data and also allows you to import metadata into the
-        Local corpus (discussed in <link linkend="Sec_Import_to_Local_Corpus">Section 3.3</link>)
+        Local corpus (discussed in <link linkend="Sec_Import_to_Local_Corpus">Section 3.2</link>)
         where they can then be modified.</para>
       <para>It has a tree-like structure in which each node contains multiple sub-branches. To open
         any of them, click on the bullet to the left of the node representing the branch or double
@@ -262,32 +278,32 @@
             </imageobject>
             </mediaobject>
         </figure>
-        <para>Since you might not want to use all of the corpora in the Remote Corpus, it is also
-          possible to remove any of the locations of the Remote Corpus at the root level so as to
-          only display the corpora that you need. This can be done at the root level only (see
-          figure 3.1) by right clicking on the node (e.g. for MPI corpora) and selecting <emphasis
-            role="italic">Remove Remote Location</emphasis>.</para>
+        <para>Since you might not want to use all of the collections of CMDI instances in the Remote
+          Corpus, it is also possible to remove any of the locations of the Remote Corpus at the
+          root level so as to only display the collections that you need. This can be done at the
+          root level only (see figure 3.1) by right clicking on the node (e.g. for MPI corpora) and
+          selecting <emphasis role="italic">Remove Remote Location</emphasis>.</para>
         <para/>
         <para>If you have removed some remote metadata, it is always possible to re-add them to the
           Remote Corpus by right clicking on it and selecting <emphasis role="italic">Add Default
             Remote Locations.</emphasis></para>
-        <para>To add a subnode to the root level browse to the desired sub corpus, right click on it
-          and choose <emphasis role="italic">Copy</emphasis>. Then go back to the top node of the
-          Remote Corpus, right click on it, choose <emphasis role="italic">Add Remote
-            Location</emphasis> and paste the URL in the dialogue box. The sub corpus will now
+        <para>To add a subnode to the root level browse to the desired sub collection, right click
+          on it and choose <emphasis role="italic">Copy</emphasis>. Then go back to the top node of
+          the Remote Corpus, right click on it, choose <emphasis role="italic">Add Remote
+            Location</emphasis> and paste the URL in the dialogue box. The sub collection will now
           appear in the Remote Corpus tree. </para>
         <para/>
         <para>The corpus data on the Remote Corpus may sometimes be updated by the researchers. To
           be sure that you are working with the newest version of the available corpus, you can
           update it manually on the nodes that you believe have been altered. To do this, right
-          click on the specific corpus you want to update and select <emphasis role="italic"
+          click on the specific collection you want to update and select <emphasis role="italic"
             >Reload</emphasis>. In principle, reloading can take up to one hour.</para>
       </section>
       <section id="Sec_Viewing_Corpus_Information">
         <title>Viewing Remote Corpus Information</title>
         <para>In general, the easiest way to view the information of a node is to drag and drop it
           from the remote corpus into the grey working area on the bottom right. It is also possible
-          to right click on the selected node and choose<emphasis role="italic">View
+          to right click on the selected node and choose <emphasis role="italic">View
             Selected</emphasis>. In either case, a window pops up with the desired information
           listed in tables. This can also enable you to view multiple nodes at the same time. </para>
         <para>To compare <emphasis role="italic">multiple</emphasis> nodes, simply hold Ctrl while
@@ -295,25 +311,25 @@
           select <emphasis role="italic">View selected)</emphasis>. You will get a similar scenario
           to this displayed in the figure (3.2) below.</para>
         <para>Note: If you have an existing open table, it is also possible to add additional tree
-          nodes of any form (i.e. corpora and files). Simply drag any unselected node from the tree
-          structure and drop it on the table. It will be automatically added to the table as a
+          nodes of any form (i.e. collections and files). Simply drag any unselected node from the
+          tree structure and drop it on the table. It will be automatically added to the table as a
           row.</para>
         <para>
           <figure>
             <title>Viewing multiple selected corpora</title>
               <mediaobject>
                 <imageobject>
-                <imagedata contentdepth="100%"
-                  fileref="images/cmdi_viewing_multple_selected_corpora.png" scalefit="1"
-                  width="100%"/>
+                <imagedata contentdepth="45%"
+                  fileref="images/cmdi_Viewing_multiple_selected_corpora.png" scalefit="1"
+                  width="80%"/>
               </imageobject>
               </mediaobject>
           </figure>
         </para>
         <para>There are also two other quick ways for viewing corpus information. </para>
-        <para>(1) Let your cursor rest above a corpus or a node without clicking. Information about
-          the corpus will be displayed in the tool tip under the cursor.</para>
-        <para>(2) Click on a corpus node. Information will be displayed  in the top right frame. </para>
+        <para>(1) Let your cursor rest above a collection or a node without clicking. Information
+          about the collection will be displayed in the tool tip under the cursor.</para>
+        <para>(2) Click on a corpus node. Information will be displayed in the top right frame. </para>
         <para/>
         <para>When viewing information on multiple corpora/profiles, each row corresponds to one
           corpus while each column corresponds to one metadata element (data category). By clicking
@@ -322,23 +338,22 @@
         <para/>
         <para>In a table that includes several different types of nodes/profiles notice that not all
           the elements are described in terms of the same data categories (column); for example,
-          there are data categories that belong to one corpus but not to another. Such data fields
-          are marked in grey and are not available; this is also the case in the Local corpus (<link
-            linkend="Sec_Local_Corpus">see Section 3.3</link>).</para>
+          there are data categories that belong to one collection but not to another. Such data
+          fields are marked in grey and are not available; this is also the case in the Local corpus
+            (<link linkend="Sec_Local_Corpus">see Section 3.3</link>).</para>
         <figure>
           <title>Not editable cells in a table</title>
             <mediaobject>
               <imageobject>
-              <imagedata contentdepth="100%" fileref="images/cmdi_not_editable_cells_in_a_table.png"
-                scalefit="1" width="100%"/>
+              <imagedata contentdepth="70%" fileref="images/cmdi_not_editable_cells_in_a_table.png"
+                scalefit="1" width="80%"/>
             </imageobject>
             </mediaobject>
         </figure>
         <para>In some cases you will see that instead of a value in a cell in the table there is a
           caption: &lt;multiple values>. This means that there is more than one value for this data
           category for this particular node. To see these values click on &lt;multiple values> and a
-          new window will pop up with the information shown. (********** IS THIS ALSO IN
-          CMDI??**********)</para>
+          new window will pop up with the information shown. </para>
       </section>
     </section>
     <section id="Sec_Local_Corpus">
@@ -347,33 +362,35 @@
           contentdepth="70%"/> is located beneath the Remote Corpus pane in the Arbil left frame.
         Remember that the Local Corpus is the main working area and that changes made in the Local
         Corpus will not affect the remote matadata. The Local Corpus serves two main functions: 1)
-        Edit existing corpora, 2) Creating new corpora. Section 3.2.1 explains how local corpora may
-        be modified by (re)editing the data from the Remote Corpus. Section 3.2.2 explains how to
-        create and subsequently modify new corpora.</para>
+        Edit existing collection, 2) Creating new collection. Section 3.2.1 explains how Local
+        Corpora may be modified by (re)editing the data from the Remote Corpus. Section 3.2.2
+        explains how to create and subsequently modify new collections.</para>
       <section id="Sec_Import_to_Local_Corpus">
         <title>Import to Local Corpus</title>
-        <para>If you have decided to work on a corpus from a remote location(Xthe ArchiveX) you
-          first need to import it from the Remote Corpus to your Local Corpus, and then you can edit
-          it. To do this, locate the node from the Remote Corpus and simply drag the item and drop
-          it into the local corpus icon <inlinegraphic
+        <para>If you have decided to work on a corpus from a remote location (for instance the
+          Archive) you first need to import it from the Remote Corpus to your Local Corpus, and then
+          you can edit it. To do this, locate the node from the Remote Corpus and simply drag the
+          item and drop it into the Local Corpus icon <inlinegraphic
             fileref="images/top_node_local_corpus_icon.png" scalefit="1" contentdepth="70%"/>. You
           can also right click on the corpus node you want to import and choose<emphasis
-            role="italic"> Import to Local Corpus.</emphasis> In the dialogue box that pops up you
-          can check the <emphasis role="italic">Show Details and Options</emphasis> box in order to: </para>
+            role="italic"> Import to Local Corpus.</emphasis> In the dialogue box that pops up (see
+          figure 3.4) you can check the <emphasis role="italic">Show Details and Options</emphasis>
+          box in order to: </para>
         <para>(1) <emphasis role="italic">Overwrite Local Changes</emphasis> : Overwrite an existing
           local corpus node from the same original location. When is this option useful? Consider
           the case that you have imported a node from the Remote corpus and started editing it. If
           you want to reset the changes, you can reimport it from the Remote Corpus and check the
             <emphasis role="italic">overwrite local changes </emphasis>box. You can apply this
-          option to every branch of the corpora. To do so, first check<link
-            linkend="image_overwrite_local_changes">Show details and options</link> box; in the
-          window that appears select the function <link linkend="image_overwrite_local_changes"
-            >Overwrite local changes</link>.</para>
+          option to every branch of the corpora. To do so, first check the <link
+            linkend="image_overwrite_local_changes"><emphasis role="italic">Show details and
+              options</emphasis></link> box; in the window that appears select the function <link
+            linkend="image_overwrite_local_changes"><emphasis role="italic">Overwrite local
+              changes</emphasis></link> (see figure 3.5).</para>
         <figure>
           <title>Show details and options</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_show_details_and_options.png" contentdepth="40%"
+              <imagedata fileref="images/cmdi_Show_details_and-options.png" contentdepth="40%"
                 id="images_show_details_and_options"/>
             </imageobject>
           </mediaobject>
@@ -382,12 +399,12 @@
           <title>Overwrite local changes</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_ovewrite_local_changes.png" contentdepth="45%"
+              <imagedata fileref="images/cmdi_Overwrite_local_changes.png" contentdepth="45%"
                 id="image_overwrite_local_changes"/>
             </imageobject>
           </mediaobject>
         </figure>
-        <para>In the case that you have uploaded a corpus from your local corpus to the Remote
+        <para>In the case that you have uploaded a collection from your Local Corpus to the Remote
           Corpus and you want to edit it again, editing should not be done in the already existing
           file in your Local Corpus. In this case you have to reimport the corpus from the Remote
           Corpus where your uploaded it before via Lamus.</para>
@@ -408,10 +425,10 @@
       </section>
       <section id="Sec_New_Corpora">
         <title>Creating profile instances</title>
-        <para>Instead of copying an existing corpus or corpus nodes from the Remote Corpus, you can
-          also create your own corpus or add nodes in the local corpus/profile. Moreover, you can
-          add an existing profile; with multiple profile instances it is possible to build a tree
-          structure.</para>
+        <para>Instead of copying an existing collection or corpus nodes from the Remote Corpus, you
+          can also create your own collection or add nodes in the local corpus/profile. Moreover,
+          you can add an existing profile; with multiple profile instances it is possible to build a
+          tree structure.</para>
         <para>To do this, select the top node of the Local Corpus (corpus node), right click it and
           select the option <emphasis role="italic">Add ></emphasis>  and then you can choose the
           profile or component(s) you want to add.</para>
@@ -439,14 +456,14 @@
           <title>Add working directories</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/WD1.png" contentdepth="100%" scalefit="1" width="100%"/>
+              <imagedata fileref="images/WD1.png" contentdepth="50%" scalefit="1" width="100%"/>
             </imageobject>
           </mediaobject>
         </figure>
       </para>
       <para>After linking a directory to Arbil, you will have access to the folder. To import the
-        media files (e.g.. Droste.jpg) to a session of a corpus, simply drag and drop them into a
-        session of a local corpus. </para>
+        media files (e.g.. Droste.jpg) to a matadata document, simply drag and drop them into a
+        metadata docuement of the Local Corpus. </para>
       <para> </para>
       <para>
         <figure>
@@ -461,8 +478,8 @@
       </para>
       <para>Note: If you right click on Working Directories, you will also see that it is possible
         for Arbil to show you all hidden files (option <emphasis role="italic">Show hidden
-          files</emphasis>). This option is useful when you want to include corpus files which are
-        normally hidden in your file manager. </para>
+          files</emphasis>). This option is useful when you want to include collection files which
+        are normally hidden in your file manager. </para>
       <para>Browsing through Working Directories is very similar to browsing through the Remote or
         the Local Corpus. To open/close a folder click on the bullet or double click on its name. If
         you have added or modified the content of a directory outside Arbil, by right clicking on
@@ -497,7 +514,7 @@
           <screeninfo/>
           <mediaobject>
             <imageobject>
-              <imagedata contentdepth="100%" fileref="images/unarchiveable.png" scalefit="1"
+              <imagedata contentdepth="50%" fileref="images/unarchiveable.png" scalefit="1"
                 width="100%"/>
             </imageobject>
           </mediaobject>
@@ -519,19 +536,20 @@
     </section>
     <section id="Sec_Favourites">
       <title>Favourites</title>
-      <para>The tab <emphasis role="italic">Favourites</emphasis> is meant for storing session
-        elements that you would like to re-use in new node, such as <emphasis role="italic">actor,
-          language elements, location</emphasis> etc. Node elements that can be saved in Favourites
-        are: CMDI instances (<inlinegraphic fileref="images/imdi_contains_data.png"/>), actors,
-        content elements etc). If you have a number of elements in your Favourite List and you are
-        not certain what the content of a given element is, you can always place the cursor over it
-        and wait for the tool tip (information window) to appear.</para>
+      <para>The tab <emphasis role="italic">Favourites</emphasis> is meant for storing elements that
+        you would like to re-use in new node, such as <emphasis role="italic">actor, language
+          elements, location</emphasis> etc. Node elements that can be saved in Favourites are: CMDI
+        instances (<inlinegraphic fileref="images/imdi_contains_data.png" contentdepth="60%"/>),
+        actors, content elements etc). If you have a number of elements in your Favourite List and
+        you are not certain what the content of a given element is, you can always place the cursor
+        over it and wait for the tool tip (information window) to appear.</para>
       <figure>
         <title>Favourites List</title>
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata contentdepth="100%" fileref="images/favourites.png" scalefit="1" width="50%"/>
+              <imagedata contentdepth="60%" fileref="images/favourites.png" scalefit="1" width="50%"
+              />
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -573,7 +591,7 @@
           <title>Adding from favourites to a Component</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_adding_favourites_to_a_component.png"
+              <imagedata fileref="images/cmdi_Adding_from_favourites_to_a_component.png"
                 contentdepth="50%"/>
             </imageobject>
           </mediaobject>
@@ -608,10 +626,10 @@
         </figure></para>
     </sect1>
     <sect1 id="Sec_Adding_More_Descriptions">
-      <title>Adding more field components (??????????)</title>
-      <para>Generally, every corpus/ session/ catalogue contains a particular set of fields which
-        can be edited. Adding <inlinegraphic fileref="images/new%20field.png" contentdepth="50%"/>
-        elements implies adding a new metadata field to the selected node.</para>
+      <title>Adding more field components</title>
+      <para>Generally, every profile contains a particular set of fields which can be edited. Adding
+          <inlinegraphic fileref="images/new%20field.png" contentdepth="50%"/> elements implies
+        adding a new metadata field to the selected node.</para>
       <para>
         <figure>
           <title>Standard field name</title>
@@ -623,16 +641,17 @@
           </mediaobject>
         </figure>
       </para>
-      <para>For example, the standard field name includes one field for author. You might want to
-        add an additional 'author' field. To do this, right click on a catalogue, Add > (e.g..
-        Author). Some fields can be added multiple times, others can be added only once.</para>
+      <para>Keep using the example of our ComicBook profile, it consists of field names which
+        include one field for title. You might want to add an additional 'Title' field. To do this,
+        right click on a node, Add > (e.g.. Title). Some fields can be added multiple times, others
+        can be added only once.</para>
       <para>
         <figure>
           <title>Add new metadata field</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/AddFieldCatalogue.png" contentdepth="40%" scalefit="1"
-                width="40%"/>
+              <imagedata fileref="images/cmdi_Add_new_metadata_field.png" contentdepth="50%"
+                scalefit="1" width="40%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -1267,5 +1286,54 @@
         </tbody>
       </tgroup>
     </table>
+      <table>
+        <title>Tree short cut keys</title>
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry>DELETE</entry>
+              <entry>Delete the selected node in the tree</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table>
+        <title>Long field editor short cut keys</title>
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry>CTRL+UP</entry>
+              <entry>Go to previous field</entry>
+            </row>
+            <row>
+              <entry>CTRL+DOWN</entry>
+              <entry>Go the next field</entry>
+            </row>
+            <row>
+              <entry>CTRL+LEFT</entry>
+              <entry>Go to previous tab</entry>
+            </row>
+            <row>
+              <entry>CTRL+RIGHT</entry>
+              <entry>Go to next tab</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+  </chapter>
+  <chapter role="application-help-only">
+    <title>Technical details</title>
+    <section>
+      <title>Custom Filetypes Configuration</title>
+      <para>It is possible to override the default set of filetypes that the type checker should recognize as archivable resources.</para>
+      <para>To do so, place your custom filetypes.txt configuration file in the root of your local storage directory (to find out what that is, select Local Corpus Storage Directory from the Options menu). It will then automatically be installed in the type checker as soon as type checking takes place for the first time during a session. You will need to restart Arbil if it is already running.</para>      
+      <para>For information about obtaining or creating a custom filetypes configuration, please contact your administrator.</para>
+    </section>
+    <section>
+      <title>Templates</title>
+      <para>Templates are currently in development, but they will be used to customise the components added via the "Add" menu.</para>
+      <para>To create a new template, create a directory in the ".arbil/templates" directory. This is where all the files relevant to that template will be stored. This directory will now be selectable via the "options/templates" menu.</para>
+      <para>Each template can have its own XSL which is used via the "view formatted" menu. The XSL must be in the selected templates directory and be called "format.xsl". For example: .arbil/templates/{template name}/format.xsl. If there are any additional files required by the XSL they can be placed in the same directory as the XSL file.</para>
+    </section>
   </chapter>
 </book>

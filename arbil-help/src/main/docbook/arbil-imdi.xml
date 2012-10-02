@@ -25,6 +25,11 @@
   </bookinfo>
   <chapter id="Ch_Introduction">
     <title>Introduction</title>
+    <para>Arbil is an application for arranging research material and associated metadata into a
+      format appropriate for archiving. </para>
+    <para>Arbil is designed so that it can be used off line in remote locations. The data can be
+      entered at any stage in part or as a whole. When an internet connection is available the work
+      can then be transferred to the main archive via Lamus.</para>
     <section id="Sec_General_Information">
       <title>General Information</title>
       <para/>
@@ -1414,5 +1419,54 @@
         </tbody>
       </tgroup>
     </table>
+      <table>
+        <title>Tree short cut keys</title>
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry>DELETE</entry>
+              <entry>Delete the selected node in the tree</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table>
+        <title>Long field editor short cut keys</title>
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry>CTRL+UP</entry>
+              <entry>Go to previous field</entry>
+            </row>
+            <row>
+              <entry>CTRL+DOWN</entry>
+              <entry>Go the next field</entry>
+            </row>
+            <row>
+              <entry>CTRL+LEFT</entry>
+              <entry>Go to previous tab</entry>
+            </row>
+            <row>
+              <entry>CTRL+RIGHT</entry>
+              <entry>Go to next tab</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+  </chapter>
+  <chapter role="application-help-only">
+    <title>Technical details</title>
+    <section>
+      <title>Custom Filetypes Configuration</title>
+      <para>It is possible to override the default set of filetypes that the type checker should recognize as archivable resources.</para>
+      <para>To do so, place your custom filetypes.txt configuration file in the root of your local storage directory (to find out what that is, select Local Corpus Storage Directory from the Options menu). It will then automatically be installed in the type checker as soon as type checking takes place for the first time during a session. You will need to restart Arbil if it is already running.</para>      
+      <para>For information about obtaining or creating a custom filetypes configuration, please contact your administrator.</para>
+    </section>
+    <section>
+      <title>Templates</title>
+      <para>Templates are currently in development, but they will be used to customise the components added via the "Add" menu.</para>
+      <para>To create a new template, create a directory in the ".arbil/templates" directory. This is where all the files relevant to that template will be stored. This directory will now be selectable via the "options/templates" menu.</para>
+      <para>Each template can have its own XSL which is used via the "view formatted" menu. The XSL must be in the selected templates directory and be called "format.xsl". For example: .arbil/templates/{template name}/format.xsl. If there are any additional files required by the XSL they can be placed in the same directory as the XSL file.</para>
+    </section>
   </chapter>
 </book>
