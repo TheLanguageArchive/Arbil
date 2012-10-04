@@ -1,4 +1,4 @@
-ARBIL 2.3.x RELEASE NOTES
+ARBIL 2.4.x RELEASE NOTES
 ----------------------------------------
 $Date$ 
 $Revision$ (this means that the descriptions below apply to Arbil 2.3.x with x >= revision)
@@ -15,153 +15,24 @@ applicable, related ticket numbers from TRAC are included at the end of the desc
 
 The following functionality has been added to Arbil:
 
-- SEARCH: The 'column' field in the search window is now a drop-down that will contain a list of
-previously entered column names, as well as a number of pre-defined common values. Users can add any
-column name to this list as well as remove arbitrary items. (#574, #633)
-
-- TABLES: Individual columns in table views can be optionally set to a fixed width. This can be used
-on arbitrary open tables (and will be kept across sessions) as well as in saved column views. (#678)
-
-- CONTROLLED VOCABULARIES: Editing controlled vocabulary fields (e.g. 'Genre') has been extended
-with 'type-ahead' (autocomplete) functionality, both for single value and list vocabularies. (#584)
-
-- CONTROLLED VOCABULARIES: In the table view and long field editor, an icon is shown indicating the
-type of vocabulary (open/closed, single value/list) on the field.
-
-- EDIT ALL METADATA: A new context menu option 'Edit/view all metadata' is available for metadata
-files in the tree view (except for Corpus nodes). It opens a window containing tables for the 
-selected node all of its subnodes in an hierarchical view. (#603)
-
-- TYPECHECKER CONFIGURATION: A custom typechecker filetypes configuration can be used by putting a
-filetypes.txt file in the Arbil working directory. It will then automatically be used instead of the
-internal default configuration. (#905)
-
-- RESOURCE MIME TYPES: If the mime type of a file is unknown, and Arbil can therefore not determine
-the type of the resource (in case of IMDI), the user is prestented with a dialog to determine 
-whether the resource is a MediaFile or WrittenResource. (#1031)
-
-- WINDOWS: A new option 'Close all windows' in the Windows menu on the menu bar closes all floating
-windows on the application workspace at once. (#570)
-
-- FAVOURITES: Applicable favourites can now added to the local corpus root node, either by drag and
-drop or through the 'Add from Favourites' submenu in the context menu of the local corpus root node.
-(#1159)
-
-- CMDI PROFILES: A checkbox has been added that toggles filtering all available CMDI profiles
-so that only the ones selected for metadata editing in the Component Registry are displayed. (#1186)
-
-- ATTRIBUTES: It is now possible to edit attributes on elements in the XML using the table (in the
-case of attributes on nodes) or the long field editor (for attributes on fields). An new icon in the
-table indicates whether a field has attributes that can be edited in the long field editor. (#551)
-
-- DESCRIPTIONS/DATA CATEGORIES: CMDI allows data category references to be specified in the schema
-(profile). The descriptions contained in the data category definitions are now used by Arbil as 
-field descriptions in case no explicit field documentation is provided. (#595)
-
-- MANUAL RESOURCE LOCATIONS: It is now possible to enter a manual resource location by clicking any
-node that supports a resource location (IMDI MediaFile or WrittenResource, or CMDI resource proxy
-reference) by right clicking that node in the tree and selecting 'insert manual resource location'.
-(#1166)
-
-- INITIAL SETUP WIZARD: When running Arbil for the first time, a wizard appears that helps the user
-with the initial setup of the application: configurating for imdi and/or cmdi usage, selecting
-profiles to use and initializing remote locations. The wizard is also accessible through the Help
-menu. (#1026)
+TODO
 
 ** CHANGES **
 
 These parts of the Arbil functionality have changed:
 
-- SEARCH: The 'search' options is now also available in the context menu on the local corpus node in
-the tree view. This means that one can now easily search through all data in the local corpus at 
-once. (#68)
-
-- METADATA STRUCTURE: Metadata nodes can now be moved between metada files using drag/drop (#658)
-- TABLE MENU: 'Save changes' has been added to the table context menu if it there are changes to
-be saved. (#596)
-
-- TABLE ORDERING: Tables can be sorted according to field order, field name or field value. In the
-latter case, the table is now sorted by the value stored on disk and not the actual value to prevent
-the rows from jumping after an edit that causes a change in the alphabetical order. (#948)
-
-- LONG FIELD EDITOR: The long field editor (LFE) now has 'previous' and 'next' buttons that allow the
-user to quickly navigate the fields of a given node in a single LFE window. (#622)
-
-- LONG FIELD EDITOR: The LFE can now be opened on a selected node in the tree view. It will open on
-the first field; the user can then use the previous and next buttons to navigate the fields.
-
-- CMDI SCHEMA: Several schema changes in CMDI (Clarin Metadata Infrastructure) are now reflected in
-Arbil so that it generates valid metadata instance files.
-
-- RESOURCE LINK: Resources with no specified resource link no longer get the 'file not found' icon
-type (a red diagonal line) but rather a non-specified mark (a red question mark). (#676)
-
-- NODE SORTING: Nodes that contain a numeral value in their displayed name (e.g. Node1, Node2)
-are now sorted by the value of this numeral if they are otherwise equal. So Node10 follows Node2
-even though character-by-character the latter comes first. This applies to the tree views as well
-as tables. (#557)
-
-- TREE VIEW: 'Container' nodes (nodes that do not carry actual data but combine subnodes of a common
-type) are now visually distinghuishable from other empty nodes. (#1009)
-
-- REMOTE SEARCH: The remote search option has been disabled for remote CMDI locations, since there
-currently is no remote CMDI search facility. (#1542)
+TODO
 
 ** FIXES **
 
 Among other, mostly minor, bugfixes, the following issues have been resolved:
 
-- MOVING SESSIONS: When moving multiple sessions between corpus nodes by drag and drop,
-a bug would cause sessions to 'disappear' (i.e. be removed from the source corpus but not
-linked to the destination) on some platforms. This has been resolved. (#925)
+- SAVING TO DISK: In particular (rare) instances, saving the XML to disk failed 
+resulting in empty document. This was due to a bug in one of the used
+libraries. (#1431)
 
-- FAVOURITES: Favourites of a subnode type (e.g. an Actor) could not be dragged onto their matching
-parent node (e.g. Actors), but instead had to be dragged onto the root node of the file (Session).
-This has been resolved. (#942)
-
-- FAVOURITES: Some favourites could not be dragged onto a local corpus node even if it accepts the
-favourite's node type, or the favourite would end up below the wrong subnode. This has been resolved
-(#1157)
-
-- TREE MENU: Subnodes that are not allowed to be added to a given node according to te schema appear
-as disabled in the 'Add' submenu of the context menu on nodes in the tree. (#111)
-
-- WINDOWS: The state of floating windows (tables, search results, subnode views) as well as docked
-components is stored across sessions including size and position. (#33)
-
-- CHARACTERS IN FILENAME: Including files with non-ASCII characters in their filename used to cause
-issues on some platforms. This has been fixed. (#782)
-
-- QUIT ON MacOS: Arbil now fully supports native methods for exiting the applications on MacOS. This
-means that using the 'Quit' option on the application menu or pression CMD-Q will ask for 
-confirmation if there are unsaved changes and store the application state before actually quiting.
-(#600, MacOS only)
-
-- CMDI: CONTROLLED VOCABULARIES: If the CV provides descriptions, they are used as display value,
-while the actual value (e.g. code) is written to the XML. (#997)
-
-- CMDI RESOURCES: When resource are added to CMDI metadata files, this is now also visible in the
-tree view. The resources can be added and deleted. Multiple references to a single resource result
-in a single resource proxy being referenced multiple times (rather than copies of the same 
-resource). (#979)
-
-- IMPORT/EXPORT: CMDI metadata files can now be exported and (re-)imported
-with links (resource proxies) being preserved.
-
-- IMDI: FOLLOW-UP VOCABULARIES: When selecting a Genre on Content, the proper Subgenre options are 
-now shown. (#6)
-
-- IMDI: MULTIPLE VALUES: Multiple values are now possible for Location.Region and all Description
-fields.
-
-- SEARCH RESULTS TABLE: It is now longer possible to drag arbitrary nodes to the search results
-table, which used to be the case though confusing. (#1014)
-
-- LOCAL CORPUS: It used to be impossible to drag nodes onto the local corpus (root) node that could 
-be imported into it. Now this is possible. (#1019)
-
-- SIGN LANGUAGE TEMPLATE: The Sign Language template for IMDI was not in sync with the changes in the
-default IMDI template. It is now up-to-date. (#1368)
+- WINDOWS: The 'Templates and Profiles' and 'Edit IMDI Language List' dialog windows
+could grow larger than the available screen space. (#147 and #1584)
 
 ** KNOWN ISSUES **
 
@@ -174,19 +45,12 @@ imported into the local corpus since the authentication mechanism is broken. (#6
 - SHOW IMDI FORMATTED: When showing an IMDI metadata file 'IMDI formatted', the formatting does
 not look as expected. (#899)
 
-- SAVING TO DISK: In particular (rare) instances, saving the XML to disk fails and results in an
-empty document. This is due to a bug in one of the used libraries, which will be updated in a 
-future release of Arbil.  (#1431)
-
 - PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays high. (#929)
 
 - STABILITY: During search, memory usage may exceed the limits of the Java virtual machine which
 could cause the application to terminate unexpectedly.
 
-- WINDOWS: The 'Templates and Profiles' and 'Edit IMDI Language List' dialog windows can grow larger
-than the available screen space. (#147 and #1584)
-
-- SEARCH IN TABLE: The layout of the input boxes for search/replcae within a table sometimes break
+- SEARCH IN TABLE: The layout of the input boxes for search/replace within a table sometimes break
 on Windows and Linux. (#1577)
 
 - REMOTE SEARCH: The search interface for remote search is not very intuitive. At the moment remote
