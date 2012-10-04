@@ -1,7 +1,7 @@
 ARBIL 2.4.x RELEASE NOTES
 ----------------------------------------
 $Date$ 
-$Revision$ (this means that the descriptions below apply to Arbil 2.3.x with x >= revision)
+$Revision$ (this means that the descriptions below apply to Arbil 2.4.x with x >= revision)
 
 Contacts:
 - Peter Withers (peter.withers@mpi.nl)
