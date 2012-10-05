@@ -45,7 +45,6 @@ import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataFormat;
-import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
@@ -109,7 +108,6 @@ public class ImportExportDialog {
     ArbilDataNode destinationNode = null;
     protected File exportDestinationDirectory = null;
     DownloadAbortFlag downloadAbortFlag = new DownloadAbortFlag();
-    ShibbolethNegotiator shibbolethNegotiator = null;
     Vector<URI> validationErrors = new Vector<URI>();
     Vector<URI> metaDataCopyErrors = new Vector<URI>();
     Vector<URI> fileCopyErrors = new Vector<URI>();
@@ -283,7 +281,6 @@ public class ImportExportDialog {
 	importExportDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
 	importExportDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 	importExportDialog.addWindowStateListener(new WindowAdapter() {
-
 	    @Override
 	    public void windowStateChanged(WindowEvent e) {
 		if ((e.getNewState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
@@ -294,7 +291,6 @@ public class ImportExportDialog {
 	    }
 	});
 	importExportDialog.addWindowListener(new WindowAdapter() {
-
 	    @Override
 	    public void windowClosing(WindowEvent e) {
 		stopCopy = true;
@@ -311,7 +307,6 @@ public class ImportExportDialog {
 	JPanel closeButtonPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
 	closeButton = new JButton("Close");
 	closeButton.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		importExportDialog.dispose();
 	    }
@@ -345,7 +340,6 @@ public class ImportExportDialog {
 	showMoreButton = new JButton("");
 	showMoreButton.setToolTipText("Show/hide additional options");
 	showMoreButton.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    updateDialog(!showingMoreOptions, showingDetails);
@@ -367,24 +361,7 @@ public class ImportExportDialog {
 	shibbolethCheckBox.setVisible(false);
 	shibbolethPanel.setVisible(false);
 
-	shibbolethCheckBox.addActionListener(
-		new ActionListener() {
-
-		    public void actionPerformed(ActionEvent e) {
-			if (shibbolethCheckBox.isSelected()) {
-			    if (shibbolethNegotiator == null) {
-				shibbolethNegotiator = new ShibbolethNegotiator();
-			    }
-			    shibbolethPanel.add(shibbolethNegotiator.getControlls());
-			} else {
-			    shibbolethPanel.removeAll();
-			    shibbolethNegotiator = null;
-			}
-			importExportDialog.pack();
-		    }
-		});
 	copyFilesImportCheckBox.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		shibbolethCheckBox.setVisible(copyFilesImportCheckBox.isSelected());
 		shibbolethPanel.setVisible(copyFilesImportCheckBox.isSelected());
@@ -468,7 +445,6 @@ public class ImportExportDialog {
 	showInTableButton = new JButton("Show errors in table");
 	showInTableButton.setEnabled(false);
 	showInTableButton.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    if (metaDataCopyErrors.size() > 0) {
@@ -571,7 +547,6 @@ public class ImportExportDialog {
 	//        buttonsPanel.add(resourceProgressBar);
 	buttonsPanel.add(startButton);
 	startButton.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    performCopy();
@@ -581,7 +556,6 @@ public class ImportExportDialog {
 	    }
 	});
 	stopButton.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    stopCopy = true;
@@ -598,7 +572,6 @@ public class ImportExportDialog {
 	buttonsPanel.add(showDetailsButton);
 	showDetailsButton.setToolTipText("Show/hide detailed information");
 	showDetailsButton.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    updateDialog(showingMoreOptions, !showingDetails);
@@ -720,7 +693,6 @@ public class ImportExportDialog {
 
     private Thread createPerformCopyThread(String threadName) {
 	return new Thread(threadName) {
-
 	    int freeGbWarningPoint = 3;
 	    int xsdErrors = 0;
 	    int totalLoaded = 0;
@@ -759,7 +731,6 @@ public class ImportExportDialog {
 
 		// Done copying
 		SwingUtilities.invokeLater(new Runnable() {
-
 		    public void run() {
 			setUItoStoppedState();
 		    }
@@ -967,7 +938,7 @@ public class ImportExportDialog {
 			} else {
 			    File downloadFileLocation;
 			    if (exportDestinationDirectory == null) {
-				downloadFileLocation = ArbilSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, false, downloadAbortFlag, resourceProgressLabel);
+				downloadFileLocation = ArbilSessionStorage.getSingleInstance().updateCache(currentLink, false, false, downloadAbortFlag, resourceProgressLabel);
 			    } else {
 				if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
 				    retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
@@ -981,7 +952,7 @@ public class ImportExportDialog {
 				}
 				downloadFileLocation = retrievableLink.destinationFile;
 				resourceProgressLabel.setText(" ");
-				ArbilSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, false, downloadAbortFlag, resourceProgressLabel);
+				ArbilSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, true, false, downloadAbortFlag, resourceProgressLabel);
 				resourceProgressLabel.setText(" ");
 			    }
 			    if (downloadFileLocation != null && downloadFileLocation.exists()) {

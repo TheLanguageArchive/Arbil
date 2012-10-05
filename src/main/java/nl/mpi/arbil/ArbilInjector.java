@@ -21,7 +21,6 @@ import nl.mpi.arbil.data.FieldChangeTriggers;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
-import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
@@ -140,7 +139,6 @@ public abstract class ArbilInjector {
 	ImdiUtils.setBugCatcher(bugCatcher);
 	MetadataBuilder.setBugCatcher(bugCatcher);
 	MetadataReader.setBugCatcher(bugCatcher);
-	ShibbolethNegotiator.setBugCatcher(bugCatcher);
 	XsdChecker.setBugCatcher(bugCatcher);
     }
 
@@ -172,7 +170,6 @@ public abstract class ArbilInjector {
 	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
 	MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
 	MetadataReader.setMessageDialogHandler(messageDialogHandler);
-	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
     }
 
     public static void injectWindowManager(WindowManager windowManager) {

@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
-import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 
@@ -34,6 +33,7 @@ public class MockSessionStorage implements SessionStorage {
 
     /**
      * Tests that the cache directory exists and creates it if it does not.
+     *
      * @return Boolean
      */
     public File getCacheDirectory() {
@@ -73,6 +73,7 @@ public class MockSessionStorage implements SessionStorage {
 
     /**
      * Checks for the existance of the favourites directory exists and creates it if it does not.
+     *
      * @return File pointing to the favourites directory
      */
     public File getFavouritesDir() {
@@ -123,6 +124,7 @@ public class MockSessionStorage implements SessionStorage {
     /**
      * Converts a String path from the remote location to the respective location in the cache.
      * Then tests for and creates the directory structure in the cache if requred.
+     *
      * @param pathString Path of the remote file.
      * @return The path in the cache for the file.
      */
@@ -207,6 +209,7 @@ public class MockSessionStorage implements SessionStorage {
 
     /**
      * Tests if the a string points to a file that is in the favourites directory.
+     *
      * @return Boolean
      */
     public boolean pathIsInFavourites(File fullTestFile) { //todo: test me
@@ -224,6 +227,7 @@ public class MockSessionStorage implements SessionStorage {
 
     /**
      * Tests if the a string points to a flie that is in the cache directory.
+     *
      * @return Boolean
      */
     public boolean pathIsInsideCache(File fullTestFile) {
@@ -250,7 +254,7 @@ public class MockSessionStorage implements SessionStorage {
 	saveMap.put(filename, object);
     }
 
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
@@ -272,18 +276,6 @@ public class MockSessionStorage implements SessionStorage {
 		if (urlConnection instanceof HttpURLConnection) {
 		    httpConnection = (HttpURLConnection) urlConnection;
 //                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
-		    if (shibbolethNegotiator != null) {
-			httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-//                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
-//                            // work around for resources being https when under shiboleth
-//                            // try https after http failed
-//                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
-//                            System.out.println("trying https");
-//                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
-//                            urlConnection = targetUrl.openConnection();
-//                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-//                        }
-		    }
 		    //h.setFollowRedirects(false);
 		    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
 		}
@@ -345,6 +337,7 @@ public class MockSessionStorage implements SessionStorage {
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
+     *
      * @param pathString Path of the remote file.
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
      * @return The path of the file in the cache.
@@ -368,7 +361,7 @@ public class MockSessionStorage implements SessionStorage {
 	    System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
 	}
 	System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
-	return updateCache(pathString, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
+	return updateCache(pathString, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
     }
 
     public File getFromCache(String pathString, boolean followRedirect) {
@@ -378,10 +371,11 @@ public class MockSessionStorage implements SessionStorage {
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
+     *
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public File updateCache(String pathString, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 
 	if (pathString.equals("http://www.w3.org/2001/xml.xsd")) {
 	    try {
@@ -394,7 +388,7 @@ public class MockSessionStorage implements SessionStorage {
 	// to expire the files in the cache set the expireCacheCopy flag.
 	File cachePath = getSaveLocation(pathString);
 	try {
-	    saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
+	    saveRemoteResource(new URL(pathString), cachePath, expireCacheCopy, followRedirect, abortFlag, progressLabel);
 	} catch (MalformedURLException mul) {
 	    log.log(Level.SEVERE, null, new Exception(pathString, mul));
 	}

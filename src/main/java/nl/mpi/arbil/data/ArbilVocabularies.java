@@ -181,13 +181,13 @@ public class ArbilVocabularies {
 
     synchronized public void parseRemoteFile(String vocabRemoteUrl) {
 	if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
-	    File cachedFile = sessionStorage.updateCache(vocabRemoteUrl, null, false, false, new DownloadAbortFlag(), null);
+	    File cachedFile = sessionStorage.updateCache(vocabRemoteUrl, false, false, new DownloadAbortFlag(), null);
 	    // this delete is for testing only!!! new File(cachePath).delete();
 	    if (!cachedFile.exists()) {
 		String backupPath = "/nl/mpi/arbil/resources/IMDI/FallBack/" + cachedFile.getName();
 		URL backUp = this.getClass().getResource(backupPath);
 		if (backUp != null) {
-		    sessionStorage.saveRemoteResource(backUp, cachedFile, null, true, false, new DownloadAbortFlag(), null);
+		    sessionStorage.saveRemoteResource(backUp, cachedFile, true, false, new DownloadAbortFlag(), null);
 		}
 	    }
 	    ArbilVocabulary vocabulary = new ArbilVocabulary(vocabRemoteUrl);
