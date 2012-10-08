@@ -53,6 +53,8 @@ public class ArbilSessionStorage implements SessionStorage {
     private static MessageDialogHandler messageDialogHandler;
     public static final String PARAM_LAST_FILE_FILTER = "metadataFileFilter";
     public static final String PARAM_WIZARD_RUN = "wizardHasRun";
+    public static final String UTF8_ENCODING = "UTF8";
+    public static final String CONFIG_FILE = "arbil.config";
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
@@ -500,7 +502,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    FileInputStream fstream = new FileInputStream(currentConfigFile);
 	    DataInputStream in = new DataInputStream(fstream);
 	    try {
-		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF8"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(in, UTF8_ENCODING));
 		try {
 		    String strLine;
 		    while ((strLine = br.readLine()) != null) {
@@ -541,7 +543,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
 	Writer out = null;
 	try {
-	    out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), "UTF8"));
+	    out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), UTF8_ENCODING));
 	    for (String currentString : storableValue) {
 		out.write(currentString + "\r\n");
 	    }
@@ -605,8 +607,13 @@ public class ArbilSessionStorage implements SessionStorage {
 	Properties propertiesObject = new Properties();
 	FileInputStream propertiesInStream = null;
 	try {
-	    propertiesInStream = new FileInputStream(new File(storageDirectory, "arbil.config"));
-	    propertiesObject.load(propertiesInStream);
+	    propertiesInStream = new FileInputStream(new File(storageDirectory, CONFIG_FILE));
+	    if (canUsePropertiesReaderWriter()) {
+		InputStreamReader reader = new InputStreamReader(propertiesInStream, UTF8_ENCODING);
+		propertiesObject.load(reader);
+	    } else {
+		propertiesObject.load(propertiesInStream);
+	    }
 	} catch (IOException ioe) {
 	    // file not found so create the file
 	    saveConfig(propertiesObject);
@@ -623,20 +630,12 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     private void saveConfig(Properties configObject) {
-
-	boolean canUseUTFOutputStreamWriter; // Writing to an (encoding-specific) StreamWriter is not supported until 1.6
-	try {
-	    canUseUTFOutputStreamWriter = null != Properties.class.getMethod("store", Writer.class, String.class);
-	} catch (NoSuchMethodException ex) {
-	    canUseUTFOutputStreamWriter = false;
-	}
-
 	FileOutputStream propertiesOutputStream = null;
 	try {
 	    //new OutputStreamWriter
-	    propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
-	    if (canUseUTFOutputStreamWriter) {
-		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, "UTF8");
+	    propertiesOutputStream = new FileOutputStream(new File(storageDirectory, CONFIG_FILE));
+	    if (canUsePropertiesReaderWriter()) {
+		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, UTF8_ENCODING);
 		configObject.store(propertiesOutputStreamWriter, null);
 		propertiesOutputStreamWriter.close();
 	    } else {
@@ -1023,5 +1022,23 @@ public class ArbilSessionStorage implements SessionStorage {
 	} else {
 	    return null;
 	}
+    }
+    private Boolean propertiesReaderWriterAvailable = null;
+
+    /**
+     * Writing to an (encoding-specific) StreamWriter is not supported until 1.6. Checks if this is available.
+     *
+     * @return
+     * @throws SecurityException
+     */
+    private synchronized boolean canUsePropertiesReaderWriter() throws SecurityException {
+	if (propertiesReaderWriterAvailable == null) {
+	    try {
+		propertiesReaderWriterAvailable = null != Properties.class.getMethod("store", Writer.class, String.class);
+	    } catch (NoSuchMethodException ex) {
+		propertiesReaderWriterAvailable = false;
+	    }
+	}
+	return propertiesReaderWriterAvailable;
     }
 }
