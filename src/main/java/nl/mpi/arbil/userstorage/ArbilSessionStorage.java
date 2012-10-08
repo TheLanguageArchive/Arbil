@@ -664,7 +664,7 @@ public class ArbilSessionStorage implements SessionStorage {
      * @return The path of the file in the cache.
      */
     public File getFromCache(String pathString, boolean followRedirect) {
-	return updateCache(pathString, null, false, followRedirect, new DownloadAbortFlag(), null);
+	return updateCache(pathString, false, followRedirect, new DownloadAbortFlag(), null);
     }
 
     /**
