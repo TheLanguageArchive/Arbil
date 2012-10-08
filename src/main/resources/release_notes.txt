@@ -62,6 +62,10 @@ the application to freeze for multiple seconds. This has been greatly improved. 
 - EXPORT FILES: It used to be possible that an export directory contained temporary
 files that should not be included. This has been resolved. (#1757)
 
+- ENCODING: Fixed an issue occurring when the path to the Arbil working files on disk
+contains non-ASCII characters - this happens for example if there are special characters
+in the user name. (#2299)
+
 ** KNOWN ISSUES **
 
 Among others, the following issues have been described and will be addressed in future version of
