@@ -1,154 +1,36 @@
-
-
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.mpi</groupId>
-    <artifactId>arbil</artifactId>
-    <packaging>jar</packaging>
-    <version>2.4-TESTING</version>
-    <name>Arbil</name>
+    <artifactId>arbil-parent</artifactId>
+    <name>Arbil parent</name>
+    <packaging>pom</packaging>
+    <version>2.4</version>
+    <description>Parent pom for Arbil</description>
+    <modules>
+	<module>arbil</module>
+	<module>arbil-help</module>
+    </modules>
+
     <organization> 
 	<name>The Language Archive</name> 
 	<url>http://tla.mpi.nl/tools/tla-tools</url>
     </organization>
+    
     <scm>
-	<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
+	<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/</developerConnection>
 	<url>https://trac.mpi.nl/wiki/Arbil</url>
     </scm>
+
     <properties>
+	<arbil.majorVersion>2</arbil.majorVersion>
+	<arbil.minorVersion>4</arbil.minorVersion>
+	<arbil.branch>testing</arbil.branch>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <build>
-	<plugins>
-	    <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-compiler-plugin</artifactId>
-		<version>2.0.2</version>
-		<configuration>
-		    <source>1.5</source>
-		    <target>1.5</target>
-		</configuration>
-	    </plugin>
-	    <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-jar-plugin</artifactId>
-		<version>2.3.1</version>
-		<configuration>
-		    <archive>
-			<manifest>
-			    <addClasspath>true</addClasspath>
-			    <mainClass>nl.mpi.arbil.ArbilMain</mainClass>
-			</manifest>
-		    </archive>
-		    <excludes>
-			<exclude>nl/mpi/arbil/resources/**/readme.txt</exclude>
-			<exclude>nl/mpi/arbil/resources/icons/svg-files/**</exclude>
-			<exclude>nl/mpi/arbil/resources/icons/*.ico</exclude>
-			<exclude>nl/mpi/arbil/resources/icons/*.icns</exclude>
-			<exclude>nl/mpi/arbil/ui/applet/**</exclude>
-		    </excludes>
-		</configuration>
-	    </plugin>
-	    <!--copy fallback IMDI templates (call ant task) -->
-	    <plugin>
-		<artifactId>maven-antrun-plugin</artifactId>
-		<version>1.6</version>
-		<executions>
-		    <execution>
-			<phase>compile</phase>
-			<configuration>
-			    <target>
-				<property name="BUILDDIR" value="${project.build.outputDirectory}"/>
-				<ant antfile="arbil-getfallbackfiles.xml">
-				    <target name="getFallbackFiles-x" />
-				</ant>
-			    </target>
-			</configuration>
-			<goals>
-			    <goal>run</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin>
-	</plugins>
-    </build>
-    <dependencies>	
-	<dependency>
-	    <groupId>org.apache.xmlbeans</groupId>
-	    <artifactId>xmlbeans</artifactId>
-	    <version>2.4.0</version>
-	    <scope>compile</scope>
-	</dependency>
-	<dependency>
-	    <groupId>nl.mpi</groupId>
-	    <artifactId>typechecker</artifactId>
-	    <version>1.7.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>nl.mpi</groupId>
-	    <artifactId>imdi-api</artifactId>
-	    <version>1.1.2</version>
-	</dependency>
-	<dependency>
-	    <groupId>nl.mpi</groupId>
-	    <artifactId>mpi-util</artifactId>
-	    <version>1.0.0</version>
-	</dependency>	
-	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <version>4.6</version>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>net.sf.saxon</groupId>
-	    <artifactId>Saxon-HE</artifactId>
-	    <version>9.4</version>
-	</dependency>
-	<dependency>
-	    <groupId>xerces</groupId>
-	    <artifactId>xercesImpl</artifactId>
-	    <version>2.9.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>xalan</groupId>
-	    <artifactId>xalan</artifactId>
-	    <version>2.7.1</version>
-	</dependency>
-	<dependency>
-	    <groupId>commons-digester</groupId>
-	    <artifactId>commons-digester</artifactId>
-	    <version>2.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>log4j</groupId>
-	    <artifactId>log4j</artifactId>
-	    <version>1.2.16</version>
-	</dependency>
-	<dependency>
-	    <groupId>${project.groupId}</groupId>
-	    <artifactId>corpusstructure-api</artifactId>
-	    <version>1.7.3</version>
-	</dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>arbil-help</artifactId>
-	    <!-- TODO: Depend on a more stable version -->
-            <version>2.5.33408-pretesting</version>
-        </dependency>
-    </dependencies>
-    <repositories>
-	<repository>
-	    <id>MPI</id>
-	    <name>MPI LAT Repository</name>
-	    <url>http://lux15.mpi.nl/nexus/content/groups/public/</url>
-	</repository>
-	<repository>
-	    <id>sonatype</id>
-	    <url>https://oss.sonatype.org/content/groups/public</url>
-	</repository>
-    </repositories>
+
     <reporting>
 	<plugins>
 	    <plugin>
@@ -164,14 +46,17 @@
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-jxr-plugin</artifactId>
+		<version>2.3</version>
 	    </plugin>
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-javadoc-plugin</artifactId>
+		<version>2.8.1</version>
 	    </plugin>
 	    <plugin>
 		<groupId>org.codehaus.mojo</groupId>
 		<artifactId>findbugs-maven-plugin</artifactId>
+		<version>2.5.1</version>
 		<configuration>
 		    <findbugsXmlOutput>True</findbugsXmlOutput>
 		    <threshold>Normal</threshold>
@@ -180,6 +65,25 @@
 	    </plugin>
 	</plugins>
     </reporting>
-
-
+    
+    <repositories>
+	<repository>
+	    <id>MPI</id>
+	    <name>MPI LAT Repository</name>
+	    <url>https://lux15.mpi.nl/nexus/content/groups/public/</url>
+	</repository>
+    </repositories>
+    
+    <distributionManagement>
+	<snapshotRepository>
+	    <id>MPI-Snapshots</id>
+	    <url>https://lux15.mpi.nl/nexus/content/repositories/MPI-Snapshots</url>
+	</snapshotRepository>
+	<repository>
+	    <id>MPI</id>
+	    <name>MPI Repository</name>
+	    <url>https://lux15.mpi.nl/nexus/content/repositories/MPI</url>
+	</repository>
+    </distributionManagement>
 </project>
+
