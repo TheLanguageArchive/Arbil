@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -77,6 +78,10 @@ public class CmdiTemplate extends ArbilTemplate {
 	    , "ComponentId" // componentId, alternate spelling in some profiles
 	    ));
     public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
+    /**
+     * Pattern of URIs that should not be parsed as DCIF (but may occur as datcat URIs)
+     */
+    public final static Pattern DATCAT_URI_SKIP_PATTERN = Pattern.compile(".*purl\\.org.*");
     public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
     private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     private static MessageDialogHandler messageDialogHandler;
@@ -639,6 +644,13 @@ public class CmdiTemplate extends ArbilTemplate {
 	descriptionLoaderThread.start();
     }
 
+    /**
+     * Gets the description for the specified data category. On first request, attempts to read description from the specified URI (assuming
+     * it is an URL). Does not attempt reading if the provided URI matches {@link #DATCAT_URI_SKIP_PATTERN}
+     *
+     * @param dcUri URI of data category to get description for
+     * @return description string or a "No description available" string if no description could be found.
+     */
     private String getDescriptionForDataCategory(String dcUri) {
 	if (dataCategoryDescriptionMap.containsKey(dcUri)) {
 	    // Read description from DCIF only once per session
@@ -646,17 +658,19 @@ public class CmdiTemplate extends ArbilTemplate {
 	} else {
 	    // Read description from DCIF
 	    try {
-		String description = readDescriptionForDataCategory(dcUri);
-		if (description != null) {
-		    dataCategoryDescriptionMap.put(dcUri, description);
-		    return description;
+		if (!DATCAT_URI_SKIP_PATTERN.matcher(dcUri).matches()) {
+		    String description = readDescriptionForDataCategory(dcUri);
+		    if (description != null) {
+			dataCategoryDescriptionMap.put(dcUri, description);
+			return description;
+		    }
 		}
 	    } catch (ParserConfigurationException ex) {
-		BugCatcherManager.getBugCatcher().logError(ex);
+		BugCatcherManager.getBugCatcher().logError("Exception while trying to process data category at " + dcUri, ex);
 	    } catch (SAXException ex) {
-		BugCatcherManager.getBugCatcher().logError(ex);
+		BugCatcherManager.getBugCatcher().logError("Exception while trying to process data category at " + dcUri, ex);
 	    } catch (IOException ex) {
-		BugCatcherManager.getBugCatcher().logError(ex);
+		BugCatcherManager.getBugCatcher().logError("Exception while trying to process data category at " + dcUri, ex);
 	    }
 	    return "Data category: <" + dcUri + ">. No description available. See error log for details.";
 	}
