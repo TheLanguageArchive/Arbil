@@ -66,6 +66,10 @@ files that should not be included. This has been resolved. (#1757)
 contains non-ASCII characters - this happens for example if there are special characters
 in the user name. (#2299)
 
+- AUTO FIELDS: When adding a resource file to an IMDI session, the type and
+size of the resource would sometimes not be filled in. Subsequent saving
+errors were a related issue. These have been resolved. (#1308 and #2212)
+
 ** KNOWN ISSUES **
 
 Among others, the following issues have been described and will be addressed in future version of
