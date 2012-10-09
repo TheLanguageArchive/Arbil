@@ -140,7 +140,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     public synchronized void startMimeHashQueueThread() {
         if (mimeHashQueueThreadExecutor == null) {
             mimeHashQueueThreadExecutor = new ScheduledThreadPoolExecutor(1) {
-
                 @Override
                 protected void beforeExecute(Thread t, Runnable r) {
                     beforeExecuteThread(t, r);
@@ -154,7 +153,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                 @Override
                 public ThreadFactory getThreadFactory() {
                     return new ThreadFactory() {
-
                         public Thread newThread(Runnable r) {
                             Thread mimeHashQueueThread = new Thread(r, "MimeHashQueue");
                             mimeHashQueueThread.setPriority(Thread.MIN_PRIORITY);
@@ -310,9 +308,8 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 //                                System.out.println("run DefaultMimeHashQueue mtime: " + currentPathString);
                     String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathURI.toString());
 
-                    final Object currentNodeObject = currentDataNode;
-                    synchronized (currentNodeObject) {
-                        if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
+		    synchronized (currentDataNode.getParentDomLockObject()) {
+			if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
 //                                    System.out.println("run DefaultMimeHashQueue processing: " + currentPathString);
                             currentDataNode.setMimeType(getMimeType(currentPathURI));
                             currentDataNode.hashString = getHash(currentPathURI, currentDataNode.getURI());

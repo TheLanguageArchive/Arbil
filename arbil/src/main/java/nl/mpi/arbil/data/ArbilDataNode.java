@@ -523,7 +523,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * Previous imdi files are renamed and kept as a history.
      * the caller is responsible for reloading the node if that is required
      */
-    public synchronized void saveChangesToCache(boolean updateUI) {
+    public void saveChangesToCache(boolean updateUI) {
 	dataNodeService.saveChangesToCache(this);
     }
 
