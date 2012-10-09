@@ -6,19 +6,17 @@
     <packaging>jar</packaging>
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
-    <version>${arbil.help.majorVersion}.${arbil.help.minorVersion}-${arbil.help.branch}-SNAPSHOT</version>
+    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
     <!--<version>${arbil.help.majorVersion}.${arbil.help.minorVersion}.33408-${arbil.help.branch}</version>-->
     <name>Arbil Help</name>
-    <organization> 
-	<name>The Language Archive</name> 
-	<url>http://tla.mpi.nl/tools/tla-tools</url>
-    </organization>
     
-    <properties>
-	<arbil.help.majorVersion>2</arbil.help.majorVersion>
-	<arbil.help.minorVersion>5</arbil.help.minorVersion>
-	<arbil.help.branch>pretesting</arbil.help.branch>
-	
+    <parent>
+	<groupId>nl.mpi</groupId>
+	<artifactId>arbil-parent</artifactId>
+	<version>1.0</version>
+    </parent>
+    
+    <properties>	
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	<output.jarname>${project.build.finalName}</output.jarname>
 	<output.directory>${project.build.directory}</output.directory>
@@ -170,6 +168,7 @@
 	    </plugin>		    
 	</plugins>
     </build>
+    
     <dependencies>
 	<dependency>
 	    <groupId>${project.groupId}</groupId>
@@ -183,23 +182,4 @@
 	    <scope>test</scope>
 	</dependency>
     </dependencies>
-    <repositories>
-	<repository>
-	    <id>MPI</id>
-	    <name>MPI LAT Repository</name>
-	    <url>https://lux15.mpi.nl/nexus/content/groups/public/</url>
-	</repository>
-    </repositories>
-    
-    <distributionManagement>
-	<snapshotRepository>
-	    <id>MPI-Snapshots</id>
-	    <url>https://lux15.mpi.nl/nexus/content/repositories/MPI-Snapshots</url>
-	</snapshotRepository>
-	<repository>
-	    <id>MPI</id>
-	    <name>MPI Repository</name>
-	    <url>https://lux15.mpi.nl/nexus/content/repositories/MPI</url>
-	</repository>
-    </distributionManagement>
 </project>
