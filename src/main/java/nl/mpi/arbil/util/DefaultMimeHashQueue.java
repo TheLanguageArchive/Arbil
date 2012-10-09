@@ -28,8 +28,9 @@ import nl.mpi.bcarchive.typecheck.FileType;
  * and file size. MIME type is being cached on disk, as determining it is rather
  * costly and should only be done when it is unknown or has potentially changed.
  *
- * Document   : DefaultMimeHashQueue
- * Created on : 
+ * Document : DefaultMimeHashQueue
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class DefaultMimeHashQueue implements MimeHashQueue {
@@ -111,6 +112,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     /**
      * Adds a node to the queue for processing. Only nodes with resources will
      * actually be processed
+     *
      * @param dataNode Data node to be processed
      */
     @Override
@@ -138,7 +140,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     public synchronized void startMimeHashQueueThread() {
 	if (mimeHashQueueThreadExecutor == null) {
 	    mimeHashQueueThreadExecutor = new ScheduledThreadPoolExecutor(1) {
-
 		@Override
 		protected void beforeExecute(Thread t, Runnable r) {
 		    beforeExecuteThread(t, r);
@@ -152,7 +153,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		@Override
 		public ThreadFactory getThreadFactory() {
 		    return new ThreadFactory() {
-
 			public Thread newThread(Runnable r) {
 			    Thread mimeHashQueueThread = new Thread(r, "MimeHashQueue");
 			    mimeHashQueueThread.setPriority(Thread.MIN_PRIORITY);
@@ -287,8 +287,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 //                                System.out.println("run DefaultMimeHashQueue mtime: " + currentPathString);
 		    String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathURI.toString());
 
-		    final Object currentNodeObject = currentDataNode;
-		    synchronized (currentNodeObject) {
+		    synchronized (currentDataNode.getParentDomLockObject()) {
 			if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
 //                                    System.out.println("run DefaultMimeHashQueue processing: " + currentPathString);
 			    currentDataNode.setMimeType(getMimeType(currentPathURI));

@@ -1028,27 +1028,30 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * Previous imdi files are renamed and kept as a history.
      * the caller is responsible for reloading the node if that is required
      */
-    public synchronized void saveChangesToCache(boolean updateUI) {
+    public void saveChangesToCache(boolean updateUI) {
 	if (this != getParentDomNode()) {
 	    //        if (this.isImdiChild()) {
 	    getParentDomNode().saveChangesToCache(updateUI);
 	    return;
 	}
 	System.out.println("saveChangesToCache");
-	ArbilJournal.getSingleInstance().clearFieldChangeHistory();
-	if (!this.isLocal() /* nodeUri.getScheme().toLowerCase().startsWith("http") */) {
-	    System.out.println("should not try to save remote files");
-	    return;
-	}
-	ArrayList<FieldUpdateRequest> fieldUpdateRequests = createFieldUpdateRequests();
-	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-	boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
-	if (!result) {
-	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
-	} else {
-	    this.nodeNeedsSaveToDisk = false;
-	    //            // update the icon to indicate the change
-	    //            setImdiNeedsSaveToDisk(null, false);
+
+	synchronized (getParentDomLockObject()) {
+	    ArbilJournal.getSingleInstance().clearFieldChangeHistory();
+	    if (!this.isLocal() /* nodeUri.getScheme().toLowerCase().startsWith("http") */) {
+		System.out.println("should not try to save remote files");
+		return;
+	    }
+	    ArrayList<FieldUpdateRequest> fieldUpdateRequests = createFieldUpdateRequests();
+	    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	    boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
+	    if (!result) {
+		messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+	    } else {
+		this.nodeNeedsSaveToDisk = false;
+		//            // update the icon to indicate the change
+		//            setImdiNeedsSaveToDisk(null, false);
+	    }
 	}
 	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
@@ -1704,30 +1707,30 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//TODO: the template add does not create a new history file
 	int versionCounter = 0;
 	File headVersion = this.getFile();
-        //        if the .x file (the last head) exist then replace the current with it
+	//        if the .x file (the last head) exist then replace the current with it
 	if (new File(this.getFile().getAbsolutePath() + ".x").exists()) {
-            versionCounter++;
+	    versionCounter++;
 	    headVersion = new File(this.getFile().getAbsolutePath() + ".x");
-        }
+	}
 	while (new File(this.getFile().getAbsolutePath() + "." + versionCounter).exists()) {
-            versionCounter++;
-        }
-        while (versionCounter >= 0) {
+	    versionCounter++;
+	}
+	while (versionCounter >= 0) {
 	    File lastFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
-            versionCounter--;
+	    versionCounter--;
 	    File nextFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
-            if (versionCounter >= 0) {
-                System.out.println("renaming: " + nextFile + " : " + lastFile);
-                if (!nextFile.renameTo(lastFile)) {
-                    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
-                }
-            } else {
-                System.out.println("renaming: " + headVersion + " : " + lastFile);
-                if (!headVersion.renameTo(lastFile)) {
-                    throw new IOException("Error while copying history files for metadata. Could not rename " + headVersion.toString() + " to " + lastFile.toString());
-                }
-            }
-        }
+	    if (versionCounter >= 0) {
+		System.out.println("renaming: " + nextFile + " : " + lastFile);
+		if (!nextFile.renameTo(lastFile)) {
+		    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
+		}
+	    } else {
+		System.out.println("renaming: " + headVersion + " : " + lastFile);
+		if (!headVersion.renameTo(lastFile)) {
+		    throw new IOException("Error while copying history files for metadata. Could not rename " + headVersion.toString() + " to " + lastFile.toString());
+		}
+	    }
+	}
     }
 
     private void copyLastHistoryToCurrent() {
