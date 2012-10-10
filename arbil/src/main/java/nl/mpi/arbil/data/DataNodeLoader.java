@@ -2,12 +2,13 @@
 package nl.mpi.arbil.data;
 
 import java.net.URI;
+import nl.mpi.arbil.plugin.PluginArbilDataNodeLoader;
 
 /**
  * @author Peter.Withers@mpi.nl 
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public interface DataNodeLoader {
+public interface DataNodeLoader extends PluginArbilDataNodeLoader {
 
     void addNodeNeedingSave(ArbilDataNode nodeToSave);
 

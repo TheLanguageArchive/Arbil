@@ -10,13 +10,14 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import javax.swing.JLabel;
+import nl.mpi.arbil.plugin.PluginSessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public interface SessionStorage {
+public interface SessionStorage extends PluginSessionStorage {
 
     void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles);
 

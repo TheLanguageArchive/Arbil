@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.imageio.ImageIO;
+import nl.mpi.arbil.plugin.PluginException;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 
 /**
@@ -103,6 +104,10 @@ public class ArbilBugCatcher implements BugCatcher {
 	} catch (Exception e) {
 	    System.err.println("Exception when creating screenshot: " + e);
 	}
+    }
+    
+    public void logException(PluginException exception) {
+        logError("plugin error: ", exception);
     }
 
     public void logError(Exception exception) {

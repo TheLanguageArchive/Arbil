@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
+import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -52,6 +53,8 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.plugin.PluginDialogHandler;
+import nl.mpi.arbil.plugin.PluginDialogHandler.DialogueType;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
@@ -228,6 +231,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    System.out.println("aborting export: " + e.getMessage());
 	}
 	return null;
+    }
+
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, Map<String, FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {

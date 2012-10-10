@@ -129,6 +129,11 @@
 	    <artifactId>corpusstructure-api</artifactId>
 	    <version>1.7.3</version>
 	</dependency>
+	<dependency>
+	    <groupId>nl.mpi</groupId>
+	    <artifactId>pluginloader</artifactId>
+	    <version>0.0.33392-pretesting</version>
+	</dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>arbil-help</artifactId>

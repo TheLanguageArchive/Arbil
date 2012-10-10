@@ -2,6 +2,7 @@ package nl.mpi.arbil;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nl.mpi.arbil.plugin.PluginException;
 import nl.mpi.arbil.util.BugCatcher;
 
 public class MockBugCatcher implements BugCatcher {
@@ -14,5 +15,9 @@ public class MockBugCatcher implements BugCatcher {
 
     public void logError(String messageString, Exception exception) {
 	log.log(Level.SEVERE, messageString, exception);
+    }
+
+    public void logException(PluginException exception) {
+        logError("plugin error: ", exception);
     }
 }

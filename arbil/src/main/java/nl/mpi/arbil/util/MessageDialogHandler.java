@@ -1,12 +1,13 @@
 package nl.mpi.arbil.util;
 
 import java.io.File;
+import nl.mpi.arbil.plugin.PluginDialogHandler;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public interface MessageDialogHandler {
+public interface MessageDialogHandler extends PluginDialogHandler {
 
     void addMessageDialogToQueue(String messageString, String messageTitle);
 

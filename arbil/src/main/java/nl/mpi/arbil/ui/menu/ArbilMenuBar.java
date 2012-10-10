@@ -30,6 +30,7 @@ import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.plugins.ArbilPluginManager;
 import nl.mpi.arbil.ui.ArbilHelp;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
@@ -45,6 +46,8 @@ import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.pluginloader.PluginService;
+import nl.mpi.pluginloader.ui.PluginMenu;
 import org.xml.sax.SAXException;
 
 /**
@@ -122,6 +125,7 @@ public class ArbilMenuBar extends JMenuBar {
 	initFileMenu();
 	initEditMenu();
 	initOptionsMenu();
+	initPluginMenu();
 	initWindowMenu();
 	initHelpMenu();
 
@@ -563,6 +567,10 @@ public class ArbilMenuBar extends JMenuBar {
 //            }
 //        });
 	optionsMenu.add(editFieldViewsMenuItem);
+    }
+
+    private void initPluginMenu() {
+        this.add(new PluginMenu(PluginService.getInstance(), new ArbilPluginManager(ArbilSessionStorage.getSingleInstance(), ArbilWindowManager.getSingleInstance(), ArbilDataNodeLoader.getSingleInstance(), new ArbilBugCatcher())));
     }
 
     private void initWindowMenu() {
