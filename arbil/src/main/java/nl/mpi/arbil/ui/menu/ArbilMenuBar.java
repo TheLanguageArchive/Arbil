@@ -620,7 +620,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initPluginMenu() {
-        this.add(new PluginMenu(PluginService.getInstance(), new ArbilPluginManager(sessionStorage, windowManager, dataNodeLoader, BugCatcherManager.getBugCatcher())));
+        this.add(new PluginMenu(PluginService.getInstance(), new ArbilPluginManager(sessionStorage, windowManager, dataNodeLoader, BugCatcherManager.getBugCatcher()), true));
     }
 
     private void initWindowMenu() {
@@ -821,7 +821,7 @@ public class ArbilMenuBar extends JMenuBar {
             if (null == windowManager.focusWindow(ArbilHelp.helpWindowTitle)) {
                 windowManager.createWindow(ArbilHelp.helpWindowTitle, helpComponent);
             }
-	    //TODO: Decide whether to show IMDI or CMDI help (possibly based on previous state)
+            //TODO: Decide whether to show IMDI or CMDI help (possibly based on previous state)
             helpComponent.setCurrentPage(ArbilHelp.IMDI_HELPSET, ArbilHelp.SHOTCUT_KEYS_PAGE);
         }
     }
