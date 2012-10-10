@@ -132,7 +132,7 @@
 	<dependency>
 	    <groupId>nl.mpi</groupId>
 	    <artifactId>pluginloader</artifactId>
-	    <version>0.0.33669-pretesting</version>
+	    <version>0.0.33672-stable</version>
 	</dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
