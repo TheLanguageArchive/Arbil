@@ -16,6 +16,7 @@
     <properties>
 	<arbil.application-title>Arbil (testing)</arbil.application-title>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<output.jarname>${project.build.finalName}</output.jarname>
 	<output.directory>${project.build.directory}</output.directory>
     </properties>
     
@@ -66,10 +67,13 @@
 		<artifactId>maven-jar-plugin</artifactId>
 		<version>2.3.1</version>
 		<configuration>
+		    <finalName>${output.jarname}</finalName>
+		    <outputDirectory>${output.directory}</outputDirectory>
 		    <archive>
 			<manifest>
 			    <addClasspath>true</addClasspath>
-			    <mainClass>nl.mpi.arbil.ArbilMain</mainClass>
+			    <mainClass>${application.mainClass}</mainClass>
+			    <classpathPrefix>lib/</classpathPrefix>
 			</manifest>
 		    </archive>
 		    <excludes>
