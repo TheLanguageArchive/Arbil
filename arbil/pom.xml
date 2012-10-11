@@ -151,25 +151,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.2.2</version>
-                <configuration>
-                    <branchBase>https://svn.mpi.nl/LAT/Arbil/tags</branchBase>
-                    <tagBase>https://svn.mpi.nl/LAT/Arbil/tags</tagBase>
-                    <branchName>${arbil.majorVersion}.${arbil.minorVersion}.${arbil.version.revision}-${arbil.branch</branchName>
-                    <releaseVersion>${arbil.majorVersion}.${arbil.minorVersion}.${arbil.version.revision}-${arbil.branch}</releaseVersion>
-                    <developmentVersion>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}</developmentVersion>
-                    <checkModificationExcludes>
-                        <param>ArbilVersion.java</param>
-                        <param>pom.xml</param>
-                    </checkModificationExcludes>
-                    <remoteTagging>false</remoteTagging>
-                    <updateBranchVersions>true</updateBranchVersions>
-                    <updateWorkingCopyVersions>false</updateWorkingCopyVersions>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>com.keyboardsamurais.maven</groupId>
                 <artifactId>maven-timestamp-plugin</artifactId>
                 <configuration>
