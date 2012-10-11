@@ -9,7 +9,7 @@ public class ArbilVersion extends ApplicationVersion {
     public ArbilVersion() {
         Properties properties = new Properties();
         try {
-            properties.load(getClass().getResourceAsStream("/version.properties"));
+            properties.load(getClass().getResourceAsStream("/nl/mpi/arbil/version.properties"));
             applicationTitle = properties.getProperty("application.title");
             applicationIconName = properties.getProperty("application.iconName");
             currentMajor = properties.getProperty("application.majorVersion");
