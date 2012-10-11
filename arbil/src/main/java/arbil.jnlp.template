@@ -31,6 +31,9 @@
         <jar href="lib/saxon-8.7.jar" download="eager"/>
         <jar href="lib/saxon-dom-8.7.jar" download="eager"/>
         <jar href="lib/@TypeCheckVersion@" download="eager"/>
+        <jar href="lib/@ArbilHelpVersion@" download="eager"/>
+        <jar href="lib/@PluginsCoreVersion@" download="eager"/>
+        <jar href="lib/@PluginLoaderVersion@" download="eager"/>
         <jar href="lib/xalan-2.7.1.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
         <jar href="lib/bcprov-jdk15-143.jar" download="eager"/>

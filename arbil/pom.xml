@@ -4,7 +4,7 @@
     <groupId>nl.mpi</groupId>
     <artifactId>arbil</artifactId>
     <packaging>jar</packaging>
-    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
+    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}</version>
     <name>Arbil</name>
     
     <parent>
@@ -15,6 +15,7 @@
     
     <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<output.directory>${project.build.directory}</output.directory>
     </properties>
     
     <build>
@@ -69,6 +70,26 @@
 		    </execution>
 		</executions>
 	    </plugin>
+	    <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${output.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <excludeArtifactIds>junit</excludeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>	    
 	</plugins>
     </build>
     <dependencies>	
@@ -137,8 +158,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>arbil-help</artifactId>
-	    <!-- TODO: Depend on a fixed version -->
-            <version>${project.version}</version>
+            <version>2.4.33563-testing</version>
         </dependency>
     </dependencies>
 

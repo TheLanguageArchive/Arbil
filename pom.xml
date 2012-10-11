@@ -74,6 +74,14 @@
 	</repository>
     </repositories>
     
+    <pluginRepositories>
+	<pluginRepository>
+	    <id>MPI</id>
+	    <name>MPI LAT Repository</name>
+	    <url>https://lux15.mpi.nl/nexus/content/groups/public/</url>
+	</pluginRepository>
+    </pluginRepositories>
+    
     <distributionManagement>
 	<snapshotRepository>
 	    <id>MPI-Snapshots</id>
