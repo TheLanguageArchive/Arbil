@@ -1,11 +1,8 @@
 package nl.mpi.arbil.ui;
 
 import java.awt.Dimension;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -17,12 +14,10 @@ import java.util.Map;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.html.HTMLDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -48,19 +43,17 @@ public class HelpViewerPanel extends javax.swing.JPanel {
     final static public String helpWindowTitle = "Help Viewer";
     final static public String DEFAULT_HELPSET = "Help";
     private JTabbedPane tabbedPane;
-    private JScrollPane helpTextScrollPane;
     private JSplitPane jSplitPane1;
-    private JTextPane helpTextPane;
+    private HtmlViewPane helpTextPane;
     private HelpTree currentTree;
     private final Map<String, HelpTree> helpTreesMap;
     private final List<HelpTree> helpTrees;
-
     private static BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
-        bugCatcher = bugCatcherInstance;
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+	bugCatcher = bugCatcherInstance;
     }
-    
+
     /**
      * Constructs the viewer panel with a single help resource set given the name of the {@link #DEFAULT_HELPSET}
      *
@@ -174,18 +167,13 @@ public class HelpViewerPanel extends javax.swing.JPanel {
     }
 
     private void initComponents() {
-	helpTextPane = new javax.swing.JTextPane();
+	helpTextPane = new HtmlViewPane();
 	helpTextPane.addHyperlinkListener(new ArbilHyperlinkListener());
 	helpTextPane.setMinimumSize(new Dimension(100, 100));
-	helpTextPane.setContentType("text/html;charset=UTF-8");
-	helpTextPane.setEditable(false);
-
-	helpTextScrollPane = new javax.swing.JScrollPane();
-	helpTextScrollPane.setViewportView(helpTextPane);
 
 	jSplitPane1 = new javax.swing.JSplitPane();
 	jSplitPane1.setDividerLocation(250);
-	jSplitPane1.setRightComponent(helpTextScrollPane);
+	jSplitPane1.setRightComponent(helpTextPane.createScrollPane());
 
 	setLayout(new java.awt.BorderLayout());
 	add(jSplitPane1, java.awt.BorderLayout.CENTER);
@@ -216,7 +204,8 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	} else {
 	    // Current tree is the only tree
 	    jSplitPane1.setLeftComponent(currentTree.getIndexScrollPane());
-	    ((HTMLDocument) helpTextPane.getDocument()).setBase(currentTree.getHelpResourceSet().getResourcesClass().getResource(currentTree.getHelpResourceSet().getHelpResourceBase()));
+	    final HelpResourceSet currentResourceSet = currentTree.getHelpResourceSet();
+	    helpTextPane.setDocumentBase(currentResourceSet.getResourcesClass(), currentResourceSet.getHelpResourceBase());
 	}
     }
 
@@ -239,7 +228,8 @@ public class HelpViewerPanel extends javax.swing.JPanel {
     private void updateTabState() {
 	if (tabbedPane != null) {
 	    currentTree = helpTrees.get(tabbedPane.getSelectedIndex());
-	    ((HTMLDocument) helpTextPane.getDocument()).setBase(currentTree.getHelpResourceSet().getResourcesClass().getResource(currentTree.getHelpResourceSet().getHelpResourceBase()));
+	    final HelpResourceSet currentResourceSet = currentTree.getHelpResourceSet();
+	    helpTextPane.setDocumentBase(currentResourceSet.getResourcesClass(), currentResourceSet.getHelpResourceBase());
 	    if (currentTree.getIndexTree().getSelectionCount() == 0) {
 		// Select first node so that there is a selection for this tree
 		currentTree.getIndexTree().setSelectionRow(1);
@@ -311,37 +301,13 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 
     private void showHelpItem(HelpTree helpTree, final String itemResource) {
 	final HelpResourceSet helpSet = helpTree.getHelpResourceSet();
-
-	final StringBuilder completeHelpText = new StringBuilder();
 	final InputStream itemStream = helpSet.getResourcesClass().getResourceAsStream(helpSet.getHelpResourceBase() + itemResource);
-	if (itemStream == null) {
-	    completeHelpText.append("Page not found");
-	} else {
-	    try {
-		BufferedReader bufferedHelpReader = new BufferedReader(new InputStreamReader(itemStream, "UTF-8"));
-		try {
-		    for (String helpLine = bufferedHelpReader.readLine(); helpLine != null; helpLine = bufferedHelpReader.readLine()) {
-			completeHelpText.append(helpLine);
-		    }
-		} catch (IOException ioEx) {
-		    completeHelpText.append("<p><strong>I/O exception while reading help contents</strong></p>");
-		    bugCatcher.logError(ioEx);
-		} finally {
-		    try {
-			bufferedHelpReader.close();
-		    } catch (IOException ioEx) {
-			completeHelpText.append("<p><strong>I/O exception while close stream</strong></p>");
-			bugCatcher.logError(ioEx);
-		    }
-		}
-	    } catch (UnsupportedEncodingException ueEx) {
-		completeHelpText.append("<p><strong>I/O exception while close stream</strong></p>");
-		bugCatcher.logError(ueEx);
-	    }
+	try {
+	    helpTextPane.setContents(itemStream);
+	} catch (IOException ioEx) {
+	    helpTextPane.setText("<p><strong>I/O exception while reading help contents</strong></p>");
+	    bugCatcher.logError(ioEx);
 	}
-	helpTextPane.setText(completeHelpText.toString());
-	// Scroll to top
-	helpTextPane.setCaretPosition(0);
 	updateIndex(helpTree, itemResource);
     }
 
