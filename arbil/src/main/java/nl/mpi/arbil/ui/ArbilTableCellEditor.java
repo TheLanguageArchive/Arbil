@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
@@ -12,13 +13,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Vector;
+import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -87,6 +90,14 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	arbilTableCellRenderer = new ArbilTableCellRenderer();
 	button = new JLabel("...");
 	editorPanel = new JPanel();
+
+	button.getActionMap().put("appendToEditor", new AbstractAction() {
+	    public void actionPerformed(ActionEvent e) {
+		startEditorMode(false, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
+	    }
+	});
+	button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK), "appendToEditor");
+
 	button.addKeyListener(new java.awt.event.KeyListener() {
 	    public void keyTyped(KeyEvent evt) {
 	    }
@@ -99,8 +110,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 		if (!cellHasControlledVocabulary() && isStartLongFieldKey(evt)) {// prevent ctrl key events getting through etc.
 		    startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
 		} else if (!evt.isActionKey()
-			&& !evt.isMetaDown() && // these key down checks will not catch a key up event hence the key codes below which work for up and down events
-			!evt.isAltDown()
+			&& !evt.isMetaDown() // these key down checks will not catch a key up event hence the key codes below which work for up and down events
+			&& !evt.isAltDown()
 			&& !evt.isAltGraphDown()
 			&& !evt.isControlDown()
 			&& evt.getKeyCode() != 16
@@ -108,7 +119,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 			&& /* 17 is the ctrl key */ evt.getKeyCode() != 18
 			&& /* 18 is the alt key */ evt.getKeyCode() != 157
 			&&/* 157 is the meta key */ evt.getKeyCode() != 27 /* 27 is the esc key */) {
-		    startEditorMode(false, evt.getKeyCode(), evt.getKeyChar());
+		    startEditorMode(evt.isControlDown(), evt.getKeyCode(), evt.getKeyChar());
 		}
 	    }
 	});
@@ -196,36 +207,38 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	boolean requiresLongFieldEditor = false;
 	if (cellValue instanceof ArbilField[]) {
 	    Graphics g = button.getGraphics();
-	    try {
-		FontMetrics fontMetrics = g.getFontMetrics();
-		double availableWidth = parentCellRect.getWidth() + 20; // let a few chars over be ok for the short editor
-		ArbilField[] iterableFields;
-		if (selectedField == -1) { // when a single filed is edited only check that field otherwise check all fields
-		    iterableFields = (ArbilField[]) cellValue;
-		} else {
-		    iterableFields = new ArbilField[]{((ArbilField[]) cellValue)[selectedField]};
-		}
-		for (ArbilField currentField : iterableFields) {
-//                if (!currentField.hasVocabulary()) { // the vocabulary type field should not get here
-		    String fieldValue = currentField.getFieldValue();
-		    // calculate length and look for line breaks
-		    if (fieldValue.contains("\n")) {
-			requiresLongFieldEditor = true;
-			break;
+	    if (g != null) {
+		try {
+		    FontMetrics fontMetrics = g.getFontMetrics();
+		    double availableWidth = parentCellRect.getWidth() + 20; // let a few chars over be ok for the short editor
+		    ArbilField[] iterableFields;
+		    if (selectedField == -1) { // when a single filed is edited only check that field otherwise check all fields
+			iterableFields = (ArbilField[]) cellValue;
 		    } else {
-			int requiredWidth = fontMetrics.stringWidth(fieldValue);
-			if (currentField.isAllowsLanguageId()) {
-			    requiredWidth += LanguageIdBox.languageSelectWidth;
-			}
-			if (requiredWidth > availableWidth) {
+			iterableFields = new ArbilField[]{((ArbilField[]) cellValue)[selectedField]};
+		    }
+		    for (ArbilField currentField : iterableFields) {
+//                if (!currentField.hasVocabulary()) { // the vocabulary type field should not get here
+			String fieldValue = currentField.getFieldValue();
+			// calculate length and look for line breaks
+			if (fieldValue.contains("\n")) {
 			    requiresLongFieldEditor = true;
 			    break;
+			} else {
+			    int requiredWidth = fontMetrics.stringWidth(fieldValue);
+			    if (currentField.isAllowsLanguageId()) {
+				requiredWidth += LanguageIdBox.languageSelectWidth;
+			    }
+			    if (requiredWidth > availableWidth) {
+				requiresLongFieldEditor = true;
+				break;
+			    }
 			}
-		    }
 //                }
+		    }
+		} finally {
+		    g.dispose();
 		}
-	    } finally {
-		g.dispose();
 	    }
 	}
 	return requiresLongFieldEditor;
@@ -300,9 +313,15 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 		break;
 	    case KeyEvent.CHAR_UNDEFINED:
 		break;
+	    case KeyEvent.VK_F2:
+		currentCellString = currentCellString + lastKeyChar;
+		break;
+	    case 85:
+		currentCellString = currentCellString + lastKeyChar;
+		break;
 	    default:
 		if (lastKeyChar != KeyEvent.CHAR_UNDEFINED) {
-		    currentCellString = currentCellString + lastKeyChar;
+		    currentCellString = "" + lastKeyChar;
 		}
 		break;
 	}
@@ -326,12 +345,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	}
     }
 
-    private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
+    private void startEditorMode(boolean startLongFieldEditor, int lastKeyInt, char lastKeyChar) {
 	removeAllFocusListeners();
 	if (cellValue instanceof ArbilField[]) {
 	    if (cellHasControlledVocabulary() && isCellEditable()) {
 		initControlledVocabularyEditor(lastKeyInt, lastKeyChar);
-	    } else if (!ctrlDown
+	    } else if (!startLongFieldEditor
 		    && selectedField != -1
 		    && isCellEditable()
 		    && (!requiresLongFieldEditor() || getEditorText(lastKeyInt, lastKeyChar, "anystring").length() == 0)) { // make sure the long field editor is not shown when the contents of the field are being deleted
