@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
@@ -12,6 +13,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -28,8 +31,11 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -40,10 +46,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
@@ -53,7 +61,6 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.plugin.PluginDialogHandler;
 import nl.mpi.arbil.plugin.PluginDialogHandler.DialogueType;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
@@ -165,13 +172,57 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	String messageString = "Archive Builder\n"
 		+ "A local tool for organising linguistic data.\n"
 		+ "Max Planck Institute for Psycholinguistics\n\n"
-		+ "Application design and programming by Peter Withers and Twan Goosen\n"
+		+ "Application originally designed and developed by Peter Withers\n"
+		+ "Current maintenance and extentions by Peter Withers and Twan Goosen\n"
 		+ "Arbil also uses components of the IMDI API and Lamus Type Checker\n\n"
 		+ "Version: " + appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision + "\n"
 		+ appVersion.lastCommitDate + "\n"
 		+ "Compile Date: " + appVersion.compileDate + "\n\n"
-		+ "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor");
-	JOptionPane.showMessageDialog(linorgFrame, messageString, "About " + appVersion.applicationTitle, JOptionPane.PLAIN_MESSAGE);
+		+ "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor") + "\n\n"
+		+ "Copyright (C) 2012 Max Planck Institute for Psycholinguistics\n\n"
+		+ "Arbil has been licensed under the GNU General Public License version 2.\n"
+		+ "Click the button below to see the full version of this license.";
+
+	final JTextArea textComponent = new JTextArea();
+	textComponent.setText(messageString);
+	textComponent.setEditable(false);
+	textComponent.setOpaque(false);
+	textComponent.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+	final JButton licenseButton = new JButton("Display license");
+	licenseButton.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		showLicenseWindow();
+	    }
+	});
+	
+	final JButton closeButton = new JButton("Close");
+	
+	final JDialog aboutDialog = createModalDialog("About " + appVersion.applicationTitle, textComponent, null, licenseButton, closeButton);
+	closeButton.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		aboutDialog.dispose();
+	    }
+	});
+	
+	aboutDialog.setVisible(true);
+    }
+
+    private void showLicenseWindow() {
+	try {
+	    final HtmlViewPane licensePane = new HtmlViewPane(getClass().getResource("/nl/mpi/arbil/resources/html/license/gpl2.html"));
+	    final JButton closeButton = new JButton("Close");
+	    final JDialog licenseDialog = createModalDialog("License", licensePane.createScrollPane(), new Dimension(800, 600), closeButton);
+	    closeButton.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    licenseDialog.dispose();
+		}
+	    });
+	    licenseDialog.setVisible(true);
+	} catch (IOException ioEx) {
+	    addMessageDialogToQueue("Error while trying to show license. See error log for details.", "Error");
+	    GuiHelper.linorgBugCatcher.logError(ioEx);
+	}
     }
 
     public void offerUserToSaveChanges() throws Exception {
@@ -234,7 +285,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, Map<String, FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
-        throw new UnsupportedOperationException("Not supported yet.");
+	throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
@@ -934,6 +985,34 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		}
 	    }
 	}, AWTEvent.KEY_EVENT_MASK);
+    }
+
+    public JDialog createModalDialog(String title, Component contentsComponent, Dimension size, JButton... buttons) {
+	//JFrame frame = new JFrame();
+	JDialog dialog = new JDialog(linorgFrame, title, true);
+	dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+	dialog.setLayout(new BorderLayout());
+	dialog.add(contentsComponent, BorderLayout.CENTER);
+
+	dialog.setTitle(title);
+	dialog.setName(title);
+
+	dialog.setLocationRelativeTo(linorgFrame);
+
+	if (buttons.length > 0) {
+	    final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+	    for (JButton button : buttons) {
+		buttonPanel.add(button);
+	    }
+	    dialog.add(buttonPanel, BorderLayout.SOUTH);
+	}
+
+	if (size != null) {
+	    dialog.setSize(size);
+	} else {
+	    dialog.pack();
+	}
+	return dialog;
     }
 
     public JInternalFrame createWindow(String windowTitle, Component contentsComponent) {
