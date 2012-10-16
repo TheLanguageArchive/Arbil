@@ -19,6 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -66,17 +68,27 @@ import org.xml.sax.SAXException;
  */
 public class CmdiTemplate extends ArbilTemplate {
 
+    public static final String XML_NAMESPACE = ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace");
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
-    public static final String LANGUAGE_ATTRIBUTE = String.format("{%1$s}lang", ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")); // {http://www.w3.org/XML/1998/namespace}lang
+    public static final String LANGUAGE_ATTRIBUTE = String.format("{%1$s}lang", (XML_NAMESPACE));
+    public static final String BASE_ATTRIBUTE = String.format("{%1$s}base", (XML_NAMESPACE));
     /**
-     * Attributes that are reserved by CMDI and should show up as editable.
+     * Attributes that are reserved by CMDI and should no show up as editable.
      * Namespace URI's should appear encoded in this list
      */
-    public final static Collection<String> RESERVED_ATTRIBUTES = Collections.unmodifiableCollection(Arrays.asList(
+    public final static Collection<String> RESERVED_ATTRIBUTES = new CopyOnWriteArraySet<String>(Arrays.asList(
 	    RESOURCE_REFERENCE_ATTRIBUTE // resource proxy ref attribute
-	    , LANGUAGE_ATTRIBUTE, "componentId" // componentId
+	    , LANGUAGE_ATTRIBUTE, BASE_ATTRIBUTE, "componentId" // componentId
 	    , "ComponentId" // componentId, alternate spelling in some profiles
 	    ));
+    /**
+     * URIs of namespaces that should not show up as editable.
+     * URI's should appear encoded in this list
+     *
+     * The XML namespace has xml:base (also explicitly in {@link #RESERVED_ATTRIBUTES} for performance) and potentially other
+     * non-profile specific allowed attributes.
+     */
+    public final static Collection<String> RESERVED_NAMESPACES = new CopyOnWriteArraySet<String>(Arrays.asList(XML_NAMESPACE));
     public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
     /**
      * Pattern of URIs that should not be parsed as DCIF (but may occur as datcat URIs)
@@ -738,8 +750,21 @@ public class CmdiTemplate extends ArbilTemplate {
 	    // Root level attributes are not editable. E.g. {"","CMD","@CMDVersion"}
 	    return false;
 	}
+	final String attribute = pathTokens[pathTokens.length - 1].substring(1);// remove @
+	return !isReservedAttribute(attribute) && !isReservedNamespace(attribute);
+    }
 
-	return !RESERVED_ATTRIBUTES.contains(pathTokens[pathTokens.length - 1].substring(1)); // remove @
+    private static boolean isReservedAttribute(String attribute) {
+	return RESERVED_ATTRIBUTES.contains(attribute);
+    }
+    final private static Pattern attributeNamespacePattern = Pattern.compile("\\{(.*)\\}");
+
+    private static boolean isReservedNamespace(String attribute) {
+	Matcher matcher = attributeNamespacePattern.matcher(attribute);
+	if (matcher.find() && matcher.groupCount() == 1) {
+	    return RESERVED_NAMESPACES.contains(matcher.group(1));
+	}
+	return false;
     }
 
     public boolean pathAllowsLanguageId(String path) {
