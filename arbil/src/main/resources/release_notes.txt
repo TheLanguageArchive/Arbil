@@ -70,6 +70,11 @@ in the user name. (#2299)
 size of the resource would sometimes not be filled in. Subsequent saving
 errors were a related issue. These have been resolved. (#1308 and #2212)
 
+- PERFORMANCE: The application would become slow and would even freeze or crash
+during a heavy operation such as searching a large corpus when running as an installed
+application on Windows. This was caused by an incorrect memory allocation for the Java
+virtual machine and has been resolved. (#1321)
+
 ** KNOWN ISSUES **
 
 Among others, the following issues have been described and will be addressed in future version of
@@ -82,9 +87,6 @@ imported into the local corpus since the authentication mechanism is broken. (#6
 not look as expected. (#899)
 
 - PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays high. (#929)
-
-- STABILITY: During search, memory usage may exceed the limits of the Java virtual machine which
-could cause the application to terminate unexpectedly.
 
 - SEARCH IN TABLE: The layout of the input boxes for search/replace within a table sometimes break
 on Windows and Linux. (#1577)
