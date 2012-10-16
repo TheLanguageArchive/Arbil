@@ -143,7 +143,7 @@
                 <configuration>
                     <entries>
                         <entry>
-                            <path>${basedir}/src/main</path>
+                            <path>${basedir}</path>
                             <!-- this will populate "arbil.version.revision" -->
                             <prefix>arbil.version</prefix>
                         </entry>
