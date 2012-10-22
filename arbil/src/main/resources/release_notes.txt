@@ -40,7 +40,8 @@ now gets selected first instead of the first. (#1189)
 included. (#1837)
 
 - ADDING MULTIPLE RESOURCES: When adding multiple resources from the working directories
-to a session or CMDI file, they get processed together rather than one-by-one. (#2205)
+to a session or CMDI file, they get processed together rather than one-by-one
+and appear in a single result table instead of one window per file. (#42, #2205)
 
 ** FIXES **
 
