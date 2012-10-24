@@ -174,7 +174,7 @@
 		<version>1.9.0</version> 
 		<configuration>
 		    <header>${project.parent.basedir}/license-header.txt</header>
-		    <strictCheck>true</strictCheck>
+		    <strictCheck>false</strictCheck>
 		    <properties>
 			<year>${application.license.copyrightYear}</year>
 			<organization>${project.organization.name}</organization>
@@ -189,7 +189,7 @@
 			<exclude>**/*.icns</exclude>
 			<exclude>**/*.php</exclude>
 			<exclude>installer/**</exclude>
-			<exclude>src/main/resources/defaults/**</exclude>
+			<exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
 			<exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
 			<exclude>src/main/resources/nl/mpi/arbil/resources/xsd/http/**</exclude>
 			<exclude>src/main/resources/nl/mpi/arbil/resources/html/license/**</exclude>
