@@ -1,8 +1,0 @@
-#!/bin/sh
-BASEDIR=`dirname "$0"`
-exec java \
-	-classpath "$BASEDIR/arbil-@ArbilVersionNumber@.jar:$BASEDIR/lib" \
-	-Xdock:name="@ApplicationTitle@" \
-        -Xdock:icon="$BASEDIR/../Resources/arbil@FilenameIdentifier@.icns" \
-        -Xmx1024m \
-	nl.mpi.arbil.ArbilMain
