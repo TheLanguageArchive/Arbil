@@ -577,47 +577,35 @@
           </mediaobject>
         </screenshot>
       </figure>
-      <para/>
-      <section>
-        <title>Adding elements to favourites</title>
-        <para>In order to add an element from the local corpus to the Favourites List, right click
-          its node and choose <emphasis role="italic">Add to Favourites List.</emphasis> The element
-          now appears in the Favourites List. You can also just drag them from the corpus tree
-          structure, right down to the Favourites List. If this element is needed again, you can
-          place it into a preferable location in your Local Corpus either by dragging it from the
-          Favourites list or Copy/Paste it in one of the Local Corpus (sub)branches. </para>
-      
-      <figure>
-        <title>Adding to favourites via menu</title>
-        <mediaobject>
-          <imageobject>
+      <para>In order to add an element from the local corpus to the Favourites List, right click its
+        node and choose <emphasis role="italic">Add to Favourites List.</emphasis> The element now
+        appears in the Favourites List. You can also just drag them from the corpus tree structure,
+        right down to the Favourites List. If this element is needed again, you can place it into a
+        preferable location in your Local Corpus either by dragging it from the Favourites list or
+        Copy/Paste it in one of the Local Corpus (sub)branches. <figure>
+          <title>Adding to favourites via menu</title>
+          <mediaobject>
+            <imageobject>
               <imagedata fileref="images/adding_to_favourites.png" contentdepth="50%"/>
             </imageobject>
-        </mediaobject>
-      </figure>
-      <para> </para>
-    </section>
-      <section>
-        <title>Adding Favourites to other elements</title>
-        <para>The items in the Favourite List can be viewed and edited in the same way as the
-          elements of the Local Corpus (right click and View/Edit Selected). This means that if you
-          make changes to your favourites you have to right click on them and select Save Changes to
-          Disk to make them permanent (or use Ctrl/cmd+S). The favourites which have been edited
-          turn in blue which indicates this element still has to be saved locally.</para>
-        <para>Once you have completed your Favourites list, you can start using it. Let's say you
-          want to add a particular Actor to a session - in order to do this choose the session in
-          question, right click it and choose <emphasis role="italic">Favourites</emphasis>,
-            <emphasis role="italic">Add from Favourites</emphasis> and click on the right actor. You
-          can also do this by "drag and drop".</para>
-        <figure>
+          </mediaobject>
+        </figure></para>
+      <para>Once you have completed your Favourites list, you can start using it. Let's say you want
+        to add a particular Actor to a session - in order to do this choose the session in question,
+        right click it and choose Favourites, Add from Favourites and click on the right actor. You
+        can also do this by "drag and drop".<figure>
           <title>Adding favourites to a Session</title>
           <mediaobject>
             <imageobject>
               <imagedata fileref="images/adding_from_favourites.png" contentdepth="50%"/>
             </imageobject>
           </mediaobject>
-        </figure>
-      </section>
+        </figure></para>
+      <para>Note that the items in the Favourite List can be viewed and edited in the same way as
+        the elements of the Local Corpus (right click and View/Edit Selected). This means that if
+        you make changes to your favourites you have to right click on them and select Save Changes
+        to Disk to make them permanent (or use Ctrl/cmd+S). The favourites which have been edited
+        turn in blue which indicates this element still has to be saved locally.</para>
     </section>
   </chapter>
   <chapter id="Ch_Editing_Corpus_Structure">
