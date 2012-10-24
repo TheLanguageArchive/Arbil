@@ -10,13 +10,13 @@
     <name>Arbil</name>   
     
     <parent>
-	<groupId>nl.mpi</groupId>
-	<artifactId>arbil-parent</artifactId>
-	<version>2.5</version>
+        <groupId>nl.mpi</groupId>
+        <artifactId>arbil-parent</artifactId>
+        <version>2.5</version>
     </parent> 
     
     <properties>
-	<arbil.application-title>Arbil (pretesting)</arbil.application-title>
+        <arbil.application-title>Arbil (pretesting)</arbil.application-title>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <output.jarname>${project.build.finalName}</output.jarname>
@@ -78,6 +78,9 @@
                             <mainClass>${application.mainClass}</mainClass>
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
+                        <manifestEntries>
+                            <Class-Path>plugins/</Class-Path>
+                        </manifestEntries>
                     </archive>
                     <excludes>
                         <exclude>nl/mpi/arbil/resources/**/readme.txt</exclude>
@@ -168,73 +171,73 @@
         </plugins>
     </build>
     <dependencies>
-	<dependency>
-	    <groupId>org.apache.xmlbeans</groupId>
-	    <artifactId>xmlbeans</artifactId>
-	    <version>2.4.0</version>
-	    <scope>compile</scope>
-	</dependency>
-	<dependency>
-	    <groupId>nl.mpi</groupId>
-	    <artifactId>typechecker</artifactId>
-	    <version>1.7.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>nl.nikhef</groupId>
-	    <artifactId>slcshttps</artifactId>
-	    <version>0.2</version>
-	</dependency>
-	<dependency>
-	    <groupId>nl.mpi</groupId>
-	    <artifactId>imdi-api</artifactId>
-	    <version>1.1.2</version>
-	</dependency>
-	<dependency>
-	    <groupId>nl.mpi</groupId>
-	    <artifactId>mpi-util</artifactId>
-	    <version>1.0.0</version>
-	</dependency>	
-	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <version>4.6</version>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>net.sf.saxon</groupId>
-	    <artifactId>Saxon-HE</artifactId>
-	    <version>9.4</version>
-	</dependency>
-	<dependency>
-	    <groupId>xerces</groupId>
-	    <artifactId>xercesImpl</artifactId>
-	    <version>2.9.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>xalan</groupId>
-	    <artifactId>xalan</artifactId>
-	    <version>2.7.1</version>
-	</dependency>
-	<dependency>
-	    <groupId>commons-digester</groupId>
-	    <artifactId>commons-digester</artifactId>
-	    <version>2.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>log4j</groupId>
-	    <artifactId>log4j</artifactId>
-	    <version>1.2.16</version>
-	</dependency>
-	<dependency>
-	    <groupId>${project.groupId}</groupId>
-	    <artifactId>corpusstructure-api</artifactId>
-	    <version>1.7.3</version>
-	</dependency>
-	<dependency>
-	    <groupId>nl.mpi</groupId>
-	    <artifactId>pluginloader</artifactId>
-	    <version>0.0.33669-pretesting</version>
-	</dependency>
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>2.4.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>typechecker</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.nikhef</groupId>
+            <artifactId>slcshttps</artifactId>
+            <version>0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>imdi-api</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>mpi-util</artifactId>
+            <version>1.0.0</version>
+        </dependency>	
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>corpusstructure-api</artifactId>
+            <version>1.7.3</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>pluginloader</artifactId>
+            <version>0.0.33669-pretesting</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>arbil-help</artifactId>
