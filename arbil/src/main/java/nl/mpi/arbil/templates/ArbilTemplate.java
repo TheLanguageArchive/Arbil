@@ -134,14 +134,16 @@ public class ArbilTemplate {
     }
 
     public boolean pathIsEditableField(String nodePath) {
-//        System.out.println("nodePath: " + nodePath);
 	for (String[] pathString : childNodePaths) {
 	    if (pathString[0].startsWith(nodePath) || pathString[0].equals(nodePath)) {
 		return false;
 	    }
 	}
+
+	// Remove leading . from path for comparison with template file
+	final String correctedNodePath = nodePath.substring(1);
 	for (String[] pathString : templatesArray) { // some profiles do not have sub nodes hence this needs to be checked also
-	    if (pathString[0].startsWith(nodePath) && !pathString[0].equals(nodePath)) {
+	    if (pathString[0].startsWith(correctedNodePath) && !pathString[0].equals(correctedNodePath + ".xml")) {
 		return false;
 	    }
 	}
