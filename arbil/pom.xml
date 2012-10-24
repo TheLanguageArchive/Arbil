@@ -15,9 +15,9 @@
     
     <properties>
 	<arbil.application-title>Arbil (testing)</arbil.application-title>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	<output.jarname>${project.build.finalName}</output.jarname>
 	<output.directory>${project.build.directory}</output.directory>
+	<netbeans.hint.license>gpl20</netbeans.hint.license>
     </properties>
     
     <build>
@@ -162,6 +162,40 @@
 		    </execution>
 		</executions>
 	    </plugin> 
+	    <plugin>
+		<groupId>com.mycila.maven-license-plugin</groupId>
+		<artifactId>maven-license-plugin</artifactId>
+		<version>1.9.0</version> 
+		<configuration>
+		    <header>${project.parent.basedir}/license-header.txt</header>
+		    <strictCheck>true</strictCheck>
+		    <properties>
+			<year>${application.license.copyrightYear}</year>
+			<organization>${project.organization.name}</organization>
+		    </properties>
+		    <mapping>
+			<svg>XML_STYLE</svg>
+			<imdi>XML_STYLE</imdi>
+			<cmdi>XML_STYLE</cmdi>
+		    </mapping>
+		    <excludes>
+			<exclude>**/*.txt</exclude>
+			<exclude>**/*.icns</exclude>
+			<exclude>installer/**</exclude>
+			<exclude>src/main/resources/defaults/**</exclude>
+			<exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
+			<exclude>src/main/resources/nl/mpi/arbil/resources/xsd/http/**</exclude>
+			<exclude>src/main/resources/nl/mpi/arbil/resources/html/license/**</exclude>
+		    </excludes>
+		</configuration>
+		<executions>
+		    <execution>
+			<goals>
+			    <goal>check</goal>
+			</goals>
+		    </execution>
+		</executions>
+	    </plugin>
 	</plugins>
     </build>
     <dependencies>	

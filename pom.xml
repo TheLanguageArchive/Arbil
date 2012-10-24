@@ -15,7 +15,7 @@
     </modules>
 
     <organization> 
-	<name>The Language Archive</name> 
+	<name>Max Planck Institute for Psycholinguistics</name> 
 	<url>http://tla.mpi.nl/tools/tla-tools</url>
     </organization>
     
@@ -30,7 +30,7 @@
 	<arbil.branch>testing</arbil.branch>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
+    
     <reporting>
 	<plugins>
 	    <plugin>
@@ -79,6 +79,23 @@
 	    <id>MPI</id>
 	    <name>MPI LAT Repository</name>
 	    <url>https://lux15.mpi.nl/nexus/content/groups/public/</url>
+	    <snapshots>
+		<enabled>false</enabled>
+	    </snapshots>
+	    <releases>
+		<enabled>true</enabled>
+	    </releases>
+	</pluginRepository>
+	<pluginRepository>
+	    <id>mc-release</id>
+	    <name>Local Maven repository of releases</name>
+	    <url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
+	    <snapshots>
+		<enabled>false</enabled>
+	    </snapshots>
+	    <releases>
+		<enabled>true</enabled>
+	    </releases>
 	</pluginRepository>
     </pluginRepositories>
     
