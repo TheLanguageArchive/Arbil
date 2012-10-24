@@ -181,6 +181,7 @@
 		    <excludes>
 			<exclude>**/*.txt</exclude>
 			<exclude>**/*.icns</exclude>
+			<exclude>**/*.php</exclude>
 			<exclude>installer/**</exclude>
 			<exclude>src/main/resources/defaults/**</exclude>
 			<exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
