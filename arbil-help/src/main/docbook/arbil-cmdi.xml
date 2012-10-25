@@ -43,7 +43,7 @@
             role="bold">not</emphasis></emphasis> affect them directly, as Arbil merely allows you
         to make changes on a <emphasis role="bold">local level</emphasis>, and not at a remote
         level. </para>
-      <para>Arbil is the next generation of the metadata Editor with a more powerful user interface
+      <para>Arbil is the next generation of the metadata editor with a more powerful user interface
         and functionality. This manual contains detailed information on how to use Arbil in order to
         create new collections of CMDI instances and modify existing ones. It does not explain the
         internal structure of CMDI (for more information on the CMDI metadata, please see the <ulink
@@ -279,14 +279,15 @@
           Corpus, it is also possible to remove any of the locations of the Remote Corpus at the
           root level so as to only display the collections that you need. This can be done at the
           root level only (see figure 3.1) by right clicking on the node (e.g. for MPI corpora) and
-          selecting <emphasis role="italic">Remove Remote Location</emphasis>.</para>
+          selecting <emphasis role="italic">Remove Remote Location</emphasis>. If you have removed
+          the default location, it is always possible to re-add them to the Remote Corpus by right
+          clicking on it and selecting <emphasis role="italic">Add Default Remote
+            Locations.</emphasis></para>
         <para/>
-        <para>If you have removed some remote metadata, it is always possible to re-add them to the
-          Remote Corpus by right clicking on it and selecting <emphasis role="italic">Add Default
-            Remote Locations.</emphasis>             To add a subnode to the root level, browse to
-          the desired sub collection, right click on it and choose <emphasis role="italic"
-            >Copy</emphasis>. Then go back to the top node of the Remote Corpus and paste the URL in
-          the dialogue box. The sub collection will now appear in the Remote Corpus tree. </para>
+        <para> To add a subnode to the root level, browse to the desired sub collection, right click
+          on it and choose <emphasis role="italic">Copy</emphasis>. Then go back to the top node of
+          the Remote Corpus and paste the URL in the dialogue box. The sub collection will now
+          appear in the Remote Corpus tree. </para>
         <para>The corpus data on the Remote Corpus may sometimes be updated by the researchers. To
           be sure that you are working with the newest version of the available corpus, you can
           update it manually on the nodes that you believe have been altered. To do this, right
@@ -607,7 +608,7 @@
             </imageobject>
           </mediaobject>
         </figure></para>
-      <para>In order to import a profile, it needs first to be selected through the check box. Then,
+      <para>In order to use a profile, it needs first to be selected through the check box. Then,
         right clicking on the Local Corpus node open the Add menu. Here you will find the names or
         ID of the profiles that are selected in the list. Choose the one you need. It is now
         imported and it will appear in your Local Corpus.</para>
@@ -920,8 +921,8 @@
       <para>It is also possible for the user of Arbil to get access to all metadata under a node in
         a hierarchical order (figure 5.10), as the order of the (sub)sessions, so as to edit them.
         To do this, right click on a metadata document on the tree view and select "<emphasis
-          role="italic">Edit All Metadata</emphasis>" (this function cannot be used on corpus
-        nodes). Editing can be done in all cells in the way it has already been described.</para>
+          role="italic">Edit All Metadata</emphasis>". Editing can be done in all cells in the way
+        it has already been described.</para>
       <para>
         <figure>
           <title>Edit/view all metadata</title>
