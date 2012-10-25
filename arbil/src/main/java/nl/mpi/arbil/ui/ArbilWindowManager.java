@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
@@ -76,6 +76,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
@@ -204,7 +205,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void openAboutPage() {
-	ApplicationVersion appVersion = versionManager.getApplicationVersion();
+	ArbilVersion appVersion = (ArbilVersion) versionManager.getApplicationVersion();
 	String messageString = "Archive Builder\n"
 		+ "A local tool for organising linguistic data.\n"
 		+ "Max Planck Institute for Psycholinguistics\n\n"
@@ -215,7 +216,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		+ appVersion.lastCommitDate + "\n"
 		+ "Compile Date: " + appVersion.compileDate + "\n\n"
 		+ "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor") + "\n\n"
-		+ "Copyright (C) 2012 Max Planck Institute for Psycholinguistics\n\n"
+		+ "Copyright (C) " + appVersion.getCopyrightYear() + " Max Planck Institute for Psycholinguistics\n\n"
 		+ "Arbil has been licensed under the GNU General Public License version 2.\n"
 		+ "Click the button below to see the full version of this license.";
 
