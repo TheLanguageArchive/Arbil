@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2012 Max Planck Institute for Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui.menu;
 
@@ -637,7 +637,30 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initPluginMenu() {
-        this.add(new PluginMenu(PluginService.getInstance(), new ArbilPluginManager(sessionStorage, windowManager, dataNodeLoader, BugCatcherManager.getBugCatcher()), true));
+        ArrayList<URL> pluginUlrs = new ArrayList<URL>();
+        String errorMessages = "";
+        try {
+            final String[] pluginStringArray = sessionStorage.loadStringArray("PluginList");
+            if (pluginStringArray != null) {
+                for (String pluginString : pluginStringArray) {
+                    try {
+                        pluginUlrs.add(new URL(pluginString));
+                    } catch (MalformedURLException exception) {
+                        System.out.println(exception.getMessage());
+                        errorMessages = errorMessages + "Could not load plugin: " + pluginString + "\n";
+                    }
+                }
+//            } else {
+//                sessionStorage.saveStringArray("PluginList", new String[]{"file:///<path to plugin>.jar", "file:///<path to plugin>.jar"});
+            }
+            if (!"".equals(errorMessages)) {
+                dialogHandler.addMessageDialogToQueue(errorMessages, "Plugin Error");
+            }
+        } catch (IOException ex) {
+            // if the list is not found then we need not worry at this point.
+            System.out.println("PluginList not found");
+        }
+        this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[0])), new ArbilPluginManager(sessionStorage, windowManager, dataNodeLoader, BugCatcherManager.getBugCatcher()), true));
     }
 
     private void initWindowMenu() {
