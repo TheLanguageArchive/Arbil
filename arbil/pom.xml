@@ -265,7 +265,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-help</artifactId>
-            <version>2.5-pretesting-SNAPSHOT</version>
+            <version>2.4.34016-testing</version>
         </dependency>
     </dependencies>
 
