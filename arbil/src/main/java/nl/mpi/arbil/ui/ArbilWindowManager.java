@@ -217,7 +217,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		+ "Compile Date: " + appVersion.compileDate + "\n\n"
 		+ "Java version: " + System.getProperty("java.version") + "\n"
 		+ "Vendor: " + System.getProperty("java.vendor") + "\n"
-		+ "JVM: " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n\n"
+		+ "JVM: " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n"
+		+ "Operating system: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " (" + System.getProperty("os.arch") + ")\n\n"
 		+ "Copyright (C) " + appVersion.getCopyrightYear() + " Max Planck Institute for Psycholinguistics\n\n"
 		+ "Arbil has been licensed under the GNU General Public License version 2.\n"
 		+ "Click the button below to see the full version of this license.";
