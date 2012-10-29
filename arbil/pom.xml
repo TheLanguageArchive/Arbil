@@ -191,6 +191,7 @@
                         <exclude>**/*.php</exclude>
                         <exclude>installer/**</exclude>
                         <exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/templates/**</exclude>
                         <exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
                         <exclude>src/main/resources/nl/mpi/arbil/resources/xsd/http/**</exclude>
                         <exclude>src/main/resources/nl/mpi/arbil/resources/html/license/**</exclude>
