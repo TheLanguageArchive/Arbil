@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil;
 
@@ -23,6 +23,7 @@ import java.awt.event.WindowEvent;
 import nl.mpi.arbil.MacAdapter.MacAdapterException;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilTaskStatusBar;
+import nl.mpi.arbil.ui.ArbilTreeController;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
@@ -45,6 +46,7 @@ public class ArbilMain extends javax.swing.JFrame {
     private ArbilMenuBar arbilMenuBar;
     private ArbilTaskStatusBar statusBar;
     private final ArbilTreeHelper treeHelper;
+    private final ArbilTreeController treeController;
     private final ArbilWindowManager windowManager;
     private final ApplicationVersionManager versionManager;
     private final ArbilMimeHashQueue mimeHashQueue;
@@ -57,7 +59,6 @@ public class ArbilMain extends javax.swing.JFrame {
 	System.setProperty("apple.awt.graphics.UseQuartz", "true");
 	System.setProperty("apple.laf.useScreenMenuBar", "true");
 	java.awt.EventQueue.invokeLater(new Runnable() {
-
 	    public void run() {
 		final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
 		try {
@@ -76,6 +77,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	injector.injectHandlers(versionManager);
 
 	this.treeHelper = injector.getTreeHelper();
+	this.treeController = injector.getTreeController();
 	this.windowManager = injector.getWindowManager();
 	this.mimeHashQueue = injector.getMimeHashQueue();
     }
@@ -100,7 +102,6 @@ public class ArbilMain extends javax.swing.JFrame {
 
     private void initUI() {
 	this.addWindowListener(new WindowAdapter() {
-
 	    @Override
 	    public void windowClosing(WindowEvent e) {
 		arbilMenuBar.performCleanExit();
@@ -112,7 +113,8 @@ public class ArbilMain extends javax.swing.JFrame {
 	windowManager.addTaskListener(statusBar);
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
 	mainSplitPane.setRightComponent(previewSplitPanel);
-	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper);
+
+	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController, windowManager);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
 	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null);
 	setJMenuBar(arbilMenuBar);
@@ -134,7 +136,6 @@ public class ArbilMain extends javax.swing.JFrame {
 
     private void initMacHandlers() {
 	final MacAdapter macAdapter = new MacAdapter() {
-
 	    @Override
 	    protected boolean performApplicationExit() {
 		return arbilMenuBar.performCleanExit();

@@ -103,7 +103,6 @@ public abstract class ArbilInjector {
     public void injectTreeHelper(TreeHelper treeHelper) {
 	//Inject tree helper
 	ArbilFavourites.setTreeHelper(treeHelper);
-	ArbilTree.setTreeHelper(treeHelper);
 	ImportExportDialog.setTreeHelper(treeHelper);
 	MetadataBuilder.setTreeHelper(treeHelper);
 	RemoteLocationsContent.setTreeHelper(treeHelper);
@@ -130,7 +129,6 @@ public abstract class ArbilInjector {
     }
 
     public void injectWindowManager(WindowManager windowManager) {
-	ArbilTree.setWindowManager(windowManager);
 	ArbilVocabularies.setWindowManager(windowManager);
 	MetadataBuilder.setWindowManager(windowManager);
     }

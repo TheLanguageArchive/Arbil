@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui.applet;
 
@@ -44,7 +44,7 @@ public class ArbilApplet2 extends JApplet {
 	mainSplitPane = new javax.swing.JSplitPane();
 	mainSplitPane.setName("mainSplitPane");
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
-	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper());
+	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), injector.getWindowManager());
 	mainSplitPane.setLeftComponent(arbilTreePanels);
 	mainSplitPane.setRightComponent(previewSplitPanel);
 	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this);
@@ -81,7 +81,6 @@ public class ArbilApplet2 extends JApplet {
 	// TODO start asynchronous download of heavy resources
 	try {
 	    javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
-
 		public void run() {
 		    final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
 		    ArbilDesktopInjector injector = new ArbilDesktopInjector();
@@ -102,7 +101,6 @@ public class ArbilApplet2 extends JApplet {
     public void start() {
 	try {
 	    javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
-
 		public void run() {
 		    dataNodeLoader.startLoaderThreads();
 		}

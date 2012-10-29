@@ -62,7 +62,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilNodeSearchColumnComboBox.setSessionStorage(sessionStorage);
 	ArbilMenuBar.setSessionStorage(sessionStorage);
 	ImportExportDialog.setSessionStorage(sessionStorage);
-	TreeContextMenu.setSessionStorage(sessionStorage);
 	ArbilSetupWizard.setSessionStorage(sessionStorage);
 	ArbilHyperlinkListener.setSessionStorage(sessionStorage);
 	ArbilDragDrop.setSessionStorage(sessionStorage);
@@ -72,7 +71,6 @@ public class ArbilSwingInjector extends ArbilInjector {
     public void injectTreeHelper(TreeHelper treeHelper) {
 	super.injectTreeHelper(treeHelper);
 	TableContextMenu.setTreeHelper(treeHelper);
-	TreeContextMenu.setTreeHelper(treeHelper);
 	ArbilSetupWizard.setTreeHelper(treeHelper);
 	ArbilSplitPanel.setTreeHelper(treeHelper);
 	ArbilDragDrop.setTreeHelper(treeHelper);

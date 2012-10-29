@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui.applet;
 
@@ -39,14 +39,13 @@ public class ArbilApplet extends javax.swing.JApplet {
 	//System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 	try {
 	    SwingUtilities.invokeAndWait(new Runnable() {
-
 		public void run() {
 		    //injector.injectHandlers();
 		    mainSplitPane = new javax.swing.JSplitPane();
 		    getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
 		    previewSplitPanel = PreviewSplitPanel.getInstance();
 		    mainSplitPane.setRightComponent(previewSplitPanel);
-		    arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper());
+		    arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), injector.getWindowManager());
 		    mainSplitPane.setLeftComponent(arbilTreePanels);
 		    previewSplitPanel.setPreviewPanel(true);
 		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel, ArbilApplet.this);
