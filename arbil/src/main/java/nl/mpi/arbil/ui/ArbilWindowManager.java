@@ -1024,16 +1024,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 				}
 				SwingUtilities.updateComponentTreeUI(getDesktopPane().getParent().getParent());
 			    }
-			    if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_F) {
-				JInternalFrame windowToSearch = getDesktopPane().getSelectedFrame();
-				//System.out.println(windowToSearch.getContentPane());
-				for (Component childComponent : windowToSearch.getContentPane().getComponents()) {
-				    // loop through all the child components in the window (there will probably only be one)
-				    if (childComponent instanceof ArbilSplitPanel) {
-					((ArbilSplitPanel) childComponent).showSearchPane();
-				    }
-				}
-			    }
 			}
 		    }
 		}

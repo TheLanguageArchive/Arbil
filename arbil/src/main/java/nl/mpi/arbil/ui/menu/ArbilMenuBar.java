@@ -826,6 +826,8 @@ public class ArbilMenuBar extends JMenuBar {
 	saveFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
 	undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
 	redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+	searchReplaceMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_F);
+	searchReplaceMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
 
 	Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 	    public void eventDispatched(AWTEvent event) {
