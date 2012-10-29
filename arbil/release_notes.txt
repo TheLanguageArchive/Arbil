@@ -1,7 +1,7 @@
 ARBIL 2.5.x RELEASE NOTES
 ----------------------------------------
 $Date$ 
-$Revision$ (this means that the descriptions below apply to Arbil 2.4.x with x >= revision)
+$Revision$ (this means that the descriptions below apply to Arbil 2.5.x with x >= revision)
 
 Contacts:
 - Peter Withers (peter.withers@mpi.nl)
@@ -32,9 +32,6 @@ a warning dialog. (#1246)
 
 Among other, mostly minor, bugfixes, the following issues have been resolved:
 
-- PROFILES DIALOG: After (re)loading profiles, the window would be resized to a size that exceeds 
-the screen limits. This has been fixed. (#147)
-
 ** KNOWN ISSUES **
 
 Among others, the following issues have been described and will be addressed in future version of
@@ -47,12 +44,6 @@ imported into the local corpus since the authentication mechanism is broken. (#6
 not look as expected. (#899)
 
 - PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays high. (#929)
-
-- STABILITY: During search, memory usage may exceed the limits of the Java virtual machine which
-could cause the application to terminate unexpectedly.
-
-- WINDOWS: The 'Templates and Profiles' and 'Edit IMDI Language List' dialog windows can grow larger
-than the available screen space. (#147 and #1584)
 
 - SEARCH IN TABLE: The layout of the input boxes for search/replcae within a table sometimes break
 on Windows and Linux. (#1577)
