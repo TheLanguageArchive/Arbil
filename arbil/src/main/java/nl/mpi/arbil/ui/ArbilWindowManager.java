@@ -20,6 +20,7 @@ package nl.mpi.arbil.ui;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -1526,6 +1527,17 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public synchronized void addTaskListener(ArbilTaskListener taskListener) {
 	taskListeners.add(taskListener);
+    }
+
+    public Component getCurrentFrameComponent() {
+	JInternalFrame selectedFrame = getDesktopPane().getSelectedFrame();
+	if (selectedFrame != null) {
+	    Container frameContentPane = selectedFrame.getContentPane();
+	    if (frameContentPane.getComponentCount() > 0) {
+		return frameContentPane.getComponent(0);
+	    }
+	}
+	return null;
     }
 
     /**
