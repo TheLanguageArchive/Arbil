@@ -46,7 +46,7 @@ public class FindReplacePanel extends JPanel implements ActionListener, FocusLis
     JButton searchButton;
     JButton replaceButton;
 
-    public FindReplacePanel(ArbilSplitPanel splitPanelLocal) {
+    public FindReplacePanel(ArbilSplitPanel splitPanelLocal) {	
 	splitPanel = splitPanelLocal;
 	seachField = new JTextField(defaultFindText);
 	replaceField = new JTextField(defaultReplaceText);
@@ -172,5 +172,9 @@ public class FindReplacePanel extends JPanel implements ActionListener, FocusLis
 	    currentTextField.setText(currentTextField.getName());
 	    currentTextField.setForeground(Color.gray);
 	}
+    }
+    
+    public void requestFocusOnSearchField(){
+	seachField.requestFocus();
     }
 }

@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
@@ -40,8 +40,9 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
- * Document   : ArbilSplitPanel
- * Created on : 
+ * Document : ArbilSplitPanel
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
@@ -76,7 +77,6 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 	hiddenColumnsLabel = new JLabel();
 	tableScrollPane = new JScrollPane(arbilTable);
 	tableScrollPane.addComponentListener(new ComponentListener() {
-
 	    public void componentResized(ComponentEvent e) {
 		arbilTable.setColumnWidths();
 	    }
@@ -108,7 +108,6 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 	splitPane.setDividerSize(5);
 
 	imagePreview.addMouseListener(new java.awt.event.MouseAdapter() {
-
 	    @Override
 	    public void mousePressed(MouseEvent evt) {
 		if (evt.isPopupTrigger()) {
@@ -126,7 +125,6 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 
 	imagePreview.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	imagePreview.addListSelectionListener(new ListSelectionListener() {
-
 	    public void valueChanged(ListSelectionEvent e) {
 		if (!e.getValueIsAdjusting() && !selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
 		    selectionChangeInProcess = true;
@@ -163,7 +161,6 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 	    }
 	});
 	arbilTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
 	    public void valueChanged(ListSelectionEvent e) {
 		if (!e.getValueIsAdjusting() && !selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
 		    selectionChangeInProcess = true;
@@ -212,6 +209,9 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 	showSearchPanel = !showSearchPanel;
 	this.revalidate();
 	this.repaint();
+	if (showSearchPanel) {
+	    findReplacePanel.requestFocusOnSearchField();
+	}
     }
 
     public void setSplitDisplay() {
@@ -241,7 +241,6 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 
     public void addFocusListener(JInternalFrame internalFrame) {
 	internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
-
 	    @Override
 	    public void internalFrameDeactivated(InternalFrameEvent e) {
 		TableCellEditor tableCellEditor = arbilTable.getCellEditor();
