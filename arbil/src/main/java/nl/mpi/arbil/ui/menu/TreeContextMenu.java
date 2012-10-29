@@ -87,6 +87,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    if (tree == getTreePanel().remoteCorpusTree) {
 		removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
 		addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
+		addRemoteCorpusToRootMenuItem.setVisible(selectionCount > 0 && nodeLevel > 2);
 		copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
 		addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
 		searchRemoteBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1 && !leadSelectedTreeNode.isCmdiMetaDataNode());
@@ -101,9 +102,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
 		deleteMenuItem.setVisible(nodeLevel > 1);
-		boolean nodeIsChild = false;
 		if (leadSelectedTreeNode != null) {
-		    nodeIsChild = leadSelectedTreeNode.isChildNode();
+		    final boolean nodeIsChild = leadSelectedTreeNode.isChildNode();
 
 		    validateMenuItem.setVisible(!nodeIsChild);
 		    historyMenu.setVisible(leadSelectedTreeNode.hasHistory());
@@ -237,7 +237,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	searchRemoteBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    treeController.searchRemoteSubnodesMenuItemActionPerformed(getTreePanel());
+		    treeController.searchRemoteSubnodes(getTreePanel());
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -261,7 +261,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	searchSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    treeController.searchSubnodesMenuItemActionPerformed(getTreePanel());
+		    treeController.searchSubnodes(getTreePanel());
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -366,7 +366,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    treeController.validateMenuItemActionPerformed(selectedTreeNodes);
+		    treeController.validateNodes(selectedTreeNodes);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -394,11 +394,10 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 
 	addRemoteCorpusMenuItem.setText("Add Remote Location");
-
 	addRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    treeController.addRemoteCorpusMenuItem();
+		    treeController.addRemoteCorpus();
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -406,6 +405,21 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 
 	addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE, addRemoteCorpusMenuItem);
+
+	addRemoteCorpusToRootMenuItem.setText("Add to Tree Root");
+	addRemoteCorpusToRootMenuItem.addActionListener(new java.awt.event.ActionListener() {
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		try {
+		    for (ArbilDataNode node : selectedTreeNodes) {
+			treeController.addRemoteCorpus(node.getUrlString());
+		    }
+		} catch (Exception ex) {
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	});
+
+	addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE, addRemoteCorpusToRootMenuItem);
 
 	addDefaultLocationsMenuItem.setText("Add Default Remote Locations");
 	addDefaultLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -713,6 +727,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	showHiddenFilesMenuItem.setVisible(false);
 	removeRemoteCorpusMenuItem.setVisible(false);
 	addRemoteCorpusMenuItem.setVisible(false);
+	addRemoteCorpusToRootMenuItem.setVisible(false);
 	copyBranchMenuItem.setVisible(false);
 	searchRemoteBranchMenuItem.setVisible(false);
 	copyNodeUrlMenuItem.setVisible(false);
@@ -749,6 +764,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     private JMenuItem addDefaultLocationsMenuItem = new JMenuItem();
     private JMenu addMenu = new JMenu();
     private JMenuItem addRemoteCorpusMenuItem = new JMenuItem();
+    private JMenuItem addRemoteCorpusToRootMenuItem = new JMenuItem();
     private JMenuItem addToFavouritesMenuItem = new JMenuItem();
     private JMenuItem removeFromFavouritesMenuItem = new JMenuItem();
     private JMenuItem copyBranchMenuItem = new JMenuItem();

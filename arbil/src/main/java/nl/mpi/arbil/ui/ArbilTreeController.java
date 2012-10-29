@@ -105,9 +105,12 @@ public class ArbilTreeController {
 	}
     }
 
-    public void addRemoteCorpusMenuItem() {
+    public void addRemoteCorpus() {
 	String addableLocation = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
+	addRemoteCorpus(addableLocation);
+    }
 
+    public void addRemoteCorpus(String addableLocation) {
 	if ((addableLocation != null) && (addableLocation.length() > 0)) {
 	    try {
 		treeHelper.addLocationInteractive(ArbilDataNodeService.conformStringToUrl(addableLocation));
@@ -118,15 +121,15 @@ public class ArbilTreeController {
 	}
     }
 
-    public void searchSubnodesMenuItemActionPerformed(ArbilTreePanels treePanels) {
+    public void searchSubnodes(ArbilTreePanels treePanels) {
 	windowManager.openSearchTable(((ArbilTree) treePanels.localCorpusTree).getAllSelectedNodes(), "Search");
     }
 
-    public void searchRemoteSubnodesMenuItemActionPerformed(ArbilTreePanels treePanels) {
+    public void searchRemoteSubnodes(ArbilTreePanels treePanels) {
 	windowManager.openSearchTable(((ArbilTree) treePanels.remoteCorpusTree).getSelectedNodes(), "Search Remote Corpus");
     }
 
-    public void validateMenuItemActionPerformed(ArbilDataNode[] selectedTreeNodes) {
+    public void validateNodes(ArbilDataNode[] selectedTreeNodes) {
 	for (ArbilDataNode currentNode : selectedTreeNodes) {
 	    if (currentNode.getNeedsSaveToDisk(false)
 		    && JOptionPane.YES_OPTION == dialogHandler.showDialogBox(
