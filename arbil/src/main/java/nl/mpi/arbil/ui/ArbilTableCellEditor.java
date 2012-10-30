@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
@@ -65,6 +65,10 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
     private static WindowManager windowManager;
+    /**
+     * Action key that starts appending to field in editor
+     */
+    public static final int APPEND_TO_FIELD_ACTION_KEY = KeyEvent.VK_F2;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
@@ -131,12 +135,15 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 			&& !evt.isAltDown()
 			&& !evt.isAltGraphDown()
 			&& !evt.isControlDown()
-			&& evt.getKeyCode() != 16
-			&& /* 16 is a shift key up or down event */ evt.getKeyCode() != 17
-			&& /* 17 is the ctrl key */ evt.getKeyCode() != 18
-			&& /* 18 is the alt key */ evt.getKeyCode() != 157
-			&&/* 157 is the meta key */ evt.getKeyCode() != 27 /* 27 is the esc key */) {
-		    startEditorMode(evt.isControlDown(), evt.getKeyCode(), evt.getKeyChar());
+			&& evt.getKeyCode() != KeyEvent.VK_SHIFT
+			&& evt.getKeyCode() != KeyEvent.VK_CONTROL
+			&& evt.getKeyCode() != KeyEvent.VK_ALT
+			&& evt.getKeyCode() != KeyEvent.VK_META
+			&& evt.getKeyCode() != KeyEvent.VK_ESCAPE) {
+		    startEditorMode(false, evt.getKeyCode(), evt.getKeyChar());
+		} else if (evt.isControlDown() && evt.getKeyCode() == KeyEvent.VK_U
+			|| evt.getKeyCode() == APPEND_TO_FIELD_ACTION_KEY) {
+		    startEditorMode(false, evt.getKeyCode(), evt.getKeyChar());
 		}
 	    }
 	});
@@ -296,9 +303,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	    }
 
 	    public void focusLost(FocusEvent e) {
-		boolean oppositeIsParent = false;
 		try {
-		    oppositeIsParent = (e.getComponent().equals(e.getOppositeComponent().getParent()) || e.getComponent().getParent().equals(e.getOppositeComponent()));
+		    final boolean oppositeIsParent = (e.getComponent().equals(e.getOppositeComponent().getParent()) || e.getComponent().getParent().equals(e.getOppositeComponent()));
 		    if (!oppositeIsParent && e.getComponent().getParent() != null) {
 			if (!e.getOppositeComponent().getParent().equals(editorPanel)) {
 			    ArbilTableCellEditor.this.stopCellEditing();
@@ -330,11 +336,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 		break;
 	    case KeyEvent.CHAR_UNDEFINED:
 		break;
-	    case KeyEvent.VK_F2:
-		currentCellString = currentCellString + lastKeyChar;
-		break;
-	    case 85:
-		currentCellString = currentCellString + lastKeyChar;
+	    case APPEND_TO_FIELD_ACTION_KEY:
 		break;
 	    default:
 		if (lastKeyChar != KeyEvent.CHAR_UNDEFINED) {
