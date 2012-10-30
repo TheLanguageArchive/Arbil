@@ -79,6 +79,7 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
@@ -925,67 +926,26 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 	    public void eventDispatched(AWTEvent e) {
-		boolean isKeybordRepeat = false;
 		if (e instanceof KeyEvent) {
 		    // only consider key release events
 		    if (e.getID() == KeyEvent.KEY_RELEASED) {
-			// work around for jvm in linux
-			// due to the bug in the jvm for linux the keyboard repeats are shown as real key events, so we attempt to prevent ludicrous key events being used here
-			KeyEvent nextPress = (KeyEvent) Toolkit.getDefaultToolkit().getSystemEventQueue().peekEvent(KeyEvent.KEY_PRESSED);
-			if (nextPress != null) {
-			    // the next key event is at the same time as this event
-			    if ((nextPress.getWhen() == ((KeyEvent) e).getWhen())) {
-				// the next key code is the same as this event
-				if (((nextPress.getKeyCode() == ((KeyEvent) e).getKeyCode()))) {
-				    isKeybordRepeat = true;
-				}
-			    }
-			}
-			// end work around for jvm in linux
-			if (!isKeybordRepeat) {
-//                            System.out.println("KeyEvent.paramString: " + ((KeyEvent) e).paramString());
-//                            System.out.println("KeyEvent.getWhen: " + ((KeyEvent) e).getWhen());
-			    if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
-				JInternalFrame[] windowsToClose;
-				if (((KeyEvent) e).isShiftDown()) {
-				    windowsToClose = getDesktopPane().getAllFrames();
+			final KeyEvent keyEvent = (KeyEvent) e;
+			final int keyCode = keyEvent.getKeyCode();
+
+			if (!isKeyboardRepeat(keyEvent, keyCode)) {
+			    if ((keyEvent.isMetaDown() || keyEvent.isControlDown()) && keyCode == KeyEvent.VK_W) {
+				if (keyEvent.isShiftDown()) {
+				    closeWindows(getDesktopPane().getAllFrames());
 				} else {
-				    windowsToClose = new JInternalFrame[]{getDesktopPane().getSelectedFrame()};
+				    closeWindows(new JInternalFrame[]{getDesktopPane().getSelectedFrame()});
 				}
-				for (JInternalFrame focusedWindow : windowsToClose) {
-				    if (focusedWindow != null) {
-					String windowName = focusedWindow.getName();
-					Component[] windowAndMenu = (Component[]) windowList.get(windowName);
-					if (windowAndMenu != null && ArbilMenuBar.windowMenu != null) {
-					    ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
-					}
-					windowList.remove(windowName);
-					getDesktopPane().remove(focusedWindow);
-					try {
-					    JInternalFrame[] allWindows = getDesktopPane().getAllFrames();
-					    if (allWindows.length > 0) {
-						JInternalFrame topMostWindow = allWindows[0];
-						if (topMostWindow != null) {
-						    System.out.println("topMostWindow: " + topMostWindow);
-						    topMostWindow.setIcon(false);
-						    topMostWindow.setSelected(true);
-						}
-					    }
-					} catch (Exception ex) {
-					    BugCatcherManager.getBugCatcher().logError(ex);
-//                                        System.out.println(ex.getMessage());
-					}
-				    }
-				}
-				getDesktopPane().repaint();
-			    }
-			    if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown())) {
+			    } else if ((keyCode == KeyEvent.VK_TAB && keyEvent.isControlDown())) {
 				// the [meta `] is consumed by the operating system, the only way to enable the back quote key for window switching is to use separate windows and rely on the OS to do the switching
 				// || (((KeyEvent) e).getKeyCode() == KeyEvent.VK_BACK_QUOTE && ((KeyEvent) e).isMetaDown())
 				try {
 				    JInternalFrame[] allWindows = getDesktopPane().getAllFrames();
 				    int targetLayerInt;
-				    if (((KeyEvent) e).isShiftDown()) {
+				    if (keyEvent.isShiftDown()) {
 					allWindows[0].moveToBack();
 					targetLayerInt = 1;
 				    } else {
@@ -997,9 +957,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 				    BugCatcherManager.getBugCatcher().logError(ex);
 //                                    System.out.println(ex.getMessage());
 				}
-			    }
-			    if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && (((KeyEvent) e).getKeyCode() == KeyEvent.VK_MINUS || ((KeyEvent) e).getKeyCode() == KeyEvent.VK_EQUALS || ((KeyEvent) e).getKeyCode() == KeyEvent.VK_PLUS)) {
-				if (((KeyEvent) e).getKeyCode() != KeyEvent.VK_MINUS) {
+			    } else if ((keyEvent.isMetaDown() || keyEvent.isControlDown()) && (keyCode == KeyEvent.VK_MINUS || keyCode == KeyEvent.VK_EQUALS || keyCode == KeyEvent.VK_PLUS)) {
+				if (keyCode != KeyEvent.VK_MINUS) {
 				    fontScale = fontScale + (float) 0.1;
 				} else {
 				    fontScale = fontScale - (float) 0.1;
@@ -1024,11 +983,93 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 				}
 				SwingUtilities.updateComponentTreeUI(getDesktopPane().getParent().getParent());
 			    }
+			    // Handle save, undo and redo keys
+			    if ((keyEvent.isMetaDown() || keyEvent.isControlDown())
+				    && (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_Y || keyCode == KeyEvent.VK_Z)) {
+				// stop any table cell edits
+				Component compFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+				while (compFocusOwner != null) {
+				    if (compFocusOwner instanceof ArbilTable) {
+					TableCellEditor currentEditor = ((ArbilTable) compFocusOwner).getCellEditor();
+					if (currentEditor != null) {
+					    currentEditor.stopCellEditing();
+					    break;
+					}
+				    }
+				    compFocusOwner = compFocusOwner.getParent();
+				}
+				if (keyCode == KeyEvent.VK_S) {
+				    // Save all changes
+				    stopEditingInCurrentWindow();
+				    dataNodeLoader.saveNodesNeedingSave(true);
+				}
+				if (keyCode == java.awt.event.KeyEvent.VK_Z) {
+				    if (keyEvent.isShiftDown()) {
+					// Redo
+					ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
+				    } else {
+					// Undo
+					ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
+				    }
+				}
+				if (keyCode == java.awt.event.KeyEvent.VK_Y) {
+				    // Redo
+				    ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
+				}
+			    }
 			}
 		    }
 		}
 	    }
+
+	    /**
+	     * Work around for jvm in linux.
+	     * due to the bug in the jvm for linux the keyboard repeats are shown as real key events, so we attempt to prevent
+	     * ludicrous key events being used here
+	     */
+	    private boolean isKeyboardRepeat(final KeyEvent keyEvent, final int keyCode) {
+		final KeyEvent nextPress = (KeyEvent) Toolkit.getDefaultToolkit().getSystemEventQueue().peekEvent(KeyEvent.KEY_PRESSED);
+		if (nextPress != null) {
+		    // the next key event is at the same time as this event
+		    if ((nextPress.getWhen() == keyEvent.getWhen())) {
+			// the next key code is the same as this event
+			if (((nextPress.getKeyCode() == keyCode))) {
+			    return true;
+			}
+		    }
+		}
+		// end work around for jvm in linux
+		return false;
+	    }
 	}, AWTEvent.KEY_EVENT_MASK);
+    }
+
+    private void closeWindows(JInternalFrame[] windowsToClose) {
+	for (JInternalFrame focusedWindow : windowsToClose) {
+	    if (focusedWindow != null) {
+		String windowName = focusedWindow.getName();
+		Component[] windowAndMenu = (Component[]) windowList.get(windowName);
+		if (windowAndMenu != null && ArbilMenuBar.windowMenu != null) {
+		    ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
+		}
+		windowList.remove(windowName);
+		getDesktopPane().remove(focusedWindow);
+		try {
+		    JInternalFrame[] allWindows = getDesktopPane().getAllFrames();
+		    if (allWindows.length > 0) {
+			JInternalFrame topMostWindow = allWindows[0];
+			if (topMostWindow != null) {
+			    System.out.println("topMostWindow: " + topMostWindow);
+			    topMostWindow.setIcon(false);
+			    topMostWindow.setSelected(true);
+			}
+		    }
+		} catch (Exception ex) {
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	}
+	getDesktopPane().repaint();
     }
 
     public JDialog createModalDialog(String title, Component contentsComponent, Dimension size, JButton... buttons) {

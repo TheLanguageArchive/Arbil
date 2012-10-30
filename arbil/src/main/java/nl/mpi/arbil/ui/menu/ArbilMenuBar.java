@@ -17,14 +17,9 @@
  */
 package nl.mpi.arbil.ui.menu;
 
-import java.awt.AWTEvent;
 import java.awt.Component;
-import java.awt.KeyboardFocusManager;
-import java.awt.Toolkit;
-import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -44,7 +39,6 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilTreeHelper;
@@ -55,7 +49,6 @@ import nl.mpi.arbil.plugins.ArbilPluginManager;
 import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilHelp;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
-import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.LanguageListDialogue;
@@ -821,48 +814,18 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void setUpHotKeys() {
-	// the jdesktop seems to be consuming the key strokes used for save, undo and redo so to make this available over the whole interface it has been added here
+	// The jdesktop seems to be consuming the key strokes used for save, undo and redo so to make this available over the whole 
+	// interface it has been added here.
+	//
+	// These shortcuts are also configured in ArbilWindowManager through an AWT event listener to make sure they are globablly available
+	// even before the menu has been accessed.
+
 	saveFileMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_S);
 	saveFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
 	undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
 	redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
 	searchReplaceMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_F);
 	searchReplaceMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
-
-	Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-	    public void eventDispatched(AWTEvent event) {
-//                System.out.println("KeyEvent.paramString: " + ((KeyEvent) event).paramString());
-		if ((((KeyEvent) event).isMetaDown() || ((KeyEvent) event).isControlDown()) && event.getID() == KeyEvent.KEY_RELEASED) {
-		    // KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
-		    Component compFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-		    while (compFocusOwner != null) {
-			// stop any table cell edits
-			if (compFocusOwner instanceof ArbilTable) {
-			    TableCellEditor currentEditor = ((ArbilTable) compFocusOwner).getCellEditor();
-			    if (currentEditor != null) {
-				currentEditor.stopCellEditing();
-				break;
-			    }
-			}
-			compFocusOwner = compFocusOwner.getParent();
-		    }
-		    if (((KeyEvent) event).getKeyCode() == KeyEvent.VK_S) {
-			windowManager.stopEditingInCurrentWindow();
-			dataNodeLoader.saveNodesNeedingSave(true);
-		    }
-		    if (((KeyEvent) event).getKeyCode() == java.awt.event.KeyEvent.VK_Z) {
-			if (((KeyEvent) event).isShiftDown()) {
-			    ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
-			} else {
-			    ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
-			}
-		    }
-		    if (((KeyEvent) event).getKeyCode() == java.awt.event.KeyEvent.VK_Y) {
-			ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
-		    }
-		}
-	    }
-	}, AWTEvent.KEY_EVENT_MASK);
     }
 
     private void viewMenuMenuSelected(MenuEvent evt) {
