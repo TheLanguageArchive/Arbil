@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
@@ -89,7 +90,6 @@ import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -1507,6 +1507,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      */
     public int showDialogBox(String message, String title, int optionType, int messageType) {
 	return JOptionPane.showConfirmDialog(getMainFrame(), message, title, optionType, messageType);
+    }
+
+    public DialogBoxResult showDialogBoxRememberChoice(String message, String title, int optionType, int messageType) {
+	final JCheckBox rememberChoiceBox = new JCheckBox("Remember my choice");
+	Object[] messageArray = {message, rememberChoiceBox};
+	int result = JOptionPane.showConfirmDialog(getMainFrame(), messageArray, title, optionType, messageType);
+	return new DialogBoxResult(result, rememberChoiceBox.isSelected());
     }
 
     /**

@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil;
 
@@ -29,54 +29,59 @@ public class MockDialogHandler implements MessageDialogHandler {
     private static final Logger log = Logger.getLogger(MockDialogHandler.class.toString());
 
     private void logMessage(String messageTitle, String messageString) {
-        log.log(Level.INFO, "Message: [{0}] {1}", new Object[]{messageTitle, messageString});
+	log.log(Level.INFO, "Message: [{0}] {1}", new Object[]{messageTitle, messageString});
     }
 
     public void addMessageDialogToQueue(String messageString, String messageTitle) {
-        logMessage(messageTitle, messageString);
+	logMessage(messageTitle, messageString);
     }
 
     public boolean showConfirmDialogBox(String messageString, String messageTitle) {
-        logMessage(messageTitle, messageString);
-        return true;
+	logMessage(messageTitle, messageString);
+	return true;
     }
 
     public int showDialogBox(String message, String title, int optionType, int messageType) {
-        logMessage(title, message);
-        return 0;
+	logMessage(title, message);
+	return 0;
     }
 
     public int showDialogBox(String message, String title, int optionType, int messageType, Object[] options, Object initialValue) {
-        logMessage(title, message + " " + options.toString());
-        return 0;
+	logMessage(title, message + " " + options.toString());
+	return 0;
+    }
+
+    public DialogBoxResult showDialogBoxRememberChoice(String message, String title, int optionType, int messageType) {
+	logMessage(title, message);
+	return new DialogBoxResult(0, false);
     }
 
     public File[] showMetadataFileSelectBox(String titleText, boolean multipleSelect) {
-        logMessage(titleText, null);
-        return null;
+	logMessage(titleText, null);
+	return null;
     }
 
     public File[] showDirectorySelectBox(String titleText, boolean multipleSelect) {
-        logMessage(titleText, null);
-        return null;
+	logMessage(titleText, null);
+	return null;
     }
 
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, Map<String, javax.swing.filechooser.FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
-        logMessage(titleText, null);
-        return null;
+	logMessage(titleText, null);
+	return null;
     }
 
     public File showEmptyExportDirectoryDialogue(String titleText) {
-        logMessage("showEmptyExportDirectoryDialogue", titleText);
-        return null;
+	logMessage("showEmptyExportDirectoryDialogue", titleText);
+	return null;
     }
 
     public void offerUserToSaveChanges() throws Exception {
-        //
+	//
     }
 
     public boolean askUserToSaveChanges(String entityName) {
-        logMessage("askUserToSaveChanges", entityName);
-        return true;
+	logMessage("askUserToSaveChanges", entityName);
+	return true;
     }
 }
