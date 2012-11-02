@@ -645,7 +645,7 @@ public class ImportExportDialog {
 //        System.getProperties().setProperty("sun.net.client.defaultConnectTimeout", "2000");
 //        System.getProperties().setProperty("sun.net.client.defaultReadTimeout", "2000");
 //        searchPanel.setVisible(false);
-	new CopyThread("performCopy").start();
+	new Thread(new CopyRunner(this), "performCopy").start();
     }
 
     private void appendToTaskOutput(String lineOfText) {
@@ -741,20 +741,22 @@ public class ImportExportDialog {
     /////////////////////////////////////////
     // end functions called by the threads //
     /////////////////////////////////////////
-    private class CopyThread extends Thread {
+    private static class CopyRunner implements Runnable {
 
-	public CopyThread(String name) {
-	    super(name);
+	private final ImportExportDialog impExpUI;
+
+	public CopyRunner(ImportExportDialog impExpUI) {
+	    this.impExpUI = impExpUI;
 	}
-	int freeGbWarningPoint = 3;
-	int xsdErrors = 0;
-	int totalLoaded = 0;
-	int totalErrors = 0;
-	int totalExisting = 0;
-	int resourceCopyErrors = 0;
-	String finalMessageString = "";
-	File directoryForSizeTest;
-	boolean testFreeSpace;
+	private int freeGbWarningPoint = 3;
+	private int xsdErrors = 0;
+	private int totalLoaded = 0;
+	private int totalErrors = 0;
+	private int totalExisting = 0;
+	private int resourceCopyErrors = 0;
+	private String finalMessageString = "";
+	private File directoryForSizeTest;
+	private boolean testFreeSpace;
 
 	@Override
 	public void run() {
@@ -762,21 +764,21 @@ public class ImportExportDialog {
 	    // TG: Apparently test not required for version >= 1.5 (2011/2/3)
 	    testFreeSpace = !(javaVersionString.startsWith("1.4.") || javaVersionString.startsWith("1.5."));
 
-	    directoryForSizeTest = exportDestinationDirectory != null
-		    ? exportDestinationDirectory
+	    directoryForSizeTest = impExpUI.exportDestinationDirectory != null
+		    ? impExpUI.exportDestinationDirectory
 		    : sessionStorage.getProjectWorkingDirectory();
 
 
 	    // Append message about copying resource files to the copy output
-	    if (copyFilesImportCheckBox.isSelected() || copyFilesExportCheckBox.isSelected()) {
-		resourceCopyOutput.append("'Copy Resource Files' is selected: Resource files will be downloaded where appropriate permission are granted." + "\n");
+	    if (impExpUI.copyFilesImportCheckBox.isSelected() || impExpUI.copyFilesExportCheckBox.isSelected()) {
+		impExpUI.resourceCopyOutput.append("'Copy Resource Files' is selected: Resource files will be downloaded where appropriate permission are granted." + "\n");
 	    } else {
-		resourceCopyOutput.append("'Copy Resource Files' is not selected: No resource files will be downloaded, however they will be still accessible via the web server." + "\n");
+		impExpUI.resourceCopyOutput.append("'Copy Resource Files' is not selected: No resource files will be downloaded, however they will be still accessible via the web server." + "\n");
 	    }
 
 	    try {
 		// Copy the selected nodes
-		copyElements(selectedNodes.elements());
+		copyElements(impExpUI.selectedNodes.elements());
 	    } catch (Exception ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
 		finalMessageString = finalMessageString + "There was a critical error.";
@@ -785,46 +787,46 @@ public class ImportExportDialog {
 	    // Done copying
 	    SwingUtilities.invokeLater(new Runnable() {
 		public void run() {
-		    setUItoStoppedState();
+		    impExpUI.setUItoStoppedState();
 		}
 	    });
 	    System.out.println("finalMessageString: " + finalMessageString);
 	    Object[] options = {"Close", "Details"};
-	    int detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(), finalMessageString, importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+	    int detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(), finalMessageString, impExpUI.importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 	    if (detailsOption == 0) {
-		importExportDialog.dispose();
+		impExpUI.importExportDialog.dispose();
 	    } else {
-		if (!showingDetails) {
-		    updateDialog(showingMoreOptions, true);
-		    importExportDialog.pack();
+		if (!impExpUI.showingDetails) {
+		    impExpUI.updateDialog(impExpUI.showingMoreOptions, true);
+		    impExpUI.importExportDialog.pack();
 		}
 	    }
-	    if (exportDestinationDirectory != null) {
-		windowManager.openFileInExternalApplication(exportDestinationDirectory.toURI());
+	    if (impExpUI.exportDestinationDirectory != null) {
+		windowManager.openFileInExternalApplication(impExpUI.exportDestinationDirectory.toURI());
 	    }
 	}
 
 	private void copyElements(Enumeration selectedNodesEnum) {
 	    XsdChecker xsdChecker = new XsdChecker();
-	    waitTillVisible();
-	    progressBar.setIndeterminate(true);
+	    impExpUI.waitTillVisible();
+	    impExpUI.progressBar.setIndeterminate(true);
 	    ArrayList<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
 	    Hashtable<URI, RetrievableFile> seenFiles = new Hashtable<URI, RetrievableFile>();
 	    ArrayList<URI> getList = new ArrayList<URI>();
 	    ArrayList<URI> doneList = new ArrayList<URI>();
-	    while (selectedNodesEnum.hasMoreElements() && !stopCopy) {
+	    while (selectedNodesEnum.hasMoreElements() && !impExpUI.stopCopy) {
 		Object currentElement = selectedNodesEnum.nextElement();
 		if (currentElement instanceof ArbilDataNode) {
 		    copyElement(currentElement, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
 		}
 	    }
 	    finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
-	    if (exportDestinationDirectory == null) {
-		if (!stopCopy) {
+	    if (impExpUI.exportDestinationDirectory == null) {
+		if (!impExpUI.stopCopy) {
 		    for (ArbilDataNode currentFinishedNode : finishedTopNodes) {
-			if (destinationNode != null) {
-			    if (!destinationNode.getURI().equals(currentFinishedNode.getURI())) {
-				destinationNode.addCorpusLink(currentFinishedNode);
+			if (impExpUI.destinationNode != null) {
+			    if (!impExpUI.destinationNode.getURI().equals(currentFinishedNode.getURI())) {
+				impExpUI.destinationNode.addCorpusLink(currentFinishedNode);
 			    }
 			} else {
 			    if (!treeHelper.addLocation(currentFinishedNode.getURI())) {
@@ -834,25 +836,25 @@ public class ImportExportDialog {
 			currentFinishedNode.reloadNode();
 		    }
 		}
-		if (destinationNode == null) {
+		if (impExpUI.destinationNode == null) {
 		    treeHelper.applyRootLocations();
 		} else {
-		    destinationNode.reloadNode();
+		    impExpUI.destinationNode.reloadNode();
 		}
 	    }
-	    progressBar.setIndeterminate(false);
+	    impExpUI.progressBar.setIndeterminate(false);
 	    if (totalErrors != 0) {
 		finalMessageString = finalMessageString + "There were " + totalErrors + " errors, some files may not have been copied.\n";
 	    }
 	    if (xsdErrors != 0) {
 		finalMessageString = finalMessageString + "There were " + xsdErrors + " files that failed to validate and have xml errors.\n";
 	    }
-	    if (stopCopy) {
-		appendToTaskOutput("copy canceled");
+	    if (impExpUI.stopCopy) {
+		impExpUI.appendToTaskOutput("copy canceled");
 		System.out.println("copy canceled");
 		finalMessageString = finalMessageString + "The process was canceled, some files may not have been copied.\n";
 	    } else {
-		selectedNodes.removeAllElements();
+		impExpUI.selectedNodes.removeAllElements();
 	    }
 	}
 
@@ -860,13 +862,13 @@ public class ImportExportDialog {
 	    URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
 	    getList.add(currentGettableUri);
 	    if (!seenFiles.containsKey(currentGettableUri)) {
-		seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
+		seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), impExpUI.exportDestinationDirectory));
 	    }
-	    while (!stopCopy && getList.size() > 0) {
+	    while (!impExpUI.stopCopy && getList.size() > 0) {
 		RetrievableFile currentRetrievableFile = seenFiles.get(getList.remove(0));
 		copyFile(currentRetrievableFile, seenFiles, doneList, getList, xsdChecker);
 	    }
-	    if (exportDestinationDirectory == null) {
+	    if (impExpUI.exportDestinationDirectory == null) {
 		File newNodeLocation = sessionStorage.getSaveLocation(((ArbilDataNode) currentElement).getParentDomNode().getUrlString());
 		finishedTopNodes.add(dataNodeLoader.getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
 	    }
@@ -876,12 +878,12 @@ public class ImportExportDialog {
 	    try {
 		if (!doneList.contains(currentRetrievableFile.sourceURI)) {
 		    String journalActionString;
-		    if (exportDestinationDirectory == null) {
+		    if (impExpUI.exportDestinationDirectory == null) {
 			currentRetrievableFile.calculateUriFileName();
 			journalActionString = "import";
 		    } else {
-			if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-			    currentRetrievableFile.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+			if (impExpUI.renameFileToNodeName.isSelected() && impExpUI.exportDestinationDirectory != null) {
+			    currentRetrievableFile.calculateTreeFileName(impExpUI.renameFileToLamusFriendlyName.isSelected());
 			} else {
 			    currentRetrievableFile.calculateUriFileName();
 			}
@@ -896,16 +898,16 @@ public class ImportExportDialog {
 		    if (linksUriArray != null) {
 			copyLinks(linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
 		    }
-		    boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && overwriteCheckBox.isSelected();
+		    boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && impExpUI.overwriteCheckBox.isSelected();
 		    if (currentRetrievableFile.destinationFile.exists()) {
 			totalExisting++;
 		    }
-		    if (currentRetrievableFile.destinationFile.exists() && !overwriteCheckBox.isSelected()) {
-			appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
-			appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+		    if (currentRetrievableFile.destinationFile.exists() && !impExpUI.overwriteCheckBox.isSelected()) {
+			impExpUI.appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
+			impExpUI.appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 		    } else {
 			if (replacingExitingFile) {
-			    appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+			    impExpUI.appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 			} else {
 			}
 			ArbilDataNode destinationNode = dataNodeLoader.getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
@@ -925,12 +927,12 @@ public class ImportExportDialog {
 			String checkerResult;
 			checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile);
 			if (checkerResult != null) {
-			    xmlOutput.append(currentRetrievableFile.sourceURI.toString() + "\n");
-			    xmlOutput.append("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+			    impExpUI.xmlOutput.append(currentRetrievableFile.sourceURI.toString() + "\n");
+			    impExpUI.xmlOutput.append("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 			    System.out.println("checkerResult: " + checkerResult);
-			    xmlOutput.append(checkerResult + "\n");
-			    xmlOutput.setCaretPosition(xmlOutput.getText().length() - 1);
-			    validationErrors.add(currentRetrievableFile.sourceURI);
+			    impExpUI.xmlOutput.append(checkerResult + "\n");
+			    impExpUI.xmlOutput.setCaretPosition(impExpUI.xmlOutput.getText().length() - 1);
+			    impExpUI.validationErrors.add(currentRetrievableFile.sourceURI);
 			    xsdErrors++;
 			}
 			if (replacingExitingFile) {
@@ -941,35 +943,35 @@ public class ImportExportDialog {
 	    } catch (ArbilMetadataException ex) {
 		BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 		totalErrors++;
-		metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
-		appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
+		impExpUI.metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+		impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
 	    } catch (MalformedURLException ex) {
 		BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 		totalErrors++;
-		metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
-		appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
+		impExpUI.metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+		impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 		System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
 	    } catch (IOException ex) {
 		BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 		totalErrors++;
-		metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
-		appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
+		impExpUI.metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+		impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 	    }
 	    totalLoaded++;
-	    progressFoundLabel.setText(progressFoundLabelText + (getList.size() + totalLoaded));
-	    progressProcessedLabel.setText(progressProcessedLabelText + totalLoaded);
-	    progressAlreadyInCacheLabel.setText(progressAlreadyInCacheLabelText + totalExisting);
-	    progressFailedLabel.setText(progressFailedLabelText + totalErrors);
-	    progressXmlErrorsLabel.setText(progressXmlErrorsLabelText + xsdErrors);
-	    resourceCopyErrorsLabel.setText(resourceCopyErrorsLabelText + resourceCopyErrors);
-	    progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
+	    impExpUI.progressFoundLabel.setText(impExpUI.progressFoundLabelText + (getList.size() + totalLoaded));
+	    impExpUI.progressProcessedLabel.setText(impExpUI.progressProcessedLabelText + totalLoaded);
+	    impExpUI.progressAlreadyInCacheLabel.setText(impExpUI.progressAlreadyInCacheLabelText + totalExisting);
+	    impExpUI.progressFailedLabel.setText(impExpUI.progressFailedLabelText + totalErrors);
+	    impExpUI.progressXmlErrorsLabel.setText(impExpUI.progressXmlErrorsLabelText + xsdErrors);
+	    impExpUI.resourceCopyErrorsLabel.setText(impExpUI.resourceCopyErrorsLabelText + resourceCopyErrors);
+	    impExpUI.progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
 	    if (testFreeSpace) {
 		testFreeSpace();
 	    }
 	}
 
 	private void copyLinks(URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
-	    for (int linkCount = 0; linkCount < linksUriArray.length && !stopCopy; linkCount++) {
+	    for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.stopCopy; linkCount++) {
 		System.out.println("Link: " + linksUriArray[linkCount].toString());
 		String currentLink = linksUriArray[linkCount].toString();
 		URI gettableLinkUri = linksUriArray[linkCount].normalize();
@@ -979,22 +981,22 @@ public class ImportExportDialog {
 		RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
 		if (MetadataFormat.isPathMetadata(currentLink)) {
 		    getList.add(gettableLinkUri);
-		    if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-			retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+		    if (impExpUI.renameFileToNodeName.isSelected() && impExpUI.exportDestinationDirectory != null) {
+			retrievableLink.calculateTreeFileName(impExpUI.renameFileToLamusFriendlyName.isSelected());
 		    } else {
 			retrievableLink.calculateUriFileName();
 		    }
 		    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.destinationFile.toURI()});
 		} else {
-		    if (!copyFilesImportCheckBox.isSelected() && !copyFilesExportCheckBox.isSelected()) {
+		    if (!impExpUI.copyFilesImportCheckBox.isSelected() && !impExpUI.copyFilesExportCheckBox.isSelected()) {
 			uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
 		    } else {
 			File downloadFileLocation;
-			if (exportDestinationDirectory == null) {
-			    downloadFileLocation = sessionStorage.updateCache(currentLink, shibbolethNegotiator, false, false, downloadAbortFlag, resourceProgressLabel);
+			if (impExpUI.exportDestinationDirectory == null) {
+			    downloadFileLocation = sessionStorage.updateCache(currentLink, impExpUI.shibbolethNegotiator, false, false, impExpUI.downloadAbortFlag, impExpUI.resourceProgressLabel);
 			} else {
-			    if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-				retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+			    if (impExpUI.renameFileToNodeName.isSelected() && impExpUI.exportDestinationDirectory != null) {
+				retrievableLink.calculateTreeFileName(impExpUI.renameFileToLamusFriendlyName.isSelected());
 			    } else {
 				retrievableLink.calculateUriFileName();
 			    }
@@ -1004,20 +1006,20 @@ public class ImportExportDialog {
 				}
 			    }
 			    downloadFileLocation = retrievableLink.destinationFile;
-			    resourceProgressLabel.setText(" ");
-			    sessionStorage.saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, false, downloadAbortFlag, resourceProgressLabel);
-			    resourceProgressLabel.setText(" ");
+			    impExpUI.resourceProgressLabel.setText(" ");
+			    sessionStorage.saveRemoteResource(new URL(currentLink), downloadFileLocation, impExpUI.shibbolethNegotiator, true, false, impExpUI.downloadAbortFlag, impExpUI.resourceProgressLabel);
+			    impExpUI.resourceProgressLabel.setText(" ");
 			}
 			if (downloadFileLocation != null && downloadFileLocation.exists()) {
-			    appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
+			    impExpUI.appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
 			    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
 			} else {
-			    resourceCopyOutput.append("Download failed: " + currentLink + " \n");
-			    fileCopyErrors.add(currentRetrievableFile.sourceURI);
+			    impExpUI.resourceCopyOutput.append("Download failed: " + currentLink + " \n");
+			    impExpUI.fileCopyErrors.add(currentRetrievableFile.sourceURI);
 			    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
 			    resourceCopyErrors++;
 			}
-			resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
+			impExpUI.resourceCopyOutput.setCaretPosition(impExpUI.resourceCopyOutput.getText().length() - 1);
 		    }
 		}
 	    }
@@ -1026,99 +1028,100 @@ public class ImportExportDialog {
 	private void testFreeSpace() {
 	    try {
 		int freeGBytes = (int) (directoryForSizeTest.getFreeSpace() / 1073741824);
-		diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
+		impExpUI.diskSpaceLabel.setText(impExpUI.diskFreeLabelText + freeGBytes + "GB");
 		if (freeGbWarningPoint > freeGBytes) {
-		    progressBar.setIndeterminate(false);
-		    if (JOptionPane.YES_OPTION == dialogHandler.showDialogBox("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+		    impExpUI.progressBar.setIndeterminate(false);
+		    if (JOptionPane.YES_OPTION == dialogHandler.showDialogBox("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", impExpUI.importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 			freeGbWarningPoint = freeGBytes - 1;
 		    } else {
-			stopCopy = true;
+			impExpUI.stopCopy = true;
 		    }
-		    progressBar.setIndeterminate(true);
+		    impExpUI.progressBar.setIndeterminate(true);
 		}
 	    } catch (Exception ex) {
-		diskSpaceLabel.setText(diskFreeLabelText + "N/A");
+		impExpUI.diskSpaceLabel.setText(impExpUI.diskFreeLabelText + "N/A");
 		testFreeSpace = false;
 	    }
 	}
-    };
 
-    private class RetrievableFile {
+	private class RetrievableFile {
 
-	public RetrievableFile(URI sourceURILocal, File destinationDirectoryLocal) {
-	    sourceURI = sourceURILocal;
-	    destinationDirectory = destinationDirectoryLocal;
-	}
+	    private URI sourceURI;
+	    private File destinationDirectory;
+	    private File childDestinationDirectory;
+	    private File destinationFile;
+	    private String fileSuffix;
 
-	private String makeFileNameLamusFriendly(String fileNameString) {
-	    String friendlyFileName = fileNameString.replaceAll("[^A-Za-z0-9-]", "_");
-	    friendlyFileName = friendlyFileName.replaceAll("__+", "_");
-	    return friendlyFileName;
-	}
-
-	public void calculateUriFileName() {
-	    if (destinationDirectory != null) {
-		destinationFile = sessionStorage.getExportPath(sourceURI.toString(), destinationDirectory.getPath());
-	    } else {
-		destinationFile = sessionStorage.getSaveLocation(sourceURI.toString());
+	    public RetrievableFile(URI sourceURILocal, File destinationDirectoryLocal) {
+		sourceURI = sourceURILocal;
+		destinationDirectory = destinationDirectoryLocal;
 	    }
-	    childDestinationDirectory = destinationDirectory;
-	}
 
-	public void calculateTreeFileName(boolean lamusFriendly) {
-	    final int suffixSeparator = sourceURI.toString().lastIndexOf(".");
-	    if (suffixSeparator > 0) {
-		fileSuffix = sourceURI.toString().substring(suffixSeparator);
-	    } else {
-		fileSuffix = "";
+	    private String makeFileNameLamusFriendly(String fileNameString) {
+		String friendlyFileName = fileNameString.replaceAll("[^A-Za-z0-9-]", "_");
+		friendlyFileName = friendlyFileName.replaceAll("__+", "_");
+		return friendlyFileName;
 	    }
-	    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, sourceURI);
-	    currentNode.waitTillLoaded();
-	    String fileNameString;
-	    if (currentNode.isMetaDataNode()) {
-		fileNameString = currentNode.toString();
-	    } else {
-		String urlString = sourceURI.toString();
-		try {
-		    urlString = URLDecoder.decode(urlString, "UTF-8");
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(urlString, ex);
-		    appendToTaskOutput("unable to decode the file name for: " + urlString);
-		    System.out.println("unable to decode the file name for: " + urlString);
-		}
-		final int separator = urlString.lastIndexOf(".");
-		if (separator > 0) {
-		    fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1, separator);
+
+	    public void calculateUriFileName() {
+		if (destinationDirectory != null) {
+		    destinationFile = sessionStorage.getExportPath(sourceURI.toString(), destinationDirectory.getPath());
 		} else {
-		    fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1);
+		    destinationFile = sessionStorage.getSaveLocation(sourceURI.toString());
 		}
+		childDestinationDirectory = destinationDirectory;
 	    }
-	    fileNameString = fileNameString.replace("\\", "_");
-	    fileNameString = fileNameString.replace("/", "_");
-	    if (lamusFriendly) {
-		fileNameString = makeFileNameLamusFriendly(fileNameString);
-	    }
-	    if (fileNameString.length() < 1) {
-		fileNameString = "unnamed";
-	    }
-	    destinationFile = new File(destinationDirectory, fileNameString + fileSuffix);
-	    childDestinationDirectory = new File(destinationDirectory, fileNameString);
-	    int fileCounter = 1;
-	    while (destinationFile.exists()) {
+
+	    public void calculateTreeFileName(boolean lamusFriendly) {
+		final int suffixSeparator = sourceURI.toString().lastIndexOf(".");
+		if (suffixSeparator > 0) {
+		    fileSuffix = sourceURI.toString().substring(suffixSeparator);
+		} else {
+		    fileSuffix = "";
+		}
+		ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, sourceURI);
+		currentNode.waitTillLoaded();
+		String fileNameString;
+		if (currentNode.isMetaDataNode()) {
+		    fileNameString = currentNode.toString();
+		} else {
+		    String urlString = sourceURI.toString();
+		    try {
+			urlString = URLDecoder.decode(urlString, "UTF-8");
+		    } catch (Exception ex) {
+			BugCatcherManager.getBugCatcher().logError(urlString, ex);
+			impExpUI.appendToTaskOutput("unable to decode the file name for: " + urlString);
+			System.out.println("unable to decode the file name for: " + urlString);
+		    }
+		    final int separator = urlString.lastIndexOf(".");
+		    if (separator > 0) {
+			fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1, separator);
+		    } else {
+			fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1);
+		    }
+		}
+		fileNameString = fileNameString.replace("\\", "_");
+		fileNameString = fileNameString.replace("/", "_");
 		if (lamusFriendly) {
-		    destinationFile = new File(destinationDirectory, fileNameString + "_" + fileCounter + fileSuffix);
-		    childDestinationDirectory = new File(destinationDirectory, fileNameString + "_" + fileCounter);
-		} else {
-		    destinationFile = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")" + fileSuffix);
-		    childDestinationDirectory = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")");
+		    fileNameString = makeFileNameLamusFriendly(fileNameString);
 		}
-		fileCounter++;
+		if (fileNameString.length() < 1) {
+		    fileNameString = "unnamed";
+		}
+		destinationFile = new File(destinationDirectory, fileNameString + fileSuffix);
+		childDestinationDirectory = new File(destinationDirectory, fileNameString);
+		int fileCounter = 1;
+		while (destinationFile.exists()) {
+		    if (lamusFriendly) {
+			destinationFile = new File(destinationDirectory, fileNameString + "_" + fileCounter + fileSuffix);
+			childDestinationDirectory = new File(destinationDirectory, fileNameString + "_" + fileCounter);
+		    } else {
+			destinationFile = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")" + fileSuffix);
+			childDestinationDirectory = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")");
+		    }
+		    fileCounter++;
+		}
 	    }
 	}
-	URI sourceURI;
-	File destinationDirectory;
-	File childDestinationDirectory;
-	File destinationFile;
-	String fileSuffix;
     }
 }
