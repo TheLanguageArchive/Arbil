@@ -34,6 +34,12 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 	return 0;
     }
 
+    public DialogBoxResult showDialogBoxRememberChoice(String message, String title, int optionType, int messageType) {
+	logger.info(String.format("Dialog box: [%1$s] %2$s (remember choice?)", title, message));
+	Session.get().info(String.format("Message: [%1$s] %2$s", title, message));
+	return new DialogBoxResult(0, false);
+    }
+
     public int showDialogBox(String message, String title, int optionType, int messageType, Object[] options, Object initialValue) {
 	logger.info(String.format("Dialog box: [%1$s] %2$s | %3$s", title, message, Arrays.toString(options)));
 	Session.get().info(String.format("Message: [%1$s] %2$s | %3$s", title, message, Arrays.toString(options)));
