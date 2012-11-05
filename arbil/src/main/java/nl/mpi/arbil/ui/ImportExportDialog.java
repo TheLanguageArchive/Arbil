@@ -69,8 +69,15 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ImportExportDialog implements ImportExportUI {
 
-    private JDialog importExportDialog;
-    private JPanel importExportPanel;
+    private final static String progressFoundLabelText = "Total Metadata Files Found: ";
+    private final static String progressProcessedLabelText = "Total Metadata Files Processed: ";
+    private final static String progressAlreadyInCacheLabelText = "Metadata Files already in Local Corpus: ";
+    private final static String progressFailedLabelText = "Metadata File Copy Errors: ";
+    private final static String progressXmlErrorsLabelText = "Metadata File Validation Errors: ";
+    private final static String resourceCopyErrorsLabelText = "Resource File Copy Errors: ";
+    
+    final private JDialog importExportDialog;
+    final private JPanel importExportPanel;
     private JPanel inputNodePanel;
     private JPanel outputNodePanel;
     private JCheckBox copyFilesExportCheckBox;
@@ -97,12 +104,6 @@ public class ImportExportDialog implements ImportExportUI {
     private JLabel resourceCopyErrorsLabel;
     private JButton showInTableButton;
     private JButton closeButton;
-    private final static String progressFoundLabelText = "Total Metadata Files Found: ";
-    private final static String progressProcessedLabelText = "Total Metadata Files Processed: ";
-    private final static String progressAlreadyInCacheLabelText = "Metadata Files already in Local Corpus: ";
-    private final static String progressFailedLabelText = "Metadata File Copy Errors: ";
-    private final static String progressXmlErrorsLabelText = "Metadata File Validation Errors: ";
-    private final static String resourceCopyErrorsLabelText = "Resource File Copy Errors: ";
     private JButton stopButton;
     private JButton startButton;
     private JTabbedPane detailsTabPane;
@@ -121,10 +122,10 @@ public class ImportExportDialog implements ImportExportUI {
     private Vector<URI> validationErrors = new Vector<URI>();
     private Vector<URI> metaDataCopyErrors = new Vector<URI>();
     private Vector<URI> fileCopyErrors = new Vector<URI>();
-    private static TreeHelper treeHelper;
     private boolean showingMoreOptions = false;
     private boolean showingDetails = false;
 
+    private static TreeHelper treeHelper;
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
     }
@@ -149,144 +150,6 @@ public class ImportExportDialog implements ImportExportUI {
 	dialogHandler = dialogHandlerInstance;
     }
 
-    private void setNodesPanel(ArbilDataNode selectedNode, JPanel nodePanel) {
-	JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
-	nodePanel.add(currentLabel);
-    }
-
-    private void setNodesPanel(Vector selectedNodes, JPanel nodePanel) {
-//            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
-//        nodePanel.setLayout(new java.awt.GridLayout());
-//        add(nodePanel);
-	for (Enumeration<ArbilDataNode> selectedNodesEnum = selectedNodes.elements(); selectedNodesEnum.hasMoreElements();) {
-	    ArbilDataNode currentNode = selectedNodesEnum.nextElement();
-	    JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
-	    nodePanel.add(currentLabel);
-	}
-    }
-
-    private void setLocalCacheToNodesPanel(JPanel nodePanel) {
-	DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot();
-	ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
-	JLabel currentLabel = new JLabel(rootArbilNode.toString(), rootArbilNode.getIcon(), JLabel.CENTER);
-	nodePanel.add(currentLabel);
-    }
-
-    private void setLocalFileToNodesPanel(JPanel nodePanel, File destinationDirectory) {
-	DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeHelper.getLocalDirectoryTreeModel().getRoot();
-	ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
-	JLabel currentLabel = new JLabel(destinationDirectory.getPath(), rootArbilNode.getIcon(), JLabel.CENTER);
-	nodePanel.add(currentLabel);
-    }
-
-    public void importArbilBranch() {
-	File[] selectedFiles = dialogHandler.showMetadataFileSelectBox("Import", true);
-	if (selectedFiles != null) {
-	    Vector importNodeVector = new Vector();
-	    for (File currentFile : selectedFiles) {
-		ArbilDataNode nodeToImport = dataNodeLoader.getArbilDataNode(null, currentFile.toURI());
-		importNodeVector.add(nodeToImport);
-	    }
-	    copyToCache(importNodeVector);
-	}
-    }
-
-    public void selectExportDirectoryAndExport(ArbilDataNode[] localCorpusSelectedNodes) {
-	// make sure the chosen directory is empty
-	// export the tree, maybe adjusting resource links so that resource files do not need to be copied
-	importExportDialog.setTitle("Export Branch");
-	File destinationDirectory = dialogHandler.showEmptyExportDirectoryDialogue(importExportDialog.getTitle());
-	if (destinationDirectory != null) {
-	    exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
-	}
-    }
-
-    private void exportFromCache(Vector localSelectedNodes, File destinationDirectory) {
-	selectedNodes = localSelectedNodes;
-//        searchDialog.setTitle("Export Branch");
-	if (!selectedNodesContainDataNode()) {
-	    dialogHandler.addMessageDialogToQueue("No relevant nodes are selected", importExportDialog.getTitle());
-	    return;
-	}
-	setNodesPanel(selectedNodes, inputNodePanel);
-	setLocalFileToNodesPanel(outputNodePanel, destinationDirectory);
-	//String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
-
-	exportDestinationDirectory = destinationDirectory;
-	updateDialog(showingMoreOptions, showingDetails);
-	importExportDialog.setVisible(true);
-    }
-
-    public void copyToCache(ArbilDataNode[] localSelectedNodes) {
-	copyToCache(new Vector(Arrays.asList(localSelectedNodes)));
-    }
-
-    // sets the destination branch for the imported nodes
-    public void setDestinationNode(ArbilDataNode localDestinationNode) {
-	destinationNode = localDestinationNode;
-	setNodesPanel(destinationNode, outputNodePanel);
-    }
-
-    public void copyToCache(Vector localSelectedNodes) {
-	selectedNodes = localSelectedNodes;
-	importExportDialog.setTitle("Import Branch");
-	if (!selectedNodesContainDataNode()) {
-	    dialogHandler.addMessageDialogToQueue("No relevant nodes are selected", importExportDialog.getTitle());
-	    return;
-	}
-	setNodesPanel(selectedNodes, inputNodePanel);
-	if (destinationNode == null) {
-	    setLocalCacheToNodesPanel(outputNodePanel);
-	}
-	importExportDialog.setVisible(true);
-    }
-
-    private boolean selectedNodesContainDataNode() {
-	Enumeration selectedNodesEnum = selectedNodes.elements();
-	while (selectedNodesEnum.hasMoreElements()) {
-	    if (selectedNodesEnum.nextElement() instanceof ArbilDataNode) {
-		return true;
-	    }
-	}
-	return false;
-    }
-
-    private synchronized void updateDialog(boolean optionsFlag, boolean detailsFlag) {
-	overwriteCheckBox.setVisible(exportDestinationDirectory == null);
-	copyFilesImportCheckBox.setVisible(exportDestinationDirectory == null);
-	copyFilesExportCheckBox.setVisible(exportDestinationDirectory != null);
-
-	// showMoreFlag is false the first time this is called when the dialog is initialised so we need to make sure that pack gets called in this case
-	// otherwise try to prevent chenging the window size when not required
-
-	if (!optionsFlag || !detailsFlag || showingMoreOptions != optionsFlag || showingDetails != detailsFlag) {
-	    detailsTabPane.setVisible(detailsFlag);
-	    detailsBottomPanel.setVisible(detailsFlag);
-
-	    /**
-	     * Advanced options *
-	     */
-	    copyFilesImportCheckBox.setVisible(optionsFlag && exportDestinationDirectory == null); // Only for import
-	    renameFileToNodeName.setVisible(optionsFlag && exportDestinationDirectory != null); // Only for export
-	    renameFileToLamusFriendlyName.setVisible(optionsFlag && exportDestinationDirectory != null); // Only for export
-	    shibbolethCheckBox.setVisible(optionsFlag && copyFilesImportCheckBox.isSelected());
-	    shibbolethPanel.setVisible(optionsFlag && copyFilesImportCheckBox.isSelected());
-
-	    if (detailsFlag) {
-		importExportDialog.setMinimumSize(new Dimension(500, 500));
-	    } else {
-		importExportDialog.setMinimumSize(null);
-	    }
-
-	    showMoreButton.setText(optionsFlag ? "< < Fewer options" : "More options> >");
-	    showDetailsButton.setText(detailsFlag ? "< < Hide details" : "Details > >");
-	    showingMoreOptions = optionsFlag;
-	    showingDetails = detailsFlag;
-	    importExportDialog.pack();
-	}
-    }
-
-    // the targetComponent is used to place the import dialog
     public ImportExportDialog(Component targetComponent) throws Exception {
 	dialogHandler.offerUserToSaveChanges();
 
@@ -625,6 +488,143 @@ public class ImportExportDialog implements ImportExportUI {
 
 	buttonsPanel.setAlignmentX(0);
 	return buttonsPanel;
+    }
+
+    private void setNodesPanel(ArbilDataNode selectedNode, JPanel nodePanel) {
+	JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
+	nodePanel.add(currentLabel);
+    }
+
+    private void setNodesPanel(Vector selectedNodes, JPanel nodePanel) {
+//            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
+//        nodePanel.setLayout(new java.awt.GridLayout());
+//        add(nodePanel);
+	for (Enumeration<ArbilDataNode> selectedNodesEnum = selectedNodes.elements(); selectedNodesEnum.hasMoreElements();) {
+	    ArbilDataNode currentNode = selectedNodesEnum.nextElement();
+	    JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
+	    nodePanel.add(currentLabel);
+	}
+    }
+
+    private void setLocalCacheToNodesPanel(JPanel nodePanel) {
+	DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot();
+	ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
+	JLabel currentLabel = new JLabel(rootArbilNode.toString(), rootArbilNode.getIcon(), JLabel.CENTER);
+	nodePanel.add(currentLabel);
+    }
+
+    private void setLocalFileToNodesPanel(JPanel nodePanel, File destinationDirectory) {
+	DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeHelper.getLocalDirectoryTreeModel().getRoot();
+	ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
+	JLabel currentLabel = new JLabel(destinationDirectory.getPath(), rootArbilNode.getIcon(), JLabel.CENTER);
+	nodePanel.add(currentLabel);
+    }
+
+    public void importArbilBranch() {
+	File[] selectedFiles = dialogHandler.showMetadataFileSelectBox("Import", true);
+	if (selectedFiles != null) {
+	    Vector importNodeVector = new Vector();
+	    for (File currentFile : selectedFiles) {
+		ArbilDataNode nodeToImport = dataNodeLoader.getArbilDataNode(null, currentFile.toURI());
+		importNodeVector.add(nodeToImport);
+	    }
+	    copyToCache(importNodeVector);
+	}
+    }
+
+    public void selectExportDirectoryAndExport(ArbilDataNode[] localCorpusSelectedNodes) {
+	// make sure the chosen directory is empty
+	// export the tree, maybe adjusting resource links so that resource files do not need to be copied
+	importExportDialog.setTitle("Export Branch");
+	File destinationDirectory = dialogHandler.showEmptyExportDirectoryDialogue(importExportDialog.getTitle());
+	if (destinationDirectory != null) {
+	    exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
+	}
+    }
+
+    private void exportFromCache(Vector localSelectedNodes, File destinationDirectory) {
+	selectedNodes = localSelectedNodes;
+//        searchDialog.setTitle("Export Branch");
+	if (!selectedNodesContainDataNode()) {
+	    dialogHandler.addMessageDialogToQueue("No relevant nodes are selected", importExportDialog.getTitle());
+	    return;
+	}
+	setNodesPanel(selectedNodes, inputNodePanel);
+	setLocalFileToNodesPanel(outputNodePanel, destinationDirectory);
+	//String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
+
+	exportDestinationDirectory = destinationDirectory;
+	updateDialog(showingMoreOptions, showingDetails);
+	importExportDialog.setVisible(true);
+    }
+
+    public void copyToCache(ArbilDataNode[] localSelectedNodes) {
+	copyToCache(new Vector(Arrays.asList(localSelectedNodes)));
+    }
+
+    // sets the destination branch for the imported nodes
+    public void setDestinationNode(ArbilDataNode localDestinationNode) {
+	destinationNode = localDestinationNode;
+	setNodesPanel(destinationNode, outputNodePanel);
+    }
+
+    public void copyToCache(Vector localSelectedNodes) {
+	selectedNodes = localSelectedNodes;
+	importExportDialog.setTitle("Import Branch");
+	if (!selectedNodesContainDataNode()) {
+	    dialogHandler.addMessageDialogToQueue("No relevant nodes are selected", importExportDialog.getTitle());
+	    return;
+	}
+	setNodesPanel(selectedNodes, inputNodePanel);
+	if (destinationNode == null) {
+	    setLocalCacheToNodesPanel(outputNodePanel);
+	}
+	importExportDialog.setVisible(true);
+    }
+
+    private boolean selectedNodesContainDataNode() {
+	Enumeration selectedNodesEnum = selectedNodes.elements();
+	while (selectedNodesEnum.hasMoreElements()) {
+	    if (selectedNodesEnum.nextElement() instanceof ArbilDataNode) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    private synchronized void updateDialog(boolean optionsFlag, boolean detailsFlag) {
+	overwriteCheckBox.setVisible(exportDestinationDirectory == null);
+	copyFilesImportCheckBox.setVisible(exportDestinationDirectory == null);
+	copyFilesExportCheckBox.setVisible(exportDestinationDirectory != null);
+
+	// showMoreFlag is false the first time this is called when the dialog is initialised so we need to make sure that pack gets called in this case
+	// otherwise try to prevent chenging the window size when not required
+
+	if (!optionsFlag || !detailsFlag || showingMoreOptions != optionsFlag || showingDetails != detailsFlag) {
+	    detailsTabPane.setVisible(detailsFlag);
+	    detailsBottomPanel.setVisible(detailsFlag);
+
+	    /**
+	     * Advanced options *
+	     */
+	    copyFilesImportCheckBox.setVisible(optionsFlag && exportDestinationDirectory == null); // Only for import
+	    renameFileToNodeName.setVisible(optionsFlag && exportDestinationDirectory != null); // Only for export
+	    renameFileToLamusFriendlyName.setVisible(optionsFlag && exportDestinationDirectory != null); // Only for export
+	    shibbolethCheckBox.setVisible(optionsFlag && copyFilesImportCheckBox.isSelected());
+	    shibbolethPanel.setVisible(optionsFlag && copyFilesImportCheckBox.isSelected());
+
+	    if (detailsFlag) {
+		importExportDialog.setMinimumSize(new Dimension(500, 500));
+	    } else {
+		importExportDialog.setMinimumSize(null);
+	    }
+
+	    showMoreButton.setText(optionsFlag ? "< < Fewer options" : "More options> >");
+	    showDetailsButton.setText(detailsFlag ? "< < Hide details" : "Details > >");
+	    showingMoreOptions = optionsFlag;
+	    showingDetails = detailsFlag;
+	    importExportDialog.pack();
+	}
     }
 
     private void performCopy() {

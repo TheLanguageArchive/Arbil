@@ -37,9 +37,14 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.XsdChecker;
 
-/////////////////////////////////////////
-// end functions called by the threads //
-class CopyRunner implements Runnable {
+
+/**
+ * Runner for copy actions in import or export context. Split off from {@link nl.mpi.arbil.ui.ImportExportDialog}
+ *
+ * @author Twan.Goosen@mpi.nl
+ * @author Peter.Withers@mpi.nl
+ */
+public class CopyRunner implements Runnable {
 
     public final static String DISK_FREE_LABEL_TEXT = "Total Disk Free: ";
     private final ImportExportUI impExpUI;
