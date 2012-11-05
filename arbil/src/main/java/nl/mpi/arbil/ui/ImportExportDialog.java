@@ -59,7 +59,6 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.ProgressListener;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -68,7 +67,7 @@ import nl.mpi.arbil.util.WindowManager;
  *
  * @author Peter.Withers@mpi.nl
  */
-public class ImportExportDialog implements ProgressListener {
+public class ImportExportDialog implements ImportExportUI {
 
     private JDialog importExportDialog;
     private JPanel importExportPanel;
@@ -635,6 +634,7 @@ public class ImportExportDialog implements ProgressListener {
 	new Thread(copyRunner, "performCopy").start();
     }
 
+    @Override
     public void appendToTaskOutput(final String lineOfText) {
 
 	SwingUtilities.invokeLater(new Runnable() {
@@ -730,26 +730,32 @@ public class ImportExportDialog implements ProgressListener {
 //        return (new int[]{childrenToLoad, loadedChildren});
 //    }
 
+    @Override
     public boolean isCopyFilesOnImport() {
 	return copyFilesImportCheckBox.isSelected();
     }
 
+    @Override
     public boolean isCopyFilesOnExport() {
 	return copyFilesExportCheckBox.isSelected();
     }
 
+    @Override
     public boolean isRenameFileToNodeName() {
 	return renameFileToNodeName.isSelected();
     }
 
+    @Override
     public boolean isRenameFileToLamusFriendlyName() {
 	return renameFileToLamusFriendlyName.isSelected();
     }
 
+    @Override
     public boolean isOverwrite() {
 	return overwriteCheckBox.isSelected();
     }
 
+    @Override
     public void appendToResourceCopyOutput(final String text) {
 	SwingUtilities.invokeLater(new Runnable() {
 	    public void run() {
@@ -759,6 +765,7 @@ public class ImportExportDialog implements ProgressListener {
 	});
     }
 
+    @Override
     public void appendToXmlOutput(final String text) {
 	SwingUtilities.invokeLater(new Runnable() {
 	    public void run() {
@@ -768,54 +775,67 @@ public class ImportExportDialog implements ProgressListener {
 	});
     }
 
+    @Override
     public void addToValidationErrors(URI uri) {
 	validationErrors.add(uri);
     }
 
+    @Override
     public void addToMetadataCopyErrors(URI uri) {
 	metaDataCopyErrors.add(uri);
     }
 
+    @Override
     public void addToFileCopyErrors(URI uri) {
 	fileCopyErrors.add(uri);
     }
 
+    @Override
     public void setDiskspaceState(String text) {
 	diskSpaceLabel.setText(text);
     }
 
+    @Override
     public File getExportDestinationDirectory() {
 	return exportDestinationDirectory;
     }
 
+    @Override
     public DownloadAbortFlag getDownloadAbortFlag() {
 	return downloadAbortFlag;
     }
 
+    @Override
     public ShibbolethNegotiator getShibbolethNegotiator() {
 	return shibbolethNegotiator;
     }
 
+    @Override
     public Enumeration<ArbilDataNode> getSelectedNodesEnumeration() {
 	return selectedNodes.elements();
     }
 
+    @Override
     public void removeNodeSelection() {
 	selectedNodes.removeAllElements();
     }
 
+    @Override
     public synchronized boolean isStopCopy() {
 	return stopCopy;
     }
 
+    @Override
     public synchronized void setStopCopy(boolean stopCopy) {
 	this.stopCopy = stopCopy;
     }
 
+    @Override
     public ArbilDataNode getDestinationNode() {
 	return destinationNode;
     }
 
+    @Override
     public void setProgressIndeterminate(final boolean indeterminate) {
 
 	SwingUtilities.invokeLater(new Runnable() {
@@ -825,6 +845,7 @@ public class ImportExportDialog implements ProgressListener {
 	});
     }
 
+    @Override
     public void setProgressText(final String text) {
 	SwingUtilities.invokeLater(new Runnable() {
 	    public void run() {
@@ -833,14 +854,17 @@ public class ImportExportDialog implements ProgressListener {
 	});
     }
 
+    @Override
     public boolean askContinue(String message) {
 	return JOptionPane.YES_OPTION == dialogHandler.showDialogBox(message, importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
     }
 
+    @Override
     public void onCopyStart() {
 	waitTillVisible();
     }
 
+    @Override
     public void onCopyEnd(final String finalMessage) throws HeadlessException {
 
 	System.out.println("finalMessageString: " + finalMessage);
@@ -866,6 +890,7 @@ public class ImportExportDialog implements ProgressListener {
 	});
     }
 
+    @Override
     public void updateStatus(final int getCount, final int totalLoaded, final int totalExisting, final int totalErrors, final int xsdErrors, final int resourceCopyErrors) {
 	SwingUtilities.invokeLater(new Runnable() {
 	    public void run() {

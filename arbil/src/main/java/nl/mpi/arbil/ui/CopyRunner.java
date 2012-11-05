@@ -42,13 +42,13 @@ import nl.mpi.arbil.util.XsdChecker;
 class CopyRunner implements Runnable {
 
     public final static String DISK_FREE_LABEL_TEXT = "Total Disk Free: ";
-    private final ImportExportDialog impExpUI;
+    private final ImportExportUI impExpUI;
     private final SessionStorage sessionStorage;
     private final DataNodeLoader dataNodeLoader;
     private final TreeHelper treeHelper;
 
-    public CopyRunner(ImportExportDialog impExpUI, SessionStorage sessionStorage, DataNodeLoader dataNodeLoader, TreeHelper treeHelper) {
-	this.impExpUI = impExpUI;
+    public CopyRunner(ImportExportUI ui, SessionStorage sessionStorage, DataNodeLoader dataNodeLoader, TreeHelper treeHelper) {
+	this.impExpUI = ui;
 	this.sessionStorage = sessionStorage;
 	this.dataNodeLoader = dataNodeLoader;
 	this.treeHelper = treeHelper;
