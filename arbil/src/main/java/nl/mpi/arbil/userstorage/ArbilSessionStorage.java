@@ -57,6 +57,7 @@ import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.ProgressListener;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -753,7 +754,7 @@ public class ArbilSessionStorage implements SessionStorage {
 //	}
     }
 
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
 	return updateCache(pathString, getSaveLocation(pathString), shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
     }
 
@@ -765,7 +766,7 @@ public class ArbilSessionStorage implements SessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    private File updateCache(String pathString, File cachePath, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    private File updateCache(String pathString, File cachePath, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
 	// to expire the files in the cache set the expireCacheCopy flag.
 	try {
 	    URL pathUrl = null;
@@ -921,7 +922,7 @@ public class ArbilSessionStorage implements SessionStorage {
      * @return boolean true only if the file was downloaded, this will be false
      * if the file exists but was not re-downloaded or if the download failed
      */
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
 	boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
@@ -962,7 +963,7 @@ public class ArbilSessionStorage implements SessionStorage {
 			}
 			outFile.write(buffer, 0, bytesread);
 			if (progressLabel != null) {
-			    progressLabel.setText(fileName + " : " + totalRead / 1024 + " Kb");
+			    progressLabel.setProgressText(fileName + " : " + totalRead / 1024 + " Kb");
 			}
 		    }
 		    outFile.close();

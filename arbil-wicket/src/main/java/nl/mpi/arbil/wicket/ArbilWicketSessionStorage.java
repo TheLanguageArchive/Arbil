@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
-import javax.swing.JLabel;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
+import nl.mpi.arbil.util.ProgressListener;
 
 /**
  *
@@ -92,7 +92,7 @@ public class ArbilWicketSessionStorage implements SessionStorage {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -108,7 +108,7 @@ public class ArbilWicketSessionStorage implements SessionStorage {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 

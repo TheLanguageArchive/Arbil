@@ -35,10 +35,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JLabel;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
+import nl.mpi.arbil.util.ProgressListener;
 
 public class MockSessionStorage implements SessionStorage {
 
@@ -279,7 +279,7 @@ public class MockSessionStorage implements SessionStorage {
         saveMap.put(filename, object);
     }
 
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
         boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
@@ -342,7 +342,7 @@ public class MockSessionStorage implements SessionStorage {
                         }
                         outFile.write(buffer, 0, bytesread);
                         if (progressLabel != null) {
-                            progressLabel.setText(fileName + " : " + totalRead / 1024 + " Kb");
+                            progressLabel.setProgressText(fileName + " : " + totalRead / 1024 + " Kb");
                         }
                     }
                     outFile.close();
@@ -415,7 +415,7 @@ public class MockSessionStorage implements SessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
 
         if (pathString.equals("http://www.w3.org/2001/xml.xsd")) {
             try {

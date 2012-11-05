@@ -26,10 +26,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
-import javax.swing.JLabel;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.plugin.PluginSessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
+import nl.mpi.arbil.util.ProgressListener;
 
 /**
  *
@@ -128,7 +128,7 @@ public interface SessionStorage extends PluginSessionStorage {
      * @return boolean true only if the file was downloaded, this will be false
      * if the file exists but was not re-downloaded or if the download failed
      */
-    boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel);
+    boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel);
 
     void saveString(String filename, String storableValue);
 
@@ -156,7 +156,7 @@ public interface SessionStorage extends PluginSessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel);
+    File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel);
 
 
     /**

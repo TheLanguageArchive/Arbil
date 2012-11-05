@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
-import javax.swing.JLabel;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
+import nl.mpi.arbil.util.ProgressListener;
 
 /**
  * Proxy for the ArbilWicketSessionStorage that is contained in the session that makes
@@ -95,7 +95,7 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 	getSessionStorage().saveObject(object, filename);
     }
 
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
 	return getSessionStorage().saveRemoteResource(targetUrl, destinationFile, shibbolethNegotiator, expireCacheCopy, followRedirects, abortFlag, progressLabel);
     }
 
@@ -115,7 +115,7 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 	return getSessionStorage().updateCache(pathString, expireCacheDays, followRedirects);
     }
 
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
 	return getSessionStorage().updateCache(pathString, shibbolethNegotiator, expireCacheCopy, followRedirects, abortFlag, progressLabel);
     }
 

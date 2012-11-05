@@ -24,6 +24,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -31,15 +32,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -56,85 +51,80 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
-import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
-import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.ProgressListener;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
-import nl.mpi.arbil.util.XsdChecker;
 
 /**
  * Document : ImportExportDialog Created on :
  *
  * @author Peter.Withers@mpi.nl
  */
-public class ImportExportDialog {
+public class ImportExportDialog implements ProgressListener {
 
-    protected JDialog importExportDialog;
+    private JDialog importExportDialog;
     private JPanel importExportPanel;
     private JPanel inputNodePanel;
     private JPanel outputNodePanel;
-    protected JCheckBox copyFilesExportCheckBox;
-    protected JCheckBox copyFilesImportCheckBox;
-    protected JCheckBox renameFileToNodeName;
-    protected JCheckBox renameFileToLamusFriendlyName;
-    protected JButton showMoreButton;
-    protected JButton showDetailsButton;
-    protected JCheckBox overwriteCheckBox;
-    protected JCheckBox shibbolethCheckBox;
+    private JCheckBox copyFilesExportCheckBox;
+    private JCheckBox copyFilesImportCheckBox;
+    private JCheckBox renameFileToNodeName;
+    private JCheckBox renameFileToLamusFriendlyName;
+    private JButton showMoreButton;
+    private JButton showDetailsButton;
+    private JCheckBox overwriteCheckBox;
+    private JCheckBox shibbolethCheckBox;
     private JPanel shibbolethPanel;
 //    private JProgressBar resourceProgressBar;
-    protected JLabel resourceProgressLabel;
-    protected JProgressBar progressBar;
-    protected JLabel diskSpaceLabel;
-    JPanel moreOptionsPanel;
-    JPanel detailsPanel;
-    JPanel detailsBottomPanel;
-    protected JLabel progressFoundLabel;
-    protected JLabel progressProcessedLabel;
-    protected JLabel progressAlreadyInCacheLabel;
-    protected JLabel progressFailedLabel;
-    protected JLabel progressXmlErrorsLabel;
-    protected JLabel resourceCopyErrorsLabel;
+    private JLabel resourceProgressLabel;
+    private JProgressBar progressBar;
+    private JLabel diskSpaceLabel;
+    private JPanel moreOptionsPanel;
+    private JPanel detailsPanel;
+    private JPanel detailsBottomPanel;
+    private JLabel progressFoundLabel;
+    private JLabel progressProcessedLabel;
+    private JLabel progressAlreadyInCacheLabel;
+    private JLabel progressFailedLabel;
+    private JLabel progressXmlErrorsLabel;
+    private JLabel resourceCopyErrorsLabel;
     private JButton showInTableButton;
     private JButton closeButton;
-    String progressFoundLabelText = "Total Metadata Files Found: ";
-    String progressProcessedLabelText = "Total Metadata Files Processed: ";
-    String progressAlreadyInCacheLabelText = "Metadata Files already in Local Corpus: ";
-    String progressFailedLabelText = "Metadata File Copy Errors: ";
-    String progressXmlErrorsLabelText = "Metadata File Validation Errors: ";
-    String resourceCopyErrorsLabelText = "Resource File Copy Errors: ";
-    String diskFreeLabelText = "Total Disk Free: ";
+    private final static String progressFoundLabelText = "Total Metadata Files Found: ";
+    private final static String progressProcessedLabelText = "Total Metadata Files Processed: ";
+    private final static String progressAlreadyInCacheLabelText = "Metadata Files already in Local Corpus: ";
+    private final static String progressFailedLabelText = "Metadata File Copy Errors: ";
+    private final static String progressXmlErrorsLabelText = "Metadata File Validation Errors: ";
+    private final static String resourceCopyErrorsLabelText = "Resource File Copy Errors: ";
     private JButton stopButton;
     private JButton startButton;
     private JTabbedPane detailsTabPane;
     private JTextArea taskOutput;
-    protected JTextArea xmlOutput;
-    protected JTextArea resourceCopyOutput;
+    private JTextArea xmlOutput;
+    private JTextArea resourceCopyOutput;
     // variables used but the search thread
     // variables used by the copy thread
     // variables used by all threads
-    protected boolean stopCopy = false;
-    protected Vector<ArbilDataNode> selectedNodes;
-    ArbilDataNode destinationNode = null;
-    protected File exportDestinationDirectory = null;
-    DownloadAbortFlag downloadAbortFlag = new DownloadAbortFlag();
-    ShibbolethNegotiator shibbolethNegotiator = null;
-    Vector<URI> validationErrors = new Vector<URI>();
-    Vector<URI> metaDataCopyErrors = new Vector<URI>();
-    Vector<URI> fileCopyErrors = new Vector<URI>();
+    private boolean stopCopy = false;
+    private Vector<ArbilDataNode> selectedNodes;
+    private ArbilDataNode destinationNode = null;
+    private File exportDestinationDirectory = null;
+    private DownloadAbortFlag downloadAbortFlag = new DownloadAbortFlag();
+    private ShibbolethNegotiator shibbolethNegotiator = null;
+    private Vector<URI> validationErrors = new Vector<URI>();
+    private Vector<URI> metaDataCopyErrors = new Vector<URI>();
+    private Vector<URI> fileCopyErrors = new Vector<URI>();
     private static TreeHelper treeHelper;
-    protected boolean showingMoreOptions = false;
-    protected boolean showingDetails = false;
+    private boolean showingMoreOptions = false;
+    private boolean showingDetails = false;
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
@@ -262,7 +252,7 @@ public class ImportExportDialog {
 	return false;
     }
 
-    protected synchronized void updateDialog(boolean optionsFlag, boolean detailsFlag) {
+    private synchronized void updateDialog(boolean optionsFlag, boolean detailsFlag) {
 	overwriteCheckBox.setVisible(exportDestinationDirectory == null);
 	copyFilesImportCheckBox.setVisible(exportDestinationDirectory == null);
 	copyFilesExportCheckBox.setVisible(exportDestinationDirectory != null);
@@ -331,7 +321,7 @@ public class ImportExportDialog {
 	importExportDialog.addWindowListener(new WindowAdapter() {
 	    @Override
 	    public void windowClosing(WindowEvent e) {
-		stopCopy = true;
+		setStopCopy(true);
 		downloadAbortFlag.abortDownload = true;
 	    }
 	});
@@ -403,10 +393,10 @@ public class ImportExportDialog {
 		new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 			if (shibbolethCheckBox.isSelected()) {
-			    if (shibbolethNegotiator == null) {
+			    if (getShibbolethNegotiator() == null) {
 				shibbolethNegotiator = new ShibbolethNegotiator();
 			    }
-			    shibbolethPanel.add(shibbolethNegotiator.getControlls());
+			    shibbolethPanel.add(getShibbolethNegotiator().getControlls());
 			} else {
 			    shibbolethPanel.removeAll();
 			    shibbolethNegotiator = null;
@@ -517,7 +507,7 @@ public class ImportExportDialog {
 		}
 	    }
 	});
-	diskSpaceLabel = new JLabel(diskFreeLabelText);
+	diskSpaceLabel = new JLabel(CopyRunner.DISK_FREE_LABEL_TEXT);
 
 	progressAlreadyInCacheLabel.setForeground(Color.darkGray);
 	progressFailedLabel.setForeground(Color.red);
@@ -611,7 +601,7 @@ public class ImportExportDialog {
 	stopButton.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		try {
-		    stopCopy = true;
+		    setStopCopy(true);
 		    downloadAbortFlag.abortDownload = true;
 		    stopButton.setEnabled(false);
 		    startButton.setEnabled(false);
@@ -639,16 +629,20 @@ public class ImportExportDialog {
     }
 
     private void performCopy() {
-//        appendToTaskOutput("performCopy");
 	setUItoRunningState();
-	
-	final CopyRunner copyRunner = new CopyRunner(this, windowManager, dialogHandler, sessionStorage, dataNodeLoader, treeHelper);
+
+	final CopyRunner copyRunner = new CopyRunner(this, sessionStorage, dataNodeLoader, treeHelper);
 	new Thread(copyRunner, "performCopy").start();
     }
 
-    protected void appendToTaskOutput(String lineOfText) {
-	taskOutput.append(lineOfText + "\n");
-	taskOutput.setCaretPosition(taskOutput.getText().length());
+    public void appendToTaskOutput(final String lineOfText) {
+
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		taskOutput.append(lineOfText + "\n");
+		taskOutput.setCaretPosition(taskOutput.getText().length());
+	    }
+	});
     }
 
     private void setUItoRunningState() {
@@ -664,7 +658,7 @@ public class ImportExportDialog {
 	importExportDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
 
-    protected void setUItoStoppedState() {
+    public void setUItoStoppedState() {
 	Toolkit.getDefaultToolkit().beep();
 	taskOutput.setCursor(null);
 	importExportDialog.setCursor(null); //turn off the wait cursor
@@ -690,7 +684,7 @@ public class ImportExportDialog {
     // functions called by the threads //
     /////////////////////////////////////
 
-    protected void waitTillVisible() {
+    public void waitTillVisible() {
 	// this is to prevent deadlocks between the thread starting before the dialog is showing which causes the JTextArea to appear without the frame
 	while (!importExportDialog.isVisible()) {
 	    try {
@@ -735,4 +729,154 @@ public class ImportExportDialog {
 //        }
 //        return (new int[]{childrenToLoad, loadedChildren});
 //    }
+
+    public boolean isCopyFilesOnImport() {
+	return copyFilesImportCheckBox.isSelected();
+    }
+
+    public boolean isCopyFilesOnExport() {
+	return copyFilesExportCheckBox.isSelected();
+    }
+
+    public boolean isRenameFileToNodeName() {
+	return renameFileToNodeName.isSelected();
+    }
+
+    public boolean isRenameFileToLamusFriendlyName() {
+	return renameFileToLamusFriendlyName.isSelected();
+    }
+
+    public boolean isOverwrite() {
+	return overwriteCheckBox.isSelected();
+    }
+
+    public void appendToResourceCopyOutput(final String text) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		resourceCopyOutput.append(text);
+		resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
+	    }
+	});
+    }
+
+    public void appendToXmlOutput(final String text) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		xmlOutput.append(text);
+		xmlOutput.setCaretPosition(xmlOutput.getText().length() - 1);
+	    }
+	});
+    }
+
+    public void addToValidationErrors(URI uri) {
+	validationErrors.add(uri);
+    }
+
+    public void addToMetadataCopyErrors(URI uri) {
+	metaDataCopyErrors.add(uri);
+    }
+
+    public void addToFileCopyErrors(URI uri) {
+	fileCopyErrors.add(uri);
+    }
+
+    public void setDiskspaceState(String text) {
+	diskSpaceLabel.setText(text);
+    }
+
+    public File getExportDestinationDirectory() {
+	return exportDestinationDirectory;
+    }
+
+    public DownloadAbortFlag getDownloadAbortFlag() {
+	return downloadAbortFlag;
+    }
+
+    public ShibbolethNegotiator getShibbolethNegotiator() {
+	return shibbolethNegotiator;
+    }
+
+    public Enumeration<ArbilDataNode> getSelectedNodesEnumeration() {
+	return selectedNodes.elements();
+    }
+
+    public void removeNodeSelection() {
+	selectedNodes.removeAllElements();
+    }
+
+    public synchronized boolean isStopCopy() {
+	return stopCopy;
+    }
+
+    public synchronized void setStopCopy(boolean stopCopy) {
+	this.stopCopy = stopCopy;
+    }
+
+    public ArbilDataNode getDestinationNode() {
+	return destinationNode;
+    }
+
+    public void setProgressIndeterminate(final boolean indeterminate) {
+
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		progressBar.setIndeterminate(indeterminate);
+	    }
+	});
+    }
+
+    public void setProgressText(final String text) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		resourceProgressLabel.setText(text);
+	    }
+	});
+    }
+
+    public boolean askContinue(String message) {
+	return JOptionPane.YES_OPTION == dialogHandler.showDialogBox(message, importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+    }
+
+    public void onCopyStart() {
+	waitTillVisible();
+    }
+
+    public void onCopyEnd(final String finalMessage) throws HeadlessException {
+
+	System.out.println("finalMessageString: " + finalMessage);
+	final Object[] options = {"Close", "Details"};
+
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		setUItoStoppedState();
+
+		int detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(), finalMessage, importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+		if (detailsOption == 0) {
+		    importExportDialog.dispose();
+		} else {
+		    if (!showingDetails) {
+			updateDialog(showingMoreOptions, true);
+			importExportDialog.pack();
+		    }
+		}
+		if (getExportDestinationDirectory() != null) {
+		    windowManager.openFileInExternalApplication(getExportDestinationDirectory().toURI());
+		}
+	    }
+	});
+    }
+
+    public void updateStatus(final int getCount, final int totalLoaded, final int totalExisting, final int totalErrors, final int xsdErrors, final int resourceCopyErrors) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		progressFoundLabel.setText(progressFoundLabelText + (getCount + totalLoaded));
+		progressProcessedLabel.setText(progressProcessedLabelText + totalLoaded);
+		progressAlreadyInCacheLabel.setText(progressAlreadyInCacheLabelText + totalExisting);
+		progressFailedLabel.setText(progressFailedLabelText + totalErrors);
+		progressXmlErrorsLabel.setText(progressXmlErrorsLabelText + xsdErrors);
+		resourceCopyErrorsLabel.setText(resourceCopyErrorsLabelText + resourceCopyErrors);
+		progressBar.setString(totalLoaded + "/" + (getCount + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
+	    }
+	});
+    }
 }

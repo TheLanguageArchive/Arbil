@@ -23,7 +23,6 @@ import java.awt.event.FocusListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import nl.mpi.arbil.data.ArbilDataNode;
 
 /**
  * Document   : SaveCurrentSettingsPanel
@@ -80,17 +79,17 @@ public class SaveCurrentSettingsPanel extends JPanel {
                 // todo: save the settings to a text file
 //                }
                 // todo: save the settings to a text file
-                System.out.println(importExportDialog.overwriteCheckBox.isSelected());
-                System.out.println(importExportDialog.copyFilesImportCheckBox.isSelected());
-                System.out.println(importExportDialog.renameFileToLamusFriendlyName.isSelected());
-                System.out.println(importExportDialog.renameFileToNodeName.isSelected());
-                System.out.println(importExportDialog.shibbolethCheckBox.isSelected());
-                System.out.println(importExportDialog.overwriteCheckBox.isSelected());
-
-                System.out.println(importExportDialog.exportDestinationDirectory.toString());
-                for (ArbilDataNode arbilDataNode : importExportDialog.selectedNodes) {
-                    System.out.println(arbilDataNode.getUrlString());
-                }
+//                System.out.println(importExportDialog.overwriteCheckBox.isSelected());
+//                System.out.println(importExportDialog.copyFilesImportCheckBox.isSelected());
+//                System.out.println(importExportDialog.renameFileToLamusFriendlyName.isSelected());
+//                System.out.println(importExportDialog.renameFileToNodeName.isSelected());
+//                System.out.println(importExportDialog.shibbolethCheckBox.isSelected());
+//                System.out.println(importExportDialog.overwriteCheckBox.isSelected());
+//
+//                System.out.println(importExportDialog.exportDestinationDirectory.toString());
+//                for (ArbilDataNode arbilDataNode : importExportDialog.selectedNodes) {
+//                    System.out.println(arbilDataNode.getUrlString());
+//                }
             }
         });
         this.add(saveName);

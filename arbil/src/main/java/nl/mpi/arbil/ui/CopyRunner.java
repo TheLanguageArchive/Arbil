@@ -26,8 +26,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilJournal;
@@ -36,31 +34,25 @@ import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
-import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
-import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.XsdChecker;
 
 /////////////////////////////////////////
-
 // end functions called by the threads //
 class CopyRunner implements Runnable {
+
+    public final static String DISK_FREE_LABEL_TEXT = "Total Disk Free: ";
     private final ImportExportDialog impExpUI;
-    private final WindowManager windowManager;
-    private final MessageDialogHandler dialogHandler;
     private final SessionStorage sessionStorage;
     private final DataNodeLoader dataNodeLoader;
     private final TreeHelper treeHelper;
-    
-    public CopyRunner(ImportExportDialog impExpUI, WindowManager windowManager, MessageDialogHandler dialogHandler, SessionStorage sessionStorage, DataNodeLoader dataNodeLoader, TreeHelper treeHelper) {
+
+    public CopyRunner(ImportExportDialog impExpUI, SessionStorage sessionStorage, DataNodeLoader dataNodeLoader, TreeHelper treeHelper) {
 	this.impExpUI = impExpUI;
-	this.windowManager = windowManager;
-	this.dialogHandler = dialogHandler;
 	this.sessionStorage = sessionStorage;
 	this.dataNodeLoader = dataNodeLoader;
 	this.treeHelper = treeHelper;
     }
-    
     private int freeGbWarningPoint = 3;
     private int xsdErrors = 0;
     private int totalLoaded = 0;
@@ -76,63 +68,45 @@ class CopyRunner implements Runnable {
 	String javaVersionString = System.getProperty("java.version");
 	// TG: Apparently test not required for version >= 1.5 (2011/2/3)
 	testFreeSpace = !(javaVersionString.startsWith("1.4.") || javaVersionString.startsWith("1.5."));
-	directoryForSizeTest = impExpUI.exportDestinationDirectory != null ? impExpUI.exportDestinationDirectory : sessionStorage.getProjectWorkingDirectory();
+	directoryForSizeTest = impExpUI.getExportDestinationDirectory() != null ? impExpUI.getExportDestinationDirectory() : sessionStorage.getProjectWorkingDirectory();
 	// Append message about copying resource files to the copy output
-	if (impExpUI.copyFilesImportCheckBox.isSelected() || impExpUI.copyFilesExportCheckBox.isSelected()) {
-	    impExpUI.resourceCopyOutput.append("'Copy Resource Files' is selected: Resource files will be downloaded where appropriate permission are granted." + "\n");
+	if (impExpUI.isCopyFilesOnImport() || impExpUI.isCopyFilesOnExport()) {
+	    impExpUI.appendToResourceCopyOutput("'Copy Resource Files' is selected: Resource files will be downloaded where appropriate permission are granted." + "\n");
 	} else {
-	    impExpUI.resourceCopyOutput.append("'Copy Resource Files' is not selected: No resource files will be downloaded, however they will be still accessible via the web server." + "\n");
+	    impExpUI.appendToResourceCopyOutput("'Copy Resource Files' is not selected: No resource files will be downloaded, however they will be still accessible via the web server." + "\n");
 	}
 	try {
+	    impExpUI.onCopyStart();
+	    impExpUI.setProgressIndeterminate(true);
 	    // Copy the selected nodes
-	    copyElements(impExpUI.selectedNodes.elements());
+	    copyElements(impExpUI.getSelectedNodesEnumeration());
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	    finalMessageString = finalMessageString + "There was a critical error.";
 	}
 	// Done copying
-	SwingUtilities.invokeLater(new Runnable() {
-	    public void run() {
-		impExpUI.setUItoStoppedState();
-	    }
-	});
-	System.out.println("finalMessageString: " + finalMessageString);
-	Object[] options = {"Close", "Details"};
-	int detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(), finalMessageString, impExpUI.importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-	if (detailsOption == 0) {
-	    impExpUI.importExportDialog.dispose();
-	} else {
-	    if (!impExpUI.showingDetails) {
-		impExpUI.updateDialog(impExpUI.showingMoreOptions, true);
-		impExpUI.importExportDialog.pack();
-	    }
-	}
-	if (impExpUI.exportDestinationDirectory != null) {
-	    windowManager.openFileInExternalApplication(impExpUI.exportDestinationDirectory.toURI());
-	}
+	impExpUI.onCopyEnd(finalMessageString);
     }
 
     private void copyElements(Enumeration selectedNodesEnum) {
-	XsdChecker xsdChecker = new XsdChecker();
-	impExpUI.waitTillVisible();
-	impExpUI.progressBar.setIndeterminate(true);
-	ArrayList<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
-	Hashtable<URI, RetrievableFile> seenFiles = new Hashtable<URI, RetrievableFile>();
-	ArrayList<URI> getList = new ArrayList<URI>();
-	ArrayList<URI> doneList = new ArrayList<URI>();
-	while (selectedNodesEnum.hasMoreElements() && !impExpUI.stopCopy) {
+	final ArrayList<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
+	final Hashtable<URI, RetrievableFile> seenFiles = new Hashtable<URI, RetrievableFile>();
+	final ArrayList<URI> getList = new ArrayList<URI>();
+	final ArrayList<URI> doneList = new ArrayList<URI>();
+	final XsdChecker xsdChecker = new XsdChecker();
+	while (selectedNodesEnum.hasMoreElements() && !impExpUI.isStopCopy()) {
 	    Object currentElement = selectedNodesEnum.nextElement();
 	    if (currentElement instanceof ArbilDataNode) {
 		copyElement(currentElement, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
 	    }
 	}
 	finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
-	if (impExpUI.exportDestinationDirectory == null) {
-	    if (!impExpUI.stopCopy) {
+	if (impExpUI.getExportDestinationDirectory() == null) {
+	    if (!impExpUI.isStopCopy()) {
 		for (ArbilDataNode currentFinishedNode : finishedTopNodes) {
-		    if (impExpUI.destinationNode != null) {
-			if (!impExpUI.destinationNode.getURI().equals(currentFinishedNode.getURI())) {
-			    impExpUI.destinationNode.addCorpusLink(currentFinishedNode);
+		    if (impExpUI.getDestinationNode() != null) {
+			if (!impExpUI.getDestinationNode().getURI().equals(currentFinishedNode.getURI())) {
+			    impExpUI.getDestinationNode().addCorpusLink(currentFinishedNode);
 			}
 		    } else {
 			if (!treeHelper.addLocation(currentFinishedNode.getURI())) {
@@ -142,25 +116,26 @@ class CopyRunner implements Runnable {
 		    currentFinishedNode.reloadNode();
 		}
 	    }
-	    if (impExpUI.destinationNode == null) {
+	    if (impExpUI.getDestinationNode() == null) {
 		treeHelper.applyRootLocations();
 	    } else {
-		impExpUI.destinationNode.reloadNode();
+		impExpUI.getDestinationNode().reloadNode();
 	    }
 	}
-	impExpUI.progressBar.setIndeterminate(false);
+
+	impExpUI.setProgressIndeterminate(false);
 	if (totalErrors != 0) {
 	    finalMessageString = finalMessageString + "There were " + totalErrors + " errors, some files may not have been copied.\n";
 	}
 	if (xsdErrors != 0) {
 	    finalMessageString = finalMessageString + "There were " + xsdErrors + " files that failed to validate and have xml errors.\n";
 	}
-	if (impExpUI.stopCopy) {
+	if (impExpUI.isStopCopy()) {
 	    impExpUI.appendToTaskOutput("copy canceled");
 	    System.out.println("copy canceled");
 	    finalMessageString = finalMessageString + "The process was canceled, some files may not have been copied.\n";
 	} else {
-	    impExpUI.selectedNodes.removeAllElements();
+	    impExpUI.removeNodeSelection();
 	}
     }
 
@@ -168,13 +143,13 @@ class CopyRunner implements Runnable {
 	URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
 	getList.add(currentGettableUri);
 	if (!seenFiles.containsKey(currentGettableUri)) {
-	    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), impExpUI.exportDestinationDirectory));
+	    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), impExpUI.getExportDestinationDirectory()));
 	}
-	while (!impExpUI.stopCopy && getList.size() > 0) {
+	while (!impExpUI.isStopCopy() && getList.size() > 0) {
 	    RetrievableFile currentRetrievableFile = seenFiles.get(getList.remove(0));
 	    copyFile(currentRetrievableFile, seenFiles, doneList, getList, xsdChecker);
 	}
-	if (impExpUI.exportDestinationDirectory == null) {
+	if (impExpUI.getExportDestinationDirectory() == null) {
 	    File newNodeLocation = sessionStorage.getSaveLocation(((ArbilDataNode) currentElement).getParentDomNode().getUrlString());
 	    finishedTopNodes.add(dataNodeLoader.getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
 	}
@@ -184,12 +159,12 @@ class CopyRunner implements Runnable {
 	try {
 	    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
 		String journalActionString;
-		if (impExpUI.exportDestinationDirectory == null) {
+		if (impExpUI.getExportDestinationDirectory() == null) {
 		    currentRetrievableFile.calculateUriFileName();
 		    journalActionString = "import";
 		} else {
-		    if (impExpUI.renameFileToNodeName.isSelected() && impExpUI.exportDestinationDirectory != null) {
-			currentRetrievableFile.calculateTreeFileName(impExpUI.renameFileToLamusFriendlyName.isSelected());
+		    if (impExpUI.isRenameFileToNodeName() && impExpUI.getExportDestinationDirectory() != null) {
+			currentRetrievableFile.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName());
 		    } else {
 			currentRetrievableFile.calculateUriFileName();
 		    }
@@ -204,11 +179,11 @@ class CopyRunner implements Runnable {
 		if (linksUriArray != null) {
 		    copyLinks(linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
 		}
-		boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && impExpUI.overwriteCheckBox.isSelected();
+		boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && impExpUI.isOverwrite();
 		if (currentRetrievableFile.destinationFile.exists()) {
 		    totalExisting++;
 		}
-		if (currentRetrievableFile.destinationFile.exists() && !impExpUI.overwriteCheckBox.isSelected()) {
+		if (currentRetrievableFile.destinationFile.exists() && !impExpUI.isOverwrite()) {
 		    impExpUI.appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
 		    impExpUI.appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 		} else {
@@ -233,12 +208,11 @@ class CopyRunner implements Runnable {
 		    String checkerResult;
 		    checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile);
 		    if (checkerResult != null) {
-			impExpUI.xmlOutput.append(currentRetrievableFile.sourceURI.toString() + "\n");
-			impExpUI.xmlOutput.append("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+			impExpUI.appendToXmlOutput(currentRetrievableFile.sourceURI.toString() + "\n");
+			impExpUI.appendToXmlOutput("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 			System.out.println("checkerResult: " + checkerResult);
-			impExpUI.xmlOutput.append(checkerResult + "\n");
-			impExpUI.xmlOutput.setCaretPosition(impExpUI.xmlOutput.getText().length() - 1);
-			impExpUI.validationErrors.add(currentRetrievableFile.sourceURI);
+			impExpUI.appendToXmlOutput(checkerResult + "\n");
+			impExpUI.addToValidationErrors(currentRetrievableFile.sourceURI);
 			xsdErrors++;
 		    }
 		    if (replacingExitingFile) {
@@ -249,35 +223,30 @@ class CopyRunner implements Runnable {
 	} catch (ArbilMetadataException ex) {
 	    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 	    totalErrors++;
-	    impExpUI.metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+	    impExpUI.addToMetadataCopyErrors(currentRetrievableFile.sourceURI);
 	    impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
 	} catch (MalformedURLException ex) {
 	    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 	    totalErrors++;
-	    impExpUI.metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+	    impExpUI.addToMetadataCopyErrors(currentRetrievableFile.sourceURI);
 	    impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 	    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
 	} catch (IOException ex) {
 	    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 	    totalErrors++;
-	    impExpUI.metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+	    impExpUI.addToMetadataCopyErrors(currentRetrievableFile.sourceURI);
 	    impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 	}
 	totalLoaded++;
-	impExpUI.progressFoundLabel.setText(impExpUI.progressFoundLabelText + (getList.size() + totalLoaded));
-	impExpUI.progressProcessedLabel.setText(impExpUI.progressProcessedLabelText + totalLoaded);
-	impExpUI.progressAlreadyInCacheLabel.setText(impExpUI.progressAlreadyInCacheLabelText + totalExisting);
-	impExpUI.progressFailedLabel.setText(impExpUI.progressFailedLabelText + totalErrors);
-	impExpUI.progressXmlErrorsLabel.setText(impExpUI.progressXmlErrorsLabelText + xsdErrors);
-	impExpUI.resourceCopyErrorsLabel.setText(impExpUI.resourceCopyErrorsLabelText + resourceCopyErrors);
-	impExpUI.progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
+	final int getCount = getList.size();
+	impExpUI.updateStatus(getCount, totalLoaded, totalExisting, totalErrors, xsdErrors, resourceCopyErrors);
 	if (testFreeSpace) {
 	    testFreeSpace();
 	}
     }
 
     private void copyLinks(URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
-	for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.stopCopy; linkCount++) {
+	for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.isStopCopy(); linkCount++) {
 	    System.out.println("Link: " + linksUriArray[linkCount].toString());
 	    String currentLink = linksUriArray[linkCount].toString();
 	    URI gettableLinkUri = linksUriArray[linkCount].normalize();
@@ -287,22 +256,22 @@ class CopyRunner implements Runnable {
 	    RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
 	    if (MetadataFormat.isPathMetadata(currentLink)) {
 		getList.add(gettableLinkUri);
-		if (impExpUI.renameFileToNodeName.isSelected() && impExpUI.exportDestinationDirectory != null) {
-		    retrievableLink.calculateTreeFileName(impExpUI.renameFileToLamusFriendlyName.isSelected());
+		if (impExpUI.isRenameFileToNodeName() && impExpUI.getExportDestinationDirectory() != null) {
+		    retrievableLink.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName());
 		} else {
 		    retrievableLink.calculateUriFileName();
 		}
 		uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.destinationFile.toURI()});
 	    } else {
-		if (!impExpUI.copyFilesImportCheckBox.isSelected() && !impExpUI.copyFilesExportCheckBox.isSelected()) {
+		if (!impExpUI.isCopyFilesOnImport() && !impExpUI.isCopyFilesOnExport()) {
 		    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
 		} else {
 		    File downloadFileLocation;
-		    if (impExpUI.exportDestinationDirectory == null) {
-			downloadFileLocation = sessionStorage.updateCache(currentLink, impExpUI.shibbolethNegotiator, false, false, impExpUI.downloadAbortFlag, impExpUI.resourceProgressLabel);
+		    if (impExpUI.getExportDestinationDirectory() == null) {
+			downloadFileLocation = sessionStorage.updateCache(currentLink, impExpUI.getShibbolethNegotiator(), false, false, impExpUI.getDownloadAbortFlag(), impExpUI);
 		    } else {
-			if (impExpUI.renameFileToNodeName.isSelected() && impExpUI.exportDestinationDirectory != null) {
-			    retrievableLink.calculateTreeFileName(impExpUI.renameFileToLamusFriendlyName.isSelected());
+			if (impExpUI.isRenameFileToNodeName() && impExpUI.getExportDestinationDirectory() != null) {
+			    retrievableLink.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName());
 			} else {
 			    retrievableLink.calculateUriFileName();
 			}
@@ -312,20 +281,18 @@ class CopyRunner implements Runnable {
 			    }
 			}
 			downloadFileLocation = retrievableLink.destinationFile;
-			impExpUI.resourceProgressLabel.setText(" ");
-			sessionStorage.saveRemoteResource(new URL(currentLink), downloadFileLocation, impExpUI.shibbolethNegotiator, true, false, impExpUI.downloadAbortFlag, impExpUI.resourceProgressLabel);
-			impExpUI.resourceProgressLabel.setText(" ");
+			sessionStorage.saveRemoteResource(new URL(currentLink), downloadFileLocation, impExpUI.getShibbolethNegotiator(), true, false, impExpUI.getDownloadAbortFlag(), impExpUI);
+			impExpUI.setProgressText(" ");
 		    }
 		    if (downloadFileLocation != null && downloadFileLocation.exists()) {
 			impExpUI.appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
 			uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
 		    } else {
-			impExpUI.resourceCopyOutput.append("Download failed: " + currentLink + " \n");
-			impExpUI.fileCopyErrors.add(currentRetrievableFile.sourceURI);
+			impExpUI.appendToResourceCopyOutput("Download failed: " + currentLink + " \n");
+			impExpUI.addToFileCopyErrors(currentRetrievableFile.sourceURI);
 			uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
 			resourceCopyErrors++;
 		    }
-		    impExpUI.resourceCopyOutput.setCaretPosition(impExpUI.resourceCopyOutput.getText().length() - 1);
 		}
 	    }
 	}
@@ -334,18 +301,18 @@ class CopyRunner implements Runnable {
     private void testFreeSpace() {
 	try {
 	    int freeGBytes = (int) (directoryForSizeTest.getFreeSpace() / 1073741824);
-	    impExpUI.diskSpaceLabel.setText(impExpUI.diskFreeLabelText + freeGBytes + "GB");
+	    impExpUI.setDiskspaceState(DISK_FREE_LABEL_TEXT + freeGBytes + "GB");
 	    if (freeGbWarningPoint > freeGBytes) {
-		impExpUI.progressBar.setIndeterminate(false);
-		if (JOptionPane.YES_OPTION == dialogHandler.showDialogBox("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", impExpUI.importExportDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+		impExpUI.setProgressIndeterminate(false);
+		if (impExpUI.askContinue("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?")) {
 		    freeGbWarningPoint = freeGBytes - 1;
 		} else {
-		    impExpUI.stopCopy = true;
+		    impExpUI.setStopCopy(true);
 		}
-		impExpUI.progressBar.setIndeterminate(true);
+		impExpUI.setProgressIndeterminate(true);
 	    }
 	} catch (Exception ex) {
-	    impExpUI.diskSpaceLabel.setText(impExpUI.diskFreeLabelText + "N/A");
+	    impExpUI.setDiskspaceState(DISK_FREE_LABEL_TEXT + "N/A");
 	    testFreeSpace = false;
 	}
     }
@@ -429,5 +396,4 @@ class CopyRunner implements Runnable {
 	    }
 	}
     }
-
 }
