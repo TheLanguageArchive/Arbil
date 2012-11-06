@@ -212,10 +212,21 @@ public class ImportExportDialog implements ImportExportUI {
     private JPanel createOptionsPanel() {
 	copyFilesExportCheckBox = new JCheckBox("Export Resource Files (if available)", false);
 
+	copyFilesImportCheckBox = new JCheckBox("Import Resource Files (if available)", false);
+	copyFilesImportCheckBox.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		shibbolethCheckBox.setVisible(copyFilesImportCheckBox.isSelected());
+		shibbolethPanel.setVisible(copyFilesImportCheckBox.isSelected());
+		importExportDialog.pack();
+	    }
+	});
+
 	JPanel optionsPanel = new JPanel();
 	optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
 	copyFilesExportCheckBox.setAlignmentX(0);
 	optionsPanel.add(copyFilesExportCheckBox);
+
+	optionsPanel.add(copyFilesImportCheckBox);
 	optionsPanel.setAlignmentX(0);
 	return optionsPanel;
     }
@@ -263,14 +274,6 @@ public class ImportExportDialog implements ImportExportUI {
 			importExportDialog.pack();
 		    }
 		});
-	copyFilesImportCheckBox.addActionListener(new ActionListener() {
-	    public void actionPerformed(ActionEvent e) {
-		shibbolethCheckBox.setVisible(copyFilesImportCheckBox.isSelected());
-		shibbolethPanel.setVisible(copyFilesImportCheckBox.isSelected());
-		importExportDialog.pack();
-	    }
-	});
-
 //        JPanel copyFilesCheckBoxPanel = new JPanel();
 //        copyFilesCheckBoxPanel.setLayout(new BoxLayout(copyFilesCheckBoxPanel, BoxLayout.X_AXIS));
 //        copyFilesCheckBoxPanel.add(copyFilesImportCheckBox);
@@ -284,7 +287,6 @@ public class ImportExportDialog implements ImportExportUI {
 
 	moreOptionsTopCheckBoxPanel.add(renameFileToNodeName);
 	moreOptionsTopCheckBoxPanel.add(renameFileToLamusFriendlyName);
-	moreOptionsTopCheckBoxPanel.add(copyFilesImportCheckBox);
 	moreOptionsTopCheckBoxPanel.add(shibbolethCheckBox);
 
 	JPanel paddingPanel = new JPanel();
@@ -422,7 +424,6 @@ public class ImportExportDialog implements ImportExportUI {
 	outputNodeLabelPanel.setAlignmentX(0);
 	inOutNodePanel.add(outputNodeLabelPanel);
 
-	copyFilesImportCheckBox = new JCheckBox("Import Resource Files (if available)", false);
 	renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true);
 	renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", true);
 	shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
@@ -588,9 +589,12 @@ public class ImportExportDialog implements ImportExportUI {
 	copyFilesImportCheckBox.setVisible(exportDestinationDirectory == null);
 	copyFilesExportCheckBox.setVisible(exportDestinationDirectory != null);
 
+	// More options are only available for export, not for import
+	moreOptionsPanel.setVisible(exportDestinationDirectory != null);
+	showMoreButton.setVisible(exportDestinationDirectory != null);
+
 	// showMoreFlag is false the first time this is called when the dialog is initialised so we need to make sure that pack gets called in this case
 	// otherwise try to prevent chenging the window size when not required
-
 	if (!optionsFlag || !detailsFlag || showingMoreOptions != optionsFlag || showingDetails != detailsFlag) {
 	    detailsTabPane.setVisible(detailsFlag);
 	    detailsBottomPanel.setVisible(detailsFlag);
@@ -598,7 +602,6 @@ public class ImportExportDialog implements ImportExportUI {
 	    /**
 	     * Advanced options *
 	     */
-	    copyFilesImportCheckBox.setVisible(optionsFlag && exportDestinationDirectory == null); // Only for import
 	    renameFileToNodeName.setVisible(optionsFlag && exportDestinationDirectory != null); // Only for export
 	    renameFileToLamusFriendlyName.setVisible(optionsFlag && exportDestinationDirectory != null); // Only for export
 	    shibbolethCheckBox.setVisible(optionsFlag && copyFilesImportCheckBox.isSelected());
