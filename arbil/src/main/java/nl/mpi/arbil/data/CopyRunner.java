@@ -24,8 +24,10 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.ui.ImportExportUI;
@@ -83,7 +85,7 @@ public class CopyRunner implements Runnable {
 	    impExpUI.onCopyStart();
 	    impExpUI.setProgressIndeterminate(true);
 	    // Copy the selected nodes
-	    copyElements(impExpUI.getSelectedNodesEnumeration(), impExpUI.getDestinationNode(), exportDestinationDirectory);
+	    copyElements(impExpUI.getSelectedNodesIterator(), impExpUI.getDestinationNode(), exportDestinationDirectory);
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	    finalMessageString = finalMessageString + "There was a critical error.";
@@ -92,17 +94,15 @@ public class CopyRunner implements Runnable {
 	impExpUI.onCopyEnd(finalMessageString);
     }
 
-    private void copyElements(final Enumeration selectedNodesEnum, final ArbilDataNode destinationNode, final File exportDestinationDirectory) {
-	final ArrayList<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
-	final Hashtable<URI, RetrievableFile> seenFiles = new Hashtable<URI, RetrievableFile>();
-	final ArrayList<URI> getList = new ArrayList<URI>();
-	final ArrayList<URI> doneList = new ArrayList<URI>();
+    private void copyElements(final Iterator<ArbilDataNode> selectedNodesEnum, final ArbilDataNode destinationNode, final File exportDestinationDirectory) {
+	final List<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
+	final Map<URI, RetrievableFile> seenFiles = new HashMap<URI, RetrievableFile>();
+	final List<URI> getList = new ArrayList<URI>();
+	final List<URI> doneList = new ArrayList<URI>();
 	final XsdChecker xsdChecker = new XsdChecker();
-	while (selectedNodesEnum.hasMoreElements() && !impExpUI.isStopCopy()) {
-	    Object currentElement = selectedNodesEnum.nextElement();
-	    if (currentElement instanceof ArbilDataNode) {
-		copyElement(currentElement, exportDestinationDirectory, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
-	    }
+	while (selectedNodesEnum.hasNext() && !impExpUI.isStopCopy()) {
+	    final ArbilDataNode currentElement = selectedNodesEnum.next();
+	    copyElement(currentElement, exportDestinationDirectory, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
 	}
 	finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
 
@@ -128,7 +128,7 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private void addImportedNodesToLocalCorpus(final ArbilDataNode destinationNode, final ArrayList<ArbilDataNode> copiedNodes) {
+    private void addImportedNodesToLocalCorpus(final ArbilDataNode destinationNode, final List<ArbilDataNode> copiedNodes) {
 	if (!impExpUI.isStopCopy()) {
 	    for (ArbilDataNode currentFinishedNode : copiedNodes) {
 		if (destinationNode != null) {
@@ -152,7 +152,7 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private void copyElement(final Object currentElement, final File exportDestinationDirectory, final ArrayList<URI> getList, final Hashtable<URI, RetrievableFile> seenFiles, final ArrayList<URI> doneList, final XsdChecker xsdChecker, final ArrayList<ArbilDataNode> finishedTopNodes) {
+    private void copyElement(final Object currentElement, final File exportDestinationDirectory, final List<URI> getList, final Map<URI, RetrievableFile> seenFiles, final List<URI> doneList, final XsdChecker xsdChecker, final List<ArbilDataNode> finishedTopNodes) {
 	final URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
 	getList.add(currentGettableUri);
 	if (!seenFiles.containsKey(currentGettableUri)) {
@@ -169,7 +169,7 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private void copyFile(final RetrievableFile currentRetrievableFile, final File exportDestinationDirectory, final Hashtable<URI, RetrievableFile> seenFiles, final ArrayList<URI> doneList, final ArrayList<URI> getList, final XsdChecker xsdChecker) {
+    private void copyFile(final RetrievableFile currentRetrievableFile, final File exportDestinationDirectory, final Map<URI, RetrievableFile> seenFiles, final List<URI> doneList, final List<URI> getList, final XsdChecker xsdChecker) {
 	try {
 	    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
 		String journalActionString;
@@ -190,7 +190,7 @@ public class CopyRunner implements Runnable {
 		if (metadataUtils == null) {
 		    throw new ArbilMetadataException("Metadata format could not be determined");
 		}
-		final ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
+		final List<URI[]> uncopiedLinks = new ArrayList<URI[]>();
 		final URI[] linksUriArray = metadataUtils.getCorpusLinks(currentRetrievableFile.sourceURI);
 		if (linksUriArray != null) {
 		    copyLinks(exportDestinationDirectory, linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
@@ -259,7 +259,7 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private void copyLinks(final File exportDestinationDirectory, URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
+    private void copyLinks(final File exportDestinationDirectory, URI[] linksUriArray, Map<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, List<URI> getList, List<URI[]> uncopiedLinks) throws MalformedURLException {
 	for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.isStopCopy(); linkCount++) {
 	    System.out.println("Link: " + linksUriArray[linkCount].toString());
 	    final String currentLink = linksUriArray[linkCount].toString();

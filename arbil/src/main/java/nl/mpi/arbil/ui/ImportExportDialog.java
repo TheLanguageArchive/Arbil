@@ -34,7 +34,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -76,7 +76,6 @@ public class ImportExportDialog implements ImportExportUI {
     private final static String progressFailedLabelText = "Metadata File Copy Errors: ";
     private final static String progressXmlErrorsLabelText = "Metadata File Validation Errors: ";
     private final static String resourceCopyErrorsLabelText = "Resource File Copy Errors: ";
-    
     final private JDialog importExportDialog;
     final private JPanel importExportPanel;
     private JPanel inputNodePanel;
@@ -125,8 +124,8 @@ public class ImportExportDialog implements ImportExportUI {
     private Vector<URI> fileCopyErrors = new Vector<URI>();
     private boolean showingMoreOptions = false;
     private boolean showingDetails = false;
-
     private static TreeHelper treeHelper;
+
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
     }
@@ -496,12 +495,8 @@ public class ImportExportDialog implements ImportExportUI {
 	nodePanel.add(currentLabel);
     }
 
-    private void setNodesPanel(Vector selectedNodes, JPanel nodePanel) {
-//            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
-//        nodePanel.setLayout(new java.awt.GridLayout());
-//        add(nodePanel);
-	for (Enumeration<ArbilDataNode> selectedNodesEnum = selectedNodes.elements(); selectedNodesEnum.hasMoreElements();) {
-	    ArbilDataNode currentNode = selectedNodesEnum.nextElement();
+    private void setNodesPanel(Vector<ArbilDataNode> selectedNodes, JPanel nodePanel) {
+	for (ArbilDataNode currentNode : selectedNodes) {
 	    JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
 	    nodePanel.add(currentLabel);
 	}
@@ -584,9 +579,8 @@ public class ImportExportDialog implements ImportExportUI {
     }
 
     private boolean selectedNodesContainDataNode() {
-	Enumeration selectedNodesEnum = selectedNodes.elements();
-	while (selectedNodesEnum.hasMoreElements()) {
-	    if (selectedNodesEnum.nextElement() instanceof ArbilDataNode) {
+	for (ArbilDataNode currentNode : selectedNodes) {
+	    if (currentNode instanceof ArbilDataNode) {
 		return true;
 	    }
 	}
@@ -812,8 +806,8 @@ public class ImportExportDialog implements ImportExportUI {
     }
 
     @Override
-    public Enumeration<ArbilDataNode> getSelectedNodesEnumeration() {
-	return selectedNodes.elements();
+    public Iterator<ArbilDataNode> getSelectedNodesIterator() {
+	return selectedNodes.iterator();
     }
 
     @Override

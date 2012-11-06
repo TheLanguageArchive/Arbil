@@ -20,7 +20,7 @@ package nl.mpi.arbil.ui;
 import java.awt.HeadlessException;
 import java.io.File;
 import java.net.URI;
-import java.util.Enumeration;
+import java.util.Iterator;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.util.DownloadAbortFlag;
@@ -52,7 +52,7 @@ public interface ImportExportUI extends ProgressListener {
 
     File getExportDestinationDirectory();
 
-    Enumeration<ArbilDataNode> getSelectedNodesEnumeration();
+    Iterator<ArbilDataNode> getSelectedNodesIterator();
 
     ShibbolethNegotiator getShibbolethNegotiator();
 
