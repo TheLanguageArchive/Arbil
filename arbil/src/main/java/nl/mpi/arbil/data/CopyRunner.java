@@ -34,7 +34,6 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.XsdChecker;
 
-
 /**
  * Runner for copy actions in import or export context. Split off from {@link nl.mpi.arbil.ui.ImportExportDialog}
  *
@@ -70,7 +69,10 @@ public class CopyRunner implements Runnable {
 	String javaVersionString = System.getProperty("java.version");
 	// TG: Apparently test not required for version >= 1.5 (2011/2/3)
 	testFreeSpace = !(javaVersionString.startsWith("1.4.") || javaVersionString.startsWith("1.5."));
-	directoryForSizeTest = impExpUI.getExportDestinationDirectory() != null ? impExpUI.getExportDestinationDirectory() : sessionStorage.getProjectWorkingDirectory();
+
+	// Export destination will be null in case of import into local corpus
+	final File exportDestinationDirectory = impExpUI.getExportDestinationDirectory();
+	directoryForSizeTest = exportDestinationDirectory != null ? exportDestinationDirectory : sessionStorage.getProjectWorkingDirectory();
 	// Append message about copying resource files to the copy output
 	if (impExpUI.isCopyFilesOnImport() || impExpUI.isCopyFilesOnExport()) {
 	    impExpUI.appendToResourceCopyOutput("'Copy Resource Files' is selected: Resource files will be downloaded where appropriate permission are granted." + "\n");
@@ -81,7 +83,7 @@ public class CopyRunner implements Runnable {
 	    impExpUI.onCopyStart();
 	    impExpUI.setProgressIndeterminate(true);
 	    // Copy the selected nodes
-	    copyElements(impExpUI.getSelectedNodesEnumeration());
+	    copyElements(impExpUI.getSelectedNodesEnumeration(), impExpUI.getDestinationNode(), exportDestinationDirectory);
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	    finalMessageString = finalMessageString + "There was a critical error.";
@@ -90,7 +92,7 @@ public class CopyRunner implements Runnable {
 	impExpUI.onCopyEnd(finalMessageString);
     }
 
-    private void copyElements(Enumeration selectedNodesEnum) {
+    private void copyElements(final Enumeration selectedNodesEnum, final ArbilDataNode destinationNode, final File exportDestinationDirectory) {
 	final ArrayList<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
 	final Hashtable<URI, RetrievableFile> seenFiles = new Hashtable<URI, RetrievableFile>();
 	final ArrayList<URI> getList = new ArrayList<URI>();
@@ -99,33 +101,18 @@ public class CopyRunner implements Runnable {
 	while (selectedNodesEnum.hasMoreElements() && !impExpUI.isStopCopy()) {
 	    Object currentElement = selectedNodesEnum.nextElement();
 	    if (currentElement instanceof ArbilDataNode) {
-		copyElement(currentElement, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
+		copyElement(currentElement, exportDestinationDirectory, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
 	    }
 	}
 	finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
-	if (impExpUI.getExportDestinationDirectory() == null) {
-	    if (!impExpUI.isStopCopy()) {
-		for (ArbilDataNode currentFinishedNode : finishedTopNodes) {
-		    if (impExpUI.getDestinationNode() != null) {
-			if (!impExpUI.getDestinationNode().getURI().equals(currentFinishedNode.getURI())) {
-			    impExpUI.getDestinationNode().addCorpusLink(currentFinishedNode);
-			}
-		    } else {
-			if (!treeHelper.addLocation(currentFinishedNode.getURI())) {
-			    finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
-			}
-		    }
-		    currentFinishedNode.reloadNode();
-		}
-	    }
-	    if (impExpUI.getDestinationNode() == null) {
-		treeHelper.applyRootLocations();
-	    } else {
-		impExpUI.getDestinationNode().reloadNode();
-	    }
+
+	if (exportDestinationDirectory == null) {
+	    // This is in the case of an import into the local corpus
+	    addImportedNodesToLocalCorpus(destinationNode, finishedTopNodes);
 	}
 
 	impExpUI.setProgressIndeterminate(false);
+
 	if (totalErrors != 0) {
 	    finalMessageString = finalMessageString + "There were " + totalErrors + " errors, some files may not have been copied.\n";
 	}
@@ -141,47 +128,73 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private void copyElement(Object currentElement, ArrayList<URI> getList, Hashtable<URI, RetrievableFile> seenFiles, ArrayList<URI> doneList, XsdChecker xsdChecker, ArrayList<ArbilDataNode> finishedTopNodes) {
-	URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
+    private void addImportedNodesToLocalCorpus(final ArbilDataNode destinationNode, final ArrayList<ArbilDataNode> copiedNodes) {
+	if (!impExpUI.isStopCopy()) {
+	    for (ArbilDataNode currentFinishedNode : copiedNodes) {
+		if (destinationNode != null) {
+		    // Import into specific corpus inside local corpus
+		    if (!destinationNode.getURI().equals(currentFinishedNode.getURI())) {
+			destinationNode.addCorpusLink(currentFinishedNode);
+		    }
+		} else {
+		    // Import to root level of local corpus
+		    if (!treeHelper.addLocation(currentFinishedNode.getURI())) {
+			finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
+		    }
+		}
+		currentFinishedNode.reloadNode();
+	    }
+	}
+	if (destinationNode == null) {
+	    treeHelper.applyRootLocations();
+	} else {
+	    destinationNode.reloadNode();
+	}
+    }
+
+    private void copyElement(final Object currentElement, final File exportDestinationDirectory, final ArrayList<URI> getList, final Hashtable<URI, RetrievableFile> seenFiles, final ArrayList<URI> doneList, final XsdChecker xsdChecker, final ArrayList<ArbilDataNode> finishedTopNodes) {
+	final URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
 	getList.add(currentGettableUri);
 	if (!seenFiles.containsKey(currentGettableUri)) {
-	    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), impExpUI.getExportDestinationDirectory()));
+	    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
 	}
 	while (!impExpUI.isStopCopy() && getList.size() > 0) {
 	    RetrievableFile currentRetrievableFile = seenFiles.get(getList.remove(0));
-	    copyFile(currentRetrievableFile, seenFiles, doneList, getList, xsdChecker);
+	    copyFile(currentRetrievableFile, exportDestinationDirectory, seenFiles, doneList, getList, xsdChecker);
 	}
-	if (impExpUI.getExportDestinationDirectory() == null) {
+	if (exportDestinationDirectory == null) {
+	    // This is an import into the local corpus
 	    File newNodeLocation = sessionStorage.getSaveLocation(((ArbilDataNode) currentElement).getParentDomNode().getUrlString());
 	    finishedTopNodes.add(dataNodeLoader.getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
 	}
     }
 
-    private void copyFile(RetrievableFile currentRetrievableFile, Hashtable<URI, RetrievableFile> seenFiles, ArrayList<URI> doneList, ArrayList<URI> getList, XsdChecker xsdChecker) {
+    private void copyFile(final RetrievableFile currentRetrievableFile, final File exportDestinationDirectory, final Hashtable<URI, RetrievableFile> seenFiles, final ArrayList<URI> doneList, final ArrayList<URI> getList, final XsdChecker xsdChecker) {
 	try {
 	    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
 		String journalActionString;
-		if (impExpUI.getExportDestinationDirectory() == null) {
+		if (exportDestinationDirectory == null) {
+		    // This is an import into the local corpus
 		    currentRetrievableFile.calculateUriFileName();
 		    journalActionString = "import";
 		} else {
-		    if (impExpUI.isRenameFileToNodeName() && impExpUI.getExportDestinationDirectory() != null) {
+		    // This is an export to a location on the file system
+		    if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
 			currentRetrievableFile.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName());
 		    } else {
 			currentRetrievableFile.calculateUriFileName();
 		    }
 		    journalActionString = "export";
 		}
-		MetadataUtils currentMetdataUtil = ArbilDataNode.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
-		if (currentMetdataUtil == null) {
+		final MetadataUtils metadataUtils = ArbilDataNode.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
+		if (metadataUtils == null) {
 		    throw new ArbilMetadataException("Metadata format could not be determined");
 		}
-		ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
-		URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
+		final ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
+		final URI[] linksUriArray = metadataUtils.getCorpusLinks(currentRetrievableFile.sourceURI);
 		if (linksUriArray != null) {
-		    copyLinks(linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
+		    copyLinks(exportDestinationDirectory, linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
 		}
-		boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && impExpUI.isOverwrite();
 		if (currentRetrievableFile.destinationFile.exists()) {
 		    totalExisting++;
 		}
@@ -189,11 +202,11 @@ public class CopyRunner implements Runnable {
 		    impExpUI.appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
 		    impExpUI.appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 		} else {
-		    if (replacingExitingFile) {
+		    final boolean replacingExistingFile = currentRetrievableFile.destinationFile.exists() && impExpUI.isOverwrite();
+		    if (replacingExistingFile) {
 			impExpUI.appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
-		    } else {
 		    }
-		    ArbilDataNode destinationNode = dataNodeLoader.getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
+		    final ArbilDataNode destinationNode = dataNodeLoader.getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
 		    if (destinationNode.getNeedsSaveToDisk(false)) {
 			destinationNode.saveChangesToCache(true);
 		    }
@@ -205,10 +218,9 @@ public class CopyRunner implements Runnable {
 			    BugCatcherManager.getBugCatcher().logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
 			}
 		    }
-		    currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
+		    metadataUtils.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
 		    ArbilJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
-		    String checkerResult;
-		    checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile);
+		    final String checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile);
 		    if (checkerResult != null) {
 			impExpUI.appendToXmlOutput(currentRetrievableFile.sourceURI.toString() + "\n");
 			impExpUI.appendToXmlOutput("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
@@ -217,7 +229,7 @@ public class CopyRunner implements Runnable {
 			impExpUI.addToValidationErrors(currentRetrievableFile.sourceURI);
 			xsdErrors++;
 		    }
-		    if (replacingExitingFile) {
+		    if (replacingExistingFile) {
 			dataNodeLoader.requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
 		    }
 		}
@@ -247,18 +259,18 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private void copyLinks(URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
+    private void copyLinks(final File exportDestinationDirectory, URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
 	for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.isStopCopy(); linkCount++) {
 	    System.out.println("Link: " + linksUriArray[linkCount].toString());
-	    String currentLink = linksUriArray[linkCount].toString();
-	    URI gettableLinkUri = linksUriArray[linkCount].normalize();
+	    final String currentLink = linksUriArray[linkCount].toString();
+	    final URI gettableLinkUri = linksUriArray[linkCount].normalize();
 	    if (!seenFiles.containsKey(gettableLinkUri)) {
 		seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
 	    }
-	    RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
+	    final RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
 	    if (MetadataFormat.isPathMetadata(currentLink)) {
 		getList.add(gettableLinkUri);
-		if (impExpUI.isRenameFileToNodeName() && impExpUI.getExportDestinationDirectory() != null) {
+		if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
 		    retrievableLink.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName());
 		} else {
 		    retrievableLink.calculateUriFileName();
@@ -269,10 +281,10 @@ public class CopyRunner implements Runnable {
 		    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
 		} else {
 		    File downloadFileLocation;
-		    if (impExpUI.getExportDestinationDirectory() == null) {
+		    if (exportDestinationDirectory == null) {
 			downloadFileLocation = sessionStorage.updateCache(currentLink, impExpUI.getShibbolethNegotiator(), false, false, impExpUI.getDownloadAbortFlag(), impExpUI);
 		    } else {
-			if (impExpUI.isRenameFileToNodeName() && impExpUI.getExportDestinationDirectory() != null) {
+			if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
 			    retrievableLink.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName());
 			} else {
 			    retrievableLink.calculateUriFileName();
@@ -321,21 +333,14 @@ public class CopyRunner implements Runnable {
 
     private class RetrievableFile {
 
-	private URI sourceURI;
-	private File destinationDirectory;
+	private final URI sourceURI;
+	private final File destinationDirectory;
 	private File childDestinationDirectory;
 	private File destinationFile;
-	private String fileSuffix;
 
 	public RetrievableFile(URI sourceURILocal, File destinationDirectoryLocal) {
 	    sourceURI = sourceURILocal;
 	    destinationDirectory = destinationDirectoryLocal;
-	}
-
-	private String makeFileNameLamusFriendly(String fileNameString) {
-	    String friendlyFileName = fileNameString.replaceAll("[^A-Za-z0-9-]", "_");
-	    friendlyFileName = friendlyFileName.replaceAll("__+", "_");
-	    return friendlyFileName;
 	}
 
 	public void calculateUriFileName() {
@@ -347,15 +352,31 @@ public class CopyRunner implements Runnable {
 	    childDestinationDirectory = destinationDirectory;
 	}
 
-	public void calculateTreeFileName(boolean lamusFriendly) {
+	public void calculateTreeFileName(final boolean lamusFriendly) {
 	    final int suffixSeparator = sourceURI.toString().lastIndexOf(".");
-	    if (suffixSeparator > 0) {
-		fileSuffix = sourceURI.toString().substring(suffixSeparator);
-	    } else {
-		fileSuffix = "";
-	    }
-	    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, sourceURI);
+	    final String fileSuffix = (suffixSeparator > 0) ? sourceURI.toString().substring(suffixSeparator) : "";
+
+	    final ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, sourceURI);
 	    currentNode.waitTillLoaded();
+
+	    final String fileName = determineFileName(currentNode, lamusFriendly);
+	    destinationFile = new File(destinationDirectory, fileName + fileSuffix);
+	    childDestinationDirectory = new File(destinationDirectory, fileName);
+
+	    int fileCounter = 1;
+	    while (destinationFile.exists()) {
+		if (lamusFriendly) {
+		    destinationFile = new File(destinationDirectory, fileName + "_" + fileCounter + fileSuffix);
+		    childDestinationDirectory = new File(destinationDirectory, fileName + "_" + fileCounter);
+		} else {
+		    destinationFile = new File(destinationDirectory, fileName + "(" + fileCounter + ")" + fileSuffix);
+		    childDestinationDirectory = new File(destinationDirectory, fileName + "(" + fileCounter + ")");
+		}
+		fileCounter++;
+	    }
+	}
+
+	private String determineFileName(final ArbilDataNode currentNode, boolean lamusFriendly) {
 	    String fileNameString;
 	    if (currentNode.isMetaDataNode()) {
 		fileNameString = currentNode.toString();
@@ -383,19 +404,13 @@ public class CopyRunner implements Runnable {
 	    if (fileNameString.length() < 1) {
 		fileNameString = "unnamed";
 	    }
-	    destinationFile = new File(destinationDirectory, fileNameString + fileSuffix);
-	    childDestinationDirectory = new File(destinationDirectory, fileNameString);
-	    int fileCounter = 1;
-	    while (destinationFile.exists()) {
-		if (lamusFriendly) {
-		    destinationFile = new File(destinationDirectory, fileNameString + "_" + fileCounter + fileSuffix);
-		    childDestinationDirectory = new File(destinationDirectory, fileNameString + "_" + fileCounter);
-		} else {
-		    destinationFile = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")" + fileSuffix);
-		    childDestinationDirectory = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")");
-		}
-		fileCounter++;
-	    }
+	    return fileNameString;
+	}
+
+	private String makeFileNameLamusFriendly(String fileNameString) {
+	    return fileNameString
+		    .replaceAll("[^A-Za-z0-9-]", "_")
+		    .replaceAll("__+", "_");
 	}
     }
 }
