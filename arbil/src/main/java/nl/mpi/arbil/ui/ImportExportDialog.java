@@ -54,12 +54,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.CopyRunner;
+import nl.mpi.arbil.data.CopyRunner.RetrievableFile;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MessageDialogHandler.DialogBoxResult;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -86,7 +88,6 @@ public class ImportExportDialog implements ImportExportUI {
     private JCheckBox renameFileToLamusFriendlyName;
     private JButton showMoreButton;
     private JButton showDetailsButton;
-    private JCheckBox overwriteCheckBox;
     private JCheckBox shibbolethCheckBox;
     private JPanel shibbolethPanel;
 //    private JProgressBar resourceProgressBar;
@@ -209,14 +210,10 @@ public class ImportExportDialog implements ImportExportUI {
     }
 
     private JPanel createOptionsPanel() {
-	overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
-	overwriteCheckBox.setToolTipText("If checked, after import the local version will be an exact copy of the remote version and any local changes will be overwritten. If not checked, previous local changes will remain.");
 	copyFilesExportCheckBox = new JCheckBox("Export Resource Files (if available)", false);
 
 	JPanel optionsPanel = new JPanel();
 	optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
-	overwriteCheckBox.setAlignmentX(0);
-	optionsPanel.add(overwriteCheckBox);
 	copyFilesExportCheckBox.setAlignmentX(0);
 	optionsPanel.add(copyFilesExportCheckBox);
 	optionsPanel.setAlignmentX(0);
@@ -588,7 +585,6 @@ public class ImportExportDialog implements ImportExportUI {
     }
 
     private synchronized void updateDialog(boolean optionsFlag, boolean detailsFlag) {
-	overwriteCheckBox.setVisible(exportDestinationDirectory == null);
 	copyFilesImportCheckBox.setVisible(exportDestinationDirectory == null);
 	copyFilesExportCheckBox.setVisible(exportDestinationDirectory != null);
 
@@ -646,11 +642,13 @@ public class ImportExportDialog implements ImportExportUI {
 	closeButton.setEnabled(false);
 	showMoreButton.setEnabled(false);
 	showInTableButton.setEnabled(false);
-	overwriteCheckBox.setEnabled(false);
 	copyFilesExportCheckBox.setEnabled(false);
 	copyFilesImportCheckBox.setEnabled(false);
 	taskOutput.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	importExportDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+	// Forget any remembered 'overwrite existing file' choice
+	rememberedOverwriteFileResult = null;
     }
 
     public void setUItoStoppedState() {
@@ -667,7 +665,6 @@ public class ImportExportDialog implements ImportExportUI {
 	closeButton.setEnabled(true);
 	showMoreButton.setEnabled(true);
 	showInTableButton.setEnabled(validationErrors.size() > 0 || metaDataCopyErrors.size() > 0 || fileCopyErrors.size() > 0);
-	overwriteCheckBox.setEnabled(true);
 	copyFilesExportCheckBox.setEnabled(true);
 	copyFilesImportCheckBox.setEnabled(true);
 
@@ -743,11 +740,6 @@ public class ImportExportDialog implements ImportExportUI {
     @Override
     public boolean isRenameFileToLamusFriendlyName() {
 	return renameFileToLamusFriendlyName.isSelected();
-    }
-
-    @Override
-    public boolean isOverwrite() {
-	return overwriteCheckBox.isSelected();
     }
 
     @Override
@@ -898,5 +890,30 @@ public class ImportExportDialog implements ImportExportUI {
 		progressBar.setString(totalLoaded + "/" + (getCount + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
 	    }
 	});
+    }
+    private DialogBoxResult rememberedOverwriteFileResult;
+
+    /**
+     * Called by copy runner when an existing file in the destination location has been detected. If choice has been remembered, shows
+     * a yes/no/cancel dialog with an option to remember. On cancel, the stop-copy flag gets set to true.
+     *
+     * @param currentRetrievableFile
+     * @return true if user responds with {@link JOptionPane#YES_OPTION}, false otherwise
+     * @see MessageDialogHandler#showDialogBoxRememberChoice(java.lang.String, java.lang.String, int, int)
+     * @see #setStopCopy(boolean)
+     */
+    public boolean askOverwrite(RetrievableFile currentRetrievableFile) {
+	// Ask first time or if 'remember choice' was never selected
+	if (rememberedOverwriteFileResult == null || !rememberedOverwriteFileResult.isRememberChoice()) {
+	    final String message = String.format("The following file already exist in the target location:\n\n%s\n\n Overwrite?", currentRetrievableFile.getSourceURI());
+	    rememberedOverwriteFileResult = dialogHandler.showDialogBoxRememberChoice(message, "Overwrite file?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+	}
+
+	if (JOptionPane.CANCEL_OPTION == rememberedOverwriteFileResult.getResult()) {
+	    setStopCopy(true);
+	    return false;
+	} else {
+	    return JOptionPane.YES_OPTION == rememberedOverwriteFileResult.getResult();
+	}
     }
 }

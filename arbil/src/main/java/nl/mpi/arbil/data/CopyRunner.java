@@ -195,14 +195,24 @@ public class CopyRunner implements Runnable {
 		if (linksUriArray != null) {
 		    copyLinks(exportDestinationDirectory, linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
 		}
+
+		boolean overwriteFile = false;
+
 		if (currentRetrievableFile.destinationFile.exists()) {
 		    totalExisting++;
+		    overwriteFile = impExpUI.askOverwrite(currentRetrievableFile);
+
+		    if (impExpUI.isStopCopy()) {
+			// Request to stop copy has been triggered from UI (probably when presenting user with pre-existing copy)
+			return;
+		    }
 		}
-		if (currentRetrievableFile.destinationFile.exists() && !impExpUI.isOverwrite()) {
+
+		if (currentRetrievableFile.destinationFile.exists() && !overwriteFile) {
 		    impExpUI.appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
 		    impExpUI.appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 		} else {
-		    final boolean replacingExistingFile = currentRetrievableFile.destinationFile.exists() && impExpUI.isOverwrite();
+		    final boolean replacingExistingFile = currentRetrievableFile.destinationFile.exists() && overwriteFile;
 		    if (replacingExistingFile) {
 			impExpUI.appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 		    }
@@ -331,7 +341,7 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private class RetrievableFile {
+    public class RetrievableFile {
 
 	private final URI sourceURI;
 	private final File destinationDirectory;
@@ -411,6 +421,10 @@ public class CopyRunner implements Runnable {
 	    return fileNameString
 		    .replaceAll("[^A-Za-z0-9-]", "_")
 		    .replaceAll("__+", "_");
+	}
+
+	public URI getSourceURI() {
+	    return sourceURI;
 	}
     }
 }

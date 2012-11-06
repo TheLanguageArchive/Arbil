@@ -22,6 +22,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Iterator;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.CopyRunner.RetrievableFile;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.ProgressListener;
@@ -60,8 +61,6 @@ public interface ImportExportUI extends ProgressListener {
 
     boolean isCopyFilesOnImport();
 
-    boolean isOverwrite();
-
     boolean isRenameFileToLamusFriendlyName();
 
     boolean isRenameFileToNodeName();
@@ -83,4 +82,6 @@ public interface ImportExportUI extends ProgressListener {
     void setStopCopy(boolean stopCopy);
     
     void setDiskspaceState(String text);
+
+    public boolean askOverwrite(RetrievableFile currentRetrievableFile);
 }
