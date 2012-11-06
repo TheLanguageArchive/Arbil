@@ -164,7 +164,7 @@ public class ArbilDataNodeService {
 			new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
 		    } else {
 			// Invalid copy/paste...
-			messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
+			messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + dataNode.toString() + "'", "Cannot copy");
 		    }
 		} else { // Not corpus, session or metadata
 		    messageDialogHandler.addMessageDialogToQueue("Nodes of this type cannot be pasted into at this stage", null);
@@ -201,7 +201,7 @@ public class ArbilDataNodeService {
 	    return false;
 	}
 	if (linkAlreadyExists) {
-	    messageDialogHandler.addMessageDialogToQueue(targetNode + " already exists in " + this + " and will not be added again", null);
+	    messageDialogHandler.addMessageDialogToQueue(targetNode + " already exists in " + dataNode + " and will not be added again", null);
 	    return false;
 	} else {
 	    // if link is not already there
@@ -218,7 +218,7 @@ public class ArbilDataNodeService {
 		}
 	    } catch (IOException ex) {
 		// Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
-		BugCatcherManager.getBugCatcher().logError("I/O exception while moving node " + targetNode.toString() + " to " + this.toString(), ex);
+		BugCatcherManager.getBugCatcher().logError("I/O exception while moving node " + targetNode.toString() + " to " + dataNode.toString(), ex);
 		messageDialogHandler.addMessageDialogToQueue("Could not move nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
 		return false;
 	    }
@@ -255,7 +255,7 @@ public class ArbilDataNodeService {
 	    }
 	} catch (IOException ex) {
 	    // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
-	    BugCatcherManager.getBugCatcher().logError("I/O exception while deleting nodes from " + this.toString(), ex);
+	    BugCatcherManager.getBugCatcher().logError("I/O exception while deleting nodes from " + dataNode.toString(), ex);
 	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
 	}
 
@@ -476,11 +476,11 @@ public class ArbilDataNodeService {
 
 	    }
 	} catch (FileNotFoundException e) {
-	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + this.toString(), "File not found");
+	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + dataNode.toString(), "File not found");
 	    BugCatcherManager.getBugCatcher().logError(e);
 	    return false;
 	} catch (IOException e) {
-	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + this.toString(), "Error while reading or writing to disk");
+	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + dataNode.toString(), "Error while reading or writing to disk");
 	    BugCatcherManager.getBugCatcher().logError(e);
 	    return false;
 	} finally {
