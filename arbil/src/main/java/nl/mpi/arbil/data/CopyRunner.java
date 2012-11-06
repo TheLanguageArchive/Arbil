@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package nl.mpi.arbil.ui;
+package nl.mpi.arbil.data;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,11 +27,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilJournal;
-import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
+import nl.mpi.arbil.ui.ImportExportUI;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
