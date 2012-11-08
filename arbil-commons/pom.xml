@@ -20,7 +20,7 @@
         <arbil-commons.minorVersion>2</arbil-commons.minorVersion> 
         <arbil-commons.branch>pretesting</arbil-commons.branch>  
         <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
-        <arbil.license.copyrightYear>2012</arbil.license.copyrightYear>
+        <arbil-commons.license.copyrightYear>2012</arbil-commons.license.copyrightYear>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.hint.license>gpl20</netbeans.hint.license>
     </properties>
