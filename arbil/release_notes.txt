@@ -28,7 +28,7 @@ default. (#1412)
 - CMDI PROFILES: There is now a button on the Templates and Profiles dialogue to refresh
 all selected profiles. (#2185)
 
-- HELP: The help contents have not been updated, using the Arbil manual as its source.
+- HELP: The help contents have been updated, using the Arbil manual as its source.
 Help for both IMDI and CMDI usage is available. (#1937)
 
 - IMPORT/EXPORT: The import/export dialogue has been redesigned. (#1684, #1754)
