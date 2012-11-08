@@ -290,8 +290,12 @@
             <artifactId>arbil-help</artifactId>
             <version>2.5-pretesting-SNAPSHOT</version>
         </dependency>
-    </dependencies>
-    
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>arbil-commons</artifactId>
+            <version>0.2.34218-pretesting</version>
+        </dependency>
+    </dependencies>    
     <pluginRepositories>
         <pluginRepository>
             <id>maven-timestamp</id>
