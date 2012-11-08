@@ -8,7 +8,7 @@ Contacts:
 - Twan Goosen (twan.goosen@mpi.nl)
 ----------------------------------------
 
-Below is an overview of changes in Arbil since the previous minor version (Arbil 2.2). Where 
+Below is an overview of changes in Arbil since the previous minor version (Arbil 2.3). Where 
 applicable, related ticket numbers from TRAC are included at the end of the description.
 
 ** ADDITIONS **
