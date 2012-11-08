@@ -11,8 +11,8 @@
     <artifactId>arbil-commons</artifactId>
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
-    <version>${arbil-commons.majorVersion}.${arbil-commons.minorVersion}-${arbil-commons.branch}-SNAPSHOT</version>
-    <!--<version>${arbil-commons.majorVersion}.${arbil-commons.minorVersion}.33660-${arbil-commons.branch}</version>-->
+    <!--<version>${arbil-commons.majorVersion}.${arbil-commons.minorVersion}-${arbil-commons.branch}-SNAPSHOT</version>-->
+    <version>${arbil-commons.majorVersion}.${arbil-commons.minorVersion}.34218-${arbil-commons.branch}</version>
     <name>Arbil Commons</name>
     <url>http://maven.apache.org</url>
     <properties>     
