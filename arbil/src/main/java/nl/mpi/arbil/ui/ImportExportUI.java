@@ -84,4 +84,6 @@ public interface ImportExportUI extends ProgressListener {
     void setDiskspaceState(String text);
 
     public boolean askOverwrite(RetrievableFile currentRetrievableFile);
+
+    public boolean askCreateNewExportDir(File destinationFile);
 }

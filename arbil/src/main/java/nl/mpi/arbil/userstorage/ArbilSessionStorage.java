@@ -66,7 +66,6 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilSessionStorage extends CommonsSessionStorage implements SessionStorage {
 
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
-    private MessageDialogHandler messageDialogHandler;
     public static final String UTF8_ENCODING = "UTF8";
     public static final String CONFIG_FILE = "arbil.config";
 

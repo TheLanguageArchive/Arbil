@@ -919,4 +919,23 @@ public class ImportExportDialog implements ImportExportUI {
 	    return JOptionPane.YES_OPTION == rememberedOverwriteFileResult.getResult();
 	}
     }
+
+    public boolean askCreateNewExportDir(File destinationFile) {
+	final Object[] dialogOptions = new Object[]{"Replace", "New location", "Cancel"};
+	final int newLocationOption = 1;
+	final int cancelOption = 2;
+
+	final String message = String.format("Export location %s already exists! Do you want to replace or create a new location?\n\n"
+		+ "Choosing 'Replace' will NOT remove any existing files or directories but may overwrite or some.\n"
+		+ "You will be able to decide for individual existing files whether to overwrite or not.\n\n"
+		+ "If you choose 'New location', a unique new file name will be created on basis of the original file\n"
+		+ "name and files that are already present.", destinationFile.getName());
+	int result = dialogHandler.showDialogBox(message, "Replace existing location?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, dialogOptions, "New location");
+	if (result == cancelOption) {
+	    setStopCopy(true);
+	    return false;
+	} else {
+	    return result == newLocationOption;
+	}
+    }
 }

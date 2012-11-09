@@ -310,7 +310,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                             fileSelectDone = true;
                             return destinationDirectory;
                         } else {
-                            if (showConfirmDialogBox("The selected export directory is not empty.\nTo continue will create dupicates of existing files.\nDo you want to continue?", titleText)) {
+                            if (showConfirmDialogBox("The selected export directory is not empty. On export, you will have the\nchoice to either override or create duplicates of any present files.\nDo you want to continue?", titleText)) {
                                 return destinationDirectory;
                             }
                             //JOptionPane.showMessageDialog(LinorgWindowManager.getArbilHelpInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
