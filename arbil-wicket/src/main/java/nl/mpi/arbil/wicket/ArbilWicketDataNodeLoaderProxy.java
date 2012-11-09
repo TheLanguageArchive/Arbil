@@ -4,6 +4,7 @@ import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.plugin.PluginArbilDataNode;
+import nl.mpi.arbil.plugin.WrongNodeTypeException;
 
 /**
  * Proxy for the DataNodeLoader that is contained in the session that makes the
@@ -94,5 +95,13 @@ public class ArbilWicketDataNodeLoaderProxy implements DataNodeLoader {
 
     public void requestShallowReload(ArbilDataNode adn) {
         getDataNodeLoader().requestShallowReload(adn);
+    }
+
+    public URI getNodeURI(PluginArbilDataNode dataNode) throws WrongNodeTypeException {
+	return getDataNodeLoader().getNodeURI(dataNode);
+    }
+
+    public boolean isNodeLoading(PluginArbilDataNode dataNode) {
+	return getDataNodeLoader().isNodeLoading(dataNode);
     }
 }
