@@ -75,7 +75,8 @@ import org.xml.sax.SAXException;
  */
 public class ArbilMenuBar extends JMenuBar {
 
-    final static public JMenu windowMenu = new JMenu();
+    public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
+    public static final JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
     private JMenuItem saveFileMenuItem = new JMenuItem();
     private JMenuItem showChangedNodesMenuItem = new JMenuItem();
@@ -668,7 +669,7 @@ public class ArbilMenuBar extends JMenuBar {
 	arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
+		    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI(FORUM_URL));
 		} catch (Exception ex) {
 		    GuiHelper.linorgBugCatcher.logError(ex);
 		}
