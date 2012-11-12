@@ -295,6 +295,11 @@
             <artifactId>arbil-commons</artifactId>
             <version>0.2.34218-pretesting</version>
         </dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>arbil-localisation</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>    
     <pluginRepositories>
         <pluginRepository>
