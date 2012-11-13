@@ -22,21 +22,21 @@
             <Organisation/>
         </Contact>
         <Keys>
-            <Key Name="Deafness.Status" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Deafness.Status.xml" Type="ClosedVocabulary"/>
-            <Key Name="Deafness.AidType" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Deafness.AidType.xml" Type="ClosedVocabulary"/>
+            <Key Name="Deafness.Status" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.Status.xml" Type="ClosedVocabulary"/>
+            <Key Name="Deafness.AidType" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.AidType.xml" Type="ClosedVocabulary"/>
             <Key Name="SignLanguageExperience.ExposureAge"/>
-            <Key Name="SignLanguageExperience.AcquisitionLocation" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/SignLanguageExperience.AcquisitionLocation.xml" Type="OpenVocabularyList"/>
-            <Key Name="SignLanguageExperience.SignTeaching" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/SignLanguageExperience.SignTeaching.xml" Type="OpenVocabularyList"/>
-            <Key Name="Family.Mother.Deafness" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Deafness.Status.xml" Type="ClosedVocabulary"/>
-            <Key Name="Family.Mother.PrimaryCommunicationForm" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/CommunicationForm.xml" Type="OpenVocabularyList"/>
-            <Key Name="Family.Father.Deafness" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Deafness.Status.xml" Type="ClosedVocabulary"/>
-            <Key Name="Family.Father.PrimaryCommunicationForm" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/CommunicationForm.xml" Type="OpenVocabularyList"/>
-            <Key Name="Family.Partner.Deafness" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Deafness.Status.xml" Type="ClosedVocabulary"/>
-            <Key Name="Family.Partner.PrimaryCommunicationForm" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/CommunicationForm.xml" Type="OpenVocabularyList"/>
+            <Key Name="SignLanguageExperience.AcquisitionLocation" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/SignLanguageExperience.AcquisitionLocation.xml" Type="OpenVocabularyList"/>
+            <Key Name="SignLanguageExperience.SignTeaching" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/SignLanguageExperience.SignTeaching.xml" Type="OpenVocabularyList"/>
+            <Key Name="Family.Mother.Deafness" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.Status.xml" Type="ClosedVocabulary"/>
+            <Key Name="Family.Mother.PrimaryCommunicationForm" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/CommunicationForm.xml" Type="OpenVocabularyList"/>
+            <Key Name="Family.Father.Deafness" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.Status.xml" Type="ClosedVocabulary"/>
+            <Key Name="Family.Father.PrimaryCommunicationForm" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/CommunicationForm.xml" Type="OpenVocabularyList"/>
+            <Key Name="Family.Partner.Deafness" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.Status.xml" Type="ClosedVocabulary"/>
+            <Key Name="Family.Partner.PrimaryCommunicationForm" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/CommunicationForm.xml" Type="OpenVocabularyList"/>
             <Key Name="Education.Age"/>
-            <Key Name="Education.SchoolType" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Education.SchoolType.xml" Type="OpenVocabulary"/>
-            <Key Name="Education.ClassKind" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Education.ClassKind.xml" Type="OpenVocabulary"/>
-            <Key Name="Education.EducationModel" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Education.EducationModel.xml" Type="OpenVocabulary"/>
+            <Key Name="Education.SchoolType" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Education.SchoolType.xml" Type="OpenVocabulary"/>
+            <Key Name="Education.ClassKind" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Education.ClassKind.xml" Type="OpenVocabulary"/>
+            <Key Name="Education.EducationModel" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Education.EducationModel.xml" Type="OpenVocabulary"/>
             <Key Name="Education.Location"/>
             <Key Name="Education.BoardingSchool" Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary"/>
         </Keys>

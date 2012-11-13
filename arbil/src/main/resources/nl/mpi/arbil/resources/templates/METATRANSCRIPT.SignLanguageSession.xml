@@ -52,11 +52,11 @@
                     <Description LanguageId="" Link=""/>
                 </Languages>
                 <Keys>
-                    <Key Name="ElicitationMethod" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/ElicitationMethod.xml" Type="OpenVocabulary"/>
-                    <Key Name="Interpreting.Source" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Source.xml" Type="OpenVocabulary"/>
-                    <Key Name="Interpreting.Target" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Target.xml" Type="OpenVocabulary"/>
-                    <Key Name="Interpreting.Visibility" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Visibility.xml" Type="ClosedVocabulary"/>
-                    <Key Name="Interpreting.Audience" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Audience.xml" Type="ClosedVocabulary"/>
+                    <Key Name="ElicitationMethod" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/ElicitationMethod.xml" Type="OpenVocabulary"/>
+                    <Key Name="Interpreting.Source" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Interpreting.Source.xml" Type="OpenVocabulary"/>
+                    <Key Name="Interpreting.Target" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Interpreting.Target.xml" Type="OpenVocabulary"/>
+                    <Key Name="Interpreting.Visibility" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Interpreting.Visibility.xml" Type="ClosedVocabulary"/>
+                    <Key Name="Interpreting.Audience" Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Interpreting.Audience.xml" Type="ClosedVocabulary"/>
                 </Keys>
                 <Description LanguageId="" Link=""/>
             </Content>
