@@ -76,6 +76,12 @@ during a heavy operation such as searching a large corpus when running as an ins
 application on Windows. This was caused by an incorrect memory allocation for the Java
 virtual machine and has been resolved. (#1321)
 
+- SIGN LANGUAGE TEMPLATE: The built-in sign language template for IMDI used to have 
+controlled vocabulary links that are no longer accessible. These have been updated. (#2550)
+
+- ARBIL FORUM: The Arbil forum has changed to a new location. The link in the 'Help'
+menu has been updated to open this new location in a browser. (#2269)
+
 ** KNOWN ISSUES **
 
 Among others, the following issues have been described and will be addressed in future version of
