@@ -13,7 +13,8 @@
 	<module>arbil-help</module>
 	<module>arbil-wicket</module>
         <module>arbil-commons</module>
-  </modules>
+        <module>arbil-localisation</module>
+    </modules>
 
     <organization> 
 	<name>Max Planck Institute for Psycholinguistics</name> 
