@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2012 Max Planck Institute for Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -47,8 +47,8 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
- * Document   : ArbilTreeHelper
- * Created on :
+ * Document : ArbilTreeHelper Created on :
+ *
  * @author Peter.Withers@mpi.nl
  * @author Twan.Goosen@mpi.nl
  */
@@ -68,8 +68,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for local corpus tree
      */
-    protected final ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode("Local corpus", ArbilIcons.getSingleInstance().directoryIcon, true) {
-
+    protected final ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("LOCAL CORPUS"), ArbilIcons.getSingleInstance().directoryIcon, true) {
         public ArbilDataNode[] getChildArray() {
             return getLocalCorpusNodes();
         }
@@ -77,8 +76,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for remote corpus tree
      */
-    protected final ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode("Remote corpus", ArbilIcons.getSingleInstance().serverIcon, false) {
-
+    protected final ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("REMOTE CORPUS"), ArbilIcons.getSingleInstance().serverIcon, false) {
         public ArbilDataNode[] getChildArray() {
             return getRemoteCorpusNodes();
         }
@@ -86,8 +84,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for working directories tree ('files')
      */
-    protected final ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode("Working Directories", ArbilIcons.getSingleInstance().computerIcon, true) {
-
+    protected final ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("WORKING DIRECTORIES"), ArbilIcons.getSingleInstance().computerIcon, true) {
         public ArbilDataNode[] getChildArray() {
             return getLocalFileNodes();
         }
@@ -95,8 +92,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for favourites tree
      */
-    protected final ArbilRootNode favouritesRootNodeObject = new ArbilRootNode("Favourites", ArbilIcons.getSingleInstance().favouriteIcon, true) {
-
+    protected final ArbilRootNode favouritesRootNodeObject = new ArbilRootNode(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAVOURITES"), ArbilIcons.getSingleInstance().favouriteIcon, true) {
         HashMap<String, ContainerNode> containerNodeMap = new HashMap<String, ContainerNode>();
 
         public ArbilNode[] getChildArray() {
@@ -197,7 +193,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             locationsArray = getSessionStorage().loadStringArray("locationsList");
         } catch (IOException ex) {
             BugCatcherManager.getBugCatcher().logError(ex);
-            messageDialogHandler.addMessageDialogToQueue("Could not find or load locations. Adding default locations.", "Error");
+            messageDialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("COULD NOT FIND OR LOAD LOCATIONS. ADDING DEFAULT LOCATIONS."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ERROR"));
         }
         if (locationsArray != null) {
             ArrayList<ArbilDataNode> remoteCorpusNodesList = new ArrayList<ArbilDataNode>();
@@ -241,7 +237,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             }
 
             if (failedLoads > 0) {
-                messageDialogHandler.addMessageDialogToQueue("Failed to load " + failedLoads + " locations. See error log for details.", "Warning");
+                messageDialogHandler.addMessageDialogToQueue(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAILED TO LOAD {0} LOCATIONS. SEE ERROR LOG FOR DETAILS."), new Object[]{failedLoads}), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("WARNING"));
             }
 
             remoteCorpusNodes = remoteCorpusNodesList.toArray(new ArbilDataNode[]{});
@@ -305,26 +301,26 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     @Override
     public boolean addLocation(URI addedLocation) {
-	System.out.println("addLocation: " + addedLocation.toString());
-	// make sure the added location url matches that of the imdi node format
-	ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
-	//TODO: Synchronize this
-	if (addedLocationObject != null) {
-	    saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
-	    loadLocationsList();
-	    return true;
-	}
-	return false;
+        System.out.println("addLocation: " + addedLocation.toString());
+        // make sure the added location url matches that of the imdi node format
+        ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
+        //TODO: Synchronize this
+        if (addedLocationObject != null) {
+            saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
+            loadLocationsList();
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void removeLocation(ArbilDataNode removeObject) {
-	if (removeObject != null) {
-	    //TODO: Synchronize this
-	    saveLocations(null, new ArbilDataNode[]{removeObject});
-	    removeObject.removeFromAllContainers();
-	    loadLocationsList();
-	}
+        if (removeObject != null) {
+            //TODO: Synchronize this
+            saveLocations(null, new ArbilDataNode[]{removeObject});
+            removeObject.removeFromAllContainers();
+            loadLocationsList();
+        }
     }
 
     @Override
@@ -452,7 +448,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 currentParent.invalidateThumbnails();
                 currentParent.reloadNode();
             } else {
-                messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
+                messageDialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ERROR DELETING NODE, CHECK THE LOG FILE VIA THE HELP MENU FOR MORE INFORMATION."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("DELETE NODE"));
             }
             //BugCatcherManager.getBugCatcher().logError(new Exception("deleteFromDomViaId"));
         }
@@ -475,7 +471,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             if (componentBuilder.removeResourceProxyReferences(deleteEntry.getKey(), references)) {
                 deleteEntry.getKey().reloadNode();
             } else {
-                messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
+                messageDialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ERROR DELETING NODE, CHECK THE LOG FILE VIA THE HELP MENU FOR MORE INFORMATION."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("DELETE NODE"));
             }
         }
     }
@@ -573,7 +569,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     protected HashMap<String, ContainerNode> groupTreeNodesByType(ArbilDataNode[] favouriteNodes, HashMap<String, ContainerNode> containerNodeMap) {
         HashMap<String, HashSet<ArbilDataNode>> metaNodeMap = new HashMap<String, HashSet<ArbilDataNode>>();
         for (ArbilDataNode arbilDataNode : favouriteNodes) {
-            String containerNodeLabel = "Other";
+            String containerNodeLabel = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("OTHER");
             if (arbilDataNode.isChildNode()) {
                 final String urlString = arbilDataNode.getUrlString();
                 containerNodeLabel = urlString.substring(urlString.lastIndexOf(".") + 1);
@@ -583,16 +579,16 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                     if (nodeTemplate != null) {
                         containerNodeLabel = containerNodeLabel + " (" + nodeTemplate.getTemplateName() + ")";
                     } else {
-                        containerNodeLabel = containerNodeLabel + " (loading)";
+                        containerNodeLabel = containerNodeLabel + java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString(" (LOADING)");
                     }
                 }
             } else if (arbilDataNode.isSession()) {
-                containerNodeLabel = "Session";
+                containerNodeLabel = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("SESSION");
             } else if (arbilDataNode.isCatalogue()) {
-                containerNodeLabel = "Catalogue";
+                containerNodeLabel = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("CATALOGUE");
             } else if (arbilDataNode.isCmdiMetaDataNode()) {
                 if (arbilDataNode.nodeTemplate == null) {
-                    containerNodeLabel = "Clarin Instance";
+                    containerNodeLabel = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("CLARIN INSTANCE");
                 } else {
                     containerNodeLabel = arbilDataNode.nodeTemplate.getTemplateName();
                 }
