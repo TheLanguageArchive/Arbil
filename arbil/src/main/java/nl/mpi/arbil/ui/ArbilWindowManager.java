@@ -210,22 +210,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 
     public void openAboutPage() {
         ArbilVersion appVersion = (ArbilVersion) versionManager.getApplicationVersion();
-        String messageString = "Archive Builder\n"
-                + "A local tool for organising linguistic data.\n"
-                + "Max Planck Institute for Psycholinguistics\n\n"
-                + "Application originally designed and developed by Peter Withers\n"
-                + "Current maintenance and extentions by Peter Withers and Twan Goosen\n"
-                + "Arbil also uses components of the IMDI API and Lamus Type Checker\n\n"
-                + "Version: " + appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision + "\n"
-                + appVersion.lastCommitDate + "\n"
-                + "Compile Date: " + appVersion.compileDate + "\n\n"
-                + "Java version: " + System.getProperty("java.version") + "\n"
-                + "Vendor: " + System.getProperty("java.vendor") + "\n"
-                + "JVM: " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n"
-                + "Operating system: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " (" + System.getProperty("os.arch") + ")\n\n"
-                + "Copyright (C) " + appVersion.getCopyrightYear() + " Max Planck Institute for Psycholinguistics\n\n"
-                + "Arbil has been licensed under the GNU General Public License version 2.\n"
-                + "Click the button below to see the full version of this license.";
+        String applicationInitialDesigner = "Peter Withers";
+        String applicationMaintainers = "Peter Withers and Twan Goosen";
+        String messageString = java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ABOUTBOXTEXT"),
+                new Object[]{applicationInitialDesigner, applicationMaintainers, appVersion.currentMajor, appVersion.currentMinor, appVersion.currentRevision, appVersion.lastCommitDate, appVersion.compileDate, System.getProperty("java.version"), System.getProperty("java.vendor"), System.getProperty("java.vm.name"), System.getProperty("java.vm.version"), System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"), appVersion.getCopyrightYear()});
 
         final JTextArea textComponent = new JTextArea();
         textComponent.setText(messageString);
@@ -233,16 +221,16 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
         textComponent.setOpaque(false);
         textComponent.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        final JButton licenseButton = new JButton("Display license");
+        final JButton licenseButton = new JButton(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("DISPLAY LICENSE"));
         licenseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 showLicenseWindow();
             }
         });
 
-        final JButton closeButton = new JButton("Close");
+        final JButton closeButton = new JButton(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("CLOSE"));
 
-        final JDialog aboutDialog = createModalDialog("About " + appVersion.applicationTitle, textComponent, null, licenseButton, closeButton);
+        final JDialog aboutDialog = createModalDialog(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ABOUT {0}"), new Object[]{appVersion.applicationTitle}), textComponent, null, licenseButton, closeButton);
         closeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 aboutDialog.dispose();
@@ -255,8 +243,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     private void showLicenseWindow() {
         try {
             final HtmlViewPane licensePane = new HtmlViewPane(getClass().getResource("/nl/mpi/arbil/resources/html/license/gpl2.html"));
-            final JButton closeButton = new JButton("Close");
-            final JDialog licenseDialog = createModalDialog("License", licensePane.createScrollPane(), new Dimension(800, 600), closeButton);
+            final JButton closeButton = new JButton(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("CLOSE"));
+            final JDialog licenseDialog = createModalDialog(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("LICENSE"), licensePane.createScrollPane(), new Dimension(800, 600), closeButton);
             closeButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     licenseDialog.dispose();
@@ -264,7 +252,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             });
             licenseDialog.setVisible(true);
         } catch (IOException ioEx) {
-            addMessageDialogToQueue("Error while trying to show license. See error log for details.", "Error");
+            addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ERROR WHILE TRYING TO SHOW LICENSE. SEE ERROR LOG FOR DETAILS."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ERROR"));
             BugCatcherManager.getBugCatcher().logError(ioEx);
         }
     }
@@ -272,7 +260,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     public void offerUserToSaveChanges() throws Exception {
         if (dataNodeLoader.nodesNeedSave()) {
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(getMainFrame(),
-                    "There are unsaved changes.\nSave now?", "Save Changes",
+                    java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("THERE ARE UNSAVED CHANGES.SAVE NOW?"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("SAVE CHANGES"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 dataNodeLoader.saveNodesNeedingSave(true);
             } else {
@@ -284,7 +272,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     public File showEmptyExportDirectoryDialogue(String titleText) {
         boolean fileSelectDone = false;
         while (!fileSelectDone) {
-            File[] selectedFiles = showFileSelectBox(titleText + " Destination Directory", true, false, null, DialogueType.custom, null);
+            File[] selectedFiles = showFileSelectBox(titleText + java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString(" DESTINATION DIRECTORY"), true, false, null, DialogueType.custom, null);
             if (selectedFiles != null && selectedFiles.length > 0) {
                 File destinationDirectory = selectedFiles[0];
                 boolean mkdirsOkay = true;
@@ -294,7 +282,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                     mkdirsOkay = destinationDirectory.mkdirs();
                 }
                 if (destinationDirectory == null || !mkdirsOkay || !destinationDirectory.exists()) {
-                    JOptionPane.showMessageDialog(getMainFrame(), "The export directory\n\"" + destinationDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", titleText, JOptionPane.PLAIN_MESSAGE);
+                    JOptionPane.showMessageDialog(getMainFrame(), java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("THE EXPORT DIRECTORY {0} DOES NOT EXIST.PLEASE SELECT OR CREATE A DIRECTORY."), new Object[]{destinationDirectory}), titleText, JOptionPane.PLAIN_MESSAGE);
                 } else {
 //                        if (!createdDirectory) {
 //                            String newDirectoryName = JOptionPane.showInputDialog(linorgFrame, "Enter Export Name", titleText, JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
@@ -310,7 +298,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                             fileSelectDone = true;
                             return destinationDirectory;
                         } else {
-                            if (showConfirmDialogBox("The selected export directory is not empty. On export, you will have the\nchoice to either override or create duplicates of any present files.\nDo you want to continue?", titleText)) {
+                            if (showConfirmDialogBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("THE SELECTED EXPORT DIRECTORY IS NOT EMPTY. ON EXPORT, YOU WILL HAVE THE CHOICE TO EITHER OVERRIDE OR CREATE DUPLICATES OF ANY PRESENT FILES.DO YOU WANT TO CONTINUE?"), titleText)) {
                                 return destinationDirectory;
                             }
                             //JOptionPane.showMessageDialog(LinorgWindowManager.getArbilHelpInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
@@ -326,7 +314,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 
     public File[] showMetadataFileSelectBox(String titleText, boolean multipleSelect) {
         HashMap<String, FileFilter> fileFilterMap = new HashMap<String, FileFilter>(2);
-        fileFilterMap.put("Metadata Files", new FileFilter() {
+        fileFilterMap.put(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("METADATA FILES"), new FileFilter() {
             @Override
             public boolean accept(File selectedFile) {
                 if (selectedFile.isDirectory()) {
@@ -346,7 +334,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 
             @Override
             public String getDescription() {
-                return "Metadata Files";
+                return java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("METADATA FILES");
             }
         });
         return showFileSelectBox(titleText, false, multipleSelect, fileFilterMap, DialogueType.open, null);
@@ -357,7 +345,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
         // this filter is only cosmetic but gives the user an indication of what to select
         FileFilter imdiFileFilter = new FileFilter() {
             public String getDescription() {
-                return "Directories";
+                return java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("DIRECTORIES");
             }
 
             @Override
@@ -365,7 +353,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                 return (selectedFile.exists() && selectedFile.isDirectory());
             }
         };
-        fileFilterMap.put("Directories", imdiFileFilter);
+        fileFilterMap.put(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("DIRECTORIES"), imdiFileFilter);
         return showFileSelectBox(titleText, true, multipleSelect, fileFilterMap, DialogueType.custom, null);
     }
 
@@ -1327,7 +1315,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             if (rowNodesArray.length == 1) {
                 frameTitle = rowNodesArray[0].toString();
             } else {
-                frameTitle = "Selection";
+                frameTitle = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("SELECTION");
             }
         }
         ArbilTableModel arbilTableModel = fieldView == null ? new ArbilTableModel(imageBoxRenderer) : new ArbilTableModel(fieldView, imageBoxRenderer);
@@ -1408,15 +1396,15 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                 result = true;
             } catch (MalformedURLException muE) {
                 BugCatcherManager.getBugCatcher().logError("awtDesktopFound", muE);
-                addMessageDialogToQueue("Failed to find the file: " + muE.getMessage(), "Open In External Application");
+                addMessageDialogToQueue(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAILED TO FIND THE FILE: {0}"), new Object[]{muE.getMessage()}), "Open In External Application");
             } catch (IOException ioE) {
                 BugCatcherManager.getBugCatcher().logError("awtDesktopFound", ioE);
                 if (targetUri.getScheme().equalsIgnoreCase("file")) {
-                    if (showConfirmDialogBox("Failed to open the file. Please check that it is accessible and has an application associated with it.\n\nDo you want to open the parent directory?", "Open In External Application")) {
+                    if (showConfirmDialogBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAILED TO OPEN THE FILE. PLEASE CHECK THAT IT IS ACCESSIBLE AND HAS AN APPLICATION ASSOCIATED WITH IT.DO YOU WANT TO OPEN THE PARENT DIRECTORY?"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("OPEN IN EXTERNAL APPLICATION"))) {
                         openFileInExternalApplication(new File(targetUri).getParentFile().toURI());
                     }
                 } else {
-                    addMessageDialogToQueue("Failed to open the remote location: " + ioE.getMessage(), "Open In External Application");
+                    addMessageDialogToQueue(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAILED TO OPEN THE REMOTE LOCATION: {0}"), new Object[]{ioE.getMessage(),}), "Open In External Application");
                 }
             }
         } else {
@@ -1455,7 +1443,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                     BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
                     String line;
                     while ((line = errorStreamReader.readLine()) != null) {
-                        addMessageDialogToQueue(line, "Open In External Application");
+                        addMessageDialogToQueue(line, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("OPEN IN EXTERNAL APPLICATION"));
                         System.out.println("Launched process error stream: \"" + line + "\"");
                     }
                     result = true;
@@ -1470,7 +1458,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
         if (userObject instanceof ArbilDataNode) {
             if (((ArbilDataNode) (userObject)).getNeedsSaveToDisk(false)) {
-                if (JOptionPane.OK_OPTION == showDialogBox("The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                if (JOptionPane.OK_OPTION == showDialogBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("THE NODE MUST BE SAVED FIRST.SAVE NOW?"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("VIEW IMDI XML"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                     ((ArbilDataNode) (userObject)).saveChangesToCache(true);
                 } else {
                     return;
@@ -1483,7 +1471,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                 try {
                     File tempHtmlFile = new ArbilToHtmlConverter().convertToHtml((ArbilDataNode) userObject);
                     if (!launchInBrowser) {
-                        openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
+                        openUrlWindowOnce(nodeName + java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString(" FORMATTED"), tempHtmlFile.toURL());
                     } else {
                         openFileInExternalApplication(tempHtmlFile.toURI());
                     }
@@ -1522,7 +1510,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     }
 
     public DialogBoxResult showDialogBoxRememberChoice(String message, String title, int optionType, int messageType) {
-        final JCheckBox rememberChoiceBox = new JCheckBox("Remember my choice");
+        final JCheckBox rememberChoiceBox = new JCheckBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("REMEMBER MY CHOICE"));
         Object[] messageArray = {message, rememberChoiceBox};
         int result = JOptionPane.showConfirmDialog(getMainFrame(), messageArray, title, optionType, messageType);
         return new DialogBoxResult(result, rememberChoiceBox.isSelected());
@@ -1553,7 +1541,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     }
 
     public boolean askUserToSaveChanges(String entityName) {
-        return showConfirmDialogBox("This action will save all pending changes on " + entityName + " to disk. Continue?", "Save to disk?");
+        return showConfirmDialogBox(java.text.MessageFormat.format(
+                java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("THIS ACTION WILL SAVE ALL PENDING CHANGES ON {0} TO DISK. CONTINUE?"),
+                new Object[]{entityName}), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("SAVE TO DISK?"));
     }
 
     private Point fixLocation(Point location) {

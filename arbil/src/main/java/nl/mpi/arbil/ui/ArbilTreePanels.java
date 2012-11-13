@@ -67,8 +67,8 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
 	favouritesScrollPane.setViewportView(favouritesTree);
 
 	JTabbedPane treeTabPane = new JTabbedPane();
-	treeTabPane.add("Files", localDirectoryScrollPane);
-	treeTabPane.add("Favourites", favouritesScrollPane);
+	treeTabPane.add(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FILES"), localDirectoryScrollPane);
+	treeTabPane.add(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAVOURITES"), favouritesScrollPane);
 
 	leftLocalSplitPane.setBottomComponent(treeTabPane);
 	leftLocalSplitPane.setLeftComponent(localCorpusScrollPane);
