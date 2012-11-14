@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
@@ -34,14 +34,14 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 /**
- * Document   : GuiHelper
- * Created on : 
+ * Document : GuiHelper
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class GuiHelper {
@@ -52,7 +52,6 @@ public class GuiHelper {
     //static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
     // create a clip board owner for copy and paste actions
     private final static ClipboardOwner clipboardOwner = new ClipboardOwner() {
-
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {
 	    System.out.println("lost clipboard ownership");
 	}
@@ -99,7 +98,6 @@ public class GuiHelper {
 	    viewLabelRadioButtonMenuItem.setText(currentMenuName);
 	    viewLabelRadioButtonMenuItem.setName(currentMenuName);
 	    viewLabelRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    try {
 			ArbilFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());
@@ -160,7 +158,7 @@ public class GuiHelper {
 		    if (!launchInBrowser) {
 			ArbilWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
 		    } else {
-			openFileInExternalApplication(tempHtmlFile.toURI());
+			openFileInExternalApplication(new URI("file", null, tempHtmlFile.getCanonicalPath(),null));
 		    }
 		} catch (Exception ex) {
 		    GuiHelper.linorgBugCatcher.logError(ex);
@@ -198,7 +196,7 @@ public class GuiHelper {
 
     public boolean openFileInExternalApplication(URI targetUri) {
 	boolean result = false;
-	boolean awtDesktopFound = false;
+	boolean awtDesktopFound;
 	try {
 	    Class.forName("java.awt.Desktop");
 	    awtDesktopFound = true;
@@ -208,14 +206,8 @@ public class GuiHelper {
 	}
 	if (awtDesktopFound) {
 	    try {
-		// this method is failing on some windows installations so we will just use browse instead
-		// TODO: verify that removing this helps and that it does not cause issues on other OSs
-		// removing this breaks launching directories on mac
 		if (targetUri.getScheme().toLowerCase().equals("file")) {
-		    File targetFile = new File(targetUri);
-		    // a path with white space will fail as a uri and as a file so it must be url decoded first.
-		    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
-		    Desktop.getDesktop().open(targetFile);
+		    Desktop.getDesktop().open(new File(targetUri));
 		} else {
 		    Desktop.getDesktop().browse(targetUri);
 		}
@@ -229,7 +221,7 @@ public class GuiHelper {
 		    if (ArbilWindowManager.getSingleInstance().showConfirmDialogBox("Failed to open the file. Please check that it is accessible and has an application associated with it.\n\nDo you want to open the parent directory?", "Open In External Application")) {
 			openFileInExternalApplication(new File(targetUri).getParentFile().toURI());
 		    }
-		} else{
+		} else {
 		    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to open the remote location: " + ioE.getMessage(), "Open In External Application");
 		}
 	    }
