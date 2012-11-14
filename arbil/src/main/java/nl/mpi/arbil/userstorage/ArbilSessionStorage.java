@@ -70,25 +70,25 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     public static final String CONFIG_FILE = "arbil.config";
 
     public void setMessageDialogHandler(MessageDialogHandler handler) {
-        messageDialogHandler = handler;
+	messageDialogHandler = handler;
     }
     private WindowManager windowManager;
 
     public void setWindowManager(WindowManager windowManagerInstance) {
-        windowManager = windowManagerInstance;
+	windowManager = windowManagerInstance;
     }
     private TreeHelper treeHelper;
 
     public void setTreeHelper(TreeHelper treeHelperInstance) {
-        treeHelper = treeHelperInstance;
+	treeHelper = treeHelperInstance;
     }
 
     protected void logError(Exception exception) {
-        BugCatcherManager.getBugCatcher().logError(exception);
+	BugCatcherManager.getBugCatcher().logError(exception);
     }
 
     protected void logError(String message, Exception exception) {
-        BugCatcherManager.getBugCatcher().logError(message, exception);
+	BugCatcherManager.getBugCatcher().logError(message, exception);
     }
 
     /**
@@ -97,29 +97,29 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return Application directory alternatives (relative)
      */
     protected String[] getAppDirectoryAlternatives() {
-        return new String[]{".arbil", ".linorg"};
+	return new String[]{".arbil", ".linorg"};
     }
 
     public ArbilSessionStorage() {
-        HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
+	HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
-        File fromDirectory = getProjectWorkingDirectory();
-        if (!preferedCacheDirectory.getAbsolutePath().contains(getProjectDirectoryName()) && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
-            preferedCacheDirectory = new File(preferedCacheDirectory, getProjectDirectoryName());
-        }
-        // this moving of files is not relevant for projects and it does not work across devices so it has been removed, it should be replaced by the projects functionality
-        if (!moveFiles || JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
-                "Changing your current project from:\n" + fromDirectory.getParent() + "\nto:\n" + preferedCacheDirectory.getParent() + "\n"
-                + "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+	File fromDirectory = getProjectWorkingDirectory();
+	if (!preferedCacheDirectory.getAbsolutePath().contains(getProjectDirectoryName()) && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
+	    preferedCacheDirectory = new File(preferedCacheDirectory, getProjectDirectoryName());
+	}
+	// this moving of files is not relevant for projects and it does not work across devices so it has been removed, it should be replaced by the projects functionality
+	if (!moveFiles || JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
+		"Changing your current project from:\n" + fromDirectory.getParent() + "\nto:\n" + preferedCacheDirectory.getParent() + "\n"
+		+ "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 //            if (moveFiles) {
-            // move the files
+	    // move the files
 //                changeStorageDirectory(fromDirectory, preferedCacheDirectory);
 //            } else {
-            saveString("cacheDirectory", preferedCacheDirectory.getAbsolutePath());
+	    saveString("cacheDirectory", preferedCacheDirectory.getAbsolutePath());
 //            }
-        }
+	}
     }
 
 //    public void changeStorageDirectory(String preferedDirectory) {
@@ -134,64 +134,64 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     // Move the storage directory and change the local corpus tree links to the new directory.
     // After completion the application will be closed!
     private void changeStorageDirectory(File fromDirectory, File toDirectory) {
-        String toDirectoryUriString = toDirectory.toURI().toString().replaceAll("/$", "");
-        String fromDirectoryUriString = fromDirectory.toURI().toString().replaceAll("/$", "");
-        System.out.println("toDirectoryUriString: " + toDirectoryUriString);
-        System.out.println("fromDirectoryUriString: " + fromDirectoryUriString);
-        try {
-            toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
-            fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
-        } catch (UnsupportedEncodingException uee) {
-            logError(uee);
-        }
-        boolean success = fromDirectory.renameTo(toDirectory);
-        // This sometimes fails on Windows 7, JRE 6 without any clear reason. See https://trac.mpi.nl/ticket/1553
-        if (!success) {
-            if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
-                    "The files in your 'Local Corpus' could not be moved to the requested location.\n"
-                    + "You can cancel now and nothing will be changed, or you can change the working\n"
-                    + "directory anyway.\n"
-                    + "If you continue, any corpus and session files in your 'Local Corpus' will move\n"
-                    + "into your 'Working Directories' tree and you will have to import them manually.\n"
-                    + "Do you wish to change the working directory despite this?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                saveString("cacheDirectory", toDirectory.getAbsolutePath());
-                localCacheDirectory = null;
-                getProjectWorkingDirectory();
-                treeHelper.loadLocationsList();
-                treeHelper.applyRootLocations();
-            }
-        } else {
-            try {
-                Vector<String> locationsList = new Vector<String>();
-                for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{
-                            treeHelper.getRemoteCorpusNodes(),
-                            treeHelper.getLocalCorpusNodes(),
-                            treeHelper.getLocalFileNodes(),
-                            treeHelper.getFavouriteNodes()}) {
-                    for (ArbilDataNode currentLocation : currentTreeArray) {
-                        String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
-                        System.out.println("currentLocationString: " + currentLocationString);
-                        System.out.println("prefferedDirectoryUriString: " + toDirectoryUriString);
-                        System.out.println("storageDirectoryUriString: " + fromDirectoryUriString);
-                        locationsList.add(currentLocationString.replace(fromDirectoryUriString, toDirectoryUriString));
-                    }
-                }
-                //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
-                saveStringArray("locationsList", locationsList.toArray(new String[]{}));
-                saveString("cacheDirectory", toDirectory.getAbsolutePath());
-                localCacheDirectory = null;
-                getProjectWorkingDirectory();
-                treeHelper.loadLocationsList();
-                treeHelper.applyRootLocations();
-                windowManager.closeAllWindows();
-            } catch (Exception ex) {
-                logError(ex);
+	String toDirectoryUriString = toDirectory.toURI().toString().replaceAll("/$", "");
+	String fromDirectoryUriString = fromDirectory.toURI().toString().replaceAll("/$", "");
+	System.out.println("toDirectoryUriString: " + toDirectoryUriString);
+	System.out.println("fromDirectoryUriString: " + fromDirectoryUriString);
+	try {
+	    toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
+	    fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
+	} catch (UnsupportedEncodingException uee) {
+	    logError(uee);
+	}
+	boolean success = fromDirectory.renameTo(toDirectory);
+	// This sometimes fails on Windows 7, JRE 6 without any clear reason. See https://trac.mpi.nl/ticket/1553
+	if (!success) {
+	    if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
+		    "The files in your 'Local Corpus' could not be moved to the requested location.\n"
+		    + "You can cancel now and nothing will be changed, or you can change the working\n"
+		    + "directory anyway.\n"
+		    + "If you continue, any corpus and session files in your 'Local Corpus' will move\n"
+		    + "into your 'Working Directories' tree and you will have to import them manually.\n"
+		    + "Do you wish to change the working directory despite this?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+		saveString("cacheDirectory", toDirectory.getAbsolutePath());
+		localCacheDirectory = null;
+		getProjectWorkingDirectory();
+		treeHelper.loadLocationsList();
+		treeHelper.applyRootLocations();
+	    }
+	} else {
+	    try {
+		Vector<String> locationsList = new Vector<String>();
+		for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{
+			    treeHelper.getRemoteCorpusNodes(),
+			    treeHelper.getLocalCorpusNodes(),
+			    treeHelper.getLocalFileNodes(),
+			    treeHelper.getFavouriteNodes()}) {
+		    for (ArbilDataNode currentLocation : currentTreeArray) {
+			String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
+			System.out.println("currentLocationString: " + currentLocationString);
+			System.out.println("prefferedDirectoryUriString: " + toDirectoryUriString);
+			System.out.println("storageDirectoryUriString: " + fromDirectoryUriString);
+			locationsList.add(currentLocationString.replace(fromDirectoryUriString, toDirectoryUriString));
+		    }
+		}
+		//LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+		saveStringArray("locationsList", locationsList.toArray(new String[]{}));
+		saveString("cacheDirectory", toDirectory.getAbsolutePath());
+		localCacheDirectory = null;
+		getProjectWorkingDirectory();
+		treeHelper.loadLocationsList();
+		treeHelper.applyRootLocations();
+		windowManager.closeAllWindows();
+	    } catch (Exception ex) {
+		logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
-            }
+	    }
 //            treeHelper.loadLocationsList();
 //            JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The working files have been moved.", "Arbil", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Exit"}, "Exit");
 //            System.exit(0); // TODO: this exit might be unrequired
-        }
+	}
     }
 
 //    public void showDirectorySelectionDialogue() {
@@ -248,41 +248,41 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return Boolean
      */
     public boolean pathIsInFavourites(File fullTestFile) { //todo: test me
-        String favouritesString = "favourites";
-        int foundPos = fullTestFile.getPath().indexOf(favouritesString) + favouritesString.length();
-        if (foundPos == -1) {
-            return false;
-        }
-        if (foundPos > fullTestFile.getPath().length()) {
-            return false;
-        }
-        File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
-        return testFile.equals(getFavouritesDir());
+	String favouritesString = "favourites";
+	int foundPos = fullTestFile.getPath().indexOf(favouritesString) + favouritesString.length();
+	if (foundPos == -1) {
+	    return false;
+	}
+	if (foundPos > fullTestFile.getPath().length()) {
+	    return false;
+	}
+	File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
+	return testFile.equals(getFavouritesDir());
     }
 
     public URI getOriginatingUri(URI locationInCacheURI) {
-        URI returnUri = null;
-        String uriPath = locationInCacheURI.getPath();
+	URI returnUri = null;
+	String uriPath = locationInCacheURI.getPath();
 //        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
-        System.out.println("uriPath: " + uriPath);
-        int foundPos = uriPath.indexOf("imdicache");
-        if (foundPos == -1) {
-            foundPos = uriPath.indexOf(getProjectDirectoryName());
-            if (foundPos == -1) {
-                return null;
-            }
-        }
-        uriPath = uriPath.substring(foundPos);
-        String[] uriParts = uriPath.split("/", 4);
-        try {
-            if (uriParts[1].toLowerCase().equals("http")) {
-                returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
-                System.out.println("returnUri: " + returnUri);
-            }
-        } catch (URISyntaxException urise) {
-            logError(urise);
-        }
-        return returnUri;
+	System.out.println("uriPath: " + uriPath);
+	int foundPos = uriPath.indexOf("imdicache");
+	if (foundPos == -1) {
+	    foundPos = uriPath.indexOf(getProjectDirectoryName());
+	    if (foundPos == -1) {
+		return null;
+	    }
+	}
+	uriPath = uriPath.substring(foundPos);
+	String[] uriParts = uriPath.split("/", 4);
+	try {
+	    if (uriParts[1].toLowerCase().equals("http")) {
+		returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
+		System.out.println("returnUri: " + returnUri);
+	    }
+	} catch (URISyntaxException urise) {
+	    logError(urise);
+	}
+	return returnUri;
     }
 
     /**
@@ -291,15 +291,15 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return Boolean
      */
     public boolean pathIsInsideCache(File fullTestFile) {
-        File cacheDirectory = getProjectWorkingDirectory();
-        File testFile = fullTestFile;
-        while (testFile != null) {
-            if (testFile.equals(cacheDirectory)) {
-                return true;
-            }
-            testFile = testFile.getParentFile();
-        }
-        return false;
+	File cacheDirectory = getProjectWorkingDirectory();
+	File testFile = fullTestFile;
+	while (testFile != null) {
+	    if (testFile.equals(cacheDirectory)) {
+		return true;
+	    }
+	    testFile = testFile.getParentFile();
+	}
+	return false;
     }
 
     /**
@@ -309,22 +309,22 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return File pointing to the favourites directory
      */
     public File getFavouritesDir() {
-        File favDirectory = new File(getProjectDirectory(), "favourites"); // storageDirectory already has the file separator appended
-        boolean favDirExists = favDirectory.exists();
-        if (!favDirExists) {
-            if (!favDirectory.mkdir()) {
-                logError("Could not create favourites directory", null);
-                return null;
-            }
-        }
-        return favDirectory;
+	File favDirectory = new File(getProjectDirectory(), "favourites"); // storageDirectory already has the file separator appended
+	boolean favDirExists = favDirectory.exists();
+	if (!favDirExists) {
+	    if (!favDirectory.mkdir()) {
+		logError("Could not create favourites directory", null);
+		return null;
+	    }
+	}
+	return favDirectory;
     }
 
     /**
      * @return the name of the project directory
      */
     protected String getProjectDirectoryName() {
-        return "ArbilWorkingFiles";
+	return "ArbilWorkingFiles";
     }
 
     /**
@@ -336,10 +336,10 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @throws java.io.IOException
      */
     public void saveObject(Serializable object, String filename) throws IOException {
-        System.out.println("saveObject: " + filename);
-        ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(new File(getApplicationSettingsDirectory(), filename)));
-        objstream.writeObject(object);
-        objstream.close();
+	System.out.println("saveObject: " + filename);
+	ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(new File(getApplicationSettingsDirectory(), filename)));
+	objstream.writeObject(object);
+	objstream.close();
     }
 
     /**
@@ -351,52 +351,52 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @throws java.lang.Exception
      */
     public Object loadObject(String filename) throws Exception {
-        System.out.println("loadObject: " + filename);
-        Object object = null;
-        // this must be allowed to throw so don't do checks here
-        ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(getApplicationSettingsDirectory(), filename)));
-        object = objstream.readObject();
-        objstream.close();
-        if (object == null) {
-            throw (new Exception("Loaded object is null"));
-        }
-        return object;
+	System.out.println("loadObject: " + filename);
+	Object object = null;
+	// this must be allowed to throw so don't do checks here
+	ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(getApplicationSettingsDirectory(), filename)));
+	object = objstream.readObject();
+	objstream.close();
+	if (object == null) {
+	    throw (new Exception("Loaded object is null"));
+	}
+	return object;
     }
 
     public String[] loadStringArray(String filename) throws IOException {
-        File currentConfigFile = null;
-        if (filename.equals("locationsList")) {
-            // The tree locations config has been moved into the project directory,
-            // for now we are setting this by the location name.
-            // However this will be replaced by a project configuration class that will use JAXB to save to disk.
-            currentConfigFile = new File(getProjectDirectory(), filename + ".config");
-        }
-        if (currentConfigFile == null || !currentConfigFile.exists()) {
-            // if the project tree locations config does not exist then read the application version
-            currentConfigFile = new File(getApplicationSettingsDirectory(), filename + ".config");
-        }
-        // read the location list from a text file that admin-users can read and hand edit if they really want to
-        if (currentConfigFile.exists()) {
-            ArrayList<String> stringArrayList = new ArrayList<String>();
-            FileInputStream fstream = new FileInputStream(currentConfigFile);
-            DataInputStream in = new DataInputStream(fstream);
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(in, UTF8_ENCODING));
-                try {
-                    String strLine;
-                    while ((strLine = br.readLine()) != null) {
-                        stringArrayList.add(strLine);
-                    }
-                } finally {
-                    br.close();
-                }
-            } finally {
-                in.close();
-                fstream.close();
-            }
-            return stringArrayList.toArray(new String[]{});
-        }
-        return null;
+	File currentConfigFile = null;
+	if (filename.equals("locationsList")) {
+	    // The tree locations config has been moved into the project directory,
+	    // for now we are setting this by the location name.
+	    // However this will be replaced by a project configuration class that will use JAXB to save to disk.
+	    currentConfigFile = new File(getProjectDirectory(), filename + ".config");
+	}
+	if (currentConfigFile == null || !currentConfigFile.exists()) {
+	    // if the project tree locations config does not exist then read the application version
+	    currentConfigFile = new File(getApplicationSettingsDirectory(), filename + ".config");
+	}
+	// read the location list from a text file that admin-users can read and hand edit if they really want to
+	if (currentConfigFile.exists()) {
+	    ArrayList<String> stringArrayList = new ArrayList<String>();
+	    FileInputStream fstream = new FileInputStream(currentConfigFile);
+	    DataInputStream in = new DataInputStream(fstream);
+	    try {
+		BufferedReader br = new BufferedReader(new InputStreamReader(in, UTF8_ENCODING));
+		try {
+		    String strLine;
+		    while ((strLine = br.readLine()) != null) {
+			stringArrayList.add(strLine);
+		    }
+		} finally {
+		    br.close();
+		}
+	    } finally {
+		in.close();
+		fstream.close();
+	    }
+	    return stringArrayList.toArray(new String[]{});
+	}
+	return null;
 
 //        String[] stringProperty = {};
 //        Properties propertiesObject = new Properties();
@@ -416,40 +416,40 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     }
 
     public void saveStringArray(String filename, String[] storableValue) throws IOException {
-        File destinationDirectory;
-        if (filename.equals("locationsList")) {
-            // The tree locations config has been moved into the project directory,
-            // for now we are setting this by the location name.
-            // However this will be replaced by a project configuration class that will use JAXB to save to disk.
-            destinationDirectory = getProjectDirectory();
-        } else {
-            destinationDirectory = getApplicationSettingsDirectory();
-        }
-        // save the location list to a text file that admin-users can read and hand edit if they really want to
-        File destinationConfigFile = new File(destinationDirectory, filename + ".config");
-        File tempConfigFile = new File(destinationDirectory, filename + ".config.tmp");
+	File destinationDirectory;
+	if (filename.equals("locationsList")) {
+	    // The tree locations config has been moved into the project directory,
+	    // for now we are setting this by the location name.
+	    // However this will be replaced by a project configuration class that will use JAXB to save to disk.
+	    destinationDirectory = getProjectDirectory();
+	} else {
+	    destinationDirectory = getApplicationSettingsDirectory();
+	}
+	// save the location list to a text file that admin-users can read and hand edit if they really want to
+	File destinationConfigFile = new File(destinationDirectory, filename + ".config");
+	File tempConfigFile = new File(destinationDirectory, filename + ".config.tmp");
 
-        Writer out = null;
-        try {
-            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), UTF8_ENCODING));
-            for (String currentString : storableValue) {
-                out.write(currentString + "\r\n");
-            }
-        } catch (IOException ex) {
-            logError(ex);
-            throw ex;
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
-        if (!destinationConfigFile.exists() || destinationConfigFile.delete()) {
-            if (!tempConfigFile.renameTo(destinationConfigFile)) {
-                messageDialogHandler.addMessageDialogToQueue("Error saving configuration to " + filename, "Error saving configuration");
-            }
-        } else {
-            messageDialogHandler.addMessageDialogToQueue("Could not write new configuration to " + filename, "Error saving configuration");
-        }
+	Writer out = null;
+	try {
+	    out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), UTF8_ENCODING));
+	    for (String currentString : storableValue) {
+		out.write(currentString + "\r\n");
+	    }
+	} catch (IOException ex) {
+	    logError(ex);
+	    throw ex;
+	} finally {
+	    if (out != null) {
+		out.close();
+	    }
+	}
+	if (!destinationConfigFile.exists() || destinationConfigFile.delete()) {
+	    if (!tempConfigFile.renameTo(destinationConfigFile)) {
+		messageDialogHandler.addMessageDialogToQueue("Error saving configuration to " + filename, "Error saving configuration");
+	    }
+	} else {
+	    messageDialogHandler.addMessageDialogToQueue("Could not write new configuration to " + filename, "Error saving configuration");
+	}
 //        try {
 //            Properties propertiesObject = new Properties();
 //            FileOutputStream propertiesOutputStream = new FileOutputStream(new File(storageDirectory, filename + ".config"));
@@ -464,83 +464,83 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     }
 
     public String loadString(String filename) {
-        Properties configObject = getConfig();
-        String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
-        return stringProperty;
+	Properties configObject = getConfig();
+	String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
+	return stringProperty;
     }
 
     public void saveString(String filename, String storableValue) {
-        Properties configObject = getConfig();
-        configObject.setProperty("nl.mpi.arbil." + filename, storableValue);
-        saveConfig(configObject);
+	Properties configObject = getConfig();
+	configObject.setProperty("nl.mpi.arbil." + filename, storableValue);
+	saveConfig(configObject);
     }
 
     public final boolean loadBoolean(String filename, boolean defaultValue) {
-        Properties configObject = getConfig();
-        String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
-        if (stringProperty == null) {
-            stringProperty = Boolean.toString(defaultValue);
-            saveBoolean(filename, defaultValue);
-        }
-        return Boolean.valueOf(stringProperty);
+	Properties configObject = getConfig();
+	String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
+	if (stringProperty == null) {
+	    stringProperty = Boolean.toString(defaultValue);
+	    saveBoolean(filename, defaultValue);
+	}
+	return Boolean.valueOf(stringProperty);
     }
 
     public void saveBoolean(String filename, boolean storableValue) {
-        Properties configObject = getConfig();
-        configObject.setProperty("nl.mpi.arbil." + filename, Boolean.toString(storableValue));
-        saveConfig(configObject);
+	Properties configObject = getConfig();
+	configObject.setProperty("nl.mpi.arbil." + filename, Boolean.toString(storableValue));
+	saveConfig(configObject);
     }
 
     private Properties getConfig() {
-        Properties propertiesObject = new Properties();
-        FileInputStream propertiesInStream = null;
-        try {
-            propertiesInStream = new FileInputStream(new File(storageDirectory, CONFIG_FILE));
-            if (canUsePropertiesReaderWriter()) {
-                InputStreamReader reader = new InputStreamReader(propertiesInStream, UTF8_ENCODING);
-                propertiesObject.load(reader);
-            } else {
-                propertiesObject.load(propertiesInStream);
-            }
-        } catch (IOException ioe) {
-            // file not found so create the file
-            saveConfig(propertiesObject);
-        } finally {
-            if (propertiesInStream != null) {
-                try {
-                    propertiesInStream.close();
-                } catch (IOException ioe) {
-                    logError(ioe);
-                }
-            }
-        }
-        return propertiesObject;
+	Properties propertiesObject = new Properties();
+	FileInputStream propertiesInStream = null;
+	try {
+	    propertiesInStream = new FileInputStream(new File(storageDirectory, CONFIG_FILE));
+	    if (canUsePropertiesReaderWriter()) {
+		InputStreamReader reader = new InputStreamReader(propertiesInStream, UTF8_ENCODING);
+		propertiesObject.load(reader);
+	    } else {
+		propertiesObject.load(propertiesInStream);
+	    }
+	} catch (IOException ioe) {
+	    // file not found so create the file
+	    saveConfig(propertiesObject);
+	} finally {
+	    if (propertiesInStream != null) {
+		try {
+		    propertiesInStream.close();
+		} catch (IOException ioe) {
+		    logError(ioe);
+		}
+	    }
+	}
+	return propertiesObject;
     }
 
     private void saveConfig(Properties configObject) {
-        FileOutputStream propertiesOutputStream = null;
-        try {
-            //new OutputStreamWriter
-            propertiesOutputStream = new FileOutputStream(new File(storageDirectory, CONFIG_FILE));
-            if (canUsePropertiesReaderWriter()) {
-                OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, UTF8_ENCODING);
-                configObject.store(propertiesOutputStreamWriter, null);
-                propertiesOutputStreamWriter.close();
-            } else {
-                configObject.store(propertiesOutputStream, null);
-            }
-            propertiesOutputStream.close();
-        } catch (IOException ioe) {
-            logError(ioe);
-        } finally {
-            if (propertiesOutputStream != null) {
-                try {
-                    propertiesOutputStream.close();
-                } catch (IOException ioe2) {
-                    logError(ioe2);
-                }
-            }
-        }
+	FileOutputStream propertiesOutputStream = null;
+	try {
+	    //new OutputStreamWriter
+	    propertiesOutputStream = new FileOutputStream(new File(storageDirectory, CONFIG_FILE));
+	    if (canUsePropertiesReaderWriter()) {
+		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, UTF8_ENCODING);
+		configObject.store(propertiesOutputStreamWriter, null);
+		propertiesOutputStreamWriter.close();
+	    } else {
+		configObject.store(propertiesOutputStream, null);
+	    }
+	    propertiesOutputStream.close();
+	} catch (IOException ioe) {
+	    logError(ioe);
+	} finally {
+	    if (propertiesOutputStream != null) {
+		try {
+		    propertiesOutputStream.close();
+		} catch (IOException ioe2) {
+		    logError(ioe2);
+		}
+	    }
+	}
     }
 
     /**
@@ -552,7 +552,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return The path of the file in the cache.
      */
     public File getFromCache(String pathString, boolean followRedirect) {
-        return updateCache(pathString, null, false, followRedirect, new DownloadAbortFlag(), null);
+	return updateCache(pathString, null, false, followRedirect, new DownloadAbortFlag(), null);
     }
 
     /**
@@ -567,25 +567,25 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return The path of the file in the cache.
      */
     public File updateCache(String pathString, int expireCacheDays, boolean followRedirect) { // update if older than the date - x
-        File targetFile = getSaveLocation(pathString);
-        boolean fileNeedsUpdate = !targetFile.exists();
-        if (!fileNeedsUpdate) {
-            Date lastModified = new Date(targetFile.lastModified());
-            Date expireDate = new Date(System.currentTimeMillis());
+	File targetFile = getSaveLocation(pathString);
+	boolean fileNeedsUpdate = !targetFile.exists();
+	if (!fileNeedsUpdate) {
+	    Date lastModified = new Date(targetFile.lastModified());
+	    Date expireDate = new Date(System.currentTimeMillis());
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(expireDate);
-            calendar.add(Calendar.DATE, -expireCacheDays);
-            expireDate.setTime(calendar.getTime().getTime());
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(expireDate);
+	    calendar.add(Calendar.DATE, -expireCacheDays);
+	    expireDate.setTime(calendar.getTime().getTime());
 
-            fileNeedsUpdate = expireDate.after(lastModified);
-        }
-        return updateCache(pathString, targetFile, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
+	    fileNeedsUpdate = expireDate.after(lastModified);
+	}
+	return updateCache(pathString, targetFile, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
 //	}
     }
 
     public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
-        return updateCache(pathString, getSaveLocation(pathString), shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
+	return updateCache(pathString, getSaveLocation(pathString), shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
     }
 
     /**
@@ -597,36 +597,36 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return The path of the file in the cache.
      */
     private File updateCache(String pathString, File cachePath, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
-        // to expire the files in the cache set the expireCacheCopy flag.
-        try {
-            URL pathUrl = null;
-            if (expireCacheCopy) {
-                // Try getting from resource first
-                URL resourceURL = getFromResources(pathString);
-                if (resourceURL != null) {
-                    pathUrl = resourceURL;
-                }
-            }
-            if (pathUrl == null) {
-                pathUrl = new URL(pathString);
-            }
+	// to expire the files in the cache set the expireCacheCopy flag.
+	try {
+	    URL pathUrl = null;
+	    if (expireCacheCopy) {
+		// Try getting from resource first
+		URL resourceURL = getFromResources(pathString);
+		if (resourceURL != null) {
+		    pathUrl = resourceURL;
+		}
+	    }
+	    if (pathUrl == null) {
+		pathUrl = new URL(pathString);
+	    }
 
-            saveRemoteResource(pathUrl, cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
-        } catch (MalformedURLException mul) {
-            logError(new Exception(pathString, mul));
-        }
-        return cachePath;
+	    saveRemoteResource(pathUrl, cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
+	} catch (MalformedURLException mul) {
+	    logError(new Exception(pathString, mul));
+	}
+	return cachePath;
     }
 
     public boolean replaceCacheCopy(String pathString) {
-        File cachePath = getSaveLocation(pathString);
-        boolean fileDownloadedBoolean = false;
-        try {
-            fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, false, new DownloadAbortFlag(), null);
-        } catch (MalformedURLException mul) {
-            logError(mul);
-        }
-        return fileDownloadedBoolean;
+	File cachePath = getSaveLocation(pathString);
+	boolean fileDownloadedBoolean = false;
+	try {
+	    fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, false, new DownloadAbortFlag(), null);
+	} catch (MalformedURLException mul) {
+	    logError(mul);
+	}
+	return fileDownloadedBoolean;
     }
 
     /**
@@ -639,38 +639,38 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return The path of the file in the destination directory.
      */
     public File getExportPath(String pathString, String destinationDirectory) {
-        System.out.println("pathString: " + pathString);
-        System.out.println("destinationDirectory: " + destinationDirectory);
-        String cachePath = pathString;
-        for (String testDirectory : new String[]{"imdicache", getProjectDirectoryName()}) {
-            if (pathString.contains(testDirectory)) {
-                cachePath = destinationDirectory + cachePath.substring(cachePath.lastIndexOf(testDirectory) + testDirectory.length()); // this path must be inside the cache for this to work correctly
-            }
-        }
-        File returnFile = new File(cachePath);
-        if (!returnFile.getParentFile().exists()) {
-            if (!returnFile.getParentFile().mkdirs()) {
-                logError(new Exception("Could not create directory structure for export of " + pathString));
-                return null;
-            }
-        }
-        return returnFile;
+	System.out.println("pathString: " + pathString);
+	System.out.println("destinationDirectory: " + destinationDirectory);
+	String cachePath = pathString;
+	for (String testDirectory : new String[]{"imdicache", getProjectDirectoryName()}) {
+	    if (pathString.contains(testDirectory)) {
+		cachePath = destinationDirectory + cachePath.substring(cachePath.lastIndexOf(testDirectory) + testDirectory.length()); // this path must be inside the cache for this to work correctly
+	    }
+	}
+	File returnFile = new File(cachePath);
+	if (!returnFile.getParentFile().exists()) {
+	    if (!returnFile.getParentFile().mkdirs()) {
+		logError(new Exception("Could not create directory structure for export of " + pathString));
+		return null;
+	    }
+	}
+	return returnFile;
     }
 
     public URI getNewArbilFileName(File parentDirectory, String nodeType) {
-        String suffixString;
-        if (nodeType.endsWith(".cmdi") || CmdiProfileReader.pathIsProfile(nodeType)) {
-            suffixString = ".cmdi";
-        } else {
-            suffixString = ".imdi";
-        }
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        int fileCounter = 0;
-        File returnFile = new File(parentDirectory, formatter.format(new Date()) + suffixString);
-        while (returnFile.exists()) {
-            returnFile = new File(parentDirectory, formatter.format(new Date()) + (fileCounter++) + suffixString);
-        }
-        return returnFile.toURI();
+	String suffixString;
+	if (nodeType.endsWith(".cmdi") || CmdiProfileReader.pathIsProfile(nodeType)) {
+	    suffixString = ".cmdi";
+	} else {
+	    suffixString = ".imdi";
+	}
+	SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+	int fileCounter = 0;
+	File returnFile = new File(parentDirectory, formatter.format(new Date()) + suffixString);
+	while (returnFile.exists()) {
+	    returnFile = new File(parentDirectory, formatter.format(new Date()) + (fileCounter++) + suffixString);
+	}
+	return returnFile.toURI();
     }
 
     /**
@@ -683,14 +683,14 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return Resource URL if available in resources, otherwise null
      */
     public URL getFromResources(String pathString) {
-        if (pathString.endsWith(".xsd")) {
-            pathString = fixCachePath("/nl/mpi/arbil/resources/xsd/" + preProcessPathString(pathString));
-            URL resourceURL = ArbilSessionStorage.class.getResource(pathString);
-            if (resourceURL != null) {
-                return resourceURL;
-            }
-        }
-        return null;
+	if (pathString.endsWith(".xsd")) {
+	    pathString = fixCachePath("/nl/mpi/arbil/resources/xsd/" + preProcessPathString(pathString));
+	    URL resourceURL = ArbilSessionStorage.class.getResource(pathString);
+	    if (resourceURL != null) {
+		return resourceURL;
+	    }
+	}
+	return null;
     }
 
     /**
@@ -702,46 +702,46 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return The path in the cache for the file.
      */
     public File getSaveLocation(String pathString) {
-        pathString = preProcessPathString(pathString);
-        for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", getProjectDirectoryName()}) {
-            if (pathString.indexOf(searchString) > -1) {
-                logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
-                pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
-            }
-        }
-        String cachePath = fixCachePath(pathString);
-        File returnFile = new File(getProjectWorkingDirectory(), cachePath);
-        if (!returnFile.getParentFile().exists()) {
-            if (!returnFile.getParentFile().mkdirs()) {
-                logError(new Exception("Could not ccrate directory structure for saving " + pathString));
-                return null;
-            }
-        }
-        return returnFile;
+	pathString = preProcessPathString(pathString);
+	for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", getProjectDirectoryName()}) {
+	    if (pathString.indexOf(searchString) > -1) {
+		logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
+		pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
+	    }
+	}
+	String cachePath = fixCachePath(pathString);
+	File returnFile = new File(getProjectWorkingDirectory(), cachePath);
+	if (!returnFile.getParentFile().exists()) {
+	    if (!returnFile.getParentFile().mkdirs()) {
+		logError(new Exception("Could not ccrate directory structure for saving " + pathString));
+		return null;
+	    }
+	}
+	return returnFile;
     }
 
     private String preProcessPathString(String pathString) {
-        try {
-            pathString = URLDecoder.decode(pathString, "UTF-8");
-        } catch (UnsupportedEncodingException uee) {
-            logError(uee);
-        }
-        pathString = pathString.replace("//", "/");
-        return pathString;
+	try {
+	    pathString = URLDecoder.decode(pathString, "UTF-8");
+	} catch (UnsupportedEncodingException uee) {
+	    logError(uee);
+	}
+	pathString = pathString.replace("//", "/");
+	return pathString;
     }
 
     private String fixCachePath(String pathString) {
-        String cachePath = pathString.replace(":/", "/").replace("//", "/").replace('?', '/').replace('&', '/').replace('=', '/');
-        while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
-            cachePath = cachePath.replace(":", "_");
-        }
-        // make the xsd path tidy for viewing in an editor durring testing
-        cachePath = cachePath.replaceAll("/xsd$", ".xsd");
-        if (cachePath.matches(".*/[^.]*$")) {
-            // rest paths will create files and then require directories of the same name and this must be avoided
-            cachePath = cachePath + ".dat";
-        }
-        return cachePath;
+	String cachePath = pathString.replace(":/", "/").replace("//", "/").replace('?', '/').replace('&', '/').replace('=', '/');
+	while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
+	    cachePath = cachePath.replace(":", "_");
+	}
+	// make the xsd path tidy for viewing in an editor durring testing
+	cachePath = cachePath.replaceAll("/xsd$", ".xsd");
+	if (cachePath.matches(".*/[^.]*$")) {
+	    // rest paths will create files and then require directories of the same name and this must be avoided
+	    cachePath = cachePath + ".dat";
+	}
+	return cachePath;
     }
 
     /**
@@ -753,83 +753,85 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * if the file exists but was not re-downloaded or if the download failed
      */
     public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, ProgressListener progressLabel) {
-        boolean downloadSucceeded = false;
+	boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
 //        System.out.println("saveRemoteResource: " + targetUrlString);
 //        System.out.println("destinationPath: " + destinationPath);
 //        File destinationFile = new File(destinationPath);
-        if (destinationFile.length() == 0) {
-            // todo: check the file size on the server and maybe its date also
-            // if the file is zero length then is presumably should either be replaced or the version in the jar used.
-            if (destinationFile.delete()) {
-                System.out.println("Deleted zero length (!) file: " + destinationFile);
-            }
-        }
-        String fileName = destinationFile.getName();
-        if (!destinationFile.exists() || expireCacheCopy || destinationFile.length() <= 0) {
-            FileOutputStream outFile = null;
-            File tempFile = null;
-            try {
-                URLConnection urlConnection = openResourceConnection(targetUrl, shibbolethNegotiator, followRedirect);
+	if (destinationFile.length() == 0) {
+	    // todo: check the file size on the server and maybe its date also
+	    // if the file is zero length then is presumably should either be replaced or the version in the jar used.
+	    if (destinationFile.delete()) {
+		System.out.println("Deleted zero length (!) file: " + destinationFile);
+	    }
+	}
+	String fileName = destinationFile.getName();
+	if (!destinationFile.exists() || expireCacheCopy || destinationFile.length() <= 0) {
+	    FileOutputStream outFile = null;
+	    File tempFile = null;
+	    try {
+		URLConnection urlConnection = openResourceConnection(targetUrl, shibbolethNegotiator, followRedirect);
 
-                if (urlConnection != null) {
-                    tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
-                    tempFile.deleteOnExit();
-                    int bufferLength = 1024 * 3;
-                    outFile = new FileOutputStream(tempFile); //targetUrlString
-                    System.out.println("getting file");
-                    InputStream stream = urlConnection.getInputStream();
-                    byte[] buffer = new byte[bufferLength]; // make this 1024*4 or something and read chunks not the whole file
-                    int bytesread = 0;
-                    int totalRead = 0;
-                    while (bytesread >= 0 && !abortFlag.abortDownload) {
-                        bytesread = stream.read(buffer);
-                        totalRead += bytesread;
+		if (urlConnection != null) {
+		    tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
+		    tempFile.deleteOnExit();
+		    int bufferLength = 1024 * 3;
+		    outFile = new FileOutputStream(tempFile); //targetUrlString
+		    System.out.println("getting file");
+		    InputStream stream = urlConnection.getInputStream();
+		    byte[] buffer = new byte[bufferLength]; // make this 1024*4 or something and read chunks not the whole file
+		    int bytesread = 0;
+		    int totalRead = 0;
+		    while (bytesread >= 0 && !abortFlag.abortDownload) {
+			bytesread = stream.read(buffer);
+			totalRead += bytesread;
 //                        System.out.println("bytesread: " + bytesread);
 //                        System.out.println("Mbs totalRead: " + totalRead / 1048576);
-                        if (bytesread == -1) {
-                            break;
-                        }
-                        outFile.write(buffer, 0, bytesread);
-                        if (progressLabel != null) {
-                            progressLabel.setProgressText(fileName + " : " + totalRead / 1024 + " Kb");
-                        }
-                    }
-                    outFile.close();
-                    outFile = null;
-                    if (tempFile.length() > 0 && !abortFlag.abortDownload) { // TODO: this should check the file size on the server
-                        if (destinationFile.exists()) {
-                            if (!destinationFile.delete()) {
-                                throw new Exception("Changes not saved. Could not delete old file " + destinationFile.toString());
-                            }
-                        }
-                        if (!tempFile.renameTo(destinationFile)) {
-                            throw new Exception("Changes not saved. Could not rename temporary file to " + destinationFile.toString());
-                        }
-                        downloadSucceeded = true;
-                    }
-                    System.out.println("Downloaded: " + totalRead / (1024 * 1024) + " Mb");
-                }
-            } catch (Exception ex) {
-                logError(ex);
+			if (bytesread == -1) {
+			    break;
+			}
+			outFile.write(buffer, 0, bytesread);
+			if (progressLabel != null) {
+			    progressLabel.setProgressText(fileName + " : " + totalRead / 1024 + " Kb");
+			}
+		    }
+		    outFile.close();
+		    outFile = null;
+		    if (tempFile.length() > 0 && !abortFlag.abortDownload) { // TODO: this should check the file size on the server
+			if (destinationFile.exists()) {
+			    if (!destinationFile.delete()) {
+				throw new Exception("Changes not saved. Could not delete old file " + destinationFile.toString());
+			    }
+			}
+			if (tempFile.renameTo(destinationFile)) {
+			    tempFile = null;
+			} else {
+			    throw new Exception("Changes not saved. Could not rename temporary file to " + destinationFile.toString());
+			}
+			downloadSucceeded = true;
+		    }
+		    System.out.println(String.format("Downloaded: %.3f Mb", ((double) totalRead) / (1024 * 1024)));
+		}
+	    } catch (Exception ex) {
+		logError(ex);
 //                System.out.println(ex.getMessage());
-            } finally {
-                if (outFile != null) {
-                    try {
-                        outFile.close();
-                    } catch (IOException ioe) {
-                        logError(ioe);
-                    }
-                }
-                if (tempFile != null) {
-                    if (!tempFile.delete()) {
-                        BugCatcherManager.getBugCatcher().logError("Could not delete temporary file " + tempFile.getAbsolutePath(), null);
-                    }
-                }
-            }
-        }
-        return downloadSucceeded;
+	    } finally {
+		if (outFile != null) {
+		    try {
+			outFile.close();
+		    } catch (IOException ioe) {
+			logError(ioe);
+		    }
+		}
+		if (tempFile != null && tempFile.exists()) {
+		    if (!tempFile.delete()) {
+			BugCatcherManager.getBugCatcher().logError("Could not delete temporary file " + tempFile.getAbsolutePath(), null);
+		    }
+		}
+	    }
+	}
+	return downloadSucceeded;
     }
 
     /**
@@ -842,59 +844,53 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @throws IOException
      */
     private URLConnection openResourceConnection(URL resourceUrl, ShibbolethNegotiator shibbolethNegotiator, boolean followRedirects) throws IOException {
-        URLConnection urlConnection = resourceUrl.openConnection();
-        if (urlConnection instanceof JarURLConnection) {
-            return urlConnection;
-        }
-        HttpURLConnection httpConnection = null;
-        if (urlConnection instanceof HttpURLConnection) {
-            httpConnection = (HttpURLConnection) urlConnection;
+	URLConnection urlConnection = resourceUrl.openConnection();
+	if (urlConnection instanceof JarURLConnection) {
+	    return urlConnection;
+	}
+	HttpURLConnection httpConnection = null;
+	if (urlConnection instanceof HttpURLConnection) {
+	    httpConnection = (HttpURLConnection) urlConnection;
 //                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
-            if (shibbolethNegotiator != null) {
-                httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-//                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
-//                            // work around for resources being https when under shiboleth
-//                            // try https after http failed
-//                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
-//                            System.out.println("trying https");
-//                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
-//                            urlConnection = targetUrl.openConnection();
-//                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-//                        }
-            }
-            //h.setFollowRedirects(false);
-            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage() + resourceUrl.toString());
-        }
+	    //h.setFollowRedirects(false);
+	    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage() + resourceUrl.toString());
+	}
 
-        if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
-            final int responseCode = httpConnection.getResponseCode();
-            if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) { // Redirect codes
-                String redirectLocation = httpConnection.getHeaderField("Location");
-                System.out.println(String.format("%1$d, redirect to %2$s", responseCode, redirectLocation));
-                if (followRedirects) {
-                    // Redirect. Get new location.
-                    if (redirectLocation != null && redirectLocation.length() > 0) {
-                        return openResourceConnection(new URL(redirectLocation), shibbolethNegotiator, true);
-                    }
-                } else {
-                    System.out.println("Not following redirect. Skipping file");
-                }
-            } else {
-                System.out.println("non 200 response, skipping file");
-            }
-            return null;
-        } else {
-            return urlConnection;
-        }
+	if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
+	    final int responseCode = httpConnection.getResponseCode();
+	    if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) { // Redirect codes
+		String redirectLocation = httpConnection.getHeaderField("Location");
+		System.out.println(String.format("%1$d, redirect to %2$s", responseCode, redirectLocation));
+		if (followRedirects) {
+		    // Redirect. Get new location.
+		    if (redirectLocation != null && redirectLocation.length() > 0) {
+			try {
+			    URI resolvedRedirectLocation = resourceUrl.toURI().resolve(redirectLocation);
+			    return openResourceConnection(resolvedRedirectLocation.toURL(), shibbolethNegotiator, true);
+			} catch (URISyntaxException ex) {
+			    BugCatcherManager.getBugCatcher().logError(String.format("Cannot resolve redirect location: %s. Reference URL: %s", redirectLocation, resourceUrl), ex);
+			    return null;
+			}
+		    }
+		} else {
+		    System.out.println("Not following redirect. Skipping file");
+		}
+	    } else {
+		System.out.println("non 200 response, skipping file");
+	    }
+	    return null;
+	} else {
+	    return urlConnection;
+	}
     }
 
     public File getTypeCheckerConfig() {
-        File typeCheckerConfig = new File(getApplicationSettingsDirectory(), TYPECHECKER_CONFIG_FILENAME);
-        if (typeCheckerConfig.exists()) {
-            return typeCheckerConfig;
-        } else {
-            return null;
-        }
+	File typeCheckerConfig = new File(getApplicationSettingsDirectory(), TYPECHECKER_CONFIG_FILENAME);
+	if (typeCheckerConfig.exists()) {
+	    return typeCheckerConfig;
+	} else {
+	    return null;
+	}
     }
     private Boolean propertiesReaderWriterAvailable = null;
 
@@ -906,13 +902,13 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @throws SecurityException
      */
     private synchronized boolean canUsePropertiesReaderWriter() throws SecurityException {
-        if (propertiesReaderWriterAvailable == null) {
-            try {
-                propertiesReaderWriterAvailable = null != Properties.class.getMethod("store", Writer.class, String.class);
-            } catch (NoSuchMethodException ex) {
-                propertiesReaderWriterAvailable = false;
-            }
-        }
-        return propertiesReaderWriterAvailable;
+	if (propertiesReaderWriterAvailable == null) {
+	    try {
+		propertiesReaderWriterAvailable = null != Properties.class.getMethod("store", Writer.class, String.class);
+	    } catch (NoSuchMethodException ex) {
+		propertiesReaderWriterAvailable = false;
+	    }
+	}
+	return propertiesReaderWriterAvailable;
     }
 }
