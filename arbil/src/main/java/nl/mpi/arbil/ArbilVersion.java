@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil;
 
@@ -24,20 +24,21 @@ import nl.mpi.arbil.util.ApplicationVersion;
 public class ArbilVersion extends ApplicationVersion {
 
     public ArbilVersion() {
-        Properties properties = new Properties();
-        try {
-            properties.load(getClass().getResourceAsStream("/nl/mpi/arbil/version.properties"));
-            applicationTitle = properties.getProperty("application.title");
-            applicationIconName = properties.getProperty("application.iconName");
-            currentMajor = properties.getProperty("application.majorVersion");
-            currentMinor = properties.getProperty("application.minorVersion");
-            currentRevision = properties.getProperty("application.revision");
-            lastCommitDate = properties.getProperty("application.lastCommitDate");
-            compileDate = properties.getProperty("application.compileDate");
-            currentVersionFile = properties.getProperty("application.currentVersionFile");
-            artifactVersion = properties.getProperty("application.projectVersion");
-        } catch (IOException ex) {
-            System.err.println("Version properties could not be read!");
-        }
+	Properties properties = new Properties();
+	try {
+	    properties.load(getClass().getResourceAsStream("/nl/mpi/arbil/version.properties"));
+	    applicationTitle = properties.getProperty("application.title");
+	    applicationIconName = properties.getProperty("application.iconName");
+	    currentMajor = properties.getProperty("application.majorVersion");
+	    currentMinor = properties.getProperty("application.minorVersion");
+	    currentRevision = properties.getProperty("application.revision");
+	    lastCommitDate = properties.getProperty("application.lastCommitDate");
+	    compileDate = properties.getProperty("application.compileDate");
+	    currentVersionFile = properties.getProperty("application.currentVersionFile");
+	    artifactVersion = properties.getProperty("application.projectVersion");
+	    branch = properties.getProperty("application.branch");
+	} catch (IOException ex) {
+	    System.err.println("Version properties could not be read!");
+	}
     }
 }

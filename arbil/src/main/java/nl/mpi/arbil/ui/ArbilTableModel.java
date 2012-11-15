@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
@@ -23,9 +23,11 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -39,6 +41,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Implementation of AbstractArbilTableModel for the Swing UI
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableModel extends AbstractArbilTableModel {
@@ -48,6 +51,12 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     public static final String CSV_DOUBLE_QUOTE = "\"\"";
     public static final char CSV_QUOTE = '\"';
     public static final String CSV_QUOTE_STRING = "\"";
+    /**
+     * Pattern for libraries that should not be included in the 'archive' attribute of the applet HTML code.
+     *
+     * @see #copyHtmlEmbedTagToClipboard(int, int)
+     */
+    public static final Pattern APPLET_LIBS_EXCLUDE_PATTERN = Pattern.compile(".*(arbil-help).*jar");
     private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
@@ -113,8 +122,13 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	    hiddenColumnsLabel.setText(hiddenCellsCount + " cells hidden in " + hiddenColumnCount + " columns (edit \"Column View\" in the table header to show)");
 	}
     }
-    // utility to join an array to a comma separated string
 
+    /**
+     * utility to join an array to a comma separated string
+     *
+     * @param arrayToJoin
+     * @return
+     */
     private String joinArray(Object[] arrayToJoin) {
 	StringBuilder joinedString = new StringBuilder();
 	boolean first = true;
@@ -128,22 +142,53 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	return joinedString.toString();
     }
 
+    /**
+     *
+     * @param prefix prefix that needs to be prepended to all jar files in the list
+     * @param skipPattern regular expression that matches files that need to be skipped (full paths)
+     * @return a comma separated string list of .jar files (only the file names) that are on the current class path and do not match
+     * the specified skip pattern
+     */
+    private CharSequence getJarsFromClassPath(String prefix, Pattern skipPattern) {
+	final String property = System.getProperty("java.class.path");
+	if (property != null) {
+	    final String[] tokens = property.split(":");
+	    final StringBuilder sb = new StringBuilder(tokens.length);
+	    for (String token : tokens) {
+		if (token.endsWith(".jar") && (skipPattern == null || !skipPattern.matcher(token).matches())) {
+		    File jarFile = new File(token);
+		    sb.append(prefix).append(jarFile.getName()).append(",");
+		}
+	    }
+	    // Remove final trailing ,
+	    sb.replace(sb.length() - 1, sb.length(), "");
+	    return sb;
+	}
+	return "";
+    }
+
     public void copyHtmlEmbedTagToClipboard(int tableHeight, int tableWidth) {
 	try {
-	    ApplicationVersion appVersion = versionManager.getApplicationVersion();
-	    // TODO: the clas path specified here needs to be dynamically generated
-	    String embedTagString = "<APPLET CODEBASE=\"http://www.mpi.nl/tg/j2se/jnlp/arbil/\" "
-	    //String embedTagString = "<APPLET CODEBASE=\"/Users/twagoo/Desktop/arbil-build-2.3.x/\" "
-		    + " CODE=\"nl.mpi.arbil.ui.applet.ArbilTableApplet.class\" ARCHIVE=\"arbil-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision
-		    + ".jar,lib/corpusstructure-api-1.7.3.jar,lib/mpi-util-1.0.0.jar,lib/imdi-api-1.1.2.jar,lib/log4j-1.2.14.jar,lib/saxon-8.7.jar,lib/saxon-dom-8.7.jar,lib/typechecker-1.6.5.jar,lib/xalan-2.7.1.jar,lib/xercesImpl-2.9.0.jar,lib/xmlbeans-2.4.0.jar\"";
-	    embedTagString = embedTagString + " WIDTH=" + tableWidth + " HEIGHT=" + tableHeight + " >\n";
-	    embedTagString = embedTagString + "  <PARAM NAME=\"ImdiFileList\" VALUE=\"" + joinArray(this.getArbilDataNodesURLs()) + "\">\n";
-	    embedTagString = embedTagString + "  <PARAM NAME=\"ShowOnlyColumns\" VALUE=\"" + joinArray(getColumnNames()) + "\">\n";
-	    embedTagString = embedTagString + "  <PARAM NAME=\"ChildNodeColumns\" VALUE=\"" + joinArray(getChildColumnNames().toArray()) + "\">\n";
-	    embedTagString = embedTagString + "  <PARAM NAME=\"HighlightText\" VALUE=\"" + joinArray(getHighlightCells().toArray()) + "\">\n";
-	    embedTagString = embedTagString + "</APPLET>";
-	    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-	    StringSelection stringSelection = new StringSelection(embedTagString);
+	    final ApplicationVersion appVersion = versionManager.getApplicationVersion();
+	    // Construct HTML for embedding the applet
+	    final StringBuilder embadTagStringBuilder = new StringBuilder();
+	    embadTagStringBuilder.append("<applet codebase=\"http://www.mpi.nl/tg/j2se/jnlp/arbil/\"\n");
+	    // Main class to run
+	    embadTagStringBuilder.append(" code=\"nl.mpi.arbil.ui.applet.ArbilTableApplet.class\"\n");
+	    // Define class path jars, first arbil main jar
+	    embadTagStringBuilder.append(" archive=\"arbil-").append(appVersion.branch).append("-").append(appVersion.currentMajor).append("-").append(appVersion.currentMinor).append("-").append(appVersion.currentRevision).append(".jar,");
+	    // Add all jars in current classpath, except those in the exlude pattern defined in this class
+	    embadTagStringBuilder.append(getJarsFromClassPath("lib/", APPLET_LIBS_EXCLUDE_PATTERN)).append("\"\n");
+	    embadTagStringBuilder.append(String.format(" width=\"%d\" height=\"%d\" >\n", tableWidth, tableHeight));
+	    // Application parameters
+	    embadTagStringBuilder.append(" <param name=\"ImdiFileList\" value=\"").append(joinArray(this.getArbilDataNodesURLs())).append("\">\n");
+	    embadTagStringBuilder.append(" <param name=\"ShowOnlyColumns\" value=\"").append(joinArray(getColumnNames())).append("\">\n");
+	    embadTagStringBuilder.append(" <param name=\"ChildNodeColumns\" value=\"").append(joinArray(getChildColumnNames().toArray())).append("\">\n");
+	    embadTagStringBuilder.append(" <param name=\"HighlightText\" value=\"").append(joinArray(getHighlightCells().toArray())).append("\">\n");
+	    embadTagStringBuilder.append("</applet>");
+
+	    final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	    StringSelection stringSelection = new StringSelection(embadTagStringBuilder.toString());
 	    clipboard.setContents(stringSelection, clipboardOwner);
 	} catch (Exception ex) {
 	    getBugCatcher().logError(ex);
@@ -152,6 +197,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 
     /**
      * Data node is to be removed from the table
+     *
      * @param dataNode Data node that should be removed
      */
     public void dataNodeRemoved(ArbilNode dataNode) {
@@ -164,6 +210,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 
     /**
      * Data node is clearing its icon
+     *
      * @param dataNode Data node that is clearing its icon
      */
     public void dataNodeIconCleared(ArbilNode dataNode) {
@@ -172,6 +219,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 
     /**
      * A new child node has been added to the destination node
+     *
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */
@@ -201,7 +249,6 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     }
     // NOTE: ArbilActionBuffer is not serializable but ArbilTableModel should be!
     private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("TableReload-" + this.hashCode(), 50) {
-
 	@Override
 	public void executeAction() {
 	    reloadTableDataPrivate();

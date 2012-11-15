@@ -81,7 +81,6 @@
 			<exclude>nl/mpi/arbil/resources/icons/svg-files/**</exclude>
 			<exclude>nl/mpi/arbil/resources/icons/*.ico</exclude>
 			<exclude>nl/mpi/arbil/resources/icons/*.icns</exclude>
-			<exclude>nl/mpi/arbil/ui/applet/**</exclude>
 		    </excludes>
 		</configuration>
 	    </plugin>
