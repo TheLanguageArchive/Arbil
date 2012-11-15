@@ -39,6 +39,7 @@ public class ArbilVersion extends ApplicationVersion {
 	    currentVersionFile = properties.getProperty("application.currentVersionFile");
 	    artifactVersion = properties.getProperty("application.projectVersion");
 	    copyrightYear = properties.getProperty("application.license.copyrightYear");
+	    branch = properties.getProperty("application.branch");
 	} catch (IOException ex) {
 	    System.err.println("Version properties could not be read!");
 	}

@@ -35,4 +35,5 @@ public abstract class ApplicationVersion {
     public String fullInfo;
     public String lastCommitDate;
     public String artifactVersion;
+    public String branch;
 }
