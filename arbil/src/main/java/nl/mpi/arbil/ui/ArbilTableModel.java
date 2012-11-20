@@ -23,11 +23,9 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -52,12 +50,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
     public static final String CSV_DOUBLE_QUOTE = "\"\"";
     public static final char CSV_QUOTE = '\"';
     public static final String CSV_QUOTE_STRING = "\"";
-    /**
-     * Pattern for libraries that should not be included in the 'archive' attribute of the applet HTML code.
-     *
-     * @see #copyHtmlEmbedTagToClipboard(int, int)
-     */
-    public static final Pattern APPLET_LIBS_EXCLUDE_PATTERN = Pattern.compile(".*(arbil-help).*jar");
+    
     private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
@@ -142,31 +135,6 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	return joinedString.toString();
     }
 
-    /**
-     *
-     * @param prefix prefix that needs to be prepended to all jar files in the list
-     * @param skipPattern regular expression that matches files that need to be skipped (full paths)
-     * @return a comma separated string list of .jar files (only the file names) that are on the current class path and do not match
-     * the specified skip pattern
-     */
-    private CharSequence getJarsFromClassPath(String prefix, Pattern skipPattern) {
-	final String property = System.getProperty("java.class.path");
-	if (property != null) {
-	    final String[] tokens = property.split(":");
-	    final StringBuilder sb = new StringBuilder(tokens.length);
-	    for (String token : tokens) {
-		if (token.endsWith(".jar") && (skipPattern == null || !skipPattern.matcher(token).matches())) {
-		    File jarFile = new File(token);
-		    sb.append(prefix).append(jarFile.getName()).append(",");
-		}
-	    }
-	    // Remove final trailing ,
-	    sb.replace(sb.length() - 1, sb.length(), "");
-	    return sb;
-	}
-	return "";
-    }
-
     public void copyHtmlEmbedTagToClipboard(int tableHeight, int tableWidth) {
 	try {
 	    final ApplicationVersion appVersion = versionManager.getApplicationVersion();
@@ -178,7 +146,33 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	    // Define class path jars, first arbil main jar
 	    embadTagStringBuilder.append(" archive=\"arbil-").append(appVersion.branch).append("-").append(appVersion.currentMajor).append("-").append(appVersion.currentMinor).append("-").append(appVersion.currentRevision).append(".jar,");
 	    // Add all jars in current classpath, except those in the exlude pattern defined in this class
-	    embadTagStringBuilder.append(getJarsFromClassPath("lib/", APPLET_LIBS_EXCLUDE_PATTERN)).append("\"\n");
+	    embadTagStringBuilder.append(
+		    "lib/xmlbeans-2.4.0.jar,"
+		    + "lib/stax-api-1.0.1.jar,"
+		    + "lib/typechecker-1.7.0.jar,"
+		    + "lib/slcshttps-0.2.jar,"
+		    + "lib/imdi-api-1.1.2.jar,"
+		    + "lib/mpi-util-1.0.0.jar,"
+		    + "lib/Saxon-HE-9.4.jar,"
+		    + "lib/jdom-1.1.jar,"
+		    + "lib/xom-1.2.5.jar,"
+		    + "lib/dom4j-1.6.1.jar,"
+		    + "lib/xml-resolver-1.2.jar,"
+		    + "lib/xercesImpl-2.9.0.jar,"
+		    + "lib/xml-apis-1.3.04.jar,"
+		    + "lib/xalan-2.7.1.jar,"
+		    + "lib/serializer-2.7.1.jar,"
+		    + "lib/commons-digester-2.0.jar,"
+		    + "lib/commons-beanutils-1.8.0.jar,"
+		    + "lib/commons-logging-1.1.1.jar,"
+		    + "lib/log4j-1.2.16.jar,"
+		    + "lib/corpusstructure-api-1.7.3.jar,"
+		    + "lib/handle-6.1.jar,"
+		    + "lib/commons-io-1.4.jar,"
+		    + "lib/plugins-core-0.1.34211-pretesting.jar,"
+		    + "lib/arbil-commons-0.2.34218-pretesting.jar,"
+		    + "lib/arbil-localisation-1.0-SNAPSHOT.jar"
+		    + "\"\n");
 	    embadTagStringBuilder.append(String.format(" width=\"%d\" height=\"%d\" >\n", tableWidth, tableHeight));
 	    // Application parameters
 	    embadTagStringBuilder.append(" <param name=\"ImdiFileList\" value=\"").append(joinArray(this.getArbilDataNodesURLs())).append("\">\n");
