@@ -43,14 +43,14 @@ import nl.mpi.arbil.util.XsdChecker;
  * @author Peter.Withers@mpi.nl
  */
 public class CopyRunner implements Runnable {
-    
+
     public final static String DISK_FREE_LABEL_TEXT = "Total Disk Free: ";
     private final ImportExportUI impExpUI;
     private final SessionStorage sessionStorage;
     private final DataNodeLoader dataNodeLoader;
     private final TreeHelper treeHelper;
     private Boolean exportToUniqueLocation = null;
-    
+
     public CopyRunner(ImportExportUI ui, SessionStorage sessionStorage, DataNodeLoader dataNodeLoader, TreeHelper treeHelper) {
 	this.impExpUI = ui;
 	this.sessionStorage = sessionStorage;
@@ -66,7 +66,7 @@ public class CopyRunner implements Runnable {
     private String finalMessageString = "";
     private File directoryForSizeTest;
     private boolean testFreeSpace;
-    
+
     @Override
     public void run() {
 	String javaVersionString = System.getProperty("java.version");
@@ -94,7 +94,7 @@ public class CopyRunner implements Runnable {
 	// Done copying
 	impExpUI.onCopyEnd(finalMessageString);
     }
-    
+
     private void copyElements(final Iterator<ArbilDataNode> selectedNodesEnum, final ArbilDataNode destinationNode, final File exportDestinationDirectory) {
 	final List<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
 	final Map<URI, RetrievableFile> seenFiles = new HashMap<URI, RetrievableFile>();
@@ -106,14 +106,14 @@ public class CopyRunner implements Runnable {
 	    copyElement(currentElement, exportDestinationDirectory, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
 	}
 	finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
-	
+
 	if (exportDestinationDirectory == null) {
 	    // This is in the case of an import into the local corpus
 	    addImportedNodesToLocalCorpus(destinationNode, finishedTopNodes);
 	}
-	
+
 	impExpUI.setProgressIndeterminate(false);
-	
+
 	if (totalErrors != 0) {
 	    finalMessageString = finalMessageString + "There were " + totalErrors + " errors, some files may not have been copied.\n";
 	}
@@ -128,7 +128,7 @@ public class CopyRunner implements Runnable {
 	    impExpUI.removeNodeSelection();
 	}
     }
-    
+
     private void addImportedNodesToLocalCorpus(final ArbilDataNode destinationNode, final List<ArbilDataNode> copiedNodes) {
 	if (!impExpUI.isStopCopy()) {
 	    for (ArbilDataNode currentFinishedNode : copiedNodes) {
@@ -152,7 +152,7 @@ public class CopyRunner implements Runnable {
 	    destinationNode.reloadNode();
 	}
     }
-    
+
     private void copyElement(final Object currentElement, final File exportDestinationDirectory, final List<URI> getList, final Map<URI, RetrievableFile> seenFiles, final List<URI> doneList, final XsdChecker xsdChecker, final List<ArbilDataNode> finishedTopNodes) {
 	final URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
 	getList.add(currentGettableUri);
@@ -169,7 +169,7 @@ public class CopyRunner implements Runnable {
 	    finishedTopNodes.add(dataNodeLoader.getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
 	}
     }
-    
+
     private void copyFile(final RetrievableFile currentRetrievableFile, final File exportDestinationDirectory, final Map<URI, RetrievableFile> seenFiles, final List<URI> doneList, final List<URI> getList, final XsdChecker xsdChecker) {
 	try {
 	    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
@@ -190,7 +190,7 @@ public class CopyRunner implements Runnable {
 		if (impExpUI.isStopCopy()) {
 		    return;
 		}
-		
+
 		final MetadataUtils metadataUtils = ArbilDataNode.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
 		if (metadataUtils == null) {
 		    throw new ArbilMetadataException("Metadata format could not be determined");
@@ -200,9 +200,9 @@ public class CopyRunner implements Runnable {
 		if (linksUriArray != null) {
 		    copyLinks(exportDestinationDirectory, linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
 		}
-		
+
 		boolean overwriteFile = false;
-		
+
 		if (currentRetrievableFile.destinationFile.exists()) {
 		    totalExisting++;
 		    overwriteFile = impExpUI.askOverwrite(currentRetrievableFile);
@@ -271,7 +271,7 @@ public class CopyRunner implements Runnable {
 	    testFreeSpace();
 	}
     }
-    
+
     private void copyLinks(final File exportDestinationDirectory, URI[] linksUriArray, Map<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, List<URI> getList, List<URI[]> uncopiedLinks) throws MalformedURLException {
 	for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.isStopCopy(); linkCount++) {
 	    System.out.println("Link: " + linksUriArray[linkCount].toString());
@@ -325,7 +325,7 @@ public class CopyRunner implements Runnable {
 	    }
 	}
     }
-    
+
     private void testFreeSpace() {
 	try {
 	    int freeGBytes = (int) (directoryForSizeTest.getFreeSpace() / 1073741824);
@@ -344,7 +344,7 @@ public class CopyRunner implements Runnable {
 	    testFreeSpace = false;
 	}
     }
-    
+
     private void calculateTreeFileName(final RetrievableFile retrievableFile) {
 	retrievableFile.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName());
 	if (retrievableFile.destinationFile.exists()) {
@@ -356,9 +356,9 @@ public class CopyRunner implements Runnable {
 	    }
 	}
     }
-    
+
     public class RetrievableFile {
-	
+
 	private final URI sourceURI;
 	private final File destinationDirectory;
 	private File childDestinationDirectory;
@@ -366,12 +366,12 @@ public class CopyRunner implements Runnable {
 	private String fileName;
 	private String fileSuffix;
 	boolean lamusFriendly;
-	
+
 	public RetrievableFile(URI sourceURILocal, File destinationDirectoryLocal) {
 	    sourceURI = sourceURILocal;
 	    destinationDirectory = destinationDirectoryLocal;
 	}
-	
+
 	public void calculateUriFileName() {
 	    if (destinationDirectory != null) {
 		destinationFile = sessionStorage.getExportPath(sourceURI.toString(), destinationDirectory.getPath());
@@ -380,20 +380,25 @@ public class CopyRunner implements Runnable {
 	    }
 	    childDestinationDirectory = destinationDirectory;
 	}
-	
+
 	public void calculateTreeFileName(final boolean lamusFriendly) {
 	    this.lamusFriendly = lamusFriendly;
-	    final int suffixSeparator = sourceURI.toString().lastIndexOf(".");
-	    fileSuffix = (suffixSeparator > 0) ? sourceURI.toString().substring(suffixSeparator) : "";
-	    
+	    final String urlString = sourceURI.toString();
+	    final int suffixSeparator = urlString.lastIndexOf(".");
+	    if (suffixSeparator > 0 && suffixSeparator > urlString.lastIndexOf("/")) {
+		fileSuffix = urlString.substring(suffixSeparator);
+	    } else {
+		fileSuffix = "";
+	    }
+
 	    final ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, sourceURI);
 	    currentNode.waitTillLoaded();
-	    
-	    fileName = determineFileName(currentNode, lamusFriendly);
+
+	    fileName = normalizeFileName(determineFileName(currentNode), lamusFriendly);
 	    destinationFile = new File(destinationDirectory, fileName + fileSuffix);
 	    childDestinationDirectory = new File(destinationDirectory, fileName);
 	}
-	
+
 	private void makeUnique() {
 	    if (destinationFile.exists()) {
 		int fileCounter = 1;
@@ -409,11 +414,10 @@ public class CopyRunner implements Runnable {
 		}
 	    }
 	}
-	
-	private String determineFileName(final ArbilDataNode currentNode, boolean lamusFriendly) {
-	    String fileNameString;
+
+	private String determineFileName(final ArbilDataNode currentNode) {
 	    if (currentNode.isMetaDataNode()) {
-		fileNameString = currentNode.toString();
+		return currentNode.toString();
 	    } else {
 		String urlString = sourceURI.toString();
 		try {
@@ -423,13 +427,40 @@ public class CopyRunner implements Runnable {
 		    impExpUI.appendToTaskOutput("unable to decode the file name for: " + urlString);
 		    System.out.println("unable to decode the file name for: " + urlString);
 		}
-		final int separator = urlString.lastIndexOf(".");
-		if (separator > 0) {
-		    fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1, separator);
+		if (urlString.endsWith("/")) {
+		    // Strip off tailing slash
+		    urlString = urlString.substring(0, urlString.length() - 1);
+		}
+
+		// Only use final section of path
+		final int lastPathSeparatorIndex = urlString.lastIndexOf("/");
+		if (lastPathSeparatorIndex >= 0) {
+		    final int lastSuffixIndex = urlString.lastIndexOf(".");
+		    if (lastSuffixIndex > 0 && lastSuffixIndex > lastPathSeparatorIndex) {
+			// Strip off file suffix from last path section
+			return urlString.substring(lastPathSeparatorIndex + 1, lastSuffixIndex);
+		    } else {
+			// No suffix, just take last path section
+			return urlString.substring(lastPathSeparatorIndex + 1);
+		    }
 		} else {
-		    fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1);
+		    // No separators, use entire path
+		    return urlString;
 		}
 	    }
+	}
+
+	private String makeFileNameLamusFriendly(String fileNameString) {
+	    return fileNameString
+		    .replaceAll("[^A-Za-z0-9-]", "_")
+		    .replaceAll("__+", "_");
+	}
+
+	public URI getSourceURI() {
+	    return sourceURI;
+	}
+
+	private String normalizeFileName(String fileNameString, final boolean lamusFriendly) {
 	    fileNameString = fileNameString.replace("\\", "_");
 	    fileNameString = fileNameString.replace("/", "_");
 	    if (lamusFriendly) {
@@ -439,16 +470,6 @@ public class CopyRunner implements Runnable {
 		fileNameString = "unnamed";
 	    }
 	    return fileNameString;
-	}
-	
-	private String makeFileNameLamusFriendly(String fileNameString) {
-	    return fileNameString
-		    .replaceAll("[^A-Za-z0-9-]", "_")
-		    .replaceAll("__+", "_");
-	}
-	
-	public URI getSourceURI() {
-	    return sourceURI;
 	}
     }
 }
