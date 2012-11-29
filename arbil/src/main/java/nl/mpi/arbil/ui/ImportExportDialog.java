@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
@@ -955,6 +955,7 @@ public class ImportExportDialog {
 			} else {
 			    File downloadFileLocation;
 			    if (exportDestinationDirectory == null) {
+				// Import
 				downloadFileLocation = ArbilSessionStorage.getSingleInstance().updateCache(currentLink, false, false, downloadAbortFlag, resourceProgressLabel);
 			    } else {
 				if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
@@ -1034,33 +1035,35 @@ public class ImportExportDialog {
 	}
 
 	public void calculateTreeFileName(boolean lamusFriendly) {
-	    final int suffixSeparator = sourceURI.toString().lastIndexOf(".");
-	    if (suffixSeparator > 0) {
-		fileSuffix = sourceURI.toString().substring(suffixSeparator);
+	    final String urlString = sourceURI.toString();
+
+	    final int suffixSeparator = urlString.lastIndexOf(".");
+	    if (suffixSeparator > 0 && suffixSeparator > urlString.lastIndexOf("/")) {
+		fileSuffix = urlString.substring(suffixSeparator);
 	    } else {
 		fileSuffix = "";
 	    }
 	    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, sourceURI);
 	    currentNode.waitTillLoaded();
-	    String fileNameString;
-	    if (currentNode.isMetaDataNode()) {
-		fileNameString = currentNode.toString();
-	    } else {
-		String urlString = sourceURI.toString();
-		try {
-		    urlString = URLDecoder.decode(urlString, "UTF-8");
-		} catch (Exception ex) {
-		    GuiHelper.linorgBugCatcher.logError(urlString, ex);
-		    appendToTaskOutput("unable to decode the file name for: " + urlString);
-		    System.out.println("unable to decode the file name for: " + urlString);
-		}
-		final int separator = urlString.lastIndexOf(".");
-		if (separator > 0) {
-		    fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1, separator);
+
+	    final String fileName = normalizeFileName(calculateDestinationFileName(currentNode, urlString), lamusFriendly);
+
+	    destinationFile = new File(destinationDirectory, fileName + fileSuffix);
+	    childDestinationDirectory = new File(destinationDirectory, fileName);
+	    int fileCounter = 1;
+	    while (destinationFile.exists()) {
+		if (lamusFriendly) {
+		    destinationFile = new File(destinationDirectory, fileName + "_" + fileCounter + fileSuffix);
+		    childDestinationDirectory = new File(destinationDirectory, fileName + "_" + fileCounter);
 		} else {
-		    fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1);
+		    destinationFile = new File(destinationDirectory, fileName + "(" + fileCounter + ")" + fileSuffix);
+		    childDestinationDirectory = new File(destinationDirectory, fileName + "(" + fileCounter + ")");
 		}
+		fileCounter++;
 	    }
+	}
+
+	private String normalizeFileName(String fileNameString, boolean lamusFriendly) {
 	    fileNameString = fileNameString.replace("\\", "_");
 	    fileNameString = fileNameString.replace("/", "_");
 	    if (lamusFriendly) {
@@ -1069,18 +1072,40 @@ public class ImportExportDialog {
 	    if (fileNameString.length() < 1) {
 		fileNameString = "unnamed";
 	    }
-	    destinationFile = new File(destinationDirectory, fileNameString + fileSuffix);
-	    childDestinationDirectory = new File(destinationDirectory, fileNameString);
-	    int fileCounter = 1;
-	    while (destinationFile.exists()) {
-		if (lamusFriendly) {
-		    destinationFile = new File(destinationDirectory, fileNameString + "_" + fileCounter + fileSuffix);
-		    childDestinationDirectory = new File(destinationDirectory, fileNameString + "_" + fileCounter);
-		} else {
-		    destinationFile = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")" + fileSuffix);
-		    childDestinationDirectory = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")");
+	    return fileNameString;
+	}
+
+	private String calculateDestinationFileName(ArbilDataNode currentNode, String urlString) {
+	    if (currentNode.isMetaDataNode()) {
+		return currentNode.toString();
+	    } else {
+		try {
+		    urlString = URLDecoder.decode(urlString, "UTF-8");
+		} catch (Exception ex) {
+		    GuiHelper.linorgBugCatcher.logError(urlString, ex);
+		    appendToTaskOutput("unable to decode the file name for: " + urlString);
+		    System.out.println("unable to decode the file name for: " + urlString);
 		}
-		fileCounter++;
+		if (urlString.endsWith("/")) {
+		    // Strip off tailing slash
+		    urlString = urlString.substring(0, urlString.length() - 1);
+		}
+
+		// Only use final section of path
+		final int lastPathSeparatorIndex = urlString.lastIndexOf("/");
+		if (lastPathSeparatorIndex >= 0) {
+		    final int lastSuffixIndex = urlString.lastIndexOf(".");
+		    if (lastSuffixIndex > 0 && lastSuffixIndex > lastPathSeparatorIndex) {
+			// Strip off file suffix from last path section
+			return urlString.substring(lastPathSeparatorIndex + 1, lastSuffixIndex);
+		    } else {
+			// No suffix, just take last path section
+			return urlString.substring(lastPathSeparatorIndex + 1);
+		    }
+		} else {
+		    // No separators, use entire path
+		    return urlString;
+		}
 	    }
 	}
 	URI sourceURI;
