@@ -8,18 +8,15 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.ui.menu.TableContextMenu;
-import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
@@ -53,12 +50,16 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
+import nl.mpi.arbil.ui.menu.TableContextMenu;
 
 /**
- * Document   : ArbilTable
- * Created on : 
+ * Document : ArbilTable
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTable extends JTable {
@@ -91,7 +92,6 @@ public class ArbilTable extends JTable {
     private void initTableMouseListener() {
 
 	this.addMouseListener(new java.awt.event.MouseAdapter() {
-
 	    @Override
 	    public void mousePressed(MouseEvent evt) {
 //                System.out.println("mousePressed");
@@ -113,7 +113,6 @@ public class ArbilTable extends JTable {
 
     private void initHeaderMouseListener() {
 	this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
-
 	    //            public void mousePressed(java.awt.event.MouseEvent evt) {
 	    @Override
 	    public void mousePressed(MouseEvent evt) {
@@ -156,7 +155,6 @@ public class ArbilTable extends JTable {
 
 	    final JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
 	    saveViewMenuItem.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    try {
 			//System.out.println("saveViewNenuItem: " + targetTable.toString());
@@ -176,7 +174,6 @@ public class ArbilTable extends JTable {
 	    });
 	    final JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
 	    editViewMenuItem.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    updateStoredColumnWidhts();
 		    try {
@@ -194,7 +191,6 @@ public class ArbilTable extends JTable {
 	    });
 	    final JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
 	    showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    try {
 			//System.out.println("saveViewNenuItem: " + targetTable.toString());
@@ -219,7 +215,6 @@ public class ArbilTable extends JTable {
 		viewLabelMenuItem.setText(currentViewLabel);
 		viewLabelMenuItem.setName(currentViewLabel);
 		viewLabelMenuItem.addActionListener(new ActionListener() {
-
 		    public void actionPerformed(ActionEvent evt) {
 			try {
 			    arbilTableModel.setCurrentView(ArbilFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
@@ -233,7 +228,6 @@ public class ArbilTable extends JTable {
 	    }
 	    final JMenuItem copyEmbedTagMenuItem = new JMenuItem("Copy Table For Website");
 	    copyEmbedTagMenuItem.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    // find the table dimensions
 		    Component sizedComponent = ArbilTable.this;
@@ -249,7 +243,6 @@ public class ArbilTable extends JTable {
 	    });
 	    final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem("Make all columns the size of \"" + targetColumnName + "\"");
 	    setAllColumnsSizeFromColumn.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    int targetWidth = getColumnModel().getColumn(targetColumn).getWidth();
 		    for (int i = 0; i < getColumnCount(); i++) {
@@ -261,7 +254,6 @@ public class ArbilTable extends JTable {
 	    });
 	    final JMenuItem setAllColumnsSizeAuto = new JMenuItem("Make all columns fit contents");
 	    setAllColumnsSizeAuto.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    arbilTableModel.getFieldView().resetColumnWidths();
 		    doResizeColumns();
@@ -269,7 +261,6 @@ public class ArbilTable extends JTable {
 	    });
 	    final JMenuItem setColumnSizeAuto = new JMenuItem("Make column fit contents");
 	    setColumnSizeAuto.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    arbilTableModel.getFieldView().setColumnWidth(targetColumnName, null);
 		    doResizeColumns(Arrays.asList(targetColumn));
@@ -279,12 +270,12 @@ public class ArbilTable extends JTable {
 	    setFixedColumnSize.setSelected(arbilTableModel.getPreferredColumnWidth(targetColumnName) != null);
 
 	    setFixedColumnSize.addActionListener(new ActionListener() {
-
 		public void actionPerformed(ActionEvent e) {
 		    arbilTableModel.getFieldView().setColumnWidth(targetColumnName,
 			    setFixedColumnSize.isSelected()
 			    ? getColumnModel().getColumn(targetColumn).getWidth()
 			    : null);
+		    doResizeColumns(Collections.singleton(Integer.valueOf(targetColumn)));
 		}
 	    });
 
@@ -324,7 +315,6 @@ public class ArbilTable extends JTable {
 	JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column");
 	hideColumnMenuItem.setActionCommand("" + targetColumn);
 	hideColumnMenuItem.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		try {
 		    //System.out.println("hideColumnMenuItem: " + targetTable.toString());
@@ -341,7 +331,6 @@ public class ArbilTable extends JTable {
 	JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
 	showChildNodesMenuItem.setText("Show Child Nodes");
 	showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    showRowChildData();
@@ -506,6 +495,9 @@ public class ArbilTable extends JTable {
 		    if (storedColumnWidth != null) {
 			// Use stored column width
 			currentWidth = storedColumnWidth.intValue();
+			tableColumn.setMaxWidth(currentWidth);
+			tableColumn.setMinWidth(currentWidth);
+			tableColumn.setResizable(false);
 		    } else {
 			// Calculate required width
 			for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
@@ -515,9 +507,10 @@ public class ArbilTable extends JTable {
 				currentWidth = requiredWidth;
 			    }
 			}
-			if (currentWidth > MAX_COLUMN_WIDTH) {
-			    currentWidth = MAX_COLUMN_WIDTH;
-			}
+			// No strict width limits for fields without width sepcification in column view 
+			tableColumn.setMinWidth(0); // This is not MIN_COLUMN_WIDTH because size smaller than that triggers change in auto resizing policy
+			tableColumn.setMaxWidth(MAX_COLUMN_WIDTH);
+			tableColumn.setResizable(true);
 		    }
 		} else {
 		    currentWidth = tableColumn.getWidth();
@@ -609,15 +602,19 @@ public class ArbilTable extends JTable {
 //Implement table header tool tips.
     protected JTableHeader createDefaultTableHeader() {
 	return new JTableHeader(columnModel) {
-
 	    @Override
 	    public String getToolTipText(MouseEvent e) {
-		String tip = null;
-		java.awt.Point p = e.getPoint();
+		Point p = e.getPoint();
 		int index = columnModel.getColumnIndexAtX(p.x);
 		//int realIndex = columnModel.getColumn(index).getModelIndex();
 		//return GuiHelper.imdiSchema.getHelpForField(getColumnName(index));
-		return getColumnName(index);
+		final String columnName = getColumnName(index);
+		Integer preferredColumnWidth = arbilTableModel.getPreferredColumnWidth(columnName);
+		if (preferredColumnWidth == null) {
+		    return columnName;
+		} else {
+		    return String.format("%s [fixed width]", columnName);
+		}
 	    }
 	};
     }
@@ -794,8 +791,9 @@ public class ArbilTable extends JTable {
     }
 
     /**
-     * Gets the table cell at the specified location. Same result as getValue(row,col) but 
+     * Gets the table cell at the specified location. Same result as getValue(row,col) but
      * casted to ArbilTableCell (or null if casting fails)
+     *
      * @param row
      * @param col
      * @return Table cell at the specified location
@@ -810,9 +808,10 @@ public class ArbilTable extends JTable {
     }
 
     /**
-     * Gets the content of the table cell at the specified location. 
-     * Same result as ((ArbilTableCell) getValue(row,col)).getContent(), unless casting 
+     * Gets the content of the table cell at the specified location.
+     * Same result as ((ArbilTableCell) getValue(row,col)).getContent(), unless casting
      * fails or ArbilTableCell is null, then null is returned.
+     *
      * @param row
      * @param col
      * @return Content of the table cell at the specified location
