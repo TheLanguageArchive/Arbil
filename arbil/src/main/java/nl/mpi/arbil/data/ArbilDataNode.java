@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -1980,13 +1980,31 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
     }
 
-    public File getFile() {
-	//        System.out.println("getFile: " + nodeUri.toString());
+    public File getFile() { //TODO: make throw IllegalArgumentException, URISyntaxException
+	try {
+	    return getFile(nodeUri);
+	} catch (Exception urise) {
+	    bugCatcher.logError(nodeUri.toString(), urise);
+	    return null;
+	}
+    }
+
+    /**
+     * Create File object for URI if it represents a file
+     *
+     * @param nodeUri URI of node to get file for
+     * @return null if URI is not a file
+     * @throws IllegalArgumentException thrown by constructor of File if URI does not meet requirements
+     * @see File#File(java.net.URI)
+     */
+    public static File getFile(URI nodeUri) throws IllegalArgumentException {
 	if (nodeUri.getScheme().toLowerCase().equals("file")) {
 	    try {
 		return new File(new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
-	    } catch (Exception urise) {
+	    } catch (URISyntaxException urise) {
+		// Theoretically this cannot happen!
 		bugCatcher.logError(nodeUri.toString(), urise);
+		throw new RuntimeException(urise);
 	    }
 	}
 	return null;

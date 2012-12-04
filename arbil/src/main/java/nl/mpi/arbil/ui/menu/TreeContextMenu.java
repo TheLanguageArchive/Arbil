@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui.menu;
 
@@ -53,7 +53,7 @@ import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 
 /**
  * Context menu for tree UI components
- * 
+ *
  * @author Twan Goosen
  */
 public class TreeContextMenu extends ArbilContextMenu {
@@ -178,7 +178,6 @@ public class TreeContextMenu extends ArbilContextMenu {
     private void setUpActions() {
 	viewSelectedNodesMenuItem.setText("View Selected");
 	viewSelectedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		viewSelectedNodes();
 	    }
@@ -186,7 +185,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 	addItem(CATEGORY_NODE, PRIORITY_TOP, viewSelectedNodesMenuItem);
 
 	editInLongFieldEditor.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		startLongFieldEditor();
 	    }
@@ -194,7 +192,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 	addItem(CATEGORY_NODE, PRIORITY_TOP + 1, editInLongFieldEditor);
 
 	viewSelectedSubnodesMenuItem.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		viewSelectedSubnodes();
 	    }
@@ -203,7 +200,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	deleteMenuItem.setText("Delete");
 	deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilTreeHelper.getSingleInstance().deleteNodes(getInvoker());
@@ -216,7 +212,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	copyNodeUrlMenuItem.setText("Copy");
 	copyNodeUrlMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    if (selectedTreeNodes == null) {
@@ -234,7 +229,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	pasteMenuItem1.setText("Paste");
 	pasteMenuItem1.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode currentNode : selectedTreeNodes) {
@@ -249,7 +243,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	searchRemoteBranchMenuItem.setText("Search Remote Corpus");
 	searchRemoteBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    searchRemoteSubnodesMenuItemActionPerformed(evt);
@@ -262,7 +255,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	copyBranchMenuItem.setText("Import to Local Corpus");
 	copyBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    copyBranchMenuItemActionPerformed(evt);
@@ -275,7 +267,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	searchSubnodesMenuItem.setText("Search");
 	searchSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    searchSubnodesMenuItemActionPerformed(evt);
@@ -288,7 +279,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	reloadSubnodesMenuItem.setText("Reload");
 	reloadSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode currentNode : selectedTreeNodes) {
@@ -304,7 +294,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	addMenu.setText("Add");
 	addMenu.addMenuListener(new javax.swing.event.MenuListener() {
-
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
 
@@ -323,7 +312,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	addFromFavouritesMenu.setText("Add From Favourites");
 	addFromFavouritesMenu.addMenuListener(new javax.swing.event.MenuListener() {
-
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
 
@@ -342,7 +330,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    addToFavouritesMenuItem.setText("Add To Favourites List");
 	}
 	addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilFavourites.getSingleInstance().toggleFavouritesList(((ArbilTree) getInvoker()).getSelectedNodes(), true);
@@ -355,7 +342,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	removeFromFavouritesMenuItem.setText("Remove from Favourites List");
 	removeFromFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilFavourites.getSingleInstance().toggleFavouritesList(((ArbilTree) getInvoker()).getSelectedNodes(), false);
@@ -371,7 +357,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	validateMenuItem.setText("Check XML Conformance");
 	validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    validateMenuItemActionPerformed(evt);
@@ -384,7 +369,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	historyMenu.setText("History");
 	historyMenu.addMenuListener(new javax.swing.event.MenuListener() {
-
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
 
@@ -405,7 +389,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 	addRemoteCorpusMenuItem.setText("Add Remote Location");
 
 	addRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    addRemoteCorpusMenuItemActionPerformed(evt);
@@ -419,7 +402,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	addDefaultLocationsMenuItem.setText("Add Default Remote Locations");
 	addDefaultLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    addDefaultLocationsMenuItemActionPerformed(evt);
@@ -432,7 +414,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	removeRemoteCorpusMenuItem.setText("Remove Remote Location");
 	removeRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode selectedNode : selectedTreeNodes) {
@@ -448,7 +429,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	removeCachedCopyMenuItem.setText("Remove Cache Link");
 	removeCachedCopyMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    removeCachedCopyMenuItemActionPerformed(evt);
@@ -462,7 +442,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 	addLocalDirectoryMenuItem.setText("Add Working Directory");
 
 	addLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    addLocalDirectoryMenuItemActionPerformed(evt);
@@ -476,7 +455,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	showHiddenFilesMenuItem.setText("Show Hidden Files");
 	showHiddenFilesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilTreeHelper.getSingleInstance().setShowHiddenFilesInTree(showHiddenFilesMenuItem.getState());
@@ -489,7 +467,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	removeLocalDirectoryMenuItem.setText("Remove Link to Directory");
 	removeLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    for (ArbilDataNode selectedNode : selectedTreeNodes) {
@@ -537,7 +514,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	exportMenuItem.setText("Export");
 	exportMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().remoteCorpusTree);
@@ -551,7 +527,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	importCsvMenuItem.setText("Import CSV");
 	importCsvMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilCsvImporter csvImporter = new ArbilCsvImporter(leadSelectedTreeNode);
@@ -565,7 +540,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	importBranchMenuItem.setText("Import Branch");
 	importBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
@@ -586,17 +560,15 @@ public class TreeContextMenu extends ArbilContextMenu {
 		reImportBranchMenuItem.setText("Re-Import this Branch");
 	    }
 	    reImportBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    reImportBranch();
 		}
 	    });
 	    addItem(CATEGORY_IMPORT, PRIORITY_MIDDLE, reImportBranchMenuItem);
 	}
-	
+
 	setManualResourceLocationMenuItem.setText("Insert Manual Resource Location");
 	setManualResourceLocationMenuItem.addActionListener(new ActionListener() {
-
 	    public void actionPerformed(ActionEvent e) {
 		String initialValue;
 		if (leadSelectedTreeNode.hasLocalResource()) {
@@ -604,17 +576,39 @@ public class TreeContextMenu extends ArbilContextMenu {
 		} else {
 		    initialValue = "";
 		}
-		String manualLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the resource URI:", "Manual resource location", JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
+		final String manualLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the resource URI:", "Manual resource location", JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
 		if (manualLocation != null) { // Not canceled
 		    try {
-			URI locationURI = new URI(manualLocation);
-			leadSelectedTreeNode.insertResourceLocation(locationURI);
+			final URI locationURI = new URI(manualLocation);
+			if (checkResourceLocation(locationURI)) {
+			    leadSelectedTreeNode.insertResourceLocation(locationURI);
+			}
 		    } catch (URISyntaxException ex) {
 			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The URI entered as a resource location is invalid. Please check the location and try again.", "Invalid URI");
 		    } catch (ArbilMetadataException ex) {
 			GuiHelper.linorgBugCatcher.logError(ex);
 			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add resource to the metadata. Check the error log for details.", "Error adding resource");
 		    }
+		}
+	    }
+
+	    private boolean checkResourceLocation(final URI locationURI) {
+		if (locationURI.isAbsolute()) {
+		    try {
+			// See if creating a file out of the URI does not cause any issues
+			final File file = ArbilDataNode.getFile(locationURI);
+			if (file != null && !file.exists()) {
+			    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Warning: no file exists at the specified location!", "Manual resource location");
+			}
+			return true;
+		    } catch (IllegalArgumentException ex) {
+			GuiHelper.linorgBugCatcher.logError(ex);
+			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Illegal file name. Check the error log for details.", "Error adding resource");
+			return false;
+		    }
+		} else {
+		    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Location should be an absolute URI. This means it should start with a scheme, for example \"http://\" or \"file://\".", "Error adding resource");
+		    return false;
 		}
 	    }
 	});
@@ -710,7 +704,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    addMenuItem.setToolTipText(currentAddable.menuToolTip);
 		    addMenuItem.setIcon(currentAddable.menuIcon);
 		    addMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 			    try {
 				if (leadSelectedTreeNode != null) {
@@ -755,7 +748,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 		if (mdBuilder.canAddChildNode((ArbilDataNode) targetNodeUserObject, nodeType)) {
 
 		    addMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 			    try {
 				if (leadSelectedTreeNode != null) {
@@ -792,7 +784,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    revertHistoryMenuItem.setName(currentHistory[0]);
 	    revertHistoryMenuItem.setActionCommand(currentHistory[1]);
 	    revertHistoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    try {
 			if (!leadSelectedTreeNode.resurrectHistory(evt.getActionCommand())) {
@@ -825,7 +816,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    addFavouriteMenuItem.setName(currentField[0]);
 	    addFavouriteMenuItem.setActionCommand(currentField[1]);
 	    addFavouriteMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    try {
 			String favouriteUrlString = evt.getActionCommand();
