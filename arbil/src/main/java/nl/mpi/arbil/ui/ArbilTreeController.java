@@ -85,6 +85,7 @@ public class ArbilTreeController {
     }
 
     public void setManualResourceLocation(ArbilDataNode leadSelectedTreeNode) throws HeadlessException {
+
 	String initialValue;
 	if (leadSelectedTreeNode.hasLocalResource()) {
 	    initialValue = leadSelectedTreeNode.resourceUrlField.getFieldValue();
@@ -94,14 +95,36 @@ public class ArbilTreeController {
 	String manualLocation = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the resource URI:", "Manual resource location", JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
 	if (manualLocation != null) { // Not canceled
 	    try {
-		URI locationURI = new URI(manualLocation);
-		leadSelectedTreeNode.insertResourceLocation(locationURI);
+		final URI locationURI = new URI(manualLocation);
+		if (checkResourceLocation(locationURI)) {
+		    leadSelectedTreeNode.insertResourceLocation(locationURI);
+		}
 	    } catch (URISyntaxException ex) {
 		dialogHandler.addMessageDialogToQueue("The URI entered as a resource location is invalid. Please check the location and try again.", "Invalid URI");
 	    } catch (ArbilMetadataException ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
 		dialogHandler.addMessageDialogToQueue("Could not add resource to the metadata. Check the error log for details.", "Error adding resource");
 	    }
+	}
+    }
+
+    private boolean checkResourceLocation(final URI locationURI) {
+	if (locationURI.isAbsolute()) {
+	    try {
+		// See if creating a file out of the URI does not cause any issues
+		final File file = ArbilDataNode.getFile(locationURI);
+		if (file != null && !file.exists()) {
+		    dialogHandler.addMessageDialogToQueue("Warning: no file exists at the specified location!", "Manual resource location");
+		}
+		return true;
+	    } catch (IllegalArgumentException ex) {
+		BugCatcherManager.getBugCatcher().logError(ex);
+		dialogHandler.addMessageDialogToQueue("Illegal file name. Check the error log for details.", "Error adding resource");
+		return false;
+	    }
+	} else {
+	    dialogHandler.addMessageDialogToQueue("Location should be an absolute URI. This means it should start with a scheme, for example \"http://\" or \"file://\".", "Error adding resource");
+	    return false;
 	}
     }
 

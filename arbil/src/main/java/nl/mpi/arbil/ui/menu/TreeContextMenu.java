@@ -420,7 +420,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 
 	addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE, addRemoteCorpusToRootMenuItem);
-
 	addDefaultLocationsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD DEFAULT REMOTE LOCATIONS"));
 	addDefaultLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -466,7 +465,6 @@ public class TreeContextMenu extends ArbilContextMenu {
 //	addItem(CATEGORY_DISK, PRIORITY_BOTTOM + 5, removeCachedCopyMenuItem);
 
 	addLocalDirectoryMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD WORKING DIRECTORY"));
-
 	addLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
