@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
@@ -21,17 +21,18 @@ import java.util.Enumeration;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Document   : ArbilFieldViewTableModel
+ * Document : ArbilFieldViewTableModel
  * This table model is used to edit the field view for a given imdi table model
  * Split from ImdiFieldViews on : Dec 16, 2008, 10:27:30 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFieldViewTableModel extends DefaultTableModel {
 
-    private ArbilTableModel imdiTableModel;
+    private final ArbilTableModel imdiTableModel;
 
-    public ArbilFieldViewTableModel(ArbilTableModel localImdiTableModel) {
-	imdiTableModel = localImdiTableModel;
+    public ArbilFieldViewTableModel(ArbilTableModel imdiTableModel) {
+	this.imdiTableModel = imdiTableModel;
 	//System.out.println("setting to: " + viewLabel);
 	// "Column Description",  is not relevant here because this is a list of column names not imdi fields
 	setColumnIdentifiers(new String[]{"Column Name", "Show Only", "Hide", "Column width"}); //, "Always Display"
@@ -39,16 +40,16 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 	ArbilFieldView currentView = imdiTableModel.getFieldView();
 	if (currentView != null) {
 	    // loop the known columns
-	    for (Enumeration knownColumnNames = ((ArbilFieldView) currentView).getKnownColumns(); knownColumnNames.hasMoreElements();) {
+	    for (Enumeration knownColumnNames = currentView.getKnownColumns(); knownColumnNames.hasMoreElements();) {
 		String currentFieldName = knownColumnNames.nextElement().toString();
 		this.addRow(new Object[]{currentFieldName,
 			    //GuiHelper.imdiSchema.getHelpForField(currentFieldName),
 			    // set the show only fields
-			    ((ArbilFieldView) currentView).isShowOnlyColumn(currentFieldName),
+			    currentView.isShowOnlyColumn(currentFieldName),
 			    // set the hidden fields
-			    ((ArbilFieldView) currentView).isHiddenColumn(currentFieldName),
+			    currentView.isHiddenColumn(currentFieldName),
 			    // set width
-			    widthToString(((ArbilFieldView) currentView).getColumnWidth(currentFieldName))
+			    widthToString(currentView.getColumnWidth(currentFieldName))
 			//,
 			// set alays show fields
 			//((LinorgFieldView) currentView).isAlwaysShowColumn(currentFieldName)
