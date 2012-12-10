@@ -24,7 +24,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <output.jarname>${project.build.finalName}</output.jarname>
         <output.directory>${project.build.directory}</output.directory>
-        <netbeans.hint.license>gpl20</netbeans.hint.license>
+        <netbeans.hint.license>gpl20</netbeans.hint.license>  
+        <maven.build.timestamp.format>EEE MMM dd HH:mm:ss z yyyy</maven.build.timestamp.format><!--"Mon Dec 10 14:37:33 CET 2012"-->
+        <application.build-date>${maven.build.timestamp}</application.build-date>                  
     </properties>
     
     <build>
@@ -154,21 +156,6 @@
 		</configuration>
 	    </plugin>
 	    <plugin>
-		<groupId>com.keyboardsamurais.maven</groupId>
-		<artifactId>maven-timestamp-plugin</artifactId>
-		<configuration>
-		    <propertyName>arbil.build-date</propertyName>
-		    <timestampPattern>EEE MMM dd HH:mm:ss z yyyy</timestampPattern> //"Mon Jan 16 10:25:00 CET 2012";
-		</configuration>
-		<executions>
-		    <execution>
-			<goals>
-			    <goal>create</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin> 
-	    <plugin>
 		<!-- 
 		    License plugin checks for presence of license header in all source files (with some exceptions, see excludes below).
 		    You can use this plugin to actually insert or fix the license headers by running maven with the following goal:
@@ -177,43 +164,43 @@
 
               		    For more info, see <http://mathieu.carbou.free.fr/p/maven-license-plugin/>.
               		-->
-		<groupId>com.mycila.maven-license-plugin</groupId>
-		<artifactId>maven-license-plugin</artifactId>
-		<version>1.9.0</version> 
-		<configuration>
-		    <header>${project.parent.basedir}/license-header.txt</header>
-		    <strictCheck>false</strictCheck>
-		    <properties>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version> 
+                <configuration>
+                    <header>${project.parent.basedir}/license-header.txt</header>
+                    <strictCheck>false</strictCheck>
+                    <properties>
                         <year>${arbil.license.copyrightYear}</year>
-			<organization>${project.organization.name}</organization>
-		    </properties>
-		    <mapping>
-			<svg>XML_STYLE</svg>
-			<imdi>XML_STYLE</imdi>
-			<cmdi>XML_STYLE</cmdi>
-		    </mapping>
-		    <excludes>
-			<exclude>**/*.txt</exclude>
-			<exclude>**/*.icns</exclude>
-			<exclude>**/*.php</exclude>
-			<exclude>installer/**</exclude>
-			<exclude>nbactions.xml</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/resources/templates/**</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/resources/xsd/http/**</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/resources/html/license/**</exclude>
-		    </excludes>
-		</configuration>
-		<executions>
-		    <execution>
-			<goals>
-			    <goal>check</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin>
-	</plugins>
+                        <organization>${project.organization.name}</organization>
+                    </properties>
+                    <mapping>
+                        <svg>XML_STYLE</svg>
+                        <imdi>XML_STYLE</imdi>
+                        <cmdi>XML_STYLE</cmdi>
+                    </mapping>
+                    <excludes>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.icns</exclude>
+                        <exclude>**/*.php</exclude>
+                        <exclude>installer/**</exclude>
+                        <exclude>nbactions.xml</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/templates/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/xsd/http/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/html/license/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
     <dependencies>
         <dependency>
@@ -299,10 +286,4 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>    
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven-timestamp</id>
-            <url>http://maven-timestamp-plugin.googlecode.com/svn/trunk/repository</url>
-        </pluginRepository>
-    </pluginRepositories>  
 </project>
