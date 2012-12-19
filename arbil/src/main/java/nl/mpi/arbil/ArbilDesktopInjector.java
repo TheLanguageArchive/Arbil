@@ -28,6 +28,7 @@ import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbilcommons.journal.ArbilJournal;
 
 /**
  * Takes care of injecting certain class instances into objects or classes.
@@ -60,6 +61,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
 	BugCatcherManager.setBugCatcher(new ArbilBugCatcher(sessionStorage, versionManager));
 
+        ArbilJournal.setBugCatcher(BugCatcherManager.getBugCatcher());
 	windowManager = new ArbilWindowManager();
 	windowManager.setSessionStorage(sessionStorage);
 	windowManager.setVersionManager(versionManager);

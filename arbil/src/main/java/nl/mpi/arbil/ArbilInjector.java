@@ -26,7 +26,6 @@ import nl.mpi.arbil.data.ArbilDataNodeArrayTableCell;
 import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.FieldChangeTriggers;
@@ -43,7 +42,6 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.ArbilFieldPlaceHolder;
 import nl.mpi.arbil.ui.ArbilHyperlinkListener;
 import nl.mpi.arbil.ui.ArbilTableModel;
-import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.RemoteLocationsContent;
@@ -53,6 +51,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.XsdChecker;
+import nl.mpi.arbilcommons.journal.ArbilJournal;
 
 /**
  * Takes care of injecting certain class instances into objects or classes.

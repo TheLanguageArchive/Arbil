@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.plugin.PluginField;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbilcommons.journal.ArbilJournal;
 
 /**
  * Document : ArbilField
@@ -32,7 +34,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  *
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilField implements Serializable {
+public class ArbilField implements Serializable, PluginField {
 
     private transient ArbilDataNode parentDataNode;
     private URI parentDataNodeURI;

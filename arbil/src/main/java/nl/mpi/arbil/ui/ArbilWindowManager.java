@@ -80,7 +80,7 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilJournal;
+import nl.mpi.arbilcommons.journal.ArbilJournal;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
