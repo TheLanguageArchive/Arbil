@@ -217,7 +217,7 @@ public class ArbilTemplate {
     public int getMaxOccursForTemplate(String templatPath) {
 	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
 	String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "(x)");
-	cmdiNodePath = cmdiNodePath.replaceAll("\\(x\\)$", "");
+	cmdiNodePath = cmdiNodePath.replaceAll("\\(x\\)", "");
 	String imdiNodePath = cmdiNodePath.substring(1) + ".xml";
 	for (String[] pathString : templatesArray) {
 	    if (pathString[0].equals((cmdiNodePath)) || pathString[0].equals(imdiNodePath)) {

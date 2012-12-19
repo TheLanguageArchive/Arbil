@@ -31,7 +31,7 @@ import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.FieldChangeTriggers;
@@ -145,7 +145,7 @@ public abstract class ArbilInjector {
 	ArbilTree.setBugCatcher(bugCatcher);
 	AbstractTreeHelper.setBugCatcher(bugCatcher);
 	ApplicationVersionManager.setBugCatcher(bugCatcher);
-	ArbilVocabularies.setBugCatcher(bugCatcher);
+	IMDIVocabularies.setBugCatcher(bugCatcher);
 	BinaryMetadataReader.setBugCatcher(bugCatcher);
 	CmdiComponentLinkReader.setBugCatcher(bugCatcher);
 	CmdiProfileReader.setBugCatcher(bugCatcher);
@@ -181,7 +181,7 @@ public abstract class ArbilInjector {
 	AbstractTreeHelper.setMessageDialogHandler(messageDialogHandler);
 	ArbilTreeHelper.setMessageDialogHandler(messageDialogHandler);
 	ApplicationVersionManager.setMessageDialogHandler(messageDialogHandler);
-	ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);
+	IMDIVocabularies.setMessageDialogHandler(messageDialogHandler);
 	CmdiTemplate.setMessageDialogHandler(messageDialogHandler);
 	FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
 	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
@@ -193,7 +193,7 @@ public abstract class ArbilInjector {
 	// Inject window manager
 	ArbilBugCatcher.setWindowManager(windowManager);
 	ArbilTree.setWindowManager(windowManager);
-	ArbilVocabularies.setWindowManager(windowManager);
+	IMDIVocabularies.setWindowManager(windowManager);
 	MetadataBuilder.setWindowManager(windowManager);
     }
 
@@ -203,7 +203,7 @@ public abstract class ArbilInjector {
 	ArbilEntityResolver.setSessionStorage(sessionStorage);
 	ArbilField.setSessionStorage(sessionStorage);
 	ArbilJournal.setSessionStorage(sessionStorage);
-	ArbilVocabularies.setSessionStorage(sessionStorage);
+	IMDIVocabularies.setSessionStorage(sessionStorage);
 	MetadataBuilder.setSessionStorage(sessionStorage);
 	MetadataReader.setSessionStorage(sessionStorage);
 	CmdiProfileReader.setSessionStorage(sessionStorage);

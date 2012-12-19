@@ -27,9 +27,9 @@ import java.util.Hashtable;
 import javax.swing.ProgressMonitor;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 import org.xml.sax.InputSource;
@@ -40,7 +40,7 @@ import org.xml.sax.XMLReader;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilVocabularies {
+public class IMDIVocabularies {
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -76,16 +76,16 @@ public class ArbilVocabularies {
 //        System.out.println("DescriptionEntries: "+cv.getDescriptionEntries());
 //        System.out.println("Entries: "+cv.getEntries());      
 //    }
-    static private ArbilVocabularies singleInstance = null;
+    static private IMDIVocabularies singleInstance = null;
 
-    static synchronized public ArbilVocabularies getSingleInstance() {
+    static synchronized public IMDIVocabularies getSingleInstance() {
 	if (singleInstance == null) {
-	    singleInstance = new ArbilVocabularies();
+	    singleInstance = new IMDIVocabularies();
 	}
 	return singleInstance;
     }
 
-    private ArbilVocabularies() {
+    private IMDIVocabularies() {
     }
 
     public boolean vocabularyContains(String vocabularyLocation, String valueString) {
@@ -178,19 +178,6 @@ public class ArbilVocabularies {
 	} else {
 	    if (!vocabulariesTable.containsKey(vocabularyLocation)) {
 		parseRemoteFile(vocabularyLocation);
-	    }
-	    return vocabulariesTable.get(vocabularyLocation);
-	}
-    }
-
-    public ArbilVocabulary getEmptyVocabulary(String vocabularyLocation) {
-	if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
-	    return null;
-	} else {
-	    if (!vocabulariesTable.containsKey(vocabularyLocation)) {
-		ArbilVocabulary vocabulary = new ArbilVocabulary(vocabularyLocation);
-		vocabulariesTable.put(vocabularyLocation, vocabulary);
-		return vocabulary;
 	    }
 	    return vocabulariesTable.get(vocabularyLocation);
 	}
