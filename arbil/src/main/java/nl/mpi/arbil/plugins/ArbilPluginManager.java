@@ -54,7 +54,9 @@ public class ArbilPluginManager implements PluginManager {
         boolean pluginActivated = false;
         if (kinOathPlugin instanceof JournalWatcherPlugin) {
             try {
-                ((JournalWatcherPlugin) kinOathPlugin).setPluginJournal(ArbilJournal.getSingleInstance());
+                final ArbilJournal arbilJournal = ArbilJournal.getSingleInstance();
+                arbilJournal.addJounalWatcher((JournalWatcherPlugin) kinOathPlugin);
+                ((JournalWatcherPlugin) kinOathPlugin).initJournalWatcher(arbilJournal);
             } catch (PluginException exception) {
                 dialogHandler.addMessageDialogToQueue("Failed to pass the journal to the requested plugin.\n" + exception.getMessage() + "\n" + kinOathPlugin.getName() + "\n" + kinOathPlugin.getMajorVersionNumber() + "." + kinOathPlugin.getMinorVersionNumber() + "." + kinOathPlugin.getBuildVersionNumber() + "\n" + kinOathPlugin.getDescription(), "Journal Plugin Error");
             }
