@@ -279,7 +279,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-commons</artifactId>
-            <version>2.5.34911-pretesting</version>
+            <version>2.5-pretesting-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
