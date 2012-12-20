@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -36,8 +36,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 /**
- * Document   : ArbilVocabularies
- * Created on : 
+ * Document : ArbilVocabularies
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class IMDIVocabularies {
@@ -102,7 +103,6 @@ public class IMDIVocabularies {
 
     public void redownloadCurrentlyLoadedVocabularies() {
 	new Thread() {
-
 	    @Override
 	    public void run() {
 		int succeededCount = 0;
@@ -178,8 +178,20 @@ public class IMDIVocabularies {
 	} else {
 	    if (!vocabulariesTable.containsKey(vocabularyLocation)) {
 		parseRemoteFile(vocabularyLocation);
+		setLanguageFilter(vocabulariesTable.get(vocabularyLocation), originatingArbilField, vocabularyLocation);
 	    }
 	    return vocabulariesTable.get(vocabularyLocation);
+	}
+    }
+
+    private void setLanguageFilter(final ArbilVocabulary vocabulary, final ArbilField originatingArbilField, final String vocabularyLocation) {
+	if (vocabulary != null && originatingArbilField != null) {
+	    DocumentationLanguages documentationLanguages = originatingArbilField.getParentDataNode().getNodeTemplate().getDocumentationLanguages();
+	    if (documentationLanguages instanceof ImdiDocumentationLanguages) {
+		if (vocabularyLocation.equals(((ImdiDocumentationLanguages) documentationLanguages).getLanguageVocabularyUrlForImdi())) {
+		    vocabulary.setFilter((ImdiDocumentationLanguages) documentationLanguages);
+		}
+	    }
 	}
     }
 
