@@ -16,9 +16,9 @@
     <name>Arbil Commons</name>
     <url>http://maven.apache.org</url>
     <properties>     
-        <arbil-commons.majorVersion>0</arbil-commons.majorVersion> 
-        <arbil-commons.minorVersion>2</arbil-commons.minorVersion> 
-        <arbil-commons.branch>pretesting</arbil-commons.branch>  
+        <arbil-commons.majorVersion>${arbil.majorVersion}</arbil-commons.majorVersion> 
+        <arbil-commons.minorVersion>${arbil.minorVersion}</arbil-commons.minorVersion> 
+        <arbil-commons.branch>${arbil.branch}</arbil-commons.branch>  
         <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
         <arbil-commons.license.copyrightYear>2012</arbil-commons.license.copyrightYear>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
