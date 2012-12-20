@@ -185,6 +185,7 @@
                         <exclude>**/*.php</exclude>
                         <exclude>installer/**</exclude>
                         <exclude>nbactions.xml</exclude>
+                        <exclude>nb-configuration.xml</exclude>
                         <exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
                         <exclude>src/main/resources/nl/mpi/arbil/resources/templates/**</exclude>
                         <exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
@@ -268,7 +269,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>pluginloader</artifactId>
-            <version>0.1.34202-pretesting</version>
+            <version>1.1.34202-pretesting</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
@@ -278,7 +279,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-commons</artifactId>
-            <version>0.2.34218-pretesting</version>
+            <version>2.5.34903-pretesting</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>

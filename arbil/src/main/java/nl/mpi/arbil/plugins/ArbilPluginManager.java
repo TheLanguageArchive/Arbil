@@ -20,11 +20,13 @@ package nl.mpi.arbil.plugins;
 import java.util.HashSet;
 import nl.mpi.arbil.plugin.ActivatablePlugin;
 import nl.mpi.arbil.plugin.ArbilWindowPlugin;
+import nl.mpi.arbil.plugin.JournalWatcherPlugin;
 import nl.mpi.arbil.plugin.PluginArbilDataNodeLoader;
 import nl.mpi.arbil.plugin.PluginException;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbilcommons.journal.ArbilJournal;
 import nl.mpi.kinnate.plugin.BasePlugin;
 import nl.mpi.pluginloader.PluginManager;
 
@@ -50,6 +52,13 @@ public class ArbilPluginManager implements PluginManager {
 
     public void activatePlugin(BasePlugin kinOathPlugin) {
         boolean pluginActivated = false;
+        if (kinOathPlugin instanceof JournalWatcherPlugin) {
+            try {
+                ((JournalWatcherPlugin) kinOathPlugin).setPluginJournal(ArbilJournal.getSingleInstance());
+            } catch (PluginException exception) {
+                dialogHandler.addMessageDialogToQueue("Failed to pass the journal to the requested plugin.\n" + exception.getMessage() + "\n" + kinOathPlugin.getName() + "\n" + kinOathPlugin.getMajorVersionNumber() + "." + kinOathPlugin.getMinorVersionNumber() + "." + kinOathPlugin.getBuildVersionNumber() + "\n" + kinOathPlugin.getDescription(), "Journal Plugin Error");
+            }
+        }
         if (kinOathPlugin instanceof ActivatablePlugin) {
             try {
                 ((ActivatablePlugin) kinOathPlugin).activatePlugin(dialogHandler, arbilSessionStorage);
