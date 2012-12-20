@@ -51,7 +51,7 @@ import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilEntityResolver;
-import nl.mpi.arbil.data.IMDIVocabularies;
+import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.data.CmdiDocumentationLanguages;
 import nl.mpi.arbil.templates.ArbilTemplate;
@@ -610,7 +610,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	XmlAnySimpleType[] enumerationValues = schemaType.getEnumerationValues();
 
 	if (enumerationValues != null && enumerationValues.length > 0) {
-	    ArbilVocabulary vocabulary = new ArbilVocabulary(nameSpaceString + "#" + schemaType.getName());
+	    ArbilVocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
 
 	    HashMap<String, String> descriptions = null;
 	    try {

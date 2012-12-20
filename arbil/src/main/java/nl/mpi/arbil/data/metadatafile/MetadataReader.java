@@ -8,21 +8,25 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 package nl.mpi.arbil.data.metadatafile;
 
+import java.io.UnsupportedEncodingException;
+import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.templates.ArbilTemplate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,33 +43,24 @@ import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
-import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
-import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.data.IMDIVocabularies;
-import nl.mpi.arbil.templates.ArbilTemplate;
-import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 /**
- * Document : MetadataReader
+ * Document   : MetadataReader
  * Created on :
- *
  * @author Peter.Withers@mpi.nl
  */
 public class MetadataReader {
@@ -276,7 +271,7 @@ public class MetadataReader {
 	    if (formatType[2].equals(mimeType)) {
 		System.out.println("UsingOverrideNodeType: " + formatType[1]);
 		return formatType[1];
-	    } else if (IMDIVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
+	    } else if (ArbilVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
 		System.out.println("NodeType: " + formatType[1]);
 		//                    if (mimeType.equals("image/jpeg")) {
 		return formatType[1];
@@ -583,7 +578,6 @@ public class MetadataReader {
      * each end node becomes a field;
      * any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode;
      * the id of the node that passes pathIsChildNode is stored in the subnode to allow for deletion from the dom if needed
-     *
      * @param parentNode
      * @param childLinks
      * @param startNode
@@ -592,7 +586,7 @@ public class MetadataReader {
      * @param parentChildTree
      * @param siblingNodePathCounter
      * @param nodeOrderCounter
-     * @return
+     * @return 
      */
     public int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
 	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
@@ -694,7 +688,7 @@ public class MetadataReader {
     }
 
     /**
-     * Updates counters and enters recursive iteration for child nodes.
+     * Updates counters and enters recursive iteration for child nodes. 
      * Also adds referenced resources to the tree
      */
     private int enterChildNodesRecursion(ArbilDataNode parentNode, Vector<String[]> childLinks, Node childNode, NamedNodeMap childNodeAttributes,
@@ -790,17 +784,12 @@ public class MetadataReader {
 	String keyName = null;
 	String languageId = null;
 	if (childNodeAttributes != null) {
-	    // IMDI only...
 	    cvType = getNamedAttributeValue(childNodeAttributes, "Type");
-	    // IMDI only...
 	    cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
-	    // IMDI only...
 	    languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
 	    if (languageId == null) {
-		// CMDI and generic XML
 		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
 	    }
-	    // IMDI only...
 	    keyName = getNamedAttributeValue(childNodeAttributes, "Name");
 	}
 
@@ -911,7 +900,6 @@ public class MetadataReader {
 
     /**
      * Add all unreferenced resources in a document to the parent node
-     *
      * @param parentNode Parent node, to which resources will be added
      * @param parentChildTree Parent-child tree that is constructed
      * @param childLinks Child links collection that is constructed
@@ -982,10 +970,10 @@ public class MetadataReader {
 		// this method also assumes that the xsd url is fully resolved
 		parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
 		/*
-		 // TODO: pass the resource node to a class to handle the resources
-		 childNode = childNode.getAttributes().getNamedItem("Components");
-		 nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
-		 break;
+		// TODO: pass the resource node to a class to handle the resources
+		childNode = childNode.getAttributes().getNamedItem("Components");
+		nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
+		break;
 		 */
 	    } catch (Exception exception) {
 		bugCatcher.logError(exception);

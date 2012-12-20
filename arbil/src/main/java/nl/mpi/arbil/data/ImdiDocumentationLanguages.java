@@ -55,7 +55,7 @@ public class ImdiDocumentationLanguages extends DocumentationLanguages implement
     }
 
     public synchronized List<ArbilVocabularyItem> getAllLanguages() {
-	return IMDIVocabularies.getSingleInstance().getVocabulary(null, getLanguageVocabularyUrlForImdi()).getVocabularyItemsUnfiltered();
+	return ArbilVocabularies.getSingleInstance().getVocabulary(null, getLanguageVocabularyUrlForImdi()).getVocabularyItemsUnfiltered();
     }
 
     public List<ArbilVocabularyItem> getSortedLanguageListSubset() {

@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -23,8 +23,10 @@ import java.util.Vector;
 
 public class ArbilVocabulary implements Serializable {
 
-    private final Vector<ArbilVocabularyItem> vocabularyItems = new Vector<ArbilVocabularyItem>();
-    private final String vocabularyUrl;
+    private Vector<ArbilVocabularyItem> vocabularyItems = new Vector<ArbilVocabularyItem>();
+//        this VocabularyRedirect code has been replaced by the templates
+//        public String vocabularyRedirectField = null; // the sibling imdi field that changes this vocabularies location
+    private String vocabularyUrl = null;
 
     public ArbilVocabulary(String locationUrl) {
 	vocabularyUrl = locationUrl;
