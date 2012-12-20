@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -27,25 +27,32 @@ import java.util.Hashtable;
 import javax.swing.ProgressMonitor;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 /**
- * Document   : ArbilVocabularies
- * Created on : 
+ * Document : ArbilVocabularies
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilVocabularies {
+public class IMDIVocabularies {
 
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
+    }
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+	bugCatcher = bugCatcherInstance;
     }
     private static WindowManager windowManager;
 
@@ -71,16 +78,16 @@ public class ArbilVocabularies {
 //        System.out.println("DescriptionEntries: "+cv.getDescriptionEntries());
 //        System.out.println("Entries: "+cv.getEntries());      
 //    }
-    static private ArbilVocabularies singleInstance = null;
+    static private IMDIVocabularies singleInstance = null;
 
-    static synchronized public ArbilVocabularies getSingleInstance() {
+    static synchronized public IMDIVocabularies getSingleInstance() {
 	if (singleInstance == null) {
-	    singleInstance = new ArbilVocabularies();
+	    singleInstance = new IMDIVocabularies();
 	}
 	return singleInstance;
     }
 
-    private ArbilVocabularies() {
+    private IMDIVocabularies() {
     }
 
     public boolean vocabularyContains(String vocabularyLocation, String valueString) {
@@ -97,7 +104,6 @@ public class ArbilVocabularies {
 
     public void redownloadCurrentlyLoadedVocabularies() {
 	new Thread() {
-
 	    @Override
 	    public void run() {
 		int succeededCount = 0;
@@ -173,21 +179,20 @@ public class ArbilVocabularies {
 	} else {
 	    if (!vocabulariesTable.containsKey(vocabularyLocation)) {
 		parseRemoteFile(vocabularyLocation);
+		setLanguageFilter(vocabulariesTable.get(vocabularyLocation), originatingArbilField, vocabularyLocation);
 	    }
 	    return vocabulariesTable.get(vocabularyLocation);
 	}
     }
 
-    public ArbilVocabulary getEmptyVocabulary(String vocabularyLocation) {
-	if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
-	    return null;
-	} else {
-	    if (!vocabulariesTable.containsKey(vocabularyLocation)) {
-		ArbilVocabulary vocabulary = new ArbilVocabulary(vocabularyLocation);
-		vocabulariesTable.put(vocabularyLocation, vocabulary);
-		return vocabulary;
+    private void setLanguageFilter(final ArbilVocabulary vocabulary, final ArbilField originatingArbilField, final String vocabularyLocation) {
+	if (vocabulary != null && originatingArbilField != null) {
+	    DocumentationLanguages documentationLanguages = originatingArbilField.getParentDataNode().getNodeTemplate().getDocumentationLanguages();
+	    if (documentationLanguages instanceof ImdiDocumentationLanguages) {
+		if (vocabularyLocation.equals(((ImdiDocumentationLanguages) documentationLanguages).getLanguageVocabularyUrlForImdi())) {
+		    vocabulary.setFilter((ImdiDocumentationLanguages) documentationLanguages);
+		}
 	    }
-	    return vocabulariesTable.get(vocabularyLocation);
 	}
     }
 
@@ -272,7 +277,7 @@ public class ArbilVocabularies {
 		    currentVocabItem = new ArbilVocabularyItem(vocabName, vocabCode, followUpVocab);
 		    collectedVocab.getVocabularyItemsUnfiltered().add(currentVocabItem);
 		} else {
-		    BugCatcherManager.getBugCatcher().logError(new Exception("Vocabulary item has no name in " + collectedVocab.getVocabularyUrl()));
+		    bugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.getVocabularyUrl()));
 		}
 	    }
 	}

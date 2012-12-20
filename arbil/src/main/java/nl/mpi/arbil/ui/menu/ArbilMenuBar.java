@@ -41,7 +41,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.plugins.ArbilPluginManager;
@@ -517,7 +517,7 @@ public class ArbilMenuBar extends JMenuBar {
 	updateAllLoadedVocabulariesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RE-DOWNLOAD CURRENT VOCABULARIES"));
 	updateAllLoadedVocabulariesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		ArbilVocabularies.getSingleInstance().redownloadCurrentlyLoadedVocabularies();
+		IMDIVocabularies.getSingleInstance().redownloadCurrentlyLoadedVocabularies();
 	    }
 	});
 	optionsMenu.add(updateAllLoadedVocabulariesMenuItem);

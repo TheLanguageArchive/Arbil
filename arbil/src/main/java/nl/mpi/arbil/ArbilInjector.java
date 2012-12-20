@@ -26,9 +26,9 @@ import nl.mpi.arbil.data.ArbilDataNodeArrayTableCell;
 import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.FieldChangeTriggers;
+import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
@@ -118,7 +118,7 @@ public abstract class ArbilInjector {
 	ArbilTemplate.setMessageDialogHandler(messageDialogHandler);
 	ArbilToHtmlConverter.setMessageDialogHandler(messageDialogHandler);
 	ApplicationVersionManager.setMessageDialogHandler(messageDialogHandler);
-	ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);
+	IMDIVocabularies.setMessageDialogHandler(messageDialogHandler);
 	CmdiTemplate.setMessageDialogHandler(messageDialogHandler);
 	FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
 	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
@@ -128,7 +128,7 @@ public abstract class ArbilInjector {
     }
 
     public void injectWindowManager(WindowManager windowManager) {
-	ArbilVocabularies.setWindowManager(windowManager);
+	IMDIVocabularies.setWindowManager(windowManager);
 	MetadataBuilder.setWindowManager(windowManager);
     }
 
@@ -137,7 +137,7 @@ public abstract class ArbilInjector {
 	ArbilEntityResolver.setSessionStorage(sessionStorage);
 	ArbilField.setSessionStorage(sessionStorage);
 	ArbilJournal.setSessionStorage(sessionStorage);
-	ArbilVocabularies.setSessionStorage(sessionStorage);
+	IMDIVocabularies.setSessionStorage(sessionStorage);
 	MetadataBuilder.setSessionStorage(sessionStorage);
 	MetadataReader.setSessionStorage(sessionStorage);
 	CmdiProfileReader.setSessionStorage(sessionStorage);

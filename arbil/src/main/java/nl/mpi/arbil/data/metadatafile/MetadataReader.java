@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data.metadatafile;
 
@@ -47,8 +47,8 @@ import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeService;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -56,7 +56,11 @@ import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import org.w3c.dom.*;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -268,7 +272,7 @@ public class MetadataReader {
 	    if (formatType[2].equals(mimeType)) {
 		System.out.println("UsingOverrideNodeType: " + formatType[1]);
 		return formatType[1];
-	    } else if (ArbilVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
+	    } else if (IMDIVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
 		System.out.println("NodeType: " + formatType[1]);
 		//                    if (mimeType.equals("image/jpeg")) {
 		return formatType[1];
@@ -800,12 +804,17 @@ public class MetadataReader {
 	String keyName = null;
 	String languageId = null;
 	if (childNodeAttributes != null) {
+	    // IMDI only...
 	    cvType = getNamedAttributeValue(childNodeAttributes, "Type");
+	    // IMDI only...
 	    cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
+	    // IMDI only...
 	    languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
 	    if (languageId == null) {
+		// CMDI and generic XML
 		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
 	    }
+	    // IMDI only...
 	    keyName = getNamedAttributeValue(childNodeAttributes, "Name");
 	}
 

@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -430,13 +430,7 @@ public class ArbilField implements Serializable, PluginField {
     public void loadVocabulary() {
 	if (hasVocabularyType) {
 	    if (cvUrlString != null && cvUrlString.length() > 0) {
-		fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
-		DocumentationLanguages documentationLanguages = getParentDataNode().getNodeTemplate().getDocumentationLanguages();
-		if (documentationLanguages instanceof ImdiDocumentationLanguages) {
-		    if (cvUrlString.equals(((ImdiDocumentationLanguages) documentationLanguages).getLanguageVocabularyUrlForImdi())) {
-			fieldVocabulary.setFilter((ImdiDocumentationLanguages) documentationLanguages);
-		    }
-		}
+		fieldVocabulary = IMDIVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
 	    }
 	} else {
 	    // vocabularies specified in the xml override vocabularies defined in the schema
