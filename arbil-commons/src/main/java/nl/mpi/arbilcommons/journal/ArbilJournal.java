@@ -18,13 +18,19 @@
 package nl.mpi.arbilcommons.journal;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import nl.mpi.arbil.plugin.PluginBugCatcher;
 import nl.mpi.arbil.plugin.PluginDialogHandler;
 import nl.mpi.arbil.plugin.PluginException;
 import nl.mpi.arbil.plugin.PluginField;
+import nl.mpi.arbil.plugin.PluginJournal;
 import nl.mpi.arbil.plugin.PluginSessionStorage;
 
 /**
@@ -32,9 +38,10 @@ import nl.mpi.arbil.plugin.PluginSessionStorage;
  *
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilJournal {
+public class ArbilJournal implements PluginJournal {
 
     private static PluginDialogHandler messageDialogHandler;
+    private final HashSet<Runnable> jounalWatchers;
 
     public static void setMessageDialogHandler(PluginDialogHandler handler) {
         messageDialogHandler = handler;
@@ -48,6 +55,10 @@ public class ArbilJournal {
 
     public static void setBugCatcher(PluginBugCatcher bugCatcher) {
         ArbilJournal.bugCatcher = bugCatcher;
+    }
+
+    private File getJournalFile() {
+        return new File(sessionStorage.getProjectDirectory(), "ChangeJournal.log");
     }
 
     public enum UndoType {
@@ -64,6 +75,7 @@ public class ArbilJournal {
     }
 
     private ArbilJournal() {
+        jounalWatchers = new HashSet<Runnable>();
     }
     static private ArbilJournal singleInstance = null;
 
@@ -162,13 +174,14 @@ public class ArbilJournal {
         boolean returnValue = false;
         FileWriter journalFile = null;
         try {
-            journalFile = new FileWriter(new File(sessionStorage.getProjectDirectory(), "ChangeJournal.log"), true);
+            journalFile = new FileWriter(getJournalFile(), true);
             System.out.println("Journal: " + imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue);
             journalFile.append("\"" + imdiUrl + imdiNodePath + "\",\"" + oldValue + "\",\"" + newValue + "\",\"" + eventType + "\"\n");
             journalFile.close();
             journalFile = null;
             returnValue = true;
-        } catch (Exception ex) {
+            wakeJounalWatchers();
+        } catch (IOException ex) {
             returnValue = false;
             bugCatcher.logException(new PluginException("failed to write to the journal: " + ex.getMessage()));
             System.err.println("failed to write to the journal: " + ex.getMessage());
@@ -182,5 +195,37 @@ public class ArbilJournal {
             }
         }
         return (returnValue);
+    }
+
+    synchronized public long getChangedFiles(long lastChangeIndex, Set<String> changedURIs) throws PluginException {
+        try {
+            final File journalFile = getJournalFile();
+            final long journalLength = journalFile.length();
+            if (journalLength > lastChangeIndex) {
+                final FileReader fileReader = new FileReader(journalFile);
+                LineNumberReader lineNumberReader = new LineNumberReader(fileReader);
+                lineNumberReader.skip(lastChangeIndex);
+                String readLine;
+                while (null != (readLine = lineNumberReader.readLine())) {
+                    // todo: extract the URI
+                    changedURIs.add(readLine);
+                }
+            }
+            return journalLength;
+        } catch (FileNotFoundException exception) {
+            throw new PluginException("Failed to read the journal file: " + exception.getMessage());
+        } catch (IOException exception) {
+            throw new PluginException("Failed to read the journal file: " + exception.getMessage());
+        }
+    }
+
+    private void wakeJounalWatchers() {
+        for (Runnable jounalWatcher : jounalWatchers) {
+            new Thread(jounalWatcher, "JounalWatcherPlugin").start();
+        }
+    }
+
+    public void addJounalWatcher(Runnable runnableWatcher) {
+        jounalWatchers.add(runnableWatcher);
     }
 }
