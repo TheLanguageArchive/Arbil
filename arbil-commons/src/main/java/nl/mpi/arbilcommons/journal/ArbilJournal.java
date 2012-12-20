@@ -26,6 +26,7 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import nl.mpi.arbil.plugin.JournalWatcherPlugin;
 import nl.mpi.arbil.plugin.PluginBugCatcher;
 import nl.mpi.arbil.plugin.PluginDialogHandler;
 import nl.mpi.arbil.plugin.PluginException;
@@ -41,7 +42,7 @@ import nl.mpi.arbil.plugin.PluginSessionStorage;
 public class ArbilJournal implements PluginJournal {
 
     private static PluginDialogHandler messageDialogHandler;
-    private final HashSet<Runnable> jounalWatchers;
+    private final HashSet<JournalWatcherPlugin> jounalWatchers;
 
     public static void setMessageDialogHandler(PluginDialogHandler handler) {
         messageDialogHandler = handler;
@@ -75,7 +76,7 @@ public class ArbilJournal implements PluginJournal {
     }
 
     private ArbilJournal() {
-        jounalWatchers = new HashSet<Runnable>();
+        jounalWatchers = new HashSet<JournalWatcherPlugin>();
     }
     static private ArbilJournal singleInstance = null;
 
@@ -180,7 +181,7 @@ public class ArbilJournal implements PluginJournal {
             journalFile.close();
             journalFile = null;
             returnValue = true;
-            wakeJounalWatchers();
+            wakeJounalWatchers(getJournalFile().length());
         } catch (IOException ex) {
             returnValue = false;
             bugCatcher.logException(new PluginException("failed to write to the journal: " + ex.getMessage()));
@@ -219,13 +220,22 @@ public class ArbilJournal implements PluginJournal {
         }
     }
 
-    private void wakeJounalWatchers() {
-        for (Runnable jounalWatcher : jounalWatchers) {
-            new Thread(jounalWatcher, "JounalWatcherPlugin").start();
-        }
+    private void wakeJounalWatchers(final long journalLength) {
+        new Thread(new Runnable() {
+            public void run() {
+                for (JournalWatcherPlugin jounalWatcher : jounalWatchers) {
+                    try {
+                        jounalWatcher.journalEvent(journalLength);
+                    } catch (PluginException exception) {
+                        messageDialogHandler.addMessageDialogToQueue("Journal watcher plugin failed and has been removed:\n" + exception.getMessage(), "Wake Jounal Watchers");
+                        jounalWatchers.remove(jounalWatcher);
+                    }
+                }
+            }
+        }, "JounalWatcherPlugins").start();
     }
 
-    public void addJounalWatcher(Runnable runnableWatcher) {
-        jounalWatchers.add(runnableWatcher);
+    public void addJounalWatcher(JournalWatcherPlugin jounalWatcher) {
+        jounalWatchers.add(jounalWatcher);
     }
 }
