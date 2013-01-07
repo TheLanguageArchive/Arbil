@@ -100,11 +100,7 @@ public class ArbilComponentBuilder {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
-    private static DataNodeLoader dataNodeLoader;
-
-    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
-	dataNodeLoader = dataNodeLoaderInstance;
-    }
+    
     private HashMap<ArbilDataNode, SchemaType> nodeSchemaTypeMap = new HashMap<ArbilDataNode, SchemaType>();
 
     public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
