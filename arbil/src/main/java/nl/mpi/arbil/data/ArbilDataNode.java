@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -41,7 +42,8 @@ import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
-import nl.mpi.arbil.plugin.FieldArray;
+import nl.mpi.arbil.plugin.AbstractField;
+import nl.mpi.arbil.plugin.FieldGroup;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
@@ -578,10 +580,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * group based on the display name for each field
      */
     @Override
-    public List<FieldArray> getFields() {
-        ArrayList<FieldArray> fieldArrays = new ArrayList<FieldArray>();
+    public List<FieldGroup> getFieldGroups() {
+        ArrayList<FieldGroup> fieldArrays = new ArrayList<FieldGroup>();
         for (Map.Entry<String, ArbilField[]> currentEntry : getFields().entrySet()) {
-            fieldArrays.add(new FieldArray(currentEntry.getKey(), currentEntry.getValue()));
+            final List<AbstractField> fieldList = Arrays.<AbstractField>asList(currentEntry.getValue());
+            fieldArrays.add(new FieldGroup(currentEntry.getKey(), fieldList));
         }
         return fieldArrays;
     }
