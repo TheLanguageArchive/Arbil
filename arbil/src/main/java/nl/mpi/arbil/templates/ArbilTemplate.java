@@ -67,7 +67,7 @@ public class ArbilTemplate {
      * Sets session storage and documentation languages to null. If used,
      */
     public ArbilTemplate(SessionStorage sessionStorage) {
-	this.documentationLanguages = new ImdiDocumentationLanguages(sessionStorage);
+	this(new ImdiDocumentationLanguages(sessionStorage));
     }
 
     protected ArbilTemplate(DocumentationLanguages documentationLanguages) {
