@@ -558,15 +558,4 @@ public class MetadataBuilder {
         }
         return addedNodePath;
     }
-
-    private ArbilNode getLocalCorpusRootNode(ArbilNode destinationNode) {
-        Object localTreeRoot = treeHelper.getLocalCorpusTreeModel().getRoot();
-        if (localTreeRoot instanceof DefaultMutableTreeNode) {
-            Object userObject = ((DefaultMutableTreeNode) localTreeRoot).getUserObject();
-            if (userObject instanceof ArbilRootNode) {
-                destinationNode = (ArbilRootNode) userObject;
-            }
-        }
-        return destinationNode;
-    }
 }

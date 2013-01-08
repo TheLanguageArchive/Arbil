@@ -68,42 +68,46 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * ArbilRootNode for local corpus tree
      */
-    protected final ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("LOCAL CORPUS"), ArbilIcons.getSingleInstance().directoryIcon, true) {
-        public ArbilDataNode[] getChildArray() {
-            return getLocalCorpusNodes();
-        }
-    };
+    protected final ArbilRootNode localCorpusRootNodeObject;
     /**
      * ArbilRootNode for remote corpus tree
      */
-    protected final ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("REMOTE CORPUS"), ArbilIcons.getSingleInstance().serverIcon, false) {
-        public ArbilDataNode[] getChildArray() {
-            return getRemoteCorpusNodes();
-        }
-    };
+    protected final ArbilRootNode remoteCorpusRootNodeObject;
     /**
      * ArbilRootNode for working directories tree ('files')
      */
-    protected final ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("WORKING DIRECTORIES"), ArbilIcons.getSingleInstance().computerIcon, true) {
-        public ArbilDataNode[] getChildArray() {
-            return getLocalFileNodes();
-        }
-    };
+    protected final ArbilRootNode localDirectoryRootNodeObject;
     /**
      * ArbilRootNode for favourites tree
      */
-    protected final ArbilRootNode favouritesRootNodeObject = new ArbilRootNode(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAVOURITES"), ArbilIcons.getSingleInstance().favouriteIcon, true) {
-        HashMap<String, ContainerNode> containerNodeMap = new HashMap<String, ContainerNode>();
-
-        public ArbilNode[] getChildArray() {
-            containerNodeMap = groupTreeNodesByType(getFavouriteNodes(), containerNodeMap);
-            return containerNodeMap.values().toArray(new ArbilNode[]{});
-//            return getFavouriteNodes();
-        }
-    };
+    protected final ArbilRootNode favouritesRootNodeObject;
 
     public AbstractTreeHelper(MessageDialogHandler messageDialogHandler) {
         this.messageDialogHandler = messageDialogHandler;
+        this.localCorpusRootNodeObject = new ArbilRootNode(URI.create("LOCALCORPUS"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("LOCAL CORPUS"), ArbilIcons.getSingleInstance().directoryIcon, true) {
+            public ArbilDataNode[] getChildArray() {
+                return getLocalCorpusNodes();
+            }
+        };
+        remoteCorpusRootNodeObject = new ArbilRootNode(URI.create("REMOTECORPUS"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("REMOTE CORPUS"), ArbilIcons.getSingleInstance().serverIcon, false) {
+            public ArbilDataNode[] getChildArray() {
+                return getRemoteCorpusNodes();
+            }
+        };
+        localDirectoryRootNodeObject = new ArbilRootNode(URI.create("WORKINGDIRECTORIES"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("WORKING DIRECTORIES"), ArbilIcons.getSingleInstance().computerIcon, true) {
+            public ArbilDataNode[] getChildArray() {
+                return getLocalFileNodes();
+            }
+        };
+        favouritesRootNodeObject = new ArbilRootNode(URI.create("FAVOURITES"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAVOURITES"), ArbilIcons.getSingleInstance().favouriteIcon, true) {
+            HashMap<String, ContainerNode> containerNodeMap = new HashMap<String, ContainerNode>();
+
+            public ArbilNode[] getChildArray() {
+                containerNodeMap = groupTreeNodesByType(getFavouriteNodes(), containerNodeMap);
+                return containerNodeMap.values().toArray(new ArbilNode[]{});
+//            return getFavouriteNodes();
+            }
+        };
     }
 
     protected final void initTrees() {
@@ -608,7 +612,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 foundEntry.setChildNodes(filteredNodeEntry.getValue().toArray(new ArbilDataNode[]{}));
                 containerNodeMapUpdated.put(filteredNodeEntry.getKey(), foundEntry);
             } else {
-                ContainerNode containerNode = new ContainerNode(filteredNodeEntry.getKey(), null, filteredNodeEntry.getValue().toArray(new ArbilDataNode[]{}));
+                URI containerNodeUri = URI.create("ContainerNode");
+                ContainerNode containerNode = new ContainerNode(containerNodeUri, filteredNodeEntry.getKey(), null, filteredNodeEntry.getValue().toArray(new ArbilDataNode[]{}));
                 containerNodeMapUpdated.put(filteredNodeEntry.getKey(), containerNode);
             }
         }

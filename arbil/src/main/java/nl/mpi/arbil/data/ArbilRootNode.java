@@ -1,25 +1,28 @@
 /**
  * Copyright (C) 2012 Max Planck Institute for Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
-import java.util.Arrays;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
+import nl.mpi.arbil.plugin.FieldGroup;
 
 /**
  *
@@ -27,11 +30,13 @@ import javax.swing.ImageIcon;
  */
 public abstract class ArbilRootNode extends ArbilNode {
 
-    private String name;
-    private ImageIcon icon;
-    private boolean local;
+    final private String name;
+    final private ImageIcon icon;
+    final private boolean local;
+    final private URI nodeUri;
 
-    protected ArbilRootNode(String name, ImageIcon icon, boolean local) {
+    protected ArbilRootNode(URI nodeUri, String name, ImageIcon icon, boolean local) {
+        this.nodeUri = nodeUri;
         this.name = name;
         this.icon = icon;
         this.local = local;
@@ -136,6 +141,16 @@ public abstract class ArbilRootNode extends ArbilNode {
 
     @Override
     public boolean isDataPartiallyLoaded() {
-	return true;
+        return true;
+    }
+
+    @Override
+    public URI getURI() {
+        return nodeUri;
+    }
+
+    @Override
+    public List<FieldGroup> getFieldGroups() {
+        return Collections.emptyList();
     }
 }
