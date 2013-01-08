@@ -8,17 +8,15 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.templates;
 
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,6 +27,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.ImdiDocumentationLanguages;
@@ -131,31 +130,13 @@ public class ArbilTemplate {
      */
     protected String[][] childNodePaths;
     protected String[][] fieldUsageArray;
-    protected String[][] resourceNodePaths; // this could be initialised for IMDI templates but at this stage it will not be used in IMDI nodes
 
-    public boolean pathCanHaveResource(String nodePath) {
-	if (resourceNodePaths != null) {
-	    // so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
-	    if (nodePath == null) {
-		// Root can have resource
-		if (resourceNodePaths.length > 0) {
-		    return true;
-		}
-	    } else {
-		// todo: consider allowing add to sub nodes that require adding in the way that IMDI resourceses are added
-		nodePath = nodePath.replaceAll("\\(\\d+\\)", "");
-		//System.out.println("pathThatCanHaveResource: " + nodePath);
-		for (String[] currentPath : resourceNodePaths) {
-		    //System.out.println("pathCanHaveResource: " + currentPath[0]);
-		    if (currentPath[0].equals(nodePath)) { // todo: at the moment we are limiting the add of a resource to only the existing nodes and not adding sub nodes to suit
-			return true;
-		    }
-		}
-	    }
-	}
-	return false;
-    }
-
+    /**
+     * Checks whether path is an editable field. If it's not a parent node, it's assumed to be a field and true gets returned.
+     *
+     * @param nodePath abstract path to check with indices replaced by x and no trailing index
+     * @return whether path is not a parent node
+     */
     public boolean pathIsEditableField(String nodePath) {
 	for (String[] pathString : childNodePaths) {
 	    if (pathString[0].startsWith(nodePath) || pathString[0].equals(nodePath)) {
@@ -202,6 +183,11 @@ public class ArbilTemplate {
     protected String[][] rootTemplatesArray;
     public String[][] autoFieldsArray;
 
+    /**
+     *
+     * @param nodePath abstract node path to check for (i.e. indices should be replaced by x)
+     * @return
+     */
     public boolean pathIsDeleteableField(String nodePath) {
 	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
 	String imdiNodePath = nodePath.substring(1) + ".xml";

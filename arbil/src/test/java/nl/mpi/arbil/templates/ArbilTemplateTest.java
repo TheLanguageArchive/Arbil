@@ -60,7 +60,18 @@ public class ArbilTemplateTest {
 	// Editable field
 	assertTrue(instance.pathIsEditableField(".METATRANSCRIPT.Corpus.Name"));
 	// Multiple fields
-	assertTrue(instance.pathIsEditableField(".METATRANSCRIPT.Session.Resources.MediaFile(1).Description(2)"));
+	assertTrue(instance.pathIsEditableField(".METATRANSCRIPT.Session.Resources.MediaFile(x).Description"));
+    }
+
+    @Test
+    public void testPathIsDeletableField() {
+	readDefaultTemplate();
+	// Node, not field
+	assertFalse(instance.pathIsDeleteableField(".METATRANSCRIPT.Corpus"));
+	// Non-deletable field
+	assertFalse(instance.pathIsDeleteableField(".METATRANSCRIPT.Corpus.Name"));
+	// Deletable field
+	assertTrue(instance.pathIsDeleteableField(".METATRANSCRIPT.Session.Resources.MediaFile(x).Description"));
     }
 
     @Test
@@ -125,6 +136,19 @@ public class ArbilTemplateTest {
 	    // Comes directly from template file
 	    final String result = instance.getHelpStringForField(".METATRANSCRIPT.Session.Description");
 	    assertEquals("The general desciption of this session", result);
+	}
+    }
+
+    @Test
+    public void testPathIsChildNode() {
+	readDefaultTemplate();
+	{
+	    final String result = instance.pathIsChildNode(".METATRANSCRIPT.Session.MDGroup.Project");
+	    assertEquals("Project", result);
+	}
+	{
+	    final String result = instance.pathIsChildNode(".METATRANSCRIPT.Catalogue.SubjectLanguages.Language");
+	    assertEquals("SubjectLanguages", result);
 	}
     }
 }

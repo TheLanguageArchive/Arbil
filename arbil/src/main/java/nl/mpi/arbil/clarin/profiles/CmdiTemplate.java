@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.clarin.profiles;
 
@@ -135,6 +135,7 @@ public class CmdiTemplate extends ArbilTemplate {
     private Map<String, String> dataCategoriesMap;
     private final Map<String, String> dataCategoryDescriptionMap = Collections.synchronizedMap(new HashMap<String, String>());
     protected HashSet<String> allowsLanguageIdPathList;
+    private String[][] resourceNodePaths; // this could be initialised for IMDI templates but at this stage it will not be used in IMDI nodes
 
     private static class ArrayListGroup {
 
@@ -790,6 +791,29 @@ public class CmdiTemplate extends ArbilTemplate {
 
     public boolean pathAllowsLanguageId(String path) {
 	return allowsLanguageIdPathList.contains(path);
+    }
+
+    public boolean pathCanHaveResource(String nodePath) {
+	if (resourceNodePaths != null) {
+	    // so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
+	    if (nodePath == null) {
+		// Root can have resource
+		if (resourceNodePaths.length > 0) {
+		    return true;
+		}
+	    } else {
+		// todo: consider allowing add to sub nodes that require adding in the way that IMDI resourceses are added
+		nodePath = nodePath.replaceAll("\\(\\d+\\)", "");
+		//System.out.println("pathThatCanHaveResource: " + nodePath);
+		for (String[] currentPath : resourceNodePaths) {
+		    //System.out.println("pathCanHaveResource: " + currentPath[0]);
+		    if (currentPath[0].equals(nodePath)) { // todo: at the moment we are limiting the add of a resource to only the existing nodes and not adding sub nodes to suit
+			return true;
+		    }
+		}
+	    }
+	}
+	return false;
     }
 
     public static void main(String args[]) {
