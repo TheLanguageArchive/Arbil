@@ -30,7 +30,7 @@ import org.apache.commons.digester.Digester;
  * Created on February 1, 2010, 14:22:03
  * @author Peter.Withers@mpi.nl
  */
-public class CmdiProfileReader {
+public class CmdiProfileReader implements CmdiProfileProvider {
 
     private static SessionStorage sessionStorage;
     private static BugCatcher bugCatcher;
@@ -73,6 +73,7 @@ public class CmdiProfileReader {
 	return (pathString.startsWith("http") || pathString.contains("clarin") || pathString.endsWith(".xsd") || pathString.endsWith("/xsd"));
     }
 
+    @Override
     public CmdiProfile getProfile(String XsdHref) {
 	for (CmdiProfile currentProfile : cmdiProfileArray) {
 	    if (currentProfile.getXsdHref().equals(XsdHref)) {
@@ -80,20 +81,6 @@ public class CmdiProfileReader {
 	    }
 	}
 	return null;
-    }
-
-    public static class CmdiProfile {
-
-	public String id;
-	public String description;
-	public String name;
-	public String registrationDate;
-	public String creatorName;
-	public String href;
-
-	public String getXsdHref() {
-	    return href + "/xsd";
-	}
     }
 
     private CmdiProfileReader(ProfileSelection selection) {

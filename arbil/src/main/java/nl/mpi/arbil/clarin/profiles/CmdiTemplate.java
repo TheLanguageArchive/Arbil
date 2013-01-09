@@ -47,7 +47,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilDesktopInjector;
-import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileProvider.CmdiProfile;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilEntityResolver;
@@ -155,13 +155,13 @@ public class CmdiTemplate extends ArbilTemplate {
 	public boolean canHaveMultiple;
     }
 
-    public void loadTemplate(String nameSpaceStringLocal) {
+    public void loadTemplate(String nameSpaceStringLocal, CmdiProfileProvider profileProvider) {
 	vocabularyHashTable = new Hashtable<String, ArbilVocabulary>();
 	nameSpaceString = nameSpaceStringLocal;
 	// construct the template from the XSD
 	try {
 	    // get the name of this profile
-	    CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(nameSpaceString);
+	    CmdiProfile cmdiProfile = profileProvider.getProfile(nameSpaceString);
 	    if (cmdiProfile != null) {
 		loadedTemplateName = cmdiProfile.name;// this could be null
 	    } else {
@@ -820,7 +820,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers();
 	CmdiTemplate template = new CmdiTemplate(ArbilSessionStorage.getSingleInstance());
-	template.loadTemplate("/Users/twagoo/Desktop/xsd_out.php.xsd");
+	template.loadTemplate("/Users/twagoo/Desktop/xsd_out.php.xsd", CmdiProfileReader.getSingleInstance());
     }
     /**
      * Compares for display preference. Paths of equal length get grouped together. Within those groups, ordering is on basis of
