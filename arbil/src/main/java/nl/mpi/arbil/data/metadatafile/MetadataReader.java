@@ -55,7 +55,11 @@ import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import org.w3c.dom.*;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -411,8 +415,9 @@ public class MetadataReader {
     private URI importNodesAddedFromTemplate(Document targetImdiDom, URI targetMetadataUri, String targetXpath, String targetRef, Node insertableNode, String insertBefore, final int maxOccurs) throws URISyntaxException, DOMException, ArbilMetadataException, TransformerException {
 	Node addableNode = targetImdiDom.importNode(insertableNode, true);
 	Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
-	Node addedNode = ArbilComponentBuilder.insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
-	String nodeFragment = ArbilComponentBuilder.convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
+	final ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	Node addedNode = componentBuilder.insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
+	String nodeFragment = componentBuilder.convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
 	//                            try {
 	System.out.println("nodeFragment: " + nodeFragment);
 	// return the child node url and path in the xml
