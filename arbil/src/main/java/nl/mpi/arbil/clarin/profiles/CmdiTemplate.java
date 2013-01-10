@@ -775,6 +775,23 @@ public class CmdiTemplate extends ArbilTemplate {
 	return "";
     }
 
+    /**
+     *
+     * @param nodePath abstract node path to check for (i.e. indices should be replaced by x)
+     * @return
+     */
+    @Override
+    public boolean pathIsDeleteableField(String nodePath) {
+	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+	String cmdiNodePath = nodePath.replaceAll("\\(x\\)", "");
+	for (String[] pathString : templatesArray) {
+	    if (pathString[0].equals((cmdiNodePath))) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
     @Override
     public boolean pathIsEditableField(final String nodePath) {
 	final String nodePathAsParent = nodePath + ".";
