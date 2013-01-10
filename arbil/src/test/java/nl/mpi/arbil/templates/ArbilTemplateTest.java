@@ -150,5 +150,9 @@ public class ArbilTemplateTest {
 	    final String result = instance.pathIsChildNode(".METATRANSCRIPT.Catalogue.SubjectLanguages.Language");
 	    assertEquals("SubjectLanguages", result);
 	}
+	{
+	    final String result = instance.pathIsChildNode(".METATRANSCRIPT.Session.Description");
+	    assertNull(result);
+	}
     }
 }

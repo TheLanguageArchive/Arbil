@@ -352,21 +352,19 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private int constructXml(final SchemaType schemaType, ArrayListGroup arrayListGroup, final String pathString) {
-	int childCount = 0;
 //        boolean hasMultipleElementsInOneNode = false;
 	int subNodeCount = 0;
 	readControlledVocabularies(schemaType, pathString);
 	readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
 
 	// search for annotations
-	SchemaParticle topParticle = schemaType.getContentModel();
+	final SchemaParticle topParticle = schemaType.getContentModel();
 	searchForAnnotations(topParticle, pathString, arrayListGroup);
 	// end search for annotations
-	SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
+	final SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
 	//        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
 	int currentNodeChildCount = 0;
 	for (SchemaProperty schemaProperty : schemaPropertyArray) {
-	    childCount++;
 	    String localName = schemaProperty.getName().getLocalPart();
 	    String currentPathString = pathString + "." + localName;
 	    String currentNodeMenuName;
@@ -378,17 +376,28 @@ public class CmdiTemplate extends ArbilTemplate {
 		subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString);
 		if (cardinality.canHaveMultiple) {
 		    if (subNodeCount > 0) {
-//                todo check for case of one or only single sub element and when found do not add as a child path
+			// todo check for case of one or only single sub element and when found do not add as a child path
 			arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
 		    }
-		    String insertBefore = "";
+		    final String insertBefore = determineInsertBefore(schemaPropertyArray, currentNodeChildCount);
 		    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(cardinality.maxOccurs)});
 		}
 		readElementAttributes(currentSchemaType, arrayListGroup, currentPathString, currentNodeMenuName, localName);
 	    }
 	}
-	subNodeCount = subNodeCount + currentNodeChildCount;
+	subNodeCount += currentNodeChildCount;
 	return subNodeCount;
+    }
+
+    private String determineInsertBefore(SchemaProperty[] sibblingProperties, int startIndex) {
+	StringBuilder insertBeforeBuilder = new StringBuilder();
+	for (int i = startIndex; i < sibblingProperties.length; i++) {
+	    if (insertBeforeBuilder.length() > 0) {
+		insertBeforeBuilder.append(",");
+	    }
+	    insertBeforeBuilder.append(sibblingProperties[i].getName().getLocalPart());
+	}
+	return insertBeforeBuilder.toString();
     }
 
     private ElementCardinality determineElementCardinality(SchemaProperty schemaProperty) {
