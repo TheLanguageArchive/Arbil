@@ -100,6 +100,11 @@ public class CmdiTemplateTest {
 	    assertEquals("firstName,lastName,sex,age,ActorLanguage", result);
 	}
 	{
+	    // With index should work
+	    final String result = instance.getInsertBeforeOfTemplate(".CMD.Components.Example_Profile_Instance.example-component-actor(1).title");
+	    assertEquals("firstName,lastName,sex,age,ActorLanguage", result);
+	}
+	{
 	    // No insert before info for mandatory fields, e.g. first name
 	    final String result = instance.getInsertBeforeOfTemplate(".CMD.Components.Example_Profile_Instance.example-component-actor.firstName");
 	    assertEquals("", result);
@@ -133,8 +138,18 @@ public class CmdiTemplateTest {
 	    assertEquals(-1, result);
 	}
 	{
+	    // titles: 1-unbounded (with indices)
+	    final int result = instance.getMaxOccursForTemplate(".CMD.Components.Example_Profile_Instance.example-component-actor(1).title");
+	    assertEquals(-1, result);
+	}
+	{
 	    // format: 0-1
 	    final int result = instance.getMaxOccursForTemplate(".CMD.Components.Example_Profile_Instance.example-component-text.Format");
+	    assertEquals(1, result);
+	}
+	{
+	    // format: 0-1 (with indices)
+	    final int result = instance.getMaxOccursForTemplate(".CMD.Components.Example_Profile_Instance.example-component-text(1).Format(1)");
 	    assertEquals(1, result);
 	}
 	{

@@ -743,6 +743,39 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     @Override
+    public int getMaxOccursForTemplate(String templatPath) {
+	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+	final String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "");
+	for (String[] pathString : templatesArray) {
+	    if (pathString[0].equals((cmdiNodePath))) {
+		Integer returnValue = Integer.parseInt(pathString[3]);
+		if (returnValue == null) {
+		    return -1;
+		} else {
+		    return returnValue;
+		}
+	    }
+	}
+	return -1;
+    }
+
+    @Override
+    public String getInsertBeforeOfTemplate(String templatPath) {
+	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+	final String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "");
+	for (String[] pathString : templatesArray) {
+	    if (pathString[0].equals((cmdiNodePath))) {
+		if (pathString[2] != null) {
+		    return pathString[2];
+		} else {
+		    return "";
+		}
+	    }
+	}
+	return "";
+    }
+
+    @Override
     public boolean pathIsEditableField(final String nodePath) {
 	final String nodePathAsParent = nodePath + ".";
 	String[] pathTokens = nodePath.split("\\.");

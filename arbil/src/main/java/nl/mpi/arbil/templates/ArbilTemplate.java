@@ -202,11 +202,9 @@ public class ArbilTemplate {
 
     public int getMaxOccursForTemplate(String templatPath) {
 	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
-	String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "(x)");
-	cmdiNodePath = cmdiNodePath.replaceAll("\\(x\\)$", "");
-	String imdiNodePath = cmdiNodePath.substring(1) + ".xml";
+	String imdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "(x)").replaceAll("\\(x\\)$", "").substring(1) + ".xml";
 	for (String[] pathString : templatesArray) {
-	    if (pathString[0].equals((cmdiNodePath)) || pathString[0].equals(imdiNodePath)) {
+	    if (pathString[0].equals(imdiNodePath)) {
 		Integer returnValue = Integer.parseInt(pathString[3]);
 		if (returnValue == null) {
 		    return -1;
@@ -220,11 +218,9 @@ public class ArbilTemplate {
 
     public String getInsertBeforeOfTemplate(String templatPath) {
 	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
-	String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "(x)");
-	cmdiNodePath = cmdiNodePath.replaceAll("\\(x\\)$", "");
-	String imdiNodePath = cmdiNodePath.substring(1) + ".xml";
+	String imdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "(x)").replaceAll("\\(x\\)$", "").substring(1) + ".xml";
 	for (String[] pathString : templatesArray) {
-	    if (pathString[0].equals((cmdiNodePath)) || pathString[0].equals(imdiNodePath)) {
+	    if (pathString[0].equals(imdiNodePath)) {
 		if (pathString[2] != null) {
 		    return pathString[2];
 		} else {
