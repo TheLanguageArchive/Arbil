@@ -19,7 +19,7 @@
         <!-- Title of the application as it should be shown run time, e.g. in window titles, error log and "About Arbil" dialog -->
         <arbil.application-title>Arbil (pretesting)</arbil.application-title>
         <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
-        <arbil.license.copyrightYear>2012</arbil.license.copyrightYear>
+        <arbil.license.copyrightYear>2013</arbil.license.copyrightYear>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <output.jarname>${project.build.finalName}</output.jarname>
