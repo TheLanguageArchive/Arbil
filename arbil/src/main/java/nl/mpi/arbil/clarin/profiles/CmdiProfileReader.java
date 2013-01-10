@@ -137,7 +137,7 @@ public class CmdiProfileReader implements CmdiProfileProvider {
 	progressBar.setValue(1);
 
 	// get all the xsd files from the profile listing and store them on disk for offline use
-	for (CmdiProfileReader.CmdiProfile currentCmdiProfile : profiles) {
+	for (CmdiProfile currentCmdiProfile : profiles) {
 	    progressBar.setString(currentCmdiProfile.name);
 	    storeProfileInCache(currentCmdiProfile.getXsdHref(), updateDays);
 	    progressBar.setValue(progressBar.getValue() + 1);
@@ -173,7 +173,7 @@ public class CmdiProfileReader implements CmdiProfileProvider {
 	    bugCatcher.logError(e);
 	}
 	// get all the xsd files from the profile listing and store them on disk for offline use
-//        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+//        for (CmdiProfile currentCmdiProfile : cmdiProfileArray) {
 //            LinorgSessionStorage.getSingleInstance().getFromCache(currentCmdiProfile.getXsdHref(), 90);
 //        }
     }

@@ -33,6 +33,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileProvider.CmdiProfile;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.ProfileSelection;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -296,7 +297,7 @@ public class CmdiProfilesPanel extends JPanel {
 	// add clarin types
 	List<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
 	final CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
-	for (final CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
+	for (final CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
 	    final String templateId = ArbilTemplateManager.CLARIN_PREFIX + currentCmdiProfile.getXsdHref();
 	    JCheckBox clarinProfileCheckBox;
 	    clarinProfileCheckBox = new JCheckBox();

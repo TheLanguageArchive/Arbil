@@ -962,7 +962,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        if (templateCount > 0 && cmdiProfileReader.cmdiProfileArray.size() > 0) {
 //            templateMenu.add(new JSeparator());
 //        }
-//        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
+//        for (CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
 //            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentCmdiProfile.name, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
 //            templateCount++;
 //        }
