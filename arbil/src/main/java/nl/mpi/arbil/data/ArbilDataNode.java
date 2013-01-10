@@ -38,6 +38,7 @@ import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
@@ -828,15 +829,15 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean canHaveResource() {
-        if (hasResource()) {
-            return true;
-        } else if (isCmdiMetaDataNode()) {
-            final ArbilTemplate template = getNodeTemplate();
-            if (template != null) {
-                return template.pathCanHaveResource(nodeUri.getFragment());
-            }
-        }
-        return false;
+	if (hasResource()) {
+	    return true;
+	} else if (isCmdiMetaDataNode()) {
+	    final ArbilTemplate template = getNodeTemplate();
+	    if (template instanceof CmdiTemplate) {
+		return ((CmdiTemplate) template).pathCanHaveResource(nodeUri.getFragment());
+	    }
+	}
+	return false;
     }
 
     /**

@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.clarin.profiles;
 
@@ -47,7 +47,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilDesktopInjector;
-import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileProvider.CmdiProfile;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilEntityResolver;
@@ -131,6 +131,7 @@ public class CmdiTemplate extends ArbilTemplate {
     private Map<String, String> dataCategoriesMap;
     private final Map<String, String> dataCategoryDescriptionMap = Collections.synchronizedMap(new HashMap<String, String>());
     protected HashSet<String> allowsLanguageIdPathList;
+    private String[][] resourceNodePaths; // this could be initialised for IMDI templates but at this stage it will not be used in IMDI nodes
 
     private static class ArrayListGroup {
 
@@ -150,13 +151,13 @@ public class CmdiTemplate extends ArbilTemplate {
 	public boolean canHaveMultiple;
     }
 
-    public void loadTemplate(String nameSpaceStringLocal) {
+    public void loadTemplate(String nameSpaceStringLocal, CmdiProfileProvider profileProvider) {
 	vocabularyHashTable = new Hashtable<String, ArbilVocabulary>();
 	nameSpaceString = nameSpaceStringLocal;
 	// construct the template from the XSD
 	try {
 	    // get the name of this profile
-	    CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(nameSpaceString);
+	    CmdiProfile cmdiProfile = profileProvider.getProfile(nameSpaceString);
 	    if (cmdiProfile != null) {
 		loadedTemplateName = cmdiProfile.name;// this could be null
 	    } else {
@@ -347,21 +348,19 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private int constructXml(final SchemaType schemaType, ArrayListGroup arrayListGroup, final String pathString, final CachedXPathAPI xPathAPI) {
-	int childCount = 0;
 //        boolean hasMultipleElementsInOneNode = false;
 	int subNodeCount = 0;
 	readControlledVocabularies(schemaType, pathString, xPathAPI);
 	readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
 
 	// search for annotations
-	SchemaParticle topParticle = schemaType.getContentModel();
+	final SchemaParticle topParticle = schemaType.getContentModel();
 	searchForAnnotations(topParticle, pathString, arrayListGroup, xPathAPI);
 	// end search for annotations
-	SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
+	final SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
 	//        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
 	int currentNodeChildCount = 0;
 	for (SchemaProperty schemaProperty : schemaPropertyArray) {
-	    childCount++;
 	    String localName = schemaProperty.getName().getLocalPart();
 	    String currentPathString = pathString + "." + localName;
 	    String currentNodeMenuName;
@@ -373,17 +372,28 @@ public class CmdiTemplate extends ArbilTemplate {
 		subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString, xPathAPI);
 		if (cardinality.canHaveMultiple) {
 		    if (subNodeCount > 0) {
-//                todo check for case of one or only single sub element and when found do not add as a child path
+			// todo check for case of one or only single sub element and when found do not add as a child path
 			arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
 		    }
-		    String insertBefore = "";
+		    final String insertBefore = determineInsertBefore(schemaPropertyArray, currentNodeChildCount);
 		    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(cardinality.maxOccurs)});
 		}
 		readElementAttributes(currentSchemaType, arrayListGroup, currentPathString, currentNodeMenuName, localName);
 	    }
 	}
-	subNodeCount = subNodeCount + currentNodeChildCount;
+	subNodeCount += currentNodeChildCount;
 	return subNodeCount;
+    }
+
+    private String determineInsertBefore(SchemaProperty[] sibblingProperties, int startIndex) {
+	StringBuilder insertBeforeBuilder = new StringBuilder();
+	for (int i = startIndex; i < sibblingProperties.length; i++) {
+	    if (insertBeforeBuilder.length() > 0) {
+		insertBeforeBuilder.append(",");
+	    }
+	    insertBeforeBuilder.append(sibblingProperties[i].getName().getLocalPart());
+	}
+	return insertBeforeBuilder.toString();
     }
 
     private ElementCardinality determineElementCardinality(SchemaProperty schemaProperty) {
@@ -729,6 +739,56 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     @Override
+    public int getMaxOccursForTemplate(String templatPath) {
+	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+	final String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "");
+	for (String[] pathString : templatesArray) {
+	    if (pathString[0].equals((cmdiNodePath))) {
+		Integer returnValue = Integer.parseInt(pathString[3]);
+		if (returnValue == null) {
+		    return -1;
+		} else {
+		    return returnValue;
+		}
+	    }
+	}
+	return -1;
+    }
+
+    @Override
+    public String getInsertBeforeOfTemplate(String templatPath) {
+	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+	final String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "");
+	for (String[] pathString : templatesArray) {
+	    if (pathString[0].equals((cmdiNodePath))) {
+		if (pathString[2] != null) {
+		    return pathString[2];
+		} else {
+		    return "";
+		}
+	    }
+	}
+	return "";
+    }
+
+    /**
+     *
+     * @param nodePath abstract node path to check for (i.e. indices should be replaced by x)
+     * @return
+     */
+    @Override
+    public boolean pathIsDeleteableField(String nodePath) {
+	// modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+	String cmdiNodePath = nodePath.replaceAll("\\(x\\)", "");
+	for (String[] pathString : templatesArray) {
+	    if (pathString[0].equals((cmdiNodePath))) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    @Override
     public boolean pathIsEditableField(final String nodePath) {
 	final String nodePathAsParent = nodePath + ".";
 	String[] pathTokens = nodePath.split("\\.");
@@ -788,11 +848,34 @@ public class CmdiTemplate extends ArbilTemplate {
 	return allowsLanguageIdPathList.contains(path);
     }
 
+    public boolean pathCanHaveResource(String nodePath) {
+	if (resourceNodePaths != null) {
+	    // so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
+	    if (nodePath == null) {
+		// Root can have resource
+		if (resourceNodePaths.length > 0) {
+		    return true;
+		}
+	    } else {
+		// todo: consider allowing add to sub nodes that require adding in the way that IMDI resourceses are added
+		nodePath = nodePath.replaceAll("\\(\\d+\\)", "");
+		//System.out.println("pathThatCanHaveResource: " + nodePath);
+		for (String[] currentPath : resourceNodePaths) {
+		    //System.out.println("pathCanHaveResource: " + currentPath[0]);
+		    if (currentPath[0].equals(nodePath)) { // todo: at the moment we are limiting the add of a resource to only the existing nodes and not adding sub nodes to suit
+			return true;
+		    }
+		}
+	    }
+	}
+	return false;
+    }
+
     public static void main(String args[]) {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers();
 	CmdiTemplate template = new CmdiTemplate(new ArbilSessionStorage());
-	template.loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1289827960126/xsd");
+	template.loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1289827960126/xsd", CmdiProfileReader.getSingleInstance());
     }
     /**
      * Compares for display preference. Paths of equal length get grouped together. Within those groups, ordering is on basis of

@@ -86,7 +86,6 @@ public abstract class ArbilInjector {
     }
 
     public void injectDataNodeLoader(DataNodeLoader dataNodeLoader) {
-	ArbilComponentBuilder.setDataNodeLoader(dataNodeLoader);
 	ArbilCsvImporter.setDataNodeLoader(dataNodeLoader);
 	ArbilDataNodeTableCell.setDataNodeLoader(dataNodeLoader);
 	ArbilDataNodeArrayTableCell.setDataNodeLoader(dataNodeLoader);

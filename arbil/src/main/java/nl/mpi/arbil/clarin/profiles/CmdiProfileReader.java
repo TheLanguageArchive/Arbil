@@ -30,7 +30,7 @@ import org.apache.commons.digester.Digester;
  * Created on February 1, 2010, 14:22:03
  * @author Peter.Withers@mpi.nl
  */
-public class CmdiProfileReader {
+public class CmdiProfileReader implements CmdiProfileProvider {
 
     private static SessionStorage sessionStorage;
     public static final String PARAM_PROFILESELECTION = "profileSelection";
@@ -68,6 +68,7 @@ public class CmdiProfileReader {
 	return (pathString.startsWith("http") || pathString.contains("clarin") || pathString.endsWith(".xsd") || pathString.endsWith("/xsd"));
     }
 
+    @Override
     public CmdiProfile getProfile(String XsdHref) {
 	for (CmdiProfile currentProfile : cmdiProfileArray) {
 	    if (currentProfile.getXsdHref().equals(XsdHref)) {
@@ -75,20 +76,6 @@ public class CmdiProfileReader {
 	    }
 	}
 	return null;
-    }
-
-    public static class CmdiProfile {
-
-	public String id;
-	public String description;
-	public String name;
-	public String registrationDate;
-	public String creatorName;
-	public String href;
-
-	public String getXsdHref() {
-	    return href + "/xsd";
-	}
     }
 
     private CmdiProfileReader(ProfileSelection selection) {
@@ -145,7 +132,7 @@ public class CmdiProfileReader {
 	progressBar.setValue(1);
 
 	// get all the xsd files from the profile listing and store them on disk for offline use
-	for (CmdiProfileReader.CmdiProfile currentCmdiProfile : profiles) {
+	for (CmdiProfile currentCmdiProfile : profiles) {
 	    progressBar.setString(currentCmdiProfile.name);
 	    storeProfileInCache(currentCmdiProfile.getXsdHref(), updateDays);
 	    progressBar.setValue(progressBar.getValue() + 1);
@@ -181,7 +168,7 @@ public class CmdiProfileReader {
 	    BugCatcherManager.getBugCatcher().logError(e);
 	}
 	// get all the xsd files from the profile listing and store them on disk for offline use
-//        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+//        for (CmdiProfile currentCmdiProfile : cmdiProfileArray) {
 //            LinorgSessionStorage.getSingleInstance().getFromCache(currentCmdiProfile.getXsdHref(), 90);
 //        }
     }

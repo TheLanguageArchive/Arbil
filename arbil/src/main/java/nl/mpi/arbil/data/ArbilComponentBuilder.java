@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -95,11 +95,6 @@ public class ArbilComponentBuilder {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
-    }
-    private static DataNodeLoader dataNodeLoader;
-
-    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
-	dataNodeLoader = dataNodeLoaderInstance;
     }
 
     private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
@@ -829,30 +824,11 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    public static Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
+    public Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
 	if (!canInsertNode(destinationNode, addableNode, maxOccurs)) {
 	    throw new ArbilMetadataException("The maximum nodes of this type have already been added.\n");
 	}
-
-	// todo: read the template for max occurs values and use them here and for all inserts
-	Node insertBeforeNode = null;
-	if (insertBefore != null && insertBefore.length() > 0) {
-	    String[] insertBeforeArray = insertBefore.split(",");
-	    // find the node to add the new section before
-	    NodeList childNodes = destinationNode.getChildNodes();
-	    outerloop:
-	    for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
-		String childsName = childNodes.item(childCounter).getLocalName();
-		for (String currentInsertBefore : insertBeforeArray) {
-		    if (currentInsertBefore.equals(childsName)) {
-			System.out.println("insertbefore: " + childsName);
-			insertBeforeNode = childNodes.item(childCounter);
-			break outerloop;
-
-		    }
-		}
-	    }
-	}
+	final Node insertBeforeNode = getInsertBeforeNode(insertBefore, destinationNode);
 
 	// find the node to add the new section to
 	Node addedNode;
@@ -872,6 +848,25 @@ public class ArbilComponentBuilder {
 	    }
 	}
 	return addedNode;
+    }
+
+    private Node getInsertBeforeNode(String insertBefore, Node destinationNode) {
+	// todo: read the template for max occurs values and use them here and for all inserts
+	if (insertBefore != null && insertBefore.length() > 0) {
+	    String[] insertBeforeArray = insertBefore.split(",");
+	    // find the node to add the new section before
+	    NodeList childNodes = destinationNode.getChildNodes();
+	    for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
+		String childsName = childNodes.item(childCounter).getLocalName();
+		for (String currentInsertBefore : insertBeforeArray) {
+		    if (currentInsertBefore.equals(childsName)) {
+			System.out.println("insertbefore: " + childsName);
+			return childNodes.item(childCounter);
+		    }
+		}
+	    }
+	}
+	return null;
     }
 
     private String checkTargetXmlPath(String targetXmlPath, String cmdiComponentId) {
@@ -1284,7 +1279,7 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    public static String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
+    public String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
 	System.out.println("Calculating the added fragment");
 	// count siblings to get the correct child index for the fragment
 	int siblingCouter = 1;

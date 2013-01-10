@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.templates;
 
@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileProvider.CmdiProfile;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
-import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -474,7 +474,7 @@ public class ArbilTemplateManager {
      */
     private ArbilTemplate loadCmdiTemplateProfile(String nameSpaceString) {
 	CmdiTemplate cmdiTemplate = new CmdiTemplate(sessionStorage);
-	cmdiTemplate.loadTemplate(nameSpaceString);
+	cmdiTemplate.loadTemplate(nameSpaceString, CmdiProfileReader.getSingleInstance());
 	cmdiTemplate.startLoadingDatacategoryDescriptions();
 	templatesHashTable.put(nameSpaceString, cmdiTemplate);
 
