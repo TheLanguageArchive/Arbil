@@ -38,8 +38,10 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -845,7 +847,7 @@ public class ImportExportDialog {
 			    journalActionString = "import";
 			} else {
 			    if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-				currentRetrievableFile.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+				currentRetrievableFile.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected(), Collections.<URI[]>emptyList());
 			    } else {
 				currentRetrievableFile.calculateUriFileName();
 			    }
@@ -944,7 +946,7 @@ public class ImportExportDialog {
 		    if (MetadataFormat.isPathMetadata(currentLink)) {
 			getList.add(gettableLinkUri);
 			if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-			    retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+			    retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected(), uncopiedLinks);
 			} else {
 			    retrievableLink.calculateUriFileName();
 			}
@@ -959,7 +961,7 @@ public class ImportExportDialog {
 				downloadFileLocation = ArbilSessionStorage.getSingleInstance().updateCache(currentLink, false, false, downloadAbortFlag, resourceProgressLabel);
 			    } else {
 				if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-				    retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+				    retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected(), uncopiedLinks);
 				} else {
 				    retrievableLink.calculateUriFileName();
 				}
@@ -1034,7 +1036,13 @@ public class ImportExportDialog {
 	    childDestinationDirectory = destinationDirectory;
 	}
 
-	public void calculateTreeFileName(boolean lamusFriendly) {
+	/**
+	 * Evaluates {@link #destinationFile current destination file} and 
+	 * @param lamusFriendly whether destination file should be lamus friendly
+	 * @param reservedLinks list of reserved links with each entry being an array of [original file, target file]. reservedLink[1] will
+	 * be matched against
+	 */
+	public void calculateTreeFileName(boolean lamusFriendly, List<URI[]> reservedLinks) {
 	    final String urlString = sourceURI.toString();
 
 	    final int suffixSeparator = urlString.lastIndexOf(".");
@@ -1051,7 +1059,7 @@ public class ImportExportDialog {
 	    destinationFile = new File(destinationDirectory, fileName + fileSuffix);
 	    childDestinationDirectory = new File(destinationDirectory, fileName);
 	    int fileCounter = 1;
-	    while (destinationFile.exists()) {
+	    while (destinationExistsOrIsReserved(reservedLinks)) {
 		if (lamusFriendly) {
 		    destinationFile = new File(destinationDirectory, fileName + "_" + fileCounter + fileSuffix);
 		    childDestinationDirectory = new File(destinationDirectory, fileName + "_" + fileCounter);
@@ -1061,6 +1069,29 @@ public class ImportExportDialog {
 		}
 		fileCounter++;
 	    }
+	}
+
+	/**
+	 * Checks whether the {@link #destinationFile current destination file} already exists or has been reserved
+	 *
+	 * @param reservedLinks list of reserved links with each entry being an array of [original file, target file]. reservedLink[1] will
+	 * be matched against
+	 * @return whether the current destination file already exists or has been reserved
+	 */
+	private boolean destinationExistsOrIsReserved(List<URI[]> reservedLinks) {
+	    final URI destinationURI = destinationFile.toURI();
+	    if (destinationFile.exists()) {
+		// File already exists, obvious case
+		return true;
+	    } else {
+		// Check if any of the reserved links matches the destination
+		for (URI[] link : reservedLinks) {
+		    if (link[1].equals(destinationURI)) {
+			return true;
+		    }
+		}
+	    }
+	    return false;
 	}
 
 	private String normalizeFileName(String fileNameString, boolean lamusFriendly) {
