@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -182,7 +183,7 @@ public class CopyRunner implements Runnable {
 		} else {
 		    // This is an export to a location on the file system
 		    if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
-			calculateTreeFileName(currentRetrievableFile);
+			calculateTreeFileName(currentRetrievableFile, Collections.<URI[]>emptyList());
 		    } else {
 			currentRetrievableFile.calculateUriFileName();
 		    }
@@ -286,7 +287,7 @@ public class CopyRunner implements Runnable {
 		getList.add(gettableLinkUri);
 		if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
 		    // On export there is the option to rename the file to the name of the node as present in the metadata
-		    calculateTreeFileName(retrievableLink);
+		    calculateTreeFileName(retrievableLink, uncopiedLinks);
 		} else {
 		    retrievableLink.calculateUriFileName();
 		}
@@ -300,7 +301,7 @@ public class CopyRunner implements Runnable {
 			downloadFileLocation = sessionStorage.updateCache(currentLink, impExpUI.getShibbolethNegotiator(), false, false, impExpUI.getDownloadAbortFlag(), impExpUI);
 		    } else {
 			if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
-			    calculateTreeFileName(retrievableLink);
+			    calculateTreeFileName(retrievableLink, uncopiedLinks);
 			} else {
 			    retrievableLink.calculateUriFileName();
 			}
@@ -346,14 +347,14 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private void calculateTreeFileName(final RetrievableFile retrievableFile) {
-	retrievableFile.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName());
+    private void calculateTreeFileName(final RetrievableFile retrievableFile, List<URI[]> reservedLinks) {
+	retrievableFile.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName(), reservedLinks);
 	if (retrievableFile.destinationFile.exists()) {
 	    if (exportToUniqueLocation == null) {
 		exportToUniqueLocation = impExpUI.askCreateNewExportDir(retrievableFile.destinationFile);
 	    }
 	    if (exportToUniqueLocation) {
-		retrievableFile.makeUnique();
+		retrievableFile.makeUnique(reservedLinks);
 	    }
 	}
     }
@@ -382,8 +383,14 @@ public class CopyRunner implements Runnable {
 	    childDestinationDirectory = destinationDirectory;
 	}
 
-	public void calculateTreeFileName(final boolean lamusFriendly) {
-	    this.lamusFriendly = lamusFriendly;
+	/**
+	 * Evaluates {@link #destinationFile current destination file} and
+	 *
+	 * @param lamusFriendly whether destination file should be lamus friendly
+	 * @param reservedLinks list of reserved links with each entry being an array of [original file, target file]. reservedLink[1] will
+	 * be matched against
+	 */
+	public void calculateTreeFileName(boolean lamusFriendly, List<URI[]> reservedLinks) {
 	    final String urlString = sourceURI.toString();
 	    final int suffixSeparator = urlString.lastIndexOf(".");
 	    if (suffixSeparator > 0 && suffixSeparator > urlString.lastIndexOf("/")) {
@@ -400,10 +407,10 @@ public class CopyRunner implements Runnable {
 	    childDestinationDirectory = new File(destinationDirectory, fileName);
 	}
 
-	private void makeUnique() {
+	private void makeUnique(List<URI[]> reservedLinks) {
 	    if (destinationFile.exists()) {
 		int fileCounter = 1;
-		while (destinationFile.exists()) {
+		while (destinationExistsOrIsReserved(reservedLinks)) {
 		    if (lamusFriendly) {
 			destinationFile = new File(destinationDirectory, fileName + "_" + fileCounter + fileSuffix);
 			childDestinationDirectory = new File(destinationDirectory, fileName + "_" + fileCounter);
@@ -414,6 +421,29 @@ public class CopyRunner implements Runnable {
 		    fileCounter++;
 		}
 	    }
+	}
+
+	/**
+	 * Checks whether the {@link #destinationFile current destination file} already exists or has been reserved
+	 *
+	 * @param reservedLinks list of reserved links with each entry being an array of [original file, target file]. reservedLink[1] will
+	 * be matched against
+	 * @return whether the current destination file already exists or has been reserved
+	 */
+	private boolean destinationExistsOrIsReserved(List<URI[]> reservedLinks) {
+	    final URI destinationURI = destinationFile.toURI();
+	    if (destinationFile.exists()) {
+		// File already exists, obvious case
+		return true;
+	    } else {
+		// Check if any of the reserved links matches the destination
+		for (URI[] link : reservedLinks) {
+		    if (link[1].equals(destinationURI)) {
+			return true;
+		    }
+		}
+	    }
+	    return false;
 	}
 
 	private String determineFileName(final ArbilDataNode currentNode) {
