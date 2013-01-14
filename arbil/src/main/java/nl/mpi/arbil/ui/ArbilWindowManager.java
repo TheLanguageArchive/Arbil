@@ -284,7 +284,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 				fileSelectDone = true;
 				return destinationDirectory;
 			    } else {
-				if (showConfirmDialogBox("The selected export directory is not empty.\nTo continue will merge and may overwrite files.\nDo you want to continue?", titleText)) {
+				if (showConfirmDialogBox("The selected export directory is not empty.\nTo continue will merge the result. No files will be overwritten.\nDo you want to continue?", titleText)) {
 				    return destinationDirectory;
 				}
 				//JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
