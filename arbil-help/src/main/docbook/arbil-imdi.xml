@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" 
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <book>
+  <title>Arbil</title>
+  <subtitle>for editing and managing IMDI metadata</subtitle>
+  <subtitle>Version 2.4</subtitle>
   <bookinfo>
     <orgname>Max Planck Institute for Psycholinguistics, Nijmegen, The Netherlands</orgname>
-    <date>23 June 2012</date>
-    <subtitle>Arbil</subtitle>
-    <subtitle>for editing and managing IMDI metadata</subtitle>
-    <releaseinfo>Arbil manual</releaseinfo>
+    
     <mediaobject>
       <imageobject>
         <imagedata fileref="images/arbil-icon.png"/>
       </imageobject>
     </mediaobject>
-    <mediaobject>
-      <imageobject>
-        <imagedata fileref="images/logo.png"/>
-      </imageobject>
-    </mediaobject>
-    <authorgroup>
-      <author>
-        <surname>George Saad, Anastasios Vogiatzis, Katarzyna Wojtylak</surname>
-      </author>
-    </authorgroup>
+    
+    <releaseinfo>This manual was last updated on 2012-12-20</releaseinfo>
+    <releaseinfo>The latest version can be found at: <ulink url="http://tla.mpi.nl/tools/tla-tools/arbil/">http://tla.mpi.nl/tools/tla-tools/arbil/</ulink></releaseinfo>
+    <releaseinfo>George Saad</releaseinfo>
+    <releaseinfo>Anastosios Vogiatzis</releaseinfo>
+    <releaseinfo>Katarzyna Wojtylak</releaseinfo>
+    <releaseinfo>Claudia Zabeo</releaseinfo>
+    
   </bookinfo>
   <chapter id="Ch_Introduction">
     <title>Introduction</title>
@@ -68,6 +67,9 @@
       <para>For a less detailed program description, see the <ulink
           url="http://www.mpi.nl/corpus/html/arbil-imdi_ug/index.html">Arbil User
         Guide</ulink>.</para>
+      <para>You can access all the informations present in this manual from the application itself,
+        using the Help Menu. There you will also find additional informations  about technical
+        topics.</para>
       <para>We encourage you to provide feedback, comments, and suggestions so that we can improve
         the documentation to better meet your needs. Also, in case of problems that are not
         addressed anywhere in this guide, please use the <ulink
@@ -180,9 +182,8 @@
         (contains local files) </para><para><inlinegraphic fileref="images/top_node_working_dir_icon.png"/> Top node of the Working Directories tree
         (short cuts of files in the Local Corpus) </para><para><inlinegraphic fileref="images/local_corpus_tree_icon.png"/> The file is in the Local Corpus  (local
         file) </para><para><inlinegraphic fileref="images/remote_server_icon.png"/> The file is on
-        the remote server (read only) </para><para><inlinegraphic fileref="images/R%20n%20L.png"/>
-          The file is located in the local corpus but has been imported from the remote
-          server</para><para><inlinegraphic fileref="images/corpus_branch_icon.png"/> Corpus branch </para><para><inlinegraphic fileref="images/catalogue_icon.png"/>Catalogue</para><para><inlinegraphic fileref="images/session_icon.png"/> IMDI session</para><para><inlinegraphic fileref="images/right.png"/>Closed node (sub-components
+        the remote server (read only) </para><para><inlinegraphic fileref="images/R_n_L.png"/> The file is located in the local corpus but has
+        been imported from the remote server</para><para><inlinegraphic fileref="images/corpus_branch_icon.png"/> Corpus branch </para><para><inlinegraphic fileref="images/catalogue_icon.png"/>Catalogue</para><para><inlinegraphic fileref="images/session_icon.png"/> IMDI session</para><para><inlinegraphic fileref="images/right.png"/>Closed node (sub-components
         are folded)</para><para>
         <inlinegraphic fileref="images/down.png"/>Open node (direct sub-components are
         displayed</para><para><inlinegraphic fileref="images/imdi_contains_data.png"/> IMDI node that contains data </para>
@@ -399,22 +400,18 @@
           local corpus icon <inlinegraphic fileref="images/top_node_local_corpus_icon.png"
             scalefit="1" contentdepth="70%"/>. You can also right click on the corpus node you want
           to import and choose<emphasis role="italic"> Import to Local Corpus.</emphasis> In the
-          dialogue box that pops up you can check the <emphasis role="italic">Show Details and
-            Options</emphasis> box in order to: </para>
+          dialogue box that pops up you can choose to: </para>
         <para>(1) <emphasis role="italic">Overwrite Local Changes</emphasis> : Overwrite an existing
           local corpus/session node from the same original location. When is this option useful?
           Consider the likely scenario that you have imported a node from the Remote corpus and
           started editing it. If you want to reset the changes, you can reimport it from the Remote
-          Corpus and check the <emphasis role="italic">overwrite local changes </emphasis>box. You
-          can apply this option to every branch of the corpora. To do so, first check<link
-            linkend="image_overwrite_local_changes">Show details and options</link> box; in the
-          window that appears select the function <link linkend="image_overwrite_local_changes"
-            >Overwrite local changes</link>.</para>
+          Corpus and check the <emphasis role="italic">Overwrite local changes </emphasis>box. You
+          can apply this option to every branch of the corpora. </para>
         <figure>
-          <title>Show details and options</title>
+          <title>Import Branch</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/ImportCata.png" contentdepth="40%"
+              <imagedata fileref="images/Imdi_Import_branch.png" contentdepth="70%"
                 id="images_show_details_and_options"/>
             </imageobject>
           </mediaobject>
@@ -423,7 +420,7 @@
           <title>Overwrite local changes</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/ImportCata3.png" contentdepth="45%"
+              <imagedata fileref="images/Imdi_Overwrite_local_changes.png" contentdepth="70%"
                 id="image_overwrite_local_changes"/>
             </imageobject>
           </mediaobject>
@@ -432,17 +429,19 @@
           Corpus and you want to edit it again, editing should not be done in the already existing
           file in your Local Corpus. In this case you have to reimport the corpus from the Remote
           Corpus where your uploaded it before via Lamus.</para>
-        <para>(2) <emphasis role="italic">Copy Resource Files</emphasis>: Import resource files to
+        <para>(2) <emphasis role="italic">Import Resource Files</emphasis>: Import resource files to
           your computer. Please be aware that copying the resource files may take some time and will
-          use disk space on your computer. When you press <emphasis role="italic">Start</emphasis>,
-          the branch will be copied to your Local Corpus tree. The process can be interrupted by
-          clicking <emphasis role="italic">Stop</emphasis>. Note that Arbil cannot deal with
-          resources that need authentication.</para>
+          use disk space on your computer. Click on <emphasis role="italic">More Options</emphasis>
+          and check <emphasis role="italic">Import Resource Files</emphasis> (if available). When
+          you press <emphasis role="italic">Start</emphasis>, the branch will be copied to your
+          Local Corpus tree. The process can be interrupted by clicking <emphasis role="italic"
+            >Stop</emphasis>. Note that Arbil cannot deal with resources that need
+          authentication.</para>
         <figure>
           <title>Importing a corpus branch to Local Corpus</title>
           <mediaobject><imageobject>
-              <imagedata fileref="images/Import_box.png" contentdepth="50%" scalefit="1" width="50%"
-              />
+              <imagedata fileref="images/Imdi_importing_corpus_branch_to_local_corpus.png"
+                contentdepth="70%" scalefit="1" width="50%"/>
             </imageobject></mediaobject>
           
         </figure>
@@ -682,10 +681,10 @@
         can also add additional elements to session nodes and catalogues. If you right click on a
         catalogue > add, you will see a list of items available in the context menu. Notice how some
         elements have the <inlinegraphic fileref="images/imdi_contains_data.png" contentdepth="50%"
-        /> icon, whereas others have a icon<inlinegraphic fileref="images/new%20field.png"
+        /> icon, whereas others have a icon<inlinegraphic fileref="images/new_field.png"
           contentdepth="50%"/>. The <inlinegraphic fileref="images/imdi_contains_data.png"
           contentdepth="50%"/> icon represents a component that will be displayed in the hierarchy
-        whereas the <inlinegraphic fileref="images/new%20field.png" contentdepth="50%"/> icon adds a
+        whereas the <inlinegraphic fileref="images/new_field.png" contentdepth="50%"/> icon adds a
         new field (discussed below).</para>
       <figure>
         <title>Catalogue context menu</title>
@@ -699,7 +698,7 @@
     <sect1 id="Sec_Adding_More_Descriptions">
       <title>Adding more field components</title>
       <para>Generally, every corpus/ session/ catalogue contains a particular set of fields which
-        can be edited. Adding <inlinegraphic fileref="images/new%20field.png" contentdepth="50%"/>
+        can be edited. Adding <inlinegraphic fileref="images/new_field.png" contentdepth="50%"/>
         elements implies adding a new metadata field to the selected node.</para>
       <para>
         <figure>
@@ -795,13 +794,18 @@
           </mediaobject>
         </figure>
       </para>
+      <para>When adding multiple resources from the Working Directories to a session, they will get
+        processed together and appear in a single result table.</para>
     </sect1>
     <sect1 id="Sec_Moving_Sessions">
-      <title>Moving corpus and session nodes</title>
+      <title>Coping and moving corpus and session nodes</title>
       <para>Arbil allows to move both corpus and session nodes from one location to another. To do
         it, select in your Local Corpus a corpus/session you would like to move and drag and drop it
         to the new location. It is also possible to move subnodes of sessions, e.g. Actors, across
         sessions.</para>
+      <para>Be aware that when you copy a node, Arbil does not recognize it as a node but rather as a
+        file. That means that the whole structure of subnodes has not been copied properly. You need
+        to do in a second moment.</para>
       
     </sect1>
     <sect1 id="Sec_Deleting_Corpus_Elements">
@@ -1455,6 +1459,12 @@
       <para>Templates are currently in development, but they will be used to customise the components added via the "Add" menu.</para>
       <para>To create a new template, create a directory in the ".arbil/templates" directory. This is where all the files relevant to that template will be stored. This directory will now be selectable via the "options/templates" menu.</para>
       <para>Each template can have its own XSL which is used via the "view formatted" menu. The XSL must be in the selected templates directory and be called "format.xsl". For example: .arbil/templates/{template name}/format.xsl. If there are any additional files required by the XSL they can be placed in the same directory as the XSL file.</para>
+    </section>
+    <section>
+      <title>New languages </title>
+      <para>More languages can be added to the MPI-Languages CV upon request. Send an e-mail to
+        corpus.manager@mpi.nl with the name and the ISO 639-3 code of the language you want to
+        add.</para>
     </section>
   </chapter>
 </book>

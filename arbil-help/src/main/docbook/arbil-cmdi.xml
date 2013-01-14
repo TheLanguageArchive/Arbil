@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" 
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <book>
-  <bookinfo>
-    <orgname>Max Planck Institute for Psycholinguistics, Nijmegen, The Netherlands</orgname>
-    <date>October 2012</date>
-    <subtitle>Arbil</subtitle>
+    <title>Arbil</title>
+    <subtitle>Arbil 2.4</subtitle>
     <subtitle>for editing and managing CMDI metadata</subtitle>
-    <releaseinfo>Arbil manual</releaseinfo>
+    <bookinfo>
+      <orgname>The Language Archive, MPI for Psycholinguistics, Nijmegen, The Netherlands</orgname>
+      
     <mediaobject>
       <imageobject>
         <imagedata fileref="images/arbil-icon.png"/>
@@ -17,6 +18,12 @@
         <imagedata fileref="images/Clarin_logo2.png" contentwidth="45%"/>
       </imageobject>
     </mediaobject>
+      
+      <releaseinfo>This manual was last updated on </releaseinfo>
+      <releaseinfo>The latest version can be found at: <ulink url="http://http://tla.mpi.nl/tools/tla-tools/arbil/">http://http://tla.mpi.nl/tools/tla-tools/arbil/</ulink></releaseinfo>
+      <releaseinfo>Anastasios Vogiatzis (June 2012)</releaseinfo>
+      <releaseinfo>Claudia Zabeo (December 2012)</releaseinfo>
+      
   </bookinfo>
   <chapter id="Ch_Introduction">
     <title>Introduction</title>
@@ -50,6 +57,9 @@
           url="http://www.clarin.eu/cmdi">Clarin website</ulink>).</para>
       <para>For a less detailed program description, see the <ulink
           url="http://tla.mpi.nl/tools/tla-tools/arbil">Arbil User Guide</ulink>. </para>
+      <para>You can access all the informations present in this manual from the application itself,
+        using the Help Menu. There you will also find additional informations  about technical
+        topics.</para>
       <para>We encourage you to provide feedback, comments, and suggestions so that we can improve
         the documentation to better meet your needs. Also, in case of problems that are not
         addressed anywhere in this guide, please use the <ulink
@@ -596,6 +606,13 @@
             </imageobject>
           </mediaobject>
         </figure></para>
+      <para>The button <emphasis role="italic">Download all</emphasis> (3 in the above picture)
+        allows you to download all the available profiles. Therefore you will be able to see them
+        also without an internet connection. When you add new profiles manually, or there are
+        changes on them, you need to reload, through the button <emphasis role="italic">Reload
+          Selection</emphasis> (2), so that Arbil will see the changes and use the latest version of
+        a profile. With the button <emphasis role="italic">Refresh List</emphasis> (1) you will get
+        the latest list of profiles form the server.</para>
       <para>In order to add new profile, select the dialogue box <emphasis role="italic">Add
           URL</emphasis> and paste into it the URL of the profile you want to import. You can find
         the URL, for instance, in the Clarin website, under the Component Registry. Note that only
@@ -701,6 +718,8 @@
           </mediaobject>
         </figure>
       </para>
+      <para>When adding multiple resources from the Working Directories to a CMDI file, they will
+        get processed together and appear in a single result table.</para>
     </sect1>
     <sect1 id="Sec_Moving_Sessions">
       <title>Moving instances</title>
@@ -1130,19 +1149,19 @@
       </figure>
       <para>Selecting <emphasis role="italic">OK</emphasis> will lead you to a new message window
         where, before clicking on <emphasis role="italic">Start</emphasis>, you can chose the option
-          <emphasis role="italic">Show Details and Options</emphasis>:</para>
+          <emphasis role="italic">More Options</emphasis>:</para>
       <figure>
         <title>Export window with details</title>
           <mediaobject>
             <imageobject>
-            <imagedata contentdepth="40%" fileref="images/cmdi_export_window_with_details.png"
-              scalefit="1" width="40%"/>
+            <imagedata contentdepth="70%" fileref="images/cmdi-Export_branch.png" scalefit="1"
+              width="40%"/>
           </imageobject>
           </mediaobject>
       </figure>
       <para>The options <emphasis role="italic">Rename Metadata Files</emphasis> and <emphasis
           role="italic">Limit Characters in File Names </emphasis>is already checked. The option
-          <emphasis role="italic">Copy Resource Files</emphasis> are explained in the <link
+          <emphasis role="italic">Export Resource Files</emphasis> are explained in the <link
           linkend="Sec_Import_to_Local_Corpus"><emphasis role="italic">Import to Local
             Corpus</emphasis> section</link> (3.2.1).</para>
     </sect1>
