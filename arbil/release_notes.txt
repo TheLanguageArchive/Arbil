@@ -43,6 +43,11 @@ included. (#1837)
 to a session or CMDI file, they get processed together rather than one-by-one
 and appear in a single result table instead of one window per file. (#42, #2205)
 
+- DEBIAN PACKAGE: The debian package now conflicts with the 
+graphicsmagick-imagemagick-compat package. Therefore this package is no longer accepted
+as a provider of imagemagick, leaving the actual imagemagick package as the only
+possible provider. Support for GraphicsMagick will be added in a future version. (#109)
+
 ** FIXES **
 
 Among other, mostly minor, bugfixes, the following issues have been resolved:
@@ -81,6 +86,17 @@ controlled vocabulary links that are no longer accessible. These have been updat
 
 - ARBIL FORUM: The Arbil forum has changed to a new location. The link in the 'Help'
 menu has been updated to open this new location in a browser. (#2269)
+
+- OPEN IMDI IN BROWSER: In some cases opening an IMDI file as IMDI formatted in the browser
+used to do nothing. This has been fixed. (#2539)
+
+- COPY CMDI NODES: Copying CMDI nodes within or between metadata files or adding favourites
+could lead to invalid element orders in the metadata XML. This has been fixed. (#2609)
+
+- EXPORT: The export of an IMDI corpus or CMDI collection with the option to rename files
+to their display name would cause broken links in cases where there are linked files with 
+equal display names. Unique file names are now created and reflected correctly in the
+collection. (#2661)
 
 ** KNOWN ISSUES **
 
