@@ -1,15 +1,17 @@
 ARBIL 2.5.x RELEASE NOTES
 ----------------------------------------
 $Date$ 
-$Revision$ (this means that the descriptions below apply to Arbil 2.5.x with x >= revision)
+$Revision$ (this means that the descriptions below apply to Arbil 2.5.x 
+with x >= revision)
 
 Contacts:
 - Peter Withers (peter.withers@mpi.nl)
 - Twan Goosen (twan.goosen@mpi.nl)
 ----------------------------------------
 
-Below is an overview of changes in Arbil since the previous minor version (Arbil 2.3). Where 
-applicable, related ticket numbers from TRAC are included at the end of the description.
+Below is an overview of changes in Arbil since the previous minor version (Arbil
+2.4). Where applicable, related ticket numbers from TRAC are included at the end
+of the description.
 
 ** ADDITIONS **
 
@@ -21,12 +23,13 @@ These parts of the Arbil functionality have changed:
 
 - FAVOURITES: Favourites are now grouped by type. (#21)
 
-- CMDI PROFILES: Profiles are no longer downloaded automatically along with the profiles list. They
-get downloaded as soon as they are selected, or alternatively all profiles can be downloaded 
-through a new 'Download all profiles' button in the profiles panel of the templates dialog. (#1412)
+- CMDI PROFILES: Profiles are no longer downloaded automatically along with the
+profiles list. They get downloaded as soon as they are selected, or
+alternatively all profiles can be downloaded through a new 'Download all
+profiles' button in the profiles panel of the templates dialog. (#1412)
 
-- STORAGE DIRECTORY: When multiple storage directories are detected, the user is notified through
-a warning dialog. (#1246)
+- STORAGE DIRECTORY: When multiple storage directories are detected, the user is
+notified through a warning dialog. (#1246)
 
 ** FIXES **
 
@@ -34,22 +37,26 @@ Among other, mostly minor, bugfixes, the following issues have been resolved:
 
 ** KNOWN ISSUES **
 
-Among others, the following issues have been described and will be addressed in future version of
-Arbil:
+Among others, the following issues have been described and will be addressed in
+future version of Arbil:
 
-- IMPORT RESOURCES: Resources that are protected and require authentication can currently not be
-imported into the local corpus since the authentication mechanism is broken. (#679)
+- IMPORT RESOURCES: Resources that are protected and require authentication can
+currently not be imported into the local corpus since the authentication
+mechanism is broken. (#679)
 
-- SHOW IMDI FORMATTED: When showing an IMDI metadata file 'IMDI formatted', the formatting does
-not look as expected. (#899)
+- SHOW IMDI FORMATTED: When showing an IMDI metadata file 'IMDI formatted', the
+formatting does not look as expected. (#899)
 
-- PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays high. (#929)
+- PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays
+high. (#929)
 
-- SEARCH IN TABLE: The layout of the input boxes for search/replcae within a table sometimes break
-on Windows and Linux. (#1577)
+- SEARCH IN TABLE: The layout of the input boxes for search/replcae within a
+table sometimes break on Windows and Linux. (#1577)
 
-- REMOTE SEARCH: The search interface for remote search is not very intuitive. At the moment remote
-search requires two steps: remote searching and local filtering. (#651)
+- REMOTE SEARCH: The search interface for remote search is not very intuitive.
+At the moment remote search requires two steps: remote searching and local
+filtering. (#651)
 
-- FILE HANDLING: There are some issues with file handling that occur on Windows 7. These can cause
-opening in external file and moving the local corpus directory to fail. (#1372 and #1553)
+- FILE HANDLING: There are some issues with file handling that occur on Windows
+7. These can cause opening in external file and moving the local corpus
+directory to fail. (#1372 and #1553)
