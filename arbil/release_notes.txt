@@ -1,124 +1,136 @@
 ARBIL 2.4.x RELEASE NOTES
 ----------------------------------------
 $Date$ 
-$Revision$ (this means that the descriptions below apply to Arbil 2.4.x with x >= revision)
+$Revision$ (this means that the descriptions below apply to Arbil 2.4.x
+with x >= revision)
 
 Contacts:
 - Peter Withers (peter.withers@mpi.nl)
 - Twan Goosen (twan.goosen@mpi.nl)
 ----------------------------------------
 
-Below is an overview of changes in Arbil since the previous minor version (Arbil 2.3). Where 
-applicable, related ticket numbers from TRAC are included at the end of the description.
+Below is an overview of changes in Arbil since the previous minor version (Arbil
+2.3). Where applicable, related ticket numbers from TRAC are included at the end
+of the description.
 
 ** ADDITIONS **
 
 The following functionality has been added to Arbil:
 
-- CONTROLLED VOCABULARIES: For controlled vocabularies with distinct values and display
-values (e.g. nl -> Netherlands), both are now shown in the drop down in the editor. (#2283)
+- CONTROLLED VOCABULARIES: For controlled vocabularies with distinct values and
+display values (e.g. nl -> Netherlands), both are now shown in the drop down in
+the editor. (#2283)
 
 ** CHANGES **
 
 These parts of the Arbil functionality have changed:
 
-- CMDI PROFILES: Only profiles that have actually been selected get downloaded by 
-default. (#1412)
+- CMDI PROFILES: Only profiles that have actually been selected get downloaded
+by default. (#1412)
 
-- CMDI PROFILES: There is now a button on the Templates and Profiles dialogue to refresh
-all selected profiles. (#2185)
+- CMDI PROFILES: There is now a button on the Templates and Profiles dialogue to
+refresh all selected profiles. (#2185)
 
-- HELP: The help contents have been updated, using the Arbil manual as its source.
-Help for both IMDI and CMDI usage is available. (#1937)
+- HELP: The help contents have been updated, using the Arbil manual as its
+source. Help for both IMDI and CMDI usage is available. (#1937)
 
 - IMPORT/EXPORT: The import/export dialogue has been redesigned. (#1684, #1754)
 
-- CONTROLLED VOCABULARIES: When searching for a value by typing, the shortest match
-now gets selected first instead of the first. (#1189)
+- CONTROLLED VOCABULARIES: When searching for a value by typing, the shortest
+match now gets selected first instead of the first. (#1189)
 
-- TYPECHECKER: A new version of the type checker, which analyses resource files, has been
-included. (#1837)
+- TYPECHECKER: A new version of the type checker, which analyses resource files,
+has been included. (#1837)
 
-- ADDING MULTIPLE RESOURCES: When adding multiple resources from the working directories
-to a session or CMDI file, they get processed together rather than one-by-one
-and appear in a single result table instead of one window per file. (#42, #2205)
+- ADDING MULTIPLE RESOURCES: When adding multiple resources from the working
+directories to a session or CMDI file, they get processed together rather than
+one-by-one and appear in a single result table instead of one window per file.
+(#42, #2205)
 
-- DEBIAN PACKAGE: The debian package now conflicts with the 
-graphicsmagick-imagemagick-compat package. Therefore this package is no longer accepted
-as a provider of imagemagick, leaving the actual imagemagick package as the only
-possible provider. Support for GraphicsMagick will be added in a future version. (#109)
+- DEBIAN PACKAGE: The debian package now conflicts with the
+graphicsmagick-imagemagick-compat package. Therefore this package is no longer
+accepted as a provider of imagemagick, leaving the actual imagemagick package as
+the only possible provider. Support for GraphicsMagick will be added in a future
+version. (#109)
 
 ** FIXES **
 
 Among other, mostly minor, bugfixes, the following issues have been resolved:
 
-- SAVING TO DISK: In particular (rare) instances, saving the XML to disk failed 
-resulting in empty document. This was due to a bug in one of the used
-libraries. (#1431)
+- SAVING TO DISK: In particular (rare) instances, saving the XML to disk failed
+resulting in empty document. This was due to a bug in one of the used libraries.
+(#1431)
 
-- WINDOWS: The 'Templates and Profiles' and 'Edit IMDI Language List' dialog windows
-could grow larger than the available screen space. (#147 and #1584)
+- WINDOWS: The 'Templates and Profiles' and 'Edit IMDI Language List' dialog
+windows could grow larger than the available screen space. (#147 and #1584)
 
-- VALIDATION: The IMDI templates have been updated, adding some previously missing
-field constraints. (#1686)
+- VALIDATION: The IMDI templates have been updated, adding some previously
+missing field constraints. (#1686)
 
-- MULTILINGUAL FIELDS: Starting to edit multilingual fields in CMDI metadata could cause
-the application to freeze for multiple seconds. This has been greatly improved. (#2190)
+- MULTILINGUAL FIELDS: Starting to edit multilingual fields in CMDI metadata
+could cause the application to freeze for multiple seconds. This has been
+greatly improved. (#2190)
 
-- EXPORT FILES: It used to be possible that an export directory contained temporary
-files that should not be included. This has been resolved. (#1757)
+- EXPORT FILES: It used to be possible that an export directory contained
+temporary files that should not be included. This has been resolved. (#1757)
 
-- ENCODING: Fixed an issue occurring when the path to the Arbil working files on disk
-contains non-ASCII characters - this happens for example if there are special characters
-in the user name. (#2299)
+- ENCODING: Fixed an issue occurring when the path to the Arbil working files on
+disk contains non-ASCII characters - this happens for example if there are
+special characters in the user name. (#2299)
 
-- AUTO FIELDS: When adding a resource file to an IMDI session, the type and
-size of the resource would sometimes not be filled in. Subsequent saving
-errors were a related issue. These have been resolved. (#1308 and #2212)
+- AUTO FIELDS: When adding a resource file to an IMDI session, the type and size
+of the resource would sometimes not be filled in. Subsequent saving errors were
+a related issue. These have been resolved. (#1308 and #2212)
 
 - PERFORMANCE: The application would become slow and would even freeze or crash
-during a heavy operation such as searching a large corpus when running as an installed
-application on Windows. This was caused by an incorrect memory allocation for the Java
-virtual machine and has been resolved. (#1321)
+during a heavy operation such as searching a large corpus when running as an
+installed application on Windows. This was caused by an incorrect memory
+allocation for the Java virtual machine and has been resolved. (#1321)
 
-- SIGN LANGUAGE TEMPLATE: The built-in sign language template for IMDI used to have 
-controlled vocabulary links that are no longer accessible. These have been updated. (#2550)
+- SIGN LANGUAGE TEMPLATE: The built-in sign language template for IMDI used to
+have controlled vocabulary links that are no longer accessible. These have been
+updated. (#2550)
 
-- ARBIL FORUM: The Arbil forum has changed to a new location. The link in the 'Help'
-menu has been updated to open this new location in a browser. (#2269)
+- ARBIL FORUM: The Arbil forum has changed to a new location. The link in the
+'Help' menu has been updated to open this new location in a browser. (#2269)
 
-- OPEN IMDI IN BROWSER: In some cases opening an IMDI file as IMDI formatted in the browser
-used to do nothing. This has been fixed. (#2539)
+- OPEN IMDI IN BROWSER: In some cases opening an IMDI file as IMDI formatted in
+the browser used to do nothing. This has been fixed. (#2539)
 
-- COPY CMDI NODES: Copying CMDI nodes within or between metadata files or adding favourites
-could lead to invalid element orders in the metadata XML. This has been fixed. (#2609)
+- COPY CMDI NODES: Copying CMDI nodes within or between metadata files or adding
+favourites could lead to invalid element orders in the metadata XML. This has
+been fixed. (#2609)
 
-- EXPORT: The export of an IMDI corpus or CMDI collection with the option to rename files
-to their display name would cause broken links in cases where there are linked files with 
-equal display names. Unique file names are now created and reflected correctly in the
-collection. (#2661)
+- EXPORT: The export of an IMDI corpus or CMDI collection with the option to
+rename files to their display name would cause broken links in cases where there
+are linked files with equal display names. Unique file names are now created and
+reflected correctly in the collection. (#2661)
 
 ** KNOWN ISSUES **
 
-Among others, the following issues have been described and will be addressed in future version of
-Arbil:
+Among others, the following issues have been described and will be addressed in
+future version of Arbil:
 
-- IMPORT RESOURCES: Resources that are protected and require authentication can currently not be
-imported into the local corpus since the authentication mechanism is broken. (#679)
+- IMPORT RESOURCES: Resources that are protected and require authentication can
+currently not be imported into the local corpus since the authentication
+mechanism is broken. (#679)
 
-- SHOW IMDI FORMATTED: When showing an IMDI metadata file 'IMDI formatted', the formatting does
-not look as expected. (#899)
+- SHOW IMDI FORMATTED: When showing an IMDI metadata file 'IMDI formatted', the
+formatting does not look as expected. (#899)
 
-- PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays high. (#929)
+- PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays
+high. (#929)
 
-- SEARCH IN TABLE: The layout of the input boxes for search/replace within a table sometimes break
-on Windows and Linux. (#1577)
+- SEARCH IN TABLE: The layout of the input boxes for search/replace within a
+table sometimes break on Windows and Linux. (#1577)
 
-- REMOTE SEARCH: The search interface for remote search is not very intuitive. At the moment remote
-search requires two steps: remote searching and local filtering. (#651)
+- REMOTE SEARCH: The search interface for remote search is not very intuitive.
+At the moment remote search requires two steps: remote searching and local
+filtering. (#651)
 
-- FILE HANDLING: There are some issues with file handling that occur on Windows 7. These can cause
-opening in external file and moving the local corpus directory to fail. (#1372 and #1553)
+- FILE HANDLING: There are some issues with file handling that occur on Windows
+7. These can cause opening in external file and moving the local corpus
+directory to fail. (#1372 and #1553)
 
 ** EXPERIMENTAL FEATURES **
 
