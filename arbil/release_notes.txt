@@ -119,3 +119,8 @@ search requires two steps: remote searching and local filtering. (#651)
 
 - FILE HANDLING: There are some issues with file handling that occur on Windows 7. These can cause
 opening in external file and moving the local corpus directory to fail. (#1372 and #1553)
+
+** EXPERIMENTAL FEATURES **
+
+- PLUGINS: Support for plugins has been added as an experimental and
+undocumented feature. (#2379)
