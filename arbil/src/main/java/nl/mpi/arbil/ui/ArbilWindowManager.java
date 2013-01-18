@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui;
 
@@ -212,16 +212,16 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		showLicenseWindow();
 	    }
 	});
-	
+
 	final JButton closeButton = new JButton("Close");
-	
+
 	final JDialog aboutDialog = createModalDialog("About " + appVersion.applicationTitle, textComponent, null, licenseButton, closeButton);
 	closeButton.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		aboutDialog.dispose();
 	    }
 	});
-	
+
 	aboutDialog.setVisible(true);
     }
 
@@ -301,8 +301,20 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	return null;
     }
 
+    /**
+     * Notice: <strong>this is not used in the application but required for plugins</strong>. file filter map, dialogue type, custom
+     * accessory not supported!
+     *
+     * @param titleText
+     * @param directorySelectOnly
+     * @param multipleSelect
+     * @param fileFilterMap GETS IGNORED
+     * @param dialogueType GETS IGNORED
+     * @param customAccessory GETS IGNORED
+     * @return
+     */
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, Map<String, FileFilter> fileFilterMap, DialogueType dialogueType, JComponent customAccessory) {
-	throw new UnsupportedOperationException("Not supported yet.");
+	return showFileSelectBox(titleText, directorySelectOnly, multipleSelect, false);
     }
 
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
