@@ -17,7 +17,7 @@
  */
 package nl.mpi.arbil.util;
 
-import nl.mpi.arbil.plugin.PluginBugCatcher;
+import nl.mpi.flap.plugin.PluginBugCatcher;
 
 /**
  *

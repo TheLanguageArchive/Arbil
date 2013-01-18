@@ -18,7 +18,7 @@
 package nl.mpi.arbil.util;
 
 import java.io.File;
-import nl.mpi.arbil.plugin.PluginDialogHandler;
+import nl.mpi.flap.plugin.PluginDialogHandler;
 
 /**
  *

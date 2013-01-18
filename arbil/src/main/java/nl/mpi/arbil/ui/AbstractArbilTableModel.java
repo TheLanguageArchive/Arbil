@@ -36,8 +36,8 @@ import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
-import nl.mpi.arbil.plugin.PluginArbilDataNode;
-import nl.mpi.arbil.plugin.PluginArbilTableModel;
+import nl.mpi.flap.plugin.PluginArbilDataNode;
+import nl.mpi.flap.plugin.PluginArbilTableModel;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.NumberedStringComparator;
 

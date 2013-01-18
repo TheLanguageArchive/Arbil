@@ -1,6 +1,6 @@
 package nl.mpi.arbil.wicket;
 
-import nl.mpi.arbil.plugin.PluginException;
+import nl.mpi.flap.plugin.PluginException;
 import nl.mpi.arbil.util.BugCatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -57,7 +57,7 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
-import nl.mpi.arbil.plugin.PluginArbilTable;
+import nl.mpi.flap.plugin.PluginArbilTable;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.util.BugCatcherManager;

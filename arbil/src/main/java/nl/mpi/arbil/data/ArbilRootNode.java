@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.arbil.plugin.FieldGroup;
+import nl.mpi.flap.plugin.FieldGroup;
 
 /**
  *

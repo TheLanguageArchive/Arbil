@@ -21,8 +21,8 @@ import java.net.URI;
 import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
-import nl.mpi.arbil.plugin.PluginArbilDataNode;
-import nl.mpi.arbil.plugin.WrongNodeTypeException;
+import nl.mpi.flap.plugin.PluginArbilDataNode;
+import nl.mpi.flap.plugin.WrongNodeTypeException;
 
 /**
  * Document : ArbilDataNodeLoader formerly known as ImdiLoader Created on : Dec

@@ -19,7 +19,7 @@ package nl.mpi.arbil;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.mpi.arbil.plugin.PluginException;
+import nl.mpi.flap.plugin.PluginException;
 import nl.mpi.arbil.util.BugCatcher;
 
 public class MockBugCatcher implements BugCatcher {

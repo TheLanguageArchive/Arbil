@@ -17,8 +17,8 @@
  */
 package nl.mpi.arbilcommons;
 
-import nl.mpi.arbil.plugin.PluginException;
-import nl.mpi.kinnate.plugin.AbstractBasePlugin;
+import nl.mpi.flap.plugin.AbstractBasePlugin;
+import nl.mpi.flap.plugin.PluginException;
 
 /**
  * Document : ArbilCommons Created on : Nov 08, 2012, 16:06 PM

@@ -26,7 +26,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.imageio.ImageIO;
-import nl.mpi.arbil.plugin.PluginException;
+import nl.mpi.flap.plugin.PluginException;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**

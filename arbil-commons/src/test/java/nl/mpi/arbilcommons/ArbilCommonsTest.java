@@ -18,7 +18,7 @@
 package nl.mpi.arbilcommons;
 
 import junit.framework.TestCase;
-import nl.mpi.arbil.plugin.PluginException;
+import nl.mpi.flap.plugin.PluginException;
 
 /**
  * Created on : Sep 27, 2012, 16:57

@@ -18,16 +18,16 @@
 package nl.mpi.arbil.plugins;
 
 import java.util.HashSet;
-import nl.mpi.arbil.plugin.ActivatablePlugin;
-import nl.mpi.arbil.plugin.ArbilWindowPlugin;
-import nl.mpi.arbil.plugin.JournalWatcherPlugin;
-import nl.mpi.arbil.plugin.PluginArbilDataNodeLoader;
-import nl.mpi.arbil.plugin.PluginException;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
-import nl.mpi.kinnate.plugin.BasePlugin;
+import nl.mpi.flap.plugin.ActivatablePlugin;
+import nl.mpi.flap.plugin.ArbilWindowPlugin;
+import nl.mpi.flap.plugin.BasePlugin;
+import nl.mpi.flap.plugin.JournalWatcherPlugin;
+import nl.mpi.flap.plugin.PluginArbilDataNodeLoader;
+import nl.mpi.flap.plugin.PluginException;
 import nl.mpi.pluginloader.PluginManager;
 
 /**

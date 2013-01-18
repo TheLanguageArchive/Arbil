@@ -27,9 +27,9 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
-import nl.mpi.arbil.plugin.PluginSessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.ProgressListener;
+import nl.mpi.flap.plugin.PluginSessionStorage;
 
 /**
  *

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.filechooser.FileFilter;
-import nl.mpi.arbil.plugin.PluginDialogHandler.DialogueType;
+import nl.mpi.flap.plugin.PluginDialogHandler.DialogueType;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.wicket.Session;
 import org.slf4j.Logger;

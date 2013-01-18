@@ -3,8 +3,8 @@ package nl.mpi.arbil.wicket;
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.plugin.PluginArbilDataNode;
-import nl.mpi.arbil.plugin.WrongNodeTypeException;
+import nl.mpi.flap.plugin.PluginArbilDataNode;
+import nl.mpi.flap.plugin.WrongNodeTypeException;
 
 /**
  * Proxy for the DataNodeLoader that is contained in the session that makes the

@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
-import nl.mpi.arbil.plugin.PluginDialogHandler;
-import nl.mpi.arbil.plugin.PluginSessionStorage;
+import nl.mpi.flap.plugin.PluginDialogHandler;
+import nl.mpi.flap.plugin.PluginSessionStorage;
 
 /**
  * Created on : Nov 8, 2012, 4:25:54 PM

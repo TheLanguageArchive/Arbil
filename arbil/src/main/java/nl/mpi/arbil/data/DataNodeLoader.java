@@ -18,7 +18,7 @@
 package nl.mpi.arbil.data;
 
 import java.net.URI;
-import nl.mpi.arbil.plugin.PluginArbilDataNodeLoader;
+import nl.mpi.flap.plugin.PluginArbilDataNodeLoader;
 
 /**
  * @author Peter.Withers@mpi.nl

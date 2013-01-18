@@ -26,13 +26,13 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import nl.mpi.arbil.plugin.JournalWatcherPlugin;
-import nl.mpi.arbil.plugin.PluginBugCatcher;
-import nl.mpi.arbil.plugin.PluginDialogHandler;
-import nl.mpi.arbil.plugin.PluginException;
-import nl.mpi.arbil.plugin.PluginField;
-import nl.mpi.arbil.plugin.PluginJournal;
-import nl.mpi.arbil.plugin.PluginSessionStorage;
+import nl.mpi.flap.plugin.JournalWatcherPlugin;
+import nl.mpi.flap.plugin.PluginBugCatcher;
+import nl.mpi.flap.plugin.PluginDialogHandler;
+import nl.mpi.flap.plugin.PluginException;
+import nl.mpi.flap.plugin.PluginField;
+import nl.mpi.flap.plugin.PluginJournal;
+import nl.mpi.flap.plugin.PluginSessionStorage;
 
 /**
  * Document : ArbilJournal Created on :
