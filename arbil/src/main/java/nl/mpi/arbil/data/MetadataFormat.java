@@ -24,9 +24,9 @@ import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
 
 /**
- *  Document   : MetadataFormat
- *  Created on : Aug 26, 2011, 10:19:34 AM
- *  Author     : Peter Withers
+ * Document : MetadataFormat
+ * Created on : Aug 26, 2011, 10:19:34 AM
+ * Author : Peter Withers
  */
 public class MetadataFormat {
 
@@ -46,14 +46,14 @@ public class MetadataFormat {
     }
     private final static Collection<FormatType> knownFormats = new CopyOnWriteArraySet<FormatType>(Arrays.asList(new FormatType[]{
 		new FormatType(".imdi", "", null, true),
-                // todo: the filter strings used by the cmdi templates and metadata loading process should be reading the metadataStartXpath from here instead
-		new FormatType(".cmdi", ".CMD.Components", ArbilIcons.getSingleInstance().clarinIcon, false),
+		// todo: the filter strings used by the cmdi templates and metadata loading process should be reading the metadataStartXpath from here instead
+		new FormatType(".cmdi", ".CMD.Components", ArbilIcons.clarinIcon, false),
 		// Generic XML
-		new FormatType(".xml", "", ArbilIcons.getSingleInstance().clarinIcon, false), // Clarin icon is not really appropriate
+		new FormatType(".xml", "", ArbilIcons.clarinIcon, false), // Clarin icon is not really appropriate
 		// KMDI, Kinship metadata
-		new FormatType(".kmdi", ".Kinnate.CustomData", ArbilIcons.getSingleInstance().kinOathIcon, false),
+		new FormatType(".kmdi", ".Kinnate.CustomData", ArbilIcons.kinOathIcon, false),
 		// TLA test results
-		new FormatType(".trx", "", ArbilIcons.getSingleInstance().clarinIcon, false)})); // Clarin icon is not really appropriate
+		new FormatType(".trx", "", ArbilIcons.clarinIcon, false)})); // Clarin icon is not really appropriate
 
 //    private static MetadataFormat singleInstance = null;
 //    static synchronized public MetadataFormat getSingleInstance() {
