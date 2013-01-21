@@ -262,7 +262,7 @@ public class ArbilTemplateManager {
 	    menuItem.menuText = customName;
 	    menuItem.menuAction = currentString;
 	    menuItem.menuToolTip = currentString;
-	    menuItem.menuIcon = arbilIcons.clarinIcon;
+	    menuItem.menuIcon = ArbilIcons.clarinIcon;
 	} else if (location.startsWith(CLARIN_PREFIX)) {
 	    menuItem.type = MenuItemData.Type.CMDI;
 
@@ -277,7 +277,7 @@ public class ArbilTemplateManager {
 		menuItem.menuAction = cmdiProfile.getXsdHref();
 		menuItem.menuToolTip = cmdiProfile.description;
 	    }
-	    menuItem.menuIcon = arbilIcons.clarinIcon;
+	    menuItem.menuIcon = ArbilIcons.clarinIcon;
 	}
 	return menuItem;
     }

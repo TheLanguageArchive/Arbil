@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -24,9 +24,9 @@ import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
 
 /**
- *  Document   : MetadataFormat
- *  Created on : Aug 26, 2011, 10:19:34 AM
- *  Author     : Peter Withers
+ * Document : MetadataFormat
+ * Created on : Aug 26, 2011, 10:19:34 AM
+ * Author : Peter Withers
  */
 public class MetadataFormat {
 
@@ -46,13 +46,13 @@ public class MetadataFormat {
     }
     private final static Collection<FormatType> knownFormats = new CopyOnWriteArraySet<FormatType>(Arrays.asList(new FormatType[]{
 		new FormatType(".imdi", "", null, true),
-		new FormatType(".cmdi", "", ArbilIcons.getSingleInstance().clarinIcon, false),
+		new FormatType(".cmdi", "", ArbilIcons.clarinIcon, false),
 		// Generic XML
-		new FormatType(".xml", "", ArbilIcons.getSingleInstance().clarinIcon, false), // Clarin icon is not really appropriate
+		new FormatType(".xml", "", ArbilIcons.clarinIcon, false), // Clarin icon is not really appropriate
 		// KMDI, Kinship metadata
-		new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.getSingleInstance().kinOathIcon, false),
+		new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.kinOathIcon, false),
 		// TLA test results
-		new FormatType(".trx", "", ArbilIcons.getSingleInstance().clarinIcon, false)})); // Clarin icon is not really appropriate
+		new FormatType(".trx", "", ArbilIcons.clarinIcon, false)})); // Clarin icon is not really appropriate
 
 //    private static MetadataFormat singleInstance = null;
 //    static synchronized public MetadataFormat getSingleInstance() {
