@@ -452,13 +452,13 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description for this project"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5 where 1 is the lowest quality and 5 is the highest quality"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.History" FieldDescription="Revision history of the metadata description"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Title" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Date" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Type" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.SubType" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Format" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Link" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Name" FieldDescription="The title of this session"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Title" FieldDescription="The name of this session (also used to name the session in various applications)"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Date" FieldDescription="Date of creation of the resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Type" FieldDescription="The type of the external (metadata) resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.SubType" FieldDescription="The sub type of the external (metadata) resource. Only used in case its metadata for a written resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Format" FieldDescription="The metadata format"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Link" FieldDescription="The URL of the external metadata record"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Description" FieldDescription=""/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Continent" FieldDescription="The name of a continent"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Country" FieldDescription="The name of a country"/>
@@ -467,18 +467,18 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Name" FieldDescription="A short name or abbreviation for the project"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Title" FieldDescription="The full title of the project"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Id" FieldDescription="A unique identifier for the project"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Keys.Key" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description of the project"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Keys.Key" FieldDescription="Additional field"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Genre" FieldDescription="Major genre classification"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" FieldDescription="Sub genre classification"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Task" FieldDescription="List of he major tasks carried out in the session"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Modalities" FieldDescription="List of modalities used in the session"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Subject" FieldDescription="Classifies the subject of the session. Uses preferably an existing library classification scheme such as LCSH. The element has a scheme attribute that indicates what scheme is used. Comments: The element can be repeated but the user should guarantee consistency"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Interactivity" FieldDescription="degree of interactivity"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Interactivity" FieldDescription="Degree of interactivity"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.PlanningType" FieldDescription="Degree of planning of the event"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Involvement" FieldDescription="Indicates in how far the researcher was involved in the linguistic event"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.SocialContext" FieldDescription="Indicates the social context the event took place in"/>
@@ -493,35 +493,35 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.SourceLanguage" FieldDescription="Direction of translation. Only applicable in case it is the context of a lexicon resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.TargetLanguage" FieldDescription="Direction of translation. Only applicable in case it is the context of a lexicon resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.Description" FieldDescription="Description for this particular language"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Keys.Key" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Role" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.FullName" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Code" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.FamilySocialRole" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Id" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.MotherTongue" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.PrimaryLanguage" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Dominant" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.SourceLanguage" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.TargetLanguage" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.EthnicGroup" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Age" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.BirthDate" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Sex" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Education" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Anonymized" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Keys.Key" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Description" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Keys.Key" FieldDescription="Additional field"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Description" FieldDescription="Description of the content"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Description" FieldDescription="Description about the actors as a group"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Role" FieldDescription="Functional role of the actor e.g. consultant, contributor, interviewer, researcher, publisher, collector, translator"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Name" FieldDescription="Name of the actor as used by others in the transcription"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.FullName" FieldDescription="Official name of the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Code" FieldDescription="Short unique code to identify the actor as used in the transcription"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.FamilySocialRole" FieldDescription="The family social role of the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Description" FieldDescription="Description for the list of languages spoken by this participant"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Id" FieldDescription="Unique code to identify a language"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Name" FieldDescription="Name of the language"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.MotherTongue" FieldDescription="Is it the speakers mother tongue. Only applicable if used in the context of a speakers language"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.PrimaryLanguage" FieldDescription="Is it the speakers primary language. Only applicable if used in the context of a speakers language"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Dominant" FieldDescription="Is it the most frequently used language in the document. Only applicable if used in the context of the resource's language"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.SourceLanguage" FieldDescription="Direction of translation. Only applicable in case it is the context of a lexicon resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.TargetLanguage" FieldDescription="Direction of translation. Only applicable in case it is the context of a lexicon resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Description" FieldDescription="Description for this particular language"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.EthnicGroup" FieldDescription="The ethnic groups of the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Age" FieldDescription="The age of the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.BirthDate" FieldDescription="The birthdate of the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Sex" FieldDescription="The sex of the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Education" FieldDescription="The education of the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Anonymized" FieldDescription="Indicates if real names or anonymized codes are used to identify the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Keys.Key" FieldDescription="Additional field"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Description" FieldDescription="Description of the actor"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.ResourceLink" FieldDescription="URL to media file"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Type" FieldDescription="Major part of mime-type"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Format" FieldDescription="Minor part of mime-type"/>
@@ -534,13 +534,13 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Date" FieldDescription="Date when access rights were evalueted"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Owner" FieldDescription="Name of owner resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Publisher" FieldDescription="Publisher responsible for distribution of this data"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Keys.Key" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Description" FieldDescription="Description of the access"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Description" FieldDescription="Description of the mediafile"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Keys.Key" FieldDescription="Additional field"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.ResourceLink" FieldDescription="URL to file  the  annotations/transcriptions"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.MediaResourceLink" FieldDescription="URL to media file from which the annotations/transcriptions originate"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Date" FieldDescription="Date when Written Resource was created"/>
@@ -551,7 +551,7 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Type" FieldDescription="CV: content, type, manual, automatic, semi-automatic"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Methodology" FieldDescription="Validation methodology"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Level" FieldDescription="Percentage of resource validated"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Description" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Description" FieldDescription="Description of the validation"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Derivation" FieldDescription="How this document relates to another resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.CharacterEncoding" FieldDescription="Character encoding used in the Written resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.ContentEncoding" FieldDescription="Content encoding used in the Written resource"/>
@@ -561,13 +561,13 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Date" FieldDescription="Date when access rights were evaluated"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Owner" FieldDescription="Name of owner resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Publisher" FieldDescription="Publisher responsible for distribution of this data"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Keys.Key" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Description" FieldDescription="Description of the access to the written resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Description" FieldDescription="Description of the written resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Keys.Key" FieldDescription="Additional field"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.ResourceLink" FieldDescription="URL to lexical resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Date" FieldDescription="Date when lexical resource was created"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Type" FieldDescription="Type of the Lexical Resource"/>
@@ -587,18 +587,18 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Usage" FieldDescription=""/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Frequency" FieldDescription=""/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.MetaLanguages.Language" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.MetaLanguages.Description" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.MetaLanguages.Description" FieldDescription="Description of the matalanguages"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Availability" FieldDescription="Availability of the data"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Date" FieldDescription="Date when access rights were evaluated"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Owner" FieldDescription="Name of owner resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Publisher" FieldDescription="Publisher responsible for distribution of this data"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Keys.Key" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Description" FieldDescription="Description of the access to the lexicon resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Description" FieldDescription="Description of the lexicon resource"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Keys.Key" FieldDescription="Additional field"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.ResourceLink" FieldDescription="URL to Lexicon Component"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Date" FieldDescription="Date when the Lexicon Component was created"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Type" FieldDescription="Type of the Lexicon Component"/>
@@ -619,47 +619,47 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Usage" FieldDescription=""/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Frequency" FieldDescription=""/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.MetaLanguages.Language" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.MetaLanguages.Description" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.MetaLanguages.Description" FieldDescription="Description of the metalanguages"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Availability" FieldDescription="Availability of the data"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Date" FieldDescription="Date when access rights were evalueted"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Owner" FieldDescription="Name of owner resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Publisher" FieldDescription="Publisher responsible for distribution of this data"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Keys.Key" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Description" FieldDescription="Description of the access to lexicon component"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Description" FieldDescription="Description of the lexicon conmponent"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Keys.Key" FieldDescription="Additional field"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Id" FieldDescription="Unique code to identify the orignal source"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Format" FieldDescription="Physical storage format of the source"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Quality" FieldDescription="Quality of original recording"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.CounterPosition.Start" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.CounterPosition.End" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.CounterPosition.Start" FieldDescription="Counter at the beginning"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.CounterPosition.End" FieldDescription="Counter at the end"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.TimePosition.Start" FieldDescription="The start time position of a recording"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.TimePosition.End" FieldDescription="The end time position of a recording"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Availability" FieldDescription="Availability of the data"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Date" FieldDescription="Date when access rights were evalueted"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Owner" FieldDescription="Name of owner resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Publisher" FieldDescription="Publisher responsible for distribution of this data"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Keys.Key" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Description" FieldDescription="Description of the access to the source"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Description" FieldDescription="Description of the source"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Keys.Key" FieldDescription="Additional field"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.ResourceLink" FieldDescription="URL to information to convert pseudo named to real-names"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Availability" FieldDescription="Availability of the data"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Date" FieldDescription="Date when access rights were evalueted"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Owner" FieldDescription="Name of owner resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Publisher" FieldDescription="Publisher responsible for distribution of this data"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.References.Description" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Description" FieldDescription="Description of the access to anonyms"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.References.Description" FieldDescription="Description of references"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Name" FieldDescription="Name of the (sub-)corpus"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Title" FieldDescription="Title for the (sub-)corpus"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Description" FieldDescription="Description of the (sub-)corpus"/>
@@ -670,12 +670,12 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Name" FieldDescription="A short name or abbreviation for the project"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Title" FieldDescription="The full title of the project"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Id" FieldDescription="A unique identifier for the project"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Keys.Key" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Description" FieldDescription="Description of the project"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Keys.Key" FieldDescription="Additional field"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Genre" FieldDescription="Major genre classification"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.SubGenre" FieldDescription="Sub genre classification"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Task" FieldDescription="List of he major tasks carried out in the session"/>
@@ -696,8 +696,8 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.SourceLanguage" FieldDescription="Direction of translation. Only applicable in case it is the context of a lexicon resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.TargetLanguage" FieldDescription="Direction of translation. Only applicable in case it is the context of a lexicon resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.Description" FieldDescription="Description for this particular language"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Keys.Key" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Description" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Keys.Key" FieldDescription="Additional field"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Description" FieldDescription="Descrition of the content"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Description" FieldDescription="Description about the actors as a group"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Role" FieldDescription="Functional role of the actor e.g. consultant, contributor, interviewer, researcher, publisher, collector, translator"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Name" FieldDescription="Name of the actor as used by others in the transcription"/>
@@ -719,13 +719,13 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Sex" FieldDescription="The sex of the actor"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Education" FieldDescription="The education of the actor"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Anonymized" FieldDescription="Indicates if real names or anonymized codes are used to identify the actor"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Keys.Key" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Description" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.CorpusLink" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Organisation" FieldDescription="Organistion of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Keys.Key" FieldDescription="Additional field"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Description" FieldDescription="Description of the actor"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.CorpusLink" FieldDescription="Link to child sessions or corpora"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Name" FieldDescription="Name of the published corpus"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Title" FieldDescription="Title of the published corpus"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Id" FieldDescription="Identifier of the published corpus"/>
@@ -759,11 +759,11 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Name" FieldDescription="A short name or abbreviation for the project"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Title" FieldDescription="The full title of the project"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Id" FieldDescription="A unique identifier for the project"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Description" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Organisation" FieldDescription="Organosation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Description" FieldDescription="Description of the project"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Publisher" FieldDescription="Publisher responsible for distribution of the published corpus"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Author" FieldDescription="Authors for the resources"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Size" FieldDescription="Human readabusle string that indicates total size of corpus"/>
@@ -772,17 +772,17 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Date" FieldDescription="Date when access rights were evalueted"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Owner" FieldDescription="Name of owner resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Publisher" FieldDescription="Publisher responsible for distribution of this data"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Name" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Address" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Email" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Organisation" FieldDescription=""/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Description" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Name" FieldDescription="Name of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Address" FieldDescription="Address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Email" FieldDescription="E-mail address of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Organisation" FieldDescription="Organisation of the contact"/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Description" FieldDescription="Description of the access to the catalogue"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Pricing" FieldDescription="Pricing info of the corpus"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.ContactPerson" FieldDescription="Person to be contacted about the resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.ReferenceLink" FieldDescription="URL to the resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.MetadataLink" FieldDescription="URL to the metadata for the resource"/>
         <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Publications" FieldDescription="List of any publications related to the resource"/>
-        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Keys.Key" FieldDescription=""/>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Keys.Key" FieldDescription="Additional field"/>
     </FieldUsageDescriptions>
     <PreferredTreeNodeNameFields>
         <comment>The fields that will be used to name the node in the tree if the field contains a value. The first found value will be used, so the order of this list determines their preference of use in the tree.</comment>
