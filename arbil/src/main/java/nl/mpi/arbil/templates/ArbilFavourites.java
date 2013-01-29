@@ -8,20 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.templates;
 
-import java.net.URISyntaxException;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -29,18 +27,21 @@ import java.util.Vector;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
- * Document   : ArbilFavourites
+ * Document : ArbilFavourites
  * Created on : Mar 3, 2009, 11:19:14 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilFavourites {
+public class ArbilFavourites implements FavouritesService {
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -128,7 +129,8 @@ public class ArbilFavourites {
 	return true;
     }
 
-    private void addAsFavourite(URI imdiUri) {
+    @Override
+    public void addAsFavourite(URI imdiUri) {
 	try {
 	    URI baseUri = new URI(imdiUri.toString().split("#")[0]);
 	    String fileSuffix = imdiUri.getPath().substring(imdiUri.getPath().lastIndexOf("."));
@@ -161,7 +163,8 @@ public class ArbilFavourites {
 
     /**
      * Creates update array for CMDI resource links that need to be made absolute before being put into favorites
-     * @param imdiUri 
+     *
+     * @param imdiUri
      * @return update array for resource links with items for links that currently are not absolute. For IMDI will return null.
      */
     private URI[][] makeLinksAbsolute(URI imdiUri) {
