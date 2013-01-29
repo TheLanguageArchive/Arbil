@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -33,8 +33,9 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Singleton instance of TreeHelper, for use with Arbil desktop application
- * Document   : ArbilTreeHelper
- * Created on : 
+ * Document : ArbilTreeHelper
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTreeHelper extends AbstractTreeHelper {
@@ -88,15 +89,16 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 
     @Override
     public void applyRootLocations() {
-	System.out.println("applyRootLocations");
-	arbilTreePanel.localCorpusTree.rootNodeChildren = getLocalCorpusNodes();
-	arbilTreePanel.remoteCorpusTree.rootNodeChildren = getRemoteCorpusNodes();
-	arbilTreePanel.localDirectoryTree.rootNodeChildren = getLocalFileNodes();
-	arbilTreePanel.favouritesTree.rootNodeChildren = getFavouriteNodes();
-	arbilTreePanel.localCorpusTree.requestResort();
-	arbilTreePanel.remoteCorpusTree.requestResort();
-	arbilTreePanel.localDirectoryTree.requestResort();
-	arbilTreePanel.favouritesTree.requestResort();
+	if (arbilTreePanel != null) {
+	    arbilTreePanel.localCorpusTree.rootNodeChildren = getLocalCorpusNodes();
+	    arbilTreePanel.remoteCorpusTree.rootNodeChildren = getRemoteCorpusNodes();
+	    arbilTreePanel.localDirectoryTree.rootNodeChildren = getLocalFileNodes();
+	    arbilTreePanel.favouritesTree.rootNodeChildren = getFavouriteNodes();
+	    arbilTreePanel.localCorpusTree.requestResort();
+	    arbilTreePanel.remoteCorpusTree.requestResort();
+	    arbilTreePanel.localDirectoryTree.requestResort();
+	    arbilTreePanel.favouritesTree.requestResort();
+	}
     }
 
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
