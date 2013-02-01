@@ -3,7 +3,7 @@ package nl.mpi.arbil.wicket;
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.flap.plugin.PluginArbilDataNode;
+import nl.mpi.flap.model.PluginArbilDataNode;
 import nl.mpi.flap.plugin.WrongNodeTypeException;
 
 /**
@@ -100,7 +100,7 @@ public class ArbilWicketDataNodeLoaderProxy implements DataNodeLoader {
     public URI getNodeURI(PluginArbilDataNode dataNode) throws WrongNodeTypeException {
 	return getDataNodeLoader().getNodeURI(dataNode);
     }
-
+    
     public boolean isNodeLoading(PluginArbilDataNode dataNode) {
 	return getDataNodeLoader().isNodeLoading(dataNode);
     }
