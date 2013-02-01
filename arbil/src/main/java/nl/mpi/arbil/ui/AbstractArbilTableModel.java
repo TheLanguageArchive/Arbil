@@ -36,10 +36,10 @@ import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
-import nl.mpi.flap.plugin.PluginArbilDataNode;
 import nl.mpi.flap.plugin.PluginArbilTableModel;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.NumberedStringComparator;
+import nl.mpi.flap.model.PluginArbilDataNode;
 
 /**
  *

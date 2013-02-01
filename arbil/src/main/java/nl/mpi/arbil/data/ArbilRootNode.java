@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.flap.plugin.FieldGroup;
+import nl.mpi.flap.model.FieldGroup;
 
 /**
  *
@@ -45,6 +45,11 @@ public abstract class ArbilRootNode extends ArbilNode {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public String getID() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public ImageIcon getIcon() {

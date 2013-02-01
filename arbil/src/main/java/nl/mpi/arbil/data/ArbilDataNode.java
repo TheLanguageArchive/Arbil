@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2013 Max Planck Institute for Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -43,13 +43,13 @@ import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
-import nl.mpi.flap.plugin.AbstractField;
-import nl.mpi.flap.plugin.FieldGroup;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
+import nl.mpi.flap.model.AbstractField;
+import nl.mpi.flap.model.FieldGroup;
 
 /**
  * Document : ArbilDataNode formerly known as ImdiTreeObject
@@ -829,15 +829,15 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     public boolean canHaveResource() {
-	if (hasResource()) {
-	    return true;
-	} else if (isCmdiMetaDataNode()) {
-	    final ArbilTemplate template = getNodeTemplate();
-	    if (template instanceof CmdiTemplate) {
-		return ((CmdiTemplate) template).pathCanHaveResource(nodeUri.getFragment());
-	    }
-	}
-	return false;
+        if (hasResource()) {
+            return true;
+        } else if (isCmdiMetaDataNode()) {
+            final ArbilTemplate template = getNodeTemplate();
+            if (template instanceof CmdiTemplate) {
+                return ((CmdiTemplate) template).pathCanHaveResource(nodeUri.getFragment());
+            }
+        }
+        return false;
     }
 
     /**
@@ -1261,6 +1261,12 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         return isFavorite;
 
         //        return getParentDomNode().isFavourite;
+    }
+
+    @Override
+    public String getID() {
+        // this ID is used by JAXB. It does not need to be the archive handle, but it does need to he unique. Note that the archive handle is not always available.
+        return archiveHandle;
     }
 
     //    public void setFavouriteStatus(boolean favouriteStatus) {

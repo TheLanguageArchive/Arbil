@@ -50,7 +50,7 @@ public interface ArbilDataNodeContainer {
     void dataNodeChildAdded(ArbilNode destination, ArbilNode newChildNode);
 
     /**
-     * 
+     *
      * @return whether a {@link ArbilDataNode.LoadingState#LOADED} state is required. If false, this indicates a 
      * {@link ArbilDataNode.LoadingState#PARTIAL} suffices.
      */

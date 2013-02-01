@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.flap.plugin.AbstractField;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
+import nl.mpi.flap.model.AbstractField;
 
 /**
  * Document : ArbilField Created on : Wed Dec 03 13:29:30 CET 2008

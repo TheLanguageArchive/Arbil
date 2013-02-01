@@ -19,7 +19,7 @@ package nl.mpi.arbil.data;
 
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.flap.plugin.AbstractDataNode;
+import nl.mpi.flap.model.AbstractDataNode;
 
 /**
  * Interface for nodes, either data nodes, root nodes or potentially other kinds

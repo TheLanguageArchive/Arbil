@@ -19,8 +19,8 @@ package nl.mpi.arbil;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.mpi.flap.plugin.PluginException;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.flap.plugin.PluginException;
 
 public class MockBugCatcher implements BugCatcher {
 

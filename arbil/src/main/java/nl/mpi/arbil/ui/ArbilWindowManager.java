@@ -80,15 +80,9 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbilcommons.journal.ArbilJournal;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
-import nl.mpi.flap.plugin.PluginArbilTable;
-import nl.mpi.flap.plugin.PluginArbilTableModel;
-import nl.mpi.flap.plugin.PluginDialogHandler;
-import nl.mpi.flap.plugin.PluginDialogHandler.DialogueType;
-import nl.mpi.flap.plugin.PluginWidgetFactory;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
@@ -99,6 +93,12 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
+import nl.mpi.arbilcommons.journal.ArbilJournal;
+import nl.mpi.flap.plugin.PluginArbilTable;
+import nl.mpi.flap.plugin.PluginArbilTableModel;
+import nl.mpi.flap.plugin.PluginDialogHandler;
+import nl.mpi.flap.plugin.PluginDialogHandler.DialogueType;
+import nl.mpi.flap.plugin.PluginWidgetFactory;
 import org.xml.sax.SAXException;
 
 /**

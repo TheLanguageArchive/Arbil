@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.flap.plugin.FieldGroup;
+import nl.mpi.flap.model.FieldGroup;
 
 /**
  * Document : ContainerNode Created on : Mar 28, 2012, 1:04:22 PM
@@ -83,6 +83,11 @@ public class ContainerNode extends ArbilNode implements Comparable {
     @Override
     public ArbilNode[] getChildArray() {
         return childNodes;
+    }
+
+    @Override
+    public String getID() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

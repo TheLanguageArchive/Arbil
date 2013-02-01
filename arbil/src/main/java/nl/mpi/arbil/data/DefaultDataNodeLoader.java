@@ -21,7 +21,7 @@ import java.net.URI;
 import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
-import nl.mpi.flap.plugin.PluginArbilDataNode;
+import nl.mpi.flap.model.PluginArbilDataNode;
 import nl.mpi.flap.plugin.WrongNodeTypeException;
 
 /**
