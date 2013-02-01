@@ -26,11 +26,11 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import nl.mpi.flap.model.PluginField;
 import nl.mpi.flap.plugin.JournalWatcherPlugin;
 import nl.mpi.flap.plugin.PluginBugCatcher;
 import nl.mpi.flap.plugin.PluginDialogHandler;
 import nl.mpi.flap.plugin.PluginException;
-import nl.mpi.flap.plugin.PluginField;
 import nl.mpi.flap.plugin.PluginJournal;
 import nl.mpi.flap.plugin.PluginSessionStorage;
 
@@ -177,11 +177,13 @@ public class ArbilJournal implements PluginJournal {
         try {
             journalFile = new FileWriter(getJournalFile(), true);
             System.out.println("Journal: " + imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue);
-            journalFile.append("\"" + imdiUrl + imdiNodePath + "\",\"" + oldValue + "\",\"" + newValue + "\",\"" + eventType + "\"\n");
+            journalFile.append("\"" + imdiUrl + "#" + imdiNodePath + "\",\"" + oldValue + "\",\"" + newValue + "\",\"" + eventType + "\"\n");
             journalFile.close();
             journalFile = null;
             returnValue = true;
-            wakeJounalWatchers(getJournalFile().length());
+            if ("save".equals(eventType)) {
+                wakeJounalWatchers(getJournalFile().length());
+            }
         } catch (IOException ex) {
             returnValue = false;
             bugCatcher.logException(new PluginException("failed to write to the journal: " + ex.getMessage()));
@@ -208,8 +210,15 @@ public class ArbilJournal implements PluginJournal {
                 lineNumberReader.skip(lastChangeIndex);
                 String readLine;
                 while (null != (readLine = lineNumberReader.readLine())) {
-                    // todo: extract the URI
-                    changedURIs.add(readLine);
+                    if (readLine.endsWith(",\"save\"")) {
+                        // extract the URI
+                        // todo: note that old versions of Arbil often ommit the # as follows:
+//                        "file:/Users/petwit2/.arbil/ArbilWorkingFiles/20121221145203/20121221145203.cmdi.CMD.Components.AnnotationTool.applicationType","","dfdfsdf","save"
+//                        "file:/Users/petwit2/.arbil/ArbilWorkingFiles/20121207173739/20121207173739/20121207182709.imdi.METATRANSCRIPT.Session.MDGroup.Location.Continent","Unspecified","Australia","save"
+                        String urlString = readLine.substring(1);
+                        urlString = urlString.split("#", 2)[0];
+                        changedURIs.add(urlString);
+                    }
                 }
             }
             return journalLength;
