@@ -1375,5 +1375,42 @@
       <para>To create a new template, create a directory in the ".arbil/templates" directory. This is where all the files relevant to that template will be stored. This directory will now be selectable via the "options/templates" menu.</para>
       <para>Each template can have its own XSL which is used via the "view formatted" menu. The XSL must be in the selected templates directory and be called "format.xsl". For example: .arbil/templates/{template name}/format.xsl. If there are any additional files required by the XSL they can be placed in the same directory as the XSL file.</para>
     </section>
+    <section>
+      <title>New languages </title>
+      <para>More languages can be added to the MPI-Languages CV upon request. Send an e-mail to
+        corpus.manager@mpi.nl with the name and the ISO 639-3 code of the language you want to
+        add.</para>
+    </section>
+    <section>
+      <title>Plugins</title>
+      <para>Plugins add extra functionality to Arbil. They are provided as '.jar' files that can be
+        placed in a special location where Arbil will detect them and add them as items to the
+        'Plugins' menu (which is hidden unless plugins have actually been detected).</para>
+      <para>To install a plugin, place the .jar file in one of the following directories: </para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para>~/ArchivingPlugins (Linux or MacOS)</para>
+          </listitem>
+          <listitem>
+            <para>%APPDATA%/ArchivingPlugins (Windows)</para>
+          </listitem>
+          <listitem>
+            <para>%USERPROFILE%/ArchivingPlugins (Windows)</para>
+          </listitem>
+          <listitem>
+            <para>&lt;ARBIL STORAGE DIRECTORY>/ArchivingPlugins</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>If none of the locations already exist, you can create one. Some options will not be
+        available on all operating systems. ~ denotes the user's home directory on Unix systems.
+        %APPDATA% and %USERPROFILE% are system environments available in Windows. Use the 'run
+        command' option (Windows key + R) to open locations that contain the environment
+        variable.</para>
+      <para>&lt;ARBIL STORAGE DIRECTORY> is the directory called .arbil that contains the
+        configuration files and by default is the parent directory of the working files
+        directory.</para>
+    </section>
   </chapter>
 </book>
