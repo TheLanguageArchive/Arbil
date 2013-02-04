@@ -7,7 +7,7 @@
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
 <!--    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
-    <version>${arbil.majorVersion}.${arbil.minorVersion}.35134-${arbil.branch}</version>
+    <version>${arbil.majorVersion}.${arbil.minorVersion}.35580-${arbil.branch}</version>
     <name>Arbil Help</name>
     
     <parent>
@@ -171,9 +171,9 @@
     
     <dependencies>
 	<dependency>
-	    <groupId>${project.groupId}</groupId>
+	    <groupId>nl.mpi</groupId>
 	    <artifactId>plugins-core</artifactId>
-	    <version>0.0.33389-pretesting</version>
+	    <version>1.0.34524-stable</version>
 	</dependency>
 	<dependency>
 	    <groupId>junit</groupId>
