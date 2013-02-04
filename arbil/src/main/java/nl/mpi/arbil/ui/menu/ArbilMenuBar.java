@@ -31,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JApplet;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -566,30 +567,9 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initPluginMenu() {
-	ArrayList<URL> pluginUlrs = new ArrayList<URL>();
-	String errorMessages = "";
-	try {
-	    final String[] pluginStringArray = ArbilSessionStorage.getSingleInstance().loadStringArray("PluginList");
-	    if (pluginStringArray != null) {
-		for (String pluginString : pluginStringArray) {
-		    try {
-			pluginUlrs.add(new URL(pluginString));
-		    } catch (MalformedURLException exception) {
-			System.out.println(exception.getMessage());
-			errorMessages = errorMessages + "Could not load plugin: " + pluginString + "\n";
-		    }
-		}
-//            } else {
-//                sessionStorage.saveStringArray("PluginList", new String[]{"file:///<path to plugin>.jar", "file:///<path to plugin>.jar"});
-	    }
-	    if (!"".equals(errorMessages)) {
-		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(errorMessages, "Plugin Error");
-	    }
-	} catch (IOException ex) {
-	    // if the list is not found then we need not worry at this point.
-	    System.out.println("PluginList not found");
-	}
-	this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[0])), new ArbilPluginManager(ArbilSessionStorage.getSingleInstance(), ArbilWindowManager.getSingleInstance(), ArbilDataNodeLoader.getSingleInstance(), GuiHelper.linorgBugCatcher), true));
+	final ArbilPluginManager pluginManager = new ArbilPluginManager(ArbilSessionStorage.getSingleInstance(), ArbilWindowManager.getSingleInstance(), ArbilDataNodeLoader.getSingleInstance(), GuiHelper.linorgBugCatcher);
+	final List<URL> pluginUlrs = pluginManager.getPluginsFromDirectoriesAndPluginsList();
+	this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[]{})), pluginManager, true));
     }
 
     private void initWindowMenu() {
