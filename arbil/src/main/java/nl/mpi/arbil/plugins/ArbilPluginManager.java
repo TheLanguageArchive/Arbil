@@ -130,7 +130,9 @@ public class ArbilPluginManager implements PluginManager {
 	    System.getenv("APPDATA") + File.separatorChar + ARCHIVING_PLUGINS_DIR_NAME + File.separatorChar,
 	    System.getProperty("user.home") + File.separatorChar + ARCHIVING_PLUGINS_DIR_NAME + File.separatorChar,
 	    System.getenv("USERPROFILE") + File.separatorChar + ARCHIVING_PLUGINS_DIR_NAME + File.separatorChar,
-	    System.getProperty("user.dir") + File.separatorChar + ARCHIVING_PLUGINS_DIR_NAME + File.separatorChar
+	    System.getProperty("user.dir") + File.separatorChar + ARCHIVING_PLUGINS_DIR_NAME + File.separatorChar,
+	    new File(arbilSessionStorage.getProjectDirectory(), ARCHIVING_PLUGINS_DIR_NAME).getAbsolutePath(),
+	    new File(arbilSessionStorage.getProjectWorkingDirectory(), ARCHIVING_PLUGINS_DIR_NAME).getAbsolutePath()
 	};
 
 	for (String locationOption : locationOptions) {
