@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
 import javax.swing.JCheckBoxMenuItem;
@@ -655,30 +656,9 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initPluginMenu() {
-	ArrayList<URL> pluginUlrs = new ArrayList<URL>();
-	String errorMessages = "";
-	try {
-	    final String[] pluginStringArray = sessionStorage.loadStringArray("PluginList");
-	    if (pluginStringArray != null) {
-		for (String pluginString : pluginStringArray) {
-		    try {
-			pluginUlrs.add(new URL(pluginString));
-		    } catch (MalformedURLException exception) {
-			System.out.println(exception.getMessage());
-			errorMessages = errorMessages + java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COULD NOT LOAD PLUGIN: {0}"), new Object[]{pluginString});
-		    }
-		}
-//            } else {
-//                sessionStorage.saveStringArray("PluginList", new String[]{"file:///<path to plugin>.jar", "file:///<path to plugin>.jar"});
-	    }
-	    if (!"".equals(errorMessages)) {
-		dialogHandler.addMessageDialogToQueue(errorMessages, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PLUGIN ERROR"));
-	    }
-	} catch (IOException ex) {
-	    // if the list is not found then we need not worry at this point.
-	    System.out.println(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PLUGINLIST NOT FOUND"));
-	}
-	this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[0])), new ArbilPluginManager(sessionStorage, windowManager, dataNodeLoader, BugCatcherManager.getBugCatcher()), true));
+	final ArbilPluginManager pluginManager = new ArbilPluginManager(sessionStorage, windowManager, dataNodeLoader, BugCatcherManager.getBugCatcher());
+	final List<URL> pluginUlrs = pluginManager.getPluginsFromDirectoriesAndPluginsList();
+	this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[]{})), pluginManager, true));
     }
 
     private void initWindowMenu() {
