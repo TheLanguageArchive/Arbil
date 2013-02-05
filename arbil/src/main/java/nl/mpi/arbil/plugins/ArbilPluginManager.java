@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import nl.mpi.arbil.ui.ArbilWindowManager;
@@ -109,13 +110,15 @@ public class ArbilPluginManager implements PluginManager {
     }
 
     public List<URL> getPluginsFromDirectoriesAndPluginsList() {
-	final List<URL> plugins = getPluginsFromDirectories();
-	plugins.addAll(getPluginsFromPluginList());
-	return plugins;
+	// Using a set to strip out duplicates
+	final Collection<URL> pluginsSet = new HashSet<URL>();
+	pluginsSet.addAll(getPluginsFromDirectories());
+	pluginsSet.addAll(getPluginsFromPluginList());
+	return new ArrayList<URL>(pluginsSet);
     }
 
-    public List<URL> getPluginsFromDirectories() {
-	final List<URL> pluginURLs = new ArrayList<URL>();
+    public Collection<URL> getPluginsFromDirectories() {
+	final Collection<URL> pluginURLs = new HashSet<URL>();
 
 	final FileFilter jarFileFilter = new FileFilter() {
 	    public boolean accept(File pathname) {
@@ -152,8 +155,8 @@ public class ArbilPluginManager implements PluginManager {
 	return pluginURLs;
     }
 
-    public List<URL> getPluginsFromPluginList() {
-	List<URL> pluginUlrs = new ArrayList<URL>();
+    public Collection<URL> getPluginsFromPluginList() {
+	final Collection<URL> pluginUlrs = new HashSet<URL>();
 	String errorMessages = "";
 	try {
 	    final String[] pluginStringArray = arbilSessionStorage.loadStringArray("PluginList");
