@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
@@ -32,6 +33,7 @@ import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * Extension of ArbilTree that keeps track of its ArbilNode contents and can quickly look up the TreeNode for any ArbilNode
+ *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilTrackingTree extends ArbilTree {
@@ -39,7 +41,6 @@ public class ArbilTrackingTree extends ArbilTree {
     public ArbilTrackingTree(ArbilTreeController treeController, TreeHelper treeHelper, MessageDialogHandler dialogHandler) {
 	super(treeController, treeHelper, dialogHandler);
     }
-    
     private HashMap<ArbilNode, TreeNode> treeNodeMap = new HashMap<ArbilNode, TreeNode>();
 
     @Override
@@ -70,6 +71,7 @@ public class ArbilTrackingTree extends ArbilTree {
 
     /**
      * A new child node has been added to the destination node. Tries to expand tree to show the new node and select it.
+     *
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */
@@ -79,7 +81,7 @@ public class ArbilTrackingTree extends ArbilTree {
     }
 
     /**
-     * 
+     *
      * @param startingNode Leave null to search from root
      * @param targetNode Node to jump to
      * @return Whether node was found
@@ -100,10 +102,15 @@ public class ArbilTrackingTree extends ArbilTree {
 	    List<ArbilNode> nodePath = createArbilNodePath(startingNode, targetNode);
 	    if (nodePath != null) {
 		// Create a tree path from this node path
-		TreePath newNodePath = findTreePathForNodePath(startingTreeNode, nodePath);
-		// Select the new node
-		setSelectionPath(newNodePath);
-		scrollPathToVisible(newNodePath);
+		final TreePath newNodePath = findTreePathForNodePath(startingTreeNode, nodePath);
+
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			// Select the new node
+			setSelectionPath(newNodePath);
+			scrollPathToVisible(newNodePath);
+		    }
+		});
 		return true;
 	    }
 	}
@@ -130,6 +137,7 @@ public class ArbilTrackingTree extends ArbilTree {
 
     /**
      * Takes arbil node path and maps to TreePath starting mapping from specified root tree node
+     *
      * @param rootTreeNode TreeNode to start with
      * @param arbilNodePath Path of arbil nodes that correspond to children of rootTreeNode
      * @return TreePath (from tree root) for the arbilNodePath
@@ -139,8 +147,14 @@ public class ArbilTrackingTree extends ArbilTree {
 	TreePath treePath = createTreePathForTreeNode(rootTreeNode);
 	// Start mapping node path to tree path
 	for (ArbilNode currentTargetNode : arbilNodePath) {
-	    // Expand current node so children will become available...
-	    expandPath(treePath);
+	    final TreePath currentTreePath = treePath;
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+
+		    // Expand current node so children will become available...
+		    expandPath(currentTreePath);
+		}
+	    });
 	    // ...and give the sort runner some time to react to the expansion before proceeding...
 	    synchronized (sortRunnerLock) {
 		try {
@@ -156,6 +170,7 @@ public class ArbilTrackingTree extends ArbilTree {
 
     /**
      * Extends a tree path by adding the TreeNode that has a specified ArbilNode as user object
+     *
      * @param treePath TreePath to extend
      * @param currentTargetNode
      * @return Extend tree path (if target not found, returns original)
@@ -182,7 +197,7 @@ public class ArbilTrackingTree extends ArbilTree {
     }
 
     /**
-     * 
+     *
      * @param treeNode
      * @return Complete treepath for the specified treeNode
      */
@@ -200,6 +215,7 @@ public class ArbilTrackingTree extends ArbilTree {
 
     /**
      * Creates list that represents path from a root node to a target node (not including root node)
+     *
      * @param rootNode Departure node
      * @param targetNode Target node
      * @return List starting at first child of rootnode on path and ending with targetnode, or null if not found
@@ -224,7 +240,7 @@ public class ArbilTrackingTree extends ArbilTree {
     }
 
     /**
-     * 
+     *
      * @return ArbilNode that is object of tree root. If tree root object not an ArbilNode, null.
      */
     private ArbilNode getRootNodeObject() {
