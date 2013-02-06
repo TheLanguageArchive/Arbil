@@ -7,7 +7,7 @@
     Version="0"
     xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">>
+    xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
     <Session>
 	<Name>Language and Genetics Session</Name>
 	<Title></Title>
