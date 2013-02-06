@@ -8,19 +8,21 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
+
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * FieldChangeTriggers.java
  * Created on Jul 13, 2009, 4:15:02 PM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class FieldChangeTriggers {
@@ -52,21 +54,23 @@ public class FieldChangeTriggers {
 		String targetFieldPath = originalFieldPath.substring(0, lastBracketPos) + currentTrigger[1].substring(lastTriggerBracket);
 		System.out.println("originalFieldPath: " + originalFieldPath);
 		System.out.println("targetFieldPath: " + targetFieldPath);
-		ArbilField[] targetField = changedArbilField.getSiblingField(targetFieldPath);
-		ArbilVocabularyItem vocabItem = changedArbilField.getVocabulary().findVocabularyItem(changedArbilField.getFieldValue());
-		if (vocabItem != null) {
-		    String valueForTargetField = null;
-		    if (currentTrigger[2].equals("Content")) {
-			valueForTargetField = vocabItem.descriptionString;
-		    } else if (currentTrigger[2].equals("Value")) {
-			valueForTargetField = vocabItem.itemDisplayName;
-		    } else if (currentTrigger[2].equals("Code")) {
-			valueForTargetField = vocabItem.itemCode;
-		    } else if (currentTrigger[2].equals("FollowUp")) {
-			targetField[0].loadVocabulary();
-		    }
-		    if (valueForTargetField != null) {
-			targetField[0].setFieldValue(valueForTargetField, true, false);
+		final ArbilField[] targetField = changedArbilField.getSiblingField(targetFieldPath);
+		if (targetField != null) {
+		    ArbilVocabularyItem vocabItem = changedArbilField.getVocabulary().findVocabularyItem(changedArbilField.getFieldValue());
+		    if (vocabItem != null) {
+			String valueForTargetField = null;
+			if (currentTrigger[2].equals("Content")) {
+			    valueForTargetField = vocabItem.descriptionString;
+			} else if (currentTrigger[2].equals("Value")) {
+			    valueForTargetField = vocabItem.itemDisplayName;
+			} else if (currentTrigger[2].equals("Code")) {
+			    valueForTargetField = vocabItem.itemCode;
+			} else if (currentTrigger[2].equals("FollowUp")) {
+			    targetField[0].loadVocabulary();
+			}
+			if (valueForTargetField != null) {
+			    targetField[0].setFieldValue(valueForTargetField, true, false);
+			}
 		    }
 		}
 	    }
