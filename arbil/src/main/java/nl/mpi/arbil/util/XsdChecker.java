@@ -8,21 +8,21 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.util;
 
 /**
- * Document   : XsdChecker
+ * Document : XsdChecker
  * Created on : Mon Dec 01 14:07:40 CET 2008
+ *
  * @author Peter.Withers@mpi.nl
  */
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,25 +34,27 @@ import java.util.Scanner;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
-import javax.swing.text.StyledDocument;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import javax.xml.XMLConstants;
-import org.xml.sax.SAXException;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class XsdChecker extends JSplitPane {
@@ -202,7 +204,7 @@ public class XsdChecker extends JSplitPane {
 
 	    class CustomErrorHandler implements ErrorHandler {
 
-		File imdiFile;
+		private final File imdiFile;
 
 		public CustomErrorHandler(File imdiFileLocal) {
 		    imdiFile = imdiFileLocal;
@@ -215,8 +217,16 @@ public class XsdChecker extends JSplitPane {
 			for (int lineCounter = 0; lineCounter < lineNumber - 1; lineCounter++) {
 			    returnText = scanner.nextLine();
 			}
-			// return the line plus the preceding and following lines
-			return (lineNumber - 1) + ": " + returnText + "\n" + (lineNumber) + ": " + scanner.nextLine() + "\n" + (lineNumber + 1) + ": " + scanner.nextLine();
+			// construct the line plus the preceding and following lines
+			final StringBuilder lineSb = new StringBuilder();
+			lineSb.append(lineNumber - 1).append(": ").append(returnText).append("\n");
+			if (scanner.hasNextLine()) {
+			    lineSb.append(lineNumber).append(": ").append(scanner.nextLine()).append("\n");
+			}
+			if (scanner.hasNextLine()) {
+			    lineSb.append(lineNumber + 1).append(": ").append(scanner.nextLine()).append("\n");
+			}
+			return lineSb.toString();
 		    } catch (FileNotFoundException fileNotFoundException) {
 			bugCatcher.logError(fileNotFoundException);
 			return fileNotFoundException.getMessage();
@@ -290,7 +300,6 @@ public class XsdChecker extends JSplitPane {
 
     public void checkXML(final ArbilDataNode dataNode) {
 	Runnable checkXmlRunner = new Runnable() {
-
 	    public void run() {
 		doCheckXML(dataNode);
 	    }
@@ -299,7 +308,7 @@ public class XsdChecker extends JSplitPane {
 	thread.start();
     }
 
-    private void doCheckXML(ArbilDataNode imdiObject) {
+    private void doCheckXML(final ArbilDataNode imdiObject) {
 	encounteredAdditionalErrors = false;
 	try {
 	    doc.insertString(doc.getLength(), "Checking the IMDI file conformance to the XSD\nThere are three types or messages: ", styleNormal);
@@ -312,12 +321,15 @@ public class XsdChecker extends JSplitPane {
 	    synchronized (imdiObject) {
 		alternateCheck(imdiObject.getFile());
 	    }
-
-	    try {
-		fileViewPane.setPage(imdiObject.getURI().toURL());
-	    } catch (Exception ex) {
-		bugCatcher.logError(ex);
-	    }
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    try {
+			fileViewPane.setPage(imdiObject.getURI().toURL());
+		    } catch (Exception ex) {
+			bugCatcher.logError(ex);
+		    }
+		}
+	    });
 	} catch (Exception ex) {
 	    encounteredAdditionalErrors = true;
 	    reportedError = ex.getMessage();

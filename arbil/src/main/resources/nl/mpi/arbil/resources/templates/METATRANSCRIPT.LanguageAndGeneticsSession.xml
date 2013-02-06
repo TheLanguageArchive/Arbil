@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<METATRANSCRIPT 
+    Date="2012-02-06" 
+    FormatId="IMDI 3.03" 
+    Originator="Language and Genetics"
+    Type="SESSION"
+    Version="0"
+    xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
+    <Session>
+	<Name>Language and Genetics Session</Name>
+	<Title></Title>
+	<Date>Unspecified</Date>
+        <Description LanguageId="" Link=""/>
+	<MDGroup>
+	    <Location>
+                <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="ClosedVocabulary"></Continent>
+                <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="OpenVocabulary"></Country>
+	    </Location>
+	    <Project>
+		<Name></Name>
+		<Title></Title>
+		<Id></Id>
+		<Contact>
+		    <Name/>
+		    <Address/>
+		    <Email/>
+		    <Organisation/>
+		</Contact>
+	    </Project>
+	    <Keys>
+	    </Keys>
+	    <Content>
+                <Genre Link="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" Type="OpenVocabulary"></Genre>
+		<CommunicationContext>
+		</CommunicationContext>
+		<Languages>
+                    <Description LanguageId="" Link=""/>
+                </Languages>
+		<Keys>
+		</Keys>
+                <Description LanguageId="" Link=""/>
+	    </Content>
+	    <Actors>
+	    </Actors>
+	</MDGroup>
+	<Resources>
+	</Resources>
+    </Session>
+</METATRANSCRIPT>

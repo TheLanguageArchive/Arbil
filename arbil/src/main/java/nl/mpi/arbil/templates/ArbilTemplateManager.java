@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
@@ -57,7 +58,7 @@ public class ArbilTemplateManager {
     //private String defaultArbilTemplateName;
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
-    private String[] builtInTemplates2 = {"Default", "Sign Language"}; // the first item in this list is the default template
+    private String[] builtInTemplates2 = {"Default", "Sign Language", "Language and Genetics"}; // the first item in this list is the default template
 //    private ArbilTemplate defaultArbilTemplate;
     //public String[] builtInTemplates = {"Corpus Branch (internal)", "Session (internal)", "Catalogue (internal)", "Sign Language (internal)"};
 
@@ -230,20 +231,7 @@ public class ArbilTemplateManager {
 	menuItem.type = MenuItemData.Type.IMDI;
 	if (location.startsWith("builtin:")) {
 	    String currentString = location.substring("builtin:".length());
-	    for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
-		if (currentString.equals(currentTemplateName[0])) {
-		    menuItem.menuText = currentTemplateName[1];
-		    menuItem.menuAction = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
-		    menuItem.menuToolTip = currentTemplateName[1];
-		    if (menuItem.menuText.contains("Corpus")) {
-			menuItem.menuIcon = arbilIcons.corpusnodeColorIcon;
-		    } else if (menuItem.menuText.contains("Catalogue")) {
-			menuItem.menuIcon = arbilIcons.catalogueColorIcon;
-		    } else {
-			menuItem.menuIcon = arbilIcons.sessionColorIcon;
-		    }
-		}
-	    }
+	    return getMenuItemDataForBuiltinTemplate(currentString, menuItem, arbilIcons);
 	} else if (location.startsWith("template:")) {
 	    String currentString = location.substring("template:".length());
 	    menuItem.menuText = currentString;
@@ -278,8 +266,31 @@ public class ArbilTemplateManager {
 		menuItem.menuToolTip = cmdiProfile.description;
 	    }
 	    menuItem.menuIcon = ArbilIcons.clarinIcon;
+	} else {
+	    bugCatcher.logError("Unknown template location type in " + location, null);
 	}
 	return menuItem;
+    }
+
+    private MenuItemData getMenuItemDataForBuiltinTemplate(String currentString, MenuItemData menuItem, ArbilIcons arbilIcons) {
+	for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
+	    if (currentString.equals(currentTemplateName[0])) {
+		menuItem.menuText = currentTemplateName[1];
+		menuItem.menuAction = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
+		menuItem.menuToolTip = currentTemplateName[1];
+		if (menuItem.menuText.contains("Corpus")) {
+		    menuItem.menuIcon = arbilIcons.corpusnodeColorIcon;
+		} else if (menuItem.menuText.contains("Catalogue")) {
+		    menuItem.menuIcon = arbilIcons.catalogueColorIcon;
+		} else {
+		    menuItem.menuIcon = arbilIcons.sessionColorIcon;
+		}
+		return menuItem;
+	    }
+	}
+	bugCatcher.logError("Could not find builtin template location " + currentString, null);
+	// No match found
+	return null;
     }
 
     public MenuItemData[] getSelectedTemplatesMenuItems() {
@@ -301,16 +312,20 @@ public class ArbilTemplateManager {
 	    return new MenuItemData[0];
 	}
 
-	MenuItemData[] returnArray = new MenuItemData[locationsArray.length];
+	List<MenuItemData> returnArray = new ArrayList<MenuItemData>(locationsArray.length);
 	for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
-	    returnArray[insertableCounter] = createMenuItemForTemplate(locationsArray[insertableCounter]);
+	    final String templateLocation = locationsArray[insertableCounter];
+	    final MenuItemData menuItemData = createMenuItemForTemplate(templateLocation);
+	    if (menuItemData != null) {
+		returnArray.add(menuItemData);
+	    }
 	}
-	Arrays.sort(returnArray, new Comparator() {
-	    public int compare(Object firstItem, Object secondItem) {
-		return (((MenuItemData) firstItem).menuText.compareToIgnoreCase(((MenuItemData) secondItem).menuText));
+	Collections.sort(returnArray, new Comparator<MenuItemData>() {
+	    public int compare(MenuItemData firstItem, MenuItemData secondItem) {
+		return firstItem.menuText.compareToIgnoreCase(secondItem.menuText);
 	    }
 	});
-	return returnArray;
+	return returnArray.toArray(new MenuItemData[]{});
     }
 
 //     
