@@ -605,9 +605,8 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
-	trackTableSelectionCheckBoxMenuItem.setEnabled(false);
-	//TODO: Implement trackTableSelectionCheckBoxMenuItem and re-enable
-//        optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
+	trackTableSelectionCheckBoxMenuItem.setEnabled(true);
+        optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
 
 	useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("useLanguageIdInColumnName", false));
 	useLanguageIdInColumnNameCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW LANGUAGE IN COLUMN NAME"));

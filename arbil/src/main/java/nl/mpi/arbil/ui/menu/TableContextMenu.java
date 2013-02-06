@@ -125,7 +125,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 matchingCellsMenuItem.setVisible(true);
             }
 
-            jumpToNodeInTreeMenuItem.setVisible(false);// to enable for local: setVisible(leadSelectedTreeNode.isLocal());
+            jumpToNodeInTreeMenuItem.setVisible(leadSelectedTreeNode.isLocal());
             clearCellColoursMenuItem.setVisible(true);
         }
         if (table.getParent().getParent().getParent().getParent() instanceof ArbilSplitPanel) {
