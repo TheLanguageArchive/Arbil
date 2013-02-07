@@ -8,23 +8,27 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui.menu;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
-import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
@@ -63,6 +67,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		matchingRowsMenuItem.setVisible(true);
 		removeSelectedRowsMenuItem.setVisible(true);
 		showChildNodesMenuItem.setVisible(true);
+		showInContextMenuItem.setVisible(true);
 	    }
 	    boolean canDeleteSelectedFields = true;
 	    ArbilField[] currentSelection = table.getSelectedFields();
@@ -120,7 +125,6 @@ public class TableContextMenu extends ArbilContextMenu {
     private void setUpActions() {
 	copySelectedRowsMenuItem.setText("Copy");
 	copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.copySelectedTableRowsToClipBoard();
@@ -133,7 +137,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	pasteIntoSelectedRowsMenuItem.setText("Paste");
 	pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.pasteIntoSelectedTableRowsFromClipBoard();
@@ -147,7 +150,6 @@ public class TableContextMenu extends ArbilContextMenu {
 	// field menu items
 	openInLongFieldEditorMenuItem.setText("Open in Long Field Editor");
 	openInLongFieldEditorMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.startLongFieldEditorForSelectedFields();
@@ -159,7 +161,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	hideSelectedColumnsMenuItem.setText("Hide Selected Columns");
 	hideSelectedColumnsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.hideSelectedColumnsFromTable();
@@ -168,11 +169,10 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 15, hideSelectedColumnsMenuItem);
+	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 15, hideSelectedColumnsMenuItem);
 
 	showChildNodesMenuItem.setText("Show Child Nodes");
 	showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.showRowChildData();
@@ -186,7 +186,6 @@ public class TableContextMenu extends ArbilContextMenu {
 	    deleteFieldMenuItem.setText("Delete MultiField");
 	}
 	deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilField[] selectedFields = table.getSelectedFields();
@@ -222,7 +221,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	revertFieldMenuItem.setText("Revert Selected Fields");
 	revertFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilField[] selectedFields = table.getSelectedFields();
@@ -239,7 +237,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
 	copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    // TODO: change this to copy to selected rows
@@ -257,7 +254,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	matchingCellsMenuItem.setText("Highlight Matching Cells");
 	matchingCellsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.getArbilTableModel().highlightMatchingCells(table.getSelectedRow(), table.getSelectedColumn());
@@ -269,7 +265,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	clearCellColoursMenuItem.setText("Clear Cell Highlight");
 	clearCellColoursMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.getArbilTableModel().clearCellColours();
@@ -280,7 +275,6 @@ public class TableContextMenu extends ArbilContextMenu {
 	});
 	searchReplaceMenuItem.setText("Find/Replace");
 	searchReplaceMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ((ArbilSplitPanel) table.getParent().getParent().getParent().getParent()).showSearchPane();
@@ -292,7 +286,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	viewSelectedRowsMenuItem.setText("View Selected Rows");
 	viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.viewSelectedTableRows();
@@ -304,7 +297,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
 	matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.highlightMatchingRows();
@@ -316,7 +308,6 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	removeSelectedRowsMenuItem.setText("Remove Selected Rows");
 	removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    table.removeSelectedRowsFromTable();
@@ -327,7 +318,6 @@ public class TableContextMenu extends ArbilContextMenu {
 	});
 	jumpToNodeInTreeMenuItem.setText("Jump to in Tree"); // NOI18N
 	jumpToNodeInTreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilTreeHelper.getSingleInstance().jumpToSelectionInTree(false, table.getDataNodeForSelection());
@@ -338,16 +328,29 @@ public class TableContextMenu extends ArbilContextMenu {
 	});
 	jumpToNodeInTreeMenuItem.setEnabled(true);
 
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 10, openInLongFieldEditorMenuItem);
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 15, hideSelectedColumnsMenuItem);
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 20, showChildNodesMenuItem);
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 25, copyCellToColumnMenuItem);
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 30, matchingCellsMenuItem);
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 35, clearCellColoursMenuItem);
+	showInContextMenuItem.setText("Show Context");
+	showInContextMenuItem.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		Set<ArbilDataNode> parentNodes = new HashSet<ArbilDataNode>();
+		for (ArbilField selectedField : table.getSelectedFields()) {
+		    parentNodes.add(selectedField.getParentDataNode().getParentDomNode());
+		}
+		ArbilWindowManager.getSingleInstance().openFloatingSubnodesWindows(parentNodes.toArray(new ArbilDataNode[]{}));
+	    }
+	});
 
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_BOTTOM + 10, searchReplaceMenuItem);
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_BOTTOM + 15, deleteFieldMenuItem);
-	addItem(CATEGORY_TABLE_CELL, PRIORITY_BOTTOM + 20, revertFieldMenuItem);
+
+	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 10, openInLongFieldEditorMenuItem);
+	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 15, hideSelectedColumnsMenuItem);
+	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 20, showChildNodesMenuItem);
+	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 25, showInContextMenuItem);
+	
+	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_TOP + 10, copyCellToColumnMenuItem);
+	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_TOP + 20, matchingCellsMenuItem);
+	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_TOP + 30, clearCellColoursMenuItem);
+	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_MIDDLE + 10, searchReplaceMenuItem);
+	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_MIDDLE + 15, deleteFieldMenuItem);
+	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_MIDDLE + 20, revertFieldMenuItem);
 
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_TOP + 10, viewSelectedRowsMenuItem);
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_TOP + 15, matchingRowsMenuItem);
@@ -375,6 +378,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	searchReplaceMenuItem.setVisible(false);
 	jumpToNodeInTreeMenuItem.setVisible(false);
 	showChildNodesMenuItem.setVisible(false);
+	showInContextMenuItem.setVisible(false);
     }
     private ArbilTable table;
     private JMenuItem copySelectedRowsMenuItem = new JMenuItem();
@@ -392,4 +396,5 @@ public class TableContextMenu extends ArbilContextMenu {
     private JMenuItem clearCellColoursMenuItem = new JMenuItem();
     private JMenuItem jumpToNodeInTreeMenuItem = new JMenuItem();
     private JMenuItem showChildNodesMenuItem = new JMenuItem();
+    private JMenuItem showInContextMenuItem = new JMenuItem();
 }

@@ -304,7 +304,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
 	addItemCategory(CATEGORY_REMOTE_CORPUS);
 	addItemCategory(CATEGORY_WORKING_DIR);
-	addItemCategory(CATEGORY_TABLE_CELL);
+	addItemCategory(CATEGORY_TABLE_CELL_VIEW);
 	addItemCategory(CATEGORY_TABLE_ROW);
 	addItemCategory(CATEGORY_ADD_FAVOURITES);
 
@@ -342,7 +342,8 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     protected final static String CATEGORY_REMOTE_CORPUS = "remote corpus";
     protected final static String CATEGORY_RESOURCE = "resource";
     protected final static String CATEGORY_WORKING_DIR = "working dir";
-    protected final static String CATEGORY_TABLE_CELL = "table cell";
+    protected final static String CATEGORY_TABLE_CELL_VIEW = "table cell1";
+    protected final static String CATEGORY_TABLE_CELL_EDIT = "table cell2";
     protected final static String CATEGORY_TABLE_ROW = "table row";
     protected final static String CATEGORY_IMPORT = "import";
     protected final static int PRIORITY_TOP = 0;
