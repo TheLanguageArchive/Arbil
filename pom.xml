@@ -27,7 +27,7 @@
     <properties>
 	<arbil.majorVersion>2</arbil.majorVersion>
 	<arbil.minorVersion>4</arbil.minorVersion>
-	<arbil.branch>testing</arbil.branch>
+	<arbil.branch>stable</arbil.branch>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
