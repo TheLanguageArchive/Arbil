@@ -518,6 +518,7 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
+	trackTableSelectionCheckBoxMenuItem.setVisible(false);
 	trackTableSelectionCheckBoxMenuItem.setEnabled(false);
 	optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
 
@@ -556,6 +557,7 @@ public class ArbilMenuBar extends JMenuBar {
 	optionsMenu.add(viewMenu);
 
 	editFieldViewsMenuItem.setText("Edit Column Views");
+	editFieldViewsMenuItem.setVisible(false);
 	editFieldViewsMenuItem.setEnabled(false);
 //        editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 //
