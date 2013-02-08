@@ -17,7 +17,7 @@
     </parent>
     
     <properties>
-	<arbil.application-title>Arbil (testing)</arbil.application-title>
+	<arbil.application-title>Arbil</arbil.application-title>
 	<output.jarname>${project.build.finalName}</output.jarname>
 	<output.directory>${project.build.directory}</output.directory>
 	<netbeans.hint.license>gpl20</netbeans.hint.license>
