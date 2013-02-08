@@ -21,6 +21,10 @@ The following functionality has been added to Arbil:
 display values (e.g. nl -> Netherlands), both are now shown in the drop down in
 the editor. (#2283)
 
+- TABLE OPTIONS: An item 'Show Context' has been added to the context menu of
+the table view for multiple nodes. Choosing this option opens a hierarchical
+view of the entire metadata document the selected nodes belong to. (#2765)
+
 ** CHANGES **
 
 These parts of the Arbil functionality have changed:
