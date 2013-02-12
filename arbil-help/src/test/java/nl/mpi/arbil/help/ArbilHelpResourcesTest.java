@@ -2,8 +2,8 @@ package nl.mpi.arbil.help;
 
 import java.io.InputStream;
 import junit.framework.TestCase;
-import nl.mpi.arbil.plugin.PluginException;
-import nl.mpi.kinnate.plugin.AbstractBasePlugin;
+import nl.mpi.flap.module.AbstractBaseModule;
+import nl.mpi.flap.plugin.PluginException;
 
 /**
  * Created on : Sep 27, 2012, 11:30
@@ -18,7 +18,7 @@ public class ArbilHelpResourcesTest extends TestCase {
     public void testGetArtifactVersion() {
 	System.out.println("getArtifactVersion");
 	try {
-	    AbstractBasePlugin abstractBasePlugin = new ArbilHelpResources();
+	    AbstractBaseModule abstractBasePlugin = new ArbilHelpResources();
 	    assertTrue(abstractBasePlugin.isMavenVersionCorrect());
 	} catch (PluginException exception) {
 	    fail(exception.getMessage());

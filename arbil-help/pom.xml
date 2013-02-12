@@ -168,12 +168,12 @@
 	</plugins>
     </build>
     
-    <dependencies>
-	<dependency>
-	    <groupId>${project.groupId}</groupId>
-	    <artifactId>plugins-core</artifactId>
-	    <version>0.0.33389-pretesting</version>
-	</dependency>
+    <dependencies>	
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>plugins-core</artifactId>
+            <version>1.1-pretesting-SNAPSHOT</version>
+        </dependency>
 	<dependency>
 	    <groupId>junit</groupId>
 	    <artifactId>junit</artifactId>

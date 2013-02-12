@@ -1,13 +1,13 @@
 package nl.mpi.arbil.help;
 
-import nl.mpi.arbil.plugin.PluginException;
-import nl.mpi.kinnate.plugin.AbstractBasePlugin;
+import nl.mpi.flap.module.AbstractBaseModule;
+import nl.mpi.flap.plugin.PluginException;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilHelpResources extends AbstractBasePlugin {
+public class ArbilHelpResources extends AbstractBaseModule {
 
     public final static String IMDI_HELP_RESOURCE_BASE = "/nl/mpi/arbil/resources/html/help/arbil-imdi/";
     public final static String IMDI_HELP_INDEX_XML = IMDI_HELP_RESOURCE_BASE + "arbil-imdi.xml";
