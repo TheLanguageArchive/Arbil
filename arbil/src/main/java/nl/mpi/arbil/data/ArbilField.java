@@ -26,14 +26,14 @@ import java.util.Map;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
-import nl.mpi.flap.model.AbstractField;
+import nl.mpi.flap.model.DataField;
 
 /**
  * Document : ArbilField Created on : Wed Dec 03 13:29:30 CET 2008
  *
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilField extends AbstractField implements Serializable {
+public class ArbilField extends DataField implements Serializable {
 
     private transient ArbilDataNode parentDataNode;
     private URI parentDataNodeURI;

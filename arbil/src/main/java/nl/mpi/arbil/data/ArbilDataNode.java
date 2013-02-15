@@ -48,8 +48,10 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
-import nl.mpi.flap.model.AbstractField;
+import nl.mpi.flap.model.AbstractDataNodeType;
+import nl.mpi.flap.model.DataField;
 import nl.mpi.flap.model.FieldGroup;
+import nl.mpi.flap.model.PluginArbilDataNode;
 
 /**
  * Document : ArbilDataNode formerly known as ImdiTreeObject
@@ -584,10 +586,15 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public List<FieldGroup> getFieldGroups() {
         ArrayList<FieldGroup> fieldArrays = new ArrayList<FieldGroup>();
         for (Map.Entry<String, ArbilField[]> currentEntry : getFields().entrySet()) {
-            final List<AbstractField> fieldList = Arrays.<AbstractField>asList(currentEntry.getValue());
+            final List<DataField> fieldList = Arrays.<DataField>asList(currentEntry.getValue());
             fieldArrays.add(new FieldGroup(currentEntry.getKey(), fieldList));
         }
         return fieldArrays;
+    }
+
+    @Override
+    public void setFieldGroups(List<FieldGroup> fieldGroups) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
@@ -665,6 +672,16 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public synchronized boolean isLoading() {
         return getParentDomNode().isLoadingCount > 0;
+    }
+
+    @Override
+    public void setLabel(String label) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String getLabel() {
+        return this.toString();
     }
 
     @Override
@@ -1031,6 +1048,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         this.domParentNode = domParentNode;
     }
 
+    @Override
+    public AbstractDataNodeType getType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     public boolean isDirectory() {
         return isDirectory;
     }
@@ -1269,10 +1291,27 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         return archiveHandle;
     }
 
+    @Override
+    public void setID(String id) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setChildIds(List<String> idString) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public List<String> getChildIds() {
+        ArrayList<String> childIds = new ArrayList<String>();
+        for (PluginArbilDataNode dataNode : getChildArray()) {
+            childIds.add(dataNode.getID());
+        }
+        return childIds;
+    }
     //    public void setFavouriteStatus(boolean favouriteStatus) {
     //        getParentDomNode().isFavourite = favouriteStatus;
     //        clearIcon();
     //    }
+
     /**
      * If not already done calculates the required icon for this node in its
      * current state. Once calculated the stored icon will be returned. To clear

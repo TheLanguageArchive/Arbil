@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2013 Max Planck Institute for Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -45,6 +45,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.flap.model.AbstractDataNodeType;
 
 /**
  * Document : ArbilTreeHelper Created on :
@@ -88,15 +89,30 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             public ArbilDataNode[] getChildArray() {
                 return getLocalCorpusNodes();
             }
+
+            @Override
+            public AbstractDataNodeType getType() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
         };
         remoteCorpusRootNodeObject = new ArbilRootNode(URI.create("REMOTECORPUS"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("REMOTE CORPUS"), ArbilIcons.getSingleInstance().serverIcon, false) {
             public ArbilDataNode[] getChildArray() {
                 return getRemoteCorpusNodes();
             }
+
+            @Override
+            public AbstractDataNodeType getType() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
         };
         localDirectoryRootNodeObject = new ArbilRootNode(URI.create("WORKINGDIRECTORIES"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("WORKING DIRECTORIES"), ArbilIcons.getSingleInstance().computerIcon, true) {
             public ArbilDataNode[] getChildArray() {
                 return getLocalFileNodes();
+            }
+
+            @Override
+            public AbstractDataNodeType getType() {
+                throw new UnsupportedOperationException("Not supported yet.");
             }
         };
         favouritesRootNodeObject = new ArbilRootNode(URI.create("FAVOURITES"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FAVOURITES"), ArbilIcons.getSingleInstance().favouriteIcon, true) {
@@ -106,6 +122,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 containerNodeMap = groupTreeNodesByType(getFavouriteNodes(), containerNodeMap);
                 return containerNodeMap.values().toArray(new ArbilNode[]{});
 //            return getFavouriteNodes();
+            }
+
+            @Override
+            public AbstractDataNodeType getType() {
+                throw new UnsupportedOperationException("Not supported yet.");
             }
         };
     }

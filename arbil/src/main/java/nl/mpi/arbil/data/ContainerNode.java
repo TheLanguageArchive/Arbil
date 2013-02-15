@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2013 Max Planck Institute for Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
+import nl.mpi.flap.model.AbstractDataNodeType;
 import nl.mpi.flap.model.FieldGroup;
 
 /**
@@ -83,6 +84,45 @@ public class ContainerNode extends ArbilNode implements Comparable {
     @Override
     public ArbilNode[] getChildArray() {
         return childNodes;
+    }
+
+    @Override
+    public void setID(String id) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String getLabel() {
+        return this.toString();
+    }
+
+    @Override
+    public List<String> getChildIds() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setLabel(String label) {
+        labelString = label;
+    }
+
+    @Override
+    public void setFieldGroups(List<FieldGroup> fieldGroups) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+//    @Override
+//    public List<PluginArbilDataNode> getChildArray() {
+//        throw new UnsupportedOperationException("Not supported yet.");
+//    }
+    @Override
+    public void setChildIds(List<String> idString) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public AbstractDataNodeType getType() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -222,11 +262,6 @@ public class ContainerNode extends ArbilNode implements Comparable {
     @Override
     public boolean isSession() {
         return false;
-    }
-
-    @Override
-    public URI getURI() {
-        return nodeUri;
     }
 
     @Override
