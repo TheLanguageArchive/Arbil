@@ -26,7 +26,7 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import nl.mpi.flap.model.PluginField;
+import nl.mpi.arbilcommons.model.HistoryField;
 import nl.mpi.flap.plugin.JournalWatcherPlugin;
 import nl.mpi.flap.plugin.PluginBugCatcher;
 import nl.mpi.flap.plugin.PluginDialogHandler;
@@ -69,7 +69,7 @@ public class ArbilJournal implements PluginJournal {
 
     private static class HistoryItem {
 
-        PluginField targetField;
+        HistoryField targetField;
         String oldValue;
         String newValue;
         UndoType undoType;
@@ -89,7 +89,7 @@ public class ArbilJournal implements PluginJournal {
     ArrayList<HistoryItem> fieldChangeHistory;
     int currentFieldChangeHistoryItem = 0;
 
-    public synchronized void recordFieldChange(PluginField targetField, String oldValue, String newValue, UndoType undoType) {
+    public synchronized void recordFieldChange(HistoryField targetField, String oldValue, String newValue, UndoType undoType) {
         if (fieldChangeHistory == null) {
             fieldChangeHistory = new ArrayList<HistoryItem>();
             currentFieldChangeHistoryItem = 0;
