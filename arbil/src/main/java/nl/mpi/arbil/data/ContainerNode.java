@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.flap.model.AbstractDataNodeType;
+import nl.mpi.flap.model.DataNodeType;
 import nl.mpi.flap.model.FieldGroup;
 
 /**
@@ -121,7 +121,7 @@ public class ContainerNode extends ArbilNode implements Comparable {
     }
 
     @Override
-    public AbstractDataNodeType getType() {
+    public DataNodeType getType() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -48,10 +48,10 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
-import nl.mpi.flap.model.AbstractDataNodeType;
+import nl.mpi.flap.model.DataNodeType;
 import nl.mpi.flap.model.DataField;
 import nl.mpi.flap.model.FieldGroup;
-import nl.mpi.flap.model.PluginArbilDataNode;
+import nl.mpi.flap.model.PluginDataNode;
 
 /**
  * Document : ArbilDataNode formerly known as ImdiTreeObject
@@ -1049,7 +1049,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     @Override
-    public AbstractDataNodeType getType() {
+    public DataNodeType getType() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1302,7 +1302,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public List<String> getChildIds() {
         ArrayList<String> childIds = new ArrayList<String>();
-        for (PluginArbilDataNode dataNode : getChildArray()) {
+        for (PluginDataNode dataNode : getChildArray()) {
             childIds.add(dataNode.getID());
         }
         return childIds;

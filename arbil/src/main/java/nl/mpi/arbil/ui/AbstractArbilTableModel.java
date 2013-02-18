@@ -39,7 +39,7 @@ import nl.mpi.arbil.data.DefaultArbilTableCell;
 import nl.mpi.flap.plugin.PluginArbilTableModel;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.NumberedStringComparator;
-import nl.mpi.flap.model.PluginArbilDataNode;
+import nl.mpi.flap.model.PluginDataNode;
 
 /**
  *
@@ -70,7 +70,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     public AbstractArbilTableModel() {
     }
 
-    public void addArbilDataNodes(PluginArbilDataNode[] pluginArbilDataNodes) {
+    public void addArbilDataNodes(PluginDataNode[] pluginArbilDataNodes) {
         for (int draggedCounter = 0; draggedCounter < pluginArbilDataNodes.length; draggedCounter++) {
             addArbilDataNode((ArbilDataNode) pluginArbilDataNodes[draggedCounter]);
         }

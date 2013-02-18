@@ -21,7 +21,7 @@ import java.net.URI;
 import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
-import nl.mpi.flap.model.PluginArbilDataNode;
+import nl.mpi.flap.model.PluginDataNode;
 import nl.mpi.flap.plugin.WrongNodeTypeException;
 
 /**
@@ -71,10 +71,10 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
      * this is a transitional method and will be replaced when the time comes
      *
      * @return the ArbilDataNode that was obtained via getArbilDataNode and cast
-     * to PluginArbilDataNode
+     * to PluginDataNode
      */
-    public PluginArbilDataNode getPluginArbilDataNode(Object registeringObject, URI localUri) {
-        return (PluginArbilDataNode) getArbilDataNode(registeringObject, localUri);
+    public PluginDataNode getPluginArbilDataNode(Object registeringObject, URI localUri) {
+        return (PluginDataNode) getArbilDataNode(registeringObject, localUri);
     }
 
     @Override
@@ -212,7 +212,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
         }
     }
 
-    public URI getNodeURI(PluginArbilDataNode dataNode) throws WrongNodeTypeException {
+    public URI getNodeURI(PluginDataNode dataNode) throws WrongNodeTypeException {
         if (dataNode instanceof ArbilDataNode) {
             return ((ArbilDataNode) dataNode).getURI();
         } else {
@@ -220,7 +220,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
         }
     }
 
-    public boolean isNodeLoading(PluginArbilDataNode dataNode) {
+    public boolean isNodeLoading(PluginDataNode dataNode) {
         if (dataNode instanceof ArbilDataNode) {
             return ((ArbilDataNode) dataNode).isLoading();
         } else {
