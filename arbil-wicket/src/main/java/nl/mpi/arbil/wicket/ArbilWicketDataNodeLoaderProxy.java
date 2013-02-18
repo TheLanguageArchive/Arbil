@@ -3,7 +3,7 @@ package nl.mpi.arbil.wicket;
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.flap.model.PluginArbilDataNode;
+import nl.mpi.flap.model.PluginDataNode;
 import nl.mpi.flap.plugin.WrongNodeTypeException;
 
 /**
@@ -41,9 +41,10 @@ public class ArbilWicketDataNodeLoaderProxy implements DataNodeLoader {
      * @return the ArbilDataNode that was obtained via getArbilDataNode and cast
      * to PluginArbilDataNode
      */
-    public PluginArbilDataNode getPluginArbilDataNode(Object registeringObject, URI localUri) {
-        return (PluginArbilDataNode) getArbilDataNode(registeringObject, localUri);
+    public PluginDataNode getPluginArbilDataNode(Object registeringObject, URI localUri) {
+        return (PluginDataNode) getDataNodeLoader().getArbilDataNode(registeringObject, localUri);
     }
+    
 
     public ArbilDataNode[] getNodesNeedSave() {
         return getDataNodeLoader().getNodesNeedSave();
@@ -97,11 +98,11 @@ public class ArbilWicketDataNodeLoaderProxy implements DataNodeLoader {
         getDataNodeLoader().requestShallowReload(adn);
     }
 
-    public URI getNodeURI(PluginArbilDataNode dataNode) throws WrongNodeTypeException {
+    public URI getNodeURI(PluginDataNode dataNode) throws WrongNodeTypeException {
 	return getDataNodeLoader().getNodeURI(dataNode);
     }
     
-    public boolean isNodeLoading(PluginArbilDataNode dataNode) {
+    public boolean isNodeLoading(PluginDataNode dataNode) {
 	return getDataNodeLoader().isNodeLoading(dataNode);
     }
 }
