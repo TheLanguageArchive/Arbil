@@ -1049,8 +1049,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     @Override
-    public DataNodeType getType() {
+    public void setType(DataNodeType dataNodeType) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public DataNodeType getType() {
+        return ArbilDataNodeType.getTypeForNode(this);
     }
 
     public boolean isDirectory() {

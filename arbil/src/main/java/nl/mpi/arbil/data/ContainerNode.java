@@ -126,6 +126,11 @@ public class ContainerNode extends ArbilNode implements Comparable {
     }
 
     @Override
+    public void setType(DataNodeType dataNodeType) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public String getID() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

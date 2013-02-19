@@ -94,6 +94,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             public DataNodeType getType() {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
+
+            @Override
+            public void setType(DataNodeType dataNodeType) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
         };
         remoteCorpusRootNodeObject = new ArbilRootNode(URI.create("REMOTECORPUS"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("REMOTE CORPUS"), ArbilIcons.getSingleInstance().serverIcon, false) {
             public ArbilDataNode[] getChildArray() {
@@ -104,6 +109,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             public DataNodeType getType() {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
+
+            @Override
+            public void setType(DataNodeType dataNodeType) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
         };
         localDirectoryRootNodeObject = new ArbilRootNode(URI.create("WORKINGDIRECTORIES"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("WORKING DIRECTORIES"), ArbilIcons.getSingleInstance().computerIcon, true) {
             public ArbilDataNode[] getChildArray() {
@@ -112,6 +122,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
             @Override
             public DataNodeType getType() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public void setType(DataNodeType dataNodeType) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         };
@@ -126,6 +141,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
             @Override
             public DataNodeType getType() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public void setType(DataNodeType dataNodeType) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         };
