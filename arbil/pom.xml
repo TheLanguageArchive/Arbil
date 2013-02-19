@@ -5,8 +5,8 @@
     <packaging>jar</packaging>
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
-    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
-    <!--<version>${arbil.majorVersion}.${arbil.minorVersion}.33660-${arbil.branch}</version>-->
+    <!--<version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
+    <version>${arbil.majorVersion}.${arbil.minorVersion}.35875-${arbil.branch}</version>
     <name>Arbil</name>   
     
     <parent>
@@ -269,17 +269,17 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>pluginloader</artifactId>
-            <version>1.1-pretesting-SNAPSHOT</version>
+            <version>1.1.35868-stable</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-help</artifactId>
-            <version>2.5-pretesting-SNAPSHOT</version>
+            <version>2.5.35875-stable</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-commons</artifactId>
-            <version>2.5-pretesting-SNAPSHOT</version>
+            <version>2.5.35875-stable</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>

@@ -29,14 +29,14 @@
     <properties>
         <arbil.majorVersion>2</arbil.majorVersion>
         <arbil.minorVersion>5</arbil.minorVersion>
-        <arbil.branch>pretesting</arbil.branch>
+        <arbil.branch>stable</arbil.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>	
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>plugins-core</artifactId>
-            <version>1.1-pretesting-SNAPSHOT</version>
+            <version>1.1.35868-stable</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
