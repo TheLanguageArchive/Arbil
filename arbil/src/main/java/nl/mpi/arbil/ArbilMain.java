@@ -29,9 +29,12 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.ArbilLogManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.AuthenticatorStub;
 import nl.mpi.arbil.util.BugCatcherManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * ArbilMain.java
@@ -42,6 +45,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  */
 public class ArbilMain extends javax.swing.JFrame {
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilMain.class);
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
     private ArbilTaskStatusBar statusBar;
@@ -55,6 +59,11 @@ public class ArbilMain extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+	final ArbilLogManager logManager = new ArbilLogManager();
+	logManager.configureLoggingFromResource("/logging-initial.properties");
+	
+	logger.info("Starting Arbil");
+
 	System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 	System.setProperty("apple.awt.graphics.UseQuartz", "true");
 	System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -62,7 +71,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	    public void run() {
 		final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
 		try {
-		    new ArbilMain(versionManager).run();
+		    new ArbilMain(versionManager, logManager).run();
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -70,11 +79,11 @@ public class ArbilMain extends javax.swing.JFrame {
 	});
     }
 
-    public ArbilMain(ApplicationVersionManager versionManager) {
+    public ArbilMain(ApplicationVersionManager versionManager, ArbilLogManager logManager) {
 	this.versionManager = versionManager;
 
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
-	injector.injectHandlers(versionManager);
+	injector.injectHandlers(versionManager, logManager);
 
 	this.treeHelper = injector.getTreeHelper();
 	this.treeController = injector.getTreeController();

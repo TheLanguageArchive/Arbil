@@ -25,6 +25,7 @@ import nl.mpi.arbil.ui.ImageBoxRenderer;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
+import nl.mpi.arbil.util.ArbilLogManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -45,23 +46,26 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     private ArbilDataNodeLoader dataNodeLoader;
     private ImageBoxRenderer imageBoxRenderer;
     private ArbilTreeController treeController;
+    private ArbilSessionStorage sessionStorage;
 
     public synchronized void injectHandlers() {
-	injectHandlers(new ApplicationVersionManager(new ArbilVersion()));
+	injectHandlers(new ApplicationVersionManager(new ArbilVersion()), new ArbilLogManager());
     }
 
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
-    public synchronized void injectHandlers(final ApplicationVersionManager versionManager) {
+    public synchronized void injectHandlers(final ApplicationVersionManager versionManager, final ArbilLogManager logManager) {
 	injectVersionManager(versionManager);
 
-	final ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
+	sessionStorage = new ArbilSessionStorage();
+	// From now on log to application storage directory
+	logManager.configureLoggingFromSessionStorage(sessionStorage);
 	injectSessionStorage(sessionStorage);
 
 	BugCatcherManager.setBugCatcher(new ArbilBugCatcher(sessionStorage, versionManager));
 
-        ArbilJournal.setBugCatcher(BugCatcherManager.getBugCatcher());
+	ArbilJournal.setBugCatcher(BugCatcherManager.getBugCatcher());
 	windowManager = new ArbilWindowManager();
 	windowManager.setSessionStorage(sessionStorage);
 	windowManager.setVersionManager(versionManager);
