@@ -20,13 +20,17 @@ package nl.mpi.arbil.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.SimpleFormatter;
 import nl.mpi.arbil.userstorage.CommonsSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +43,11 @@ public final class ArbilLogManager {
     private final static Logger logger = LoggerFactory.getLogger(ArbilLogManager.class);
     public static final int DEFAULT_MAX_LOG_FILE_SIZE = 2 * 1024 * 1024;
     public static final int DEFAULT_MAX_LOG_FILE_COUNT = 10;
+    private final ApplicationVersion appVersion;
+
+    public ArbilLogManager(ApplicationVersion applicationVersion) {
+	this.appVersion = applicationVersion;
+    }
 
     public boolean configureLoggingFromResource(String resourceName) {
 	return configureLogging(ArbilLogManager.class.getResourceAsStream(resourceName));
@@ -68,10 +77,12 @@ public final class ArbilLogManager {
 	for (Handler handler : defaultLogger.getHandlers()) {
 	    if (handler instanceof FileHandler) {
 		((FileHandler) handler).close();
+		defaultLogger.removeHandler(handler);
 	    }
 	}
 	final FileHandler handler = new FileHandler(logFile.getAbsolutePath(), DEFAULT_MAX_LOG_FILE_SIZE, DEFAULT_MAX_LOG_FILE_COUNT, true);
 	handler.setLevel(level);
+	handler.setFormatter(new SimpleFormatter());
 	defaultLogger.addHandler(handler);
     }
 
@@ -87,7 +98,7 @@ public final class ArbilLogManager {
      * @param sessionStorage session storage to base logging configuration on
      * @return whether logging was successfully configured
      */
-    public boolean configureLoggingFromSessionStorage(CommonsSessionStorage sessionStorage) {
+    public boolean configureLoggingFromSessionStorage(SessionStorage sessionStorage) {
 	final File applicationSettingsDirectory = sessionStorage.getApplicationSettingsDirectory();
 
 	final File loggingPropertiesFile = new File(applicationSettingsDirectory, "logging.properties");
@@ -97,8 +108,9 @@ public final class ArbilLogManager {
 	    return true;
 	} else {
 	    try {
+		removeOldLogs(sessionStorage);
 		// Try to configure a log file in the application storage directory
-		final File logFile = new File(applicationSettingsDirectory, "arbil.log");
+		final File logFile = getLogFile(sessionStorage);
 		logger.debug("Reconfiguring logging to write to {}", logFile);
 		setLogFile(logFile, Level.INFO);
 		logger.debug("Reconfigured logging to write to {}", logFile);
@@ -129,5 +141,59 @@ public final class ArbilLogManager {
 	    }
 	}
 	return false;
+    }
+
+    private File getLogFile(SessionStorage sessionStorage) {
+	File file = new File(sessionStorage.getApplicationSettingsDirectory(), getCurrentVersionLogFileName());
+	if (!file.exists()) {
+	    startNewLogFile(file, sessionStorage);
+	}
+	return file;
+    }
+
+    private String getCurrentVersionLogFileName() {
+	return "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".txt";
+    }
+
+    private void startNewLogFile(File file, SessionStorage sessionStorage) {
+	try {
+	    FileWriter errorLogFile = new FileWriter(file, false);
+	    errorLogFile.append(appVersion.applicationTitle + " error log" + System.getProperty("line.separator")
+		    + "Version: " + appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision + System.getProperty("line.separator")
+		    + appVersion.lastCommitDate + System.getProperty("line.separator")
+		    + "Compile Date: " + appVersion.compileDate + System.getProperty("line.separator")
+		    + "Operating System: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version") + System.getProperty("line.separator")
+		    + "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor") + System.getProperty("line.separator")
+		    + "User: " + System.getProperty("user.name") + System.getProperty("line.separator")
+		    + "Storage directory: " + sessionStorage.getApplicationSettingsDirectory().toString() + System.getProperty("line.separator")
+		    + "Project directory: " + sessionStorage.getProjectDirectory().toString() + System.getProperty("line.separator")
+		    + "Project working directory: " + sessionStorage.getProjectWorkingDirectory().toString() + System.getProperty("line.separator")
+		    + "Log started: " + new Date().toString() + System.getProperty("line.separator"));
+	    errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
+	    errorLogFile.close();
+	} catch (IOException ex) {
+	    System.err.println("failed to write to the error log: " + ex.getMessage());
+	}
+    }
+
+    private void removeOldLogs(SessionStorage sessionStorage) {
+	// remove all previous error logs for this version other than the one for this build number
+	File errorLogFile = new File(sessionStorage.getApplicationSettingsDirectory(), "linorgerror.log");
+	if (errorLogFile.exists()) {
+	    errorLogFile.delete();
+	}
+	// look for previous error logs for this version only
+	String currentApplicationVersionMatch = "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-";
+	String currentLogFileMatch = getCurrentVersionLogFileName();
+	for (String currentFile : sessionStorage.getApplicationSettingsDirectory().list()) {
+	    if (currentFile.startsWith(currentApplicationVersionMatch)) {
+		if (!currentFile.startsWith(currentLogFileMatch)) {
+		    System.out.println("deleting old log file: " + currentFile);
+		    if (!new File(sessionStorage.getApplicationSettingsDirectory(), currentFile).delete()) {
+			System.out.println("Did not delete old log file: " + currentFile);
+		    }
+		}
+	    }
+	}
     }
 }

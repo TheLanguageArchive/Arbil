@@ -59,9 +59,10 @@ public class ArbilMain extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-	final ArbilLogManager logManager = new ArbilLogManager();
+	final ArbilVersion arbilVersion = new ArbilVersion();
+	final ArbilLogManager logManager = new ArbilLogManager(arbilVersion);
 	logManager.configureLoggingFromResource("/logging-initial.properties");
-	
+
 	logger.info("Starting Arbil");
 
 	System.setProperty("sun.swing.enableImprovedDragGesture", "true");
@@ -69,7 +70,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	System.setProperty("apple.laf.useScreenMenuBar", "true");
 	java.awt.EventQueue.invokeLater(new Runnable() {
 	    public void run() {
-		final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
+		final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
 		try {
 		    new ArbilMain(versionManager, logManager).run();
 		} catch (Exception ex) {

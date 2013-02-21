@@ -24,7 +24,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImageBoxRenderer;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.ArbilBugCatcher;
+import nl.mpi.arbil.util.LoggingBugCatcher;
 import nl.mpi.arbil.util.ArbilLogManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -49,7 +49,8 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     private ArbilSessionStorage sessionStorage;
 
     public synchronized void injectHandlers() {
-	injectHandlers(new ApplicationVersionManager(new ArbilVersion()), new ArbilLogManager());
+	final ArbilVersion arbilVersion = new ArbilVersion();
+	injectHandlers(new ApplicationVersionManager(arbilVersion), new ArbilLogManager(arbilVersion));
     }
 
     /**
@@ -63,9 +64,9 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	logManager.configureLoggingFromSessionStorage(sessionStorage);
 	injectSessionStorage(sessionStorage);
 
-	BugCatcherManager.setBugCatcher(new ArbilBugCatcher(sessionStorage, versionManager));
-
+	BugCatcherManager.setBugCatcher(new LoggingBugCatcher());
 	ArbilJournal.setBugCatcher(BugCatcherManager.getBugCatcher());
+	
 	windowManager = new ArbilWindowManager();
 	windowManager.setSessionStorage(sessionStorage);
 	windowManager.setVersionManager(versionManager);

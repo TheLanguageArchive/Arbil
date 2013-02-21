@@ -83,8 +83,9 @@ public class ArbilApplet2 extends JApplet {
 	try {
 	    javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
 		public void run() {
-		    final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
-		    final ArbilLogManager logManager = new ArbilLogManager();
+		    final ArbilVersion arbilVersion = new ArbilVersion();
+		    final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
+		    final ArbilLogManager logManager = new ArbilLogManager(arbilVersion);
 		    ArbilDesktopInjector injector = new ArbilDesktopInjector();
 		    injector.injectHandlers(versionManager, logManager);
 		    System.setProperty("sun.swing.enableImprovedDragGesture", "true");

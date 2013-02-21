@@ -42,8 +42,8 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.plugins.ArbilPluginManager;
 import nl.mpi.arbil.ui.ArbilFieldViews;
@@ -59,7 +59,6 @@ import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
@@ -606,7 +605,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	trackTableSelectionCheckBoxMenuItem.setEnabled(true);
-        optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
+	optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
 
 	useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("useLanguageIdInColumnName", false));
 	useLanguageIdInColumnNameCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW LANGUAGE IN COLUMN NAME"));
@@ -698,91 +697,95 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 
 	    public void menuSelected(MenuEvent evt) {
-                viewErrorLogMenuItem.setEnabled(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).exists());
+		//TODO: get from log manager
+		throw new UnsupportedOperationException();
+		//viewErrorLogMenuItem.setEnabled(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).exists());
 	    }
 	});
-        aboutMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ABOUT"));
+	aboutMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ABOUT"));
 	aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    aboutMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-                    BugCatcherManager.getBugCatcher().logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
 	helpMenu.add(aboutMenuItem);
 	helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
-        helpMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("HELP"));
+	helpMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("HELP"));
 	helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    helpMenuItemActionPerformed(evt);
 		} catch (Exception ex) {
-                    BugCatcherManager.getBugCatcher().logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
 	helpMenu.add(helpMenuItem);
-        setupWizardMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RUN SETUP WIZARD"));
+	setupWizardMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RUN SETUP WIZARD"));
 	setupWizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-                sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("YES"));
-                ArbilWizard wizard = new ArbilSetupWizard(windowManager.getMainFrame());
+		sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("YES"));
+		ArbilWizard wizard = new ArbilSetupWizard(windowManager.getMainFrame());
 		wizard.showModalDialog();
 	    }
 	});
 	helpMenu.add(setupWizardMenuItem);
-        arbilForumMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ARBIL FORUM (WEBSITE)"));
+	arbilForumMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ARBIL FORUM (WEBSITE)"));
 	arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-                    windowManager.openFileInExternalApplication(new URI(FORUM_URL));
+		    windowManager.openFileInExternalApplication(new URI(FORUM_URL));
 		} catch (Exception ex) {
-                    BugCatcherManager.getBugCatcher().logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
 	helpMenu.add(arbilForumMenuItem);
-        viewErrorLogMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW ERROR LOG"));
+	viewErrorLogMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW ERROR LOG"));
 	viewErrorLogMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-                    windowManager.openFileInExternalApplication(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).toURI());
+		    //TODO: get from log manager
+		    throw new UnsupportedOperationException();
+		    // windowManager.openFileInExternalApplication(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).toURI());
 		} catch (Exception ex) {
-                    BugCatcherManager.getBugCatcher().logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
 	helpMenu.add(viewErrorLogMenuItem);
-        checkForUpdatesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK FOR UPDATES"));
+	checkForUpdatesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK FOR UPDATES"));
 	checkForUpdatesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    if (!versionManager.forceUpdateCheck()) {
 			ApplicationVersion appVersion = versionManager.getApplicationVersion();
 			String versionString = appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision;
-                        dialogHandler.addMessageDialogToQueue(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("NO UPDATES FOUND, CURRENT VERSION IS {0}"),
-                                new Object[]{versionString}), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK FOR UPDATES"));
+			dialogHandler.addMessageDialogToQueue(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("NO UPDATES FOUND, CURRENT VERSION IS {0}"),
+				new Object[]{versionString}), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK FOR UPDATES"));
 		    }
 		} catch (Exception ex) {
-                    BugCatcherManager.getBugCatcher().logError(ex);
+		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
 	helpMenu.add(checkForUpdatesMenuItem);
 
-        shortCutKeysjMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHORT CUT KEYS"));
-        shortCutKeysjMenuItem.addActionListener(
-                new java.awt.event.ActionListener() {
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    shortCutKeysjMenuItemActionPerformed(evt);
-		} catch (Exception ex) {
-                            BugCatcherManager.getBugCatcher().logError(ex);
-		}
-	    }
-	});
+	shortCutKeysjMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHORT CUT KEYS"));
+	shortCutKeysjMenuItem.addActionListener(
+		new java.awt.event.ActionListener() {
+		    public void actionPerformed(java.awt.event.ActionEvent evt) {
+			try {
+			    shortCutKeysjMenuItemActionPerformed(evt);
+			} catch (Exception ex) {
+			    BugCatcherManager.getBugCatcher().logError(ex);
+			}
+		    }
+		});
 	helpMenu.add(shortCutKeysjMenuItem);
 //	printHelpMenuItem.setText("Print Help File");
 //	printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
