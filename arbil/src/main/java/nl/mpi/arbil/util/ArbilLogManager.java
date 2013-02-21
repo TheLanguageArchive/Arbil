@@ -41,8 +41,7 @@ import org.slf4j.LoggerFactory;
 public final class ArbilLogManager {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilLogManager.class);
-    public static final int DEFAULT_MAX_LOG_FILE_SIZE = 2 * 1024 * 1024;
-    public static final int DEFAULT_MAX_LOG_FILE_COUNT = 10;
+    public static final String ARBIL_LOG_FILE_PREFIX = "arbil-log-";
     private final ApplicationVersion appVersion;
 
     public ArbilLogManager(ApplicationVersion applicationVersion) {
@@ -80,7 +79,7 @@ public final class ArbilLogManager {
 		defaultLogger.removeHandler(handler);
 	    }
 	}
-	final FileHandler handler = new FileHandler(logFile.getAbsolutePath(), DEFAULT_MAX_LOG_FILE_SIZE, DEFAULT_MAX_LOG_FILE_COUNT, true);
+	final FileHandler handler = new FileHandler(logFile.getAbsolutePath(), true);
 	handler.setLevel(level);
 	handler.setFormatter(new SimpleFormatter());
 	defaultLogger.addHandler(handler);
@@ -152,13 +151,13 @@ public final class ArbilLogManager {
     }
 
     private String getCurrentVersionLogFileName() {
-	return "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".txt";
+	return ARBIL_LOG_FILE_PREFIX + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".txt";
     }
 
     private void startNewLogFile(File file, SessionStorage sessionStorage) {
 	try {
-	    FileWriter errorLogFile = new FileWriter(file, false);
-	    errorLogFile.append(appVersion.applicationTitle + " error log" + System.getProperty("line.separator")
+	    FileWriter logFile = new FileWriter(file, false);
+	    logFile.append(appVersion.applicationTitle + " log" + System.getProperty("line.separator")
 		    + "Version: " + appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision + System.getProperty("line.separator")
 		    + appVersion.lastCommitDate + System.getProperty("line.separator")
 		    + "Compile Date: " + appVersion.compileDate + System.getProperty("line.separator")
@@ -169,21 +168,16 @@ public final class ArbilLogManager {
 		    + "Project directory: " + sessionStorage.getProjectDirectory().toString() + System.getProperty("line.separator")
 		    + "Project working directory: " + sessionStorage.getProjectWorkingDirectory().toString() + System.getProperty("line.separator")
 		    + "Log started: " + new Date().toString() + System.getProperty("line.separator"));
-	    errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
-	    errorLogFile.close();
+	    logFile.append("======================================================================" + System.getProperty("line.separator"));
+	    logFile.close();
 	} catch (IOException ex) {
-	    System.err.println("failed to write to the error log: " + ex.getMessage());
+	    logger.error("failed to write to the log", ex);
 	}
     }
 
     private void removeOldLogs(SessionStorage sessionStorage) {
-	// remove all previous error logs for this version other than the one for this build number
-	File errorLogFile = new File(sessionStorage.getApplicationSettingsDirectory(), "linorgerror.log");
-	if (errorLogFile.exists()) {
-	    errorLogFile.delete();
-	}
 	// look for previous error logs for this version only
-	String currentApplicationVersionMatch = "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-";
+	String currentApplicationVersionMatch = ARBIL_LOG_FILE_PREFIX + appVersion.currentMajor + "-" + appVersion.currentMinor + "-";
 	String currentLogFileMatch = getCurrentVersionLogFileName();
 	for (String currentFile : sessionStorage.getApplicationSettingsDirectory().list()) {
 	    if (currentFile.startsWith(currentApplicationVersionMatch)) {
