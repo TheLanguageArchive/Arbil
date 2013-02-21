@@ -26,6 +26,8 @@ import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -36,17 +38,18 @@ import org.w3c.dom.NodeList;
  *  Author     : Peter Withers
  */
 public class BinaryMetadataReader {
+    private final static Logger logger = LoggerFactory.getLogger(BinaryMetadataReader.class);
 
     // functions to extract the exif data from images
 // this will probably need to be moved to a more appropriate class
     public ArbilField[] getExifMetadata(ArbilDataNode resourceNode, int currentFieldId) {
 	Vector<ArbilField> exifTagFields = new Vector();
-	System.out.println("tempGetExif: " + resourceNode.getFile());
+	logger.debug("tempGetExif: " + resourceNode.getFile());
 	try {
 	    URI uri = resourceNode.getURI();
 	    if (resourceNode.getFile().getName().contains(".")) {
 		String fileSuffix = resourceNode.getFile().getName().substring(resourceNode.getFile().getName().lastIndexOf(".") + 1);
-		System.out.println("tempGetExifSuffix: " + fileSuffix);
+		logger.debug("tempGetExifSuffix: " + fileSuffix);
 		Iterator readers = ImageIO.getImageReadersBySuffix(fileSuffix);
 		if (readers.hasNext()) {
 		    ImageReader reader = (ImageReader) readers.next();
@@ -55,8 +58,7 @@ public class BinaryMetadataReader {
 		    if (metadata != null) {
 			String[] names = metadata.getMetadataFormatNames();
 			for (int i = 0; i < names.length; ++i) {
-			    System.out.println();
-			    System.out.println("METADATA FOR FORMAT: " + names[i]);
+			    logger.debug("METADATA FOR FORMAT: " + names[i]);
 			    decendExifTree(resourceNode, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields, currentFieldId);
 			}
 		    }
@@ -64,9 +66,9 @@ public class BinaryMetadataReader {
 	    }
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
-//            System.out.println("Exception: " + ex.getMessage());
+//            logger.debug("Exception: " + ex.getMessage());
 	}
-	System.out.println("end tempGetExif");
+	logger.debug("end tempGetExif");
 	return exifTagFields.toArray(new ArbilField[]{});
     }
 

@@ -182,9 +182,9 @@ public final class ArbilLogManager {
 	for (String currentFile : sessionStorage.getApplicationSettingsDirectory().list()) {
 	    if (currentFile.startsWith(currentApplicationVersionMatch)) {
 		if (!currentFile.startsWith(currentLogFileMatch)) {
-		    System.out.println("deleting old log file: " + currentFile);
+		    logger.debug("deleting old log file: {}", currentFile);
 		    if (!new File(sessionStorage.getApplicationSettingsDirectory(), currentFile).delete()) {
-			System.out.println("Did not delete old log file: " + currentFile);
+			logger.warn("Did not delete old log file: " + currentFile);
 		    }
 		}
 	    }

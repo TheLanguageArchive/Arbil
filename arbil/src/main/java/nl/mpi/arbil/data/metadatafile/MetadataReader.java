@@ -56,6 +56,8 @@ import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -70,6 +72,7 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class MetadataReader {
+    private final static Logger logger = LoggerFactory.getLogger(MetadataReader.class);
 
     private static SessionStorage sessionStorage;
 
@@ -116,10 +119,10 @@ public class MetadataReader {
 	String childPath = getNodePath((ArbilDataNode) childDataNode);
 	targetImdiPath = targetImdiPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
 	childPath = childPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
-	//        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
+	//        logger.debug("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
 	int targetBranchCount = targetImdiPath.replaceAll("[^(]*", "").length();
 	int childBranchCount = childPath.replaceAll("[^(]*", "").length();
-	//        System.out.println("targetBranchCount: " + targetBranchCount + " childBranchCount: " + childBranchCount);
+	//        logger.debug("targetBranchCount: " + targetBranchCount + " childBranchCount: " + childBranchCount);
 	boolean hasCorrectSubNodeCount = childBranchCount - targetBranchCount < 2;
 	return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
     }
@@ -135,15 +138,15 @@ public class MetadataReader {
 	    xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus";
 	}
 	Object[] nodePathArray = ((ArbilDataNode) targetDataNode).getUrlString().split("#");
-	//        System.out.println("nodePath0: " + nodePathArray[0]);
+	//        logger.debug("nodePath0: " + nodePathArray[0]);
 	if (nodePathArray.length > 1) {
 	    String nodePath = nodePathArray[1].toString();
 	    xpath = nodePath;
-	    //            System.out.println("nodePath1: " + nodePath);
+	    //            logger.debug("nodePath1: " + nodePath);
 	    // convert the dot path to xpath
 	    //            xpath = nodePath.replaceAll("(\\(.?\\))?\\.", ".");
 	    //                xpath = nodePath.replaceAll("(\\(.?\\))?", "/");
-	    //            System.out.println("xpath: " + xpath);
+	    //            logger.debug("xpath: " + xpath);
 	}
 	return xpath;
     }
@@ -174,7 +177,7 @@ public class MetadataReader {
     }
 
     public URI addFromTemplate(File destinationFile, String templateType) {
-	System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
+	logger.debug("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
 
 	// Get local url for template type
 	URL templateUrl = constructTemplateUrl(templateType);
@@ -242,7 +245,7 @@ public class MetadataReader {
 	    out = null;
 	    return targetFile.toURI();
 	} catch (Exception ex) {
-	    System.out.println("copyToDisk: " + ex);
+	    logger.debug("copyToDisk: " + ex);
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	} finally {
 	    if (in != null) {
@@ -264,16 +267,16 @@ public class MetadataReader {
     }
 
     public String getNodeTypeFromMimeType(String mimeType) {
-	System.out.println("getNodeTypeFromMimeType: " + mimeType);
+	logger.debug("getNodeTypeFromMimeType: " + mimeType);
 	for (String[] formatType : new String[][]{
 		    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource", "Manual/WrittenResource"},
 		    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile", "Manual/MediaFile"}
 		}) {
 	    if (formatType[2].equals(mimeType)) {
-		System.out.println("UsingOverrideNodeType: " + formatType[1]);
+		logger.debug("UsingOverrideNodeType: " + formatType[1]);
 		return formatType[1];
 	    } else if (IMDIVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
-		System.out.println("NodeType: " + formatType[1]);
+		logger.debug("NodeType: " + formatType[1]);
 		//                    if (mimeType.equals("image/jpeg")) {
 		return formatType[1];
 	    }
@@ -340,17 +343,17 @@ public class MetadataReader {
 	} catch (TransformerException exception) {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
-	System.out.println("addedPathString: " + addedPathURI);
+	logger.debug("addedPathString: " + addedPathURI);
 	return false;
     }
 
     public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException {
-	System.out.println("insertFromTemplate: " + elementName + " : " + resourceUrl);
-	System.out.println("targetXpath: " + targetXmlPath);
+	logger.debug("insertFromTemplate: " + elementName + " : " + resourceUrl);
+	logger.debug("targetXpath: " + targetXmlPath);
 	String insertBefore = currentTemplate.getInsertBeforeOfTemplate(elementName);
-	System.out.println("insertBefore: " + insertBefore);
+	logger.debug("insertBefore: " + insertBefore);
 	final int maxOccurs = currentTemplate.getMaxOccursForTemplate(elementName);
-	System.out.println("maxOccurs: " + maxOccurs);
+	logger.debug("maxOccurs: " + maxOccurs);
 	URI addedPathURI = null;
 	try {
 	    String templateFileString = templateFileStringFromElementName(elementName);
@@ -358,8 +361,8 @@ public class MetadataReader {
 	    String targetRef = xPathFromXmlPath(targetXmlPath, elementName);
 	    String targetXpath = xPathFromTargetRef(targetRef);
 
-	    System.out.println("targetXpath: " + targetXpath);
-	    System.out.println("templateUrl: " + templateUrl);
+	    logger.debug("targetXpath: " + targetXpath);
+	    logger.debug("templateUrl: " + templateUrl);
 
 	    if (templateUrl == null) {
 		messageDialogHandler.addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
@@ -405,7 +408,7 @@ public class MetadataReader {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	    return null;
 	}
-	System.out.println("addedPathString: " + addedPathURI);
+	logger.debug("addedPathString: " + addedPathURI);
 	return addedPathURI;
     }
 
@@ -416,7 +419,7 @@ public class MetadataReader {
 	Node addedNode = componentBuilder.insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
 	String nodeFragment = componentBuilder.convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
 	//                            try {
-	System.out.println("nodeFragment: " + nodeFragment);
+	logger.debug("nodeFragment: " + nodeFragment);
 	// return the child node url and path in the xml
 	// first strip off any fragment then add the full node fragment
 	return new URI(targetMetadataUri.toString().split("#")[0] + "#" + nodeFragment);
@@ -448,7 +451,7 @@ public class MetadataReader {
 		int suffixIndex = originalFile.getName().lastIndexOf(".");
 		String targetFilename = originalFile.getName().substring(0, suffixIndex);
 		String targetSuffix = originalFile.getName().substring(suffixIndex);
-		System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
+		logger.debug("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
 		///////////////////////////////////////////////////////////////////////
 		// use the nodes child directory
 		File destinationFileCopy = new File(resourceDestinationDirectory, targetFilename + targetSuffix);
@@ -466,7 +469,7 @@ public class MetadataReader {
 		//                        localFilePath = "./" + destinationFileCopy.getName();
 		///////////////////////////////////////////////////////////////////////
 		copyToDisk(resourceUrl.toURL(), destinationFileCopy);
-		System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
+		logger.debug("destinationFileCopy: " + destinationFileCopy.toString());
 	    }
 	} catch (Exception ex) {
 	    //localFilePath = resourcePath; // link to the original file
@@ -517,7 +520,7 @@ public class MetadataReader {
     private static URL urlForTemplateFile(ArbilTemplate currentTemplate, String templateFileString) throws MalformedURLException {
 	URL templateUrl;
 	File templateFile = new File(currentTemplate.getTemplateComponentDirectory(), templateFileString + ".xml");
-	System.out.println("templateFile: " + templateFile.getAbsolutePath());
+	logger.debug("templateFile: " + templateFile.getAbsolutePath());
 	if (templateFile.exists()) {
 	    templateUrl = templateFile.toURI().toURL();
 	} else {
@@ -528,9 +531,9 @@ public class MetadataReader {
 
     private static String templateFileStringFromElementName(String elementName) {
 	String templateFileString = elementName.substring(1); //TODO: this level of path change should not be done here but in the original caller
-	System.out.println("templateFileString: " + templateFileString);
+	logger.debug("templateFileString: " + templateFileString);
 	templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
-	System.out.println("templateFileString(x): " + templateFileString);
+	logger.debug("templateFileString(x): " + templateFileString);
 	templateFileString = templateFileString.replaceAll("\\(x\\)$", "");
 	return templateFileString;
     }
@@ -550,20 +553,20 @@ public class MetadataReader {
 	} catch (URISyntaxException exception) {
 	    BugCatcherManager.getBugCatcher().logError(parentPath.toString() + " : " + linkString, exception);
 	}
-	//                    System.out.println("linkPath: " + linkPath);
+	//                    logger.debug("linkPath: " + linkPath);
 	//                    linkPath = new URL(linkPath).getPath();
 	// clean the path for the local file system
 	//        linkURI = linkURI.replaceAll("/\\./", "/");
 	//        linkURI = linkURI.substring(0, 6) + (linkURI.substring(6).replaceAll("[/]+/", "/"));
 	//        while (linkURI.contains("/../")) {
-	////                        System.out.println("linkPath: " + linkPath);
+	////                        logger.debug("linkPath: " + linkPath);
 	//            linkURI = linkURI.replaceFirst("/[^/]+/\\.\\./", "/");
 	//        }
-	//                    System.out.println("linkPathCorrected: " + linkPath);
+	//                    logger.debug("linkPathCorrected: " + linkPath);
 	if (linkURI != null) {
 	    linkURI = ArbilDataNodeService.normaliseURI(linkURI);
 	}
-	//        System.out.println("linkURI: " + linkURI.toString());
+	//        logger.debug("linkURI: " + linkURI.toString());
 	return linkURI;
     }
 
@@ -594,7 +597,7 @@ public class MetadataReader {
     public int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, final String nodePath, String fullNodePath,
 	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
 	    , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter, boolean shallowLoading) {
-	//        System.out.println("iterateChildNodes: " + nodePath);
+	//        logger.debug("iterateChildNodes: " + nodePath);
 	if (!parentChildTree.containsKey(parentNode)) {
 	    parentChildTree.put(parentNode, new HashSet<ArbilDataNode>());
 	}
@@ -841,7 +844,7 @@ public class MetadataReader {
 	}
 
 	// is a leaf not a branch
-	//            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
+	//            logger.debug("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
 	ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath), allowsLanguageId, attributePaths, attributesValueMap);
 	// TODO: about to write this function
 	//GuiHelper.imdiSchema.convertXmlPathToUiPath();
@@ -849,7 +852,7 @@ public class MetadataReader {
 	// TODO: note that this method does not use any attributes without a node value
 	//            if (childNode.getLocalName() != null) {
 	//                nodeCounter++;
-	//System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
+	//logger.debug("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
 	//            }
 	if (childNodeAttributes != null) {
 	    fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
@@ -869,14 +872,14 @@ public class MetadataReader {
 	}
 
 	if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
-	    //                System.out.println("Adding: " + fieldToAdd);
+	    //                logger.debug("Adding: " + fieldToAdd);
 	    //                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
 	    //                fieldToAdd.translateFieldName(siblingNodePath);
 	    destinationNode.addField(fieldToAdd);
 	} else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
-	    //                System.out.println("LinkValue: " + fieldValue);
-	    //                System.out.println("ParentPath: " + parentPath);
-	    //                System.out.println("Parent: " + this.getUrlString());
+	    //                logger.debug("LinkValue: " + fieldValue);
+	    //                logger.debug("ParentPath: " + parentPath);
+	    //                logger.debug("Parent: " + this.getUrlString());
 	    try {
 		URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
 		childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
@@ -885,7 +888,7 @@ public class MetadataReader {
 		parentChildTree.get(parentNode).add(linkedNode);
 	    } catch (Exception ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
-		System.out.println("Exception CorpusLink: " + ex.getMessage());
+		logger.debug("Exception CorpusLink: " + ex.getMessage());
 	    }
 	} //                // the corpus link nodes are used but via the api.getlinks so dont log them here
 	//                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
@@ -975,10 +978,10 @@ public class MetadataReader {
 	    // change made for clarin
 	    try {
 		// TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
-		//                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
-		//                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
-		//                    System.out.println("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
-		//                    System.out.println("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
+		//                    logger.debug("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
+		//                    logger.debug("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
+		//                    logger.debug("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
+		//                    logger.debug("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
 		String schemaLocationString = null;
 		Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
 		if (schemaLocationNode == null) {

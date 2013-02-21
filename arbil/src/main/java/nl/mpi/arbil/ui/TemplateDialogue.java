@@ -133,7 +133,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	    }
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
 	    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
-//                    System.out.println("setting template: " + evt.getActionCommand());
+//                    logger.debug("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
 	} catch (Exception e) {
 	    BugCatcherManager.getBugCatcher().logError(e);

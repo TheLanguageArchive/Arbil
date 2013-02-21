@@ -334,7 +334,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    SchemaType schemaType = sts.documentTypes()[0];
 	    constructXml(schemaType, arrayListGroup, "", new CachedXPathAPI());
 //            for (SchemaType schemaType : sts.documentTypes()) {
-////                System.out.println("T-documentTypes:");
+////                logger.debug("T-documentTypes:");
 //                constructXml(schemaType, arrayListGroup, "", "");
 //                break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
 //            }
@@ -544,7 +544,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		fieldConstraintList.add(new String[]{nodePath, "[^\\d]+://.*"});// todo: complete this regex
 		break;
 //                case SchemaType. XML object???:
-//                    System.out.println("");
+//                    logger.debug("");
 //                    fieldConstraintList.add(new String[]{currentPathString, "[^\\d]+://.*"});// todo: complete this regex
 //                    break;
 	    case 0:
@@ -859,9 +859,9 @@ public class CmdiTemplate extends ArbilTemplate {
 	    } else {
 		// todo: consider allowing add to sub nodes that require adding in the way that IMDI resourceses are added
 		nodePath = nodePath.replaceAll("\\(\\d+\\)", "");
-		//System.out.println("pathThatCanHaveResource: " + nodePath);
+		//logger.debug("pathThatCanHaveResource: " + nodePath);
 		for (String[] currentPath : resourceNodePaths) {
-		    //System.out.println("pathCanHaveResource: " + currentPath[0]);
+		    //logger.debug("pathCanHaveResource: " + currentPath[0]);
 		    if (currentPath[0].equals(nodePath)) { // todo: at the moment we are limiting the add of a resource to only the existing nodes and not adding sub nodes to suit
 			return true;
 		    }

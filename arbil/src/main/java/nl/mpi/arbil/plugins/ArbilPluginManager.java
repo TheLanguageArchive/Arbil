@@ -37,6 +37,8 @@ import nl.mpi.flap.plugin.JournalWatcherPlugin;
 import nl.mpi.flap.plugin.PluginArbilDataNodeLoader;
 import nl.mpi.flap.plugin.PluginException;
 import nl.mpi.pluginloader.PluginManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilPluginManager <br> Created on Aug 22, 2012, 5:59:39 PM <br>
@@ -44,6 +46,7 @@ import nl.mpi.pluginloader.PluginManager;
  * @author Peter Withers <br>
  */
 public class ArbilPluginManager implements PluginManager {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilPluginManager.class);
 
     public static final String ARCHIVING_PLUGINS_DIR_NAME = "ArchivingPlugins";
     final private SessionStorage arbilSessionStorage;
@@ -165,7 +168,7 @@ public class ArbilPluginManager implements PluginManager {
 		    try {
 			pluginUlrs.add(new URL(pluginString));
 		    } catch (MalformedURLException exception) {
-			System.out.println(exception.getMessage());
+			logger.warn(exception.getMessage());
 			errorMessages = errorMessages + java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COULD NOT LOAD PLUGIN: {0}"), new Object[]{pluginString});
 		    }
 		}
@@ -177,7 +180,7 @@ public class ArbilPluginManager implements PluginManager {
 	    }
 	} catch (IOException ex) {
 	    // if the list is not found then we need not worry at this point.
-	    System.out.println("PluginList not found");
+	    logger.debug("PluginList not found");
 	}
 	return pluginUlrs;
     }

@@ -106,7 +106,7 @@ public abstract class ArbilNode extends AbstractDataNode {
      */
     public void removeContainer(ArbilDataNodeContainer containerToRemove) {
         // TODO: make sure that containers are removed when a node is removed from the tree, otherwise memory will not get freed
-        //        System.out.println("de registerContainer: " + containerToRemove);
+        //        logger.debug("de registerContainer: " + containerToRemove);
         containersOfThisNode.remove(containerToRemove);
     }
 

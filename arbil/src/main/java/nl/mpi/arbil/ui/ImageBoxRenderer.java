@@ -40,6 +40,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import nl.mpi.arbil.util.BugCatcherManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document   : ImageBoxRenderer
@@ -47,6 +49,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
+    private final static Logger logger = LoggerFactory.getLogger(ImageBoxRenderer.class);
 
     int outputWidth = 200;
     int outputHeight = 130;
@@ -224,13 +227,13 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 		iconFile.deleteOnExit();
 		File targetFile = getTargetFile(targetDataNode);
 		String[] execString = new String[]{ffmpegPath, "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
-//                System.out.println(execString);
+//                logger.debug(execString);
 		Process launchedProcess = Runtime.getRuntime().exec(execString);
 		errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
 		String line;
 		while ((line = errorStreamReader.readLine()) != null) { // read until EOF
 //                    ffmpegFound = false;
-		    System.out.println("Launched process error stream: \"" + line + "\"");
+		    logger.debug("Launched process error stream: \"" + line + "\"");
 		}
 		// NOTE: We should also wait for launchedProcess to exit
 		iconFile.deleteOnExit();
@@ -286,13 +289,13 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 		File targetFile = getTargetFile(targetDataNode);
 		if (targetFile.exists()) {
 		    String[] execString = new String[]{imageMagickPath, "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
-		    System.out.println(Arrays.toString(execString));
+		    logger.debug(Arrays.toString(execString));
 		    Process launchedProcess = Runtime.getRuntime().exec(execString);
 		    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
 		    String line;
 		    while ((line = errorStreamReader.readLine()) != null) {
 //                    ffmpegFound = false;
-			System.out.println("Launched process error stream: \"" + line + "\"");
+			logger.debug("Launched process error stream: \"" + line + "\"");
 		    }
 		    iconFile.deleteOnExit();
 		    if (iconFile.exists()) {

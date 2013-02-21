@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import nl.mpi.arbil.data.ArbilField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : FindReplacePanel
@@ -40,6 +42,7 @@ import nl.mpi.arbil.data.ArbilField;
  * Author : Peter Withers
  */
 public class FindReplacePanel extends JPanel {
+    private final static Logger logger = LoggerFactory.getLogger(FindReplacePanel.class);
 
     private final static String defaultFindText = "<enter find text>";
     private final static String defaultReplaceText = "<enter replacement text>";
@@ -104,7 +107,7 @@ public class FindReplacePanel extends JPanel {
      */
     final private ActionListener findActionListener = new ActionListener() {
 	public void actionPerformed(ActionEvent actionEvent) {
-	    System.out.println(actionEvent.toString());
+	    logger.debug(actionEvent.toString());
 	    String searchString = "";
 	    if (!searchField.getText().equals(defaultFindText)) {
 		searchString = searchField.getText();

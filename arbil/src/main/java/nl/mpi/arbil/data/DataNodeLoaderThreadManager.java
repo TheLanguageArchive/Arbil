@@ -25,6 +25,8 @@ import java.util.concurrent.ThreadFactory;
 import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.util.task.ArbilTask;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages the loader threads and queues for loading ArbilDataNodes.
@@ -36,6 +38,7 @@ import nl.mpi.arbil.util.task.ArbilTaskListener;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class DataNodeLoaderThreadManager {
+    private final static Logger logger = LoggerFactory.getLogger(DataNodeLoaderThreadManager.class);
 
     private final static int MAX_REMOTE_THREADS = 6;
     private final static int MAX_LOCAL_THREADS = 6;
@@ -225,7 +228,7 @@ public class DataNodeLoaderThreadManager {
 		try {
 		    currentArbilDataNode = waitForNodes(getNodesToInit());
 		} catch (InterruptedException ex) {
-		    System.out.println(Thread.currentThread().getName() + " interrupted. " + ex.getMessage());
+		    logger.debug(Thread.currentThread().getName() + " interrupted. " + ex.getMessage());
 		    return;
 		}
 		if (currentArbilDataNode != null) {

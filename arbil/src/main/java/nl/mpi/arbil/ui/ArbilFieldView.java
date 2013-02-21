@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Vector;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class that defines a collection of columns that should be shown or hidden
@@ -33,6 +35,7 @@ import javax.swing.table.TableColumnModel;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFieldView implements Serializable, Cloneable {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilFieldView.class);
 
     private static final long serialVersionUID = 3L;
     private Vector hiddenColumns = new Vector();
@@ -42,11 +45,11 @@ public class ArbilFieldView implements Serializable, Cloneable {
     private HashMap<String, Integer> columnWidths = new HashMap<String, Integer>();
 
     public void showState() {
-	System.out.println("knownColumns: " + knownColumns);
-	System.out.println("hiddenColumns: " + hiddenColumns);
-	System.out.println("showOnlyColumns: " + showOnlyColumns);
-	System.out.println("alwaysShowColumns: " + alwaysShowColumns);
-	System.out.println("columnWidths: " + columnWidths);
+	logger.debug("knownColumns: " + knownColumns);
+	logger.debug("hiddenColumns: " + hiddenColumns);
+	logger.debug("showOnlyColumns: " + showOnlyColumns);
+	logger.debug("alwaysShowColumns: " + alwaysShowColumns);
+	logger.debug("columnWidths: " + columnWidths);
     }
 
     public void setAlwaysShowColumns(Vector alwaysShowColumns) {
@@ -94,38 +97,38 @@ public class ArbilFieldView implements Serializable, Cloneable {
     }
 
     public void addAlwaysShowColumn(String columnName) {
-	System.out.println("addAlwaysShowColumn");
+	logger.debug("addAlwaysShowColumn");
 	alwaysShowColumns.add(columnName);
 	showState();
     }
 
     public void removeAlwaysShowColumn(String columnName) {
-	System.out.println("removeAlwaysShowColumn");
+	logger.debug("removeAlwaysShowColumn");
 	alwaysShowColumns.remove(columnName);
 	showState();
     }
 
     public void addShowOnlyColumn(String columnName) {
-	System.out.println("addShowOnlyColumn");
+	logger.debug("addShowOnlyColumn");
 	showOnlyColumns.add(columnName);
 	showState();
     }
 
     public void removeShowOnlyColumn(String columnName) {
-	System.out.println("removeShowOnlyColumn");
+	logger.debug("removeShowOnlyColumn");
 	showOnlyColumns.remove(columnName);
 	showState();
     }
 
     public void addHiddenColumn(String columnName) {
-	System.out.println("addHiddenColumn");
+	logger.debug("addHiddenColumn");
 	hiddenColumns.add(columnName);
 	showOnlyColumns.remove(columnName);
 	showState();
     }
 
     public void removeHiddenColumn(String columnName) {
-	System.out.println("removeHiddenColumn");
+	logger.debug("removeHiddenColumn");
 	hiddenColumns.remove(columnName);
 	showState();
     }

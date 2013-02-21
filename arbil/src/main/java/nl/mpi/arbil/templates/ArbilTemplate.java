@@ -35,6 +35,8 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -44,6 +46,7 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplate {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTemplate.class);
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -150,11 +153,11 @@ public class ArbilTemplate {
     }
 
     public String pathIsChildNode(String nodePath) {
-//        System.out.println("pathIsChildNode");
-//        System.out.println("nodePath: " + nodePath);
+//        logger.debug("pathIsChildNode");
+//        logger.debug("nodePath: " + nodePath);
 	for (String[] pathString : childNodePaths) {
 	    if (nodePath.endsWith((pathString[0]))) {
-//                System.out.println("pathString[1]: " + pathString[1]);
+//                logger.debug("pathString[1]: " + pathString[1]);
 		return pathString[1];
 	    }
 	}
@@ -259,22 +262,22 @@ public class ArbilTemplate {
      */
     private List<String[]> getSubnodesFromTemplatesDir(String nodepath) {
 	Vector<String[]> returnVector = new Vector<String[]>();
-	System.out.println("getSubnodesOf: " + nodepath);
+	logger.debug("getSubnodesOf: " + nodepath);
 	String targetNodePath = nodepath.substring(0, nodepath.lastIndexOf(")") + 1);
 	nodepath = nodepath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
-	System.out.println("nodepath: " + nodepath);
-	System.out.println("targetNodePath: " + targetNodePath);
+	logger.debug("nodepath: " + nodepath);
+	logger.debug("targetNodePath: " + targetNodePath);
 
 	/*try {
-	 //            System.out.println("get templatesDirectory");
+	 //            logger.debug("get templatesDirectory");
 	 File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
-	 //            System.out.println("check templatesDirectory");
+	 //            logger.debug("check templatesDirectory");
 	 if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
-	 //                System.out.println("using templatesDirectory");
+	 //                logger.debug("using templatesDirectory");
 	 String[] testingListing = templatesDirectory.list();
 	 Arrays.sort(testingListing);
 	 for (String itemString : testingListing) {
-	 System.out.println("\"" + itemString + "\",");
+	 logger.debug("\"" + itemString + "\",");
 	 }
 	 Arrays.sort(templatesArray, new Comparator() {
 	
@@ -284,10 +287,10 @@ public class ArbilTemplate {
 	 });
 	 int linesRead = 0;
 	 for (String[] currentTemplate : templatesArray) {
-	 //                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
+	 //                    logger.debug("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
 	 if (testingListing != null) {
 	 if (!testingListing[linesRead].equals(currentTemplate[0])) {
-	 System.out.println("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
+	 logger.debug("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
 	 //                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
 	 }
 	 }
@@ -295,7 +298,7 @@ public class ArbilTemplate {
 	 }
 	 if (testingListing != null) {
 	 if (testingListing.length - 2 != linesRead) {
-	 System.out.println(testingListing[linesRead]);
+	 logger.debug(testingListing[linesRead]);
 	 //                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
 	 }
 	 }
@@ -319,17 +322,17 @@ public class ArbilTemplate {
 			String currentValue = currentTemplate[0].replaceFirst("\\.xml$", "");
 //                            String currentTemplateXPath = currentTemplate[0].replaceFirst("\\.xml$", "");
 //                            String currentTemplateName = currentTemplateXPath.substring(nodepath.length());
-//                        System.out.println("currentTemplateXPath: " + currentTemplateXPath);
-//                        System.out.println("targetNodePath: " + targetNodePath);
+//                        logger.debug("currentTemplateXPath: " + currentTemplateXPath);
+//                        logger.debug("targetNodePath: " + targetNodePath);
 //                            String destinationXPath;
 //                            if (currentTemplateXPath.contains(")")) {
 //                                destinationXPath = targetNodePath + currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(")") + 1);
 //                            } else {
 //                                destinationXPath = currentTemplateXPath;
 //                            }
-//                        System.out.println("destinationXPath: " + destinationXPath);
+//                        logger.debug("destinationXPath: " + destinationXPath);
 //            ====================================
-//                        System.out.println(currentTemplate[1] + " : ." + currentValue);
+//                        logger.debug(currentTemplate[1] + " : ." + currentValue);
 			returnVector.add(new String[]{currentTemplate[1], "." + currentValue});// TODO: update the menu title to include location and exact file name from the template
 		    }
 		}
@@ -520,7 +523,7 @@ public class ArbilTemplate {
 			String maxOccurs = atts.getValue("MaxOccurs");
 			if (insertBefore == null) {
 			    insertBefore = "";
-//                            System.out.println(insertBefore + " : " + maxOccurs);
+//                            logger.debug(insertBefore + " : " + maxOccurs);
 			}
 			if (maxOccurs == null) {
 			    maxOccurs = "-1";

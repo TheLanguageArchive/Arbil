@@ -25,6 +25,8 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import nl.mpi.arbil.util.BugCatcherManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Table for editing ArbilFieldViews
@@ -36,6 +38,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  * @see ArbilFieldView
  */
 public class ArbilFieldViewTable extends JTable {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilFieldViewTable.class);
 
     public ArbilFieldViewTable(ArbilTableModel imdiTableModel) {
 	TableModel tableModel = new ArbilFieldViewTableModel(imdiTableModel);
@@ -44,19 +47,19 @@ public class ArbilFieldViewTable extends JTable {
 
 	    @Override
 	    public void mousePressed(MouseEvent evt) {
-		System.out.println("mousePressed");
+		logger.debug("mousePressed");
 		checkPopup(evt);
 	    }
 
 	    @Override
 	    public void mouseReleased(MouseEvent evt) {
-		System.out.println("mouseReleased");
+		logger.debug("mouseReleased");
 		checkPopup(evt);
 	    }
 
 //            @Override
 //            public void mouseClicked(java.awt.event.MouseEvent evt) {
-//                System.out.println("mouseClicked");
+//                logger.debug("mouseClicked");
 //                checkPopup(evt);
 //            }
 	    private void checkPopup(java.awt.event.MouseEvent evt) {
@@ -64,7 +67,7 @@ public class ArbilFieldViewTable extends JTable {
 		    // set the clicked cell selected
 		    java.awt.Point p = evt.getPoint();
 		    int clickedColumn = columnAtPoint(p);
-		    System.out.println("clickedColumn: " + clickedColumn);
+		    logger.debug("clickedColumn: " + clickedColumn);
 		    if (clickedColumn == 2 || clickedColumn == 3) {
 			JPopupMenu viewPopupMenu = new javax.swing.JPopupMenu();
 			viewPopupMenu.setName("viewPopupMenu");
@@ -79,7 +82,7 @@ public class ArbilFieldViewTable extends JTable {
 				try {
 				    int targetColumn = Integer.parseInt(evt.getActionCommand());
 				    ArbilFieldViewTableModel fieldViewTableModel = (ArbilFieldViewTableModel) ((JTable) ((JPopupMenu) ((JMenuItem) evt.getSource()).getComponent().getParent()).getInvoker()).getModel();
-				    System.out.println("targetColumn: " + targetColumn + ":" + evt.getActionCommand());
+				    logger.debug("targetColumn: " + targetColumn + ":" + evt.getActionCommand());
 				    for (int rowCounter = 0; rowCounter < fieldViewTableModel.getRowCount(); rowCounter++) {
 					fieldViewTableModel.setValueAt(true, rowCounter, targetColumn);
 				    }
@@ -99,7 +102,7 @@ public class ArbilFieldViewTable extends JTable {
 				try {
 				    int targetColumn = Integer.parseInt(evt.getActionCommand());
 				    ArbilFieldViewTableModel fieldViewTableModel = (ArbilFieldViewTableModel) ((JTable) ((JPopupMenu) ((JMenuItem) evt.getSource()).getComponent().getParent()).getInvoker()).getModel();
-				    System.out.println("targetColumn: " + targetColumn + ":" + evt.getActionCommand());
+				    logger.debug("targetColumn: " + targetColumn + ":" + evt.getActionCommand());
 				    for (int rowCounter = 0; rowCounter < fieldViewTableModel.getRowCount(); rowCounter++) {
 					fieldViewTableModel.setValueAt(false, rowCounter, targetColumn);
 				    }

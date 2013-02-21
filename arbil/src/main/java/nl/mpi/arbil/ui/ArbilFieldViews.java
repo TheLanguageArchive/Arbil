@@ -40,7 +40,7 @@ public class ArbilFieldViews {
     }
 
     static synchronized public ArbilFieldViews getSingleInstance() {
-//        System.out.println("ImdiFieldViews getSingleInstance");
+//        logger.debug("ImdiFieldViews getSingleInstance");
 	if (singleInstance == null) {
 	    singleInstance = new ArbilFieldViews();
 	}
@@ -52,12 +52,12 @@ public class ArbilFieldViews {
     }
 
     public ArbilFieldView getView(String viewName) {
-//        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
+//        logger.debug("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
 	return ((ArbilFieldView) savedFieldViews.get(viewName));
     }
 
     public ArbilFieldView getCurrentGlobalView() {
-//        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
+//        logger.debug("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
 	ArbilFieldView fieldView = ((ArbilFieldView) savedFieldViews.get(currentGlobalViewName));
 	if (fieldView == null) {
 	    // Unknown field view, return new view as fallback
@@ -72,7 +72,7 @@ public class ArbilFieldViews {
     }
 
     public void setCurrentGlobalViewName(String nextViewName) {
-//        System.out.println("setCurrentGlobalViewName: " + nextViewName);
+//        logger.debug("setCurrentGlobalViewName: " + nextViewName);
 	currentGlobalViewName = nextViewName;
 	sessionStorage.saveString("currentGlobalViewName", currentGlobalViewName);
     }
@@ -125,7 +125,7 @@ public class ArbilFieldViews {
 	    //LinorgSessionStorage.getSingleInstance().saveString("currentGlobalViewName", currentGlobalViewName);
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
-	    //System.out.println("save savedFieldViews exception: " + ex.getMessage());
+	    //logger.debug("save savedFieldViews exception: " + ex.getMessage());
 	}
     }
 

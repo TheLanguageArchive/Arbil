@@ -54,8 +54,8 @@ public class ArbilEntityResolver implements EntityResolver {
     }
 
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-//        System.out.println("publicId: " + publicId);
-//        System.out.println("systemId: " + systemId);
+//        logger.debug("publicId: " + publicId);
+//        logger.debug("systemId: " + systemId);
 	String targetString;
 	// todo: test with http://www.loc.gov/ndnp/xml/alto-1-2.xsd issue: exception: no protocol: ./xlink.xsd need to resolve local references
 	if (parentUri != null) {
@@ -70,7 +70,7 @@ public class ArbilEntityResolver implements EntityResolver {
 	    BugCatcherManager.getBugCatcher().logError("dependant xsd not stored in the jar for offline first time use: " + cachedfile, null);
 	}
 	String cachedfileString = cachedfile.toURI().toString();
-//        System.out.println("cachedfileString: " + cachedfileString);
+//        logger.debug("cachedfileString: " + cachedfileString);
 	return new InputSource(cachedfileString) {
 
 	    @Override

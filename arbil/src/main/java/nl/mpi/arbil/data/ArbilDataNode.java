@@ -52,6 +52,8 @@ import nl.mpi.flap.model.DataNodeType;
 import nl.mpi.flap.model.DataField;
 import nl.mpi.flap.model.FieldGroup;
 import nl.mpi.flap.model.PluginDataNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilDataNode formerly known as ImdiTreeObject
@@ -60,6 +62,7 @@ import nl.mpi.flap.model.PluginDataNode;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilDataNode extends ArbilNode implements Comparable {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilDataNode.class);
 
     public static enum LoadingState {
 
@@ -309,9 +312,9 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                     this.isDirectory = fileObject.isDirectory();
                     // TODO: check this on a windows box with a network drive and linux with symlinks
                     //                    this.isDirectory = !fileObject.isFile();
-                    //                    System.out.println("isFile" + fileObject.isFile());
-                    //                    System.out.println("isDirectory" + fileObject.isDirectory());
-                    //                    System.out.println("getAbsolutePath" + fileObject.getAbsolutePath());
+                    //                    logger.debug("isFile" + fileObject.isFile());
+                    //                    logger.debug("isDirectory" + fileObject.isDirectory());
+                    //                    logger.debug("getAbsolutePath" + fileObject.getAbsolutePath());
                 }
             }
             if (!isMetaDataNode() && nodeText == null) {
@@ -347,7 +350,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * links and Arbil child nodes.
      */
     public int getChildCount() {
-        //        System.out.println("getChildCount: " + childLinks.size() + childrenHashtable.size() + " : " + this.getUrlString());
+        //        logger.debug("getChildCount: " + childLinks.size() + childrenHashtable.size() + " : " + this.getUrlString());
         return childArray.length;
     }
 
@@ -370,7 +373,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @param An empty vector, to which all the child nodes will be added.
      */
     public void getAllChildren(Vector<ArbilDataNode> allChildren) {
-        System.out.println("getAllChildren: " + this.getUrlString());
+        logger.debug("getAllChildren: " + this.getUrlString());
         if (this.isSession() || this.isCatalogue() || this.isChildNode() || this.isCmdiMetaDataNode()) {
             for (ArbilDataNode currentChild : childArray) {
                 if (currentChild != this) { // Should not happen but prevent looping by self reference
@@ -468,13 +471,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         ArbilField[] currentFieldArray = this.fieldHashtable.get(fieldName);
         if (currentFieldArray != null) {
             for (ArbilField currentField : currentFieldArray) {
-                System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
+                logger.debug("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
                 if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
                     return true;
                 }
             }
         }
-        System.out.println("result: " + findResult + ":" + this);
+        logger.debug("result: " + findResult + ":" + this);
         return findResult;
     }
 
@@ -482,13 +485,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         boolean findResult = false;
         for (ArbilField[] currentFieldArray : (Collection<ArbilField[]>) this.fieldHashtable.values()) {
             for (ArbilField currentField : currentFieldArray) {
-                System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
+                logger.debug("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
                 if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
                     return true;
                 }
             }
         }
-        System.out.println("result: " + findResult + ":" + this);
+        logger.debug("result: " + findResult + ":" + this);
         return findResult;
     }
 
@@ -515,7 +518,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @param allFields Vector to populate
      */
     protected void getAllFields(Vector<ArbilField[]> allFields) {
-        System.out.println("getAllFields: " + this.toString());
+        logger.debug("getAllFields: " + this.toString());
         allFields.addAll(fieldHashtable.values());
         for (ArbilDataNode currentChild : childArray) {
             if (currentChild.isChildNode()) {
@@ -632,15 +635,15 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @return
      */
     public synchronized boolean waitTillLoaded() {
-        System.out.println("waitTillLoaded");
+        logger.debug("waitTillLoaded");
         if (this != getParentDomNode()) { // isloading does this parent check pretty much already
             return getParentDomNode().waitTillLoaded();
         } else {
             if (isLoading()) {
-                System.out.println("isLoading");
+                logger.debug("isLoading");
                 try {
                     getParentDomNode().wait();
-                    System.out.println("wait");
+                    logger.debug("wait");
                     if (isLoading()) {
                         BugCatcherManager.getBugCatcher().logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
                     }
@@ -661,7 +664,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
             synchronized (loadingCountLock) {
                 isLoadingCount += countChange;
             }
-//            System.out.println("isLoadingCount: " + isLoadingCount);
+//            logger.debug("isLoadingCount: " + isLoadingCount);
             if (wasLoading != isLoading()) {
                 //                    this.notifyAll();
                 clearChildIcons();
@@ -743,7 +746,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
                     if (currentField != null) {
                         if (currentField.toString().trim().length() > 0) {
                             nodeText = currentField.toString();
-                            //                            System.out.println("nodeText: " + nodeText);
+                            //                            logger.debug("nodeText: " + nodeText);
                             foundPreferredNameField = true;
                             break getLabelString;
                         }
@@ -980,11 +983,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
             } else {
                 targetUri = new URI(null, targetUriString, null);
             }
-            //            System.out.println("nodeUri: " + nodeUri);
+            //            logger.debug("nodeUri: " + nodeUri);
             URI resourceUri = nodeUri.resolve(targetUri);
-            //            System.out.println("targetUriString: " + targetUriString);
-            //            System.out.println("targetUri: " + targetUri);
-            //            System.out.println("resourceUri: " + resourceUri);
+            //            logger.debug("targetUriString: " + targetUriString);
+            //            logger.debug("targetUri: " + targetUri);
+            //            logger.debug("resourceUri: " + resourceUri);
             if (!targetUri.equals(resourceUri)) {
                 // maintain the UNC path
                 boolean isUncPath = nodeUri.toString().toLowerCase().startsWith("file:////");
@@ -999,7 +1002,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
             return resourceUri;
         } catch (Exception urise) {
             BugCatcherManager.getBugCatcher().logError(urise);
-            System.out.println("URISyntaxException: " + urise.getMessage());
+            logger.debug("URISyntaxException: " + urise.getMessage());
             return null;
         }
     }
@@ -1026,14 +1029,14 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @return ArbilDataNode
      */
     public synchronized ArbilDataNode getParentDomNode() {
-        //        System.out.println("nodeUri: " + nodeUri);
+        //        logger.debug("nodeUri: " + nodeUri);
         if (domParentNode == null) {
             if (nodeUri.getFragment() != null) {
                 try {
                     //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
                     // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
                     domParentNode = dataNodeService.loadArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
-                    //                    System.out.println("nodeUri: " + nodeUri);
+                    //                    logger.debug("nodeUri: " + nodeUri);
                 } catch (URISyntaxException ex) {
                     BugCatcherManager.getBugCatcher().logError(ex);
                 }
@@ -1223,10 +1226,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * loading a session dom.
      */
     public void clearChildIcons() {
-        //        System.out.println("clearChildIconsParent: " + this);
+        //        logger.debug("clearChildIconsParent: " + this);
         for (ArbilDataNode currentChild : childArray) {
             //            if (!currentChild.equals(currentChild.getParentDomNode())) {
-            //                System.out.println("clearChildIcons: " + currentChild);
+            //                logger.debug("clearChildIcons: " + currentChild);
             currentChild.clearChildIcons();
             currentChild.clearIcon();
             //            }
@@ -1242,14 +1245,14 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      */
     public void clearIcon() {
         refreshStringValue();
-        //        System.out.println("clearIcon: " + this);
-        //        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
+        //        logger.debug("clearIcon: " + this);
+        //        logger.debug("containersOfThisNode: " + containersOfThisNode.size());
         //        SwingUtilities.invokeLater(new Runnable() {
 
         //            public void run() {
         icon = ArbilIcons.getSingleInstance().getIconForNode(ArbilDataNode.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
-        //                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
-        //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
+        //                logger.debug("clearIcon invokeLater" + ImdiTreeObject.this.toString());
+        //                logger.debug("containersOfThisNode: " + containersOfThisNode.size());
         // here we need to cause an update in the gui containers so that the new icon can be loaded
         for (Enumeration<ArbilDataNodeContainer> containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
             try { // TODO: the need for this try catch indicates that there is a threading issue in the way that imdichild nodes are reloaded within an imdi parent node and this should be reorganised to be more systematic and hierarchical
@@ -1261,7 +1264,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         }
         //            }
         //        });
-        //        System.out.println("end clearIcon: " + this);
+        //        logger.debug("end clearIcon: " + this);
     }
 
     public synchronized void removeFromAllContainers() {

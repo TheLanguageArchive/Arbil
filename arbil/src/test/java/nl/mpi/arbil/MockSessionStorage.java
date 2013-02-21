@@ -39,8 +39,10 @@ import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.ProgressListener;
+import org.slf4j.LoggerFactory;
 
 public class MockSessionStorage implements SessionStorage {
+    private final static org.slf4j.Logger logger = LoggerFactory.getLogger(MockSessionStorage.class);
 
     private static final Logger log = Logger.getLogger(MockSessionStorage.class.toString());
     private File localCacheDirectory = null;
@@ -122,8 +124,8 @@ public class MockSessionStorage implements SessionStorage {
     public URI getOriginatingUri(URI locationInCacheURI) {
         URI returnUri = null;
         String uriPath = locationInCacheURI.getPath();
-//        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
-        System.out.println("uriPath: " + uriPath);
+//        logger.debug("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
+        logger.debug("uriPath: " + uriPath);
         int foundPos = uriPath.indexOf("imdicache");
         if (foundPos == -1) {
             foundPos = uriPath.indexOf("ArbilWorkingFiles");
@@ -136,7 +138,7 @@ public class MockSessionStorage implements SessionStorage {
         try {
             if (uriParts[1].toLowerCase().equals("http")) {
                 returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
-                System.out.println("returnUri: " + returnUri);
+                logger.debug("returnUri: " + returnUri);
             }
         } catch (URISyntaxException urise) {
             log.severe(urise.toString());
@@ -283,8 +285,8 @@ public class MockSessionStorage implements SessionStorage {
         boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
-//        System.out.println("saveRemoteResource: " + targetUrlString);
-//        System.out.println("destinationPath: " + destinationPath);
+//        logger.debug("saveRemoteResource: " + targetUrlString);
+//        logger.debug("destinationPath: " + destinationPath);
 //        File destinationFile = new File(destinationPath);
         if (destinationFile.length() == 0) {
             // todo: check the file size on the server and maybe its date also
@@ -293,7 +295,7 @@ public class MockSessionStorage implements SessionStorage {
         }
         String fileName = destinationFile.getName();
         if (destinationFile.exists() && !expireCacheCopy && destinationFile.length() > 0) {
-            System.out.println("this resource is already in the cache");
+            logger.debug("this resource is already in the cache");
         } else {
             try {
                 URLConnection urlConnection = targetUrl.openConnection();
@@ -306,28 +308,28 @@ public class MockSessionStorage implements SessionStorage {
 //                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
 //                            // work around for resources being https when under shiboleth
 //                            // try https after http failed
-//                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
-//                            System.out.println("trying https");
+//                            logger.debug("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+//                            logger.debug("trying https");
 //                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
 //                            urlConnection = targetUrl.openConnection();
 //                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
 //                        }
                     }
                     //h.setFollowRedirects(false);
-                    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+                    logger.debug("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
                 }
                 if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
                     if (httpConnection == null) {
-                        System.out.println("httpConnection is null, hence this is a local file and we should not have been testing the response code");
+                        logger.debug("httpConnection is null, hence this is a local file and we should not have been testing the response code");
                     } else {
-                        System.out.println("non 200 response, skipping file");
+                        logger.debug("non 200 response, skipping file");
                     }
                 } else {
                     File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
                     tempFile.deleteOnExit();
                     int bufferLength = 1024 * 3;
                     FileOutputStream outFile = new FileOutputStream(tempFile); //targetUrlString
-                    System.out.println("getting file");
+                    logger.debug("getting file");
                     InputStream stream = urlConnection.getInputStream();
                     byte[] buffer = new byte[bufferLength]; // make this 1024*4 or something and read chunks not the whole file
                     int bytesread = 0;
@@ -335,8 +337,8 @@ public class MockSessionStorage implements SessionStorage {
                     while (bytesread >= 0 && !abortFlag.abortDownload) {
                         bytesread = stream.read(buffer);
                         totalRead += bytesread;
-//                        System.out.println("bytesread: " + bytesread);
-//                        System.out.println("Mbs totalRead: " + totalRead / 1048576);
+//                        logger.debug("bytesread: " + bytesread);
+//                        logger.debug("Mbs totalRead: " + totalRead / 1048576);
                         if (bytesread == -1) {
                             break;
                         }
@@ -353,11 +355,11 @@ public class MockSessionStorage implements SessionStorage {
                         tempFile.renameTo(destinationFile);
                         downloadSucceeded = true;
                     }
-                    System.out.println("Downloaded: " + totalRead / (1024 * 1024) + " Mb");
+                    logger.debug("Downloaded: " + totalRead / (1024 * 1024) + " Mb");
                 }
             } catch (Exception ex) {
                 log.log(Level.SEVERE, null, ex);
-//                System.out.println(ex.getMessage());
+//                logger.debug(ex.getMessage());
             }
         }
         return downloadSucceeded;
@@ -387,19 +389,19 @@ public class MockSessionStorage implements SessionStorage {
         if (!fileNeedsUpdate) {
             Date lastModified = new Date(targetFile.lastModified());
             Date expireDate = new Date(System.currentTimeMillis());
-            System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + targetFile.getAbsolutePath());
+            logger.debug("updateCache: " + expireDate + " : " + lastModified + " : " + targetFile.getAbsolutePath());
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(expireDate);
             calendar.add(Calendar.DATE, -expireCacheDays);
             expireDate.setTime(calendar.getTime().getTime());
 
-            System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + targetFile.getAbsolutePath());
+            logger.debug("updateCache: " + expireDate + " : " + lastModified + " : " + targetFile.getAbsolutePath());
 
             fileNeedsUpdate = expireDate.after(lastModified);
-            System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
+            logger.debug("fileNeedsUpdate: " + fileNeedsUpdate);
         }
-        System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
+        logger.debug("fileNeedsUpdate: " + fileNeedsUpdate);
         return updateCache(pathString, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
     }
 

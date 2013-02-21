@@ -29,8 +29,9 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilIcons
@@ -39,6 +40,7 @@ import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilIcons {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilIcons.class);
 
     private static ApplicationVersionManager versionManager;
 
@@ -333,7 +335,7 @@ public class ArbilIcons {
 		iconsList.add(fileCheckedIcon);
 	    } else if (mimeTypeForNode.length() > 0) {
 		iconsList.add(fileCheckedIcon);
-		System.out.println("Icon not found for file type: " + mimeTypeForNode);
+		logger.debug("Icon not found for file type: " + mimeTypeForNode);
 	    }
 	} else if (arbilNode.isInfoLink) {
 	    iconsList.add(infofileIcon);

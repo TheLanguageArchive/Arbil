@@ -29,6 +29,8 @@ import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Singleton instance of TreeHelper, for use with Arbil desktop application
@@ -37,6 +39,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTreeHelper extends AbstractTreeHelper {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTreeHelper.class);
 
     private SessionStorage sessionStorage;
     private ArbilTreePanels arbilTreePanel;
@@ -78,7 +81,7 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 
     @Override
     public void applyRootLocations() {
-        System.out.println("applyRootLocations");
+        logger.debug("applyRootLocations");
         arbilTreePanel.localCorpusTree.requestResort();
         arbilTreePanel.remoteCorpusTree.requestResort();
         arbilTreePanel.localDirectoryTree.requestResort();
@@ -86,12 +89,12 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
     }
 
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
-        System.out.println("localCorpusTree: " + arbilTreePanel.localCorpusTree);
+        logger.debug("localCorpusTree: " + arbilTreePanel.localCorpusTree);
         return (DefaultMutableTreeNode) arbilTreePanel.localCorpusTree.getSelectionPath().getLastPathComponent();
     }
 
     public void deleteNodes(Object sourceObject) {
-        System.out.println("deleteNode: " + sourceObject);
+        logger.debug("deleteNode: " + sourceObject);
         if (sourceObject == arbilTreePanel.localCorpusTree || sourceObject == arbilTreePanel.favouritesTree) {
             TreePath currentNodePaths[] = ((ArbilTree) sourceObject).getSelectionPaths();
             int toDeleteCount = 0;
@@ -132,7 +135,7 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
                 deleteCmdiLinks(cmdiLinksDeleteList);
             }
         } else {
-            System.out.println("cannot delete from this tree");
+            logger.debug("cannot delete from this tree");
         }
     }
 

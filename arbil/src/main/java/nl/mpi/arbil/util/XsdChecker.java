@@ -51,6 +51,8 @@ import javax.xml.validation.Validator;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
@@ -58,6 +60,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class XsdChecker extends JSplitPane {
+    private final static Logger logger = LoggerFactory.getLogger(XsdChecker.class);
 
     private static SessionStorage sessionStorage;
     private ArbilResourceResolver resourceResolver = new ArbilResourceResolver();
@@ -116,12 +119,12 @@ public class XsdChecker extends JSplitPane {
 //            if (schemaLocation != null && schemaLocation.length > 0) {
 //                nameSpaceURI = schemaLocation[schemaLocation.length - 1];
 //            }
-//            System.out.println("getNamespaceURI: " + document.getFirstChild().getNamespaceURI());
-//            System.out.println("getBaseURI: " + document.getFirstChild().getBaseURI());
-//            System.out.println("getLocalName: " + document.getFirstChild().getLocalName());
-//            System.out.println("toString: " + document.getFirstChild().toString());
-//            System.out.println("getAttribute: " + document.getDocumentElement().getAttribute("xmlns"));
-//            System.out.println("getNamespaceURI: " + document.getDocumentElement().getNamespaceURI());
+//            logger.debug("getNamespaceURI: " + document.getFirstChild().getNamespaceURI());
+//            logger.debug("getBaseURI: " + document.getFirstChild().getBaseURI());
+//            logger.debug("getLocalName: " + document.getFirstChild().getLocalName());
+//            logger.debug("toString: " + document.getFirstChild().toString());
+//            logger.debug("getAttribute: " + document.getDocumentElement().getAttribute("xmlns"));
+//            logger.debug("getNamespaceURI: " + document.getDocumentElement().getNamespaceURI());
 	    //nameSpaceURI = document.getDocumentElement().getNamespaceURI();
 
 	    String schemaLocationString = null;
@@ -135,7 +138,7 @@ public class XsdChecker extends JSplitPane {
 		schemaLocationString = schemaLocation[schemaLocation.length - 1];
 		nameSpaceURI = metadataFile.toURI().resolve(schemaLocationString).toString();
 	    }
-	    System.out.println("schemaLocationString: " + schemaLocationString);
+	    logger.debug("schemaLocationString: " + schemaLocationString);
 
 	} catch (IOException iOException) {
 	    BugCatcherManager.getBugCatcher().logError(iOException);
@@ -144,7 +147,7 @@ public class XsdChecker extends JSplitPane {
 	} catch (SAXException sAXException) {
 	    BugCatcherManager.getBugCatcher().logError(sAXException);
 	}
-	System.out.println("nameSpaceURI: " + nameSpaceURI);
+	logger.debug("nameSpaceURI: " + nameSpaceURI);
 	int daysTillExpire = 15;
 	File schemaFile = null;
 	if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("http:/")) {
@@ -165,7 +168,7 @@ public class XsdChecker extends JSplitPane {
 	    try {
 		schemaURL = schemaFile.toURL();
 	    } catch (Exception e) {
-		System.out.println("error getting xsd from the server: " + e.getMessage());
+		logger.debug("error getting xsd from the server: " + e.getMessage());
 	    }
 	} else {
 	    if (schemaFile == null || !schemaFile.exists()) {
@@ -176,7 +179,7 @@ public class XsdChecker extends JSplitPane {
 		try {
 		    schemaURL = schemaFile.toURL();
 		} catch (Exception e) {
-		    System.out.println("error getting xsd from the server: " + e.getMessage());
+		    logger.debug("error getting xsd from the server: " + e.getMessage());
 		}
 	    }
 	    if (schemaURL == null) {
@@ -259,11 +262,11 @@ public class XsdChecker extends JSplitPane {
 	    validator.setErrorHandler(errorHandler);
 	    try {
 		validator.validate(xmlFile);
-//            System.out.println(xmlFile.getSystemId() + " is valid");
+//            logger.debug(xmlFile.getSystemId() + " is valid");
 //            doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is valid\n", styleWarning);
 	    } catch (SAXException e) {
-		System.out.println(xmlFile.getSystemId() + " is NOT valid");
-		System.out.println("Reason: " + e.getLocalizedMessage());
+		logger.debug(xmlFile.getSystemId() + " is NOT valid");
+		logger.debug("Reason: " + e.getLocalizedMessage());
 
 		doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is NOT valid\n", styleError);
 		doc.insertString(doc.getLength(), "Reason: " + e.getLocalizedMessage() + "\n", styleError);
@@ -275,7 +278,7 @@ public class XsdChecker extends JSplitPane {
 
     public String simpleCheck(File metadataFile) {
 	String messageString;
-//        System.out.println("simpleCheck: " + imdiFile);
+//        logger.debug("simpleCheck: " + imdiFile);
 	URL schemaURL = getXsd(metadataFile);
 	Source xmlFile = new StreamSource(metadataFile);
 	try {
@@ -283,8 +286,8 @@ public class XsdChecker extends JSplitPane {
 	    validator.validate(xmlFile);
 	    return null;
 	} catch (Exception e) {
-//            System.out.println(sourceFile + " is NOT valid");
-//            System.out.println("Reason: " + e.getLocalizedMessage());
+//            logger.debug(sourceFile + " is NOT valid");
+//            logger.debug("Reason: " + e.getLocalizedMessage());
 	    messageString = "Error validating " + metadataFile.toURI() + "\n"
 		    + "Reason: " + e.getLocalizedMessage() + "\n";
 	    return messageString;
@@ -326,7 +329,7 @@ public class XsdChecker extends JSplitPane {
 	} catch (Exception ex) {
 	    encounteredAdditionalErrors = true;
 	    reportedError = ex.getMessage();
-	    System.out.println(ex.getMessage());
+	    logger.debug(ex.getMessage());
 	}
 	try {
 	    if (encounteredAdditionalErrors) {
@@ -334,7 +337,7 @@ public class XsdChecker extends JSplitPane {
 	    }
 	    doc.insertString(doc.getLength(), "\nDone.\n", styleWarning);
 	} catch (Exception ex) {
-	    System.out.println("error: " + ex.getMessage());
+	    logger.debug("error: " + ex.getMessage());
 	}
     }
 }

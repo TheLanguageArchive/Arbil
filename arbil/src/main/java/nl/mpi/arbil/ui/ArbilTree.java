@@ -53,6 +53,8 @@ import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Interactive representation of a tree of arbil nodes
@@ -68,6 +70,7 @@ import nl.mpi.arbil.util.TreeHelper;
  * @see TreeContextMenu
  */
 public class ArbilTree extends JTree implements ArbilDataNodeContainer, ClipboardOwner {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTree.class);
 
     protected ArbilTable customPreviewTable = null;
     private boolean clearSelectionOnFocusLost = false;
@@ -145,7 +148,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 	this.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
 	    public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
 		if (evt.getPath().getPathCount() == 1) {
-		    System.out.println("root node cannot be collapsed");
+		    logger.debug("root node cannot be collapsed");
 		    throw new ExpandVetoException(evt, "root node cannot be collapsed");
 		}
 	    }
@@ -344,16 +347,16 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 	    }
 	    StringSelection stringSelection = new StringSelection(copiedNodeUrls);
 	    clipboard.setContents(stringSelection, this);
-	    System.out.println("copied: \n" + copiedNodeUrls);
+	    logger.debug("copied: \n" + copiedNodeUrls);
 	}
     }
 
     private void sortDescendentNodes(DefaultMutableTreeNode currentNode/* , TreePath[] selectedPaths */) {
 	// todo: consider returning a list of tree paths for the nodes that are opened and have no open children
 //        if (currentNode.getUserObject() instanceof JLabel) {
-//            System.out.println("currentNode: " + ((JLabel) currentNode.getUserObject()).getText());
+//            logger.debug("currentNode: " + ((JLabel) currentNode.getUserObject()).getText());
 //        } else {
-//            System.out.println("currentNode: " + currentNode);
+//            logger.debug("currentNode: " + currentNode);
 //        }
 	boolean isExpanded = true;
 	ArbilNode[] childDataNodeArray = new ArbilNode[]{};
@@ -484,6 +487,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
     }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
-	System.out.println("lost clipboard ownership");
+	logger.debug("lost clipboard ownership");
     }
 }

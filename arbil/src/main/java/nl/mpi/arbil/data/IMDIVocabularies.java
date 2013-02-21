@@ -70,13 +70,13 @@ public class IMDIVocabularies {
     // mpi.vocabs.IMDIVocab cv = mpi.vocabs.IMDIVocab.get(vocabularyLocation);
     // cv.cslist2array(vocabularyLocation)
     // the output of the following looks similar however they differ slightly and only a few have comments
-//        System.out.println("CVentries: "+cv.getCVentries());
-//        System.out.println("NameEntries: "+cv.getNameEntries());
-//        System.out.println("ValueEntries: "+cv.getValueEntries()); // this one is has comments
-//        System.out.println("VocabHashtable: "+cv.getVocabHashtable());
-//        System.out.println("Vocabs: "+cv.getVocabs());
-//        System.out.println("DescriptionEntries: "+cv.getDescriptionEntries());
-//        System.out.println("Entries: "+cv.getEntries());      
+//        logger.debug("CVentries: "+cv.getCVentries());
+//        logger.debug("NameEntries: "+cv.getNameEntries());
+//        logger.debug("ValueEntries: "+cv.getValueEntries()); // this one is has comments
+//        logger.debug("VocabHashtable: "+cv.getVocabHashtable());
+//        logger.debug("Vocabs: "+cv.getVocabs());
+//        logger.debug("DescriptionEntries: "+cv.getDescriptionEntries());
+//        logger.debug("Entries: "+cv.getEntries());      
 //    }
     static private IMDIVocabularies singleInstance = null;
 
@@ -267,7 +267,7 @@ public class IMDIVocabularies {
 //            if (name.equals("VocabularyRedirect")) { // or should this be Redirect
 //                // when getting the list check attribute in the field X for the vocab location
 //                collectedVocab.vocabularyRedirectField = atts.getValue("SourceFieldName");
-//                System.out.println("VocabularyRedirect: " + collectedVocab.vocabularyRedirectField);
+//                logger.debug("VocabularyRedirect: " + collectedVocab.vocabularyRedirectField);
 //            }
 	    if (name.equals("Entry")) {
 		String vocabName = atts.getValue("Value");

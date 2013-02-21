@@ -42,6 +42,8 @@ import nl.mpi.arbil.util.task.ArbilTaskListener;
 import nl.mpi.arbil.util.task.DefaultArbilTask;
 import nl.mpi.bcarchive.typecheck.DeepFileType;
 import nl.mpi.bcarchive.typecheck.FileType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Resource nodes can be added to this queue. A low priority thread then
@@ -55,6 +57,7 @@ import nl.mpi.bcarchive.typecheck.FileType;
  * @author Peter.Withers@mpi.nl
  */
 public class DefaultMimeHashQueue implements MimeHashQueue {
+    private final static Logger logger = LoggerFactory.getLogger(DefaultMimeHashQueue.class);
 
     private DataNodeLoader dataNodeLoader;
 
@@ -110,7 +113,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     }
 
     public DefaultMimeHashQueue(SessionStorage sessionStorage) {
-        System.out.println("MimeHashQueue init");
+        logger.debug("MimeHashQueue init");
         this.sessionStorage = sessionStorage;
         checkResourcePermissions = sessionStorage.loadBoolean("checkResourcePermissions", true);
         continueThread = true;
@@ -212,7 +215,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
         private int processed;
 
         public void run() {
-            System.out.println("MimeHashQueue run");
+            logger.debug("MimeHashQueue run");
             // load from disk
             loadMd5sumIndex();
 
@@ -229,7 +232,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                 // TODO: add check for url in list with different hash which would indicate a modified file and require a red x on the icon
                 // TODO: add check for mtime change and update accordingly
             }
-            System.out.println("MimeHashQueue stop");
+            logger.debug("MimeHashQueue stop");
         }
 
         private void waitForNode() {
@@ -285,7 +288,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                 }
 
                 currentDataNode.setTypeCheckerState(TypeCheckerState.IN_PROCESS);
-                //System.out.println("DefaultMimeHashQueue checking: " + currentImdiObject.getUrlString());
+                //logger.debug("DefaultMimeHashQueue checking: " + currentImdiObject.getUrlString());
                 if (!currentDataNode.isMetaDataNode()) {
                     addFileAndExifFields();
                 }
@@ -322,12 +325,12 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                         previousMTime = (Long) processedFilesMTimes.get(currentPathURI.toString());
                     }
                     long currentMTime = currentFile.lastModified();
-//                                System.out.println("run DefaultMimeHashQueue mtime: " + currentPathString);
+//                                logger.debug("run DefaultMimeHashQueue mtime: " + currentPathString);
                     String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathURI.toString());
 
 		    synchronized (currentDataNode.getParentDomLockObject()) {
 			if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
-//                                    System.out.println("run DefaultMimeHashQueue processing: " + currentPathString);
+//                                    logger.debug("run DefaultMimeHashQueue processing: " + currentPathString);
                             currentDataNode.setMimeType(getMimeType(currentPathURI));
                             currentDataNode.hashString = getHash(currentPathURI, currentDataNode.getURI());
                             processedFilesMTimes.put(currentPathURI.toString(), currentMTime); // avoid issues of the file being modified between here and the last mtime check
@@ -342,7 +345,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                 }
 //                                } catch (MalformedURLException e) {
 //                                    //BugCatcherManager.getBugCatcher().logError(currentPathString, e);
-//                                    System.out.println("MalformedURLException: " + currentPathString + " : " + e);
+//                                    logger.debug("MalformedURLException: " + currentPathString + " : " + e);
 //                                }
             }
         }
@@ -362,11 +365,11 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                         ArbilField dateField = new ArbilField(currentFieldId++, currentDataNode, "last modified", mTimeString, 0, false);
                         currentDataNode.addField(dateField);
                         // get exif tags
-//                System.out.println("get exif tags");
+//                logger.debug("get exif tags");
                         ArbilField[] exifFields = new BinaryMetadataReader().getExifMetadata(currentDataNode, currentFieldId);
                         for (ArbilField currentField : exifFields) {
                             currentDataNode.addField(currentField);
-//                    System.out.println(currentField.fieldValue);
+//                    logger.debug(currentField.fieldValue);
                         }
                     } catch (Exception ex) {
                         BugCatcherManager.getBugCatcher().logError(currentDataNode.getUrlString() + "\n" + fileObject.getAbsolutePath(), ex);
@@ -378,11 +381,11 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
         private void checkServerPermissions() {
             if (checkResourcePermissions) {
                 try {
-//            System.out.println("imdiObject: " + imdiObject);
+//            logger.debug("imdiObject: " + imdiObject);
                     HttpURLConnection resourceConnection = (HttpURLConnection) currentDataNode.getFullResourceURI().toURL().openConnection();
                     resourceConnection.setRequestMethod("HEAD");
                     resourceConnection.setRequestProperty("Connection", "Close");
-//            System.out.println("conn: " + resourceConnection.getURL());
+//            logger.debug("conn: " + resourceConnection.getURL());
                     currentDataNode.resourceFileServerResponse = resourceConnection.getResponseCode();
                     if (currentDataNode.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND
                             || currentDataNode.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN
@@ -392,7 +395,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                     } else {
                         currentDataNode.fileNotFound = false;
                     }
-//            System.out.println("ResponseCode: " + resourceConnection.getResponseCode());
+//            logger.debug("ResponseCode: " + resourceConnection.getResponseCode());
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
@@ -548,13 +551,13 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
             } catch (Exception ex) {
 //            BugCatcherManager.getBugCatcher().logMessage("getHash: " + targetFile);
 //            BugCatcherManager.getBugCatcher().logError("getHash: " + fileUrl, ex);
-                System.out.println("failed to created hash: " + ex.getMessage());
+                logger.debug("failed to created hash: " + ex.getMessage());
             } finally {
                 if (is != null) {
                     try {
                         is.close();
                     } catch (IOException ioe) {
-                        System.out.println("Failed to close input stream for: " + fileUri);
+                        logger.debug("Failed to close input stream for: " + fileUri);
                     }
                 }
             }
@@ -612,7 +615,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     }
 
     public String[] getMimeType(URI fileUri) {
-//        System.out.println("getMimeType: " + fileUrl);
+//        logger.debug("getMimeType: " + fileUrl);
         String mpiMimeType;
         String typeCheckerMessage;
         // here we also want to check the magic number but the mpi api has a function similar to that so we
@@ -622,7 +625,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
         typeCheckerMessage = null;
         boolean deep = false;
         if (!new File(fileUri).exists()) {
-//            System.out.println("File does not exist: " + fileUrl);
+//            logger.debug("File does not exist: " + fileUrl);
         } else {
             InputStream inputStream = null;
             try {
@@ -636,12 +639,12 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                     } else {
                         typeCheckerMessage = getFileType().checkStream(inputStream, fileUri.toString());
                     }
-//                    System.out.println("mpiMimeType: " + typeCheckerMessage);
+//                    logger.debug("mpiMimeType: " + typeCheckerMessage);
                 }
                 mpiMimeType = FileType.resultToMPIType(typeCheckerMessage);
             } catch (Exception ioe) {
 //                BugCatcherManager.getBugCatcher().logError(ioe);
-                System.out.println("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
+                logger.debug("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
                 BugCatcherManager.getBugCatcher().logError(ioe);
                 if (typeCheckerMessage == null) {
                     typeCheckerMessage = "I/O Exception: " + ioe.getMessage();
@@ -655,7 +658,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
                     }
                 }
             }
-            System.out.println(mpiMimeType);
+            logger.debug(mpiMimeType);
         }
         String[] resultArray = new String[]{mpiMimeType, typeCheckerMessage};
         // if non null then it is an archivable file type

@@ -200,7 +200,7 @@ class JListToolTip extends JToolTip {
     }
 
     public void updateList() {
-//        System.out.println("updateList: " + targetObject);
+//        logger.debug("updateList: " + targetObject);
 	jPanel.removeAll();
 	if (targetObject != null) {
 	    if (targetObject instanceof Object[]) {
@@ -237,7 +237,7 @@ class JListToolTip extends JToolTip {
     }
 
     public String getTipText() {
-//        System.out.println("getTipText");
+//        logger.debug("getTipText");
 	// return a zero length string to prevent the tooltip text overlaying the custom tip component
 	return "";
     }
@@ -247,7 +247,7 @@ class JListToolTip extends JToolTip {
     }
 
     public void setTartgetObject(Object targetObjectLocal) {
-//        System.out.println("setTartgetObject: " + targetObjectLocal);
+//        logger.debug("setTartgetObject: " + targetObjectLocal);
 	targetObject = targetObjectLocal;
     }
 }

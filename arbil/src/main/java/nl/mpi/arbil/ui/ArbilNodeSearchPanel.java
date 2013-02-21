@@ -34,6 +34,8 @@ import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.util.BugCatcherManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document   : ArbilNodeSearchPanel
@@ -41,6 +43,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  * @author Peter.Withers@mpi.nl 
  */
 public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContainer {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilNodeSearchPanel.class);
 
     private ArbilNodeSearchPanel thisPanel = this;
     private JInternalFrame parentFrame;
@@ -86,7 +89,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    System.out.println("adding new term");
+		    logger.debug("adding new term");
 		    stopSearch();
 		    getSearchTermsPanel().add(new ArbilNodeSearchTermPanel(thisPanel));
 		    hideFirstBooleanOption();
@@ -170,7 +173,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     }
 
     public void stopSearch() {
-	System.out.println("stop search");
+	logger.debug("stop search");
 	hideFirstBooleanOption();
 	if (searchService != null) {
 	    searchService.stopSearch();
@@ -193,7 +196,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	    stopSearch();
 	    waitForSearch();
 	}
-	System.out.println("start search");
+	logger.debug("start search");
 	searchButton.setEnabled(false);
 	stopButton.setEnabled(true);
 	resultsTableModel.removeAllArbilDataNodeRows();

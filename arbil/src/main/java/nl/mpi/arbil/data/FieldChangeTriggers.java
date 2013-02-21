@@ -18,6 +18,8 @@
 package nl.mpi.arbil.data;
 
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * FieldChangeTriggers.java
@@ -26,6 +28,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  * @author Peter.Withers@mpi.nl
  */
 public class FieldChangeTriggers {
+    private final static Logger logger = LoggerFactory.getLogger(FieldChangeTriggers.class);
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -36,7 +39,7 @@ public class FieldChangeTriggers {
     // the following strings need to be read from a template file or a vocaulary etc
     public void actOnChange(ArbilField changedArbilField) {
 	String fieldPath = changedArbilField.getGenericFullXmlPath();
-	System.out.println("fieldPath: " + fieldPath);
+	logger.debug("fieldPath: " + fieldPath);
 	for (String[] currentTrigger : changedArbilField.getParentDataNode().getNodeTemplate().getFieldTriggersArray()) {
 	    if (fieldPath.equals(currentTrigger[0])) {
 		// we now have the path for two fields:
@@ -52,8 +55,8 @@ public class FieldChangeTriggers {
 		}
 		// care must me taken here to prevet issues with child nodes greater than 9 ie (12), (x) etc.
 		String targetFieldPath = originalFieldPath.substring(0, lastBracketPos) + currentTrigger[1].substring(lastTriggerBracket);
-		System.out.println("originalFieldPath: " + originalFieldPath);
-		System.out.println("targetFieldPath: " + targetFieldPath);
+		logger.debug("originalFieldPath: " + originalFieldPath);
+		logger.debug("targetFieldPath: " + targetFieldPath);
 		final ArbilField[] targetField = changedArbilField.getSiblingField(targetFieldPath);
 		if (targetField != null && targetField.length > 0) {
 		    ArbilVocabularyItem vocabItem = changedArbilField.getVocabulary().findVocabularyItem(changedArbilField.getFieldValue());

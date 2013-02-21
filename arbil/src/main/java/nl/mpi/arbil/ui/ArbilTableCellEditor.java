@@ -55,6 +55,8 @@ import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
 import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilTableCellEditor
@@ -63,6 +65,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTableCellEditor.class);
 
     private static WindowManager windowManager;
     /**
@@ -311,7 +314,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 			}
 		    }
 		} catch (Exception ex) {
-		    System.out.println("OppositeComponent or parent container not set");
+		    logger.debug("OppositeComponent or parent container not set");
 		}
 
 	    }

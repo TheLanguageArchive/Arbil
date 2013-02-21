@@ -79,16 +79,16 @@ public class SaveCurrentSettingsPanel extends JPanel {
                 // todo: save the settings to a text file
 //                }
                 // todo: save the settings to a text file
-//                System.out.println(importExportDialog.overwriteCheckBox.isSelected());
-//                System.out.println(importExportDialog.copyFilesImportCheckBox.isSelected());
-//                System.out.println(importExportDialog.renameFileToLamusFriendlyName.isSelected());
-//                System.out.println(importExportDialog.renameFileToNodeName.isSelected());
-//                System.out.println(importExportDialog.shibbolethCheckBox.isSelected());
-//                System.out.println(importExportDialog.overwriteCheckBox.isSelected());
+//                logger.debug(importExportDialog.overwriteCheckBox.isSelected());
+//                logger.debug(importExportDialog.copyFilesImportCheckBox.isSelected());
+//                logger.debug(importExportDialog.renameFileToLamusFriendlyName.isSelected());
+//                logger.debug(importExportDialog.renameFileToNodeName.isSelected());
+//                logger.debug(importExportDialog.shibbolethCheckBox.isSelected());
+//                logger.debug(importExportDialog.overwriteCheckBox.isSelected());
 //
-//                System.out.println(importExportDialog.exportDestinationDirectory.toString());
+//                logger.debug(importExportDialog.exportDestinationDirectory.toString());
 //                for (ArbilDataNode arbilDataNode : importExportDialog.selectedNodes) {
-//                    System.out.println(arbilDataNode.getUrlString());
+//                    logger.debug(arbilDataNode.getUrlString());
 //                }
             }
         });

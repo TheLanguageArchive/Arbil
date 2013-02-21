@@ -32,6 +32,8 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
@@ -40,6 +42,7 @@ import org.w3c.dom.Document;
  *  Author     : Peter Withers
  */
 public class ImdiUtils implements MetadataUtils {
+    private final static Logger logger = LoggerFactory.getLogger(ImdiUtils.class);
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -156,7 +159,7 @@ public class ImdiUtils implements MetadataUtils {
 				    BugCatcherManager.getBugCatcher().logError(exception);
 				}
 			    }
-			    System.out.println("currentLink: " + linkUriToUpdate + " : " + currentLink.getRawURL().toString());
+			    logger.debug("currentLink: " + linkUriToUpdate + " : " + currentLink.getRawURL().toString());
 			    if (linkUriToUpdate != null) {
 				// todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
 				// todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
@@ -169,7 +172,7 @@ public class ImdiUtils implements MetadataUtils {
 				// todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
 				// Changed this to use setURL that has now been suggested but was previously advised against, in the hope of resolving the numerous errors with the api such as info links issues and resource data issues and bad url construction in links.
 				currentLink.setURL(new OurURL(linkUriToUpdate.toURL()));
-				//System.out.println("currentLink.getURL: " + currentLink.getURL());
+				//logger.debug("currentLink.getURL: " + currentLink.getURL());
 				boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
 				if (!changeLinkResult) {
 				    checkImdiApiResult(null, sourceURI);

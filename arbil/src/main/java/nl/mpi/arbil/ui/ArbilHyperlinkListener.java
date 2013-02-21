@@ -38,6 +38,8 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -47,6 +49,7 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilHyperlinkListener implements HyperlinkListener {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilHyperlinkListener.class);
 
     private static SessionStorage sessionStorage;
 
@@ -75,41 +78,41 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
     }
 
     public void hyperlinkUpdate(HyperlinkEvent evt) {
-//        System.out.println("hyperlinkUpdate");
+//        logger.debug("hyperlinkUpdate");
 	if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 	    JEditorPane pane = (JEditorPane) evt.getSource();
 
 //            HTMLDocument doc = (HTMLDocument) pane.getDocument();
-//            System.out.println("# of Components in JTextPane: " + pane.getComponentCount());
+//            logger.debug("# of Components in JTextPane: " + pane.getComponentCount());
 
 //            try {
-//                System.out.println(evt.getURL());
+//                logger.debug(evt.getURL());
 //                pane.setPage(evt.getURL());
 //            } catch (IOException e) {
-//                System.out.println(e.getMessage());
+//                logger.debug(e.getMessage());
 //            }
-//            System.out.println("getURL: " +evt.getURL());
-//            System.out.println("getDescription: " + evt.getDescription());
-//            System.out.println(evt.getSourceElement());
-//            System.out.println(evt.getEventType());
-//            System.out.println(evt.toString());
-//            System.out.println(evt.getSource());
+//            logger.debug("getURL: " +evt.getURL());
+//            logger.debug("getDescription: " + evt.getDescription());
+//            logger.debug(evt.getSourceElement());
+//            logger.debug(evt.getEventType());
+//            logger.debug(evt.toString());
+//            logger.debug(evt.getSource());
 	    if (evt.getDescription().startsWith("arbilscript:")) {
 		try {
 		    ArbilDataNode currentImdiObject = null;
 		    String arbilscriptString = evt.getDescription().substring("arbilscript:".length());
-		    System.out.println("acting on arbilscript: " + arbilscriptString);
+		    logger.debug("acting on arbilscript: " + arbilscriptString);
 		    String[] commandsArray = arbilscriptString.split("&");
 		    for (String commandString : commandsArray) {
-			System.out.println("commandString: " + commandString);
+			logger.debug("commandString: " + commandString);
 			if (commandString.startsWith("add=")) {
 			    String nodeTypeString = commandString.substring("add=".length());
-			    System.out.println("nodeTypeString: " + nodeTypeString);
+			    logger.debug("nodeTypeString: " + nodeTypeString);
 			    currentImdiObject = addNode(currentImdiObject, nodeTypeString, "Wizard Corpus", null, null, null);
 			}
 			if (commandString.startsWith("set=")) {
 			    String[] fieldCommand = commandString.substring("set=".length()).split(":");
-			    System.out.println("set: " + fieldCommand[0] + " = " + fieldCommand[1]);
+			    logger.debug("set: " + fieldCommand[0] + " = " + fieldCommand[1]);
 			    setField(currentImdiObject, fieldCommand[0], fieldCommand[1]);
 			}
 		    }
@@ -117,22 +120,22 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 		    // todo: resolve the issue of not being able to get the html name of the components, only the index number is available
 		    for (int i = 0; i < pane.getComponentCount(); i++) {
 			Container c = (Container) pane.getComponent(i);
-			System.out.println(c.getComponentCount());
+			logger.debug("Component count {}", c.getComponentCount());
 			Component swingComponentOfHTMLInputType = c.getComponent(0);
-			System.out.println(swingComponentOfHTMLInputType.getClass().getName());
+			logger.debug(swingComponentOfHTMLInputType.getClass().getName());
 			if (swingComponentOfHTMLInputType instanceof JTextField) {
 			    JTextField tf = (JTextField) swingComponentOfHTMLInputType;
-			    System.out.println(tf.getName());
-			    System.out.println(tf.getText());
-			    System.out.println(tf.getAction());
-			    System.out.println(swingComponentOfHTMLInputType.getName());
-			    System.out.println(swingComponentOfHTMLInputType.getName());
-			    System.out.println(swingComponentOfHTMLInputType.getName());
+			    logger.debug(tf.getName());
+			    logger.debug(tf.getText());
+			    logger.debug("{}", tf.getAction());
+			    logger.debug(swingComponentOfHTMLInputType.getName());
+			    logger.debug(swingComponentOfHTMLInputType.getName());
+			    logger.debug(swingComponentOfHTMLInputType.getName());
 			    String formCommandString = swingComponentOfHTMLInputType.getName();
-			    System.out.println("formCommandString: " + formCommandString);
+			    logger.debug("formCommandString: " + formCommandString);
 			    if (formCommandString != null && formCommandString.startsWith("arbilscript:set=")) {
 				String nodeTypeString = formCommandString.substring("arbilscript:set=".length());
-				System.out.println("nodeTypeString: " + nodeTypeString);
+				logger.debug("nodeTypeString: " + nodeTypeString);
 				currentImdiObject = addNode(currentImdiObject, nodeTypeString, tf.getText(), null, null, null);
 			    }
 			} else if (swingComponentOfHTMLInputType instanceof JButton) {
@@ -170,8 +173,8 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 
     // note that this must not be used on nodes currently being edited because it bypasses the imdi loader process
     private ArbilDataNode addNode(ArbilDataNode parentNode, String nodeType, String nodeTypeDisplayName, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
-	System.out.println("wizard add node: " + nodeType);
-	System.out.println("adding into: " + parentNode);
+	logger.debug("wizard add node: " + nodeType);
+	logger.debug("adding into: " + parentNode);
 	ArbilDataNode addedImdiObject;
 	if (parentNode == null) {
 	    URI targetFileURI = sessionStorage.getNewArbilFileName(sessionStorage.getProjectWorkingDirectory(), nodeType);

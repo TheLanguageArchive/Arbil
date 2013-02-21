@@ -64,6 +64,8 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MessageDialogHandler.DialogBoxResult;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ImportExportDialog Created on :
@@ -71,6 +73,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ImportExportDialog implements ImportExportUI {
+    private final static Logger logger = LoggerFactory.getLogger(ImportExportDialog.class);
 
     private final static String progressFoundLabelText = "Total Metadata Files Found: ";
     private final static String progressProcessedLabelText = "Total Metadata Files Processed: ";
@@ -857,7 +860,7 @@ public class ImportExportDialog implements ImportExportUI {
     @Override
     public void onCopyEnd(final String finalMessage) throws HeadlessException {
 
-	System.out.println("finalMessageString: " + finalMessage);
+	logger.debug("finalMessageString: " + finalMessage);
 	final Object[] options = {"Close", "Details"};
 
 	SwingUtilities.invokeLater(new Runnable() {

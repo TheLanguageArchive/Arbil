@@ -33,6 +33,8 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilFavourites
@@ -41,6 +43,7 @@ import nl.mpi.arbil.util.TreeHelper;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFavourites {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilFavourites.class);
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -91,7 +94,7 @@ public class ArbilFavourites {
     }
 
     public boolean toggleFavouritesList(ArbilDataNode[] dataNodeArray, boolean setAsTempate) {
-        System.out.println("toggleFavouriteList: " + setAsTempate);
+        logger.debug("toggleFavouriteList: " + setAsTempate);
         if (setAsTempate) {
             boolean selectionNeedsSave = false;
             for (ArbilDataNode currentNode : dataNodeArray) {
@@ -204,7 +207,7 @@ public class ArbilFavourites {
 //        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
 //    }
     public ArbilDataNode[] listFavouritesFor(Object targetNodeUserObject) {
-        System.out.println("listFavouritesFor: " + targetNodeUserObject);
+        logger.debug("listFavouritesFor: " + targetNodeUserObject);
         ArrayList<ArbilDataNode> validFavourites = new ArrayList<ArbilDataNode>();
         if (targetNodeUserObject instanceof ArbilNode) {
             ArbilDataNode targetDataNode = null;
@@ -234,12 +237,12 @@ public class ArbilFavourites {
                     addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
                 }
                 if (addThisFavourites) {
-//                    System.out.println("adding: " + currentFavouritesObject);
+//                    logger.debug("adding: " + currentFavouritesObject);
                     validFavourites.add(currentFavouritesObject);
                 } else {
                     // imdi child favourites cannot be added to a corpus
                     // sessions cannot be added to a session
-//                    System.out.println("omitting: " + currentFavouriteObject);
+//                    logger.debug("omitting: " + currentFavouriteObject);
                 }
             }
         }
@@ -259,7 +262,7 @@ public class ArbilFavourites {
 
         String favouriteXmlPath = favouriteNode.getURI().getFragment();
         String targetXmlPath = targetDataNode.getURI().getFragment();
-        System.out.println("getNodeType: \nfavouriteXmlPath: " + favouriteXmlPath + "\ntargetXmlPath:" + targetXmlPath);
+        logger.debug("getNodeType: \nfavouriteXmlPath: " + favouriteXmlPath + "\ntargetXmlPath:" + targetXmlPath);
         String returnValue;
         if (favouriteNode.isSession()) {
             returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
@@ -270,12 +273,12 @@ public class ArbilFavourites {
                 returnValue = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
             } else {
                 // pass the (x) values on in the return value
-                System.out.println("targetXmlPath: " + targetXmlPath);
-                System.out.println("favouriteXmlPath: " + favouriteXmlPath);
+                logger.debug("targetXmlPath: " + targetXmlPath);
+                logger.debug("favouriteXmlPath: " + favouriteXmlPath);
                 favouriteXmlPath = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
                 String[] splitFavouriteXmlPath = favouriteXmlPath.split("\\)");
                 String[] splitTargetXmlPath = targetXmlPath.split("\\)");
-                System.out.println("splitFavouriteXmlPath: " + splitFavouriteXmlPath.length + " splitTargetXmlPath: " + splitTargetXmlPath.length);
+                logger.debug("splitFavouriteXmlPath: " + splitFavouriteXmlPath.length + " splitTargetXmlPath: " + splitTargetXmlPath.length);
                 returnValue = "";
                 for (int partCounter = 0; partCounter < splitFavouriteXmlPath.length; partCounter++) {
                     if (splitTargetXmlPath.length > partCounter) {
@@ -290,21 +293,21 @@ public class ArbilFavourites {
         } else {
             returnValue = null;
         }
-        System.out.println("getNodeTypeReturnValue: " + returnValue);
+        logger.debug("getNodeTypeReturnValue: " + returnValue);
         return returnValue;
     }
 //    public void mergeFromFavourite(ImdiTreeObject targetImdiObject, ImdiTreeObject favouriteImdiObject, boolean overwriteValues) {
-////        System.out.println("mergeFromFavourite: " + addedNodeUrl + " : " + imdiTemplateUrl);
+////        logger.debug("mergeFromFavourite: " + addedNodeUrl + " : " + imdiTemplateUrl);
 //        Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
 //        for (Enumeration<ImdiField[]> favouriteFieldEnum = favouriteImdiObject.getFields().elements(); favouriteFieldEnum.hasMoreElements();) {
 //            ImdiField[] currentFavouriteFields = favouriteFieldEnum.nextElement();
 //            if (currentFavouriteFields.length > 0) {
 //                ImdiField[] targetNodeFields = targetFieldsHash.get(currentFavouriteFields[0].getTranslateFieldName());
 //
-//                System.out.println("TranslateFieldName: " + currentFavouriteFields[0].getTranslateFieldName());
-//                System.out.println("targetImdiObjectLoading: " + targetImdiObject.isLoading());
+//                logger.debug("TranslateFieldName: " + currentFavouriteFields[0].getTranslateFieldName());
+//                logger.debug("targetImdiObjectLoading: " + targetImdiObject.isLoading());
 //                if (targetNodeFields != null) {
-//                    System.out.println("copy fields");
+//                    logger.debug("copy fields");
 //                    for (int fieldCounter = 0; fieldCounter < currentFavouriteFields.length; fieldCounter++) {
 //                        ImdiField currentField;
 //                        if (targetNodeFields.length > fieldCounter) {

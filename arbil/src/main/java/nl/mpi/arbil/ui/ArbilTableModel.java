@@ -37,6 +37,8 @@ import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of AbstractArbilTableModel for the Swing UI
@@ -44,6 +46,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableModel extends AbstractArbilTableModel implements ClipboardOwner {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTableModel.class);
 
     public static final char CSV_NEWLINE = '\n';
     public static final String CSV_SEPARATOR = "\t"; // excel seems to work with tab but not comma
@@ -292,7 +295,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	copiedString.append(CSV_NEWLINE);
 	// add the cell data
 	for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-	    System.out.println("copying row: " + selectedRowCounter);
+	    logger.debug("copying row: " + selectedRowCounter);
 	    for (int selectedColCounter = firstColumn; selectedColCounter < columnCount; selectedColCounter++) {
 		copiedString.append(CSV_QUOTE).append(data[selectedRows[selectedRowCounter]][selectedColCounter].toString().replace(CSV_QUOTE_STRING, CSV_DOUBLE_QUOTE)).append(CSV_QUOTE);
 		if (selectedColCounter < columnCount - 1) {
@@ -301,8 +304,8 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	    }
 	    copiedString.append(CSV_NEWLINE);
 	}
-	//System.out.println("copiedString: " + this.get getCellSelectionEnabled());
-	System.out.println("copiedString: " + copiedString.toString());
+	//logger.debug("copiedString: " + this.get getCellSelectionEnabled());
+	logger.debug("copiedString: " + copiedString.toString());
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	StringSelection stringSelection = new StringSelection(copiedString.toString());
 	clipboard.setContents(stringSelection, this);
@@ -323,7 +326,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	    copiedString.append(CSV_QUOTE).append(currentField.getFieldValue()).append(CSV_QUOTE);
 	    copiedString.append(CSV_NEWLINE);
 	}
-	System.out.println("copiedString: " + copiedString.toString());
+	logger.debug("copiedString: " + copiedString.toString());
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	StringSelection stringSelection = new StringSelection(copiedString.toString());
 	clipboard.setContents(stringSelection, this);
@@ -342,7 +345,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
 		clipBoardString = clipBoardData.toString();
 	    }
-	    System.out.println("clipBoardString: " + clipBoardString);
+	    logger.debug("clipBoardString: " + clipBoardString);
 	    // to do this there must be either two rows or two columns otherwise we should abort
 	    String[] clipBoardLines = clipBoardString.split("\"(\r?\n|\r)\"");
 	    if (clipBoardLines.length == 1) {
@@ -369,7 +372,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		}
 		boolean singleNodeAxis = false;
 		String regexString = "[(\"^)($\")]";
-		System.out.println("regexString: " + (firstLine[0].replaceAll(regexString, "")));
+		logger.debug("regexString: " + (firstLine[0].replaceAll(regexString, "")));
 		if (firstLine[0].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADING_NAME) && firstLine[1].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADING_VALUE)) {
 		    singleNodeAxis = true;
 		}
@@ -381,9 +384,9 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		    HashSet<String> pastedFieldNames = new HashSet();
 		    for (int lineCounter = 1; lineCounter < clipBoardLines.length; lineCounter++) {
 			String clipBoardLine = clipBoardLines[lineCounter];
-			System.out.println("clipBoardLine: " + clipBoardLine);
+			logger.debug("clipBoardLine: " + clipBoardLine);
 			String[] clipBoardCells = clipBoardLine.split("\\t");
-			System.out.println("clipBoardCells.length: " + clipBoardCells.length);
+			logger.debug("clipBoardCells.length: " + clipBoardCells.length);
 			if (clipBoardCells.length != 2) {
 			    resultMessage = "Inconsistent number of columns in the data to paste.\nThe pasted data could be incorrect.";
 			} else {
@@ -396,7 +399,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 			    }
 			    if (selectedCells != null) {
 				for (ArbilField targetField : selectedCells) {
-				    System.out.println("targetField: " + targetField.getTranslateFieldName());
+				    logger.debug("targetField: " + targetField.getTranslateFieldName());
 				    //messagebox "The copied field name does not match the destination, do you want to paste anyway?"
 				    if (currentFieldName.equals(targetField.getTranslateFieldName()) || pasteOneFieldToAll) {
 					if (currentFieldValue.trim().length() == 0 && targetField.getFieldValue().trim().length() > 0) {
@@ -448,7 +451,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 
     @Override
     protected void removeArbilDataNode(ArbilDataNode arbilDataNode) {
-	System.out.println("removing: " + arbilDataNode.toString());
+	logger.debug("removing: " + arbilDataNode.toString());
 	listModel.removeElement(arbilDataNode);
 	super.removeArbilDataNode(arbilDataNode);
     }
@@ -472,6 +475,6 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
     }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
-	System.out.println("lost clipboard ownership");
+	logger.debug("lost clipboard ownership");
     }
 }

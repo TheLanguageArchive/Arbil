@@ -33,6 +33,8 @@ import nl.mpi.flap.plugin.PluginDialogHandler;
 import nl.mpi.flap.plugin.PluginException;
 import nl.mpi.flap.plugin.PluginJournal;
 import nl.mpi.flap.plugin.PluginSessionStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilJournal Created on :
@@ -40,6 +42,7 @@ import nl.mpi.flap.plugin.PluginSessionStorage;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilJournal implements PluginJournal {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilJournal.class);
 
     private static PluginDialogHandler messageDialogHandler;
     private final HashSet<JournalWatcherPlugin> jounalWatchers;
@@ -176,7 +179,7 @@ public class ArbilJournal implements PluginJournal {
         FileWriter journalFile = null;
         try {
             journalFile = new FileWriter(getJournalFile(), true);
-            System.out.println("Journal: " + imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue);
+            logger.debug("Journal: " + imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue);
             journalFile.append("\"" + imdiUrl + "#" + imdiNodePath + "\",\"" + oldValue + "\",\"" + newValue + "\",\"" + eventType + "\"\n");
             journalFile.close();
             journalFile = null;

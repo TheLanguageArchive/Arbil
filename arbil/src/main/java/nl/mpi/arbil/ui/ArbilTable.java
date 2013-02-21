@@ -63,6 +63,8 @@ import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilTable
@@ -71,6 +73,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTable extends JTable implements PluginArbilTable {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTable.class);
 
     private static WindowManager windowManager;
 
@@ -132,18 +135,18 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	this.addMouseListener(new java.awt.event.MouseAdapter() {
 	    @Override
 	    public void mousePressed(MouseEvent evt) {
-//                System.out.println("mousePressed");
+//                logger.debug("mousePressed");
 		checkPopup(evt, true);
 	    }
 
 	    @Override
 	    public void mouseReleased(MouseEvent evt) {
-//                System.out.println("mouseReleased");
+//                logger.debug("mouseReleased");
 		checkPopup(evt, true);
 	    }
 //            @Override
 //            public void mouseClicked(java.awt.event.MouseEvent evt) {
-//                System.out.println("mouseClicked");
+//                logger.debug("mouseClicked");
 //                checkPopup(evt);
 //            }
 	});
@@ -154,20 +157,20 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    //            public void mousePressed(java.awt.event.MouseEvent evt) {
 	    @Override
 	    public void mousePressed(MouseEvent evt) {
-		//                System.out.println("mousePressed");
+		//                logger.debug("mousePressed");
 		checkTableHeaderPopup(evt);
 	    }
 
 	    @Override
 	    public void mouseReleased(MouseEvent evt) {
-		//                System.out.println("mouseReleased");
+		//                logger.debug("mouseReleased");
 		checkTableHeaderPopup(evt);
 	    }
 
 	    @Override
 	    public void mouseClicked(java.awt.event.MouseEvent evt) {
-		System.out.println("mouseClicked");
-		System.out.println("table header click");
+		logger.debug("mouseClicked");
+		logger.debug("table header click");
 		//targetTable = ((JTableHeader) evt.getComponent()).getTable();
 		if (evt.getButton() == MouseEvent.BUTTON1) {
 		    arbilTableModel.sortByColumn(convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()))));
@@ -187,7 +190,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    //targetTable = ((JTableHeader) evt.getComponent()).getTable();
 	    final int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
 	    final String targetColumnName = arbilTableModel.getColumnName(targetColumn);
-	    System.out.println("columnIndex: " + targetColumn);
+	    logger.debug("columnIndex: " + targetColumn);
 	    final JPopupMenu popupMenu = new JPopupMenu();
 	    // TODO: also add show only selected columns
 	    // TODO: also add hide selected columns
@@ -196,7 +199,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    saveViewMenuItem.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 		    try {
-			//System.out.println("saveViewNenuItem: " + targetTable.toString());
+			//logger.debug("saveViewNenuItem: " + targetTable.toString());
 			String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
 			// if the user did not cancel
 			if (fieldViewName != null) {
@@ -231,7 +234,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 		    try {
-			//System.out.println("saveViewNenuItem: " + targetTable.toString());
+			//logger.debug("saveViewNenuItem: " + targetTable.toString());
 			arbilTableModel.showOnlyCurrentColumns();
 		    } catch (Exception ex) {
 			BugCatcherManager.getBugCatcher().logError(ex);
@@ -354,7 +357,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	hideColumnMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		try {
-		    //System.out.println("hideColumnMenuItem: " + targetTable.toString());
+		    //logger.debug("hideColumnMenuItem: " + targetTable.toString());
 		    arbilTableModel.hideColumn(targetColumn);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
@@ -394,7 +397,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 			// if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
 			getSelectionModel().clearSelection();
 			// make sure the clicked cell is selected
-//                        System.out.println("clickedRow: " + clickedRow + " clickedRow: " + clickedRow);
+//                        logger.debug("clickedRow: " + clickedRow + " clickedRow: " + clickedRow);
 //                        getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
 //                        getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
 			changeSelection(clickedRow, clickedColumn, false, evt.isShiftDown());
@@ -408,7 +411,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 
 	if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown() */) {
 //                    targetTable = (JTable) evt.getComponent();
-//                    System.out.println("set the current table");
+//                    logger.debug("set the current table");
 
 	    TableCellEditor tableCellEditor = this.getCellEditor();
 	    if (tableCellEditor != null) {
@@ -426,7 +429,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 
     @Override
     public JToolTip createToolTip() {
-//        System.out.println("createToolTip");
+//        logger.debug("createToolTip");
 	listToolTip.updateList();
 	return listToolTip;
     }
@@ -477,7 +480,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    }
 	} catch (Exception exception) {
 //            BugCatcherManager.getBugCatcher().logError(exception);
-	    System.out.println("getRowHeight could not get the font metrics, using the default row height");
+	    logger.debug("getRowHeight could not get the font metrics, using the default row height");
 	}
 	return super.getRowHeight();
     }
@@ -659,18 +662,18 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	int[] selectedRows = this.getSelectedRows();
 	// only copy if there is at lease one row selected
 	if (selectedRows.length > 0) {
-	    System.out.println("coll select mode: " + this.getColumnSelectionAllowed());
-	    System.out.println("cell select mode: " + this.getCellSelectionEnabled());
+	    logger.debug("coll select mode: " + this.getColumnSelectionAllowed());
+	    logger.debug("cell select mode: " + this.getCellSelectionEnabled());
 	    // when a user selects a cell and uses ctrl+a to change the selection the selection mode does not change from cell to row allCellsSelected is to resolve this error
 	    boolean allCellsSelected = this.getSelectedRowCount() == this.getRowCount() && this.getSelectedColumnCount() == this.getColumnCount();
 	    if (this.getCellSelectionEnabled() && !allCellsSelected) {
-		System.out.println("cell select mode");
+		logger.debug("cell select mode");
 		ArbilField[] selectedFields = getSelectedFields();
 		if (selectedFields != null) {
 		    arbilTableModel.copyArbilFields(selectedFields);
 		}
 	    } else {
-		System.out.println("row select mode");
+		logger.debug("row select mode");
 		arbilTableModel.copyArbilRows(selectedRows);
 	    }
 	} else {
@@ -731,7 +734,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    }
 	    for (int currentRow : selectedRows) {
 		for (int currentCol : selectedCols) {
-//                    System.out.println("row/col: " + currentRow + " : " + currentCol);
+//                    logger.debug("row/col: " + currentRow + " : " + currentCol);
 		    // this could be an imdifield array and must handled accortingly
 		    if (getTableCellContentAt(currentRow, currentCol) instanceof ArbilField) {
 			selectedFields.add((ArbilField) getTableCellContentAt(currentRow, currentCol));

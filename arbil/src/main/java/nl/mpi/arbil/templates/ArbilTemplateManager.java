@@ -344,7 +344,7 @@ public class ArbilTemplateManager {
 //                    }
 //                }
 //            }
-////            System.out.println("childTypes: " + childTypes);
+////            logger.debug("childTypes: " + childTypes);
 //        } else {
 //            // add the the root node items
 //            for (String[] currentTemplate : rootTemplatesArray) {

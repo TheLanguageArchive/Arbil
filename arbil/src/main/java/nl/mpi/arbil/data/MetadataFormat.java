@@ -57,7 +57,7 @@ public class MetadataFormat {
 
 //    private static MetadataFormat singleInstance = null;
 //    static synchronized public MetadataFormat getSingleInstance() {
-////        System.out.println("LinorgWindowManager getSingleInstance");
+////        logger.debug("LinorgWindowManager getSingleInstance");
 //        if (singleInstance == null) {
 //            singleInstance = new MetadataFormat();
 //        }

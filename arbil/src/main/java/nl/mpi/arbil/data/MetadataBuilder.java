@@ -37,6 +37,8 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -46,6 +48,7 @@ import org.xml.sax.SAXException;
  * Author : Peter Withers
  */
 public class MetadataBuilder {
+    private final static Logger logger = LoggerFactory.getLogger(MetadataBuilder.class);
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -115,7 +118,7 @@ public class MetadataBuilder {
                 if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType)) {
                     // Do a quick pre-check whether there is a finite number of occurrences
                     if (destinationNode.getNodeTemplate().getMaxOccursForTemplate(nodeType) >= 0) {
-                        System.out.println("adding to current node");
+                        logger.debug("adding to current node");
                         try {
                             Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
                             if (nodDom == null) {
@@ -160,7 +163,7 @@ public class MetadataBuilder {
                 try {
                     synchronized (destinationNode.getParentDomLockObject()) {
                         try {
-                            System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
+                            logger.debug("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
                             addedNode = processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
 
                             // CODE REMOVED: previously, imdiLoaders was requested to reload destinationNode
@@ -184,7 +187,7 @@ public class MetadataBuilder {
                     newTableTitleString = newTableTitleString + " in " + destinationNode.toString();
                 }
 
-                System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
+                logger.debug("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
                 // Create child node
                 URI addedNodeUri = addChildNode(destinationNode, nodeType, targetXmlPath, resourceUri, mimeType);
                 // Get the newly created data node
@@ -397,7 +400,7 @@ public class MetadataBuilder {
                         }
                         if (nodeType != null) {
                             String targetXmlPath = destinationNode.getURI().getFragment();
-                            System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUri);
+                            logger.debug("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUri);
 
                             // Create child node
                             URI addedNodeUri = addChildNode(destinationNode, nodeType, targetXmlPath, resourceUri, mimeType);
@@ -488,8 +491,8 @@ public class MetadataBuilder {
      * @return String path to the added node
      */
     public URI addChildNode(ArbilDataNode destinationNode, String nodeType, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
-        System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
-        System.out.println("targetXmlPath:: " + targetXmlPath);
+        logger.debug("addChildNode:: " + nodeType + " : " + resourceUri);
+        logger.debug("targetXmlPath:: " + targetXmlPath);
         if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }
@@ -505,7 +508,7 @@ public class MetadataBuilder {
                     addedNodePath = arbilComponentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
                 } else {
                     if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
-                        System.out.println("adding to current node");
+                        logger.debug("adding to current node");
                         try {
                             Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
                             if (nodDom == null) {
@@ -525,7 +528,7 @@ public class MetadataBuilder {
                         }
 //            needsSaveToDisk = true;
                     } else {
-                        System.out.println("adding new node");
+                        logger.debug("adding new node");
                         URI targetFileURI = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
                         if (CmdiProfileReader.pathIsProfile(nodeType)) {
                             // Is CMDI profile

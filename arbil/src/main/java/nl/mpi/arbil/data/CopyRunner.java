@@ -37,6 +37,8 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Runner for copy actions in import or export context. Split off from {@link nl.mpi.arbil.ui.ImportExportDialog}
@@ -45,6 +47,7 @@ import nl.mpi.arbilcommons.journal.ArbilJournal;
  * @author Peter.Withers@mpi.nl
  */
 public class CopyRunner implements Runnable {
+    private final static Logger logger = LoggerFactory.getLogger(CopyRunner.class);
 
     public final static String DISK_FREE_LABEL_TEXT = "Total Disk Free: ";
     private final ImportExportUI impExpUI;
@@ -124,7 +127,7 @@ public class CopyRunner implements Runnable {
 	}
 	if (impExpUI.isStopCopy()) {
 	    impExpUI.appendToTaskOutput("copy canceled");
-	    System.out.println("copy canceled");
+	    logger.debug("copy canceled");
 	    finalMessageString = finalMessageString + "The process was canceled, some files may not have been copied.\n";
 	} else {
 	    impExpUI.removeNodeSelection();
@@ -238,7 +241,7 @@ public class CopyRunner implements Runnable {
 			if (checkerResult != null) {
 			    impExpUI.appendToXmlOutput(currentRetrievableFile.sourceURI.toString() + "\n");
 			    impExpUI.appendToXmlOutput("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
-			    System.out.println("checkerResult: " + checkerResult);
+			    logger.debug("checkerResult: " + checkerResult);
 			    impExpUI.appendToXmlOutput(checkerResult + "\n");
 			    impExpUI.addToValidationErrors(currentRetrievableFile.sourceURI);
 			    xsdErrors++;
@@ -259,7 +262,7 @@ public class CopyRunner implements Runnable {
 	    totalErrors++;
 	    impExpUI.addToMetadataCopyErrors(currentRetrievableFile.sourceURI);
 	    impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
-	    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
+	    logger.debug("Error getting links from: " + currentRetrievableFile.sourceURI);
 	} catch (IOException ex) {
 	    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 	    totalErrors++;
@@ -276,7 +279,7 @@ public class CopyRunner implements Runnable {
 
     private void copyLinks(final File exportDestinationDirectory, URI[] linksUriArray, Map<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, List<URI> getList, List<URI[]> uncopiedLinks) throws MalformedURLException {
 	for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.isStopCopy(); linkCount++) {
-	    System.out.println("Link: " + linksUriArray[linkCount].toString());
+	    logger.debug("Link: " + linksUriArray[linkCount].toString());
 	    final String currentLink = linksUriArray[linkCount].toString();
 	    final URI gettableLinkUri = linksUriArray[linkCount].normalize();
 	    if (!seenFiles.containsKey(gettableLinkUri)) {
@@ -456,7 +459,7 @@ public class CopyRunner implements Runnable {
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(urlString, ex);
 		    impExpUI.appendToTaskOutput("unable to decode the file name for: " + urlString);
-		    System.out.println("unable to decode the file name for: " + urlString);
+		    logger.debug("unable to decode the file name for: " + urlString);
 		}
 		if (urlString.endsWith("/")) {
 		    // Strip off tailing slash

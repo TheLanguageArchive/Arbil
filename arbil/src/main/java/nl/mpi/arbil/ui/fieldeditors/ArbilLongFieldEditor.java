@@ -397,12 +397,12 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 //                    Object currentObject = fieldLanguageBoxs[cellFieldCounter].getItemAt(itemCounter);
 //                    if (currentObject instanceof ImdiVocabularies.VocabularyItem) {
 //                        ImdiVocabularies.VocabularyItem currentItem = (ImdiVocabularies.VocabularyItem) currentObject;
-////                        System.out.println(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
-////                            System.out.println(currentItem.languageCode);
+////                        logger.debug(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
+////                            logger.debug(currentItem.languageCode);
 //                        if (currentItem.languageCode.equals(imdiFields[cellFieldCounter].getLanguageId())) {
-////                            System.out.println("setting as current");
-////                            System.out.println(currentItem.languageCode);
-////                            System.out.println(imdiFields[cellFieldCounter].getLanguageId());
+////                            logger.debug("setting as current");
+////                            logger.debug(currentItem.languageCode);
+////                            logger.debug(imdiFields[cellFieldCounter].getLanguageId());
 //                            fieldLanguageBoxs[cellFieldCounter].setSelectedIndex(itemCounter);
 //                            selectedValueFound = true;
 //                        }
@@ -412,7 +412,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 //                    fieldLanguageBoxs[cellFieldCounter].addItem(LanguageIdBox.defaultLanguageDropDownValue);
 //                    fieldLanguageBoxs[cellFieldCounter].setSelectedItem(LanguageIdBox.defaultLanguageDropDownValue);
 //                }
-////                    System.out.println("field language: " + ((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
+////                    logger.debug("field language: " + ((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
 //            }
 //            if (keyEditorFields[cellFieldCounter] != null) {
 //                keyEditorFields[cellFieldCounter].setText(imdiFields[cellFieldCounter].getKeyName());

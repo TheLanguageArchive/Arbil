@@ -35,6 +35,8 @@ import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class for context menus
@@ -42,6 +44,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Twan Goosen
  */
 public abstract class ArbilContextMenu extends JPopupMenu {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilContextMenu.class);
 
     private static MessageDialogHandler dialogHandler;
 
@@ -128,7 +131,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     for (ArbilDataNode selectedNode : selectedTreeNodes) {
-                        System.out.println("userObject: " + selectedNode);
+                        logger.debug("userObject: " + selectedNode);
                         // reloading will first check if a save is required then save and reload
                         dataNodeLoader.requestReload((ArbilDataNode) selectedNode.getParentDomNode());
                     }
@@ -220,7 +223,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 try {
                     URI uri = new ArbilToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
                     if (uri != null) {
-                        System.out.println("Converted to html in " + uri.toString());
+                        logger.debug("Converted to html in " + uri.toString());
                         windowManager.openFileInExternalApplication(uri);
                     }
                 } catch (Exception ex) {

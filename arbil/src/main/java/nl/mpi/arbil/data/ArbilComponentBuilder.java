@@ -67,6 +67,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xpath.XPathAPI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -83,6 +85,7 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilComponentBuilder {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilComponentBuilder.class);
 
     public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
     public static final String RESOURCE_ID_PREFIX = "res_";
@@ -152,13 +155,13 @@ public class ArbilComponentBuilder {
 //                hasSchemaError = true;
 ////                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(checkerResult, "Schema Check");
 //            }
-	    //System.out.println(xmlOutput.getWriter().toString());
+	    //logger.debug(xmlOutput.getWriter().toString());
 	} catch (IllegalArgumentException illegalArgumentException) {
 	    BugCatcherManager.getBugCatcher().logError(illegalArgumentException);
 	} catch (TransformerException transformerException) {
 	    BugCatcherManager.getBugCatcher().logError(transformerException);
 	} catch (TransformerFactoryConfigurationError transformerFactoryConfigurationError) {
-	    System.out.println(transformerFactoryConfigurationError.getMessage());
+	    logger.debug(transformerFactoryConfigurationError.getMessage());
 	} catch (FileNotFoundException notFoundException) {
 	    BugCatcherManager.getBugCatcher().logError(notFoundException);
 	} catch (IOException iOException) {
@@ -170,7 +173,7 @@ public class ArbilComponentBuilder {
 	// there is no need to save the node at this point because metadatabuilder has already done so
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    String targetXmlPath = getTargetXmlPath(arbilDataNode);
-	    System.out.println("insertResourceProxy: " + targetXmlPath);
+	    logger.debug("insertResourceProxy: " + targetXmlPath);
 //            File cmdiNodeFile = imdiTreeObject.getFile();
 //            String nodeFragment = "";
 
@@ -314,7 +317,7 @@ public class ArbilComponentBuilder {
 		resourceProxyIds.add(linkReader.getProxyId(reference));
 	    }
 	    String targetXmlPath = getTargetXmlPath(parent);
-	    System.out.println("removeResourceProxyReferences: " + targetXmlPath);
+	    logger.debug("removeResourceProxyReferences: " + targetXmlPath);
 	    try {
 		Document targetDocument = getDocument(parent.getURI());
 		// insert the new section
@@ -422,25 +425,25 @@ public class ArbilComponentBuilder {
 	    arbilDataNode.saveChangesToCache(true);
 	}
 	synchronized (arbilDataNode.getParentDomLockObject()) {
-	    System.out.println("remove from parent nodes: " + arbilDataNode);
+	    logger.debug("remove from parent nodes: " + arbilDataNode);
 	    File cmdiNodeFile = arbilDataNode.getFile();
 	    try {
 		Document targetDocument = getDocument(arbilDataNode.getURI());
 		// collect up all the nodes to be deleted without changing the xpath
 		ArrayList<Node> selectedNodes = new ArrayList<Node>();
 		for (String currentNodePath : nodePaths) {
-		    System.out.println("removeChildNodes: " + currentNodePath);
+		    logger.debug("removeChildNodes: " + currentNodePath);
 		    // todo: search for and remove any reource links referenced by this node or its sub nodes
 		    Node documentNode = selectSingleNode(targetDocument, currentNodePath);
 		    if (documentNode != null) {
-			//System.out.println("documentNode: " + documentNode);
-			System.out.println("documentNodeName: " + documentNode != null ? documentNode.getNodeName() : "<null>");
+			//logger.debug("documentNode: " + documentNode);
+			logger.debug("documentNodeName: " + documentNode != null ? documentNode.getNodeName() : "<null>");
 			selectedNodes.add(documentNode);
 		    }
 
 		}
 		// delete all the nodes now that the xpath is no longer relevant
-		System.out.println(selectedNodes.size());
+		logger.debug("{}", selectedNodes.size());
 		for (Node currentNode : selectedNodes) {
 		    if (currentNode instanceof Attr) {
 			Element parent = ((Attr) currentNode).getOwnerElement();
@@ -478,7 +481,7 @@ public class ArbilComponentBuilder {
     public boolean setFieldValues(ArbilDataNode arbilDataNode, FieldUpdateRequest[] fieldUpdates) {
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
-	    System.out.println("setFieldValues: " + arbilDataNode);
+	    logger.debug("setFieldValues: " + arbilDataNode);
 	    File cmdiNodeFile = arbilDataNode.getFile();
 	    try {
 		Document targetDocument = getDocument(arbilDataNode.getURI());
@@ -515,7 +518,7 @@ public class ArbilComponentBuilder {
 
     private boolean doFieldUpdates(FieldUpdateRequest[] fieldUpdates, Document targetDocument, ArbilDataNode arbilDataNode) throws DOMException, TransformerException {
 	for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
-	    System.out.println("currentFieldUpdate: " + currentFieldUpdate.fieldPath);
+	    logger.debug("currentFieldUpdate: " + currentFieldUpdate.fieldPath);
 	    // todo: search for and remove any reource links referenced by this node or its sub nodes
 	    final Node documentNode = selectSingleNode(targetDocument, currentFieldUpdate.fieldPath);
 	    if (currentFieldUpdate.fieldOldValue.equals(documentNode.getTextContent())) {
@@ -611,9 +614,9 @@ public class ArbilComponentBuilder {
 	String elementName = favouriteArbilDataNode.getURI().getFragment();
 	//String insertBefore = destinationArbilDataNode.nodeTemplate.getInsertBeforeOfTemplate(elementName);
 	String insertBefore = destinationArbilDataNode.getNodeTemplate().getInsertBeforeOfTemplate(elementName);
-	System.out.println("insertBefore: " + insertBefore);
+	logger.debug("insertBefore: " + insertBefore);
 	int maxOccurs = destinationArbilDataNode.getNodeTemplate().getMaxOccursForTemplate(elementName);
-	System.out.println("maxOccurs: " + maxOccurs);
+	logger.debug("maxOccurs: " + maxOccurs);
 	if (destinationArbilDataNode.getNeedsSaveToDisk(false)) {
 	    destinationArbilDataNode.saveChangesToCache(true);
 	}
@@ -627,14 +630,14 @@ public class ArbilComponentBuilder {
 		String favouriteXpath = favouriteArbilDataNode.getURI().getFragment();
 		String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
 		boolean onlySubNodes = !favouriteXpathTrimmed.equals(favouriteXpath);
-		System.out.println("favouriteXpath: " + favouriteXpathTrimmed);
+		logger.debug("favouriteXpath: " + favouriteXpathTrimmed);
 		String destinationXpath;
 		if (onlySubNodes) {
 		    destinationXpath = favouriteXpathTrimmed;
 		} else {
 		    destinationXpath = favouriteXpathTrimmed.replaceFirst("\\.[^.]+$", "");
 		}
-		System.out.println("destinationXpath: " + destinationXpath);
+		logger.debug("destinationXpath: " + destinationXpath);
 
 		destinationXpath = alignDestinationPathWithTarget(destinationXpath, destinationArbilDataNode);
 
@@ -655,7 +658,7 @@ public class ArbilComponentBuilder {
 		    if (singleFavouriteNode.getNodeType() != Node.TEXT_NODE) {
 			insertNodeInOrder(destinationNode, singleFavouriteNode, insertBefore, maxOccurs);
 //                        destinationNode.appendChild(singleFavouriteNode);
-			System.out.println("inserting favouriteNode: " + singleFavouriteNode.getLocalName());
+			logger.debug("inserting favouriteNode: " + singleFavouriteNode.getLocalName());
 		    }
 		}
 		savePrettyFormatting(destinationDocument, destinationArbilDataNode.getFile());
@@ -666,7 +669,7 @@ public class ArbilComponentBuilder {
 		    } else {
 			nodeFragment = convertNodeToNodePath(destinationDocument, favouriteNodes[0], destinationXpath);
 		    }
-		    System.out.println("nodeFragment: " + nodeFragment);
+		    logger.debug("nodeFragment: " + nodeFragment);
 		    // return the child node url and path in the xml
 		    // first strip off any fragment then add the full node fragment
 		    returnUri = new URI(destinationArbilDataNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
@@ -833,10 +836,10 @@ public class ArbilComponentBuilder {
 	// find the node to add the new section to
 	Node addedNode;
 	if (insertBeforeNode != null) {
-	    System.out.println("inserting before: " + insertBeforeNode.getNodeName());
+	    logger.debug("inserting before: " + insertBeforeNode.getNodeName());
 	    addedNode = destinationNode.insertBefore(addableNode, insertBeforeNode);
 	} else {
-	    System.out.println("inserting");
+	    logger.debug("inserting");
 	    if (addableNode instanceof Attr) {
 		if (destinationNode instanceof Element) {
 		    addedNode = ((Element) destinationNode).setAttributeNode((Attr) addableNode);
@@ -860,7 +863,7 @@ public class ArbilComponentBuilder {
 		String childsName = childNodes.item(childCounter).getLocalName();
 		for (String currentInsertBefore : insertBeforeArray) {
 		    if (currentInsertBefore.equals(childsName)) {
-			System.out.println("insertbefore: " + childsName);
+			logger.debug("insertbefore: " + childsName);
 			return childNodes.item(childCounter);
 		    }
 		}
@@ -883,7 +886,7 @@ public class ArbilComponentBuilder {
 	String[] targetXmlPathArray = targetXmlPath.replaceAll("\\(\\d+\\)", "").split("\\.");
 	StringBuilder arrayPathParts = new StringBuilder();
 	for (int pathPartCounter = targetXmlPathArray.length; pathPartCounter < cmdiComponentArray.length - 1; pathPartCounter++) {
-	    System.out.println("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
+	    logger.debug("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
 	    arrayPathParts.append('.');
 	    arrayPathParts.append(cmdiComponentArray[pathPartCounter]);
 	}
@@ -904,13 +907,13 @@ public class ArbilComponentBuilder {
 	    arbilDataNode.saveChangesToCache(true);
 	}
 	synchronized (arbilDataNode.getParentDomLockObject()) {
-	    System.out.println("insertChildComponent: " + cmdiComponentId);
-	    System.out.println("targetXmlPath: " + targetXmlPath);
+	    logger.debug("insertChildComponent: " + cmdiComponentId);
+	    logger.debug("targetXmlPath: " + targetXmlPath);
 	    targetXmlPath = checkTargetXmlPath(targetXmlPath, cmdiComponentId);
 
-	    System.out.println("trimmed targetXmlPath: " + targetXmlPath);
+	    logger.debug("trimmed targetXmlPath: " + targetXmlPath);
 	    //String targetXpath = targetNode.getURI().getFragment();
-	    //System.out.println("targetXpath: " + targetXpath);
+	    //logger.debug("targetXpath: " + targetXpath);
 //            File cmdiNodeFile = imdiTreeObject.getFile();
 	    String nodeFragment = "";
 	    try {
@@ -944,7 +947,7 @@ public class ArbilComponentBuilder {
 //       diff_match_patch diffTool= new diff_match_patch();
 //       diffTool.diff_main(targetXpath, targetXpath);
 	    try {
-		System.out.println("nodeFragment: " + nodeFragment);
+		logger.debug("nodeFragment: " + nodeFragment);
 		// return the child node url and path in the xml
 		// first strip off any fragment then add the full node fragment
 		return new URI(arbilDataNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
@@ -1074,7 +1077,7 @@ public class ArbilComponentBuilder {
 		tempXpath = tempXpath.replaceAll("\\(", "[");
 		tempXpath = tempXpath.replaceAll("\\)", "]");
 //            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
-		System.out.println("tempXpath: " + tempXpath);
+		logger.debug("tempXpath: " + tempXpath);
 		// find the target node of the xml
 		Node returnNode = XPathAPI.selectSingleNode(targetDocument, tempXpath);
 		if (returnNode != null) {
@@ -1101,9 +1104,9 @@ public class ArbilComponentBuilder {
     }
 
     private Node insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
-	System.out.println("insertSectionToXpath");
-	System.out.println("xsdPath: " + xsdPath);
-	System.out.println("targetXpath: " + targetXpath);
+	logger.debug("insertSectionToXpath");
+	logger.debug("xsdPath: " + xsdPath);
+	logger.debug("targetXpath: " + targetXpath);
 	SchemaProperty foundProperty = null;
 	String insertBefore = "";
 	String strippedXpath = null;
@@ -1120,7 +1123,7 @@ public class ArbilComponentBuilder {
 	    strippedXpath = targetXpath.replaceAll("\\(\\d+\\)", "");
 	}
 	// at this point we have the xml node that the user acted on but next must get any additional nodes with the next section
-	System.out.println("strippedXpath: " + strippedXpath);
+	logger.debug("strippedXpath: " + strippedXpath);
 	for (String currentPathComponent : xsdPath.split("\\.")) {
 	    if (currentPathComponent.length() > 0) {
 		foundProperty = null;
@@ -1131,7 +1134,7 @@ public class ArbilComponentBuilder {
 		    } else {
 			currentName = schemaProperty.getName().getLocalPart();
 		    }
-		    //System.out.println("currentName: " + currentName);
+		    //logger.debug("currentName: " + currentName);
 		    if (foundProperty == null) {
 			if (schemaProperty.isAttribute()
 				? currentPathComponent.equals("@" + currentName)
@@ -1156,21 +1159,21 @@ public class ArbilComponentBuilder {
 		}
 	    }
 	}
-//        System.out.println("Adding marker node");
+//        logger.debug("Adding marker node");
 //        Element currentElement = targetDocument.createElement("MarkerNode");
 //        currentElement.setTextContent(xsdPath);
 //        documentNode.appendChild(currentElement);
-	System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
+	logger.debug("Adding destination sub nodes node to: " + documentNode.getLocalName());
 	Node addedNode = constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
 
-	System.out.println("insertBefore: " + insertBefore);
+	logger.debug("insertBefore: " + insertBefore);
 	int maxOccurs;
 	if (foundProperty.getMaxOccurs() != null) {
 	    maxOccurs = foundProperty.getMaxOccurs().intValue();
 	} else {
 	    maxOccurs = -1;
 	}
-	System.out.println("maxOccurs: " + maxOccurs);
+	logger.debug("maxOccurs: " + maxOccurs);
 	if (insertBefore.length() > 0 || maxOccurs != -1) {
 	    if (addedNode instanceof Attr) {
 		((Element) documentNode).removeAttributeNode((Attr) addedNode);
@@ -1187,9 +1190,9 @@ public class ArbilComponentBuilder {
     }
 
     private boolean canInsertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
-	System.out.println("insertSectionToXpath");
-	System.out.println("xsdPath: " + xsdPath);
-	System.out.println("targetXpath: " + targetXpath);
+	logger.debug("insertSectionToXpath");
+	logger.debug("xsdPath: " + xsdPath);
+	logger.debug("targetXpath: " + targetXpath);
 	SchemaProperty foundProperty = null;
 	String insertBefore = "";
 	if (targetXpath == null) {
@@ -1213,7 +1216,7 @@ public class ArbilComponentBuilder {
 		    } else {
 			currentName = schemaProperty.getName().getLocalPart();
 		    }
-		    //System.out.println("currentName: " + currentName);
+		    //logger.debug("currentName: " + currentName);
 		    if (foundProperty == null) {
 			if (schemaProperty.isAttribute()
 				? currentPathComponent.equals("@" + currentName)
@@ -1238,7 +1241,7 @@ public class ArbilComponentBuilder {
 		}
 	    }
 	}
-	System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
+	logger.debug("Adding destination sub nodes node to: " + documentNode.getLocalName());
 
 	if (pathIsAttribute(xsdPath)) {
 	    return canInsertAttribute((Element) documentNode, foundProperty);
@@ -1246,14 +1249,14 @@ public class ArbilComponentBuilder {
 
 	    Node addedNode = constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
 
-	    System.out.println("insertBefore: " + insertBefore);
+	    logger.debug("insertBefore: " + insertBefore);
 	    int maxOccurs;
 	    if (foundProperty.getMaxOccurs() != null) {
 		maxOccurs = foundProperty.getMaxOccurs().intValue();
 	    } else {
 		maxOccurs = -1;
 	    }
-	    System.out.println("maxOccurs: " + maxOccurs);
+	    logger.debug("maxOccurs: " + maxOccurs);
 	    if (insertBefore.length() > 0 || maxOccurs != -1) {
 		if (addedNode instanceof Attr) {
 		    ((Element) documentNode).removeAttributeNode((Attr) addedNode);
@@ -1280,7 +1283,7 @@ public class ArbilComponentBuilder {
     }
 
     public String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
-	System.out.println("Calculating the added fragment");
+	logger.debug("Calculating the added fragment");
 	// count siblings to get the correct child index for the fragment
 	int siblingCouter = 1;
 	Node siblingNode = documentNode.getPreviousSibling();
@@ -1313,21 +1316,21 @@ public class ArbilComponentBuilder {
 //            String nodeFragment = parentNode.getNodeName();
 //
 //            nodePathString = "." + nodeFragment + "(" + siblingCouter + ")" + nodePathString;
-//            //System.out.println("nodePathString: " + nodePathString);
+//            //logger.debug("nodePathString: " + nodePathString);
 //            if (parentNode.isSameNode(targetDocument.getDocumentElement())) {
 //                break;
 //            }
 //            parentNode = parentNode.getParentNode();
 //        }
 //        nodeFragment = "." + nodeFragment;
-	System.out.println("nodeFragment: " + nodePathString);
-	System.out.println("targetXmlPath: " + targetXmlPath);
+	logger.debug("nodeFragment: " + nodePathString);
+	logger.debug("targetXmlPath: " + targetXmlPath);
 	return nodePathString;
 	//return childStartElement.
     }
 
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile, boolean addDummyData) {
-	System.out.println("createComponentFile: " + cmdiNodeFile + " : " + xsdFile);
+	logger.debug("createComponentFile: " + cmdiNodeFile + " : " + xsdFile);
 	try {
 	    Document workingDocument = getNewDocument();
 	    readSchema(workingDocument, xsdFile, addDummyData);
@@ -1461,21 +1464,21 @@ public class ArbilComponentBuilder {
 	SchemaType currentSchemaType = currentSchemaProperty.getType();
 	Node currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, currentSchemaProperty, addDummyData);
 	returnNode = currentElement;
-	//System.out.println("printSchemaType " + schemaType.toString());
+	//logger.debug("printSchemaType " + schemaType.toString());
 //        for (SchemaType schemaSubType : schemaType.getAnonymousTypes()) {
-//            System.out.println("getAnonymousTypes:");
+//            logger.debug("getAnonymousTypes:");
 //            constructXml(schemaSubType, pathString + ".*getAnonymousTypes*", workingDocument, parentElement);
 //        }
 //        for (SchemaType schemaSubType : schemaType.getUnionConstituentTypes()) {
-//            System.out.println("getUnionConstituentTypes:");
+//            logger.debug("getUnionConstituentTypes:");
 //            printSchemaType(schemaSubType);
 //        }
 //        for (SchemaType schemaSubType : schemaType.getUnionMemberTypes()) {
-//            System.out.println("getUnionMemberTypes:");
+//            logger.debug("getUnionMemberTypes:");
 //            constructXml(schemaSubType, pathString + ".*getUnionMemberTypes*", workingDocument, parentElement);
 //        }
 //        for (SchemaType schemaSubType : schemaType.getUnionSubTypes()) {
-//            System.out.println("getUnionSubTypes:");
+//            logger.debug("getUnionSubTypes:");
 //            printSchemaType(schemaSubType);
 //        }
 	//SchemaType childType =schemaType.
@@ -1494,9 +1497,9 @@ public class ArbilComponentBuilder {
 	    //currentSchemaType.getAttributeProperties();
 	    //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
 
-//            System.out.println("node name: " + schemaProperty.getName().getLocalPart());
-//            System.out.println("node.getMinOccurs(): " + schemaProperty.getMinOccurs());
-//            System.out.println("node.getMaxOccurs(): " + schemaProperty.getMaxOccurs());
+//            logger.debug("node name: " + schemaProperty.getName().getLocalPart());
+//            logger.debug("node.getMinOccurs(): " + schemaProperty.getMinOccurs());
+//            logger.debug("node.getMaxOccurs(): " + schemaProperty.getMaxOccurs());
 
 	    BigInteger maxNumberToAdd;
 	    if (addDummyData) {

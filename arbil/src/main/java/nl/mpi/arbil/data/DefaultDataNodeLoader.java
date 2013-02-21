@@ -23,6 +23,8 @@ import java.util.Vector;
 import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
 import nl.mpi.flap.model.PluginDataNode;
 import nl.mpi.flap.plugin.WrongNodeTypeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilDataNodeLoader formerly known as ImdiLoader Created on : Dec
@@ -32,6 +34,7 @@ import nl.mpi.flap.plugin.WrongNodeTypeException;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class DefaultDataNodeLoader implements DataNodeLoader {
+    private final static Logger logger = LoggerFactory.getLogger(DefaultDataNodeLoader.class);
 
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
@@ -39,7 +42,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     private ArbilDataNodeService dataNodeService;
 
     public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager) {
-        System.out.println("ArbilDataNodeLoader init");
+        logger.debug("ArbilDataNodeLoader init");
         threadManager = loaderThreadManager;
     }
 
@@ -80,13 +83,13 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     @Override
     public ArbilDataNode getArbilDataNode(Object registeringObject, URI localUri) {// throws Exception {
 //        if (localNodeText == null && localUrlString.contains("WrittenResource")) {
-//            System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
+//            logger.debug("getImdiObject: " + localNodeText + " : " + localUrlString);
 //        }
 //        if (registeringObject == null) {
 //            throw (new Exception("no container object provided"));
 //        }
 //       todo if (localUrlString == null) {
-//            System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
+//            logger.debug("getImdiObject: " + localNodeText + " : " + localUrlString);
 //       end todo }
         ArbilDataNode currentDataNode = null;
         if (localUri != null && localUri.toString().length() > 0) {

@@ -36,6 +36,8 @@ import nl.nikhef.slcshttps.gui.SURFCAInitDialog;
 import nl.nikhef.slcshttps.gui.CATool;
 import nl.nikhef.slcshttps.gui.GraphTools;
 import nl.nikhef.slcshttps.trust.HttxURLConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document   : ShibbolethNegotiator
@@ -43,6 +45,7 @@ import nl.nikhef.slcshttps.trust.HttxURLConnection;
  * @author Peter.Withers@mpi.nl
  */
 public class ShibbolethNegotiator implements ActionListener {
+    private final static Logger logger = LoggerFactory.getLogger(ShibbolethNegotiator.class);
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -61,7 +64,7 @@ public class ShibbolethNegotiator implements ActionListener {
 
     public boolean checkCertDate() {
 	Calendar dateCheckCalendar = Calendar.getInstance();
-	System.out.println("Today : " + dateCheckCalendar.getTime());
+	logger.debug("Today : " + dateCheckCalendar.getTime());
 
 	// Substract 1 days from the calendar so that it is know that the cert will not expire durring the process
 	dateCheckCalendar.add(Calendar.DATE, -12);

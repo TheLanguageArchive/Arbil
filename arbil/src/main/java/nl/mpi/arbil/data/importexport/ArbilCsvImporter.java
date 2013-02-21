@@ -31,6 +31,8 @@ import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilCsvImporter
@@ -39,6 +41,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilCsvImporter {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilCsvImporter.class);
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -123,7 +126,7 @@ public class ArbilCsvImporter {
                         String[] currentLineArray = currentLine.split(fileType);
                         cleanQuotes(currentLineArray, fileType);
                         for (int columnCounter = 0; columnCounter < csvHeaders.length && columnCounter < currentLineArray.length; columnCounter++) {
-                            System.out.println(csvHeaders[columnCounter] + " : " + currentLineArray[columnCounter]);
+                            logger.debug(csvHeaders[columnCounter] + " : " + currentLineArray[columnCounter]);
                             ArbilField[] currentFieldArray = addedNodesFields.get(csvHeaders[columnCounter]);
                             if (currentFieldArray != null) {
                                 // TODO: check that the field does not already have a value and act accordingly (add new description?) if it does

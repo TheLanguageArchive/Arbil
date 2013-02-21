@@ -53,6 +53,8 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -62,6 +64,7 @@ import org.xml.sax.SAXException;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilDataNodeService {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilDataNodeService.class);
 
     private DataNodeLoader dataNodeLoader;
     private MessageDialogHandler messageDialogHandler;
@@ -103,7 +106,7 @@ public class ArbilDataNodeService {
 	    Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
 	    if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
 		clipBoardString = clipBoardData.toString();
-		System.out.println("clipBoardString: " + clipBoardString);
+		logger.debug("clipBoardString: " + clipBoardString);
 
 		String[] elements;
 		if (clipBoardString.contains("\n")) {
@@ -235,7 +238,7 @@ public class ArbilDataNodeService {
 	    dataNode.bumpHistory();
 	    copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
 	    synchronized (dataNode.getParentDomLockObject()) {
-		System.out.println("deleting by corpus link");
+		logger.debug("deleting by corpus link");
 		URI[] copusUriList = new URI[targetImdiNodes.length];
 		for (int nodeCounter = 0; nodeCounter < targetImdiNodes.length; nodeCounter++) {
 		    //                if (targetImdiNodes[nodeCounter].hasResource()) {
@@ -296,14 +299,14 @@ public class ArbilDataNodeService {
 	if (currentFieldsArray == null) {
 	    currentFieldsArray = new ArbilField[]{fieldToAdd};
 	} else {
-	    //            System.out.println("appendingField: " + fieldToAdd);
+	    //            logger.debug("appendingField: " + fieldToAdd);
 	    ArbilField[] appendedFieldsArray = new ArbilField[currentFieldsArray.length + 1];
 	    System.arraycopy(currentFieldsArray, 0, appendedFieldsArray, 0, currentFieldsArray.length);
 	    appendedFieldsArray[appendedFieldsArray.length - 1] = fieldToAdd;
 	    currentFieldsArray = appendedFieldsArray;
 
 	    //            for (ImdiField tempField : currentFieldsArray) {
-	    //                System.out.println("appended fields: " + tempField);
+	    //                logger.debug("appended fields: " + tempField);
 	    //            }
 	}
 	dataNode.addFieldArray(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
@@ -325,12 +328,12 @@ public class ArbilDataNodeService {
 	    saveChangesToCache(datanode.getParentDomNode());
 	    return;
 	}
-	System.out.println("saveChangesToCache");
+	logger.debug("saveChangesToCache");
 	
 	synchronized (datanode.getParentDomLockObject()) {
 	    ArbilJournal.getSingleInstance().clearFieldChangeHistory();
 	    if (!datanode.isLocal() /* nodeUri.getScheme().toLowerCase().startsWith("http") */) {
-		System.out.println("should not try to save remote files");
+		logger.debug("should not try to save remote files");
 		return;
 	    }
 	    ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
@@ -424,12 +427,12 @@ public class ArbilDataNodeService {
 	    versionCounter--;
 	    File nextFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
 	    if (versionCounter >= 0) {
-		System.out.println("renaming: " + nextFile + " : " + lastFile);
+		logger.debug("renaming: " + nextFile + " : " + lastFile);
 		if (!nextFile.renameTo(lastFile)) {
 		    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
 		}
 	    } else {
-		System.out.println("renaming: " + headVersion + " : " + lastFile);
+		logger.debug("renaming: " + headVersion + " : " + lastFile);
 		if (!headVersion.renameTo(lastFile)) {
 		    throw new IOException("Error while copying history files for metadata. Could not rename " + headVersion.toString() + " to " + lastFile.toString());
 		}
@@ -616,7 +619,7 @@ public class ArbilDataNodeService {
 	String encodedString = null;
 	try {
 	    for (String inputStringPart : inputPath.split("/")) {
-		//                    System.out.println("inputStringPart: " + inputStringPart);
+		//                    logger.debug("inputStringPart: " + inputStringPart);
 		if (encodedString == null) {
 		    encodedString = URLEncoder.encode(inputStringPart, "UTF-8");
 		} else {
@@ -673,25 +676,25 @@ public class ArbilDataNodeService {
 	    // note that this must be done as separate parameters not a single string otherwise it will not get url encoded
 	    // TODO: this could require the other url components to be added here
 	    return new URI(protocolComponent, pathComponent, fragmentComponent);
-	    //                System.out.println("returnUrl: " + returnUrl);
+	    //                logger.debug("returnUrl: " + returnUrl);
 	    ////                int protocolEndIndex = inputUrlString.lastIndexOf("/", "xxxx:".length());
 
 	    //                String pathComponentEncoded = URLEncoder.encode(pathComponent, "UTF-8");
 	    //                returnUrl = new URI(protocolComponent + pathComponentEncoded);
-	    //                System.out.println("returnUrl: " + returnUrl);
+	    //                logger.debug("returnUrl: " + returnUrl);
 	}
 	//            // if the imdi api finds only one / after the file: it will interpret the url as relative and make a bit of a mess of it, so we have to make sure that we have two for the url and one for the root
 	//            if (returnUrl.toString().toLowerCase().startsWith("file:") && !returnUrl.toString().toLowerCase().startsWith("file:///")) {
 	//                // here we assume that this application does not use relative file paths
 	//                returnUrl = new URL("file", "", "//" + returnUrl.getPath());
 	//            }
-	//            System.out.println("conformStringToUrl URI: " + new URI(returnUrl.toString()));
+	//            logger.debug("conformStringToUrl URI: " + new URI(returnUrl.toString()));
 
-	//        System.out.println("conformStringToUrl out: " + returnUrl.toString());
+	//        logger.debug("conformStringToUrl out: " + returnUrl.toString());
     }
 
     static public URI normaliseURI(URI inputURI) {
-	//        System.out.println("normaliseURI: " + inputURI);
+	//        logger.debug("normaliseURI: " + inputURI);
 	boolean isUncPath = inputURI.toString().toLowerCase().startsWith("file:////");
 	URI returnURI = inputURI.normalize();
 	if (isUncPath) {
@@ -722,7 +725,7 @@ public class ArbilDataNodeService {
 	    updateMetadataChildNodes(dataNode);
 	} catch (Exception mue) {
 	    BugCatcherManager.getBugCatcher().logError(dataNode.getUrlString(), mue);
-	    //            System.out.println("Invalid input URL: " + mue);
+	    //            logger.debug("Invalid input URL: " + mue);
 	    File nodeFile = dataNode.getFile();
 	    if (nodeFile != null && nodeFile.exists()) {
 		dataNode.nodeText = "Could not load data";
@@ -781,7 +784,7 @@ public class ArbilDataNodeService {
     private void checkRemovedChildNodes(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
 	for (Entry<ArbilDataNode, HashSet<ArbilDataNode>> entry : parentChildTree.entrySet()) {
 	    ArbilDataNode currentNode = entry.getKey();
-	    // System.out.println("setting childArray on: " + currentNode.getUrlString());
+	    // logger.debug("setting childArray on: " + currentNode.getUrlString());
 	    // save the old child array
 	    ArbilDataNode[] oldChildArray = currentNode.childArray;
 	    // set the new child array
@@ -807,8 +810,8 @@ public class ArbilDataNodeService {
 	    Vector<ArbilDataNode> childLinksTemp = new Vector<ArbilDataNode>();
 	    for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
 		try {
-		    //                    System.out.println("nodeFile: " + nodeFile);
-		    //                    System.out.println("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
+		    //                    logger.debug("nodeFile: " + nodeFile);
+		    //                    logger.debug("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
 		    URI childURI = dirLinkArray[linkCount].toURI();
 		    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNodeWithoutLoading(childURI);
 		    if (treeHelper.isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {

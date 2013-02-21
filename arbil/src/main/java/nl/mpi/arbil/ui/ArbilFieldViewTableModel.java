@@ -38,7 +38,7 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 
     public ArbilFieldViewTableModel(ArbilTableModel localImdiTableModel) {
 	imdiTableModel = localImdiTableModel;
-	//System.out.println("setting to: " + viewLabel);
+	//logger.debug("setting to: " + viewLabel);
 	// "Column Description",  is not relevant here because this is a list of column names not imdi fields
 	setColumnIdentifiers(new String[]{"Column Name", "Show Only", "Hide", "Column width"}); //, "Always Display"
 	// we want a table model even if it has no rows
@@ -78,7 +78,7 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-//        System.out.println("isCellEditable showOnlyEnabledCount: " + showOnlyEnabledCount);
+//        logger.debug("isCellEditable showOnlyEnabledCount: " + showOnlyEnabledCount);
 	if (column == hideColumn) {
 	    if (showOnlyEnabledCount < 0) { // count the show only selection
 		showOnlyEnabledCount = 0;

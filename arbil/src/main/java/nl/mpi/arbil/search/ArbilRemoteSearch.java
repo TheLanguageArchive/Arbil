@@ -32,6 +32,8 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.xpath.XPathAPI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -43,6 +45,7 @@ import org.xml.sax.SAXException;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilRemoteSearch {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilRemoteSearch.class);
 
     private static MessageDialogHandler dialogHandler;
 
@@ -62,7 +65,7 @@ public class ArbilRemoteSearch {
 	    return new URI[]{};
 	} else {
 	    if (queryText.equals(lastSearchString) && Arrays.equals(searchNodes, lastSearchNodes)) {
-		System.out.println("remote search term unchanged, returning last server response");
+		logger.debug("remote search term unchanged, returning last server response");
 		return searchResults;
 	    } else {
 		ArrayList<URI> foundNodes = new ArrayList<URI>();
@@ -86,13 +89,13 @@ public class ArbilRemoteSearch {
 	int maxResultNumber = 1000;
 	try {
 	    String fullQueryString = constructSearchQuery(arbilDataNodeArray, searchString, maxResultNumber);
-	    System.out.println("QueryString: " + fullQueryString);
+	    logger.debug("QueryString: " + fullQueryString);
 	    Document resultsDocument = getSearchResults(fullQueryString);
 	    NodeList domIdNodeList = XPathAPI.selectNodeList(resultsDocument, RemoteServerSearchTerm.IMDI_RESULT_URL_XPATH);
 	    for (int nodeCounter = 0; nodeCounter < domIdNodeList.getLength(); nodeCounter++) {
 		Node urlNode = domIdNodeList.item(nodeCounter);
 		if (urlNode != null) {
-		    System.out.println(urlNode.getTextContent());
+		    logger.debug(urlNode.getTextContent());
 		    returnArray.add(urlNode.getTextContent());
 		}
 	    }

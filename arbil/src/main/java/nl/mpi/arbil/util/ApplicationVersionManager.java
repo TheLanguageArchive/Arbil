@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document   : ApplicationVersionManager
@@ -31,6 +33,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  * @author Peter.Withers@mpi.nl
  */
 public class ApplicationVersionManager {
+    private final static Logger logger = LoggerFactory.getLogger(ApplicationVersionManager.class);
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -59,7 +62,7 @@ public class ApplicationVersionManager {
     public boolean forceUpdateCheck() {
 	File cachePath = sessionStorage.getSaveLocation(applicationVersion.currentVersionFile);
 	if (cachePath.delete()) {
-	    System.out.println("Dropped old version file");
+	    logger.debug("Dropped old version file");
 	} else {
 	    messageDialogHandler.addMessageDialogToQueue("Could not write to storage directory. Update check failed!", "Error");
 	}
@@ -74,9 +77,9 @@ public class ApplicationVersionManager {
 	    bufferedReader = new BufferedReader(new FileReader(cachePath));
 	    String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name
-//            System.out.println("currentRevision: " + localVersionString);
-	    System.out.println("currentRevision: " + applicationVersion.currentRevision);
-	    System.out.println("serverVersionString: " + serverVersionString);
+//            logger.debug("currentRevision: " + localVersionString);
+	    logger.debug("currentRevision: " + applicationVersion.currentRevision);
+	    logger.debug("serverVersionString: " + serverVersionString);
 	    if (serverVersionString == null || !serverVersionString.matches("[0-9]*")) {
 		// ignore any strings that are not a number because it might be a 404 or other error page
 		return true;
@@ -105,7 +108,7 @@ public class ApplicationVersionManager {
 	    errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
 	    String line;
 	    while ((line = errorStreamReader.readLine()) != null) {
-		System.out.println("Launched process error stream: \"" + line + "\"");
+		logger.debug("Launched process error stream: \"" + line + "\"");
 	    }
 	    return (0 == launchedProcess.waitFor());
 	} catch (Exception e) {
@@ -156,9 +159,9 @@ public class ApplicationVersionManager {
     }
 
     public boolean hasWebStartUrl() {
-	System.out.println("hasWebStartUrl");
+	logger.debug("hasWebStartUrl");
 	String webstartUpdateUrl = System.getProperty("nl.mpi.webstartUpdateUrl");
-	System.out.println("webstartUpdateUrl: " + webstartUpdateUrl);
+	logger.debug("webstartUpdateUrl: " + webstartUpdateUrl);
 	return null != webstartUpdateUrl;
     }
 
@@ -169,7 +172,7 @@ public class ApplicationVersionManager {
 	    @Override
 	    public void run() {
 		String webstartUrlString = System.getProperty("nl.mpi.webstartUpdateUrl");
-//                System.out.println(webStartUrlString);
+//                logger.debug(webStartUrlString);
 		{
 		    if (webstartUrlString != null && !isLatestVersion()) {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);

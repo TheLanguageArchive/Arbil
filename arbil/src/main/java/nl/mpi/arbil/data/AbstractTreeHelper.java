@@ -46,6 +46,8 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.flap.model.DataNodeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilTreeHelper Created on :
@@ -54,6 +56,7 @@ import nl.mpi.flap.model.DataNodeType;
  * @author Twan.Goosen@mpi.nl
  */
 public abstract class AbstractTreeHelper implements TreeHelper {
+    private final static Logger logger = LoggerFactory.getLogger(AbstractTreeHelper.class);
 
     private DefaultTreeModel localCorpusTreeModel;
     private DefaultTreeModel remoteCorpusTreeModel;
@@ -223,16 +226,16 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             }
             //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
             getSessionStorage().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
-            System.out.println("saved locationsList");
+            logger.debug("saved locationsList");
         } catch (Exception ex) {
             BugCatcherManager.getBugCatcher().logError(ex);
-//            System.out.println("save locationsList exception: " + ex.getMessage());
+//            logger.debug("save locationsList exception: " + ex.getMessage());
         }
     }
 
     @Override
     public final void loadLocationsList() {
-        System.out.println("loading locationsList");
+        logger.debug("loading locationsList");
         String[] locationsArray = null;
         try {
             locationsArray = getSessionStorage().loadStringArray("locationsList");
@@ -300,7 +303,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
         try {
             getSessionStorage().saveBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
         } catch (Exception ex) {
-            System.out.println("save showHiddenFilesInTree failed");
+            logger.debug("save showHiddenFilesInTree failed");
         }
     }
 
@@ -308,7 +311,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
         ArbilDataNode[] addedNodes = new ArbilDataNode[locations.size()];
         for (int i = 0; i < locations.size(); i++) {
             URI addedLocation = locations.get(i);
-            System.out.println("addLocation: " + addedLocation.toString());
+            logger.debug("addLocation: " + addedLocation.toString());
             // make sure the added location url matches that of the imdi node format
             addedNodes[i] = dataNodeLoader.getArbilDataNode(null, addedLocation);
         }
@@ -346,7 +349,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     @Override
     public boolean addLocation(URI addedLocation) {
-        System.out.println("addLocation: " + addedLocation.toString());
+        logger.debug("addLocation: " + addedLocation.toString());
         // make sure the added location url matches that of the imdi node format
         ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
         //TODO: Synchronize this
@@ -370,7 +373,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     @Override
     public void removeLocation(URI removeLocation) {
-        System.out.println("removeLocation: " + removeLocation);
+        logger.debug("removeLocation: " + removeLocation);
         removeLocation(dataNodeLoader.getArbilDataNode(null, removeLocation));
     }
 
@@ -418,17 +421,17 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             if (currentNodePath != null) {
                 DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
                 Object userObject = selectedTreeNode.getUserObject();
-                System.out.println("trying to delete: " + userObject);
+                logger.debug("trying to delete: " + userObject);
                 if (currentNodePath.getPath().length == 2) {
                     // In locations list (i.e. child of root node)
-                    System.out.println("removing by location");
+                    logger.debug("removing by location");
                     removeLocation((ArbilDataNode) selectedTreeNode.getUserObject());
                     applyRootLocations();
                 } else {
-                    System.out.println("deleting from parent");
+                    logger.debug("deleting from parent");
                     DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
                     if (parentTreeNode != null) {
-                        System.out.println("found parent to remove from");
+                        logger.debug("found parent to remove from");
                         ArbilDataNode parentDataNode = (ArbilDataNode) parentTreeNode.getUserObject();
                         ArbilDataNode childDataNode = (ArbilDataNode) selectedTreeNode.getUserObject();
                         determineDeleteFromParent(childDataNode, parentDataNode, childNodeDeleteList, dataNodesDeleteList, cmdiLinksDeleteList);
@@ -481,7 +484,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     protected void deleteNodesByChidXmlIdLink(Map<ArbilDataNode, List<String>> childNodeDeleteList) {
         for (Entry<ArbilDataNode, List<String>> deleteEntry : childNodeDeleteList.entrySet()) {
             ArbilDataNode currentParent = deleteEntry.getKey();
-            System.out.println("deleting by child xml id link");
+            logger.debug("deleting by child xml id link");
             // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
             //currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
             ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
@@ -501,7 +504,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     protected void deleteNodesByCorpusLink(Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList) {
         for (Entry<ArbilDataNode, List<ArbilDataNode>> deleteEntry : dataNodesDeleteList.entrySet()) {
-            System.out.println("deleting by corpus link");
+            logger.debug("deleting by corpus link");
             deleteEntry.getKey().deleteCorpusLink(deleteEntry.getValue().toArray(new ArbilDataNode[]{}));
         }
     }

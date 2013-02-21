@@ -27,6 +27,8 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
 import nl.mpi.arbilcommons.model.HistoryField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilField Created on : Wed Dec 03 13:29:30 CET 2008
@@ -34,6 +36,7 @@ import nl.mpi.arbilcommons.model.HistoryField;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilField extends HistoryField implements Serializable {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilField.class);
 
     private transient ArbilDataNode parentDataNode;
     private URI parentDataNodeURI;
@@ -310,9 +313,9 @@ public class ArbilField extends HistoryField implements Serializable {
     }
 
     public ArbilField[] getSiblingField(String pathString) {
-//        System.out.println("getSiblingField: " + pathString);
+//        logger.debug("getSiblingField: " + pathString);
         for (ArbilField[] tempField : getParentDataNode().getFields().values().toArray(new ArbilField[][]{})) {
-//            System.out.println("tempField[0].getFullXmlPath(): " + tempField[0].getFullXmlPath());
+//            logger.debug("tempField[0].getFullXmlPath(): " + tempField[0].getFullXmlPath());
             if (tempField[0].getFullXmlPath().equals(pathString) || tempField[0].getGenericFullXmlPath().equals(pathString)) {
                 return tempField;
             }
@@ -438,8 +441,8 @@ public class ArbilField extends HistoryField implements Serializable {
             if (getParentDataNode().getParentDomNode().nodeTemplate != null) {
                 // get the schema vocabularies
                 String strippedXmlPath = this.getGenericFullXmlPath().replaceAll("\\(x\\)", "");
-//                System.out.println("parentImdi.getParentDomNode().nodeTemplate: " + parentImdi.getParentDomNode().nodeTemplate.loadedTemplateName);
-//                System.out.println("strippedXmlPath: " + strippedXmlPath);
+//                logger.debug("parentImdi.getParentDomNode().nodeTemplate: " + parentImdi.getParentDomNode().nodeTemplate.loadedTemplateName);
+//                logger.debug("strippedXmlPath: " + strippedXmlPath);
                 fieldVocabulary = getParentDataNode().getParentDomNode().nodeTemplate.getFieldVocabulary(strippedXmlPath);
             }
         }
@@ -455,7 +458,7 @@ public class ArbilField extends HistoryField implements Serializable {
 
     @Override
     public String toString() {
-//            System.out.println("ImdiField: " + fieldValue);
+//            logger.debug("ImdiField: " + fieldValue);
 //            if (!isDisplayable()) {
 //                return "check attributes";// fieldAttributes.keys().toString();
 //            }
@@ -480,9 +483,9 @@ public class ArbilField extends HistoryField implements Serializable {
     public boolean setKeyName(String keyNameLocal, boolean updateUI, boolean excludeFromUndoHistory) {
         // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
         // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
-        System.out.println("setKeyName: " + keyNameLocal);
+        logger.debug("setKeyName: " + keyNameLocal);
         String lastValue = getKeyName();
-        System.out.println("lastValue: " + lastValue);
+        logger.debug("lastValue: " + lastValue);
         if (lastValue != null) {
             if (!lastValue.equals(keyNameLocal)) { // only if the value is different
 //                if (fieldAttributes.contains("Name")) { // only if there is already a key name
@@ -528,10 +531,10 @@ public class ArbilField extends HistoryField implements Serializable {
             fieldName = fieldName.replaceFirst("^\\.Kinnate\\.CustomData\\.", "");
 //                    if (attributeName.equals("Name")) {
             if (fieldName.endsWith("Keys.Key")) {
-//                System.out.println("Found key for: " + xmlPath);
+//                logger.debug("Found key for: " + xmlPath);
                 //String keyValue = getFieldAttribute("Name");
                 if (keyName != null) {
-//                    System.out.println("Key value valid: " + keyValue.toString());
+//                    logger.debug("Key value valid: " + keyValue.toString());
                     fieldName = fieldName + MetadataReader.imdiPathSeparator + keyName;
                 }
 //                xmlPath = xmlPath + MetadataReader.imdiPathSeparator + attributeValue;
@@ -548,8 +551,8 @@ public class ArbilField extends HistoryField implements Serializable {
             }
             translatedPath = fieldName;
         }
-//        System.out.println("xmlPath: " + xmlPath);
-//        System.out.println("translatedPath: " + translatedPath);
+//        logger.debug("xmlPath: " + xmlPath);
+//        logger.debug("translatedPath: " + translatedPath);
         if (isAttributeField()) {
             return translatedPath.replaceAll("^@", "");
         } else {

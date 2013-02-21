@@ -56,6 +56,8 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.ProgressListener;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ArbilSessionStorage use to save and load objects from disk and to
@@ -64,6 +66,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilSessionStorage extends CommonsSessionStorage implements SessionStorage {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilSessionStorage.class);
 
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
     public static final String UTF8_ENCODING = "UTF8";
@@ -136,8 +139,8 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     private void changeStorageDirectory(File fromDirectory, File toDirectory) {
 	String toDirectoryUriString = toDirectory.toURI().toString().replaceAll("/$", "");
 	String fromDirectoryUriString = fromDirectory.toURI().toString().replaceAll("/$", "");
-	System.out.println("toDirectoryUriString: " + toDirectoryUriString);
-	System.out.println("fromDirectoryUriString: " + fromDirectoryUriString);
+	logger.debug("toDirectoryUriString: " + toDirectoryUriString);
+	logger.debug("fromDirectoryUriString: " + fromDirectoryUriString);
 	try {
 	    toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
 	    fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
@@ -170,9 +173,9 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 			    treeHelper.getFavouriteNodes()}) {
 		    for (ArbilDataNode currentLocation : currentTreeArray) {
 			String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
-			System.out.println("currentLocationString: " + currentLocationString);
-			System.out.println("prefferedDirectoryUriString: " + toDirectoryUriString);
-			System.out.println("storageDirectoryUriString: " + fromDirectoryUriString);
+			logger.debug("currentLocationString: " + currentLocationString);
+			logger.debug("prefferedDirectoryUriString: " + toDirectoryUriString);
+			logger.debug("storageDirectoryUriString: " + fromDirectoryUriString);
 			locationsList.add(currentLocationString.replace(fromDirectoryUriString, toDirectoryUriString));
 		    }
 		}
@@ -186,7 +189,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 		windowManager.closeAllWindows();
 	    } catch (Exception ex) {
 		logError(ex);
-//            System.out.println("save locationsList exception: " + ex.getMessage());
+//            logger.debug("save locationsList exception: " + ex.getMessage());
 	    }
 //            treeHelper.loadLocationsList();
 //            JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The working files have been moved.", "Arbil", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Exit"}, "Exit");
@@ -263,8 +266,8 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     public URI getOriginatingUri(URI locationInCacheURI) {
 	URI returnUri = null;
 	String uriPath = locationInCacheURI.getPath();
-//        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
-	System.out.println("uriPath: " + uriPath);
+//        logger.debug("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
+	logger.debug("uriPath: " + uriPath);
 	int foundPos = uriPath.indexOf("imdicache");
 	if (foundPos == -1) {
 	    foundPos = uriPath.indexOf(getProjectDirectoryName());
@@ -277,7 +280,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	try {
 	    if (uriParts[1].toLowerCase().equals("http")) {
 		returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
-		System.out.println("returnUri: " + returnUri);
+		logger.debug("returnUri: " + returnUri);
 	    }
 	} catch (URISyntaxException urise) {
 	    logError(urise);
@@ -336,7 +339,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @throws java.io.IOException
      */
     public void saveObject(Serializable object, String filename) throws IOException {
-	System.out.println("saveObject: " + filename);
+	logger.debug("saveObject: " + filename);
 	ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(new File(getApplicationSettingsDirectory(), filename)));
 	objstream.writeObject(object);
 	objstream.close();
@@ -351,7 +354,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @throws java.lang.Exception
      */
     public Object loadObject(String filename) throws Exception {
-	System.out.println("loadObject: " + filename);
+	logger.debug("loadObject: " + filename);
 	Object object = null;
 	// this must be allowed to throw so don't do checks here
 	ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(getApplicationSettingsDirectory(), filename)));
@@ -639,8 +642,8 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return The path of the file in the destination directory.
      */
     public File getExportPath(String pathString, String destinationDirectory) {
-	System.out.println("pathString: " + pathString);
-	System.out.println("destinationDirectory: " + destinationDirectory);
+	logger.debug("pathString: " + pathString);
+	logger.debug("destinationDirectory: " + destinationDirectory);
 	String cachePath = pathString;
 	for (String testDirectory : new String[]{"imdicache", getProjectDirectoryName()}) {
 	    if (pathString.contains(testDirectory)) {
@@ -756,14 +759,14 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
-//        System.out.println("saveRemoteResource: " + targetUrlString);
-//        System.out.println("destinationPath: " + destinationPath);
+//        logger.debug("saveRemoteResource: " + targetUrlString);
+//        logger.debug("destinationPath: " + destinationPath);
 //        File destinationFile = new File(destinationPath);
 	if (destinationFile.length() == 0) {
 	    // todo: check the file size on the server and maybe its date also
 	    // if the file is zero length then is presumably should either be replaced or the version in the jar used.
 	    if (destinationFile.delete()) {
-		System.out.println("Deleted zero length (!) file: " + destinationFile);
+		logger.debug("Deleted zero length (!) file: " + destinationFile);
 	    }
 	}
 	String fileName = destinationFile.getName();
@@ -778,7 +781,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 		    tempFile.deleteOnExit();
 		    int bufferLength = 1024 * 3;
 		    outFile = new FileOutputStream(tempFile); //targetUrlString
-		    System.out.println("getting file");
+		    logger.debug("getting file");
 		    InputStream stream = urlConnection.getInputStream();
 		    byte[] buffer = new byte[bufferLength]; // make this 1024*4 or something and read chunks not the whole file
 		    int bytesread = 0;
@@ -786,8 +789,8 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 		    while (bytesread >= 0 && !abortFlag.abortDownload) {
 			bytesread = stream.read(buffer);
 			totalRead += bytesread;
-//                        System.out.println("bytesread: " + bytesread);
-//                        System.out.println("Mbs totalRead: " + totalRead / 1048576);
+//                        logger.debug("bytesread: " + bytesread);
+//                        logger.debug("Mbs totalRead: " + totalRead / 1048576);
 			if (bytesread == -1) {
 			    break;
 			}
@@ -811,11 +814,11 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 			}
 			downloadSucceeded = true;
 		    }
-		    System.out.println(String.format("Downloaded: %.3f Mb", ((double) totalRead) / (1024 * 1024)));
+		    logger.debug(String.format("Downloaded: %.3f Mb", ((double) totalRead) / (1024 * 1024)));
 		}
 	    } catch (Exception ex) {
 		logError(ex);
-//                System.out.println(ex.getMessage());
+//                logger.debug(ex.getMessage());
 	    } finally {
 		if (outFile != null) {
 		    try {
@@ -853,14 +856,14 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	    httpConnection = (HttpURLConnection) urlConnection;
 //                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
 	    //h.setFollowRedirects(false);
-	    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage() + resourceUrl.toString());
+	    logger.debug("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage() + resourceUrl.toString());
 	}
 
 	if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
 	    final int responseCode = httpConnection.getResponseCode();
 	    if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) { // Redirect codes
 		String redirectLocation = httpConnection.getHeaderField("Location");
-		System.out.println(String.format("%1$d, redirect to %2$s", responseCode, redirectLocation));
+		logger.debug(String.format("%1$d, redirect to %2$s", responseCode, redirectLocation));
 		if (followRedirects) {
 		    // Redirect. Get new location.
 		    if (redirectLocation != null && redirectLocation.length() > 0) {
@@ -873,10 +876,10 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 			}
 		    }
 		} else {
-		    System.out.println("Not following redirect. Skipping file");
+		    logger.debug("Not following redirect. Skipping file");
 		}
 	    } else {
-		System.out.println("non 200 response, skipping file");
+		logger.debug("non 200 response, skipping file");
 	    }
 	    return null;
 	} else {

@@ -34,6 +34,8 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document : ProfilePreview
@@ -41,6 +43,7 @@ import nl.mpi.arbil.util.TreeHelper;
  * Author : Peter Withers
  */
 public class ProfilePreview {
+    private final static Logger logger = LoggerFactory.getLogger(ProfilePreview.class);
 
     private static SessionStorage sessionStorage;
 
@@ -82,10 +85,10 @@ public class ProfilePreview {
 	    demoDialogue.setContentPane(demoTree);
 	    demoDialogue.setVisible(true);
 	} catch (IOException exception) {
-	    System.out.println(exception.getMessage());
+	    logger.debug(exception.getMessage());
 	    ///GuiHelper.linorgBugCatcher.logError(exception);
 	} catch (URISyntaxException exception) {
-	    System.out.println(exception.getMessage());
+	    logger.debug(exception.getMessage());
 	    //GuiHelper.linorgBugCatcher.logError(exception);
 	}
 	return returnString;

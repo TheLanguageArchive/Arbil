@@ -67,6 +67,8 @@ import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
 import nl.mpi.pluginloader.PluginService;
 import nl.mpi.pluginloader.ui.PluginMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -75,6 +77,7 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilMenuBar extends JMenuBar {
+    private final static Logger logger = LoggerFactory.getLogger(ArbilMenuBar.class);
 
     public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
     private static SessionStorage sessionStorage;
@@ -331,7 +334,7 @@ public class ArbilMenuBar extends JMenuBar {
 	//
 	//            public void actionPerformed(java.awt.event.ActionEvent evt) {
 	//                Component currentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-	//                System.out.println("currentFocusOwner: " + currentFocusOwner);
+	//                logger.debug("currentFocusOwner: " + currentFocusOwner);
 	//                if (currentFocusOwner instanceof ImdiTree) {
 	//                    ImdiTree sourceTree = (ImdiTree) currentFocusOwner;
 	//                    ImdiTreeObject[] selectedImdiNodes = sourceTree.getSelectedNodes();
@@ -862,7 +865,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    importExportDialog.importArbilBranch();
 	} catch (Exception e) {
 	    BugCatcherManager.getBugCatcher().logError(e);
-	    System.out.println(e.getMessage());
+	    logger.debug(e.getMessage());
 	}
     }
 //
@@ -985,7 +988,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                try {
 //                    LinorgWindowManager.getArbilHelpInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
     //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
-//                    System.out.println("setting template: " + evt.getActionCommand());
+//                    logger.debug("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getArbilHelpInstance().setCurrentTemplate(evt.getActionCommand());
 //                } catch (Exception e) {
 //                    BugCatcherManager.getBugCatcher().logError(e);
@@ -1020,7 +1023,7 @@ public class ArbilMenuBar extends JMenuBar {
 //                    }
 ////                    LinorgWindowManager.getArbilHelpInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
 //                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
-////                    System.out.println("setting template: " + evt.getActionCommand());
+////                    logger.debug("setting template: " + evt.getActionCommand());
 ////                    ArbilTemplateManager.getArbilHelpInstance().setCurrentTemplate(evt.getActionCommand());
 //                } catch (Exception e) {
 //                    BugCatcherManager.getBugCatcher().logError(e);

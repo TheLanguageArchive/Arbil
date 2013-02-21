@@ -23,6 +23,8 @@ package nl.mpi.arbil.util;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -33,6 +35,7 @@ import java.net.PasswordAuthentication;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class AuthenticatorStub extends Authenticator {
+    private final static Logger logger = LoggerFactory.getLogger(AuthenticatorStub.class);
 
     protected final static String NOTIFICATION_DEFAULT_MESSAGE = "Access to a location has been requested that requires authentication. This is currently not supported.\n\nThe accessed metadata instance(s) may be referencing unpublished content.\nAs a result, some information that appears may be incomplete.";
     protected final static String NOTIFICATION_DEFAULT_TITLE = "Protected resource requested";
@@ -58,7 +61,7 @@ public class AuthenticatorStub extends Authenticator {
 
     @Override
     protected PasswordAuthentication getPasswordAuthentication() {
-	System.out.println("Authentication requested for " + getRequestingURL() + ". Handled by stub.");
+	logger.debug("Authentication requested for " + getRequestingURL() + ". Handled by stub.");
 	synchronized (notificationLock) {
 	    if (!notificationShown) {
 		dialogHandler.addMessageDialogToQueue(notificationMessage, notificationTitle);

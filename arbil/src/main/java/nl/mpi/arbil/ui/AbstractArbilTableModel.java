@@ -40,12 +40,15 @@ import nl.mpi.flap.plugin.PluginArbilTableModel;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.NumberedStringComparator;
 import nl.mpi.flap.model.PluginDataNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public abstract class AbstractArbilTableModel extends AbstractTableModel implements ArbilDataNodeContainer, PluginArbilTableModel {
+    private final static Logger logger = LoggerFactory.getLogger(AbstractArbilTableModel.class);
 
     // NOTE: [] style arrays are not suitable for storing true constants
     protected final static String SINGLE_NODE_VIEW_HEADING_NAME = "Field Name";
@@ -99,7 +102,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
     public void addChildTypeToDisplay(String childType) {
-        System.out.println("addChildTypeToDisplay: " + childType);
+        logger.debug("addChildTypeToDisplay: " + childType);
         getChildColumnNames().add(childType);
         requestReloadTableData();
     }
@@ -131,7 +134,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
         //        if (row == -1 || col == -1) {
         //            return;
         //        }
-        System.out.println("copyCellToColumn for row: " + row + " col: " + col);
+        logger.debug("copyCellToColumn for row: " + row + " col: " + col);
         for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
             if (rowCounter != row) {
                 // TODO: a user may want to copy fields with multiple values to the whole column eg descritions in multiple languages
@@ -190,7 +193,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     //                boolean needsSave = false;
     //                ImdiField[] fieldArray = (ImdiField[]) data[row][col];
     //                for (ImdiField fieldElement : fieldArray) {
-    //                    System.out.println("hasValueChanged: " + fieldElement);
+    //                    logger.debug("hasValueChanged: " + fieldElement);
     //                    if (fieldElement.fieldNeedsSaveToDisk) {
     //                        needsSave = true;
     //                    }
@@ -249,7 +252,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     protected abstract Hashtable<String, ArbilDataNode> getDataNodeHash();
 
     public Vector getMatchingRows(int sampleRowNumber) {
-        System.out.println("MatchingRows for: " + sampleRowNumber);
+        logger.debug("MatchingRows for: " + sampleRowNumber);
         Vector matchedRows = new Vector();
         if (sampleRowNumber > -1 && sampleRowNumber < getRowCount()) {
             for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
@@ -260,9 +263,9 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
                         break;
                     }
                 }
-                //System.out.println("Checking: " + getValueAt(sampleRowNumber, 0) + " : " + getValueAt(rowCounter, 0));
+                //logger.debug("Checking: " + getValueAt(sampleRowNumber, 0) + " : " + getValueAt(rowCounter, 0));
                 if (rowMatches) {
-                    //System.out.println("Matched: " + rowCounter + " : " + getValueAt(rowCounter, 0));
+                    //logger.debug("Matched: " + rowCounter + " : " + getValueAt(rowCounter, 0));
                     matchedRows.add(rowCounter);
                 }
             }
@@ -304,9 +307,9 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
     public void hideColumn(int columnIndex) {
-        System.out.println("hideColumn: " + columnIndex);
+        logger.debug("hideColumn: " + columnIndex);
         // TODO: hide column
-        System.out.println("hideColumn: " + getColumnName(columnIndex));
+        logger.debug("hideColumn: " + getColumnName(columnIndex));
         if (!childColumnNames.remove(getColumnName(columnIndex))) {
             getFieldView().addHiddenColumn(getColumnName(columnIndex));
         }
@@ -361,7 +364,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     public void removeArbilDataNodeRows(int[] selectedRows) {
         ArbilDataNode[] nodesToRemove = new ArbilDataNode[selectedRows.length];
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-            System.out.println("removing: " + selectedRowCounter);
+            logger.debug("removing: " + selectedRowCounter);
             nodesToRemove[selectedRowCounter] = getDataNodeFromRow(selectedRows[selectedRowCounter]);
         }
         removeArbilDataNodes(nodesToRemove);
@@ -402,14 +405,14 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 
     //    @Override
     //    public void setValueAt(Object value, int row, int col) { // error here maybe return without doing anything
-    //        System.out.println("setValueAt: " + value.toString() + " : " + row + " : " + col);
+    //        logger.debug("setValueAt: " + value.toString() + " : " + row + " : " + col);
     ////        if (data[row][col] instanceof ImdiField) {
     ////            // multiple field colums will not be edited here or saved here
     ////            ImdiField currentField = ((ImdiField) data[row][col]);
     ////            currentField.setFieldValue(value.toString(), true);
     ////            fireTableCellUpdated(row, col);
     ////        } else if (data[row][col] instanceof Object[]) {
-    ////            System.out.println("cell is a child list so do not edit");
+    ////            logger.debug("cell is a child list so do not edit");
     ////        } else {
     ////            // TODO: is this even valid, presumably this will be a string and therefore not saveable to the imdi
     //////            data[row][col] = value;
@@ -419,7 +422,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     //    }
     public void sortByColumn(int columnIndex) {
         // TODO: sort columns
-        //        System.out.println("sortByColumn: " + columnIndex);
+        //        logger.debug("sortByColumn: " + columnIndex);
         // set the reverse sort flag
         if (sortColumn == columnIndex) {
             if (isHorizontalView() || sortReverse == false) {
@@ -433,7 +436,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
             sortColumn = columnIndex;
             sortReverse = false;
         }
-        System.out.println("sortByColumn: " + sortColumn);
+        logger.debug("sortByColumn: " + sortColumn);
         requestReloadTableData();
     }
 
@@ -557,7 +560,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
             // set the column offset to accomadate the icon which is not in the column hashtable
             int firstFreeColumn = 0;
             if (isShowIcons()) {
-                //                System.out.println("showing icon");
+                //                logger.debug("showing icon");
                 // this assumes that the icon will always be in the leftmost column
                 firstFreeColumn = 1;
             }
@@ -568,7 +571,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
                 columnNamesTemp[0] = " "; // make sure the the icon column is shown its string is not null
             }
             for (ArbilField currentColumn : displayedColumnNames) {
-                //                System.out.println("columnPopulateCounter: " + columnPopulateCounter);
+                //                logger.debug("columnPopulateCounter: " + columnPopulateCounter);
                 fieldNames[columnPopulateCounter] = currentColumn.xmlPath;
                 columnNamesTemp[columnPopulateCounter] = currentColumn.getTranslateFieldName();
                 columnPopulateCounter++;
@@ -584,7 +587,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
             int rowCounter = 0;
             final int childColumnsIndex = columnNamesTemp.length - getChildColumnNames().size();
             for (ArbilDataNode currentNode : tableRowsArbilArray) {
-                //                System.out.println("currentNode: " + currentNode.toString());
+                //                logger.debug("currentNode: " + currentNode.toString());
                 Hashtable<String, ArbilField[]> fieldsHash = currentNode.getFields();
                 if (isShowIcons()) {
                     // First column contains node icon
@@ -618,7 +621,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
                 }
                 rowCounter++;
             }
-            //            System.out.println("setting column widths: " + maxColumnWidthsTemp);
+            //            logger.debug("setting column widths: " + maxColumnWidthsTemp);
             //            // display the column names use count for testing only
             //            Enumeration tempEnum = columnNameHash.elements();
             //            int tempColCount = 0;
@@ -626,7 +629,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
             //                data[0][tempColCount] = tempEnum.nextElement().toString();
             //                tempColCount++;
             //            }
-            //            System.out.println("setting column widths: " + maxColumnWidthsTemp);
+            //            logger.debug("setting column widths: " + maxColumnWidthsTemp);
             //            // display the column names use count for testing only
             //            Enumeration tempEnum = columnNameHash.elements();
             //            int tempColCount = 0;
@@ -687,7 +690,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
             for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
                 for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
                     //                    if (prevousData[rowCounter][colCounter] != data[rowCounter][colCounter]) {
-                    //                        System.out.println("fireTableCellUpdated: " + rowCounter + ":" + colCounter);
+                    //                        logger.debug("fireTableCellUpdated: " + rowCounter + ":" + colCounter);
                     fireTableCellUpdated(rowCounter, colCounter);
                     //                    }
                 }
@@ -696,7 +699,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
     private void sortTableRows(String[] columnNamesTemp, Object[][] dataTemp) {
-//        System.out.println("sortTableRows");
+//        logger.debug("sortTableRows");
         if (sortColumn < columnNamesTemp.length) {
             Arrays.sort(dataTemp, new TableRowComparator(sortColumn, sortReverse));
         }
@@ -823,7 +826,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
         public TableRowComparator(int tempSortColumn, boolean tempSortReverse) {
             sortColumn = tempSortColumn;
             sortReverse = tempSortReverse;
-//            System.out.println("TableRowComparator: " + sortColumn + ":" + sortReverse);
+//            logger.debug("TableRowComparator: " + sortColumn + ":" + sortReverse);
         }
 
         //public int compare(ImdiField[] firstRowArray, ImdiField[] secondRowArray) {

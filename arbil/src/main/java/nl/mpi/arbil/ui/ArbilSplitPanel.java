@@ -129,7 +129,7 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 		if (!e.getValueIsAdjusting() && !selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
 		    selectionChangeInProcess = true;
 		    if (e.getSource() instanceof JList) {
-//                        System.out.println("JList");
+//                        logger.debug("JList");
 			arbilTable.clearSelection();
 			int minSelectedRow = -1;
 			int maxSelectedRow = -1;
@@ -147,7 +147,7 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 				    }
 				}
 			    }
-//                            System.out.println("selectedRow:" + selectedRow);
+//                            logger.debug("selectedRow:" + selectedRow);
 			    if (maxSelectedRow != -1) {
 				arbilTable.scrollRectToVisible(arbilTable.getCellRect(minSelectedRow, 0, true));
 			    }
@@ -168,12 +168,12 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 		    int minSelectedRow = -1;
 		    int maxSelectedRow = -1;
 		    for (Object selectedRow : arbilTable.getSelectedRowsFromTable()) {
-//                        System.out.println("selectedRow:" + selectedRow);
+//                        logger.debug("selectedRow:" + selectedRow);
 			for (int rowCount = 0; rowCount < imagePreview.getModel().getSize(); rowCount++) {
-//                            System.out.println("JList:" + fileList.getModel().getElementAt(rowCount));
+//                            logger.debug("JList:" + fileList.getModel().getElementAt(rowCount));
 			    if (imagePreview.getModel().getElementAt(rowCount).equals(selectedRow)) {
 				imagePreview.addSelectionInterval(rowCount, rowCount);
-//                                System.out.println("add selection");
+//                                logger.debug("add selection");
 				if (maxSelectedRow == -1 || maxSelectedRow < rowCount) {
 				    maxSelectedRow = rowCount;
 				}
