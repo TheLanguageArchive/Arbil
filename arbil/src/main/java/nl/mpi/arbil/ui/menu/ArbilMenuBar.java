@@ -48,6 +48,7 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.plugins.ArbilPluginManager;
 import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilHelp;
+import nl.mpi.arbil.ui.ArbilLogConsole;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImportExportDialog;
@@ -77,8 +78,8 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilMenuBar extends JMenuBar {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilMenuBar.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilMenuBar.class);
     public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
     private static SessionStorage sessionStorage;
 
@@ -153,6 +154,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JCheckBoxMenuItem schemaCheckLocalFiles = new JCheckBoxMenuItem();
     private JMenuItem editPreferredLanguagesMenuItem = new JMenuItem();
     private JMenuItem editFieldViewsMenuItem = new JMenuItem();
+    private JMenuItem logConsoleMenuItem = new JMenuItem();
 //    private JMenuItem editLocationsMenuItem;
     private JMenuItem updateAllLoadedVocabulariesMenuItem = new JMenuItem();
     private JMenu editMenu = new JMenu();
@@ -701,7 +703,6 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void menuSelected(MenuEvent evt) {
 		//TODO: get from log manager
-		throw new UnsupportedOperationException();
 		//viewErrorLogMenuItem.setEnabled(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).exists());
 	    }
 	});
@@ -748,6 +749,15 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(arbilForumMenuItem);
+	
+	logConsoleMenuItem.setText("Show log console");
+	logConsoleMenuItem.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		new ArbilLogConsole(windowManager.getMainFrame()).show();
+	    }
+	});
+	helpMenu.add(logConsoleMenuItem);
+	
 	viewErrorLogMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW ERROR LOG"));
 	viewErrorLogMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
