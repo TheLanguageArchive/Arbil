@@ -20,10 +20,10 @@ package nl.mpi.arbil.ui.applet;
 import javax.swing.JApplet;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ArbilVersion;
-import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
-import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
@@ -39,6 +39,9 @@ public class ArbilApplet2 extends JApplet {
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
     private DataNodeLoader dataNodeLoader;
+    private final ArbilVersion arbilVersion = new ArbilVersion();
+    private final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
+    private final ArbilLogConfigurer logManager = new ArbilLogConfigurer(arbilVersion);
 
     private void initComponents(ArbilDesktopInjector injector) {
 	dataNodeLoader = injector.getDataNodeLoader();
@@ -48,7 +51,7 @@ public class ArbilApplet2 extends JApplet {
 	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), injector.getWindowManager());
 	mainSplitPane.setLeftComponent(arbilTreePanels);
 	mainSplitPane.setRightComponent(previewSplitPanel);
-	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this);
+	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this, logManager);
 	ArbilMimeHashQueue.setAllowCookies(true);
 	add(mainSplitPane, java.awt.BorderLayout.CENTER);
 	setJMenuBar(arbilMenuBar);
@@ -83,9 +86,6 @@ public class ArbilApplet2 extends JApplet {
 	try {
 	    javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
 		public void run() {
-		    final ArbilVersion arbilVersion = new ArbilVersion();
-		    final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
-		    final ArbilLogConfigurer logManager = new ArbilLogConfigurer(arbilVersion);
 		    ArbilDesktopInjector injector = new ArbilDesktopInjector();
 		    injector.injectHandlers(versionManager, logManager);
 		    System.setProperty("sun.swing.enableImprovedDragGesture", "true");

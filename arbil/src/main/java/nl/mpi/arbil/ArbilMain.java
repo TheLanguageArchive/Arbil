@@ -54,6 +54,7 @@ public class ArbilMain extends javax.swing.JFrame {
     private final ArbilWindowManager windowManager;
     private final ApplicationVersionManager versionManager;
     private final ArbilMimeHashQueue mimeHashQueue;
+    private final ArbilLogConfigurer logConfigurer;
 
     /**
      * @param args the command line arguments
@@ -82,6 +83,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
     public ArbilMain(ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer) {
 	this.versionManager = versionManager;
+	this.logConfigurer = logConfigurer;
 
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	injector.injectHandlers(versionManager, logConfigurer);
@@ -126,7 +128,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController, windowManager);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
-	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null);
+	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null, logConfigurer);
 	setJMenuBar(arbilMenuBar);
 
 	mainSplitPane.setDividerLocation(0.25);

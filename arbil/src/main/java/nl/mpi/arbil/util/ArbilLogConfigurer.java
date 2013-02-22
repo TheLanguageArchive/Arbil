@@ -158,7 +158,7 @@ public final class ArbilLogConfigurer {
 	return false;
     }
 
-    private File getLogFile(SessionStorage sessionStorage) {
+    public File getLogFile(SessionStorage sessionStorage) {
 	File file = new File(sessionStorage.getApplicationSettingsDirectory(), getCurrentVersionLogFileName());
 	if (!file.exists()) {
 	    startNewLogFile(file, sessionStorage);

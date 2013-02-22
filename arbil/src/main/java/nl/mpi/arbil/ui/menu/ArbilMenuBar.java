@@ -60,6 +60,7 @@ import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
@@ -164,8 +165,9 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem setupWizardMenuItem = new JMenuItem();
     private JMenuItem importMenuItem = new JMenuItem();
     private JCheckBoxMenuItem showStatusBarMenuItem = new JCheckBoxMenuItem();
-    private PreviewSplitPanel previewSplitPanel;
-    private JApplet containerApplet = null;
+    private final PreviewSplitPanel previewSplitPanel;
+    private final JApplet containerApplet;
+    private final ArbilLogConfigurer logConfigurer;
     private JMenuItem exitMenuItem = new JMenuItem() {
 	@Override
 	public boolean isVisible() {
@@ -184,9 +186,10 @@ public class ArbilMenuBar extends JMenuBar {
 	versionManager = versionManagerInstance;
     }
 
-    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, JApplet containerAppletLocal) {
-	containerApplet = containerAppletLocal;
-	previewSplitPanel = previewSplitPanelLocal;
+    public ArbilMenuBar(PreviewSplitPanel previewSplitPanel, JApplet containerApplet, ArbilLogConfigurer logConfigurer) {
+	this.containerApplet = containerApplet;
+	this.previewSplitPanel = previewSplitPanel;
+	this.logConfigurer = logConfigurer;
 
 	initFileMenu();
 	initEditMenu();
@@ -702,8 +705,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 
 	    public void menuSelected(MenuEvent evt) {
-		//TODO: get from log manager
-		//viewErrorLogMenuItem.setEnabled(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).exists());
+		viewErrorLogMenuItem.setEnabled(logConfigurer.getLogFile(sessionStorage).exists());
 	    }
 	});
 	aboutMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ABOUT"));
@@ -749,7 +751,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(arbilForumMenuItem);
-	
+
 	logConsoleMenuItem.setText("Show log console");
 	logConsoleMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
@@ -757,14 +759,12 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(logConsoleMenuItem);
-	
+
 	viewErrorLogMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW ERROR LOG"));
 	viewErrorLogMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    //TODO: get from log manager
-		    throw new UnsupportedOperationException();
-		    // windowManager.openFileInExternalApplication(ArbilBugCatcher.getLogFile(sessionStorage, versionManager.getApplicationVersion()).toURI());
+		    windowManager.openFileInExternalApplication(logConfigurer.getLogFile(sessionStorage).toURI());
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
