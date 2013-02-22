@@ -25,7 +25,7 @@ import nl.mpi.arbil.ui.ImageBoxRenderer;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.LoggingBugCatcher;
-import nl.mpi.arbil.util.ArbilLogManager;
+import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -50,13 +50,13 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     public synchronized void injectHandlers() {
 	final ArbilVersion arbilVersion = new ArbilVersion();
-	injectHandlers(new ApplicationVersionManager(arbilVersion), new ArbilLogManager(arbilVersion));
+	injectHandlers(new ApplicationVersionManager(arbilVersion), new ArbilLogConfigurer(arbilVersion));
     }
 
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
-    public synchronized void injectHandlers(final ApplicationVersionManager versionManager, final ArbilLogManager logManager) {
+    public synchronized void injectHandlers(final ApplicationVersionManager versionManager, final ArbilLogConfigurer logManager) {
 	injectVersionManager(versionManager);
 
 	sessionStorage = new ArbilSessionStorage();

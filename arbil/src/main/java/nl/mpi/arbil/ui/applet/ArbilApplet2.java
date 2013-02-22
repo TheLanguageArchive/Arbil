@@ -25,7 +25,7 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.ArbilLogManager;
+import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 
@@ -85,7 +85,7 @@ public class ArbilApplet2 extends JApplet {
 		public void run() {
 		    final ArbilVersion arbilVersion = new ArbilVersion();
 		    final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
-		    final ArbilLogManager logManager = new ArbilLogManager(arbilVersion);
+		    final ArbilLogConfigurer logManager = new ArbilLogConfigurer(arbilVersion);
 		    ArbilDesktopInjector injector = new ArbilDesktopInjector();
 		    injector.injectHandlers(versionManager, logManager);
 		    System.setProperty("sun.swing.enableImprovedDragGesture", "true");

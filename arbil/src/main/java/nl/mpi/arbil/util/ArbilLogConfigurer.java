@@ -35,23 +35,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Configures logging for Arbil, either from property files or by what is available in a provided {@link SessionStorage}
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public final class ArbilLogManager {
+public final class ArbilLogConfigurer {
 
-    private final static Logger logger = LoggerFactory.getLogger(ArbilLogManager.class);
+    private final static Logger logger = LoggerFactory.getLogger(ArbilLogConfigurer.class);
     public static final String ARBIL_LOG_FILE_PREFIX = "arbil-log-";
     private final ApplicationVersion appVersion;
 
-    public ArbilLogManager(ApplicationVersion applicationVersion) {
+    public ArbilLogConfigurer(ApplicationVersion applicationVersion) {
 	this.appVersion = applicationVersion;
     }
 
-    public boolean configureLoggingFromResource(String resourceName) {
-	return configureLogging(ArbilLogManager.class.getResourceAsStream(resourceName));
+    /**
+     * Reads logging properties from the provided resource by requesting its input stream
+     *
+     * @param scopeClass class that provides scope for acquiring the resource
+     * @param resourceName name of the resource in the scope of the scope class that has the logging properties to load
+     * @return whether successful
+     * @see #configureLogging(java.io.InputStream)
+     */
+    public boolean configureLoggingFromResource(Class scopeClass, String resourceName) {
+	return configureLogging(scopeClass.getResourceAsStream(resourceName));
     }
 
+    /**
+     * Reads logging properties from the provided input stream
+     *
+     * @param configurationStream stream that has logging properties to load
+     * @return whether successful
+     * @see LogManager#readConfiguration(java.io.InputStream)
+     */
     public boolean configureLogging(InputStream configurationStream) {
 	try {
 	    LogManager.getLogManager().readConfiguration(configurationStream);

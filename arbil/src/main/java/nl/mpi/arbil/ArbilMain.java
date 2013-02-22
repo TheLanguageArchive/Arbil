@@ -29,7 +29,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.ArbilLogManager;
+import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.AuthenticatorStub;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -60,8 +60,8 @@ public class ArbilMain extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
 	final ArbilVersion arbilVersion = new ArbilVersion();
-	final ArbilLogManager logManager = new ArbilLogManager(arbilVersion);
-	logManager.configureLoggingFromResource("/logging-initial.properties");
+	final ArbilLogConfigurer logConfigurer = new ArbilLogConfigurer(arbilVersion);
+	logConfigurer.configureLoggingFromResource(ArbilMain.class, "/logging-initial.properties");
 
 	logger.info("Starting Arbil");
 
@@ -72,7 +72,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	    public void run() {
 		final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
 		try {
-		    new ArbilMain(versionManager, logManager).run();
+		    new ArbilMain(versionManager, logConfigurer).run();
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -80,11 +80,11 @@ public class ArbilMain extends javax.swing.JFrame {
 	});
     }
 
-    public ArbilMain(ApplicationVersionManager versionManager, ArbilLogManager logManager) {
+    public ArbilMain(ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer) {
 	this.versionManager = versionManager;
 
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
-	injector.injectHandlers(versionManager, logManager);
+	injector.injectHandlers(versionManager, logConfigurer);
 
 	this.treeHelper = injector.getTreeHelper();
 	this.treeController = injector.getTreeController();
