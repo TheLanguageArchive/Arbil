@@ -45,7 +45,9 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.flap.model.AbstractDataNode;
 import nl.mpi.flap.model.DataNodeType;
+import nl.mpi.flap.model.PluginDataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +100,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            @Override
             public void setType(DataNodeType dataNodeType) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
@@ -113,7 +114,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            @Override
             public void setType(DataNodeType dataNodeType) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
@@ -128,7 +128,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            @Override
             public void setType(DataNodeType dataNodeType) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
@@ -147,7 +146,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            @Override
             public void setType(DataNodeType dataNodeType) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }

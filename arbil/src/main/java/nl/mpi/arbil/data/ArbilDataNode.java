@@ -48,6 +48,7 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
+import nl.mpi.flap.model.AbstractDataNode;
 import nl.mpi.flap.model.DataNodeType;
 import nl.mpi.flap.model.DataField;
 import nl.mpi.flap.model.FieldGroup;
@@ -393,6 +394,18 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
         return childArray;
     }
 
+
+    @Override
+    public List<? extends PluginDataNode> getChildList() {
+	return Arrays.asList(getChildArray());
+    }
+
+    @Override
+    public void setChildList(List<? extends AbstractDataNode> childNodes) {
+	//TODO: This can be removed when we switch to the composition approach for (de)serialization
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
     /**
      * Gets the second level child nodes from the fist level child node matching
      * the child type string. Used to populate the child nodes in the table
