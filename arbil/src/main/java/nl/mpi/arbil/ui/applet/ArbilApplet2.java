@@ -48,7 +48,7 @@ public class ArbilApplet2 extends JApplet {
 	mainSplitPane = new javax.swing.JSplitPane();
 	mainSplitPane.setName("mainSplitPane");
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
-	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), injector.getWindowManager());
+	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController());
 	mainSplitPane.setLeftComponent(arbilTreePanels);
 	mainSplitPane.setRightComponent(previewSplitPanel);
 	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this, logManager);

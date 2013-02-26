@@ -76,7 +76,7 @@ public class ProfilePreview {
 	    MessageDialogHandler dialogHandler = windowManager;
 	    TreeHelper treeHelper = new ArbilTreeHelper(sessionStorage, windowManager);
 	    ArbilTreeController treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, dialogHandler, dataNodeLoader);
-	    ArbilTree demoTree = new ArbilTree(treeController, treeHelper, windowManager);
+	    ArbilTree demoTree = new ArbilTree(treeController, treeHelper);
 	    demoTree.setModel(demoTreeModel);
 	    demoTree.requestResort();
 	    JDialog demoDialogue = new JDialog();

@@ -35,6 +35,8 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -45,8 +47,14 @@ import javax.swing.event.ListSelectionListener;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.favourites.ArbilFavourites;
 import nl.mpi.arbil.favourites.FavouritesExporter;
+import nl.mpi.arbil.favourites.FavouritesExporterImpl;
+import nl.mpi.arbil.favourites.FavouritesImporterImpl;
+import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.flap.plugin.PluginDialogHandler;
 
 /**
  * GUI that shows all favourites provided by a {@link TreeHelper}, allows the user to select a subset of these and perform an export on it
@@ -71,6 +79,11 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
     // Arbil services
     private final TreeHelper treeHelper;
     private ArbilDataNode[] allFavourites = {};
+
+    public FavouritesImportExportGUI(PluginDialogHandler dialog, SessionStorage sessionStorage, TreeHelper treeHelper) {
+	this(new ImportAction(dialog, BugCatcherManager.getBugCatcher(), new FavouritesImporterImpl(ArbilFavourites.getSingleInstance())),
+		new ExportAction(dialog, BugCatcherManager.getBugCatcher(), new FavouritesExporterImpl(sessionStorage)), treeHelper);
+    }
 
     /**
      *
@@ -242,6 +255,13 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
 
     public boolean isFullyLoadedNodeRequired() {
 	return false;
+    }
+
+    public void showDialog(JFrame owner) {
+	JDialog dialog = new JDialog(owner);
+	dialog.add(getPanel());
+	dialog.setSize(600, 400);
+	dialog.setVisible(true);
     }
 
     /**

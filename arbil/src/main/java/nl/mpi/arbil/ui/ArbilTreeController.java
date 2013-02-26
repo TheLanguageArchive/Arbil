@@ -18,6 +18,7 @@
 package nl.mpi.arbil.ui;
 
 import java.awt.HeadlessException;
+import java.awt.Point;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -319,5 +320,9 @@ public class ArbilTreeController {
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
+    }
+
+    public void showContextMenu(ArbilTree tree, Point location) {
+	new TreeContextMenu(tree, this, treeHelper, dialogHandler, windowManager, sessionStorage).show(location.x, location.y);
     }
 }

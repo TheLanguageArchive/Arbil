@@ -19,6 +19,7 @@ package nl.mpi.arbil.ui;
 
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -51,7 +52,6 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.BugCatcherManager;
-import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,13 +70,12 @@ import org.slf4j.LoggerFactory;
  * @see TreeContextMenu
  */
 public class ArbilTree extends JTree implements ArbilDataNodeContainer, ClipboardOwner {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilTree.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTree.class);
     protected ArbilTable customPreviewTable = null;
     private boolean clearSelectionOnFocusLost = false;
     private final TreeHelper treeHelper;
     private final ArbilTreeController treeController;
-    private final MessageDialogHandler dialogHandler;
 
     public void setCustomPreviewTable(ArbilTable customPreviewTable) {
 	this.customPreviewTable = customPreviewTable;
@@ -86,10 +85,9 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 	this.clearSelectionOnFocusLost = clearSelectionOnFocusLost;
     }
 
-    public ArbilTree(ArbilTreeController treeController, TreeHelper treeHelper, MessageDialogHandler dialogHandler) {
+    public ArbilTree(ArbilTreeController treeController, TreeHelper treeHelper) {
 	this.treeController = treeController;
 	this.treeHelper = treeHelper;
-	this.dialogHandler = dialogHandler;
 
 	this.addMouseListener(new java.awt.event.MouseAdapter() {
 //                public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -220,8 +218,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 		((javax.swing.JTree) evt.getSource()).clearSelection();
 		((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
 	    }
-
-	    new TreeContextMenu(this, treeController, treeHelper, dialogHandler).show(evt.getX(), evt.getY());
+	    treeController.showContextMenu(this, new Point(evt.getX(), evt.getY()));
 	}
     }
 
@@ -236,7 +233,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 	if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_CONTEXT_MENU) {
 //        DefaultMutableTreeNode leadSelection = (DefaultMutableTreeNode) ((JTree) evt.getSource()).getSelectionPath().getLastPathComponent();
 	    Rectangle selectionBounds = ((JTree) evt.getSource()).getRowBounds(((JTree) evt.getSource()).getLeadSelectionRow());
-	    new TreeContextMenu(this, treeController, treeHelper, dialogHandler).show(selectionBounds.x, selectionBounds.y);
+	    treeController.showContextMenu(this, new Point(selectionBounds.x, selectionBounds.y));
 	}
     }
 

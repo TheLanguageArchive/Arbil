@@ -17,9 +17,8 @@
  */
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import javax.swing.JTabbedPane;
-import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 
 /**
  * ArbilTreePanels.java
@@ -29,7 +28,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  */
 public class ArbilTreePanels extends javax.swing.JSplitPane {
 
-    public ArbilTreePanels(ArbilTreeHelper treeHelper, ArbilTreeController treeController, MessageDialogHandler dialogHandler) {
+    public ArbilTreePanels(ArbilTreeHelper treeHelper, ArbilTreeController treeController) {
 	leftLocalSplitPane = new javax.swing.JSplitPane();
 	localDirectoryScrollPane = new javax.swing.JScrollPane();
 	localCorpusScrollPane = new javax.swing.JScrollPane();
@@ -44,10 +43,10 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
 	leftLocalSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 	leftLocalSplitPane.setName("ArbilTreePanelsInner"); // NOI18N
 
-	remoteCorpusTree = new ArbilTree(treeController, treeHelper, dialogHandler);
-	localDirectoryTree = new ArbilTree(treeController, treeHelper, dialogHandler);
-	localCorpusTree = new ArbilTrackingTree(treeController, treeHelper, dialogHandler);
-	favouritesTree = new ArbilTree(treeController, treeHelper, dialogHandler);
+	remoteCorpusTree = new ArbilTree(treeController, treeHelper);
+	localDirectoryTree = new ArbilTree(treeController, treeHelper);
+	localCorpusTree = new ArbilTrackingTree(treeController, treeHelper);
+	favouritesTree = new ArbilTree(treeController, treeHelper);
 	// enable drag and drop
 	ArbilDragDrop.getSingleInstance().addDrag(remoteCorpusTree);
 	ArbilDragDrop.getSingleInstance().addDrag(localDirectoryTree);

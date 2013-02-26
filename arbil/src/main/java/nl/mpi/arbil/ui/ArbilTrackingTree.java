@@ -28,7 +28,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.data.ArbilNode;
-import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -38,8 +37,8 @@ import nl.mpi.arbil.util.TreeHelper;
  */
 public class ArbilTrackingTree extends ArbilTree {
 
-    public ArbilTrackingTree(ArbilTreeController treeController, TreeHelper treeHelper, MessageDialogHandler dialogHandler) {
-	super(treeController, treeHelper, dialogHandler);
+    public ArbilTrackingTree(ArbilTreeController treeController, TreeHelper treeHelper) {
+	super(treeController, treeHelper);
     }
     private HashMap<ArbilNode, TreeNode> treeNodeMap = new HashMap<ArbilNode, TreeNode>();
 

@@ -116,7 +116,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 try {
                     File[] selectedFiles = dialogHandler.showFileSelectBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SELECT RESOURCE FILE"), false, false, null, MessageDialogHandler.DialogueType.open, null);
                     if (selectedFiles != null && selectedFiles.length > 0) {
-                        leadSelectedTreeNode.resourceUrlField.setFieldValue(selectedFiles[0].toURL().toExternalForm(), true, false);
+                        leadSelectedDataNode.resourceUrlField.setFieldValue(selectedFiles[0].toURL().toExternalForm(), true, false);
                     }
                 } catch (Exception ex) {
                     BugCatcherManager.getBugCatcher().logError(ex);
@@ -237,17 +237,17 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
     protected void setUpCommonMenuItems() {
 //        todo: continue moving common menu items here
-        if (leadSelectedTreeNode != null) {
+        if (leadSelectedDataNode != null) {
             // TODO: test that the node is editable
-            //if (leadSelectedTreeNode.is)
-            saveMenuItem.setVisible(leadSelectedTreeNode.getNeedsSaveToDisk(false));// save sould always be available if the node has been edited
+            //if (leadSelectedDataNode.is)
+            saveMenuItem.setVisible(leadSelectedDataNode.getNeedsSaveToDisk(false));// save sould always be available if the node has been edited
 
-            if (leadSelectedTreeNode.hasResource()) {
+            if (leadSelectedDataNode.hasResource()) {
                 browseForResourceFileMenuItem.setVisible(true);
             }
-            if (!leadSelectedTreeNode.isChildNode() && leadSelectedTreeNode.isMetaDataNode()) {
+            if (!leadSelectedDataNode.isChildNode() && leadSelectedDataNode.isMetaDataNode()) {
                 viewXmlMenuItem.setVisible(true);
-                if (!leadSelectedTreeNode.isCmdiMetaDataNode()) {
+                if (!leadSelectedDataNode.isCmdiMetaDataNode()) {
                     // These are (for now) IMDI only
                     viewXmlMenuItemFormatted.setVisible(true);
                     openXmlMenuItemFormatted.setVisible(true);
@@ -255,7 +255,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 }
             }
             openInExternalApplicationMenuItem.setVisible(true);
-            overrideTypeCheckerDecision.setVisible(!leadSelectedTreeNode.isMetaDataNode() && leadSelectedTreeNode.mpiMimeType == null);
+            overrideTypeCheckerDecision.setVisible(!leadSelectedDataNode.isMetaDataNode() && leadSelectedDataNode.mpiMimeType == null);
         }
     }
 
@@ -345,7 +345,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         itemsMap.get(category).add(new OrderedMenuItem(priority, item));
     }
     protected ArbilDataNode[] selectedTreeNodes = null;
-    protected ArbilDataNode leadSelectedTreeNode = null;
+    protected ArbilDataNode leadSelectedDataNode = null;
     private JMenuItem browseForResourceFileMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItemFormatted = new JMenuItem();

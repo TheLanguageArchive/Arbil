@@ -39,7 +39,7 @@ public class ImagePreviewContextMenu extends ArbilContextMenu {
         for (int objectCounter = 0; objectCounter < selectedObjects.length; objectCounter++) {
             selectedTreeNodes[objectCounter] = (ArbilDataNode) selectedObjects[objectCounter];
         }
-        leadSelectedTreeNode = (ArbilDataNode) imagePreview.getSelectedValue();
+        leadSelectedDataNode = (ArbilDataNode) imagePreview.getSelectedValue();
     }
 
     @Override

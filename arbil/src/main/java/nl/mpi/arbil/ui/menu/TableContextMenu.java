@@ -65,7 +65,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	setInvoker(table);
 
 	selectedTreeNodes = table.getSelectedRowsFromTable();
-	leadSelectedTreeNode = table.getDataNodeForSelection();
+	leadSelectedDataNode = table.getDataNodeForSelection();
     }
 
     @Override
@@ -130,7 +130,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		matchingCellsMenuItem.setVisible(true);
 	    }
 
-	    jumpToNodeInTreeMenuItem.setVisible(leadSelectedTreeNode.isLocal());
+	    jumpToNodeInTreeMenuItem.setVisible(leadSelectedDataNode.isLocal());
 	    clearCellColoursMenuItem.setVisible(true);
 	}
 	if (table.getParent().getParent().getParent().getParent() instanceof ArbilSplitPanel) {
