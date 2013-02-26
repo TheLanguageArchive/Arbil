@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilFavourites {
+public class ArbilFavourites implements FavouritesService {
     private final static Logger logger = LoggerFactory.getLogger(ArbilFavourites.class);
 
     private static MessageDialogHandler messageDialogHandler;
@@ -126,7 +126,8 @@ public class ArbilFavourites {
         return true;
     }
 
-    private void addAsFavourite(URI imdiUri) {
+    @Override
+    public void addAsFavourite(URI imdiUri) {
         try {
             URI baseUri = new URI(imdiUri.toString().split("#")[0]);
             String fileSuffix = imdiUri.getPath().substring(imdiUri.getPath().lastIndexOf("."));
