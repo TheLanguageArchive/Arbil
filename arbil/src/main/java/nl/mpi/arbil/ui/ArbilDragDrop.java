@@ -44,7 +44,7 @@ import nl.mpi.arbil.data.ArbilRootNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.templates.ArbilFavourites;
+import nl.mpi.arbil.favourites.ArbilFavourites;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;

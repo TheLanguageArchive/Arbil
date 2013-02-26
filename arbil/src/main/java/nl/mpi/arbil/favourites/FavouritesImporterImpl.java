@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import nl.mpi.arbil.templates.FavouritesService;
 
 /**
  *

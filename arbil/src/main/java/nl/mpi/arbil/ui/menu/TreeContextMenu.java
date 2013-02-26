@@ -31,7 +31,7 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ContainerNode;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
-import nl.mpi.arbil.templates.ArbilFavourites;
+import nl.mpi.arbil.favourites.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplateManager.MenuItemData;

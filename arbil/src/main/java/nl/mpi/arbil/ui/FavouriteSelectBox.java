@@ -29,7 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
-import nl.mpi.arbil.templates.ArbilFavourites;
+import nl.mpi.arbil.favourites.ArbilFavourites;
 
 /**
  * Document : FavouriteSelectBox

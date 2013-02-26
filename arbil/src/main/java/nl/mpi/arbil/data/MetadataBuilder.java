@@ -31,7 +31,7 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.templates.ArbilFavourites;
+import nl.mpi.arbil.favourites.ArbilFavourites;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
