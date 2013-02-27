@@ -27,6 +27,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -34,6 +36,7 @@ import java.util.List;
  */
 public class FavouritesImporterImpl implements FavouritesImporter {
 
+    private final static Logger logger = LoggerFactory.getLogger(FavouritesImporterImpl.class);
     private final FavouritesService favouritesService;
 
     public FavouritesImporterImpl(FavouritesService favouritesService) {
@@ -70,7 +73,7 @@ public class FavouritesImporterImpl implements FavouritesImporter {
 			    favouriteLocations.add(favouriteURI);
 			} catch (URISyntaxException ex) {
 			    // Skip broken URIs in favourites list
-			    // TODO: Log exception
+			    logger.warn("Skipping broken favourite URI {} while importing. Reason: ", favouriteLocation, ex);
 			}
 		    }
 		}

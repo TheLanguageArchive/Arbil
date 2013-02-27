@@ -27,5 +27,6 @@ import nl.mpi.arbil.data.ArbilDataNode;
 public interface FavouritesExporter {
 
     public static final String FAVOURITES_LIST_FILE = "favourites.config";
+
     void exportFavourites(File exportLocation, ArbilDataNode[] favouritesNodes) throws FavouritesImportExportException;
 }

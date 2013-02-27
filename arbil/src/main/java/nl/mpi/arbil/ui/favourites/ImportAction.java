@@ -22,9 +22,9 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import nl.mpi.arbil.favourites.FavouritesImportExportException;
 import nl.mpi.arbil.favourites.FavouritesImporter;
-import nl.mpi.flap.plugin.PluginBugCatcher;
 import nl.mpi.flap.plugin.PluginDialogHandler;
-import nl.mpi.flap.plugin.PluginException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller class for handling import requests from the UI
@@ -33,13 +33,13 @@ import nl.mpi.flap.plugin.PluginException;
  */
 public class ImportAction extends AbstractAction {
 
+    private final static Logger logger = LoggerFactory.getLogger(ImportAction.class);
     private final PluginDialogHandler dialogHandler;
-    private final PluginBugCatcher bugCatcher;
     private final FavouritesImporter importer;
 
-    public ImportAction(PluginDialogHandler dialogHandler, PluginBugCatcher bugCatcher, FavouritesImporter importer) {
+    public ImportAction(PluginDialogHandler dialogHandler, FavouritesImporter importer) {
+	super("import");
 	this.dialogHandler = dialogHandler;
-	this.bugCatcher = bugCatcher;
 	this.importer = importer;
     }
 
@@ -57,9 +57,10 @@ public class ImportAction extends AbstractAction {
 		importer.importFavourites(exportLocation[0]);
 		dialogHandler.addMessageDialogToQueue("Favourites have been imported", "Import complete");
 	    } catch (FavouritesImportExportException ex) {
-		//TODO: Wrap exception in PluginException as soon as this is supported
-		bugCatcher.logException(new PluginException(ex.getMessage()));
-		dialogHandler.addMessageDialogToQueue("An error occurred while importing favourites. See error log for details.", "Error");
+		logger.error("An error occurred while importing favourites", ex);
+		dialogHandler.addMessageDialogToQueue(
+			String.format("An error occurred while importing favourites:\n%s.\nSee error log for details.",
+			ex.getMessage()), "Error");
 	    }
 	}
     }

@@ -29,6 +29,8 @@ import nl.mpi.arbil.favourites.FavouritesImportExportException;
 import nl.mpi.flap.plugin.PluginBugCatcher;
 import nl.mpi.flap.plugin.PluginDialogHandler;
 import nl.mpi.flap.plugin.PluginException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller class for handling export requests from the UI
@@ -37,15 +39,14 @@ import nl.mpi.flap.plugin.PluginException;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ExportAction extends AbstractAction {
-    
+
+    private final static Logger logger = LoggerFactory.getLogger(ExportAction.class);
     private final PluginDialogHandler dialogHandler;
-    private final PluginBugCatcher bugCatcher;
     private final FavouritesExporter exporter;
-    
-    public ExportAction(PluginDialogHandler dialogHandler, PluginBugCatcher bugCatcher, FavouritesExporter exporter) {
-	super("action");
+
+    public ExportAction(PluginDialogHandler dialogHandler, FavouritesExporter exporter) {
+	super("export");
 	this.dialogHandler = dialogHandler;
-	this.bugCatcher = bugCatcher;
 	this.exporter = exporter;
     }
 
@@ -58,10 +59,10 @@ public class ExportAction extends AbstractAction {
 	    final ExportUI source = (ExportUI) e.getSource();
 	    exportFavourites(source.getSelectedFavourites());
 	} else {
-	    bugCatcher.logException(new PluginException("Cannot retrieve favourites selection from UI, action source does not implement ExportUI"));
+	    throw new RuntimeException("Cannot retrieve favourites selection from UI, action source does not implement ExportUI");
 	}
     }
-    
+
     private void exportFavourites(List<ArbilDataNode> nodesToExport) {
 	if (nodesToExport.size() > 0) {
 	    try {
@@ -75,8 +76,10 @@ public class ExportAction extends AbstractAction {
 		    dialogHandler.addMessageDialogToQueue("Favourites have been exported", "Export complete");
 		}
 	    } catch (FavouritesImportExportException ex) {
-		//TODO: Wrap exception in PluginException as soon as this is supported
-		bugCatcher.logException(new PluginException(ex.getMessage()));
+		logger.error("An error occurred while exporting favourites", ex);
+		dialogHandler.addMessageDialogToQueue(
+			String.format("An error occurred while exporting favourites:\n%s.\nSee error log for details.",
+			ex.getMessage()), "Error");
 	    }
 	} else {
 	    dialogHandler.addMessageDialogToQueue("No nodes are selected. Select at least one node to export.", "Select nodes to export");
@@ -93,7 +96,7 @@ public class ExportAction extends AbstractAction {
 	    Desktop.getDesktop().open(exportLocation);
 	} catch (IOException ex) {
 	    // No associated application, or the associated application fails to be launched. Fail silently.
-	    bugCatcher.logException(new PluginException(ex.getMessage()));
+	    logger.warn("Could not open target location {}", exportLocation, ex);
 	} catch (RuntimeException ex) {
 	    // Not supported, security issue, file does not exist... No reason to crash, fail silently.
 	}
