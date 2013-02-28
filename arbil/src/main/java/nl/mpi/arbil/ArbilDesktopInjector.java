@@ -24,10 +24,10 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImageBoxRenderer;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
-import nl.mpi.arbil.util.LoggingBugCatcher;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.LoggingBugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
 
@@ -66,7 +66,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
 	BugCatcherManager.setBugCatcher(new LoggingBugCatcher());
 	ArbilJournal.setBugCatcher(BugCatcherManager.getBugCatcher());
-	
+
 	windowManager = new ArbilWindowManager();
 	windowManager.setSessionStorage(sessionStorage);
 	windowManager.setVersionManager(versionManager);
@@ -95,7 +95,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	windowManager.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
 
-	treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, messageDialogHandler, dataNodeLoader);
+	treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, messageDialogHandler, dataNodeLoader, versionManager);
     }
 
     /**

@@ -36,6 +36,7 @@ import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
@@ -54,13 +55,15 @@ public class ArbilTreeController {
     private final WindowManager windowManager;
     private final MessageDialogHandler dialogHandler;
     private final DataNodeLoader dataNodeLoader;
+    private final ApplicationVersionManager versionManager;
 
-    public ArbilTreeController(SessionStorage sessionStorage, TreeHelper treeHelper, WindowManager windowManager, MessageDialogHandler dialogHandler, DataNodeLoader dataNodeLoader) {
+    public ArbilTreeController(SessionStorage sessionStorage, TreeHelper treeHelper, WindowManager windowManager, MessageDialogHandler dialogHandler, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
 	this.sessionStorage = sessionStorage;
 	this.treeHelper = treeHelper;
 	this.windowManager = windowManager;
 	this.dialogHandler = dialogHandler;
 	this.dataNodeLoader = dataNodeLoader;
+	this.versionManager = versionManager;
     }
 
     public void reImportBranch(ArbilDataNode leadSelectedTreeNode, ArbilTreePanels treePanels) {
@@ -323,6 +326,6 @@ public class ArbilTreeController {
     }
 
     public void showContextMenu(ArbilTree tree, Point location) {
-	new TreeContextMenu(tree, this, treeHelper, dialogHandler, windowManager, sessionStorage).show(location.x, location.y);
+	new TreeContextMenu(tree, this, treeHelper, dialogHandler, windowManager, sessionStorage, versionManager).show(location.x, location.y);
     }
 }

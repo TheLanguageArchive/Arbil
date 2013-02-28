@@ -52,6 +52,7 @@ import nl.mpi.arbil.favourites.FavouritesExporter;
 import nl.mpi.arbil.favourites.FavouritesExporterImpl;
 import nl.mpi.arbil.favourites.FavouritesImporterImpl;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.flap.plugin.PluginDialogHandler;
 
@@ -79,9 +80,9 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
     private final TreeHelper treeHelper;
     private ArbilDataNode[] allFavourites = {};
 
-    public FavouritesImportExportGUI(PluginDialogHandler dialog, SessionStorage sessionStorage, TreeHelper treeHelper) {
+    public FavouritesImportExportGUI(PluginDialogHandler dialog, SessionStorage sessionStorage, TreeHelper treeHelper, ApplicationVersion appVersion) {
 	this(new ImportAction(dialog, new FavouritesImporterImpl(ArbilFavourites.getSingleInstance())),
-		new ExportAction(dialog, new FavouritesExporterImpl(sessionStorage)), treeHelper);
+		new ExportAction(dialog, new FavouritesExporterImpl(sessionStorage, appVersion)), treeHelper);
     }
 
     /**

@@ -42,6 +42,7 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.favourites.FavouritesImportExportGUI;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
@@ -60,13 +61,15 @@ public class TreeContextMenu extends ArbilContextMenu {
     private final ArbilNode leadSelectedNode;
     private final SessionStorage sessionStorage;
     private final WindowManager windowManager;
+    private final ApplicationVersionManager versionManager;
 
-    public TreeContextMenu(ArbilTree tree, ArbilTreeController treeController, TreeHelper treeHelper, MessageDialogHandler dialogHandler, WindowManager windowManager, SessionStorage sessionStorage) {
+    public TreeContextMenu(ArbilTree tree, ArbilTreeController treeController, TreeHelper treeHelper, MessageDialogHandler dialogHandler, WindowManager windowManager, SessionStorage sessionStorage, ApplicationVersionManager versionManager) {
 	this.treeController = treeController;
 	this.treeHelper = treeHelper;
 	this.dialogHandler = dialogHandler;
 	this.sessionStorage = sessionStorage;
 	this.windowManager = windowManager;
+	this.versionManager = versionManager;
 	this.tree = tree;
 	setInvoker(tree);
 
@@ -617,7 +620,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	importExportFavouritesMenuItem.setText("Import/Export Favourites");
 	importExportFavouritesMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		final FavouritesImportExportGUI importExportUI = new FavouritesImportExportGUI(dialogHandler, sessionStorage, treeHelper);
+		final FavouritesImportExportGUI importExportUI = new FavouritesImportExportGUI(dialogHandler, sessionStorage, treeHelper, versionManager.getApplicationVersion());
 		importExportUI.showDialog(windowManager.getMainFrame());
 	    }
 	});

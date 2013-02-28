@@ -34,6 +34,7 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersion;
 
 /**
  *
@@ -42,9 +43,11 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 public class FavouritesExporterImpl implements FavouritesExporter {
 
     private final SessionStorage sessionStorage;
+    private final ApplicationVersion applicationVersion;
 
-    public FavouritesExporterImpl(SessionStorage sessionStorage) {
+    public FavouritesExporterImpl(SessionStorage sessionStorage, ApplicationVersion applicationVersion) {
 	this.sessionStorage = sessionStorage;
+	this.applicationVersion = applicationVersion;
     }
 
     public void exportFavourites(final File exportLocation, ArbilDataNode[] favouriteNodes) throws FavouritesImportExportException {
@@ -119,11 +122,12 @@ public class FavouritesExporterImpl implements FavouritesExporter {
 
     private String getPreamble() {
 	return String.format(
-		"# The files in this directory are the result of an export that was created using\n"
-		+ "# the Favourites Import/Export Plugin for Arbil. You can import the favourites\n"
-		+ "# contained in this export using the same plugin.\n"
+		"# The files in this directory are the result of an export that was created by Arbil.\n"
+		+ "# You can re-import them into Arbil on another computer. \n"
 		+ "# \n"
-		+ "# Plugin version: %s\n"
+		+ "# Arbil can be downloaded for free at http://tla.mpi.nl/tools/arbil\n"
+		+ "# \n"
+		+ "# Arbil version: %s\n"
 		+ "# Export date: %s\n"
 		+ "# \n",
 		getVersionString(),
@@ -135,10 +139,10 @@ public class FavouritesExporterImpl implements FavouritesExporter {
 	try {
 	    versionProperties.load(getClass().getResourceAsStream("/nl/mpi/arbil/plugins/favouritesimportexport/version.properties"));
 	    return String.format("%s version %s.%sr%s",
-		    versionProperties.getProperty("plugin.artifactId", "???"),
-		    versionProperties.getProperty("plugin.minorVersion", "?"),
-		    versionProperties.getProperty("plugin.majorVersion", "?"),
-		    versionProperties.getProperty("plugin.buildVersion", "?"));
+		    applicationVersion.applicationTitle,
+		    applicationVersion.currentMajor,
+		    applicationVersion.currentMajor,
+		    applicationVersion.currentRevision);
 	} catch (IOException ex) {
 	    return "UNKNOWN VERSION";
 	}

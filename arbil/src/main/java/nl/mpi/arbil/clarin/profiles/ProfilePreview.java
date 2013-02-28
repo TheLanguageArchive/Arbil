@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
@@ -32,6 +33,7 @@ import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilTreeController;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import org.slf4j.Logger;
@@ -43,19 +45,19 @@ import org.slf4j.LoggerFactory;
  * Author : Peter Withers
  */
 public class ProfilePreview {
+    
     private final static Logger logger = LoggerFactory.getLogger(ProfilePreview.class);
-
     private static SessionStorage sessionStorage;
-
+    
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
     private static DataNodeLoader dataNodeLoader;
-
+    
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
-
+    
     public String schemaToTreeView(String uriString) {
 	String returnString = "";
 	//ArbilTemplateManager.getSingleInstance().getCmdiTemplate(returnString);
@@ -75,7 +77,7 @@ public class ProfilePreview {
 	    ArbilWindowManager windowManager = new ArbilWindowManager();
 	    MessageDialogHandler dialogHandler = windowManager;
 	    TreeHelper treeHelper = new ArbilTreeHelper(sessionStorage, windowManager);
-	    ArbilTreeController treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, dialogHandler, dataNodeLoader);
+	    ArbilTreeController treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, dialogHandler, dataNodeLoader, new ApplicationVersionManager(new ArbilVersion()));
 	    ArbilTree demoTree = new ArbilTree(treeController, treeHelper);
 	    demoTree.setModel(demoTreeModel);
 	    demoTree.requestResort();
@@ -93,7 +95,7 @@ public class ProfilePreview {
 	}
 	return returnString;
     }
-
+    
     public static void main(String[] args) {
 	new ProfilePreview().schemaToTreeView("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438166/xsd");
     }
