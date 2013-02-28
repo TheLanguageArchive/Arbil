@@ -26,9 +26,7 @@ import javax.swing.AbstractAction;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.favourites.FavouritesExporter;
 import nl.mpi.arbil.favourites.FavouritesImportExportException;
-import nl.mpi.flap.plugin.PluginBugCatcher;
 import nl.mpi.flap.plugin.PluginDialogHandler;
-import nl.mpi.flap.plugin.PluginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
