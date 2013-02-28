@@ -127,24 +127,13 @@ public class FavouritesExporterImpl implements FavouritesExporter {
 		+ "# \n"
 		+ "# Arbil can be downloaded for free at http://tla.mpi.nl/tools/arbil\n"
 		+ "# \n"
-		+ "# Arbil version: %s\n"
+		+ "# Arbil version: %s version %s.%sr%s\n"
 		+ "# Export date: %s\n"
 		+ "# \n",
-		getVersionString(),
+		applicationVersion.applicationTitle,
+		applicationVersion.currentMajor,
+		applicationVersion.currentMinor,
+		applicationVersion.currentRevision,
 		DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()));
-    }
-
-    private String getVersionString() {
-	final Properties versionProperties = new Properties();
-	try {
-	    versionProperties.load(getClass().getResourceAsStream("/nl/mpi/arbil/plugins/favouritesimportexport/version.properties"));
-	    return String.format("%s version %s.%sr%s",
-		    applicationVersion.applicationTitle,
-		    applicationVersion.currentMajor,
-		    applicationVersion.currentMajor,
-		    applicationVersion.currentRevision);
-	} catch (IOException ex) {
-	    return "UNKNOWN VERSION";
-	}
     }
 }

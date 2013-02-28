@@ -19,7 +19,11 @@ package nl.mpi.arbil.ui.favourites;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Collections;
+import java.util.Map;
 import javax.swing.AbstractAction;
+import javax.swing.filechooser.FileFilter;
+import nl.mpi.arbil.favourites.FavouritesExporter;
 import nl.mpi.arbil.favourites.FavouritesImportExportException;
 import nl.mpi.arbil.favourites.FavouritesImporter;
 import nl.mpi.flap.plugin.PluginDialogHandler;
@@ -36,6 +40,17 @@ public class ImportAction extends AbstractAction {
     private final static Logger logger = LoggerFactory.getLogger(ImportAction.class);
     private final PluginDialogHandler dialogHandler;
     private final FavouritesImporter importer;
+    private final static Map<String, FileFilter> importFileMap = Collections.<String, FileFilter>singletonMap("favsExport", new FileFilter() {
+	@Override
+	public boolean accept(File f) {
+	    return f.isDirectory() || f.getName().equals(FavouritesExporter.FAVOURITES_LIST_FILE);
+	}
+
+	@Override
+	public String getDescription() {
+	    return "Favourites export file";
+	}
+    });
 
     public ImportAction(PluginDialogHandler dialogHandler, FavouritesImporter importer) {
 	super("import");
@@ -51,10 +66,15 @@ public class ImportAction extends AbstractAction {
     }
 
     private void importFavourites() {
-	final File[] exportLocation = dialogHandler.showFileSelectBox("Select favourites directory to import", true, false, null, PluginDialogHandler.DialogueType.open, null);
+	final File[] exportLocation = dialogHandler.showFileSelectBox("Select favourites export to import", false, false, importFileMap, PluginDialogHandler.DialogueType.open, null);
 	if (exportLocation != null && exportLocation.length > 0 && exportLocation[0] != null) {
 	    try {
-		importer.importFavourites(exportLocation[0]);
+		if (exportLocation[0].isDirectory()) {
+		    importer.importFavourites(exportLocation[0]);
+		} else {
+		    // If export file is selected instead of directory, pass parent (= directory)
+		    importer.importFavourites(exportLocation[0].getParentFile());
+		}
 		dialogHandler.addMessageDialogToQueue("Favourites have been imported", "Import complete");
 	    } catch (FavouritesImportExportException ex) {
 		logger.error("An error occurred while importing favourites", ex);

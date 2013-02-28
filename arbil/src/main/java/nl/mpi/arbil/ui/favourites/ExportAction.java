@@ -64,7 +64,7 @@ public class ExportAction extends AbstractAction {
     private void exportFavourites(List<ArbilDataNode> nodesToExport) {
 	if (nodesToExport.size() > 0) {
 	    try {
-		File[] exportLocation = dialogHandler.showFileSelectBox("Select export destination", true, false, null, PluginDialogHandler.DialogueType.open, null);
+		File[] exportLocation = dialogHandler.showFileSelectBox("Select export destination", true, false, null, PluginDialogHandler.DialogueType.save, null);
 		if (exportLocation != null && exportLocation.length > 0 && exportLocation[0] != null) {
 		    // Carry out export
 		    exporter.exportFavourites(exportLocation[0], nodesToExport.toArray(new ArbilDataNode[]{}));
