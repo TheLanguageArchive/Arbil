@@ -99,6 +99,7 @@ public class ExportAction extends AbstractAction {
 	    logger.warn("Could not open target location {}", exportLocation, ex);
 	} catch (RuntimeException ex) {
 	    // Not supported, security issue, file does not exist... No reason to crash, fail silently.
+	    logger.warn("Could not open target location {}", exportLocation, ex);
 	}
     }
 }

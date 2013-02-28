@@ -126,9 +126,10 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
     private JPanel createImportPanel() {
 	final JPanel importPanel = new JPanel(new BorderLayout());
 
-	final JTextArea importInstructions = new JTextArea(
+	final JTextArea importInstructions = new JTextArea(String.format(
 		"Press the import button, then choose an existing directory that has an exported collection of favourites. "
-		+ "The directory should contain a file called " + FavouritesExporter.FAVOURITES_LIST_FILE + ".\n");
+		+ "The directory should contain a file called %s.\n",
+		FavouritesExporter.FAVOURITES_LIST_FILE));
 	importInstructions.setEditable(false);
 	importInstructions.setLineWrap(true);
 	importInstructions.setWrapStyleWord(true);
