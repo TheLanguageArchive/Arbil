@@ -198,7 +198,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     @Override
     public void saveLocations(ArbilDataNode[] nodesToAdd, ArbilDataNode[] nodesToRemove) {
 	try {
-	    HashSet<String> locationsSet = new HashSet<String>();
+	    final HashSet<String> locationsSet = new HashSet<String>();
 	    for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes}) {
 		for (ArbilDataNode currentLocation : currentTreeArray) {
 		    locationsSet.add(currentLocation.getUrlString());
@@ -207,16 +207,18 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    if (nodesToAdd != null) {
 		for (ArbilDataNode currentAddable : nodesToAdd) {
 		    if (currentAddable != null) {
+			logger.debug("Adding location {} from locations list", currentAddable.getUrlString());
 			locationsSet.add(currentAddable.getUrlString());
 		    }
 		}
 	    }
 	    if (nodesToRemove != null) {
 		for (ArbilDataNode currentRemoveable : nodesToRemove) {
+		    logger.debug("Removing location {} from locations list", currentRemoveable.getUrlString());
 		    locationsSet.remove(currentRemoveable.getUrlString());
 		}
 	    }
-	    ArrayList<String> locationsList = new ArrayList<String>(); // this vector is kept for backwards compatability
+	    List<String> locationsList = new ArrayList<String>(); // this vector is kept for backwards compatability
 	    for (String currentLocation : locationsSet) {
 		locationsList.add(URLDecoder.decode(currentLocation, "UTF-8"));
 	    }
@@ -412,13 +414,15 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     protected void determineNodesToDelete(TreePath[] nodePaths, Map<ArbilDataNode, List<String>> childNodeDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList) {
-	Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
+	final Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
 	for (TreePath currentNodePath : nodePaths) {
 	    if (currentNodePath != null) {
 		final DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
 		final Object selectedNode = selectedTreeNode.getUserObject();
 		if (selectedNode instanceof ArbilDataNode) {
-		    determineNodesToDelete((ArbilDataNode) selectedNode, currentNodePath, selectedTreeNode, childNodeDeleteList, dataNodesDeleteList, cmdiLinksDeleteList, dataNodesToRemove);
+		    final boolean rootLevelNode = currentNodePath.getPath().length == 2;
+		    final DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
+		    determineNodesToDelete((ArbilDataNode) selectedNode, rootLevelNode, parentTreeNode, childNodeDeleteList, dataNodesDeleteList, cmdiLinksDeleteList, dataNodesToRemove);
 		} else {
 		    logger.warn("Cannot delete selected node {}, not an ArbilDataNode", selectedNode);
 		}
@@ -426,16 +430,15 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
     }
 
-    private void determineNodesToDelete(ArbilDataNode selectedNode, TreePath currentNodePath, DefaultMutableTreeNode selectedTreeNode, Map<ArbilDataNode, List<String>> childNodeDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList, Vector<ArbilDataNode> dataNodesToRemove) {
+    private void determineNodesToDelete(ArbilDataNode selectedNode, boolean rootLevelNode, DefaultMutableTreeNode parentTreeNode, Map<ArbilDataNode, List<String>> childNodeDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList, Vector<ArbilDataNode> dataNodesToRemove) {
 	logger.debug("trying to delete: {}", selectedNode);
-	if (currentNodePath.getPath().length == 2) {
+	if (rootLevelNode || selectedNode.isFavorite()) {
 	    // In locations list (i.e. child of root node)
-	    logger.debug("removing by location");
+	    logger.debug("removing by location: {}", selectedNode);
 	    removeLocation(selectedNode);
 	    applyRootLocations();
 	} else {
 	    logger.debug("deleting from parent");
-	    DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
 	    if (parentTreeNode != null) {
 		logger.debug("found parent to remove from");
 		final Object parentTreeNodeObject = parentTreeNode.getUserObject();
