@@ -7,7 +7,7 @@
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
     <!--    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
-    <version>${arbil.majorVersion}.${arbil.minorVersion}.36034-favourites-plugin-${arbil.branch}</version>
+    <version>${arbil.majorVersion}.${arbil.minorVersion}.35745-favourites-plugin-${arbil.branch}</version>
     <name>Arbil</name>
     
     <parent>
