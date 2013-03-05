@@ -39,6 +39,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.XsdChecker;
@@ -56,13 +57,15 @@ public class ArbilTreeController {
     private final MessageDialogHandler dialogHandler;
     private final DataNodeLoader dataNodeLoader;
     private final ApplicationVersionManager versionManager;
+    private final MimeHashQueue mimeHashQueue;
 
-    public ArbilTreeController(SessionStorage sessionStorage, TreeHelper treeHelper, WindowManager windowManager, MessageDialogHandler dialogHandler, DataNodeLoader dataNodeLoader, ApplicationVersionManager versionManager) {
+    public ArbilTreeController(SessionStorage sessionStorage, TreeHelper treeHelper, WindowManager windowManager, MessageDialogHandler dialogHandler, DataNodeLoader dataNodeLoader, MimeHashQueue mimeHashQueue, ApplicationVersionManager versionManager) {
 	this.sessionStorage = sessionStorage;
 	this.treeHelper = treeHelper;
 	this.windowManager = windowManager;
 	this.dialogHandler = dialogHandler;
 	this.dataNodeLoader = dataNodeLoader;
+	this.mimeHashQueue = mimeHashQueue;
 	this.versionManager = versionManager;
     }
 
@@ -323,6 +326,11 @@ public class ArbilTreeController {
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
+    }
+
+    public void forceTypeCheck(ArbilDataNode dataNode) {
+	// todo: add in such a way that a re-type check is forced
+	mimeHashQueue.addToQueue(dataNode);
     }
 
     public void showContextMenu(ArbilTree tree, Point location) {

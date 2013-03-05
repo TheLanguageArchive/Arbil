@@ -148,6 +148,10 @@ public class TreeContextMenu extends ArbilContextMenu {
 		setManualResourceLocationMenuItem.setVisible(true);
 	    }
 
+	    if (leadSelectedDataNode.isResourceSet() || !leadSelectedDataNode.isMetaDataNode()) {
+		forceTypeCheckMenuItem.setVisible(true);
+	    }
+
 	    if (leadSelectedDataNode.isFavorite()) {
 		boolean isFavouriteTopLevel = treeHelper.isInFavouritesNodes(leadSelectedDataNode);
 		addToFavouritesMenuItem.setVisible(false);
@@ -615,7 +619,17 @@ public class TreeContextMenu extends ArbilContextMenu {
 		treeController.setManualResourceLocation(leadSelectedDataNode);
 	    }
 	});
-	addItem(CATEGORY_RESOURCE, PRIORITY_BOTTOM + 1, setManualResourceLocationMenuItem);
+	addItem(CATEGORY_RESOURCE, PRIORITY_MIDDLE, setManualResourceLocationMenuItem);
+
+
+
+	forceTypeCheckMenuItem.setText("Add to Type Checking Queue");
+	forceTypeCheckMenuItem.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		treeController.forceTypeCheck(leadSelectedDataNode);
+	    }
+	});
+	addItem(CATEGORY_RESOURCE, PRIORITY_BOTTOM, forceTypeCheckMenuItem);
 
 	importExportFavouritesMenuItem.setText("Import/Export Favourites");
 	importExportFavouritesMenuItem.addActionListener(new ActionListener() {
@@ -782,6 +796,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	editInLongFieldEditor.setVisible(false);
 
 	setManualResourceLocationMenuItem.setVisible(false);
+	forceTypeCheckMenuItem.setVisible(false);
     }
     private ArbilTree tree;
     private JMenu addFromFavouritesMenu = new JMenu();
@@ -818,4 +833,5 @@ public class TreeContextMenu extends ArbilContextMenu {
     private JMenuItem editInLongFieldEditor = new JMenuItem();
     private JMenuItem setManualResourceLocationMenuItem = new JMenuItem();
     private JMenuItem importExportFavouritesMenuItem = new JMenuItem();
+    private JMenuItem forceTypeCheckMenuItem = new JMenuItem();
 }

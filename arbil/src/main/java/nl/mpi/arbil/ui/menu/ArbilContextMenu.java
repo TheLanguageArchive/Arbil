@@ -123,7 +123,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 }
             }
         });
-        addItem(CATEGORY_RESOURCE, PRIORITY_BOTTOM, browseForResourceFileMenuItem);
+        addItem(CATEGORY_RESOURCE, PRIORITY_TOP, browseForResourceFileMenuItem);
 
         saveMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SAVE CHANGES TO DISK"));
         saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
