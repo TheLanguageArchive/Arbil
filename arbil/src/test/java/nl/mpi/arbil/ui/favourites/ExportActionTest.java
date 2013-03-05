@@ -64,14 +64,18 @@ public class ExportActionTest {
 	final ArbilDataNode[] favouriteNodes = FavouritesTestUtil.createFavouritesNodes(context, context.mock(SessionStorage.class));
 	context.checking(new Expectations() {
 	    {
+		// expecting the UI to be asked to provide selected nodes
 		oneOf(ui).getSelectedFavourites();
 		will(returnValue(Arrays.asList(favouriteNodes)));
-		
+
+		// expecting dialog handler to be asked for an export location
 		exactly(1).of(equal(dialogHandler)).method("showFileSelectBox");
 		will(returnValue(new File[]{exportLocation}));
-		
+
+		// expecting exporter to be triggered with this location and the selected nodes
 		oneOf(exporter).exportFavourites(exportLocation, favouriteNodes);
-		
+
+		// all was fine, expecting verification message to be sent to user through dialog handler
 		allowing(equal(dialogHandler)).method("addMessageDialogToQueue");
 	    }
 	});
@@ -89,15 +93,20 @@ public class ExportActionTest {
 	final ArbilDataNode[] favouriteNodes = FavouritesTestUtil.createFavouritesNodes(context, context.mock(SessionStorage.class));
 	context.checking(new Expectations() {
 	    {
+		// expecting the UI to be asked to provide selected nodes
 		oneOf(ui).getSelectedFavourites();
 		will(returnValue(Arrays.asList(favouriteNodes)));
-		
+
+		// expecting dialog handler to be asked for an export location
 		exactly(1).of(equal(dialogHandler)).method("showFileSelectBox");
 		will(returnValue(new File[]{exportLocation}));
-		
+
+		// expecting exporter to be triggered with this location and the selected nodes
 		oneOf(exporter).exportFavourites(exportLocation, favouriteNodes);
+		// it fails somewhere in the process and throws an exception
 		will(throwException(new FavouritesImportExportException("message")));
-		
+
+		// expecting an error message to be thrown towards the user through the dialog handler
 		exactly(1).of(equal(dialogHandler)).method("addMessageDialogToQueue");
 	    }
 	});
@@ -114,11 +123,12 @@ public class ExportActionTest {
     public void testActionPerformedWithNoNodesSelected() throws Exception {
 	context.checking(new Expectations() {
 	    {
-		
+		// expecting the UI to be asked to provide selected nodes
 		oneOf(ui).getSelectedFavourites();
-		// return an empty selection
+		// it returns an empty selection, indicating no nodes were selected in UI
 		will(returnValue(Collections.emptyList()));
-		
+
+		// expecting a message complaining about the empty selection
 		exactly(1).of(equal(dialogHandler)).method("addMessageDialogToQueue");
 	    }
 	});
