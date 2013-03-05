@@ -20,14 +20,17 @@ package nl.mpi.arbil.ui.favourites;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.favourites.FavouritesExporter;
+import nl.mpi.arbil.favourites.FavouritesImportExportException;
 import nl.mpi.arbil.favourites.FavouritesTestUtil;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.flap.plugin.PluginDialogHandler;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -35,39 +38,90 @@ import org.junit.Test;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ExportActionTest {
-
-    public static final String ACTION_COMMAND = "command";
-    private Mockery context = new JUnit4Mockery();
-    private int ACTION_ID = 1;
+    
+    private final static String ACTION_COMMAND = "command";
+    private final static int ACTION_ID = 1;
+    private final Mockery context = new JUnit4Mockery();
+    private PluginDialogHandler dialogHandler;
+    private FavouritesExporter exporter;
+    private ExportUI ui;
+    private File exportLocation;
+    
+    @Before
+    public void setUp() throws Exception {
+	dialogHandler = context.mock(PluginDialogHandler.class);
+	exporter = context.mock(FavouritesExporter.class);
+	ui = context.mock(ExportUI.class);
+	exportLocation = File.createTempFile(getClass().getSimpleName(), null);
+	exportLocation.deleteOnExit();
+    }
 
     /**
-     * Test of actionPerformed method, of class ExportAction.
+     * Test of actionPerformed method - everything goes according to plan
      */
     @Test
     public void testActionPerformed() throws Exception {
-	final PluginDialogHandler dialogHandler = context.mock(PluginDialogHandler.class);
-	final FavouritesExporter exporter = context.mock(FavouritesExporter.class);
-	final ExportUI ui = context.mock(ExportUI.class);
-
-	final File exportLocation = File.createTempFile(getClass().getSimpleName(), null);
-	exportLocation.deleteOnExit();
-
 	final ArbilDataNode[] favouriteNodes = FavouritesTestUtil.createFavouritesNodes(context, context.mock(SessionStorage.class));
-
 	context.checking(new Expectations() {
 	    {
-		exactly(1).of(equal(dialogHandler)).method("showFileSelectBox");
-		will(returnValue(new File[]{exportLocation}));
-
 		oneOf(ui).getSelectedFavourites();
 		will(returnValue(Arrays.asList(favouriteNodes)));
-
+		
+		exactly(1).of(equal(dialogHandler)).method("showFileSelectBox");
+		will(returnValue(new File[]{exportLocation}));
+		
 		oneOf(exporter).exportFavourites(exportLocation, favouriteNodes);
-
+		
 		allowing(equal(dialogHandler)).method("addMessageDialogToQueue");
 	    }
 	});
+	
+	final ExportAction instance = new ExportAction(dialogHandler, exporter);
+	final ActionEvent event = new ActionEvent(ui, ACTION_ID, ACTION_COMMAND);
+	instance.actionPerformed(event);
+    }
 
+    /**
+     * Test of actionPerformed method - something goes wrong
+     */
+    @Test
+    public void testActionPerformedWithException() throws Exception {
+	final ArbilDataNode[] favouriteNodes = FavouritesTestUtil.createFavouritesNodes(context, context.mock(SessionStorage.class));
+	context.checking(new Expectations() {
+	    {
+		oneOf(ui).getSelectedFavourites();
+		will(returnValue(Arrays.asList(favouriteNodes)));
+		
+		exactly(1).of(equal(dialogHandler)).method("showFileSelectBox");
+		will(returnValue(new File[]{exportLocation}));
+		
+		oneOf(exporter).exportFavourites(exportLocation, favouriteNodes);
+		will(throwException(new FavouritesImportExportException("message")));
+		
+		exactly(1).of(equal(dialogHandler)).method("addMessageDialogToQueue");
+	    }
+	});
+	
+	final ExportAction instance = new ExportAction(dialogHandler, exporter);
+	final ActionEvent event = new ActionEvent(ui, ACTION_ID, ACTION_COMMAND);
+	instance.actionPerformed(event);
+    }
+
+    /**
+     * Test of actionPerformed method - no nodes get selected
+     */
+    @Test
+    public void testActionPerformedWithNoNodesSelected() throws Exception {
+	context.checking(new Expectations() {
+	    {
+		
+		oneOf(ui).getSelectedFavourites();
+		// return an empty selection
+		will(returnValue(Collections.emptyList()));
+		
+		exactly(1).of(equal(dialogHandler)).method("addMessageDialogToQueue");
+	    }
+	});
 	final ExportAction instance = new ExportAction(dialogHandler, exporter);
 	final ActionEvent event = new ActionEvent(ui, ACTION_ID, ACTION_COMMAND);
 	instance.actionPerformed(event);
