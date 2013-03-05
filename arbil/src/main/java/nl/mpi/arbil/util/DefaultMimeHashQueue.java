@@ -254,6 +254,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 			dataNodeQueue.wait(60 * 1000);
 			if (dataNodeQueue.isEmpty()) {
 			    // Had nothing to do and queue still empty. Check and save changes
+			    logger.debug("Hash queue idle. Checking for changes in resource hashes.");
 			    checkSaveChanges();
 			    // Now wait until notification, no changes guaranteed so no need to save
 			    dataNodeQueue.wait();
@@ -267,6 +268,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
 	public synchronized void checkSaveChanges() {
 	    if (isChangedSinceLastSave()) {
+		logger.debug("Changes exist. Writing resource hashes to disk.");
 		saveMd5sumIndex();
 		setChangedSinceLastSave(false);
 	    }
@@ -299,7 +301,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		}
 
 		currentDataNode.setTypeCheckerState(TypeCheckerState.IN_PROCESS);
-		//logger.debug("DefaultMimeHashQueue checking: " + currentImdiObject.getUrlString());
 		if (!currentDataNode.isMetaDataNode()) {
 		    addFileAndExifFields();
 		}
@@ -325,9 +326,8 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	}
 
 	private synchronized void checkMimeTypeForCurrentNode() {
-	    URI currentPathURI = getNodeURI(currentDataNode);
+	    final URI currentPathURI = getNodeURI(currentDataNode);
 	    if (currentPathURI != null && currentPathURI.toString().length() > 0) {
-//                                try {
 		// check if this file has been process before and then check its mtime
 		File currentFile = new File(currentPathURI);
 		if (currentFile.exists()) {
@@ -354,10 +354,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 			updateIconsToMatchingFileNodes(currentPathURI); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
 		    }
 		}
-//                                } catch (MalformedURLException e) {
-//                                    //BugCatcherManager.getBugCatcher().logError(currentPathString, e);
-//                                    logger.debug("MalformedURLException: " + currentPathString + " : " + e);
-//                                }
 	    }
 	}
 
@@ -408,7 +404,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    }
 //            logger.debug("ResponseCode: " + resourceConnection.getResponseCode());
 		} catch (Exception e) {
-		    System.err.println(e.getMessage());
+		    logger.warn("Exception while checking server permissions of {}", currentDataNode.getFullResourceURI(), e);
 		}
 	    }
 	}
@@ -416,10 +412,15 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	private void loadMd5sumIndex() {
 	    try {
 		knownMimeTypes = (Hashtable<String, String[]>) sessionStorage.loadObject("knownMimeTypesV2");
+		logger.debug("Loaded {} known mime types", knownMimeTypes.size());
 		pathToMd5Sums = (Hashtable<String, String>) sessionStorage.loadObject("pathToMd5Sums");
+		logger.debug("Loaded {} MD5 sum paths", pathToMd5Sums.size());
 		md5SumToDuplicates = (Hashtable<String, Vector<String>>) sessionStorage.loadObject("md5SumToDuplicates");
+		logger.debug("Loaded {} MD5 sum to duplicates", md5SumToDuplicates.size());
 		processedFilesMTimes = (Hashtable/* <String, Long> */) sessionStorage.loadObject("processedFilesMTimesV2");
+		logger.debug("Loaded {} file mtimes", processedFilesMTimes.size());
 	    } catch (Exception ex) {
+		logger.warn("Error while loading md5 sum index files", ex);
 		knownMimeTypes = new Hashtable<String, String[]>();
 		pathToMd5Sums = new Hashtable<String, String>();
 		processedFilesMTimes = new Hashtable/* <String, Long> */();
@@ -429,12 +430,16 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
 	private void saveMd5sumIndex() {
 	    try {
+		logger.debug("Saving {} known mime types", knownMimeTypes.size());
 		sessionStorage.saveObject(knownMimeTypes, "knownMimeTypesV2");
+		logger.debug("Saving {} MD5 sum paths", pathToMd5Sums.size());
 		sessionStorage.saveObject(pathToMd5Sums, "pathToMd5Sums");
+		logger.debug("Saving {} MD5 sum to duplicates", md5SumToDuplicates.size());
 		sessionStorage.saveObject(processedFilesMTimes, "processedFilesMTimesV2");
+		logger.debug("Saving {} file mtimes", processedFilesMTimes.size());
 		sessionStorage.saveObject(md5SumToDuplicates, "md5SumToDuplicates");
 	    } catch (IOException ex) {
-		BugCatcherManager.getBugCatcher().logError(ex);
+		logger.warn("Error while saving md5 sum index files", ex);
 	    }
 	}
 
@@ -556,19 +561,15 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    hexString.append(Integer.toHexString(0x0100 + (md5sum[i] & 0x00FF)).substring(1));
 		}
 		hashString = hexString.toString();
-//                    debugOut("file: " + this.getFile().getAbsolutePath());
-//                    debugOut("location: " + getUrl());
-//                    debugOut("digest: " + digest.toString());
+		logger.debug("Created hash string {} for {}", hashString, fileUri);
 	    } catch (Exception ex) {
-//            BugCatcherManager.getBugCatcher().logMessage("getHash: " + targetFile);
-//            BugCatcherManager.getBugCatcher().logError("getHash: " + fileUrl, ex);
-		logger.debug("failed to created hash: " + ex.getMessage());
+		logger.warn("failed to created hash: {}", ex);
 	    } finally {
 		if (is != null) {
 		    try {
 			is.close();
 		    } catch (IOException ioe) {
-			logger.debug("Failed to close input stream for: " + fileUri);
+			logger.warn("Failed to close input stream for {}", fileUri, ioe);
 		    }
 		}
 	    }
@@ -612,12 +613,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	 */
 	private boolean checkForced(ArbilDataNode dataNode) {
 	    return forcedNodes.remove(dataNode);
-//	    // Check if it's in the list of forced nodes
-//	    final boolean forced = forcedNodes.contains(dataNode);
-//	    if (forced) {
-//		forcedNodes.remove(dataNode);
-//	    }
-//	    return forced;
 	}
     }
 
@@ -641,36 +636,39 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     }
 
     public String[] getMimeType(URI fileUri) {
-//        logger.debug("getMimeType: " + fileUrl);
-	String mpiMimeType;
-	String typeCheckerMessage;
+	String mpiMimeType = null;
+	String typeCheckerMessage = null;
 	// here we also want to check the magic number but the mpi api has a function similar to that so we
 	// use the mpi.api to get the mime type of the file, if the mime type is not a valid archive format the api will return null
 	// because the api uses null to indicate non archivable we cant return other strings
-	mpiMimeType = null;//"unreadable";
-	typeCheckerMessage = null;
-	boolean deep = false;
+	final boolean deep = false;
 	if (!new File(fileUri).exists()) {
-//            logger.debug("File does not exist: " + fileUrl);
+	    logger.warn("File does not exist: {}", fileUri);
 	} else {
 	    InputStream inputStream = null;
 	    try {
 		// this will choke on strings that look url encoded but are not. because it erroneously decodes them
 		inputStream = fileUri.toURL().openStream();
-		if (inputStream != null) {
-//                    String pamperUrl = fileUrl.getFile().replace("//", "/");
-		    // Node that the type checker will choke if the path includes "//"
+		if (inputStream == null) {
+		    logger.warn("Could not open input stream for {}", fileUri);
+		} else {
 		    if (deep) {
+			// Node that the type checker will choke if the path includes "//"
 			typeCheckerMessage = deepFileType.checkStream(inputStream, fileUri.toString());
 		    } else {
 			typeCheckerMessage = getFileType().checkStream(inputStream, fileUri.toString());
 		    }
-//                    logger.debug("mpiMimeType: " + typeCheckerMessage);
 		}
 		mpiMimeType = FileType.resultToMPIType(typeCheckerMessage);
+
+		if (mpiMimeType == null) {
+		    logger.info("Type checker does not accept {}: {}", fileUri, typeCheckerMessage);
+		} else {
+		    logger.debug("Typechecker message for {}: {}", fileUri, typeCheckerMessage);
+		    logger.debug("Mime type for {}: {}", fileUri, mpiMimeType);
+		}
 	    } catch (Exception ioe) {
-//                BugCatcherManager.getBugCatcher().logError(ioe);
-		logger.debug("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
+		logger.warn("Cannot read file at URL: {}", fileUri, ioe);
 		BugCatcherManager.getBugCatcher().logError(ioe);
 		if (typeCheckerMessage == null) {
 		    typeCheckerMessage = "I/O Exception: " + ioe.getMessage();
@@ -680,13 +678,12 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    try {
 			inputStream.close();
 		    } catch (IOException ex) {
-			BugCatcherManager.getBugCatcher().logError(ex);
+			logger.warn("Error closing stream for {}", fileUri, ex);
 		    }
 		}
 	    }
-	    logger.debug(mpiMimeType);
 	}
-	String[] resultArray = new String[]{mpiMimeType, typeCheckerMessage};
+	final String[] resultArray = new String[]{mpiMimeType, typeCheckerMessage};
 	// if non null then it is an archivable file type
 //        if (mpiMimeType != null) {
 	knownMimeTypes.put(fileUri.toString(), resultArray);

@@ -17,15 +17,16 @@
  */
 package nl.mpi.arbil.util;
 
-import nl.mpi.arbil.data.ArbilField;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.NamedNodeMap;
@@ -33,57 +34,57 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- *  Document   : BinaryMetadataReader
- *  Created on : Jul 5, 2010, 3:25:32 PM (content moved to here from a different file "ImdiSchema")
- *  Author     : Peter Withers
+ * Document : BinaryMetadataReader
+ * Created on : Jul 5, 2010, 3:25:32 PM (content moved to here from a different file "ImdiSchema")
+ * Author : Peter Withers
  */
 public class BinaryMetadataReader {
+
     private final static Logger logger = LoggerFactory.getLogger(BinaryMetadataReader.class);
 
     // functions to extract the exif data from images
 // this will probably need to be moved to a more appropriate class
     public ArbilField[] getExifMetadata(ArbilDataNode resourceNode, int currentFieldId) {
-	Vector<ArbilField> exifTagFields = new Vector();
-	logger.debug("tempGetExif: " + resourceNode.getFile());
+	List<ArbilField> exifTagFields = new ArrayList<ArbilField>();
 	try {
 	    URI uri = resourceNode.getURI();
 	    if (resourceNode.getFile().getName().contains(".")) {
 		String fileSuffix = resourceNode.getFile().getName().substring(resourceNode.getFile().getName().lastIndexOf(".") + 1);
-		logger.debug("tempGetExifSuffix: " + fileSuffix);
 		Iterator readers = ImageIO.getImageReadersBySuffix(fileSuffix);
 		if (readers.hasNext()) {
 		    ImageReader reader = (ImageReader) readers.next();
+		    logger.debug("Reading Exif metadata for {} using {}", resourceNode.getFile(), reader.getClass());
 		    reader.setInput(ImageIO.createImageInputStream(uri.toURL().openStream()));
 		    IIOMetadata metadata = reader.getImageMetadata(0);
 		    if (metadata != null) {
 			String[] names = metadata.getMetadataFormatNames();
 			for (int i = 0; i < names.length; ++i) {
-			    logger.debug("METADATA FOR FORMAT: " + names[i]);
-			    decendExifTree(resourceNode, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields, currentFieldId);
+			    logger.debug("Metadata for format: {}", names[i]);
+			    decendExifTree(resourceNode, metadata.getAsTree(names[i]), new StringBuilder()/*"." + names[i]*/, exifTagFields, currentFieldId);
 			}
 		    }
 		}
 	    }
 	} catch (Exception ex) {
-	    BugCatcherManager.getBugCatcher().logError(ex);
-//            logger.debug("Exception: " + ex.getMessage());
+	    logger.warn("Exception while reading Exif metadata", ex);
 	}
-	logger.debug("end tempGetExif");
 	return exifTagFields.toArray(new ArbilField[]{});
     }
 
-    public void decendExifTree(ArbilDataNode resourceNode, Node node, String prefixString, Vector<ArbilField> exifTagFields, int currentFieldId) {
-	if (prefixString == null) {
-	    prefixString = "EXIF"; // skip the first node name
+    private void decendExifTree(ArbilDataNode resourceNode, Node node, StringBuilder prefixString, List<ArbilField> exifTagFields, int currentFieldId) {
+	if (prefixString.length() == 0) {
+	    prefixString.append("EXIF"); // skip the first node name
 	} else {
-	    prefixString = prefixString + MetadataReader.imdiPathSeparator + node.getNodeName();
+	    prefixString.append(MetadataReader.imdiPathSeparator).append(node.getNodeName());
 	}
 	NamedNodeMap namedNodeMap = node.getAttributes();
 	if (namedNodeMap != null) {
 	    for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
 		String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
 		String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-		exifTagFields.add(new ArbilField(currentFieldId++, resourceNode, prefixString + MetadataReader.imdiPathSeparator + attributeName, attributeValue, 0, false));
+		final CharSequence attributePath = new StringBuilder(prefixString).append(MetadataReader.imdiPathSeparator).append(attributeName);
+		logger.debug("Exif metadata: {}=>{} = {}", resourceNode, attributePath, attributeValue);
+		exifTagFields.add(new ArbilField(currentFieldId++, resourceNode, attributePath.toString(), attributeValue, 0, false));
 	    }
 	}
 	if (node.hasChildNodes()) {
@@ -93,5 +94,4 @@ public class BinaryMetadataReader {
 	    }
 	}
     }
-    // end functions to extract the exif data from images
 }
