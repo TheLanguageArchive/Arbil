@@ -621,9 +621,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_RESOURCE, PRIORITY_MIDDLE, setManualResourceLocationMenuItem);
 
-
-
-	forceTypeCheckMenuItem.setText("Add to Type Checking Queue");
+	forceTypeCheckMenuItem.setText("Force Type Checking");
 	forceTypeCheckMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		treeController.forceTypeCheck(leadSelectedDataNode);

@@ -15,10 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.util;
 
 import java.net.URI;
@@ -33,9 +29,17 @@ public interface MimeHashQueue {
     /**
      * Adds a node to the queue for processing. Only nodes with resources will
      * actually be processed
+     *
      * @param dataNode Data node to be processed
      */
     void addToQueue(ArbilDataNode dataNode);
+
+    /**
+     * Adds a node to the queue and forces it to be processed, even if it shows no sign of having been changed since the last check.
+     *
+     * @param dataNode data node to be processed
+     */
+    void forceInQueue(ArbilDataNode dataNode);
 
     /**
      * @return Whether resource permissions are checked
@@ -55,7 +59,7 @@ public interface MimeHashQueue {
     void stopMimeHashQueueThread();
 
     String[] getMimeType(URI fileUri);
-    
+
     /**
      * Terminates and cleans the queue, saves all to disk. Should only be called when quitting application
      */
@@ -64,35 +68,30 @@ public interface MimeHashQueue {
     public enum TypeCheckerState {
 
 	UNCHECKED {
-
 	    @Override
 	    public String toString() {
 		return "Unchecked";
 	    }
 	},
 	IN_QUEUE {
-
 	    @Override
 	    public String toString() {
 		return "In queue";
 	    }
 	},
 	IN_PROCESS {
-
 	    @Override
 	    public String toString() {
 		return "In process";
 	    }
 	},
 	CHECKED {
-
 	    @Override
 	    public String toString() {
 		return "Checked";
 	    }
 	},
 	ERROR {
-
 	    @Override
 	    public String toString() {
 		return "Error";

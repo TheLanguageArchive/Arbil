@@ -329,8 +329,7 @@ public class ArbilTreeController {
     }
 
     public void forceTypeCheck(ArbilDataNode dataNode) {
-	// todo: add in such a way that a re-type check is forced
-	mimeHashQueue.addToQueue(dataNode);
+	mimeHashQueue.forceInQueue(dataNode);
     }
 
     public void showContextMenu(ArbilTree tree, Point location) {

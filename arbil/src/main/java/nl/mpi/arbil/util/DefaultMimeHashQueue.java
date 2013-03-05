@@ -30,7 +30,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -109,6 +111,8 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     private static DeepFileType deepFileType = new DeepFileType();
     private SessionStorage sessionStorage;
     private MessageDialogHandler messageDialogHandler;
+    private MimeHashQueueRunner runner;
+    private final Set<ArbilDataNode> forcedNodes = Collections.synchronizedSet(new HashSet<ArbilDataNode>());
 
     public void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
@@ -153,7 +157,12 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    }
 	}
     }
-    private MimeHashQueueRunner runner;
+
+    @Override
+    public void forceInQueue(ArbilDataNode dataNode) {
+	forcedNodes.add(dataNode);
+	addToQueue(dataNode);
+    }
 
     /**
      * Makes sure the mime hash queue thread is started
@@ -331,7 +340,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathURI.toString());
 
 		    synchronized (currentDataNode.getParentDomLockObject()) {
-			if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
+			if (checkForced(currentDataNode) || previousMTime != currentMTime || lastCheckedMimeArray == null) {
 //                                    logger.debug("run DefaultMimeHashQueue processing: " + currentPathString);
 			    currentDataNode.setMimeType(getMimeType(currentPathURI));
 			    currentDataNode.hashString = getHash(currentPathURI, currentDataNode.getURI());
@@ -594,6 +603,21 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    }
 //            }
 	    return hashString;
+	}
+
+	/**
+	 * Tries to pop the specified node from the force list
+	 *
+	 * @return whether the specified node is in the list for forced checking
+	 */
+	private boolean checkForced(ArbilDataNode dataNode) {
+	    return forcedNodes.remove(dataNode);
+//	    // Check if it's in the list of forced nodes
+//	    final boolean forced = forcedNodes.contains(dataNode);
+//	    if (forced) {
+//		forcedNodes.remove(dataNode);
+//	    }
+//	    return forced;
 	}
     }
 
