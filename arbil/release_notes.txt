@@ -17,6 +17,8 @@ of the description.
 
 The following functionality has been added to Arbil:
 
+- FAVOURITES: Favourites can be now be imported and exported. (#19)
+
 ** CHANGES **
 
 These parts of the Arbil functionality have changed:
