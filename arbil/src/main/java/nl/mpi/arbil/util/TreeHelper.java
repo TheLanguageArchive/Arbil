@@ -48,8 +48,6 @@ public interface TreeHelper {
 
     void deleteNodes(Object sourceObject);
 
-    void deleteChildNodes(ArbilDataNode parent, Collection<ArbilDataNode> children);
-
     /**
      * @return the favouriteNodes
      */

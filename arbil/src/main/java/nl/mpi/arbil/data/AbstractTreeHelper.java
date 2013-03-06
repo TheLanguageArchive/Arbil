@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
+import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -397,6 +398,59 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     @Override
     public abstract void deleteNodes(Object sourceObject);
+
+    protected void deleteNodesFromParent(Collection<ArbilDataNode> nodesToDeleteFromParent) {
+	final Map<ArbilDataNode, Collection<ArbilDataNode>> nodesToDelete = determineNodesToDelete(nodesToDeleteFromParent);
+	// Ask confirmation for deletion for each set of child nodes (grouped by parent node)
+	askDeleteNodes(nodesToDelete);
+	// If nodes were selected that do not have a parent, give notification
+	if (nodesToDelete.containsKey(null)) {
+	    messageDialogHandler.addMessageDialogToQueue(String.format("%d node(s) could not be deleted because they have no parent", nodesToDelete.get(null).size()), "Delete from parent");
+	}
+    }
+
+    private Map<ArbilDataNode, Collection<ArbilDataNode>> determineNodesToDelete(final Collection<ArbilDataNode> nodesToDeleteFromParent) {
+	final Map<ArbilDataNode, Collection<ArbilDataNode>> deletionMap = new HashMap<ArbilDataNode, Collection<ArbilDataNode>>();
+	for (ArbilDataNode selectedNode : nodesToDeleteFromParent) {
+	    final ArbilDataNode parentNode = selectedNode.getParentNode();
+	    // Look for existing collection for parent node
+	    Collection<ArbilDataNode> children = deletionMap.get(parentNode);
+	    if (children == null) {
+		// First encounter of parent node, make list to store children
+		children = new ArrayList<ArbilDataNode>();
+		deletionMap.put(parentNode, children);
+	    }
+	    // Add child to parent's list 
+	    children.add(selectedNode);
+	}
+	return deletionMap;
+    }
+
+    private void askDeleteNodes(final Map<ArbilDataNode, Collection<ArbilDataNode>> nodesToDelete) {
+	MessageDialogHandler.DialogBoxResult dialogResult = null;
+	for (Entry<ArbilDataNode, Collection<ArbilDataNode>> entry : nodesToDelete.entrySet()) {
+	    final ArbilDataNode parentNode = entry.getKey();
+	    if (parentNode != null) {
+		final Collection<ArbilDataNode> children = entry.getValue();
+		if (dialogResult == null || !dialogResult.isRememberChoice()) {
+		    dialogResult = messageDialogHandler.showDialogBoxRememberChoice(getNodeDeleteMessage(parentNode, children), "Delete from parent", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		}
+		if (dialogResult.getResult() == JOptionPane.OK_OPTION) {
+		    deleteChildNodes(parentNode, children);
+		} else if (dialogResult.getResult() == JOptionPane.CANCEL_OPTION) {
+		    return;
+		}
+	    }
+	}
+    }
+
+    private String getNodeDeleteMessage(ArbilDataNode parentNode, Collection<ArbilDataNode> children) {
+	if (children.size() == 1) {
+	    return String.format("Delete the node '%s' from their parent '%s'?\nThis will save pending changes.", children.iterator().next(), parentNode.toString());
+	} else {
+	    return String.format("Delete %d nodes from their parent '%s'?\nThis will save pending changes.", children.size(), parentNode.toString());
+	}
+    }
 
     public void deleteChildNodes(ArbilDataNode parent, Collection<ArbilDataNode> children) {
 	Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList = new HashMap<ArbilDataNode, List<ArbilDataNode>>();
