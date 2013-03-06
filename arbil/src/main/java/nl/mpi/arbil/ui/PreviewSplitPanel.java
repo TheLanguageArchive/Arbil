@@ -28,11 +28,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.TransferHandler;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
  * PreviewSplitPanel.java
  * Created on Jul 9, 2009, 2:31:20 PM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class PreviewSplitPanel extends javax.swing.JSplitPane {
@@ -41,6 +43,11 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
+    }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
     }
     private static PreviewSplitPanel instance;
 
@@ -63,7 +70,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	this.setName("rightSplitPane");
 
 	previewHiddenColumnLabel = new javax.swing.JLabel(" ");
-	previewTable = new ArbilTable(new ArbilTableModel(null), "Preview");
+	previewTable = new ArbilTable(new ArbilTableModel(null), treeHelper, "Preview");
 	previewTable.getArbilTableModel().setHiddenColumnsLabel(previewHiddenColumnLabel);
 	initCopyPaste();
 
@@ -76,7 +83,6 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
     private void initCopyPaste() {
 	previewTable.setDragEnabled(false);
 	previewTable.setTransferHandler(new TransferHandler() {
-
 	    @Override
 	    public boolean importData(JComponent comp, Transferable t) {
 		// Import is always from clipboard (no drag in preview table)

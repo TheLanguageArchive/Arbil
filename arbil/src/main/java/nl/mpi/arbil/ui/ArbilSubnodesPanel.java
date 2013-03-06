@@ -43,6 +43,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.ArbilActionBuffer;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * ArbilSubnodesPanel is created for an ArbilDataNode and will contain the
@@ -54,16 +55,16 @@ import nl.mpi.arbil.util.ArbilActionBuffer;
  *
  * +--ArbilSubnodesPanel---------------+
  * |+--++-----Content-----------------+|
- * ||P || TABLE                       ||
+ * ||P || TABLE ||
  * ||A || +---ArbilSubnodesPanel 1--+ ||
  * ||D || |+--+ +-----Content------+| ||
- * ||D || |+P + + TABLE            || ||
- * ||I || |+A + + {ASnPanel 1.1}   || ||
- * ||N || |+D + + {ASnPanel 1.2}   || ||
+ * ||D || |+P + + TABLE || ||
+ * ||I || |+A + + {ASnPanel 1.1} || ||
+ * ||N || |+D + + {ASnPanel 1.2} || ||
  * ||G || |+--+ +------------------+| ||
- * ||  || +-------------------------+ ||
- * ||  || {ArbilSubnodesPanel 2}      ||
- * ||  || {ArbilSubnodesPanel 3}      ||
+ * || || +-------------------------+ ||
+ * || || {ArbilSubnodesPanel 2} ||
+ * || || {ArbilSubnodesPanel 3} ||
  * |+--++-----------------------------+|
  * +-----------------------------------+
  *
@@ -74,67 +75,69 @@ import nl.mpi.arbil.util.ArbilActionBuffer;
 public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer {
 
     private static Border levelBorder = BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 2, 2, 0, Color.LIGHT_GRAY), // Outer border - black line to the left
-            new EmptyBorder(0, 5, 0, 0)); // Inner border - empty white space (inset)
+	    BorderFactory.createMatteBorder(0, 2, 2, 0, Color.LIGHT_GRAY), // Outer border - black line to the left
+	    new EmptyBorder(0, 5, 0, 0)); // Inner border - empty white space (inset)
     private static Border labelPadding = new EmptyBorder(2, 0, 2, 0);
     private final ImageBoxRenderer imageBoxRenderer;
+    private final TreeHelper treeHelper;
 
     public ArbilDataNode getDataNode() {
-        return this.dataNode;
+	return this.dataNode;
     }
 
-    public ArbilSubnodesPanel(ArbilDataNode dataNode, ImageBoxRenderer imageBoxRenderer) {
-        // Construct a top-level subnodes panel (with no parent)
-        this(dataNode, null, imageBoxRenderer);
+    public ArbilSubnodesPanel(ArbilDataNode dataNode, TreeHelper treeHelper, ImageBoxRenderer imageBoxRenderer) {
+	// Construct a top-level subnodes panel (with no parent)
+	this(dataNode, null, treeHelper, imageBoxRenderer);
     }
 
     @Override
     public String toString() {
-        if (dataNode != null) {
-            return "ArbilSubnodesPanel " + dataNode.toString();
-        }
-        return super.toString();
+	if (dataNode != null) {
+	    return "ArbilSubnodesPanel " + dataNode.toString();
+	}
+	return super.toString();
     }
 
     public boolean isTopLevelPanel() {
-        return parent == null;
+	return parent == null;
     }
 
-    private ArbilSubnodesPanel(ArbilDataNode dataNode, ArbilSubnodesPanel parent, ImageBoxRenderer imageBoxRenderer) {
-        super();
-        this.imageBoxRenderer = imageBoxRenderer;
-        this.dataNode = dataNode;
-        this.parent = parent;
+    private ArbilSubnodesPanel(ArbilDataNode dataNode, ArbilSubnodesPanel parent, TreeHelper treeHelper, ImageBoxRenderer imageBoxRenderer) {
+	super();
+	this.imageBoxRenderer = imageBoxRenderer;
+	this.dataNode = dataNode;
+	this.parent = parent;
+	this.treeHelper = treeHelper;
 
-        this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-        this.setAlignmentX(LEFT_ALIGNMENT);
-        this.setOpaque(false);
+	this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+	this.setAlignmentX(LEFT_ALIGNMENT);
+	this.setOpaque(false);
 
-        addContents();
+	addContents();
     }
 
     final protected void addContents() {
-        // Add indent to the left
-        this.add(Box.createRigidArea(new Dimension(parent == null ? 2 : 5, 0)));
+	// Add indent to the left
+	this.add(Box.createRigidArea(new Dimension(parent == null ? 2 : 5, 0)));
 
-        contentPanel = createContentPanel(dataNode);
-        this.add(contentPanel);
+	contentPanel = createContentPanel(dataNode);
+	this.add(contentPanel);
 
-        // Register top level panel as container for dataNode, so that the entire
-        // panel will be notified upon deletion or clearing of a subnode
-        dataNode.registerContainer(getTopLevelPanel());
+	// Register top level panel as container for dataNode, so that the entire
+	// panel will be notified upon deletion or clearing of a subnode
+	dataNode.registerContainer(getTopLevelPanel());
     }
 
     public void stopAllEditing() {
-        if (table != null) {
-            TableCellEditor cellEditor = table.getCellEditor();
-            if (cellEditor != null) {
-                cellEditor.stopCellEditing();
-            }
-        }
-        for (ArbilSubnodesPanel child : children) {
-            child.stopAllEditing();
-        }
+	if (table != null) {
+	    TableCellEditor cellEditor = table.getCellEditor();
+	    if (cellEditor != null) {
+		cellEditor.stopCellEditing();
+	    }
+	}
+	for (ArbilSubnodesPanel child : children) {
+	    child.stopAllEditing();
+	}
     }
 
     /**
@@ -142,25 +145,25 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
      * as well as other content
      */
     public void clear() {
-        for (ArbilSubnodesPanel child : children) {
-            // Make child clear its contents
-            child.clear();
-        }
-        // Clear list of children
-        children.clear();
+	for (ArbilSubnodesPanel child : children) {
+	    // Make child clear its contents
+	    child.clear();
+	}
+	// Clear list of children
+	children.clear();
 
-        // Remove as container for the datanode
-        dataNode.removeContainer(getTopLevelPanel());
-        if (table != null) {
-            // Remove data node from table
-            table.getArbilTableModel().removeArbilDataNodes(new ArbilDataNode[]{dataNode});
-        }
-        // Remove all contents from the contentpanel
-        if (contentPanel != null) {
-            contentPanel.removeAll();
-        }
-        // Remove all contents from this panel
-        this.removeAll();
+	// Remove as container for the datanode
+	dataNode.removeContainer(getTopLevelPanel());
+	if (table != null) {
+	    // Remove data node from table
+	    table.getArbilTableModel().removeArbilDataNodes(new ArbilDataNode[]{dataNode});
+	}
+	// Remove all contents from the contentpanel
+	if (contentPanel != null) {
+	    contentPanel.removeAll();
+	}
+	// Remove all contents from this panel
+	this.removeAll();
     }
 
     /**
@@ -172,61 +175,61 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
      * @return New content panel
      */
     private JPanel createContentPanel(ArbilDataNode dataNode) {
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
+	JPanel panel = new JPanel();
+	panel.setOpaque(false);
 
-        // Components are layed out vertically
-        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-        panel.setAlignmentX(LEFT_ALIGNMENT);
-        // Adds a level border, which is a line on the left side of the panel and some added white space
-        panel.setBorder(levelBorder);
+	// Components are layed out vertically
+	panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+	panel.setAlignmentX(LEFT_ALIGNMENT);
+	// Adds a level border, which is a line on the left side of the panel and some added white space
+	panel.setBorder(levelBorder);
 
-        // Add title label (with icon) to panel
-        titleLabel = new JLabel(dataNode.toString(), ArbilIcons.getSingleInstance().getIconForNode(dataNode), SwingConstants.LEADING);
-        // Empty border for some padding around the label
-        titleLabel.setBorder(labelPadding);
-        panel.add(titleLabel);
+	// Add title label (with icon) to panel
+	titleLabel = new JLabel(dataNode.toString(), ArbilIcons.getSingleInstance().getIconForNode(dataNode), SwingConstants.LEADING);
+	// Empty border for some padding around the label
+	titleLabel.setBorder(labelPadding);
+	panel.add(titleLabel);
 
-        // Add table for the current node
-        if (!dataNode.isEmptyMetaNode()) {
-            addTable(panel);
-        }
+	// Add table for the current node
+	if (!dataNode.isEmptyMetaNode()) {
+	    addTable(panel);
+	}
 
-        // Recursively add ArbilSubnodesPanels to the content panel
-        for (ArbilDataNode child : dataNode.getChildArray()) {
-            addChildPanel(panel, child);
-        }
-        return panel;
+	// Recursively add ArbilSubnodesPanels to the content panel
+	for (ArbilDataNode child : dataNode.getChildArray()) {
+	    addChildPanel(panel, child);
+	}
+	return panel;
     }
 
     private void updateTitleLabel() {
-        titleLabel.setText(dataNode.toString());
-        titleLabel.setIcon(ArbilIcons.getSingleInstance().getIconForNode(dataNode));
+	titleLabel.setText(dataNode.toString());
+	titleLabel.setIcon(ArbilIcons.getSingleInstance().getIconForNode(dataNode));
     }
 
     private void addTable(JPanel panel) {
-        // Create table model and put in a new ArbilTable
-        ArbilTableModel arbilTableModel = new ArbilTableModel(imageBoxRenderer);
-        arbilTableModel.addArbilDataNodes(new ArbilDataNode[]{dataNode});
-        table = new ArbilTable(arbilTableModel, dataNode.toString());
-        // Make sure table and its header align well in the parent container
-        table.getTableHeader().setAlignmentX(LEFT_ALIGNMENT);
-        table.setAlignmentX(LEFT_ALIGNMENT);
+	// Create table model and put in a new ArbilTable
+	ArbilTableModel arbilTableModel = new ArbilTableModel(imageBoxRenderer);
+	arbilTableModel.addArbilDataNodes(new ArbilDataNode[]{dataNode});
+	table = new ArbilTable(arbilTableModel, treeHelper, dataNode.toString());
+	// Make sure table and its header align well in the parent container
+	table.getTableHeader().setAlignmentX(LEFT_ALIGNMENT);
+	table.setAlignmentX(LEFT_ALIGNMENT);
 
-        // Add table to content panel
-        panel.add(table.getTableHeader());
-        panel.add(table);
+	// Add table to content panel
+	panel.add(table.getTableHeader());
+	panel.add(table);
 
-        // Add some padding below table
-        panel.add(Box.createRigidArea(new Dimension(0, 5)));
+	// Add some padding below table
+	panel.add(Box.createRigidArea(new Dimension(0, 5)));
     }
 
     private void addChildPanel(JPanel panel, ArbilDataNode child) {
-        ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this, imageBoxRenderer);
-        children.add(childPanel);
-        panel.add(childPanel);
-        // Add some padding below child
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+	ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this, treeHelper, imageBoxRenderer);
+	children.add(childPanel);
+	panel.add(childPanel);
+	// Add some padding below child
+	panel.add(Box.createRigidArea(new Dimension(0, 10)));
     }
 
     public boolean isFullyLoadedNodeRequired() {
@@ -234,17 +237,17 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     }
 
     public void dataNodeRemoved(ArbilNode dataNode) {
-        if (dataNode == this.dataNode) {
-            clear();
-            revalidate();
-            repaint();
-        } else {
-            reloadRunner.requestActionAndNotify();
-        }
+	if (dataNode == this.dataNode) {
+	    clear();
+	    revalidate();
+	    repaint();
+	} else {
+	    reloadRunner.requestActionAndNotify();
+	}
     }
 
     public void dataNodeIconCleared(ArbilNode dataNode) {
-        reloadRunner.requestActionAndNotify();
+	reloadRunner.requestActionAndNotify();
     }
 
     /**
@@ -254,95 +257,93 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
      * @param newNode The newly added node
      */
     public void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode) {
-        // Nothing to do
+	// Nothing to do
     }
 
     protected synchronized void reload() {
-        List<ArbilDataNode> nodeChildren = Arrays.asList(dataNode.getChildArray());
-        // Initialize nodes to add with contents of node children. Nodes already present will be removed
-        List<ArbilDataNode> nodesToAdd = new LinkedList<ArbilDataNode>(nodeChildren);
-        // We will detect whether any nodes have been removed
-        boolean nodesRemoved = false;
+	List<ArbilDataNode> nodeChildren = Arrays.asList(dataNode.getChildArray());
+	// Initialize nodes to add with contents of node children. Nodes already present will be removed
+	List<ArbilDataNode> nodesToAdd = new LinkedList<ArbilDataNode>(nodeChildren);
+	// We will detect whether any nodes have been removed
+	boolean nodesRemoved = false;
 
-        // Inspect children of this node
-        for (ArbilSubnodesPanel child : children) {
-            if (nodeChildren.contains(child.getDataNode())) {
-                // Node is already on contents panel. Delete from list of nodes to add
-                nodesToAdd.remove(child.getDataNode());
-                // Reload this child
-                child.reload();
-            } else {
-                // Node is on panel but not a child of data node anymore
-                nodesRemoved = true;
-                break;
-            }
-        }
+	// Inspect children of this node
+	for (ArbilSubnodesPanel child : children) {
+	    if (nodeChildren.contains(child.getDataNode())) {
+		// Node is already on contents panel. Delete from list of nodes to add
+		nodesToAdd.remove(child.getDataNode());
+		// Reload this child
+		child.reload();
+	    } else {
+		// Node is on panel but not a child of data node anymore
+		nodesRemoved = true;
+		break;
+	    }
+	}
 
-        if (nodesRemoved) {
-            // Nodes have been removed. Clear and reload entire node level
-            clear();
-            addContents();
-        } else {
-            // Add missing components
+	if (nodesRemoved) {
+	    // Nodes have been removed. Clear and reload entire node level
+	    clear();
+	    addContents();
+	} else {
+	    // Add missing components
 
-            // Check if a table should be added if there is none
-            if (table == null && !dataNode.isEmptyMetaNode()) {
-                addTable(contentPanel);
-            }
+	    // Check if a table should be added if there is none
+	    if (table == null && !dataNode.isEmptyMetaNode()) {
+		addTable(contentPanel);
+	    }
 
-            if (!nodesToAdd.isEmpty()) {
-                // notesToAdd now contains only dataNodes that are not in the contents panel yet. Add them
-                for (ArbilDataNode child : nodesToAdd) {
-                    addChildPanel(contentPanel, child);
-                }
-            }
-        }
+	    if (!nodesToAdd.isEmpty()) {
+		// notesToAdd now contains only dataNodes that are not in the contents panel yet. Add them
+		for (ArbilDataNode child : nodesToAdd) {
+		    addChildPanel(contentPanel, child);
+		}
+	    }
+	}
 
-        // Title text or icon may have changed
-        updateTitleLabel();
+	// Title text or icon may have changed
+	updateTitleLabel();
 
-        if (isTopLevelPanel()) {
-            revalidate();
-        }
+	if (isTopLevelPanel()) {
+	    revalidate();
+	}
     }
 
     protected final ArbilSubnodesPanel getTopLevelPanel() {
-        if (parent == null) {
-            return this;
-        } else if (parent.isTopLevelPanel()) {
-            return parent;
-        } else {
-            return parent.getTopLevelPanel();
-        }
+	if (parent == null) {
+	    return this;
+	} else if (parent.isTopLevelPanel()) {
+	    return parent;
+	} else {
+	    return parent.getTopLevelPanel();
+	}
     }
 
     private void reloadAll() {
-        if (EventQueue.isDispatchThread()) {
-            reload();
-        } else {
-            try {
-                EventQueue.invokeAndWait(new Runnable() {
-
-                    public void run() {
-                        reload();
-                    }
-                });
-            } catch (InterruptedException ex) {
-                return;
-            } catch (InvocationTargetException ex) {
-                return;
-            }
-        }
+	if (EventQueue.isDispatchThread()) {
+	    reload();
+	} else {
+	    try {
+		EventQueue.invokeAndWait(new Runnable() {
+		    public void run() {
+			reload();
+		    }
+		});
+	    } catch (InterruptedException ex) {
+		return;
+	    } catch (InvocationTargetException ex) {
+		return;
+	    }
+	}
     }
     /**
      * Action buffer for reloading the panel (NOTE: Not serializable!)
      */
     private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("SubnodePanelReload-" + this.hashCode(), 150) {
-
-        @Override
-        public void executeAction() {
-            reloadAll();
-        }
+	@Override
+	public void executeAction() {
+	    reloadAll();
+	}
     };
     private JPanel contentPanel;
     private ArbilTable table;

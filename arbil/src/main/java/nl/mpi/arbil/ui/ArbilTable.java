@@ -35,6 +35,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -47,6 +49,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.JTableHeader;
@@ -57,12 +60,13 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
-import nl.mpi.flap.plugin.PluginArbilTable;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
+import nl.mpi.flap.plugin.PluginArbilTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,9 +77,10 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTable extends JTable implements PluginArbilTable {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilTable.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTable.class);
     private static WindowManager windowManager;
+    public static final String DELETE_ROW_ACTION_KEY = "deleteRow";
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
@@ -94,7 +99,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
     private int lastColumnPreferedWidth = 0;
     protected boolean allowNodeDrop = true;
 
-    public ArbilTable(ArbilTableModel localArbilTableModel, String frameTitle) {
+    public ArbilTable(ArbilTableModel localArbilTableModel, TreeHelper treeHelper, String frameTitle) {
 	arbilTableModel = localArbilTableModel;
 	arbilTableModel.setShowIcons(true);
 //        if (rowNodesArray != null) {
@@ -108,6 +113,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 
 	initHeaderMouseListener();
 	initTableMouseListener();
+	initKeyMapping(treeHelper);
     }
 
     @Override
@@ -128,6 +134,17 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 		return component;
 	    }
 	});
+    }
+
+    private void initKeyMapping(final TreeHelper treeHelper) {
+	final Action deleteAction = new AbstractAction() {
+	    public void actionPerformed(ActionEvent e) {
+		treeHelper.deleteNodes(ArbilTable.this);
+	    }
+	};
+
+	getInputMap(JTable.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), DELETE_ROW_ACTION_KEY);
+	getActionMap().put(DELETE_ROW_ACTION_KEY, deleteAction);
     }
 
     private void initTableMouseListener() {

@@ -19,6 +19,7 @@ package nl.mpi.arbil.ui.applet;
 
 import java.net.URI;
 import nl.mpi.arbil.ArbilDesktopInjector;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
@@ -95,7 +96,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 
     private void initComponents(ImageBoxRenderer imageBoxRenderer) {
         arbilTableModel = new ArbilTableModel(imageBoxRenderer);
-        ArbilTable arbilTable = new ArbilTable(arbilTableModel, tableTitle);
+        ArbilTable arbilTable = new ArbilTable(arbilTableModel, null, tableTitle);
         ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
         arbilTableModel.hideContextMenuAndStatusBar = true;
         arbilSplitPanel.setSplitDisplay();

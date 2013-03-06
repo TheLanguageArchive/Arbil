@@ -446,7 +446,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     private String getNodeDeleteMessage(ArbilDataNode parentNode, Collection<ArbilDataNode> children) {
 	if (children.size() == 1) {
-	    return String.format("Delete the node '%s' from their parent '%s'?\nThis will save pending changes.", children.iterator().next(), parentNode.toString());
+	    return String.format("Delete the node '%s' from its parent '%s'?\nThis will save pending changes.", children.iterator().next(), parentNode.toString());
 	} else {
 	    return String.format("Delete %d nodes from their parent '%s'?\nThis will save pending changes.", children.size(), parentNode.toString());
 	}

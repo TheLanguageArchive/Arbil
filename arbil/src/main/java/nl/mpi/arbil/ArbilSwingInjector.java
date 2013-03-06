@@ -75,6 +75,7 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilSplitPanel.setTreeHelper(treeHelper);
 	ArbilDragDrop.setTreeHelper(treeHelper);
 	ArbilMenuBar.setTreeHelper(treeHelper);
+	PreviewSplitPanel.setTreeHelper(treeHelper);
     }
 
     public void injectMimeHashQueue(MimeHashQueue mimeHashQueue) {

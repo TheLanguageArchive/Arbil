@@ -1169,7 +1169,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     public void openSearchTable(ArbilNode[] selectedNodes, String frameTitle) {
         // Create tabel with model and split panel to show it in
         ArbilTableModel resultsTableModel = new ArbilTableModel(imageBoxRenderer);
-        ArbilTable arbilTable = new ArbilTable(resultsTableModel, frameTitle);
+        ArbilTable arbilTable = new ArbilTable(resultsTableModel, treeHelper, frameTitle);
         arbilTable.setAllowNodeDrop(false);
         ArbilSplitPanel tablePanel = new ArbilSplitPanel(arbilTable);
 
@@ -1186,7 +1186,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     }
 
     public PluginArbilTable createTable(PluginArbilTableModel pluginArbilTableModel, String tableName) {
-        return new ArbilTable((ArbilTableModel) pluginArbilTableModel, tableName);
+        return new ArbilTable((ArbilTableModel) pluginArbilTableModel, treeHelper, tableName);
     }
 
     public PluginArbilTableModel createTableModel() {
@@ -1323,7 +1323,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             }
         }
         ArbilTableModel arbilTableModel = fieldView == null ? new ArbilTableModel(imageBoxRenderer) : new ArbilTableModel(fieldView, imageBoxRenderer);
-        ArbilTable arbilTable = new ArbilTable(arbilTableModel, frameTitle);
+        ArbilTable arbilTable = new ArbilTable(arbilTableModel, treeHelper, frameTitle);
         ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
         arbilTableModel.addArbilDataNodes(rowNodesArray);
         arbilSplitPanel.setSplitDisplay();
@@ -1368,7 +1368,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             }
         }
 
-        ArbilSubnodesScrollPane scrollPane = new ArbilSubnodesScrollPane(arbilDataNode, imageBoxRenderer);
+        ArbilSubnodesScrollPane scrollPane = new ArbilSubnodesScrollPane(arbilDataNode, treeHelper, imageBoxRenderer);
         JInternalFrame tableFrame = createWindow(frameTitle, scrollPane);
         tableFrame.addInternalFrameListener(scrollPane.getInternalFrameListener());
         if (window != null && window.length > 0) {

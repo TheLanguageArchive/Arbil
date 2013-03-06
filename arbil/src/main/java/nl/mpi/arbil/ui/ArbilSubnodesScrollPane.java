@@ -22,6 +22,7 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * Scroll pane wrapper for ArbilSubnodesPanel. To be used as top level
@@ -32,8 +33,8 @@ public class ArbilSubnodesScrollPane extends JScrollPane implements ArbilWindowC
 
     private ArbilSubnodesPanel panel;
 
-    public ArbilSubnodesScrollPane(ArbilDataNode dataNode, ImageBoxRenderer imageBoxRenderer) {
-        this(new ArbilSubnodesPanel(dataNode, imageBoxRenderer));
+    public ArbilSubnodesScrollPane(ArbilDataNode dataNode, TreeHelper treeHelper, ImageBoxRenderer imageBoxRenderer) {
+        this(new ArbilSubnodesPanel(dataNode, treeHelper, imageBoxRenderer));
     }
 
     public ArbilSubnodesScrollPane(ArbilSubnodesPanel panel) {
