@@ -21,21 +21,25 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.DataOutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import javax.swing.AbstractAction;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -53,6 +57,8 @@ public class ArbilLogConsole {
     private final JDialog logDialog;
     private final JTextArea logTextArea;
     private Handler logHandler;
+    private final Level[] levelOptions = {Level.ALL, Level.FINE, Level.INFO, Level.WARNING, Level.SEVERE};
+    private final ComboBoxModel levelModel = new DefaultComboBoxModel(levelOptions);
 
     public ArbilLogConsole(Frame owner) {
 	// Create the dialog
@@ -69,13 +75,19 @@ public class ArbilLogConsole {
 	final JScrollPane logTextAreaScrollPane = new JScrollPane(logTextArea);
 	logDialog.add(logTextAreaScrollPane, BorderLayout.CENTER);
 
+	final JPanel bottomPanel = new JPanel(new BorderLayout());
+	logDialog.add(bottomPanel, BorderLayout.SOUTH);
+
+	final JComboBox logLevelCombo = createLevelComboBox();
+	bottomPanel.add(logLevelCombo, BorderLayout.LINE_START);
+
 	// Add a close button
 	final JButton closeButton = new JButton(new AbstractAction("Close") {
 	    public void actionPerformed(ActionEvent e) {
 		logDialog.dispose();
 	    }
 	});
-	logDialog.add(closeButton, BorderLayout.SOUTH);
+	bottomPanel.add(closeButton, BorderLayout.LINE_END);
 
 	// Create listener to make sure that before disposal of the dialog, the handler gets remove from the logger
 	logDialog.addWindowListener(new WindowAdapter() {
@@ -90,6 +102,19 @@ public class ArbilLogConsole {
 	logger.debug("Log console created");
     }
 
+    private JComboBox createLevelComboBox() {
+	final JComboBox logLevelCombo = new JComboBox(levelModel);
+	logLevelCombo.addItemListener(new ItemListener() {
+	    public void itemStateChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED
+			&& !logHandler.getLevel().equals(e.getItem())) {
+		    logHandler.setLevel((Level) e.getItem());
+		}
+	    }
+	});
+	return logLevelCombo;
+    }
+
     public void show() {
 	addNewHandlerToLogger();
 	logDialog.setVisible(true);
@@ -98,6 +123,7 @@ public class ArbilLogConsole {
 
     private void addNewHandlerToLogger() throws SecurityException {
 	logHandler = new ArbilLogConsoleHandler();
+	logHandler.setLevel(Level.INFO);
 	LogManager.getLogManager().getLogger("").addHandler(logHandler);
     }
 
@@ -114,6 +140,12 @@ public class ArbilLogConsole {
 
 	@Override
 	public void publish(final LogRecord record) {
+	    if (record.getLevel().intValue() >= getLevel().intValue()) {
+		doLog(record);
+	    }
+	}
+
+	private void doLog(final LogRecord record) {
 	    SwingUtilities.invokeLater(new Runnable() {
 		public void run() {
 		    logTextArea.append(String.format("%s [%s] %s - %s\n",
@@ -141,7 +173,14 @@ public class ArbilLogConsole {
 
 	@Override
 	public void close() throws SecurityException {
-	    //throw new UnsupportedOperationException("Not supported yet.");
+	    logger.debug("Log closed");
+	}
+
+	@Override
+	public synchronized void setLevel(Level newLevel) throws SecurityException {
+	    logger.debug("Log level set to {}", newLevel);
+	    super.setLevel(newLevel);
+	    levelModel.setSelectedItem(newLevel);
 	}
     }
 }
