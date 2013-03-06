@@ -20,8 +20,12 @@ package nl.mpi.arbil.ui.menu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -33,6 +37,7 @@ import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MessageDialogHandler.DialogBoxResult;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -85,6 +90,9 @@ public class TableContextMenu extends ArbilContextMenu {
 		removeSelectedRowsMenuItem.setVisible(true);
 		showChildNodesMenuItem.setVisible(true);
 		showInContextMenuItem.setVisible(true);
+		if (table.getSelectedColumn() == 0 && leadSelectedDataNode.isLocal()) {
+		    deleteFromParentMenuItem.setVisible(true);
+		}
 	    }
 	    boolean canDeleteSelectedFields = true;
 	    ArbilField[] currentSelection = table.getSelectedFields();
@@ -332,7 +340,15 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	jumpToNodeInTreeMenuItem.setText("Jump to in Tree"); // NOI18N
+
+	deleteFromParentMenuItem.setText("Delete Selected Nodes from Parent");
+	deleteFromParentMenuItem.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		deleteNodesFromParent(table.getSelectedRowsFromTable());
+	    }
+	});
+
+	jumpToNodeInTreeMenuItem.setText("Jump to in Tree");
 	jumpToNodeInTreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -370,7 +386,8 @@ public class TableContextMenu extends ArbilContextMenu {
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_TOP + 10, viewSelectedRowsMenuItem);
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_TOP + 15, matchingRowsMenuItem);
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_TOP + 20, removeSelectedRowsMenuItem);
-	addItem(CATEGORY_TABLE_ROW, PRIORITY_BOTTOM + 10, jumpToNodeInTreeMenuItem);
+	addItem(CATEGORY_TABLE_ROW, PRIORITY_MIDDLE, jumpToNodeInTreeMenuItem);
+	addItem(CATEGORY_TABLE_ROW, PRIORITY_BOTTOM + 10, deleteFromParentMenuItem);
 
 	addItem(CATEGORY_EDIT, PRIORITY_MIDDLE + 10, copySelectedRowsMenuItem);
 	addItem(CATEGORY_EDIT, PRIORITY_MIDDLE + 15, pasteIntoSelectedRowsMenuItem);
@@ -394,6 +411,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	jumpToNodeInTreeMenuItem.setVisible(false);
 	showChildNodesMenuItem.setVisible(false);
 	showInContextMenuItem.setVisible(false);
+	deleteFromParentMenuItem.setVisible(false);
     }
     private ArbilTable table;
     private JMenuItem copySelectedRowsMenuItem = new JMenuItem();
@@ -412,4 +430,58 @@ public class TableContextMenu extends ArbilContextMenu {
     private JMenuItem jumpToNodeInTreeMenuItem = new JMenuItem();
     private JMenuItem showChildNodesMenuItem = new JMenuItem();
     private JMenuItem showInContextMenuItem = new JMenuItem();
+    private JMenuItem deleteFromParentMenuItem = new JMenuItem();
+
+    private void deleteNodesFromParent(final ArbilDataNode[] selectedNodes) {
+	final Map<ArbilDataNode, Collection<ArbilDataNode>> nodesToDelete = determineNodesToDelete(selectedNodes);
+	// Ask confirmation for deletion for each set of child nodes (grouped by parent node)
+	askDeleteNodes(nodesToDelete);
+	// If nodes were selected that do not have a parent, give notification
+	if (nodesToDelete.containsKey(null)) {
+	    dialogHandler.addMessageDialogToQueue(String.format("%d node(s) cannot be deleted because they have no parent", nodesToDelete.get(null).size()), "Delete from parent");
+	}
+    }
+
+    private Map<ArbilDataNode, Collection<ArbilDataNode>> determineNodesToDelete(final ArbilDataNode[] selectedNodes) {
+	final Map<ArbilDataNode, Collection<ArbilDataNode>> nodesToDelete = new HashMap<ArbilDataNode, Collection<ArbilDataNode>>();
+	for (ArbilDataNode selectedNode : selectedNodes) {
+	    final ArbilDataNode parentNode = selectedNode.getParentNode();
+	    // Look for existing collection for parent node
+	    Collection<ArbilDataNode> children = nodesToDelete.get(parentNode);
+	    if (children == null) {
+		// First encounter of parent node, make list to store children
+		children = new ArrayList<ArbilDataNode>();
+		nodesToDelete.put(parentNode, children);
+	    }
+	    // Add child to parent's list 
+	    children.add(selectedNode);
+	}
+	return nodesToDelete;
+    }
+
+    private void askDeleteNodes(final Map<ArbilDataNode, Collection<ArbilDataNode>> nodesToDelete) {
+	DialogBoxResult dialogResult = null;
+	for (Entry<ArbilDataNode, Collection<ArbilDataNode>> entry : nodesToDelete.entrySet()) {
+	    final ArbilDataNode parentNode = entry.getKey();
+	    if (parentNode != null) {
+		final Collection<ArbilDataNode> children = entry.getValue();
+		if (dialogResult == null || !dialogResult.isRememberChoice()) {
+		    dialogResult = dialogHandler.showDialogBoxRememberChoice(getNodeDeleteMessage(parentNode, children), "Delete from parent", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		}
+		if (dialogResult.getResult() == JOptionPane.OK_OPTION) {
+		    treeHelper.deleteChildNodes(parentNode, children);
+		} else if (dialogResult.getResult() == JOptionPane.CANCEL_OPTION) {
+		    return;
+		}
+	    }
+	}
+    }
+
+    private String getNodeDeleteMessage(ArbilDataNode parentNode, Collection<ArbilDataNode> children) {
+	if (children.size() == 1) {
+	    return String.format("Delete the node '%s' from their parent '%s'?\nThis will save pending changes.", children.iterator().next(), parentNode.toString());
+	} else {
+	    return String.format("Delete %d nodes from their parent '%s'?\nThis will save pending changes.", children.size(), parentNode.toString());
+	}
+    }
 }

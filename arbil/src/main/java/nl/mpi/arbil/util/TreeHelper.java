@@ -24,6 +24,7 @@ package nl.mpi.arbil.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -36,7 +37,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 public interface TreeHelper {
 
     void init();
-    
+
     int addDefaultCorpusLocations();
 
     boolean addLocation(URI addedLocation);
@@ -46,6 +47,8 @@ public interface TreeHelper {
     void applyRootLocations();
 
     void deleteNodes(Object sourceObject);
+
+    void deleteChildNodes(ArbilDataNode parent, Collection<ArbilDataNode> children);
 
     /**
      * @return the favouriteNodes

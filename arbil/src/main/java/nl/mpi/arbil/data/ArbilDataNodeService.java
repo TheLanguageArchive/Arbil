@@ -64,8 +64,8 @@ import org.xml.sax.SAXException;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilDataNodeService {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilDataNodeService.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilDataNodeService.class);
     private DataNodeLoader dataNodeLoader;
     private MessageDialogHandler messageDialogHandler;
     private SessionStorage sessionStorage;
@@ -329,7 +329,7 @@ public class ArbilDataNodeService {
 	    return;
 	}
 	logger.debug("saveChangesToCache");
-	
+
 	synchronized (datanode.getParentDomLockObject()) {
 	    ArbilJournal.getSingleInstance().clearFieldChangeHistory();
 	    if (!datanode.isLocal() /* nodeUri.getScheme().toLowerCase().startsWith("http") */) {
@@ -610,6 +610,38 @@ public class ArbilDataNodeService {
 	dataNode.updateLoadingState(+1);
 	dataNode.loadArbilDom();
 	dataNode.updateLoadingState(-1);
+    }
+
+    /**
+     * Retrieves the direct ancestor of the specified child node
+     * @param node child node to find direct ancestor for
+     * @return the direct ancestor of the specified node
+     */
+    public ArbilDataNode getParentOfNode(ArbilDataNode node) {
+	return searchParentOf(node.getParentDomNode(), node);
+    }
+
+    /**
+     *
+     * @param ancestor ancestor to start searching for child node
+     * @param targetChild child node to find direct ancestor for
+     * @return null if the ancestor is equal to the target child or is not an ancestor of the target child; otherwise the direct ancestor of
+     * the target child
+     */
+    private ArbilDataNode searchParentOf(final ArbilDataNode ancestor, final ArbilDataNode targetChild) {
+	if (!ancestor.equals(targetChild)) {
+	    for (ArbilDataNode child : ancestor.getChildArray()) {
+		if (child.equals(targetChild)) {
+		    return ancestor;
+		} else {
+		    final ArbilDataNode childResult = searchParentOf(child, targetChild);
+		    if (childResult != null) {
+			return childResult;
+		    }
+		}
+	    }
+	}
+	return null;
     }
 
     //<editor-fold defaultstate="collapsed" desc="Utilities (should probably be moved into a separate utility class)">
