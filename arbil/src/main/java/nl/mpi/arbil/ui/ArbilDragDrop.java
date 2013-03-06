@@ -60,8 +60,8 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilDragDrop {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilDragDrop.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilDragDrop.class);
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -116,10 +116,9 @@ public class ArbilDragDrop {
 	DropTarget target = treeSource.getDropTarget();
 	try {
 	    target.addDropTargetListener(new DropTargetAdapter() {
-
 		@Override
 		public void dragOver(DropTargetDragEvent dtdEvent) {
-		    logger.debug("arbilNodeSelection.dropAllowed: " + arbilNodeSelection.dropAllowed);
+		    logger.debug("arbilNodeSelection.dropAllowed: {}", arbilNodeSelection.dropAllowed);
 		    if (arbilNodeSelection.dropAllowed) {
 			dtdEvent.acceptDrag(dtdEvent.getDropAction());
 		    } else {
@@ -174,7 +173,7 @@ public class ArbilDragDrop {
 
 	public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
 	    if (evt.getSource() == currentDropTarget) {
-		logger.debug("Drag target selection change: " + evt.getSource().toString());
+		logger.debug("Drag target selection change: {}", evt.getSource().toString());
 		if (evt.getSource() instanceof ArbilTree) {
 		    dropAllowed = canDropToTarget((ArbilTree) evt.getSource());
 //                    DropTarget dropTarget = dropTree.getDropTarget();                    
@@ -202,7 +201,7 @@ public class ArbilDragDrop {
 		logger.debug("no tree check");
 	    } else if (currentLeadSelection instanceof ArbilDataNode) {
 		// this check is for the child nodes of the trees
-		logger.debug("currentLeadSelection: " + currentLeadSelection.toString());
+		logger.debug("currentLeadSelection: {}", currentLeadSelection);
 //                todo: prevent dragging to self but allow dragging to other branch of parent session
 //                todo: look for error dragging actor from favourites
 //                todo: look for error in field triggers when merging from favourite (suppress trtiggeres when merging)
@@ -238,7 +237,7 @@ public class ArbilDragDrop {
 
 	@Override
 	public void exportToClipboard(JComponent comp, Clipboard clip, int action) throws IllegalStateException {
-	    logger.debug("exportToClipboard: " + comp);
+	    logger.debug("exportToClipboard: {}", comp);
 	    createTransferable(null); // clear the transfer objects
 	    if (comp instanceof ArbilTree) {
 		ArbilTree sourceTree = (ArbilTree) comp;
@@ -265,7 +264,7 @@ public class ArbilDragDrop {
 
 	@Override
 	public boolean canImport(JComponent comp, DataFlavor flavor[]) {
-	    logger.debug("canImport: " + comp);
+	    logger.debug("canImport: {}", comp);
 	    currentDropTarget = null;
 	    dropAllowed = false;
 	    if (comp instanceof JTree) {
@@ -312,7 +311,7 @@ public class ArbilDragDrop {
 	    } else {
 		// search through al the parent nodes to see if we can find a drop target
 		dropAllowed = (null != findArbilDropableTarget(comp));
-		logger.debug("dropAllowed: " + dropAllowed);
+		logger.debug("dropAllowed: {}", dropAllowed);
 		return dropAllowed;
 	    }
 	    logger.debug("canImport false");
@@ -466,7 +465,7 @@ public class ArbilDragDrop {
 		return false;
 	    }
 	    try {
-		logger.debug("importData: " + comp.toString());
+		logger.debug("importData: {}", comp);
 		if (comp instanceof ArbilTable && draggedArbilNodes == null) {
 		    ((ArbilTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
 		} else if (draggedArbilNodes != null) {
@@ -504,7 +503,7 @@ public class ArbilDragDrop {
 
 	private boolean importToTree(ArbilTree dropTree) {
 	    for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
-		logger.debug("dragged: " + draggedArbilNodes[draggedCounter].toString());
+		logger.debug("dragged: {}", draggedArbilNodes[draggedCounter]);
 	    }
 	    if (treeHelper.componentIsTheFavouritesTree(currentDropTarget)) {
 		// Target component is the favourites tree
@@ -539,7 +538,7 @@ public class ArbilDragDrop {
 	    Object dropTargetUserObject = targetNode.getUserObject();
 	    Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
 	    Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
-	    logger.debug("to: " + dropTargetUserObject.toString());
+	    logger.debug("to: {}", dropTargetUserObject);
 
 	    final ArbilNode dropTargetNode;
 	    if (dropTargetUserObject instanceof ArbilNode) {
@@ -564,7 +563,7 @@ public class ArbilDragDrop {
 			    && selectionContainsRemote == false) {
 			logger.debug("ok to add local file");
 
-			logger.debug("dragged: " + draggedArbilNodes.toString());
+			logger.debug("dragged: {}", (Object) draggedArbilNodes);
 			new MetadataBuilder().requestAddNodes(dropTargetDataNode, "Resource", draggedArbilNodes);
 			return true;
 		    }
@@ -584,7 +583,7 @@ public class ArbilDragDrop {
 
 		for (int draggedCounter = 0; continueMove && draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 		    final ArbilDataNode currentNode = draggedArbilNodes[draggedCounter];
-		    logger.debug("dragged: " + currentNode.toString());
+		    logger.debug("dragged: {}", currentNode);
 		    if (!currentNode.isChildNode() || dropTargetDataNode != null && MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			//((ArbilDataNode) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
@@ -594,7 +593,7 @@ public class ArbilDragDrop {
 			while (ancestorNode != null) {
 			    if (draggedTreeNodes[draggedCounter].equals(ancestorNode)) {
 				draggedIntoSelf = true;
-				logger.debug("found ancestor: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
+				logger.debug("found ancestor: {}:{}", draggedTreeNodes[draggedCounter], ancestorNode);
 			    }
 			    ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
 			}
@@ -648,7 +647,7 @@ public class ArbilDragDrop {
 			} // otherwise assume local corpus root node
 			importExportDialog.copyToCache(importNodeList);
 		    } catch (Exception e) {
-			logger.debug(e.getMessage());
+			logger.error("Exception while showing import dialog", e);
 		    }
 		}
 		deleteMovedNodesOriginals(arbilNodesDeleteList);
@@ -712,7 +711,7 @@ public class ArbilDragDrop {
 			treeHelper.applyRootLocations();
 		    } else {
 			ArbilDataNode parentNode = (ArbilDataNode) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
-			logger.debug("removeing from parent: " + parentNode);
+			logger.debug("removeing from parent: {}", parentNode);
 			// add the parent and the child node to the deletelist
 			if (!arbilNodesDeleteList.containsKey(parentNode)) {
 			    arbilNodesDeleteList.put(parentNode, new Vector());

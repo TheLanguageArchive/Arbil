@@ -177,7 +177,7 @@ public class MetadataReader {
     }
 
     public URI addFromTemplate(File destinationFile, String templateType) {
-	logger.debug("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
+	logger.debug("addFromJarTemplateFile: {} : {}", templateType, destinationFile);
 
 	// Get local url for template type
 	URL templateUrl = constructTemplateUrl(templateType);
@@ -245,7 +245,7 @@ public class MetadataReader {
 	    out = null;
 	    return targetFile.toURI();
 	} catch (Exception ex) {
-	    logger.debug("copyToDisk: " + ex);
+	    logger.debug("copyToDisk: {}", ex);
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	} finally {
 	    if (in != null) {
@@ -267,16 +267,16 @@ public class MetadataReader {
     }
 
     public String getNodeTypeFromMimeType(String mimeType) {
-	logger.debug("getNodeTypeFromMimeType: " + mimeType);
+	logger.debug("getNodeTypeFromMimeType: {}", mimeType);
 	for (String[] formatType : new String[][]{
 		    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource", "Manual/WrittenResource"},
 		    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile", "Manual/MediaFile"}
 		}) {
 	    if (formatType[2].equals(mimeType)) {
-		logger.debug("UsingOverrideNodeType: " + formatType[1]);
+		logger.debug("UsingOverrideNodeType: {}", formatType[1]);
 		return formatType[1];
 	    } else if (IMDIVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
-		logger.debug("NodeType: " + formatType[1]);
+		logger.debug("NodeType: {}", formatType[1]);
 		//                    if (mimeType.equals("image/jpeg")) {
 		return formatType[1];
 	    }
@@ -343,17 +343,17 @@ public class MetadataReader {
 	} catch (TransformerException exception) {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
-	logger.debug("addedPathString: " + addedPathURI);
+	logger.debug("addedPathString: {}", addedPathURI);
 	return false;
     }
 
     public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException {
-	logger.debug("insertFromTemplate: " + elementName + " : " + resourceUrl);
-	logger.debug("targetXpath: " + targetXmlPath);
+	logger.debug("insertFromTemplate: {} : {}", elementName, resourceUrl);
+	logger.debug("targetXpath: {}", targetXmlPath);
 	String insertBefore = currentTemplate.getInsertBeforeOfTemplate(elementName);
-	logger.debug("insertBefore: " + insertBefore);
+	logger.debug("insertBefore: {}", insertBefore);
 	final int maxOccurs = currentTemplate.getMaxOccursForTemplate(elementName);
-	logger.debug("maxOccurs: " + maxOccurs);
+	logger.debug("maxOccurs: {}", maxOccurs);
 	URI addedPathURI = null;
 	try {
 	    String templateFileString = templateFileStringFromElementName(elementName);
@@ -361,8 +361,8 @@ public class MetadataReader {
 	    String targetRef = xPathFromXmlPath(targetXmlPath, elementName);
 	    String targetXpath = xPathFromTargetRef(targetRef);
 
-	    logger.debug("targetXpath: " + targetXpath);
-	    logger.debug("templateUrl: " + templateUrl);
+	    logger.debug("targetXpath: {}", targetXpath);
+	    logger.debug("templateUrl: {}", templateUrl);
 
 	    if (templateUrl == null) {
 		messageDialogHandler.addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
@@ -408,7 +408,7 @@ public class MetadataReader {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	    return null;
 	}
-	logger.debug("addedPathString: " + addedPathURI);
+	logger.debug("addedPathString: {}", addedPathURI);
 	return addedPathURI;
     }
 
@@ -419,7 +419,7 @@ public class MetadataReader {
 	Node addedNode = componentBuilder.insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
 	String nodeFragment = componentBuilder.convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
 	//                            try {
-	logger.debug("nodeFragment: " + nodeFragment);
+	logger.debug("nodeFragment: {}", nodeFragment);
 	// return the child node url and path in the xml
 	// first strip off any fragment then add the full node fragment
 	return new URI(targetMetadataUri.toString().split("#")[0] + "#" + nodeFragment);
@@ -451,7 +451,7 @@ public class MetadataReader {
 		int suffixIndex = originalFile.getName().lastIndexOf(".");
 		String targetFilename = originalFile.getName().substring(0, suffixIndex);
 		String targetSuffix = originalFile.getName().substring(suffixIndex);
-		logger.debug("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
+		logger.debug("targetFilename: {} targetSuffix: {}", targetFilename, targetSuffix);
 		///////////////////////////////////////////////////////////////////////
 		// use the nodes child directory
 		File destinationFileCopy = new File(resourceDestinationDirectory, targetFilename + targetSuffix);
@@ -469,7 +469,7 @@ public class MetadataReader {
 		//                        localFilePath = "./" + destinationFileCopy.getName();
 		///////////////////////////////////////////////////////////////////////
 		copyToDisk(resourceUrl.toURL(), destinationFileCopy);
-		logger.debug("destinationFileCopy: " + destinationFileCopy.toString());
+		logger.debug("destinationFileCopy: {}", destinationFileCopy);
 	    }
 	} catch (Exception ex) {
 	    //localFilePath = resourcePath; // link to the original file
@@ -520,7 +520,7 @@ public class MetadataReader {
     private static URL urlForTemplateFile(ArbilTemplate currentTemplate, String templateFileString) throws MalformedURLException {
 	URL templateUrl;
 	File templateFile = new File(currentTemplate.getTemplateComponentDirectory(), templateFileString + ".xml");
-	logger.debug("templateFile: " + templateFile.getAbsolutePath());
+	logger.debug("templateFile: {}", templateFile.getAbsolutePath());
 	if (templateFile.exists()) {
 	    templateUrl = templateFile.toURI().toURL();
 	} else {
@@ -531,9 +531,9 @@ public class MetadataReader {
 
     private static String templateFileStringFromElementName(String elementName) {
 	String templateFileString = elementName.substring(1); //TODO: this level of path change should not be done here but in the original caller
-	logger.debug("templateFileString: " + templateFileString);
+	logger.debug("templateFileString: {}", templateFileString);
 	templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
-	logger.debug("templateFileString(x): " + templateFileString);
+	logger.debug("templateFileString(x): {}", templateFileString);
 	templateFileString = templateFileString.replaceAll("\\(x\\)$", "");
 	return templateFileString;
     }
@@ -888,7 +888,6 @@ public class MetadataReader {
 		parentChildTree.get(parentNode).add(linkedNode);
 	    } catch (Exception ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
-		logger.debug("Exception CorpusLink: " + ex.getMessage());
 	    }
 	} //                // the corpus link nodes are used but via the api.getlinks so dont log them here
 	//                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();

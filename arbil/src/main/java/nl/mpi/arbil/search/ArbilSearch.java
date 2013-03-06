@@ -140,7 +140,7 @@ public class ArbilSearch {
     public void fetchRemoteSearchResults() {
 	if (remoteServerSearchTerm != null) {
 	    for (URI serverFoundUrl : remoteServerSearchTerm.getServerSearchResults(remoteSearchNodes.toArray(new ArbilDataNode[]{}))) {
-		logger.debug("remote node found: " + serverFoundUrl);
+		logger.debug("remote node found: {}", serverFoundUrl);
 		localSearchNodes.add(dataNodeLoader.getArbilDataNode(null, serverFoundUrl));
 	    }
 	}
@@ -196,9 +196,9 @@ public class ArbilSearch {
 
 	// Put unloaded data nodes back in the queue
 	if (dataNode != null && !currentNode.isChildNode() && (currentNode.isLoading() || !currentNode.isDataLoaded())) {
-	    logger.debug("searching: " + dataNode.getUrlString());
+	    logger.debug("searching: {}", dataNode.getUrlString());
 	    if (dataNode.isMetaDataNode() || dataNode.isLocal()) {
-		logger.debug("still loading so putting back into the list: " + currentNode);
+		logger.debug("still loading so putting back into the list: {}", currentNode);
 		if (!dataNode.fileNotFound) {
 		    if (container != null) {
 			dataNode.registerContainer(container); // this causes the node to be loaded
@@ -206,16 +206,16 @@ public class ArbilSearch {
 		    localSearchNodes.add(currentNode);
 		}
 	    } else {
-		logger.debug("skipping unloaded remote resource: " + currentNode);
+		logger.debug("skipping unloaded remote resource: {}", currentNode);
 	    }
 	} else {
 	    // perform the search
-	    logger.debug("searching: " + currentNode);
+	    logger.debug("searching: {}", currentNode);
 	    // add the child nodes
 	    if (currentNode.isLocal() || !currentNode.isCorpus()) {
 		// don't search remote corpus
 		for (ArbilNode currentChildNode : currentNode.getChildArray()) {
-		    logger.debug("adding to search list: " + currentChildNode);
+		    logger.debug("adding to search list: {}", currentChildNode);
 		    if (container != null) {
 			currentChildNode.registerContainer(container); // this causes the node to be loaded
 		    }

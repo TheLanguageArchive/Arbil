@@ -92,12 +92,12 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
     }
     
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
-	logger.debug("localCorpusTree: " + arbilTreePanel.localCorpusTree);
+	logger.debug("localCorpusTree: {}", arbilTreePanel.localCorpusTree);
 	return (DefaultMutableTreeNode) arbilTreePanel.localCorpusTree.getSelectionPath().getLastPathComponent();
     }
     
     public void deleteNodes(Object sourceObject) {
-	logger.debug("deleteNode: " + sourceObject);
+	logger.debug("deleteNode: {}", sourceObject);
 	if (sourceObject == arbilTreePanel.localCorpusTree || sourceObject == arbilTreePanel.favouritesTree) {
 	    final ArbilTree tree = (ArbilTree) sourceObject;
 	    deleteNodesFromTree(tree);

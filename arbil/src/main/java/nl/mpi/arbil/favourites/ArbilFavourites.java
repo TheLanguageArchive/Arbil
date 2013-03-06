@@ -94,7 +94,7 @@ public class ArbilFavourites implements FavouritesService {
     }
 
     public boolean toggleFavouritesList(ArbilDataNode[] dataNodeArray, boolean setAsTempate) {
-        logger.debug("toggleFavouriteList: " + setAsTempate);
+        logger.debug("toggleFavouriteList: {}", setAsTempate);
         if (setAsTempate) {
             boolean selectionNeedsSave = false;
             for (ArbilDataNode currentNode : dataNodeArray) {
@@ -208,7 +208,7 @@ public class ArbilFavourites implements FavouritesService {
 //        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
 //    }
     public ArbilDataNode[] listFavouritesFor(Object targetNodeUserObject) {
-        logger.debug("listFavouritesFor: " + targetNodeUserObject);
+        logger.debug("listFavouritesFor: {}", targetNodeUserObject);
         ArrayList<ArbilDataNode> validFavourites = new ArrayList<ArbilDataNode>();
         if (targetNodeUserObject instanceof ArbilNode) {
             ArbilDataNode targetDataNode = null;
@@ -263,7 +263,7 @@ public class ArbilFavourites implements FavouritesService {
 
         String favouriteXmlPath = favouriteNode.getURI().getFragment();
         String targetXmlPath = targetDataNode.getURI().getFragment();
-        logger.debug("getNodeType: \nfavouriteXmlPath: " + favouriteXmlPath + "\ntargetXmlPath:" + targetXmlPath);
+        logger.debug("getNodeType: \nfavouriteXmlPath: {} targetXmlPath: {}", favouriteXmlPath, targetXmlPath);
         String returnValue;
         if (favouriteNode.isSession()) {
             returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
@@ -274,12 +274,12 @@ public class ArbilFavourites implements FavouritesService {
                 returnValue = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
             } else {
                 // pass the (x) values on in the return value
-                logger.debug("targetXmlPath: " + targetXmlPath);
-                logger.debug("favouriteXmlPath: " + favouriteXmlPath);
+                logger.debug("targetXmlPath: {}", targetXmlPath);
+                logger.debug("favouriteXmlPath: {}", favouriteXmlPath);
                 favouriteXmlPath = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
                 String[] splitFavouriteXmlPath = favouriteXmlPath.split("\\)");
                 String[] splitTargetXmlPath = targetXmlPath.split("\\)");
-                logger.debug("splitFavouriteXmlPath: " + splitFavouriteXmlPath.length + " splitTargetXmlPath: " + splitTargetXmlPath.length);
+                logger.debug("splitFavouriteXmlPath: {} splitTargetXmlPath: {}", splitFavouriteXmlPath.length, splitTargetXmlPath.length);
                 returnValue = "";
                 for (int partCounter = 0; partCounter < splitFavouriteXmlPath.length; partCounter++) {
                     if (splitTargetXmlPath.length > partCounter) {
@@ -294,7 +294,7 @@ public class ArbilFavourites implements FavouritesService {
         } else {
             returnValue = null;
         }
-        logger.debug("getNodeTypeReturnValue: " + returnValue);
+        logger.debug("getNodeTypeReturnValue: {}", returnValue);
         return returnValue;
     }
 //    public void mergeFromFavourite(ImdiTreeObject targetImdiObject, ImdiTreeObject favouriteImdiObject, boolean overwriteValues) {

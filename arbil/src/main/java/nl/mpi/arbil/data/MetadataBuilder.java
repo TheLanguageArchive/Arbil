@@ -163,7 +163,7 @@ public class MetadataBuilder {
                 try {
                     synchronized (destinationNode.getParentDomLockObject()) {
                         try {
-                            logger.debug("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
+                            logger.debug("requestAddNode: {} : {}", nodeType, nodeTypeDisplayName);
                             addedNode = processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
 
                             // CODE REMOVED: previously, imdiLoaders was requested to reload destinationNode
@@ -491,8 +491,8 @@ public class MetadataBuilder {
      * @return String path to the added node
      */
     public URI addChildNode(ArbilDataNode destinationNode, String nodeType, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
-        logger.debug("addChildNode:: " + nodeType + " : " + resourceUri);
-        logger.debug("targetXmlPath:: " + targetXmlPath);
+        logger.debug("addChildNode:: {} : {}", nodeType, resourceUri);
+        logger.debug("targetXmlPath:: {}", targetXmlPath);
         if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }

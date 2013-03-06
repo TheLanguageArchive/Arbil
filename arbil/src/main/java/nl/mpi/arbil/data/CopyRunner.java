@@ -241,7 +241,7 @@ public class CopyRunner implements Runnable {
 			if (checkerResult != null) {
 			    impExpUI.appendToXmlOutput(currentRetrievableFile.sourceURI.toString() + "\n");
 			    impExpUI.appendToXmlOutput("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
-			    logger.debug("checkerResult: " + checkerResult);
+			    logger.debug("checkerResult: {}", checkerResult);
 			    impExpUI.appendToXmlOutput(checkerResult + "\n");
 			    impExpUI.addToValidationErrors(currentRetrievableFile.sourceURI);
 			    xsdErrors++;
@@ -262,7 +262,7 @@ public class CopyRunner implements Runnable {
 	    totalErrors++;
 	    impExpUI.addToMetadataCopyErrors(currentRetrievableFile.sourceURI);
 	    impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
-	    logger.debug("Error getting links from: " + currentRetrievableFile.sourceURI);
+	    logger.debug("Error getting links from: {}", currentRetrievableFile.sourceURI);
 	} catch (IOException ex) {
 	    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
 	    totalErrors++;
@@ -279,7 +279,7 @@ public class CopyRunner implements Runnable {
 
     private void copyLinks(final File exportDestinationDirectory, URI[] linksUriArray, Map<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, List<URI> getList, List<URI[]> uncopiedLinks) throws MalformedURLException {
 	for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.isStopCopy(); linkCount++) {
-	    logger.debug("Link: " + linksUriArray[linkCount].toString());
+	    logger.debug("Link: {}", linksUriArray[linkCount].toString());
 	    final String currentLink = linksUriArray[linkCount].toString();
 	    final URI gettableLinkUri = linksUriArray[linkCount].normalize();
 	    if (!seenFiles.containsKey(gettableLinkUri)) {
@@ -459,7 +459,7 @@ public class CopyRunner implements Runnable {
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(urlString, ex);
 		    impExpUI.appendToTaskOutput("unable to decode the file name for: " + urlString);
-		    logger.debug("unable to decode the file name for: " + urlString);
+		    logger.debug("unable to decode the file name for: {}", urlString);
 		}
 		if (urlString.endsWith("/")) {
 		    // Strip off tailing slash

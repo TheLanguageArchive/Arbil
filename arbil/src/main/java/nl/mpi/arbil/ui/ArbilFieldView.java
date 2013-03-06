@@ -45,11 +45,11 @@ public class ArbilFieldView implements Serializable, Cloneable {
     private HashMap<String, Integer> columnWidths = new HashMap<String, Integer>();
 
     public void showState() {
-	logger.debug("knownColumns: " + knownColumns);
-	logger.debug("hiddenColumns: " + hiddenColumns);
-	logger.debug("showOnlyColumns: " + showOnlyColumns);
-	logger.debug("alwaysShowColumns: " + alwaysShowColumns);
-	logger.debug("columnWidths: " + columnWidths);
+	logger.debug("knownColumns: {}", knownColumns);
+	logger.debug("hiddenColumns: {}", hiddenColumns);
+	logger.debug("showOnlyColumns: {}", showOnlyColumns);
+	logger.debug("alwaysShowColumns: {}", alwaysShowColumns);
+	logger.debug("columnWidths: {}", columnWidths);
     }
 
     public void setAlwaysShowColumns(Vector alwaysShowColumns) {

@@ -860,7 +860,7 @@ public class ImportExportDialog implements ImportExportUI {
     @Override
     public void onCopyEnd(final String finalMessage) throws HeadlessException {
 
-	logger.debug("finalMessageString: " + finalMessage);
+	logger.debug("finalMessageString: {}", finalMessage);
 	final Object[] options = {"Close", "Details"};
 
 	SwingUtilities.invokeLater(new Runnable() {

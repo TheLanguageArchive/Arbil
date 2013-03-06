@@ -200,8 +200,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                 }
             }
         } catch (Exception ex) {
-            logger.debug("load windowStates failed: " + ex.getMessage());
-            logger.debug("setting default windowStates");
+            logger.info("setting default windowStates");
+            logger.debug("load windowStates failed: ", ex);
             windowStatesHashtable = new Hashtable();
             getMainFrame().setBounds(0, 0, 800, 600);
             getMainFrame().setLocationRelativeTo(null);
@@ -612,7 +612,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             Hashtable windowListHashtable = (Hashtable) sessionStorage.loadObject("openWindows");
             for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
                 String currentWindowName = windowNamesEnum.nextElement().toString();
-                logger.debug("currentWindowName: " + currentWindowName);
+                logger.debug("currentWindowName: {}", currentWindowName);
                 ArbilWindowState windowState;
                 Object windowStateObject = windowListHashtable.get(currentWindowName);
 
@@ -667,17 +667,18 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             logger.debug("done loading windowStates");
         } catch (Exception ex) {
             windowStatesHashtable = new Hashtable();
-            logger.debug("load windowStates failed: " + ex.getMessage());
+            logger.warn("load windowStates failed");
+            logger.debug("load windowStates failed: ", ex);
         }
     }
 
     public void loadSplitPlanes(Component targetComponent) {
         //logger.debug("loadSplitPlanes: " + targetComponent);
         if (targetComponent instanceof JSplitPane) {
-            logger.debug("loadSplitPlanes: " + targetComponent.getName());
+            logger.debug("loadSplitPlanes: {}", targetComponent.getName());
             Object linorgSplitPosition = windowStatesHashtable.get(targetComponent.getName());
             if (linorgSplitPosition instanceof Integer) {
-                logger.debug(targetComponent.getName() + ": " + linorgSplitPosition);
+                logger.debug("{}: {}", targetComponent.getName(), linorgSplitPosition);
                 ((JSplitPane) targetComponent).setDividerLocation((Integer) linorgSplitPosition);
             } else {
                 if (targetComponent.getName().equals("rightSplitPane")) {
@@ -701,7 +702,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     public void saveSplitPlanes(Component targetComponent) {
         //logger.debug("saveSplitPlanes: " + targetComponent);
         if (targetComponent instanceof JSplitPane) {
-            logger.debug("saveSplitPlanes: " + targetComponent.getName());
+            logger.debug("saveSplitPlanes: {}", targetComponent.getName());
             windowStatesHashtable.put(targetComponent.getName(), ((JSplitPane) targetComponent).getDividerLocation());
             for (Component childComponent : ((JSplitPane) targetComponent).getComponents()) {
                 saveSplitPlanes(childComponent);
@@ -722,7 +723,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
         nextWindowY = defaultWindowY;
         for (Enumeration windowNamesEnum = windowList.keys(); windowNamesEnum.hasMoreElements();) {
             String currentWindowName = windowNamesEnum.nextElement().toString();
-            logger.debug("currentWindowName: " + currentWindowName);
+            logger.debug("currentWindowName: {}", currentWindowName);
             // set the value of the windowListHashtable to be the imdi urls rather than the windows
             Object windowObject = ((Component[]) windowList.get(currentWindowName))[0];
             if (windowObject != null) {
@@ -752,7 +753,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                 ArbilWindowState windowState = new ArbilWindowState();
 
                 String currentWindowName = windowNamesEnum.nextElement().toString();
-                logger.debug("currentWindowName: " + currentWindowName);
+                logger.debug("currentWindowName: {}", currentWindowName);
                 // set the value of the windowListHashtable to be the imdi urls rather than the windows
                 Object windowObject = ((Component[]) windowList.get(currentWindowName))[0];
                 try {
@@ -829,7 +830,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             @Override
             public void internalFrameClosed(InternalFrameEvent e) {
                 String windowName = e.getInternalFrame().getName();
-                logger.debug("Closing window: " + windowName);
+                logger.debug("Closing window: {}", windowName);
                 Component[] windowAndMenu = windowList.get(windowName);
 
                 // Remove from windows menu
@@ -959,7 +960,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                                 if (fontScale < 1) {
                                     fontScale = 1;
                                 }
-                                logger.debug("fontScale: " + fontScale);
+                                logger.debug("fontScale: {}", fontScale);
                                 UIDefaults defaults = UIManager.getDefaults();
                                 Enumeration keys = defaults.keys();
                                 while (keys.hasMoreElements()) {
@@ -1052,7 +1053,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                     if (allWindows.length > 0) {
                         JInternalFrame topMostWindow = allWindows[0];
                         if (topMostWindow != null) {
-                            logger.debug("topMostWindow: " + topMostWindow);
+                            logger.debug("topMostWindow: {}", topMostWindow);
                             topMostWindow.setIcon(false);
                             topMostWindow.setSelected(true);
                         }
@@ -1447,7 +1448,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                     String line;
                     while ((line = errorStreamReader.readLine()) != null) {
                         addMessageDialogToQueue(line, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("OPEN IN EXTERNAL APPLICATION"));
-                        logger.debug("Launched process error stream: \"" + line + "\"");
+                        logger.debug("Launched process error stream: \"{}\"",line);
                     }
                     result = true;
                 }

@@ -66,8 +66,8 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilSessionStorage extends CommonsSessionStorage implements SessionStorage {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilSessionStorage.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilSessionStorage.class);
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
     public static final String UTF8_ENCODING = "UTF8";
     public static final String CONFIG_FILE = "arbil.config";
@@ -139,8 +139,8 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     private void changeStorageDirectory(File fromDirectory, File toDirectory) {
 	String toDirectoryUriString = toDirectory.toURI().toString().replaceAll("/$", "");
 	String fromDirectoryUriString = fromDirectory.toURI().toString().replaceAll("/$", "");
-	logger.debug("toDirectoryUriString: " + toDirectoryUriString);
-	logger.debug("fromDirectoryUriString: " + fromDirectoryUriString);
+	logger.debug("toDirectoryUriString: {}", toDirectoryUriString);
+	logger.debug("fromDirectoryUriString: {}", fromDirectoryUriString);
 	try {
 	    toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
 	    fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
@@ -173,9 +173,9 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 			    treeHelper.getFavouriteNodes()}) {
 		    for (ArbilDataNode currentLocation : currentTreeArray) {
 			String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
-			logger.debug("currentLocationString: " + currentLocationString);
-			logger.debug("prefferedDirectoryUriString: " + toDirectoryUriString);
-			logger.debug("storageDirectoryUriString: " + fromDirectoryUriString);
+			logger.debug("currentLocationString: {}", currentLocationString);
+			logger.debug("prefferedDirectoryUriString: {}", toDirectoryUriString);
+			logger.debug("storageDirectoryUriString: {}", fromDirectoryUriString);
 			locationsList.add(currentLocationString.replace(fromDirectoryUriString, toDirectoryUriString));
 		    }
 		}
@@ -267,7 +267,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	URI returnUri = null;
 	String uriPath = locationInCacheURI.getPath();
 //        logger.debug("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
-	logger.debug("uriPath: " + uriPath);
+	logger.debug("uriPath: {}", uriPath);
 	int foundPos = uriPath.indexOf("imdicache");
 	if (foundPos == -1) {
 	    foundPos = uriPath.indexOf(getProjectDirectoryName());
@@ -280,7 +280,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	try {
 	    if (uriParts[1].toLowerCase().equals("http")) {
 		returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
-		logger.debug("returnUri: " + returnUri);
+		logger.debug("returnUri: {}", returnUri);
 	    }
 	} catch (URISyntaxException urise) {
 	    logError(urise);
@@ -339,7 +339,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @throws java.io.IOException
      */
     public void saveObject(Serializable object, String filename) throws IOException {
-	logger.debug("saveObject: " + filename);
+	logger.debug("saveObject: {}", filename);
 	ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(new File(getApplicationSettingsDirectory(), filename)));
 	objstream.writeObject(object);
 	objstream.close();
@@ -642,8 +642,8 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      * @return The path of the file in the destination directory.
      */
     public File getExportPath(String pathString, String destinationDirectory) {
-	logger.debug("pathString: " + pathString);
-	logger.debug("destinationDirectory: " + destinationDirectory);
+	logger.debug("pathString: {}", pathString);
+	logger.debug("destinationDirectory: {}", destinationDirectory);
 	String cachePath = pathString;
 	for (String testDirectory : new String[]{"imdicache", getProjectDirectoryName()}) {
 	    if (pathString.contains(testDirectory)) {
@@ -653,7 +653,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	File returnFile = new File(cachePath);
 	if (!returnFile.getParentFile().exists()) {
 	    if (!returnFile.getParentFile().mkdirs()) {
-		logError(new Exception("Could not create directory structure for export of " + pathString));
+		logger.error("Could not create directory structure for export of {}", pathString);
 		return null;
 	    }
 	}
@@ -814,7 +814,9 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 			}
 			downloadSucceeded = true;
 		    }
-		    logger.debug(String.format("Downloaded: %.3f Mb", ((double) totalRead) / (1024 * 1024)));
+		    if (logger.isDebugEnabled()) {
+			logger.debug(String.format("Downloaded: %.3f Mb", ((double) totalRead) / (1024 * 1024)));
+		    }
 		}
 	    } catch (Exception ex) {
 		logError(ex);
@@ -856,14 +858,14 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	    httpConnection = (HttpURLConnection) urlConnection;
 //                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
 	    //h.setFollowRedirects(false);
-	    logger.debug("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage() + resourceUrl.toString());
+	    logger.debug("Code: {}, Message: {}", httpConnection.getResponseCode(), httpConnection.getResponseMessage() + resourceUrl.toString());
 	}
 
 	if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
 	    final int responseCode = httpConnection.getResponseCode();
 	    if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) { // Redirect codes
 		String redirectLocation = httpConnection.getHeaderField("Location");
-		logger.debug(String.format("%1$d, redirect to %2$s", responseCode, redirectLocation));
+		logger.debug("{}, redirect to {}", responseCode, redirectLocation);
 		if (followRedirects) {
 		    // Redirect. Get new location.
 		    if (redirectLocation != null && redirectLocation.length() > 0) {

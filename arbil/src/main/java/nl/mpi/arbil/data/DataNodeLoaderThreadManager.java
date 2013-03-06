@@ -228,7 +228,7 @@ public class DataNodeLoaderThreadManager {
 		try {
 		    currentArbilDataNode = waitForNodes(getNodesToInit());
 		} catch (InterruptedException ex) {
-		    logger.debug(Thread.currentThread().getName() + " interrupted. " + ex.getMessage());
+		    logger.debug("{} interrupted. ", Thread.currentThread().getName(), ex);
 		    return;
 		}
 		if (currentArbilDataNode != null) {

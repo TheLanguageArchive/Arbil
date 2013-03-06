@@ -102,7 +102,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
     public void addChildTypeToDisplay(String childType) {
-        logger.debug("addChildTypeToDisplay: " + childType);
+        logger.debug("addChildTypeToDisplay: {}", childType);
         getChildColumnNames().add(childType);
         requestReloadTableData();
     }
@@ -134,7 +134,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
         //        if (row == -1 || col == -1) {
         //            return;
         //        }
-        logger.debug("copyCellToColumn for row: " + row + " col: " + col);
+        logger.debug("copyCellToColumn for row: {} col: {}", row, col);
         for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
             if (rowCounter != row) {
                 // TODO: a user may want to copy fields with multiple values to the whole column eg descritions in multiple languages
@@ -252,7 +252,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     protected abstract Hashtable<String, ArbilDataNode> getDataNodeHash();
 
     public Vector getMatchingRows(int sampleRowNumber) {
-        logger.debug("MatchingRows for: " + sampleRowNumber);
+        logger.debug("MatchingRows for: {}", sampleRowNumber);
         Vector matchedRows = new Vector();
         if (sampleRowNumber > -1 && sampleRowNumber < getRowCount()) {
             for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
@@ -307,9 +307,9 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
     public void hideColumn(int columnIndex) {
-        logger.debug("hideColumn: " + columnIndex);
+        logger.debug("hideColumn: {}", columnIndex);
         // TODO: hide column
-        logger.debug("hideColumn: " + getColumnName(columnIndex));
+        logger.debug("hideColumn: {}", getColumnName(columnIndex));
         if (!childColumnNames.remove(getColumnName(columnIndex))) {
             getFieldView().addHiddenColumn(getColumnName(columnIndex));
         }
@@ -364,7 +364,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     public void removeArbilDataNodeRows(int[] selectedRows) {
         ArbilDataNode[] nodesToRemove = new ArbilDataNode[selectedRows.length];
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-            logger.debug("removing: " + selectedRowCounter);
+            logger.debug("removing: {}", selectedRowCounter);
             nodesToRemove[selectedRowCounter] = getDataNodeFromRow(selectedRows[selectedRowCounter]);
         }
         removeArbilDataNodes(nodesToRemove);
@@ -436,7 +436,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
             sortColumn = columnIndex;
             sortReverse = false;
         }
-        logger.debug("sortByColumn: " + sortColumn);
+        logger.debug("sortByColumn: {}", sortColumn);
         requestReloadTableData();
     }
 

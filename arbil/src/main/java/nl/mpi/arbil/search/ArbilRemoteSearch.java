@@ -89,7 +89,7 @@ public class ArbilRemoteSearch {
 	int maxResultNumber = 1000;
 	try {
 	    String fullQueryString = constructSearchQuery(arbilDataNodeArray, searchString, maxResultNumber);
-	    logger.debug("QueryString: " + fullQueryString);
+	    logger.debug("QueryString: {}", fullQueryString);
 	    Document resultsDocument = getSearchResults(fullQueryString);
 	    NodeList domIdNodeList = XPathAPI.selectNodeList(resultsDocument, RemoteServerSearchTerm.IMDI_RESULT_URL_XPATH);
 	    for (int nodeCounter = 0; nodeCounter < domIdNodeList.getLength(); nodeCounter++) {

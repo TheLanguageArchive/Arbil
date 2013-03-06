@@ -78,8 +78,8 @@ public class ApplicationVersionManager {
 	    String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name
 //            logger.debug("currentRevision: " + localVersionString);
-	    logger.debug("currentRevision: " + applicationVersion.currentRevision);
-	    logger.debug("serverVersionString: " + serverVersionString);
+	    logger.debug("currentRevision: {}", applicationVersion.currentRevision);
+	    logger.debug("serverVersionString: {}", serverVersionString);
 	    if (serverVersionString == null || !serverVersionString.matches("[0-9]*")) {
 		// ignore any strings that are not a number because it might be a 404 or other error page
 		return true;
@@ -161,7 +161,7 @@ public class ApplicationVersionManager {
     public boolean hasWebStartUrl() {
 	logger.debug("hasWebStartUrl");
 	String webstartUpdateUrl = System.getProperty("nl.mpi.webstartUpdateUrl");
-	logger.debug("webstartUpdateUrl: " + webstartUpdateUrl);
+	logger.debug("webstartUpdateUrl: {}", webstartUpdateUrl);
 	return null != webstartUpdateUrl;
     }
 

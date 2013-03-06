@@ -64,7 +64,7 @@ public class ShibbolethNegotiator implements ActionListener {
 
     public boolean checkCertDate() {
 	Calendar dateCheckCalendar = Calendar.getInstance();
-	logger.debug("Today : " + dateCheckCalendar.getTime());
+	logger.debug("Today : {}", dateCheckCalendar.getTime());
 
 	// Substract 1 days from the calendar so that it is know that the cert will not expire durring the process
 	dateCheckCalendar.add(Calendar.DATE, -12);

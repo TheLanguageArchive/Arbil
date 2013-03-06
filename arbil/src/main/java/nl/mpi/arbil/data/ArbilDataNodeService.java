@@ -106,7 +106,7 @@ public class ArbilDataNodeService {
 	    Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
 	    if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
 		clipBoardString = clipBoardData.toString();
-		logger.debug("clipBoardString: " + clipBoardString);
+		logger.debug("clipBoardString: {}", clipBoardString);
 
 		String[] elements;
 		if (clipBoardString.contains("\n")) {
@@ -427,12 +427,12 @@ public class ArbilDataNodeService {
 	    versionCounter--;
 	    File nextFile = new File(dataNodeFile.getAbsolutePath() + "." + versionCounter);
 	    if (versionCounter >= 0) {
-		logger.debug("renaming: " + nextFile + " : " + lastFile);
+		logger.debug("renaming: {}: {}", nextFile, lastFile);
 		if (!nextFile.renameTo(lastFile)) {
 		    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
 		}
 	    } else {
-		logger.debug("renaming: " + headVersion + " : " + lastFile);
+		logger.debug("renaming: {}: {}", headVersion, lastFile);
 		if (!headVersion.renameTo(lastFile)) {
 		    throw new IOException("Error while copying history files for metadata. Could not rename " + headVersion.toString() + " to " + lastFile.toString());
 		}

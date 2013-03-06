@@ -262,11 +262,11 @@ public class ArbilTemplate {
      */
     private List<String[]> getSubnodesFromTemplatesDir(String nodepath) {
 	Vector<String[]> returnVector = new Vector<String[]>();
-	logger.debug("getSubnodesOf: " + nodepath);
+	logger.debug("getSubnodesOf: {}", nodepath);
 	String targetNodePath = nodepath.substring(0, nodepath.lastIndexOf(")") + 1);
 	nodepath = nodepath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
-	logger.debug("nodepath: " + nodepath);
-	logger.debug("targetNodePath: " + targetNodePath);
+	logger.debug("nodepath: {}", nodepath);
+	logger.debug("targetNodePath: {}", targetNodePath);
 
 	/*try {
 	 //            logger.debug("get templatesDirectory");

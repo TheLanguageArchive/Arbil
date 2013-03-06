@@ -200,7 +200,7 @@ public final class ArbilLogConfigurer {
 		if (!currentFile.startsWith(currentLogFileMatch)) {
 		    logger.debug("deleting old log file: {}", currentFile);
 		    if (!new File(sessionStorage.getApplicationSettingsDirectory(), currentFile).delete()) {
-			logger.warn("Did not delete old log file: " + currentFile);
+			logger.warn("Did not delete old log file: {}", currentFile);
 		    }
 		}
 	    }

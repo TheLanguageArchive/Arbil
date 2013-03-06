@@ -323,6 +323,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
     public void copyNodeUrlToClipboard(ArbilDataNode[] selectedNodes) {
 	if (selectedNodes != null) {
 	    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	    //TODO: Use StringBuilder
 	    String copiedNodeUrls = null;
 	    for (ArbilDataNode currentNode : selectedNodes) {
 		if (currentNode != null) {
@@ -344,7 +345,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 	    }
 	    StringSelection stringSelection = new StringSelection(copiedNodeUrls);
 	    clipboard.setContents(stringSelection, this);
-	    logger.debug("copied: \n" + copiedNodeUrls);
+	    logger.debug("copied: \n{}", copiedNodeUrls);
 	}
     }
 

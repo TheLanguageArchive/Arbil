@@ -335,7 +335,7 @@ public class ArbilIcons {
 		iconsList.add(fileCheckedIcon);
 	    } else if (mimeTypeForNode.length() > 0) {
 		iconsList.add(fileCheckedIcon);
-		logger.debug("Icon not found for file type: " + mimeTypeForNode);
+		logger.debug("Icon not found for file type: {}", mimeTypeForNode);
 	    }
 	} else if (arbilNode.isInfoLink) {
 	    iconsList.add(infofileIcon);

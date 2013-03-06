@@ -190,7 +190,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    //targetTable = ((JTableHeader) evt.getComponent()).getTable();
 	    final int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
 	    final String targetColumnName = arbilTableModel.getColumnName(targetColumn);
-	    logger.debug("columnIndex: " + targetColumn);
+	    logger.debug("columnIndex: {}", targetColumn);
 	    final JPopupMenu popupMenu = new JPopupMenu();
 	    // TODO: also add show only selected columns
 	    // TODO: also add hide selected columns
@@ -662,8 +662,8 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	int[] selectedRows = this.getSelectedRows();
 	// only copy if there is at lease one row selected
 	if (selectedRows.length > 0) {
-	    logger.debug("coll select mode: " + this.getColumnSelectionAllowed());
-	    logger.debug("cell select mode: " + this.getCellSelectionEnabled());
+	    logger.debug("coll select mode: {}", this.getColumnSelectionAllowed());
+	    logger.debug("cell select mode: {}", this.getCellSelectionEnabled());
 	    // when a user selects a cell and uses ctrl+a to change the selection the selection mode does not change from cell to row allCellsSelected is to resolve this error
 	    boolean allCellsSelected = this.getSelectedRowCount() == this.getRowCount() && this.getSelectedColumnCount() == this.getColumnCount();
 	    if (this.getCellSelectionEnabled() && !allCellsSelected) {

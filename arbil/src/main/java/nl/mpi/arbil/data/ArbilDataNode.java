@@ -374,7 +374,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @param An empty vector, to which all the child nodes will be added.
      */
     public void getAllChildren(Vector<ArbilDataNode> allChildren) {
-	logger.debug("getAllChildren: " + this.getUrlString());
+	logger.debug("getAllChildren: {}", this.getUrlString());
 	if (this.isSession() || this.isCatalogue() || this.isChildNode() || this.isCmdiMetaDataNode()) {
 	    for (ArbilDataNode currentChild : childArray) {
 		if (currentChild != this) { // Should not happen but prevent looping by self reference
@@ -484,13 +484,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	ArbilField[] currentFieldArray = this.fieldHashtable.get(fieldName);
 	if (currentFieldArray != null) {
 	    for (ArbilField currentField : currentFieldArray) {
-		logger.debug("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
+		logger.debug("containsFieldValue: {}:{}",currentField.getFieldValue(), searchValue);
 		if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
 		    return true;
 		}
 	    }
 	}
-	logger.debug("result: " + findResult + ":" + this);
+	logger.debug("result: {}:{}", findResult, this);
 	return findResult;
     }
 
@@ -498,13 +498,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	boolean findResult = false;
 	for (ArbilField[] currentFieldArray : (Collection<ArbilField[]>) this.fieldHashtable.values()) {
 	    for (ArbilField currentField : currentFieldArray) {
-		logger.debug("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
+		logger.debug("containsFieldValue: {}:{}", currentField.getFieldValue(), searchValue);
 		if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
 		    return true;
 		}
 	    }
 	}
-	logger.debug("result: " + findResult + ":" + this);
+	logger.debug("result: {}:{}",findResult, this);
 	return findResult;
     }
 
@@ -531,7 +531,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * @param allFields Vector to populate
      */
     protected void getAllFields(Vector<ArbilField[]> allFields) {
-	logger.debug("getAllFields: " + this.toString());
+	logger.debug("getAllFields: {}", this);
 	allFields.addAll(fieldHashtable.values());
 	for (ArbilDataNode currentChild : childArray) {
 	    if (currentChild.isChildNode()) {
@@ -1015,7 +1015,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    return resourceUri;
 	} catch (Exception urise) {
 	    BugCatcherManager.getBugCatcher().logError(urise);
-	    logger.debug("URISyntaxException: " + urise.getMessage());
+	    logger.debug("URISyntaxException: {}", urise.getMessage());
 	    return null;
 	}
     }

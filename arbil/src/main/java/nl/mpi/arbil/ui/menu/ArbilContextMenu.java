@@ -131,7 +131,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     for (ArbilDataNode selectedNode : selectedTreeNodes) {
-                        logger.debug("userObject: " + selectedNode);
+                        logger.debug("userObject: {}", selectedNode);
                         // reloading will first check if a save is required then save and reload
                         dataNodeLoader.requestReload((ArbilDataNode) selectedNode.getParentDomNode());
                     }
@@ -223,7 +223,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 try {
                     URI uri = new ArbilToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
                     if (uri != null) {
-                        logger.debug("Converted to html in " + uri.toString());
+                        logger.debug("Converted to html in {}", uri.toString());
                         windowManager.openFileInExternalApplication(uri);
                     }
                 } catch (Exception ex) {

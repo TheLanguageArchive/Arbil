@@ -138,7 +138,7 @@ public class XsdChecker extends JSplitPane {
 		schemaLocationString = schemaLocation[schemaLocation.length - 1];
 		nameSpaceURI = metadataFile.toURI().resolve(schemaLocationString).toString();
 	    }
-	    logger.debug("schemaLocationString: " + schemaLocationString);
+	    logger.debug("schemaLocationString: {}", schemaLocationString);
 
 	} catch (IOException iOException) {
 	    BugCatcherManager.getBugCatcher().logError(iOException);
@@ -147,7 +147,7 @@ public class XsdChecker extends JSplitPane {
 	} catch (SAXException sAXException) {
 	    BugCatcherManager.getBugCatcher().logError(sAXException);
 	}
-	logger.debug("nameSpaceURI: " + nameSpaceURI);
+	logger.debug("nameSpaceURI: {}", nameSpaceURI);
 	int daysTillExpire = 15;
 	File schemaFile = null;
 	if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("http:/")) {
@@ -168,7 +168,8 @@ public class XsdChecker extends JSplitPane {
 	    try {
 		schemaURL = schemaFile.toURL();
 	    } catch (Exception e) {
-		logger.debug("error getting xsd from the server: " + e.getMessage());
+		logger.warn("error getting xsd from the server: {}", e.getMessage());
+		logger.debug("error getting xsd from the server", e);
 	    }
 	} else {
 	    if (schemaFile == null || !schemaFile.exists()) {
@@ -265,8 +266,7 @@ public class XsdChecker extends JSplitPane {
 //            logger.debug(xmlFile.getSystemId() + " is valid");
 //            doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is valid\n", styleWarning);
 	    } catch (SAXException e) {
-		logger.debug(xmlFile.getSystemId() + " is NOT valid");
-		logger.debug("Reason: " + e.getLocalizedMessage());
+		logger.debug("{} is NOT valid",xmlFile.getSystemId(), e);
 
 		doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is NOT valid\n", styleError);
 		doc.insertString(doc.getLength(), "Reason: " + e.getLocalizedMessage() + "\n", styleError);
@@ -337,7 +337,7 @@ public class XsdChecker extends JSplitPane {
 	    }
 	    doc.insertString(doc.getLength(), "\nDone.\n", styleWarning);
 	} catch (Exception ex) {
-	    logger.debug("error: " + ex.getMessage());
+	    logger.warn("error writing results", ex);
 	}
     }
 }

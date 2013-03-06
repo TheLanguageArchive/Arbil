@@ -483,9 +483,9 @@ public class ArbilField extends HistoryField implements Serializable {
     public boolean setKeyName(String keyNameLocal, boolean updateUI, boolean excludeFromUndoHistory) {
         // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
         // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
-        logger.debug("setKeyName: " + keyNameLocal);
+        logger.debug("setKeyName: {}", keyNameLocal);
         String lastValue = getKeyName();
-        logger.debug("lastValue: " + lastValue);
+        logger.debug("lastValue: {}", lastValue);
         if (lastValue != null) {
             if (!lastValue.equals(keyNameLocal)) { // only if the value is different
 //                if (fieldAttributes.contains("Name")) { // only if there is already a key name

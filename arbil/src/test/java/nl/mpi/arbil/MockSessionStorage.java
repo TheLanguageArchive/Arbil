@@ -125,7 +125,7 @@ public class MockSessionStorage implements SessionStorage {
         URI returnUri = null;
         String uriPath = locationInCacheURI.getPath();
 //        logger.debug("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
-        logger.debug("uriPath: " + uriPath);
+        logger.debug("uriPath: {}", uriPath);
         int foundPos = uriPath.indexOf("imdicache");
         if (foundPos == -1) {
             foundPos = uriPath.indexOf("ArbilWorkingFiles");
@@ -138,7 +138,7 @@ public class MockSessionStorage implements SessionStorage {
         try {
             if (uriParts[1].toLowerCase().equals("http")) {
                 returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
-                logger.debug("returnUri: " + returnUri);
+                logger.debug("returnUri: {}", returnUri);
             }
         } catch (URISyntaxException urise) {
             log.severe(urise.toString());
