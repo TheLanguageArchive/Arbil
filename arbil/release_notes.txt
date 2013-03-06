@@ -19,6 +19,9 @@ The following functionality has been added to Arbil:
 
 - FAVOURITES: Favourites can be now be imported and exported. (#19)
 
+- TYPE CHECKING: Typechecking can be forced on a resource manually through a
+menu option. (#2826)
+
 ** CHANGES **
 
 These parts of the Arbil functionality have changed:
