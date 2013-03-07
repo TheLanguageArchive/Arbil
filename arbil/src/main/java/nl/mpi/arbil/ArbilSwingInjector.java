@@ -92,7 +92,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilHyperlinkListener.setWindowManager(windowManager);
 	ArbilDragDrop.setWindowManager(windowManager);
 	ArbilLongFieldEditor.setWindowManager(windowManager);
-	ArbilTable.setWindowManager(windowManager);
 	ArbilMenuBar.setWindowManager(windowManager);
 	TemplateDialogue.setWindowManager(windowManager);
 	ImportExportDialog.setWindowManager(windowManager);

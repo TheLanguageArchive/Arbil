@@ -48,7 +48,8 @@ public class ArbilSearchTest extends ArbilTest {
 
     /**
      * Tests for matches and non-matches
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void testSearchMatching() throws Exception {
@@ -81,7 +82,8 @@ public class ArbilSearchTest extends ArbilTest {
 
     /**
      * Tests field name specification in search term
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void testSearchFields() throws Exception {
@@ -98,7 +100,8 @@ public class ArbilSearchTest extends ArbilTest {
 
     /**
      * Tests adding results to table model
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void testSearchToTableModel() throws Exception {
@@ -114,7 +117,7 @@ public class ArbilSearchTest extends ArbilTest {
 	search = searchLocalTree(model, ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", NAME_TEST_SESSION_1);
 	assertEquals(1, search.getFoundNodes().size());
 	assertEquals(1, model.getArbilDataNodeCount());
-	ArbilNode node = model.getArbilDataNodes().nextElement();
+	ArbilNode node = (ArbilDataNode) model.getArbilDataNodes().nextElement();
 	assertTrue(node.isSession());
 	assertEquals(NAME_TEST_SESSION_1, node.toString());
     }
@@ -144,12 +147,11 @@ public class ArbilSearchTest extends ArbilTest {
     }
 
     /**
-     * 
+     *
      * @return Mock table model
      */
     private AbstractArbilTableModel createTableModel() {
 	return new AbstractArbilTableModel() {
-
 	    private Hashtable<String, ArbilDataNode> hash = new Hashtable<String, ArbilDataNode>();
 	    private ArbilTableCell[][] tableData = new ArbilTableCell[0][0];
 

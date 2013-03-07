@@ -25,22 +25,17 @@ import java.util.Collections;
 import java.util.Enumeration;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.table.TableColumn;
-import nl.mpi.arbil.ui.ArbilFieldViewTable;
 import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
+import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.util.BugCatcherManager;
-import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.WindowManager;
 
 /**
  *
@@ -50,14 +45,12 @@ public class TableHeaderContextMenu extends JPopupMenu {
 
     private final ArbilTable table;
     private final ArbilTableModel tableModel;
-    private final MessageDialogHandler dialogHandler;
-    private final WindowManager windowManager;
+    private final ArbilTableController tableController;
 
-    public TableHeaderContextMenu(final ArbilTable table, final ArbilTableModel tableModel, final int targetColumn, final MessageDialogHandler dialogHandler, final WindowManager windowManager) {
+    public TableHeaderContextMenu(final ArbilTableController tableController, final ArbilTable table, final ArbilTableModel tableModel, final int targetColumn) {
 	this.table = table;
 	this.tableModel = tableModel;
-	this.dialogHandler = dialogHandler;
-	this.windowManager = windowManager;
+	this.tableController = tableController;
 	initMenuItems(targetColumn);
     }
 
@@ -67,36 +60,13 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	final JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
 	saveViewMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		try {
-		    //logger.debug("saveViewNenuItem: " + targetTable.toString());
-		    String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
-		    // if the user did not cancel
-		    if (fieldViewName != null) {
-			table.updateStoredColumnWidhts();
-			if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, tableModel.getFieldView())) {
-			    dialogHandler.addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
-			}
-		    }
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
+		tableController.saveCurrentColumnView(table);
 	    }
 	});
 	final JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
 	editViewMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		table.updateStoredColumnWidhts();
-		try {
-		    ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(tableModel);
-		    JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(windowManager.getMainFrame()), true);
-		    editViewsDialog.setTitle("Editing Current Column View");
-		    JScrollPane js = new JScrollPane(fieldViewTable);
-		    editViewsDialog.getContentPane().add(js);
-		    editViewsDialog.setBounds(50, 50, 600, 400);
-		    editViewsDialog.setVisible(true);
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
+		tableController.showColumnViewsEditor(table);
 	    }
 	});
 	final JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
@@ -248,7 +218,7 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.showRowChildData();
+		    tableController.showRowChildData(tableModel);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}

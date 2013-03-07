@@ -777,7 +777,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 				    ArbilTable table = ((ArbilSplitPanel) currentComponent).arbilTable;
 
 				    // Store field view (columns shown + widths)
-				    table.updateStoredColumnWidhts();
+				    table.updateStoredColumnWidths();
 				    windowState.fieldView = table.getArbilTableModel().getFieldView();
 
 				    Vector currentNodesVector = new Vector(Arrays.asList(table.getArbilTableModel().getArbilDataNodesURLs()));

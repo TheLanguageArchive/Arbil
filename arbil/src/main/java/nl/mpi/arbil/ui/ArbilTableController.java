@@ -17,22 +17,30 @@
  */
 package nl.mpi.arbil.ui;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.ui.menu.TableHeaderContextMenu;
+import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -80,6 +88,51 @@ public class ArbilTableController {
 	windowManager.openFloatingTableOnce(nodes, String.format("%s in %s", fieldName, registeredOwner.toString()));
     }
 
+    public void showRowChildData(ArbilTableModel tableModel) {
+	Object[] possibilities = tableModel.getChildNames();
+	String selectionResult = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
+//      TODO: JOptionPane.show it would be good to have a miltiple select here
+	if ((selectionResult != null) && (selectionResult.length() > 0)) {
+	    tableModel.addChildTypeToDisplay(selectionResult);
+	}
+    }
+
+    public void viewSelectedTableRows(ArbilTable table) {
+	int[] selectedRows = table.getSelectedRows();
+	windowManager.openFloatingTableOnce(table.getArbilTableModel().getSelectedDataNodes(selectedRows), null);
+    }
+
+    public void showColumnViewsEditor(ArbilTable table) {
+	table.updateStoredColumnWidths();
+	try {
+	    ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(table.getArbilTableModel());
+	    JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(windowManager.getMainFrame()), true);
+	    editViewsDialog.setTitle("Editing Current Column View");
+	    JScrollPane js = new JScrollPane(fieldViewTable);
+	    editViewsDialog.getContentPane().add(js);
+	    editViewsDialog.setBounds(50, 50, 600, 400);
+	    editViewsDialog.setVisible(true);
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
+    }
+
+    public void saveCurrentColumnView(ArbilTable table) {
+	try {
+	    //logger.debug("saveViewNenuItem: " + targetTable.toString());
+	    String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
+	    // if the user did not cancel
+	    if (fieldViewName != null) {
+		table.updateStoredColumnWidths();
+		if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, table.getArbilTableModel().getFieldView())) {
+		    dialogHandler.addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
+		}
+	    }
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
+    }
+
     private class DeleteRowAction extends AbstractAction {
 
 	public void actionPerformed(ActionEvent e) {
@@ -87,8 +140,8 @@ public class ArbilTableController {
 	}
     }
 
-    public void checkPopup(java.awt.event.MouseEvent evt, boolean checkSelection) {
-	final ArbilTable table = (ArbilTable) evt.getSource();
+    public void checkPopup(MouseEvent evt, boolean checkSelection) {
+	final ArbilTable table = getEventSourceAsArbilTable(evt);
 	final ArbilTableModel tableModel = table.getArbilTableModel();
 
 	if (!tableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown() */) {
@@ -155,9 +208,9 @@ public class ArbilTableController {
 	}
 
 	@Override
-	public void mouseClicked(java.awt.event.MouseEvent evt) {
-	    final JTableHeader tableHeader = (JTableHeader) evt.getSource();
-	    final ArbilTable table = (ArbilTable) tableHeader.getTable();
+	public void mouseClicked(MouseEvent evt) {
+	    //final JTableHeader tableHeader = (JTableHeader) evt.getSource();
+	    final ArbilTable table = getEventSourceAsArbilTable(evt);// (ArbilTable) tableHeader.getTable();
 	    final ArbilTableModel tableModel = table.getArbilTableModel();
 
 	    if (evt.getButton() == MouseEvent.BUTTON1) {
@@ -167,17 +220,47 @@ public class ArbilTableController {
 	    checkTableHeaderPopup(evt);
 	}
 
-	private void checkTableHeaderPopup(java.awt.event.MouseEvent evt) {
-	    final JTableHeader tableHeader = (JTableHeader) evt.getSource();
-	    final ArbilTable table = (ArbilTable) tableHeader.getTable();
+	private void checkTableHeaderPopup(MouseEvent evt) {
+	    //final JTableHeader tableHeader = (JTableHeader) evt.getSource();
+	    final ArbilTable table = getEventSourceAsArbilTable(evt);// (ArbilTable) tableHeader.getTable();
 	    final ArbilTableModel tableModel = table.getArbilTableModel();
 
 	    if (!tableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
 		final int targetColumn = table.convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
 		logger.debug("showing header menu for column {}", targetColumn);
-		final JPopupMenu popupMenu = new TableHeaderContextMenu(table, tableModel, targetColumn, dialogHandler, windowManager);
+		final JPopupMenu popupMenu = new TableHeaderContextMenu(ArbilTableController.this, table, tableModel, targetColumn);
 		popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
 	    }
 	}
+    }
+
+    private ArbilTable getEventSourceAsArbilTable(InputEvent event) {
+	final Object source = event.getSource();
+	if (source instanceof ArbilTable) {
+	    // Source is a table
+	    return (ArbilTable) source;
+	}
+	if (source instanceof JTableHeader) {
+	    // Source is table header, get its table
+	    final JTable table = ((JTableHeader) source).getTable();
+	    if (table instanceof ArbilTable) {
+		// Only intereseted in ArbilTables
+		return (ArbilTable) table;
+	    } else {
+		logger.warn("InputEvent coming from header of a JTable that is not an ArbilTable");
+	    }
+	}
+	if (source instanceof Component) {
+	    // Source is some other component, look for table ancestor
+	    logger.debug("Looking for ArbilTable in ancestor containers of InputEvent source {}", source);
+	    final Container tableAncestor = SwingUtilities.getAncestorOfClass(ArbilTable.class, (Component) source);
+	    if (tableAncestor != null) {
+		logger.debug("Found ArbilTable {} as ancestor", tableAncestor);
+		return (ArbilTable) tableAncestor;
+	    }
+	}
+	// Giving up, this should not happen!
+	logger.warn("Could not find ArbilTable associated with InputEvent source {}", source);
+	throw new RuntimeException("Cannot find ArbilTable in component hierarchy from event");
     }
 }

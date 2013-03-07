@@ -198,7 +198,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.showRowChildData();
+		    tableController.showRowChildData(table.getArbilTableModel());
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -311,7 +311,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.viewSelectedTableRows();
+		    tableController.viewSelectedTableRows(table);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}

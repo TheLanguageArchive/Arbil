@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
@@ -48,7 +47,6 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.flap.plugin.PluginArbilTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,11 +62,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
     public final static int MIN_COLUMN_WIDTH = 50;
     public final static int MAX_COLUMN_WIDTH = 300;
     private final static Logger logger = LoggerFactory.getLogger(ArbilTable.class);
-    private static WindowManager windowManager;
-    
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
     private static MessageDialogHandler dialogHandler;
     
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
@@ -148,15 +141,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	ArbilTableCellRenderer arbilCellRenderer = new ArbilTableCellRenderer();
 	arbilCellRenderer.setBackground(arbilTableModel.getCellColour(row, modelcolumn));
 	return arbilCellRenderer;
-    }
-    
-    public void showRowChildData() {
-	Object[] possibilities = this.getArbilTableModel().getChildNames();
-	String selectionResult = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
-//      TODO: JOptionPane.show it would be good to have a miltiple select here
-	if ((selectionResult != null) && (selectionResult.length() > 0)) {
-	    this.getArbilTableModel().addChildTypeToDisplay(selectionResult);
-	}
     }
     
     @Override
@@ -266,7 +250,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	}
     }
     
-    public void updateStoredColumnWidhts() {
+    public void updateStoredColumnWidths() {
 	final ArbilFieldView fieldView = arbilTableModel.getFieldView();
 	for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
 	    TableColumn column = getColumnModel().getColumn(i);
@@ -456,11 +440,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	} else {
 	    dialogHandler.addMessageDialogToQueue("No rows selected", "Paste into Table");
 	}
-    }
-    
-    public void viewSelectedTableRows() {
-	int[] selectedRows = this.getSelectedRows();
-	windowManager.openFloatingTableOnce(arbilTableModel.getSelectedDataNodes(selectedRows), null);
     }
     
     public ArbilDataNode getDataNodeForSelection() {

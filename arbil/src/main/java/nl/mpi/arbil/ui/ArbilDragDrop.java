@@ -488,7 +488,7 @@ public class ArbilDragDrop {
 		Container target = findArbilDropableTarget(comp);
 		if (target instanceof ArbilSplitPanel) {
 		    ArbilSplitPanel targetPanel = (ArbilSplitPanel) target;
-		    targetPanel.arbilTable.updateStoredColumnWidhts();
+		    targetPanel.arbilTable.updateStoredColumnWidths();
 		    ArbilTableModel dropTableModel = targetPanel.arbilTable.getArbilTableModel();
 		    dropTableModel.addArbilDataNodes(draggedArbilNodes);
 		    return true; // we have achieved the drag so return true
