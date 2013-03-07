@@ -47,9 +47,9 @@ public class TableHeaderContextMenu extends JPopupMenu {
     private final ArbilTableModel tableModel;
     private final ArbilTableController tableController;
 
-    public TableHeaderContextMenu(final ArbilTableController tableController, final ArbilTable table, final ArbilTableModel tableModel, final int targetColumn) {
+    public TableHeaderContextMenu(final ArbilTableController tableController, final ArbilTable table, final int targetColumn) {
 	this.table = table;
-	this.tableModel = tableModel;
+	this.tableModel = table.getArbilTableModel();
 	this.tableController = tableController;
 	initMenuItems(targetColumn);
     }

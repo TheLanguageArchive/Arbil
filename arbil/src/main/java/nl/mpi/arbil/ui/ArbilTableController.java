@@ -282,7 +282,7 @@ public class ArbilTableController {
 	    if (!tableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
 		final int targetColumn = table.convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
 		logger.debug("showing header menu for column {}", targetColumn);
-		final JPopupMenu popupMenu = new TableHeaderContextMenu(ArbilTableController.this, table, tableModel, targetColumn);
+		final JPopupMenu popupMenu = new TableHeaderContextMenu(ArbilTableController.this, table, targetColumn);
 		popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
 	    }
 	}
