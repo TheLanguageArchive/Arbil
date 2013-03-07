@@ -126,7 +126,6 @@ public class ArbilTableController {
 
     public void saveCurrentColumnView(ArbilTable table) {
 	try {
-	    //logger.debug("saveViewNenuItem: " + targetTable.toString());
 	    String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
 	    // if the user did not cancel
 	    if (fieldViewName != null) {
@@ -207,7 +206,7 @@ public class ArbilTableController {
 	final ArbilTable table = getEventSourceAsArbilTable(evt);
 	final ArbilTableModel tableModel = table.getArbilTableModel();
 
-	if (!tableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown() */) {
+	if (!tableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
 	    // set the clicked cell selected
 	    java.awt.Point p = evt.getPoint();
 	    int clickedRow = table.rowAtPoint(p);
@@ -220,14 +219,7 @@ public class ArbilTableController {
 		    if (clickedRow > -1 & clickedRow > -1) {
 			// if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
 			table.getSelectionModel().clearSelection();
-			// make sure the clicked cell is selected
-//                        logger.debug("clickedRow: " + clickedRow + " clickedRow: " + clickedRow);
-//                        getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
-//                        getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
 			table.changeSelection(clickedRow, clickedColumn, false, evt.isShiftDown());
-			// make sure the clicked cell is the lead selection
-//                    getSelectionModel().setLeadSelectionIndex(rowIndex);
-//                    getColumnModel().getSelectionModel().setLeadSelectionIndex(colIndex);
 		    }
 		}
 	    }
@@ -272,8 +264,7 @@ public class ArbilTableController {
 
 	@Override
 	public void mouseClicked(MouseEvent evt) {
-	    //final JTableHeader tableHeader = (JTableHeader) evt.getSource();
-	    final ArbilTable table = getEventSourceAsArbilTable(evt);// (ArbilTable) tableHeader.getTable();
+	    final ArbilTable table = getEventSourceAsArbilTable(evt);
 	    final ArbilTableModel tableModel = table.getArbilTableModel();
 
 	    if (evt.getButton() == MouseEvent.BUTTON1) {
