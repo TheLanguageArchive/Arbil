@@ -54,7 +54,6 @@ import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBox;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
 import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
 import nl.mpi.arbil.util.BugCatcherManager;
-import nl.mpi.arbil.util.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,23 +64,19 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilTableCellEditor.class);
 
-    private static WindowManager windowManager;
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTableCellEditor.class);
     /**
      * Action key that starts appending to field in editor
      */
     public static final int APPEND_TO_FIELD_ACTION_KEY = KeyEvent.VK_F2;
-
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
+    private final ArbilTableController tableController;
+    private final JPanel editorPanel;
+    private final ArbilTableCellRenderer arbilTableCellRenderer;
+    private final JLabel button;
     ArbilTable parentTable = null;
     Rectangle parentCellRect = null;
     ArbilDataNode registeredOwner = null;
-    JPanel editorPanel;
-    ArbilTableCellRenderer arbilTableCellRenderer;
-    JLabel button;
     String fieldName;
     Component editorComponent = null;
 //    boolean receivedKeyDown = false;
@@ -91,12 +86,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     private final MouseListener fieldMouseAdapter = new java.awt.event.MouseAdapter() {
 	@Override
 	public void mouseReleased(MouseEvent evt) {
-	    parentTable.checkPopup(evt, false);
+	    tableController.checkPopup(evt, false);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent evt) {
-	    parentTable.checkPopup(evt, false);
+	    tableController.checkPopup(evt, false);
 	}
 
 	@Override
@@ -104,13 +99,14 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	    if (evt.getButton() == MouseEvent.BUTTON1) {
 		startEditorMode(isStartLongFieldModifier(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
 	    } else {
-		parentTable.checkPopup(evt, false);
-		//super.mousePressed(evt);
+		tableController.checkPopup(evt, false);
 	    }
 	}
     };
 
-    public ArbilTableCellEditor() {
+    public ArbilTableCellEditor(ArbilTableController tableController) {
+	this.tableController = tableController;
+
 	arbilTableCellRenderer = new ArbilTableCellRenderer();
 	button = new JLabel("...");
 	editorPanel = new JPanel();
@@ -389,11 +385,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 //                ArbilTableCellEditor.this.stopCellEditing();
 	    }
 	} else if (cellValue instanceof ArbilDataNode[]) {
-	    /* Cell contains collection of child nodes. Open in table */
-	    windowManager.openFloatingTableOnce((ArbilDataNode[]) cellValue, fieldName + " in " + registeredOwner);
-
-
-
+	    tableController.openNodesInNewTable((ArbilDataNode[]) cellValue, fieldName, registeredOwner);
 	} else if (cellValue.length == 1 && cellValue[0] instanceof ArbilFieldPlaceHolder) {
 	    /* Cell value is field place holder, meaning that the node does not
 	     * contain the selected field and may not be able to. Investigate, and

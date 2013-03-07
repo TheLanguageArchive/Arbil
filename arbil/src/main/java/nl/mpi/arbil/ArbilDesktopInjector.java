@@ -97,10 +97,10 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	windowManager.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
 
-	tableController = new ArbilTableController(treeHelper);
+	tableController = new ArbilTableController(treeHelper, messageDialogHandler, windowManager);
 	windowManager.setTableController(tableController);
 	injectTableController(tableController);
-	
+
 	treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, messageDialogHandler, dataNodeLoader, mimeHashQueue, versionManager);
     }
 
