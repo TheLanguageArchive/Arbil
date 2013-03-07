@@ -26,6 +26,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JDialog;
@@ -37,7 +42,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.ui.menu.TableHeaderContextMenu;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -133,11 +140,67 @@ public class ArbilTableController {
 	}
     }
 
-    private class DeleteRowAction extends AbstractAction {
-
-	public void actionPerformed(ActionEvent e) {
-	    treeHelper.deleteNodes(e.getSource());
+    public void deleteFields(ArbilField[] selectedFields) {
+	try {
+	    if (selectedFields != null) {
+//                                  to delete these fields they must be separated into imdi tree objects and request delete for each one
+//                                  todo: the delete field action should also be available in the long field editor
+		final Map<ArbilDataNode, ArrayList> selectedFieldHashtable = new HashMap<ArbilDataNode, ArrayList>();
+		for (ArbilField currentField : selectedFields) {
+		    ArrayList currentList = selectedFieldHashtable.get(currentField.getParentDataNode());
+		    if (currentList == null) {
+			currentList = new ArrayList();
+			selectedFieldHashtable.put(currentField.getParentDataNode(), currentList);
+		    }
+		    currentList.add(currentField.getFullXmlPath());
+		}
+		for (ArbilDataNode currentDataNode : selectedFieldHashtable.keySet()) {
+		    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+		    boolean result = componentBuilder.removeChildNodes(currentDataNode, (String[]) selectedFieldHashtable.get(currentDataNode).toArray(new String[]{}));
+		    if (result) {
+			currentDataNode.reloadNode();
+		    } else {
+			dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ERROR DELETING FIELDS, CHECK THE LOG FILE VIA THE HELP MENU FOR MORE INFORMATION."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("DELETE FIELD"));
+		    }
+		}
+	    }
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
+    }
+
+    public void copySelectedCellToColumn(ArbilTable table) {
+	try {
+	    final String messageString = java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ABOUT TO REPLACE ALL VALUES IN COLUMN {0} WITH THE VALUE {1}(<MULTIPLE VALUES> WILL NOT BE AFFECTED)"), new Object[]{table.getArbilTableModel().getColumnName(table.getSelectedColumn()), table.getArbilTableModel().getValueAt(table.getSelectedRow(), table.getSelectedColumn())});
+	    // TODO: change this to copy to selected rows
+	    if (!(table.getArbilTableModel().getTableCellContentAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
+		dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CANNOT COPY THIS TYPE OF FIELD"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY CELL TO WHOLE COLUMN"));
+	    } else if (0 == JOptionPane.showConfirmDialog(windowManager.getMainFrame(), messageString, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY CELL TO WHOLE COLUMN"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+		table.getArbilTableModel().copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
+	    }
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
+    }
+
+    public void deleteNodes(ArbilTable table) {
+	treeHelper.deleteNodes(table);
+    }
+
+    public void jumpToSelectionInTree(ArbilTable table) {
+	try {
+	    treeHelper.jumpToSelectionInTree(false, table.getDataNodeForSelection());
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
+    }
+
+    public void showContextForSelectedNodes(ArbilTable table) {
+	final Set<ArbilDataNode> parentNodes = new HashSet<ArbilDataNode>();
+	for (ArbilField selectedField : table.getSelectedFields()) {
+	    parentNodes.add(selectedField.getParentDataNode().getParentDomNode());
+	}
+	windowManager.openFloatingSubnodesWindows(parentNodes.toArray(new ArbilDataNode[]{}));
     }
 
     public void checkPopup(MouseEvent evt, boolean checkSelection) {
@@ -252,15 +315,20 @@ public class ArbilTableController {
 	}
 	if (source instanceof Component) {
 	    // Source is some other component, look for table ancestor
-	    logger.debug("Looking for ArbilTable in ancestor containers of InputEvent source {}", source);
 	    final Container tableAncestor = SwingUtilities.getAncestorOfClass(ArbilTable.class, (Component) source);
 	    if (tableAncestor != null) {
-		logger.debug("Found ArbilTable {} as ancestor", tableAncestor);
 		return (ArbilTable) tableAncestor;
 	    }
 	}
 	// Giving up, this should not happen!
 	logger.warn("Could not find ArbilTable associated with InputEvent source {}", source);
 	throw new RuntimeException("Cannot find ArbilTable in component hierarchy from event");
+    }
+
+    private class DeleteRowAction extends AbstractAction {
+
+	public void actionPerformed(ActionEvent e) {
+	    treeHelper.deleteNodes(e.getSource());
+	}
     }
 }

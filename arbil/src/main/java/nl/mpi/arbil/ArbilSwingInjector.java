@@ -36,8 +36,6 @@ import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.ArbilContextMenu;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
-import nl.mpi.arbil.ui.menu.TableContextMenu;
-import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -69,7 +67,6 @@ public class ArbilSwingInjector extends ArbilInjector {
     @Override
     public void injectTreeHelper(TreeHelper treeHelper) {
 	super.injectTreeHelper(treeHelper);
-	TableContextMenu.setTreeHelper(treeHelper);
 	ArbilSetupWizard.setTreeHelper(treeHelper);
 	ArbilSplitPanel.setTreeHelper(treeHelper);
 	ArbilDragDrop.setTreeHelper(treeHelper);
@@ -85,8 +82,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	super.injectWindowManager(windowManager);
 	ArbilContextMenu.setWindowManager(windowManager);
 	LanguageListDialogue.setWindowManager(windowManager);
-	TableContextMenu.setWindowManager(windowManager);
-	TreeContextMenu.setWindowManager(windowManager);
 	CmdiProfilesPanel.setWindowManager(windowManager);
 	PreviewSplitPanel.setWindowManager(windowManager);
 	ArbilHyperlinkListener.setWindowManager(windowManager);
@@ -108,10 +103,8 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilFieldViewTableModel.setMessageDialogHandler(messageDialogHandler);
 	CmdiProfilesPanel.setMessageDialogHandler(messageDialogHandler);
 	ArbilContextMenu.setMessageDialogHandler(messageDialogHandler);
-	TableContextMenu.setMessageDialogHandler(messageDialogHandler);
 	RemoteServerSearchTermPanel.setMessageDialogHandler(messageDialogHandler);
 	ArbilMenuBar.setMessageDialogHandler(messageDialogHandler);
-	TreeContextMenu.setMessageDialogHandler(messageDialogHandler);
 	ImportExportDialog.setMessageDialogHandler(messageDialogHandler);
 	ArbilRemoteSearch.setMessageDialogHandler(messageDialogHandler);
     }
@@ -122,7 +115,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilHyperlinkListener.setDataNodeLoader(dataNodeLoader);
 	ArbilContextMenu.setDataNodeLoader(dataNodeLoader);
 	ArbilMenuBar.setDataNodeLoader(dataNodeLoader);
-	TreeContextMenu.setDataNodeLoader(dataNodeLoader);
     }
 
     @Override

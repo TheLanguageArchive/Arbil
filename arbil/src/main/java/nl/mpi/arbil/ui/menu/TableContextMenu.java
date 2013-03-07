@@ -19,23 +19,13 @@ package nl.mpi.arbil.ui.menu;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
-import nl.mpi.arbil.data.ArbilComponentBuilder;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.util.BugCatcherManager;
-import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.TreeHelper;
-import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Context menu for table UI components
@@ -43,41 +33,26 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Twan Goosen
  */
 public class TableContextMenu extends ArbilContextMenu {
-    
-    private static TreeHelper treeHelper;
-    
-    public static void setTreeHelper(TreeHelper treeHelperInstance) {
-	treeHelper = treeHelperInstance;
-    }
-    private static WindowManager windowManager;
-    
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
-    private static MessageDialogHandler dialogHandler;
-    
-    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
-	dialogHandler = dialogHandlerInstance;
-    }
-    
+
     private final ArbilTableController tableController;
-    
+
     public TableContextMenu(ArbilTable table, ArbilTableController tableController) {
 	super();
-	this.table = table;
 	this.tableController = tableController;
+
+	this.table = table;
 	setInvoker(table);
-	
+
 	selectedTreeNodes = table.getSelectedRowsFromTable();
 	leadSelectedDataNode = table.getDataNodeForSelection();
     }
-    
+
     @Override
     protected void setUpMenu() {
 	setUpItems();
 	setUpActions();
     }
-    
+
     private void setUpItems() {
 	if (table.getSelectedRow() != -1) {
 	    copySelectedRowsMenuItem.setVisible(true);
@@ -136,7 +111,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		// show the cell only menu items
 		matchingCellsMenuItem.setVisible(true);
 	    }
-	    
+
 	    jumpToNodeInTreeMenuItem.setVisible(leadSelectedDataNode.isLocal());
 	    clearCellColoursMenuItem.setVisible(true);
 	}
@@ -145,7 +120,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	    searchReplaceMenuItem.setVisible(true);
 	}
     }
-    
+
     private void setUpActions() {
 	copySelectedRowsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY"));
 	copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -158,7 +133,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	    }
 	});
 	addItem(CATEGORY_EDIT, PRIORITY_BOTTOM + 5, copySelectedRowsMenuItem);
-	
+
 	pasteIntoSelectedRowsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PASTE"));
 	pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -193,7 +168,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	    }
 	});
 	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 15, hideSelectedColumnsMenuItem);
-	
+
 	showChildNodesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW CHILD NODES"));
 	showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -204,44 +179,16 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	
+
 	if (deleteFieldMenuItem.getText() == null || deleteFieldMenuItem.getText().length() == 0) {
 	    deleteFieldMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("DELETE MULTIFIELD"));
 	}
 	deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    ArbilField[] selectedFields = table.getSelectedFields();
-		    if (selectedFields != null) {
-//                                  to delete these fields they must be separated into imdi tree objects and request delete for each one
-//                                  todo: the delete field action should also be available in the long field editor
-			Hashtable<ArbilDataNode, ArrayList> selectedFieldHashtable = new Hashtable<ArbilDataNode, ArrayList>();
-			for (ArbilField currentField : selectedFields) {
-			    ArrayList currentList = selectedFieldHashtable.get(currentField.getParentDataNode());
-			    if (currentList == null) {
-				currentList = new ArrayList();
-				selectedFieldHashtable.put(currentField.getParentDataNode(), currentList);
-			    }
-			    currentList.add(currentField.getFullXmlPath());
-			}
-			for (ArbilDataNode currentDataNode : selectedFieldHashtable.keySet()) {
-			    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-			    boolean result = componentBuilder.removeChildNodes(currentDataNode, (String[]) selectedFieldHashtable.get(currentDataNode).toArray(new String[]{}));
-			    if (result) {
-				currentDataNode.reloadNode();
-			    } else {
-				dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ERROR DELETING FIELDS, CHECK THE LOG FILE VIA THE HELP MENU FOR MORE INFORMATION."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("DELETE FIELD"));
-			    }
-			    //currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
-//                            BugCatcherManager.getBugCatcher().logError(new Exception("deleteFromDomViaId"));
-			}
-		    }
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
+		tableController.deleteFields(table.getSelectedFields());
 	    }
 	});
-	
+
 	revertFieldMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("REVERT SELECTED FIELDS"));
 	revertFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -257,25 +204,15 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	
+
 	copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
 	copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    final String messageString = java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ABOUT TO REPLACE ALL VALUES IN COLUMN {0} WITH THE VALUE {1}(<MULTIPLE VALUES> WILL NOT BE AFFECTED)"), new Object[]{table.getArbilTableModel().getColumnName(table.getSelectedColumn()), table.getArbilTableModel().getValueAt(table.getSelectedRow(), table.getSelectedColumn())});
-		    // TODO: change this to copy to selected rows
-		    if (!(table.getArbilTableModel().getTableCellContentAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
-			dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CANNOT COPY THIS TYPE OF FIELD"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY CELL TO WHOLE COLUMN"));
-		    } else if (0 == JOptionPane.showConfirmDialog(windowManager.getMainFrame(), messageString, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY CELL TO WHOLE COLUMN"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-			table.getArbilTableModel().copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
-		    }
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
+		tableController.copySelectedCellToColumn(table);
 	    }
 	});
 	addItem(CATEGORY_EDIT, PRIORITY_BOTTOM, copyCellToColumnMenuItem);
-	
+
 	matchingCellsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("HIGHLIGHT MATCHING CELLS"));
 	matchingCellsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -306,7 +243,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	
+
 	viewSelectedRowsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW SELECTED ROWS"));
 	viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -317,7 +254,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	
+
 	matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
 	matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -328,7 +265,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	
+
 	removeSelectedRowsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("REMOVE SELECTED ROWS"));
 	removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -339,37 +276,29 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	
+
 	deleteFromParentMenuItem.setText("Delete Selected Nodes from Parent");
 	deleteFromParentMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		treeHelper.deleteNodes(table);
+		tableController.deleteNodes(table);
 	    }
 	});
-	
+
 	jumpToNodeInTreeMenuItem.setText("Jump to in Tree");
 	jumpToNodeInTreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    treeHelper.jumpToSelectionInTree(false, table.getDataNodeForSelection());
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
+		tableController.jumpToSelectionInTree(table);
 	    }
 	});
 	jumpToNodeInTreeMenuItem.setEnabled(true);
-	
+
 	showInContextMenuItem.setText("Show Context");
 	showInContextMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		Set<ArbilDataNode> parentNodes = new HashSet<ArbilDataNode>();
-		for (ArbilField selectedField : table.getSelectedFields()) {
-		    parentNodes.add(selectedField.getParentDataNode().getParentDomNode());
-		}
-		windowManager.openFloatingSubnodesWindows(parentNodes.toArray(new ArbilDataNode[]{}));
+		tableController.showContextForSelectedNodes(table);
 	    }
 	});
-	
+
 	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 10, openInLongFieldEditorMenuItem);
 	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 15, hideSelectedColumnsMenuItem);
 	addItem(CATEGORY_TABLE_CELL_VIEW, PRIORITY_TOP + 20, showChildNodesMenuItem);
@@ -377,21 +306,21 @@ public class TableContextMenu extends ArbilContextMenu {
 	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_TOP + 10, copyCellToColumnMenuItem);
 	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_TOP + 20, matchingCellsMenuItem);
 	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_TOP + 30, clearCellColoursMenuItem);
-	
+
 	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_MIDDLE + 10, searchReplaceMenuItem);
 	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_MIDDLE + 15, deleteFieldMenuItem);
 	addItem(CATEGORY_TABLE_CELL_EDIT, PRIORITY_MIDDLE + 20, revertFieldMenuItem);
-	
+
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_TOP + 10, viewSelectedRowsMenuItem);
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_TOP + 15, matchingRowsMenuItem);
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_TOP + 20, removeSelectedRowsMenuItem);
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_MIDDLE, jumpToNodeInTreeMenuItem);
 	addItem(CATEGORY_TABLE_ROW, PRIORITY_BOTTOM + 10, deleteFromParentMenuItem);
-	
+
 	addItem(CATEGORY_EDIT, PRIORITY_MIDDLE + 10, copySelectedRowsMenuItem);
 	addItem(CATEGORY_EDIT, PRIORITY_MIDDLE + 15, pasteIntoSelectedRowsMenuItem);
     }
-    
+
     @Override
     protected void setAllInvisible() {
 	copySelectedRowsMenuItem.setVisible(false);
