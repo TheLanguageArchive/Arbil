@@ -19,11 +19,13 @@ package nl.mpi.arbil.ui;
 
 import java.awt.Color;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
@@ -36,10 +38,10 @@ import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
-import nl.mpi.flap.plugin.PluginArbilTableModel;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.NumberedStringComparator;
 import nl.mpi.flap.model.PluginDataNode;
+import nl.mpi.flap.plugin.PluginArbilTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -251,9 +253,9 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
      */
     protected abstract Hashtable<String, ArbilDataNode> getDataNodeHash();
 
-    public Vector getMatchingRows(int sampleRowNumber) {
+    public List<Integer> getMatchingRows(int sampleRowNumber) {
         logger.debug("MatchingRows for: {}", sampleRowNumber);
-        Vector matchedRows = new Vector();
+        List matchedRows = new ArrayList();
         if (sampleRowNumber > -1 && sampleRowNumber < getRowCount()) {
             for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
                 boolean rowMatches = true;

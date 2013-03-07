@@ -30,8 +30,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
@@ -45,7 +43,6 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
-import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.flap.plugin.PluginArbilTable;
 import org.slf4j.Logger;
@@ -360,43 +357,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	}
     }
     
-    public void startLongFieldEditorForSelectedFields() {
-	int[] selectedRows = this.getSelectedRows();
-	if (selectedRows.length > 0) {
-	    int[] selectedCols;
-	    if (this.getCellSelectionEnabled()) {
-		selectedCols = this.getSelectedColumns();
-	    } else {
-		selectedCols = new int[this.getColumnCount()];
-		for (int colCounter = 0; colCounter < selectedCols.length; colCounter++) {
-		    selectedCols[colCounter] = colCounter;
-		}
-	    }
-	    for (int currentRow : selectedRows) {
-		if (arbilTableModel.isHorizontalView() && getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION && getSelectedColumnCount() > 0) {
-		    // Entire row selected in horizontal view - try to open the long field editor for data node
-		    Object currentCellValue = getTableCellContentAt(currentRow, getSelectedColumns()[0]);
-		    if (currentCellValue instanceof ArbilDataNode) {
-			ArbilDataNode node = (ArbilDataNode) currentCellValue;
-			if (node.getFields().size() > 0) {
-			    // Get fields for the node
-			    List<ArbilField[]> fieldArrays = node.getFieldsSorted();
-			    // Show the editor
-			    new ArbilLongFieldEditor(this).showEditor(fieldArrays.get(0), fieldArrays.get(0)[0].getFieldValue(), 0);
-			}
-		    }
-		} else {
-		    for (int currentCol : selectedCols) {
-			Object currentCellValue = getTableCellContentAt(currentRow, currentCol);
-			if (currentCellValue instanceof ArbilField || currentCellValue instanceof ArbilField[]) {
-			    new ArbilTableCellEditor(tableController).startLongfieldEditor(this, getTableCellAt(currentRow, currentCol), false, currentRow, currentCol);
-			}
-		    }
-		}
-	    }
-	}
-    }
-    
     public ArbilField[] getSelectedFields() {
 	// there is a limitation in the jtable in the way selections can be made so there is no point making this more complicated than a single contigious selection
 	HashSet<ArbilField> selectedFields = new HashSet<ArbilField>();
@@ -479,24 +439,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
     public void removeSelectedRowsFromTable() {
 	int[] selectedRows = this.getSelectedRows();
 	arbilTableModel.removeArbilDataNodeRows(selectedRows);
-    }
-    
-    public void highlightMatchingRows() {
-	int selectedRow = this.getSelectedRow();
-	if (selectedRow == -1) {
-	    dialogHandler.addMessageDialogToQueue("No rows have been selected", "Highlight Matching Rows");
-	    return;
-	}
-	Vector foundRows = arbilTableModel.getMatchingRows(selectedRow);
-	this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	this.getSelectionModel().clearSelection();
-	dialogHandler.addMessageDialogToQueue("Found " + foundRows.size() + " matching rows", "Highlight Matching Rows");
-	for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
-	    for (int coloumCount = 0; coloumCount < this.getColumnCount(); coloumCount++) {
-		// TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
-		this.getSelectionModel().addSelectionInterval((Integer) foundRows.get(foundCount), (Integer) foundRows.get(foundCount));
-	    }
-	}
     }
     
     public ArbilTableModel getArbilTableModel() {

@@ -151,7 +151,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	openInLongFieldEditorMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.startLongFieldEditorForSelectedFields();
+		    tableController.startLongFieldEditorForSelectedFields(table);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -259,7 +259,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.highlightMatchingRows();
+		    tableController.highlightMatchingRows(table);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}

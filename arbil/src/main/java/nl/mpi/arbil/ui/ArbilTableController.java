@@ -43,6 +43,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
@@ -50,6 +51,7 @@ import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.ui.menu.TableHeaderContextMenu;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -265,6 +267,63 @@ public class ArbilTableController {
 	    parentNodes.add(selectedField.getParentDataNode().getParentDomNode());
 	}
 	windowManager.openFloatingSubnodesWindows(parentNodes.toArray(new ArbilDataNode[]{}));
+    }
+
+    public void highlightMatchingRows(ArbilTable table) {
+	final ArbilTableModel tableModel = table.getArbilTableModel();
+	final int selectedRow = table.getSelectedRow();
+	if (selectedRow == -1) {
+	    dialogHandler.addMessageDialogToQueue("No rows have been selected", "Highlight Matching Rows");
+	    return;
+	}
+	final List<Integer> foundRows = tableModel.getMatchingRows(selectedRow);
+	table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	table.getSelectionModel().clearSelection();
+	dialogHandler.addMessageDialogToQueue("Found " + foundRows.size() + " matching rows", "Highlight Matching Rows");
+	for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
+	    for (int coloumCount = 0; coloumCount < table.getColumnCount(); coloumCount++) {
+		// TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
+		table.getSelectionModel().addSelectionInterval(foundRows.get(foundCount), foundRows.get(foundCount));
+	    }
+	}
+    }
+
+    public void startLongFieldEditorForSelectedFields(ArbilTable table) {
+	final ArbilTableModel tableModel = table.getArbilTableModel();
+	int[] selectedRows = table.getSelectedRows();
+	if (selectedRows.length > 0) {
+	    int[] selectedCols;
+	    if (table.getCellSelectionEnabled()) {
+		selectedCols = table.getSelectedColumns();
+	    } else {
+		selectedCols = new int[table.getColumnCount()];
+		for (int colCounter = 0; colCounter < selectedCols.length; colCounter++) {
+		    selectedCols[colCounter] = colCounter;
+		}
+	    }
+	    for (int currentRow : selectedRows) {
+		if (tableModel.isHorizontalView() && table.getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION && table.getSelectedColumnCount() > 0) {
+		    // Entire row selected in horizontal view - try to open the long field editor for data node
+		    Object currentCellValue = table.getTableCellContentAt(currentRow, table.getSelectedColumns()[0]);
+		    if (currentCellValue instanceof ArbilDataNode) {
+			ArbilDataNode node = (ArbilDataNode) currentCellValue;
+			if (node.getFields().size() > 0) {
+			    // Get fields for the node
+			    List<ArbilField[]> fieldArrays = node.getFieldsSorted();
+			    // Show the editor
+			    new ArbilLongFieldEditor(table).showEditor(fieldArrays.get(0), fieldArrays.get(0)[0].getFieldValue(), 0);
+			}
+		    }
+		} else {
+		    for (int currentCol : selectedCols) {
+			Object currentCellValue = table.getTableCellContentAt(currentRow, currentCol);
+			if (currentCellValue instanceof ArbilField || currentCellValue instanceof ArbilField[]) {
+			    new ArbilTableCellEditor(this).startLongfieldEditor(table, table.getTableCellAt(currentRow, currentCol), false, currentRow, currentCol);
+			}
+		    }
+		}
+	    }
+	}
     }
 
     public void checkPopup(MouseEvent evt, boolean checkSelection) {
