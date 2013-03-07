@@ -188,6 +188,13 @@ public class TableHeaderContextMenu extends JPopupMenu {
 		table.doResizeColumns(Collections.singleton(Integer.valueOf(targetColumn)));
 	    }
 	});
+	final JMenuItem deleteFieldFromNodes = new JMenuItem("Delete field from all nodes");
+	deleteFieldFromNodes.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		//TODO: deleteFieldFromNodes(targetColumnName);
+	    }
+	});
+
 
 	if (tableModel.isHorizontalView()) {
 	    final JMenu thisColumnMenu = new JMenu("This column" + " (" + (targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName) + ")");
@@ -211,6 +218,9 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	add(saveViewMenuItem);
 	add(editViewMenuItem);
 	add(showOnlyCurrentViewMenuItem);
+
+	add(new JSeparator());
+	add(deleteFieldFromNodes);
 
 	add(new JSeparator());
 	add(copyEmbedTagMenuItem);

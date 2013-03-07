@@ -71,7 +71,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 
     public final static int MIN_COLUMN_WIDTH = 50;
     public final static int MAX_COLUMN_WIDTH = 300;
-    public static final String DELETE_ROW_ACTION_KEY = "deleteRow";
     private final static Logger logger = LoggerFactory.getLogger(ArbilTable.class);
     private static WindowManager windowManager;
 
@@ -89,10 +88,12 @@ public class ArbilTable extends JTable implements PluginArbilTable {
     private int lastRowCount = -1;
     private int lastColumnPreferedWidth = 0;
     protected boolean allowNodeDrop = true;
+    private final ArbilTableController tableController;
 
-    public ArbilTable(ArbilTableModel localArbilTableModel, TreeHelper treeHelper, String frameTitle) {
-	arbilTableModel = localArbilTableModel;
-	arbilTableModel.setShowIcons(true);
+    public ArbilTable(ArbilTableModel arbilTableModel, ArbilTableController tableController, String frameTitle) {
+	this.tableController = tableController;
+	this.arbilTableModel = arbilTableModel;
+	this.arbilTableModel.setShowIcons(true);
 //        if (rowNodesArray != null) {
 //            imdiTableModel.addImdiObjects(rowNodesArray);
 //        }
@@ -104,7 +105,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 
 	initHeaderMouseListener();
 	initTableMouseListener();
-	initKeyMapping(treeHelper);
+	tableController.initKeyMapping(this);
     }
 
     @Override
@@ -127,36 +128,18 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	});
     }
 
-    private void initKeyMapping(final TreeHelper treeHelper) {
-	final Action deleteAction = new AbstractAction() {
-	    public void actionPerformed(ActionEvent e) {
-		treeHelper.deleteNodes(ArbilTable.this);
-	    }
-	};
-
-	getInputMap(JTable.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), DELETE_ROW_ACTION_KEY);
-	getActionMap().put(DELETE_ROW_ACTION_KEY, deleteAction);
-    }
-
     private void initTableMouseListener() {
 
 	this.addMouseListener(new java.awt.event.MouseAdapter() {
 	    @Override
 	    public void mousePressed(MouseEvent evt) {
-//                logger.debug("mousePressed");
 		checkPopup(evt, true);
 	    }
 
 	    @Override
 	    public void mouseReleased(MouseEvent evt) {
-//                logger.debug("mouseReleased");
 		checkPopup(evt, true);
 	    }
-//            @Override
-//            public void mouseClicked(java.awt.event.MouseEvent evt) {
-//                logger.debug("mouseClicked");
-//                checkPopup(evt);
-//            }
 	});
     }
 
@@ -165,13 +148,11 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    //            public void mousePressed(java.awt.event.MouseEvent evt) {
 	    @Override
 	    public void mousePressed(MouseEvent evt) {
-		//                logger.debug("mousePressed");
 		checkTableHeaderPopup(evt);
 	    }
 
 	    @Override
 	    public void mouseReleased(MouseEvent evt) {
-		//                logger.debug("mouseReleased");
 		checkTableHeaderPopup(evt);
 	    }
 
@@ -237,8 +218,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    if (tableCellEditor != null) {
 		tableCellEditor.stopCellEditing();
 	    }
-	    new TableContextMenu(this).show(evt.getX(), evt.getY());
-	    //new OldContextMenu().showTreePopup(evt.getSource(), evt.getX(), evt.getY());
+	    new TableContextMenu(this, tableController).show(evt.getX(), evt.getY());
 	}
     }
 

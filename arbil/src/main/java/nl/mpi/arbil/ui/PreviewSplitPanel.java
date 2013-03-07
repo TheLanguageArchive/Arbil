@@ -28,7 +28,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.TransferHandler;
 import javax.swing.table.TableCellEditor;
-import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -44,10 +43,10 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
     }
-    private static TreeHelper treeHelper;
+    private static ArbilTableController tableController;
 
-    public static void setTreeHelper(TreeHelper treeHelperInstance) {
-	treeHelper = treeHelperInstance;
+    public static void setTableController(ArbilTableController treeHelperInstance) {
+	tableController = treeHelperInstance;
     }
     private static PreviewSplitPanel instance;
 
@@ -70,7 +69,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	this.setName("rightSplitPane");
 
 	previewHiddenColumnLabel = new javax.swing.JLabel(" ");
-	previewTable = new ArbilTable(new ArbilTableModel(null), treeHelper, "Preview");
+	previewTable = new ArbilTable(new ArbilTableModel(null), tableController, "Preview");
 	previewTable.getArbilTableModel().setHiddenColumnsLabel(previewHiddenColumnLabel);
 	initCopyPaste();
 

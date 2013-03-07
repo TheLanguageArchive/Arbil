@@ -19,6 +19,7 @@ package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.ui.ArbilTreeController;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImageBoxRenderer;
@@ -45,8 +46,9 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     private ArbilWindowManager windowManager;
     private ArbilDataNodeLoader dataNodeLoader;
     private ImageBoxRenderer imageBoxRenderer;
-    private ArbilTreeController treeController;
     private ArbilSessionStorage sessionStorage;
+    private ArbilTreeController treeController;
+    private ArbilTableController tableController;
 
     public synchronized void injectHandlers() {
 	final ArbilVersion arbilVersion = new ArbilVersion();
@@ -95,6 +97,10 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	windowManager.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
 
+	tableController = new ArbilTableController(treeHelper);
+	windowManager.setTableController(tableController);
+	injectTableController(tableController);
+	
 	treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, messageDialogHandler, dataNodeLoader, mimeHashQueue, versionManager);
     }
 

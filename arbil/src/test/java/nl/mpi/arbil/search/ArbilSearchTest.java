@@ -114,7 +114,7 @@ public class ArbilSearchTest extends ArbilTest {
 	search = searchLocalTree(model, ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", NAME_TEST_SESSION_1);
 	assertEquals(1, search.getFoundNodes().size());
 	assertEquals(1, model.getArbilDataNodeCount());
-	ArbilNode node = ((ArbilNode) model.getArbilDataNodes().nextElement());
+	ArbilNode node = model.getArbilDataNodes().nextElement();
 	assertTrue(node.isSession());
 	assertEquals(NAME_TEST_SESSION_1, node.toString());
     }

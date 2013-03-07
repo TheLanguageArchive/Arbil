@@ -31,6 +31,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
+import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.TreeHelper;
@@ -59,9 +60,12 @@ public class TableContextMenu extends ArbilContextMenu {
 	dialogHandler = dialogHandlerInstance;
     }
     
-    public TableContextMenu(ArbilTable table) {
+    private final ArbilTableController tableController;
+    
+    public TableContextMenu(ArbilTable table, ArbilTableController tableController) {
 	super();
 	this.table = table;
+	this.tableController = tableController;
 	setInvoker(table);
 	
 	selectedTreeNodes = table.getSelectedRowsFromTable();

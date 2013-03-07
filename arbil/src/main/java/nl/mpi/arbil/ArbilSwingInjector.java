@@ -28,6 +28,7 @@ import nl.mpi.arbil.ui.ArbilNodeSearchColumnComboBox;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilTableCellEditor;
+import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.ui.CmdiProfilesPanel;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.LanguageListDialogue;
@@ -75,7 +76,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilSplitPanel.setTreeHelper(treeHelper);
 	ArbilDragDrop.setTreeHelper(treeHelper);
 	ArbilMenuBar.setTreeHelper(treeHelper);
-	PreviewSplitPanel.setTreeHelper(treeHelper);
     }
 
     public void injectMimeHashQueue(MimeHashQueue mimeHashQueue) {
@@ -127,6 +127,13 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilContextMenu.setDataNodeLoader(dataNodeLoader);
 	ArbilMenuBar.setDataNodeLoader(dataNodeLoader);
 	TreeContextMenu.setDataNodeLoader(dataNodeLoader);
+    }
+
+    @Override
+    public void injectTableController(ArbilTableController tableController) {
+	super.injectTableController(tableController);
+	//TODO: PreviewSplitPanel should not be singleton, then this can go
+	PreviewSplitPanel.setTableController(tableController);
     }
     
     

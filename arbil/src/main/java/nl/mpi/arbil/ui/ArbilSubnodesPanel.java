@@ -43,7 +43,6 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.ArbilActionBuffer;
-import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * ArbilSubnodesPanel is created for an ArbilDataNode and will contain the
@@ -79,15 +78,15 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 	    new EmptyBorder(0, 5, 0, 0)); // Inner border - empty white space (inset)
     private static Border labelPadding = new EmptyBorder(2, 0, 2, 0);
     private final ImageBoxRenderer imageBoxRenderer;
-    private final TreeHelper treeHelper;
+    private final ArbilTableController tableController;
 
     public ArbilDataNode getDataNode() {
 	return this.dataNode;
     }
 
-    public ArbilSubnodesPanel(ArbilDataNode dataNode, TreeHelper treeHelper, ImageBoxRenderer imageBoxRenderer) {
+    public ArbilSubnodesPanel(ArbilDataNode dataNode, ArbilTableController tableController, ImageBoxRenderer imageBoxRenderer) {
 	// Construct a top-level subnodes panel (with no parent)
-	this(dataNode, null, treeHelper, imageBoxRenderer);
+	this(dataNode, null, tableController, imageBoxRenderer);
     }
 
     @Override
@@ -102,12 +101,12 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 	return parent == null;
     }
 
-    private ArbilSubnodesPanel(ArbilDataNode dataNode, ArbilSubnodesPanel parent, TreeHelper treeHelper, ImageBoxRenderer imageBoxRenderer) {
+    private ArbilSubnodesPanel(ArbilDataNode dataNode, ArbilSubnodesPanel parent, ArbilTableController tableController, ImageBoxRenderer imageBoxRenderer) {
 	super();
 	this.imageBoxRenderer = imageBoxRenderer;
 	this.dataNode = dataNode;
 	this.parent = parent;
-	this.treeHelper = treeHelper;
+	this.tableController = tableController;
 
 	this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 	this.setAlignmentX(LEFT_ALIGNMENT);
@@ -211,7 +210,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 	// Create table model and put in a new ArbilTable
 	ArbilTableModel arbilTableModel = new ArbilTableModel(imageBoxRenderer);
 	arbilTableModel.addArbilDataNodes(new ArbilDataNode[]{dataNode});
-	table = new ArbilTable(arbilTableModel, treeHelper, dataNode.toString());
+	table = new ArbilTable(arbilTableModel, tableController, dataNode.toString());
 	// Make sure table and its header align well in the parent container
 	table.getTableHeader().setAlignmentX(LEFT_ALIGNMENT);
 	table.setAlignmentX(LEFT_ALIGNMENT);
@@ -225,7 +224,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     }
 
     private void addChildPanel(JPanel panel, ArbilDataNode child) {
-	ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this, treeHelper, imageBoxRenderer);
+	ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this, tableController, imageBoxRenderer);
 	children.add(childPanel);
 	panel.add(childPanel);
 	// Add some padding below child
