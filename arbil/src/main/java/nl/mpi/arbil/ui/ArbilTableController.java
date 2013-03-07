@@ -27,8 +27,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.AbstractAction;
@@ -45,6 +49,7 @@ import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.ui.menu.TableHeaderContextMenu;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -92,7 +97,7 @@ public class ArbilTableController {
     }
 
     public void openNodesInNewTable(ArbilDataNode[] nodes, String fieldName, ArbilDataNode registeredOwner) {
-	windowManager.openFloatingTableOnce(nodes, String.format("%s in %s", fieldName, registeredOwner.toString()));
+	windowManager.openFloatingTableOnce(nodes, String.format("%s in %s", fieldName, registeredOwner));
     }
 
     public void showRowChildData(ArbilTableModel tableModel) {
@@ -139,33 +144,93 @@ public class ArbilTableController {
 	}
     }
 
-    public void deleteFields(ArbilField[] selectedFields) {
-	try {
-	    if (selectedFields != null) {
-//                                  to delete these fields they must be separated into imdi tree objects and request delete for each one
-//                                  todo: the delete field action should also be available in the long field editor
-		final Map<ArbilDataNode, ArrayList> selectedFieldHashtable = new HashMap<ArbilDataNode, ArrayList>();
-		for (ArbilField currentField : selectedFields) {
-		    ArrayList currentList = selectedFieldHashtable.get(currentField.getParentDataNode());
-		    if (currentList == null) {
-			currentList = new ArrayList();
-			selectedFieldHashtable.put(currentField.getParentDataNode(), currentList);
-		    }
-		    currentList.add(currentField.getFullXmlPath());
-		}
-		for (ArbilDataNode currentDataNode : selectedFieldHashtable.keySet()) {
-		    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-		    boolean result = componentBuilder.removeChildNodes(currentDataNode, (String[]) selectedFieldHashtable.get(currentDataNode).toArray(new String[]{}));
-		    if (result) {
-			currentDataNode.reloadNode();
+    /**
+     * Deletes the fields selected in the provided table from their parent nodes
+     *
+     * @param table table to get selection from
+     * @return whether deletion was carried out
+     */
+    public boolean deleteSelectedFields(ArbilTable table) {
+	final ArbilField[] selectedFields = table.getSelectedFields();
+	if (selectedFields != null) {
+	    return deleteFields(Arrays.asList(selectedFields));
+	} else {
+	    return false;
+	}
+    }
+
+    /**
+     * Attempts to delete the field represented by the specified column name from all nodes visible as rows in the table.
+     * A check whether deletion of the field is allowed is done for each row/node; if one fails, a message gets presented and the entire
+     * operation gets aborted
+     *
+     * @param table table to get nodes to delete from
+     * @param columnName name of the column/field to remove
+     * @return whether deletion was carried out
+     */
+    public boolean deleteColumnFieldFromAllNodes(ArbilTable table, String columnName) {
+	final List<ArbilDataNode> rowNodes = Collections.list(table.getArbilTableModel().getArbilDataNodes());
+	final List<ArbilField> fieldsToDelete = new ArrayList<ArbilField>(rowNodes.size());
+
+	for (ArbilDataNode rowNode : rowNodes) {
+	    final ArbilField[] fields = rowNode.getFields().get(columnName);
+	    if (fields != null) {
+		for (ArbilField field : fields) {
+		    // Check whether deletion is allowed...
+		    final ArbilTemplate fieldParentTemplate = field.getParentDataNode().getNodeTemplate();
+		    final String fieldPath = field.getGenericFullXmlPath();
+		    if (fieldParentTemplate.pathIsDeleteableField(fieldPath)) {
+			// Add to deletion list
+			fieldsToDelete.add(fields[0]);
 		    } else {
-			dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ERROR DELETING FIELDS, CHECK THE LOG FILE VIA THE HELP MENU FOR MORE INFORMATION."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("DELETE FIELD"));
+			dialogHandler.addMessageDialogToQueue("This field cannot be deleted from one or more of the shown nodes", "Cannot delete");
+			return false;
 		    }
 		}
 	    }
+	}
+	if (dialogHandler.showConfirmDialogBox(String.format("Delete %d instance of the field '%s'?", fieldsToDelete.size(), columnName), "Delete field")) {
+	    return deleteFields(fieldsToDelete);
+	} else {
+	    return false;
+	}
+    }
+
+    private boolean deleteFields(Collection<ArbilField> fields) {
+	// to delete these fields they must be separated into imdi tree objects and request delete for each one
+	// todo: the delete field action should also be available in the long field editor
+	final ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	try {
+	    final Map<ArbilDataNode, List<String>> selectedFieldHashtable = getFieldDeletionMap(fields);
+	    // delete sets of fields per parent node
+	    for (ArbilDataNode currentDataNode : selectedFieldHashtable.keySet()) {
+		final String[] fieldsToDelete = selectedFieldHashtable.get(currentDataNode).toArray(new String[]{});
+		if (componentBuilder.removeChildNodes(currentDataNode, fieldsToDelete)) {
+		    currentDataNode.reloadNode();
+		} else {
+		    dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ERROR DELETING FIELDS, CHECK THE LOG FILE VIA THE HELP MENU FOR MORE INFORMATION."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("DELETE FIELD"));
+		}
+	    }
+	    return true;
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
+	    return false;
 	}
+    }
+
+    private Map<ArbilDataNode, List<String>> getFieldDeletionMap(Collection<ArbilField> fields) {
+	final Map<ArbilDataNode, List<String>> selectedFieldHashtable = new HashMap<ArbilDataNode, List<String>>();
+	for (ArbilField currentField : fields) {
+	    final ArbilDataNode fieldParent = currentField.getParentDataNode();
+	    // Get list of paths to delete for this field's parent. Create one if needed
+	    if (!selectedFieldHashtable.containsKey(fieldParent)) {
+		selectedFieldHashtable.put(fieldParent, new ArrayList<String>());
+	    }
+	    final List<String> fieldParentList = selectedFieldHashtable.get(fieldParent);
+	    // add the path of this field to the list
+	    fieldParentList.add(currentField.getFullXmlPath());
+	}
+	return selectedFieldHashtable;
     }
 
     public void copySelectedCellToColumn(ArbilTable table) {

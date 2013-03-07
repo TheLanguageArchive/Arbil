@@ -161,10 +161,9 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	final JMenuItem deleteFieldFromNodes = new JMenuItem("Delete field from all nodes");
 	deleteFieldFromNodes.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		//TODO: deleteFieldFromNodes(targetColumnName);
+		tableController.deleteColumnFieldFromAllNodes(table, targetColumnName);
 	    }
 	});
-
 
 	if (tableModel.isHorizontalView()) {
 	    final JMenu thisColumnMenu = new JMenu("This column" + " (" + (targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName) + ")");

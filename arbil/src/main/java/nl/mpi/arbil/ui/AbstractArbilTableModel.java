@@ -176,7 +176,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
         return getDataNodeHash().size();
     }
 
-    public Enumeration getArbilDataNodes() {
+    public Enumeration<ArbilDataNode> getArbilDataNodes() {
         return getDataNodeHash().elements();
     }
 

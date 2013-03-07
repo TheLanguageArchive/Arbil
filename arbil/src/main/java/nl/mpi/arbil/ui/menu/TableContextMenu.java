@@ -185,7 +185,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	}
 	deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		tableController.deleteFields(table.getSelectedFields());
+		tableController.deleteSelectedFields(table);
 	    }
 	});
 
