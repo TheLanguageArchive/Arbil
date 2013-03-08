@@ -255,7 +255,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	    }
 	});
 
-	matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
+	matchingRowsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SELECT MATCHING ROWS"));
 	matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -277,14 +277,14 @@ public class TableContextMenu extends ArbilContextMenu {
 	    }
 	});
 
-	deleteFromParentMenuItem.setText("Delete Selected Nodes from Parent");
+	deleteFromParentMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("REMOVE SELECTED NODES FROM PARENT"));
 	deleteFromParentMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		tableController.deleteNodes(table);
 	    }
 	});
 
-	jumpToNodeInTreeMenuItem.setText("Jump to in Tree");
+	jumpToNodeInTreeMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("JUMP TO IN TREE"));
 	jumpToNodeInTreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		tableController.jumpToSelectionInTree(table);
@@ -292,7 +292,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	});
 	jumpToNodeInTreeMenuItem.setEnabled(true);
 
-	showInContextMenuItem.setText("Show Context");
+	showInContextMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW CONTEXT"));
 	showInContextMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		tableController.showContextForSelectedNodes(table);
