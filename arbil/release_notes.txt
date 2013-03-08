@@ -22,6 +22,8 @@ The following functionality has been added to Arbil:
 - TYPE CHECKING: Typechecking can be forced on a resource manually through a
 menu option. (#2826)
 
+- TABLE: Nodes and fields can be deleted from the table view. (#1276)
+
 ** CHANGES **
 
 These parts of the Arbil functionality have changed:
