@@ -23,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.ResourceBundle;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -43,6 +44,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  */
 public class TableHeaderContextMenu extends JPopupMenu {
 
+    private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
     private final ArbilTable table;
     private final ArbilTableModel tableModel;
     private final ArbilTableController tableController;
@@ -57,19 +59,19 @@ public class TableHeaderContextMenu extends JPopupMenu {
     private void initMenuItems(final int targetColumn) {
 	final String targetColumnName = tableModel.getColumnName(targetColumn);
 
-	final JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
+	final JMenuItem saveViewMenuItem = new JMenuItem(menus.getString("SAVE CURRENT COLUMN VIEW"));
 	saveViewMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		tableController.saveCurrentColumnView(table);
 	    }
 	});
-	final JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
+	final JMenuItem editViewMenuItem = new JMenuItem(menus.getString("EDIT THIS COLUMN VIEW"));
 	editViewMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		tableController.showColumnViewsEditor(table);
 	    }
 	});
-	final JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
+	final JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem(menus.getString("LIMIT VIEW TO CURRENT COLUMNS"));
 	showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		try {
@@ -83,7 +85,7 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	//popupMenu.add(applyViewNenuItem);
 	//popupMenu.add(saveViewMenuItem);
 	// create the views sub menu
-	final JMenu fieldViewsMenuItem = new JMenu("Column View for this Table");
+	final JMenu fieldViewsMenuItem = new JMenu(menus.getString("COLUMN VIEW FOR THIS TABLE"));
 	ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
 	//String currentGlobalViewLabel = GuiHelper.imdiFieldViews.currentGlobalViewName;
 	for (Enumeration savedViewsEnum = ArbilFieldViews.getSingleInstance().getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
@@ -106,7 +108,7 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	    });
 	    fieldViewsMenuItem.add(viewLabelMenuItem);
 	}
-	final JMenuItem copyEmbedTagMenuItem = new JMenuItem("Copy Table For Website");
+	final JMenuItem copyEmbedTagMenuItem = new JMenuItem(menus.getString("COPY TABLE FOR WEBSITE"));
 	copyEmbedTagMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		// find the table dimensions
@@ -121,7 +123,7 @@ public class TableHeaderContextMenu extends JPopupMenu {
 		tableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
 	    }
 	});
-	final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem("Make all columns the size of \"" + targetColumnName + "\"");
+	final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("MAKE ALL COLUMNS THE SIZE OF"), new Object[]{targetColumnName}));
 	setAllColumnsSizeFromColumn.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		int targetWidth = table.getColumnModel().getColumn(targetColumn).getWidth();
@@ -132,21 +134,21 @@ public class TableHeaderContextMenu extends JPopupMenu {
 		table.doResizeColumns();
 	    }
 	});
-	final JMenuItem setAllColumnsSizeAuto = new JMenuItem("Make all columns fit contents");
+	final JMenuItem setAllColumnsSizeAuto = new JMenuItem(menus.getString("MAKE ALL COLUMNS FIT CONTENTS"));
 	setAllColumnsSizeAuto.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		tableModel.getFieldView().resetColumnWidths();
 		table.doResizeColumns();
 	    }
 	});
-	final JMenuItem setColumnSizeAuto = new JMenuItem("Make column fit contents");
+	final JMenuItem setColumnSizeAuto = new JMenuItem(menus.getString("MAKE COLUMN FIT CONTENTS"));
 	setColumnSizeAuto.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		tableModel.getFieldView().setColumnWidth(targetColumnName, null);
 		table.doResizeColumns(Arrays.asList(targetColumn));
 	    }
 	});
-	final JCheckBoxMenuItem setFixedColumnSize = new JCheckBoxMenuItem("Fixed column size");
+	final JCheckBoxMenuItem setFixedColumnSize = new JCheckBoxMenuItem(menus.getString("FIXED COLUMN SIZE"));
 	setFixedColumnSize.setSelected(tableModel.getPreferredColumnWidth(targetColumnName) != null);
 
 	setFixedColumnSize.addActionListener(new ActionListener() {
@@ -158,7 +160,7 @@ public class TableHeaderContextMenu extends JPopupMenu {
 		table.doResizeColumns(Collections.singleton(Integer.valueOf(targetColumn)));
 	    }
 	});
-	final JMenuItem deleteFieldFromNodes = new JMenuItem("Delete field from all nodes");
+	final JMenuItem deleteFieldFromNodes = new JMenuItem(menus.getString("DELETE FIELD FROM ALL NODES"));
 	deleteFieldFromNodes.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		tableController.deleteColumnFieldFromAllNodes(table, targetColumnName);
@@ -166,20 +168,20 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	});
 
 	if (tableModel.isHorizontalView()) {
-	    final JMenu thisColumnMenu = new JMenu("This column" + " (" + (targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName) + ")");
+	    final JMenu thisColumnMenu = new JMenu(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("THIS COLUMN"), new Object[]{(targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName)}));
 	    thisColumnMenu.add(setFixedColumnSize);
 	    thisColumnMenu.add(setColumnSizeAuto);
 	    if (targetColumn != 0) {
 		thisColumnMenu.add(new JSeparator());
 		thisColumnMenu.add(createHideColumnMenuItem(targetColumn));
 	    }
-	    final JMenu allColumnsMenu = new JMenu("All columns");
+	    final JMenu allColumnsMenu = new JMenu(menus.getString("ALL COLUMNS"));
 	    allColumnsMenu.add(setAllColumnsSizeFromColumn);
 	    allColumnsMenu.add(setAllColumnsSizeAuto);
 
 	    add(thisColumnMenu);
 	    add(allColumnsMenu);
-	    add(createShowChildNodesMenuItem(targetColumn));
+	    add(createShowChildNodesMenuItem());
 	    add(new JSeparator());
 	}
 
@@ -197,8 +199,8 @@ public class TableHeaderContextMenu extends JPopupMenu {
 
     private JMenuItem createHideColumnMenuItem(final int targetColumn) {
 	// prevent hide column menu showing when the session column is selected because it cannot be hidden
-	JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column");
-	hideColumnMenuItem.setActionCommand("" + targetColumn);
+	JMenuItem hideColumnMenuItem = new JMenuItem(menus.getString("HIDE COLUMN"));
+	hideColumnMenuItem.setActionCommand(String.format("%d", targetColumn));
 	hideColumnMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		try {
@@ -211,9 +213,9 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	return hideColumnMenuItem;
     }
 
-    private JMenuItem createShowChildNodesMenuItem(final int targetColumn) {
+    private JMenuItem createShowChildNodesMenuItem() {
 	JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
-	showChildNodesMenuItem.setText("Show Child Nodes");
+	showChildNodesMenuItem.setText(menus.getString("SHOW CHILD NODES"));
 	showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
