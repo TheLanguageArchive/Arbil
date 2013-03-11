@@ -50,6 +50,7 @@ import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
@@ -323,6 +324,26 @@ public class ArbilTableController {
 		    }
 		}
 	    }
+	}
+    }
+
+    /**
+     * Use when cell value is field place holder, meaning that the node does not
+     * contain the selected field and may not be able to.
+     */
+    public void addFieldFromPlaceholder(ArbilTable table, ArbilFieldPlaceHolder placeholder) {
+	final String xmlPath = placeholder.getFieldName();
+	final ArbilDataNode dataNode = placeholder.getArbilDataNode();
+
+	//Investigate case, and initiate editor if possible
+	final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
+	if (canContainField) {
+	    //TODO: Detect case
+	    final MetadataBuilder metadataBuilder = new MetadataBuilder();
+	    // case of optional field (https://trac.mpi.nl/ticket/2470)
+	    metadataBuilder.requestAddNode(dataNode, xmlPath, placeholder.getFieldName());
+	    // case of keys (https://trac.mpi.nl/ticket/2468)
+	    // case of multifield (https://trac.mpi.nl/ticket/2469)
 	}
     }
 
