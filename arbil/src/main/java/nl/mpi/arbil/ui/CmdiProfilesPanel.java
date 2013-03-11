@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -36,7 +37,6 @@ import javax.swing.SwingUtilities;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileProvider.CmdiProfile;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.ProfileSelection;
-import nl.mpi.arbil.clarin.profiles.CmdiProfileSchemaHeaderReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
@@ -144,7 +144,7 @@ public class CmdiProfilesPanel extends JPanel {
 	addButton.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		String newDirectoryName = JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
-		ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + newDirectoryName);
+		ArbilTemplateManager.getSingleInstance().addCustomProfile(newDirectoryName);
 		populateList();
 	    }
 	});
@@ -155,7 +155,7 @@ public class CmdiProfilesPanel extends JPanel {
 	browseButton.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		for (File selectedFile : dialogHandler.showFileSelectBox("Select Profile", false, true, null, MessageDialogHandler.DialogueType.open, null)) {
-		    ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + selectedFile.toURI().toString());
+		    ArbilTemplateManager.getSingleInstance().addCustomProfile(selectedFile.toURI().toString());
 		}
 		populateList();
 	    }
@@ -317,22 +317,19 @@ public class CmdiProfilesPanel extends JPanel {
     }
 
     private void populateWithCustomProfiles(final CmdiProfileReader cmdiProfileReader, List<String> selectedTemplates, List<JCheckBox> checkBoxArray) {
-	CmdiProfileSchemaHeaderReader headerReader = new CmdiProfileSchemaHeaderReader();
 	for (String currentSelectedProfile : selectedTemplates) {
-	    if (currentSelectedProfile.startsWith(ArbilTemplateManager.CUSTOM_PREFIX)) {
-		String customUrlString = currentSelectedProfile.substring(ArbilTemplateManager.CUSTOM_PREFIX.length());
-		//TODO: Do reading not on display but when adding the custom location
-		CmdiProfile profile = headerReader.getProfile(customUrlString);
-		
-		JCheckBox clarinProfileCheckBox;
-		clarinProfileCheckBox = new JCheckBox();
-		clarinProfileCheckBox.setText(profile.name);
-		clarinProfileCheckBox.setName(profile.name);
+	    final Matcher matcher = ArbilTemplateManager.getTemplateStringMatcher(currentSelectedProfile);
+	    if (matcher.matches() && currentSelectedProfile.startsWith(ArbilTemplateManager.CUSTOM_PREFIX)) {
+		final String profileName = ArbilTemplateManager.getCustomProfileName(matcher);
+
+		final JCheckBox clarinProfileCheckBox = new JCheckBox();
+		clarinProfileCheckBox.setText(profileName);
+		clarinProfileCheckBox.setName(profileName);
 		clarinProfileCheckBox.setActionCommand(currentSelectedProfile);
 		clarinProfileCheckBox.setSelected(true);
-		clarinProfileCheckBox.setToolTipText(profile.description);
+		clarinProfileCheckBox.setToolTipText("Custom profile");
 		clarinProfileCheckBox.addActionListener(TemplateDialogue.templateSelectionListener);
-		clarinProfileCheckBox.addActionListener(new DownloadSchemaActionListener(clarinProfileCheckBox, cmdiProfileReader, customUrlString));
+		clarinProfileCheckBox.addActionListener(new DownloadSchemaActionListener(clarinProfileCheckBox, cmdiProfileReader, matcher.group(4)));
 		checkBoxArray.add(clarinProfileCheckBox);
 	    }
 	}

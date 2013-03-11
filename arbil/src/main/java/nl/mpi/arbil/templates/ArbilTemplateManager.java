@@ -27,10 +27,13 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileProvider.CmdiProfile;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileSchemaHeaderReader;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -47,6 +50,9 @@ public class ArbilTemplateManager {
 
     public static final String CLARIN_PREFIX = "clarin:";
     public static final String CUSTOM_PREFIX = "custom:";
+    private static final String PREFIX_REGEX = "^(clarin|custom):(\"(.*)\":)?(.*)$";
+    private static final Pattern PREFIX_PATTERN = Pattern.compile(PREFIX_REGEX);
+    private final CmdiProfileSchemaHeaderReader headerReader = new CmdiProfileSchemaHeaderReader();
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -64,6 +70,20 @@ public class ArbilTemplateManager {
 	    singleInstance = new ArbilTemplateManager();
 	}
 	return singleInstance;
+    }
+
+    /**
+     * Returns a matcher for template string. The matcher should match the entire template string. It has the following groups:<br />
+     * 1. The template type (clarin or custom)
+     * 2. (optional group, should not be used)
+     * 3. The name of the profile, optional so result can be null
+     * 4. The location of the profile
+     *
+     * @param templateString
+     * @return matcher for the provided template string
+     */
+    public static Matcher getTemplateStringMatcher(String templateString) {
+	return PREFIX_PATTERN.matcher(templateString);
     }
 
     /**
@@ -136,6 +156,18 @@ public class ArbilTemplateManager {
 	return new File(sessionStorage.getProjectDirectory(), "templates");
     }
 
+    /**
+     * Stores the provided location as a custom profile according to the schema <em>custom:"&lt;profile name&gt;":&lt;profile
+     * location&gt;</em>
+     *
+     * @param profileLocation
+     */
+    public void addCustomProfile(String profileLocation) {
+	final CmdiProfile profile = headerReader.getProfile(profileLocation);
+	final String templateString = String.format("%s\"%s\":%s", CUSTOM_PREFIX, profile.name, profileLocation);
+	addSelectedTemplates(templateString);
+    }
+
     public void addSelectedTemplates(String templateString) {
 	ArrayList<String> selectedTemplates = new ArrayList<String>();
 	try {
@@ -177,9 +209,11 @@ public class ArbilTemplateManager {
     public List<String> getCMDIProfileHrefs() {
 	final List<String> profilesToReload = new ArrayList<String>();
 	for (String templateString : getSelectedTemplates()) {
-	    if (templateString.startsWith(ArbilTemplateManager.CUSTOM_PREFIX) || templateString.startsWith(ArbilTemplateManager.CLARIN_PREFIX)) {
-		// Remove prefix
-		final String xsdHref = templateString.replaceFirst("^[a-zA-Z]+:", "");
+	    final Matcher matcher = getTemplateStringMatcher(templateString);
+	    if (matcher.matches()) {// && matcher.group(1).equals(CUSTOM_PREFIX) || matcher.group(1).equals(CLARIN_PREFIX)) {
+//	    if (templateString.startsWith(ArbilTemplateManager.CUSTOM_PREFIX) || templateString.startsWith(ArbilTemplateManager.CLARIN_PREFIX)) {
+		// Remove prefix and name
+		final String xsdHref = matcher.group(4); //templateString.replaceFirst(PREFIX_REGEX, "");
 		profilesToReload.add(xsdHref);
 	    }
 	}
@@ -235,18 +269,18 @@ public class ArbilTemplateManager {
 	    menuItem.menuAction = currentString;
 	    menuItem.menuToolTip = currentString;
 	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
-	} else if (location.startsWith("custom:")) {
+	} else if (location.startsWith(CUSTOM_PREFIX)) {
 	    menuItem.type = MenuItemData.Type.CMDI;
-
-	    String currentString = location.substring("custom:".length());
-	    String customName = currentString.replaceAll("[/.]xsd$", "");
-	    if (customName.contains("/")) {
-		customName = customName.substring(customName.lastIndexOf("/") + 1);
+	    final Matcher matcher = getTemplateStringMatcher(location);
+	    if (matcher.find()) {
+		final String profileUrl = matcher.group(4);
+		final String profileName = getCustomProfileName(matcher);
+		menuItem.menuText = profileName;
+		menuItem.menuAction = profileUrl;
+		menuItem.menuToolTip = profileUrl;
+	    } else {
+		menuItem.menuText = location;
 	    }
-
-	    menuItem.menuText = customName;
-	    menuItem.menuAction = currentString;
-	    menuItem.menuToolTip = currentString;
 	    menuItem.menuIcon = ArbilIcons.clarinIcon;
 	} else if (location.startsWith(CLARIN_PREFIX)) {
 	    menuItem.type = MenuItemData.Type.CMDI;
@@ -267,6 +301,26 @@ public class ArbilTemplateManager {
 	    BugCatcherManager.getBugCatcher().logError("Unknown template location type in " + location, null);
 	}
 	return menuItem;
+    }
+
+    /**
+     * Determines the name for a manually added profile. If present, it returns the name stored in the template string, e.g. an entry
+     * <em>custom:"My Custom Profile":file:/myprofile.xsd</em> returns "My Custom Profile". If it is not present, it returns the filename
+     * minus the extensions, e.g. <em>custom:file:/test/myprofile.xsd</em> returns "myprofile".
+     *
+     * @param matcher matcher created on template string for custom profile on {@link #PREFIX_PATTERN}
+     * @return a name for the custom profile based on the matcher
+     */
+    public static String getCustomProfileName(final Matcher matcher) {
+	String customName = matcher.group(3);
+	if (customName == null) {
+	    // Name not stored in the string template string, extract from file name instead
+	    customName = matcher.group(4).replaceAll("[/.]xsd$", "");
+	    if (customName.contains("/")) {
+		customName = customName.substring(customName.lastIndexOf("/") + 1);
+	    }
+	}
+	return customName;
     }
 
     private MenuItemData getMenuItemDataForBuiltinTemplate(String currentString, MenuItemData menuItem, ArbilIcons arbilIcons) {
