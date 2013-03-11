@@ -35,6 +35,10 @@ profiles list. They get downloaded as soon as they are selected, or
 alternatively all profiles can be downloaded through a new 'Download all
 profiles' button in the profiles panel of the templates dialog. (#1412)
 
+- CMDI PROFILES: The name of manually added profiles now gets retrieved from
+the profile schema, so that their full name gets displayed instead of a name
+derrived from the schema location. (#1470)
+
 - STORAGE DIRECTORY: When multiple storage directories are detected, the user is
 notified through a warning dialog. (#1246)
 
