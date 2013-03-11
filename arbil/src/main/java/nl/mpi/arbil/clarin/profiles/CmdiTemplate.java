@@ -51,7 +51,6 @@ import nl.mpi.arbil.clarin.profiles.CmdiProfileProvider.CmdiProfile;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilEntityResolver;
-import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.data.CmdiDocumentationLanguages;
 import nl.mpi.arbil.templates.ArbilTemplate;

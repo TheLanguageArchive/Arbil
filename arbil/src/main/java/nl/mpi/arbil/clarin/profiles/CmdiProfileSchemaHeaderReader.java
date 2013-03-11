@@ -18,7 +18,6 @@
 package nl.mpi.arbil.clarin.profiles;
 
 import java.io.IOException;
-import javax.swing.JCheckBox;
 import org.apache.commons.digester.Digester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
