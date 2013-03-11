@@ -70,6 +70,9 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xpath.CachedXPathAPI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -84,6 +87,7 @@ import org.xml.sax.SAXException;
  */
 public class CmdiTemplate extends ArbilTemplate {
 
+    private final static Logger logger = LoggerFactory.getLogger(CmdiTemplate.class);
     public static final String XML_NAMESPACE = ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace");
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
     public static final String LANGUAGE_ATTRIBUTE = String.format("{%1$s}lang", (XML_NAMESPACE));
@@ -155,14 +159,6 @@ public class CmdiTemplate extends ArbilTemplate {
 	nameSpaceString = nameSpaceStringLocal;
 	// construct the template from the XSD
 	try {
-	    // get the name of this profile
-	    CmdiProfile cmdiProfile = profileProvider.getProfile(nameSpaceString);
-	    if (cmdiProfile != null) {
-		loadedTemplateName = cmdiProfile.name;// this could be null
-	    } else {
-		loadedTemplateName = nameSpaceString.substring(nameSpaceString.lastIndexOf("/") + 1);
-	    }
-
 	    ArrayListGroup arrayListGroup = new ArrayListGroup();
 	    URI xsdUri = new URI(nameSpaceString);
 	    readSchema(xsdUri, arrayListGroup);
@@ -182,6 +178,19 @@ public class CmdiTemplate extends ArbilTemplate {
 	    for (int nameFieldCounter = 0; nameFieldCounter < getPreferredNameFields().length; nameFieldCounter++) {
 		preferredNameFields[nameFieldCounter] = tempSortableArray[nameFieldCounter][0];
 	    }
+
+	    if (loadedTemplateName == null) {
+		// Name could not be determined while reading the schema (no header annotation), try to get it from the profile provider
+		// (which gets it from the Component Registry listing)
+		CmdiProfile cmdiProfile = profileProvider.getProfile(nameSpaceString);
+		if (cmdiProfile != null) {
+		    loadedTemplateName = cmdiProfile.name;// this could be null
+		} else {
+		    // Last resort: extract from file name
+		    loadedTemplateName = nameSpaceString.substring(nameSpaceString.lastIndexOf("/") + 1);
+		}
+	    }
+
 	    // end sort and construct the preferredNameFields array
 	} catch (URISyntaxException urise) {
 	    BugCatcherManager.getBugCatcher().logError(urise);
@@ -323,20 +332,18 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
 	templateFile = schemaFile; // store the template file for later use such as adding child nodes
 	try {
-	    InputStream inputStream = new FileInputStream(schemaFile);
+	    final InputStream inputStream = new FileInputStream(schemaFile);
 	    //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
-	    XmlOptions xmlOptions = new XmlOptions();
+	    final XmlOptions xmlOptions = new XmlOptions();
 	    xmlOptions.setCharacterEncoding("UTF-8");
 	    xmlOptions.setEntityResolver(new ArbilEntityResolver(xsdFile));
 //            xmlOptions.setCompileDownloadUrls();
-	    SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
-	    SchemaType schemaType = sts.documentTypes()[0];
-	    constructXml(schemaType, arrayListGroup, "", new CachedXPathAPI());
-//            for (SchemaType schemaType : sts.documentTypes()) {
-////                logger.debug("T-documentTypes:");
-//                constructXml(schemaType, arrayListGroup, "", "");
-//                break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
-//            }
+	    final SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+	    final SchemaType schemaType = sts.documentTypes()[0];
+
+	    final CachedXPathAPI xPathAPI = new CachedXPathAPI();
+	    determineNameFromHeader(xPathAPI);
+	    constructXml(schemaType, arrayListGroup, "", xPathAPI);
 	} catch (IOException e) {
 	    BugCatcherManager.getBugCatcher().logError(getTemplateFile().getName(), e);
 	    messageDialogHandler.addMessageDialogToQueue("Could not open the required template file: " + getTemplateFile().getName(), "Load Clarin Template");
@@ -551,6 +558,18 @@ public class CmdiTemplate extends ArbilTemplate {
 		break;
 	    default:
 		break;
+	}
+    }
+
+    private void determineNameFromHeader(final CachedXPathAPI xPathAPI) throws DOMException {
+	try {
+	    final Node profileNameNode = xPathAPI.selectSingleNode(getSchemaDocument(), "/xs:schema/xs:annotation/xs:appinfo/ann:Header/ann:Name");
+	    if (profileNameNode != null) {
+		loadedTemplateName = profileNameNode.getTextContent();
+	    }
+	} catch (TransformerException ex) {
+	    // Ignore, keep default name
+	    logger.debug("Transformation error while looking for profile name in schema {}", nameSpaceString, ex);
 	}
     }
 
