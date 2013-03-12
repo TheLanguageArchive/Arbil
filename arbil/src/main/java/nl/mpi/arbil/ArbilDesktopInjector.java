@@ -97,7 +97,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	windowManager.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
 
-	tableController = new ArbilTableController(treeHelper, messageDialogHandler, windowManager, dataNodeLoader);
+	tableController = new ArbilTableController(treeHelper, messageDialogHandler, windowManager);
 	windowManager.setTableController(tableController);
 	injectTableController(tableController);
 

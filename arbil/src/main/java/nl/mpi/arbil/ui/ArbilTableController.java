@@ -54,7 +54,6 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
@@ -84,13 +83,11 @@ public class ArbilTableController {
     private final MouseListener tableHeaderMouseListener = new TableHeaderMouseListener();
     /** Actions provided by controller */
     private final Action deleteRowAction = new DeleteRowAction();
-    private final DataNodeLoader datanodeLoader;
 
-    public ArbilTableController(TreeHelper treeHelper, MessageDialogHandler dialogHandler, WindowManager windowManager, DataNodeLoader datanodeLoader) {
+    public ArbilTableController(TreeHelper treeHelper, MessageDialogHandler dialogHandler, WindowManager windowManager) {
 	this.treeHelper = treeHelper;
 	this.dialogHandler = dialogHandler;
 	this.windowManager = windowManager;
-	this.datanodeLoader = datanodeLoader;
     }
 
     public void initKeyMapping(ArbilTable table) {
