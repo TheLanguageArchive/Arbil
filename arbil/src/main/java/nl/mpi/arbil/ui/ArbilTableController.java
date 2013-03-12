@@ -26,6 +26,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,6 +36,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JDialog;
@@ -47,9 +50,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
@@ -79,11 +84,13 @@ public class ArbilTableController {
     private final MouseListener tableHeaderMouseListener = new TableHeaderMouseListener();
     /** Actions provided by controller */
     private final Action deleteRowAction = new DeleteRowAction();
+    private final DataNodeLoader datanodeLoader;
 
-    public ArbilTableController(TreeHelper treeHelper, MessageDialogHandler dialogHandler, WindowManager windowManager) {
+    public ArbilTableController(TreeHelper treeHelper, MessageDialogHandler dialogHandler, WindowManager windowManager, DataNodeLoader datanodeLoader) {
 	this.treeHelper = treeHelper;
 	this.dialogHandler = dialogHandler;
 	this.windowManager = windowManager;
+	this.datanodeLoader = datanodeLoader;
     }
 
     public void initKeyMapping(ArbilTable table) {
@@ -331,19 +338,54 @@ public class ArbilTableController {
      * Use when cell value is field place holder, meaning that the node does not
      * contain the selected field and may not be able to.
      */
-    public void addFieldFromPlaceholder(ArbilTable table, ArbilFieldPlaceHolder placeholder) {
+    public synchronized void addFieldFromPlaceholder(ArbilTable table, int selectedFieldIndex, ArbilFieldPlaceHolder placeholder) {
 	final String xmlPath = placeholder.getFieldName();
 	final ArbilDataNode dataNode = placeholder.getArbilDataNode();
 
 	//Investigate case, and initiate editor if possible
 	final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
 	if (canContainField) {
-	    //TODO: Detect case
+	    // TODO: case of multifield (https://trac.mpi.nl/ticket/2469)
+	    final ArbilField selectedField = table.getArbilTableModel().getColumnField(selectedFieldIndex);
 	    final MetadataBuilder metadataBuilder = new MetadataBuilder();
-	    // case of optional field (https://trac.mpi.nl/ticket/2470)
-	    metadataBuilder.requestAddNode(dataNode, xmlPath, placeholder.getFieldName());
-	    // case of keys (https://trac.mpi.nl/ticket/2468)
-	    // case of multifield (https://trac.mpi.nl/ticket/2469)
+	    try {
+		final URI addedNodeUri = metadataBuilder.addChildNode(dataNode, xmlPath, null, null, null);
+		try {
+		    //TODO: Get rid of this, it is horrible. We need to add a way to wait for the reloading to start AND finish before we
+		    //continue. As a very VERY temporary solution, the following will do.
+		    wait(1000);
+		} catch (InterruptedException ex) {
+		    Thread.currentThread().interrupt();
+		}
+		final String keyName = selectedField.getKeyName();
+		if (keyName != null) {
+		    // case of keys (https://trac.mpi.nl/ticket/2468)
+		    setKeyName(dataNode, addedNodeUri, keyName);
+		} // else: case of optional field (https://trac.mpi.nl/ticket/2470) covered
+	    } catch (ArbilMetadataException mdEx) {
+		logger.error("Error while trying to create field", mdEx);
+		dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details", "Error");
+	    }
+	}
+    }
+
+    private void setKeyName(final ArbilDataNode dataNode, URI addedNodeUri, final String keyName) throws NumberFormatException {
+	if (dataNode.waitTillLoaded()) {
+	    final String fieldPath = addedNodeUri.getFragment();//.substring(dataNode.getURI().getFragment().length() + 1);
+	    final Pattern pattern = Pattern.compile("^(.*?)(\\((\\d+)\\))?$");
+	    final Matcher matcher = pattern.matcher(fieldPath);
+	    if (matcher.matches()) {
+		final String fieldPathBase = matcher.group(1);
+		final String fieldPathIndexString = matcher.group(3);
+		final int fieldPathIndex = fieldPathIndexString == null ? 0 : Integer.parseInt(fieldPathIndexString) - 1; // path index starts at 1, array at 0
+		for (ArbilField[] fieldArray : dataNode.getFields().values()) {
+		    if (fieldArray.length > fieldPathIndex && fieldArray[fieldPathIndex].getFullXmlPath().startsWith(fieldPathBase)) {
+			fieldArray[fieldPathIndex].setKeyName(keyName);
+		    }
+		}
+	    }
+	} else {
+	    // something went wrong while waiting until loaded
 	}
     }
 

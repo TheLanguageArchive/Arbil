@@ -74,6 +74,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     private final JPanel editorPanel;
     private final ArbilTableCellRenderer arbilTableCellRenderer;
     private final JLabel button;
+    private int columnIndex;
+    private int rowIndex;
     ArbilTable parentTable = null;
     Rectangle parentCellRect = null;
     ArbilDataNode registeredOwner = null;
@@ -388,7 +390,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	    tableController.openNodesInNewTable((ArbilDataNode[]) cellValue, fieldName, registeredOwner);
 	} else if (cellValue.length == 1 && cellValue[0] instanceof ArbilFieldPlaceHolder) {
 	    final ArbilFieldPlaceHolder placeholder = (ArbilFieldPlaceHolder) cellValue[0];
-	    tableController.addFieldFromPlaceholder(parentTable, placeholder);
+	    tableController.addFieldFromPlaceholder(parentTable, columnIndex, placeholder);
 	} else {
 	    BugCatcherManager.getBugCatcher().logError("Edit cell type not supported", null);
 	}
@@ -449,6 +451,9 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	    int column) {
 //         TODO: something in this area is preventing the table selection change listener firing ergo the tree selection does not get updated (this symptom can also be caused by a node not being loaded into the tree)
 //        receivedKeyDown = true;
+
+	this.rowIndex = row;
+	this.columnIndex = column;
 	ArbilTableCell value = (ArbilTableCell) valueObject;
 
 	parentTable = (ArbilTable) table;

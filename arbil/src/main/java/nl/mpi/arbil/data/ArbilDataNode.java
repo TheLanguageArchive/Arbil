@@ -658,7 +658,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 		    getParentDomNode().wait();
 		    logger.debug("wait");
 		    if (isLoading()) {
-			BugCatcherManager.getBugCatcher().logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
+			logger.debug("waited till loaded but its still loading: " + this.getUrlString());
 		    }
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
