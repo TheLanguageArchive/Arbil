@@ -354,15 +354,6 @@ public class ArbilTableController {
 				// case of keys (https://trac.mpi.nl/ticket/2468)
 				setKeyName(dataNode, nodeURI, keyName);
 			    } // else: case of optional field (https://trac.mpi.nl/ticket/2470) covered
-//			    //Start editing mode for this cell
-//			if (table.editCellAt(selectedRowIndex, selectedFieldIndex)) {
-//			    // Get the editor
-//			    final ArbilTableCellEditor cellEditor = (ArbilTableCellEditor) table.getCellEditor(selectedRowIndex, selectedFieldIndex);
-//			    // getting the editor component is required because it carries out some initialisation
-//			    cellEditor.getTableCellEditorComponent(table, tableModel.getValueAt(selectedRowIndex, selectedFieldIndex), true, selectedRowIndex, selectedFieldIndex);
-//			    // trigger it to actually start editing (equivalent to manually double clicking or start typing)
-//			    cellEditor.startEditorMode();
-//			}
 			}
 		    });
 		} catch (ArbilMetadataException mdEx) {
