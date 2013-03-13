@@ -336,30 +336,42 @@ public class ArbilTableController {
      * Use when cell value is field place holder, meaning that the node does not
      * contain the selected field and may not be able to.
      */
-    public synchronized void addFieldFromPlaceholder(ArbilTable table, int selectedFieldIndex, ArbilFieldPlaceHolder placeholder) {
+    public synchronized void addFieldFromPlaceholder(final ArbilTable table, final int selectedFieldIndex, ArbilFieldPlaceHolder placeholder) {
+	final ArbilTableModel tableModel = table.getArbilTableModel();
 	final String xmlPath = placeholder.getFieldName();
 	final ArbilDataNode dataNode = placeholder.getArbilDataNode();
 
-	//Investigate case, and initiate editor if possible
+	final ArbilField columnField = tableModel.getColumnField(selectedFieldIndex);
 	final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
 	if (canContainField) {
-	    // TODO: case of multifield (https://trac.mpi.nl/ticket/2469)
-	    final ArbilField selectedField = table.getArbilTableModel().getColumnField(selectedFieldIndex);
-	    final MetadataBuilder metadataBuilder = new MetadataBuilder();
-	    try {
-		metadataBuilder.addChildNode(dataNode, xmlPath, null, null, null, new NodeCreationCallback() {
-		    public void nodeCreated(ArbilDataNode dataNode, URI nodeURI) {
-			final String keyName = selectedField.getKeyName();
-			if (keyName != null) {
-			    // case of keys (https://trac.mpi.nl/ticket/2468)
-			    setKeyName(dataNode, nodeURI, keyName);
-			} // else: case of optional field (https://trac.mpi.nl/ticket/2470) covered
-		    }
-		});
-	    } catch (ArbilMetadataException mdEx) {
-		logger.error("Error while trying to create field", mdEx);
-		dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details", "Error");
+	    if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
+		// TODO: case of multifield (https://trac.mpi.nl/ticket/2469)
+		try {
+		    new MetadataBuilder().addChildNode(dataNode, xmlPath, null, null, null, new NodeCreationCallback() {
+			public void nodeCreated(ArbilDataNode dataNode, URI nodeURI) {
+			    final String keyName = columnField.getKeyName();
+			    if (keyName != null) {
+				// case of keys (https://trac.mpi.nl/ticket/2468)
+				setKeyName(dataNode, nodeURI, keyName);
+			    } // else: case of optional field (https://trac.mpi.nl/ticket/2470) covered
+//			    //Start editing mode for this cell
+//			if (table.editCellAt(selectedRowIndex, selectedFieldIndex)) {
+//			    // Get the editor
+//			    final ArbilTableCellEditor cellEditor = (ArbilTableCellEditor) table.getCellEditor(selectedRowIndex, selectedFieldIndex);
+//			    // getting the editor component is required because it carries out some initialisation
+//			    cellEditor.getTableCellEditorComponent(table, tableModel.getValueAt(selectedRowIndex, selectedFieldIndex), true, selectedRowIndex, selectedFieldIndex);
+//			    // trigger it to actually start editing (equivalent to manually double clicking or start typing)
+//			    cellEditor.startEditorMode();
+//			}
+			}
+		    });
+		} catch (ArbilMetadataException mdEx) {
+		    logger.error("Error while trying to create field", mdEx);
+		    dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details", "Error");
+		}
 	    }
+	} else {
+	    dialogHandler.addMessageDialogToQueue(String.format("The node '%s' cannot contain a field '%s'", dataNode.toString(), columnField.getTranslateFieldName()), "Insert field");
 	}
     }
 
