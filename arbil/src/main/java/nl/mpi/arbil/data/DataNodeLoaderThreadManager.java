@@ -17,7 +17,12 @@
  */
 package nl.mpi.arbil.data;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -38,8 +43,8 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class DataNodeLoaderThreadManager {
-    private final static Logger logger = LoggerFactory.getLogger(DataNodeLoaderThreadManager.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(DataNodeLoaderThreadManager.class);
     private final static int MAX_REMOTE_THREADS = 6;
     private final static int MAX_LOCAL_THREADS = 6;
     private boolean continueThread = true;
@@ -51,11 +56,42 @@ public class DataNodeLoaderThreadManager {
     private final Vector<ArbilDataNode> arbilRemoteNodesToInit = new Vector<ArbilDataNode>();
     private final Vector<ArbilDataNode> arbilLocalNodesToInit = new Vector<ArbilDataNode>();
     private boolean schemaCheckLocalFiles = false;
+    private final Map<ArbilDataNode, Collection<ArbilDataNodeLoaderCallBack>> callbacksMap = Collections.synchronizedMap(new HashMap<ArbilDataNode, Collection<ArbilDataNodeLoaderCallBack>>());
 
     public DataNodeLoaderThreadManager() {
 	continueThread = true;
 	remoteLoaderThreadGroup = new ThreadGroup("RemoteLoaderThreads");
 	localLoaderThreadGroup = new ThreadGroup("LocalLoaderThreads");
+    }
+
+    /**
+     * Registers a new callback for the specified data node that should be called after the first successful reload of the specified node.
+     * The callback will never be triggered more than once for each registration. If you want to register a reload, call this method before
+     * you make the call to {@link #addNodeToQueue(nl.mpi.arbil.data.ArbilDataNode) }
+     *
+     * @param dataNode node to register callback for
+     * @param callback callback object to trigger after reload
+     */
+    public void addLoaderCallback(ArbilDataNode dataNode, ArbilDataNodeLoaderCallBack callback) {
+	if (callback != null) {
+	    synchronized (callbacksMap) {
+		Collection<ArbilDataNodeLoaderCallBack> callbacks = callbacksMap.get(dataNode);
+		if (callbacks == null) {
+		    callbacks = new ArrayList<ArbilDataNodeLoaderCallBack>();
+		    callbacksMap.put(dataNode, callbacks);
+		}
+		callbacks.add(callback);
+	    }
+	}
+    }
+
+    private void callCallBacks(ArbilDataNode dataNode) {
+	Collection<ArbilDataNodeLoaderCallBack> callbacks = callbacksMap.remove(dataNode);
+	if (callbacks != null) {
+	    for (ArbilDataNodeLoaderCallBack callback : callbacks) {
+		callback.dataNodeLoaded(dataNode);
+	    }
+	}
     }
 
     public void addNodeToQueue(ArbilDataNode nodeToAdd) {
@@ -162,7 +198,6 @@ public class DataNodeLoaderThreadManager {
     protected void afterExecuteLoaderThread(Runnable r, Throwable t, boolean local) {
     }
     private ScheduledThreadPoolExecutor remoteExecutor = new ScheduledThreadPoolExecutor(MAX_REMOTE_THREADS()) {
-
 	@Override
 	protected void beforeExecute(Thread t, Runnable r) {
 	    beforeExecuteLoaderThread(t, r, false);
@@ -176,7 +211,6 @@ public class DataNodeLoaderThreadManager {
 	@Override
 	public ThreadFactory getThreadFactory() {
 	    return new ThreadFactory() {
-
 		public Thread newThread(Runnable r) {
 		    String threadName = "ArbilDataNodeLoader-remote-" + threadStartCounter++;
 		    Thread thread = new Thread(remoteLoaderThreadGroup, r, threadName);
@@ -187,7 +221,6 @@ public class DataNodeLoaderThreadManager {
 	}
     };
     private ScheduledThreadPoolExecutor localExecutor = new ScheduledThreadPoolExecutor(MAX_LOCAL_THREADS()) {
-
 	@Override
 	protected void beforeExecute(Thread t, Runnable r) {
 	    beforeExecuteLoaderThread(t, r, true);
@@ -201,7 +234,6 @@ public class DataNodeLoaderThreadManager {
 	@Override
 	public ThreadFactory getThreadFactory() {
 	    return new ThreadFactory() {
-
 		public Thread newThread(Runnable r) {
 		    String threadName = "ArbilDataNodeLoader-local-" + threadStartCounter++;
 		    Thread thread = new Thread(localLoaderThreadGroup, r, threadName);
@@ -275,6 +307,8 @@ public class DataNodeLoaderThreadManager {
 	    remoteArbilFilesLoaded++;
 	    currentArbilDataNode.notifyLoaded();
 	    currentArbilDataNode.lockedByLoadingThread = false;
+
+	    callCallBacks(currentArbilDataNode);
 	}
     }
 
@@ -309,6 +343,7 @@ public class DataNodeLoaderThreadManager {
 	    arbilFilesLoaded++;
 	    currentArbilDataNode.lockedByLoadingThread = false;
 	    currentArbilDataNode.notifyLoaded();
+	    callCallBacks(currentArbilDataNode);
 	}
     }
 }

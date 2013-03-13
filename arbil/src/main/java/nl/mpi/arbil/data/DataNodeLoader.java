@@ -47,6 +47,14 @@ public interface DataNodeLoader extends PluginArbilDataNodeLoader {
 
     void requestReload(ArbilDataNode dataNode);
 
+    /**
+     *
+     * @param currentDataNode node to request reload for
+     * @param callback option callback; if not null, its {@link ArbilDataNodeLoaderCallBack#dataNodeLoaded(nl.mpi.arbil.data.ArbilDataNode)
+     * } method gets called as soon as the node has been successfully reloaded
+     */
+    void requestReload(ArbilDataNode currentDataNode, ArbilDataNodeLoaderCallBack callback);
+
     public void requestShallowReload(ArbilDataNode dataNode);
 
     void requestReloadAllNodes();

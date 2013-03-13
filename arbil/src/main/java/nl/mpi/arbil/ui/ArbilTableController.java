@@ -55,6 +55,7 @@ import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataBuilder;
+import nl.mpi.arbil.data.NodeCreationCallback;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
@@ -346,19 +347,15 @@ public class ArbilTableController {
 	    final ArbilField selectedField = table.getArbilTableModel().getColumnField(selectedFieldIndex);
 	    final MetadataBuilder metadataBuilder = new MetadataBuilder();
 	    try {
-		final URI addedNodeUri = metadataBuilder.addChildNode(dataNode, xmlPath, null, null, null);
-		try {
-		    //TODO: Get rid of this, it is horrible. We need to add a way to wait for the reloading to start AND finish before we
-		    //continue. As a very VERY temporary solution, the following will do.
-		    wait(1000);
-		} catch (InterruptedException ex) {
-		    Thread.currentThread().interrupt();
-		}
-		final String keyName = selectedField.getKeyName();
-		if (keyName != null) {
-		    // case of keys (https://trac.mpi.nl/ticket/2468)
-		    setKeyName(dataNode, addedNodeUri, keyName);
-		} // else: case of optional field (https://trac.mpi.nl/ticket/2470) covered
+		metadataBuilder.addChildNode(dataNode, xmlPath, null, null, null, new NodeCreationCallback() {
+		    public void nodeCreated(ArbilDataNode dataNode, URI nodeURI) {
+			final String keyName = selectedField.getKeyName();
+			if (keyName != null) {
+			    // case of keys (https://trac.mpi.nl/ticket/2468)
+			    setKeyName(dataNode, nodeURI, keyName);
+			} // else: case of optional field (https://trac.mpi.nl/ticket/2470) covered
+		    }
+		});
 	    } catch (ArbilMetadataException mdEx) {
 		logger.error("Error while trying to create field", mdEx);
 		dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details", "Error");

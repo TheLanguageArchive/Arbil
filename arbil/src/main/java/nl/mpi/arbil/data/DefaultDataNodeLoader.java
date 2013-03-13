@@ -34,20 +34,20 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class DefaultDataNodeLoader implements DataNodeLoader {
-    private final static Logger logger = LoggerFactory.getLogger(DefaultDataNodeLoader.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(DefaultDataNodeLoader.class);
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
     private DataNodeLoaderThreadManager threadManager;
     private ArbilDataNodeService dataNodeService;
 
     public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager) {
-        logger.debug("ArbilDataNodeLoader init");
-        threadManager = loaderThreadManager;
+	logger.debug("ArbilDataNodeLoader init");
+	threadManager = loaderThreadManager;
     }
 
     protected final void setDataNodeService(ArbilDataNodeService dataNodeService) {
-        this.dataNodeService = dataNodeService;
+	this.dataNodeService = dataNodeService;
     }
 
 //    public ImdiTreeObject isImdiObjectLoaded(String localUrlString) {
@@ -56,18 +56,18 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 //    }
     @Override
     public ArbilDataNode getArbilDataNodeWithoutLoading(URI localUri) {
-        ArbilDataNode currentDataNode = null;
-        if (localUri != null) {
-            localUri = ArbilDataNodeService.normaliseURI(localUri);
-            // correct any variations in the url string
+	ArbilDataNode currentDataNode = null;
+	if (localUri != null) {
+	    localUri = ArbilDataNodeService.normaliseURI(localUri);
+	    // correct any variations in the url string
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
-            currentDataNode = arbilHashTable.get(localUri.toString());
-            if (currentDataNode == null) {
-                currentDataNode = new ArbilDataNode(dataNodeService, localUri);
-                arbilHashTable.put(localUri.toString(), currentDataNode);
-            }
-        }
-        return currentDataNode;
+	    currentDataNode = arbilHashTable.get(localUri.toString());
+	    if (currentDataNode == null) {
+		currentDataNode = new ArbilDataNode(dataNodeService, localUri);
+		arbilHashTable.put(localUri.toString(), currentDataNode);
+	    }
+	}
+	return currentDataNode;
     }
 
     /**
@@ -77,7 +77,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
      * to PluginDataNode
      */
     public PluginDataNode getPluginArbilDataNode(Object registeringObject, URI localUri) {
-        return (PluginDataNode) getArbilDataNode(registeringObject, localUri);
+	return (PluginDataNode) getArbilDataNode(registeringObject, localUri);
     }
 
     @Override
@@ -91,144 +91,148 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 //       todo if (localUrlString == null) {
 //            logger.debug("getImdiObject: " + localNodeText + " : " + localUrlString);
 //       end todo }
-        ArbilDataNode currentDataNode = null;
-        if (localUri != null && localUri.toString().length() > 0) {
-            currentDataNode = getArbilDataNodeWithoutLoading(localUri);
-            if (!currentDataNode.getParentDomNode().isDataLoaded() && !currentDataNode.isLoading()) {
-                if (ArbilDataNode.isStringChildNode(currentDataNode.getUrlString())) {
-                    // cause the parent node to be loaded
-                    currentDataNode.getParentDomNode();
-                } else if (MetadataFormat.isPathMetadata(currentDataNode.getUrlString()) || ArbilDataNode.isPathHistoryFile(currentDataNode.getUrlString())) {
-                    threadManager.addNodeToQueue(currentDataNode);
-                } else if (!MetadataFormat.isPathMetadata(currentDataNode.getUrlString())) {
+	ArbilDataNode currentDataNode = null;
+	if (localUri != null && localUri.toString().length() > 0) {
+	    currentDataNode = getArbilDataNodeWithoutLoading(localUri);
+	    if (!currentDataNode.getParentDomNode().isDataLoaded() && !currentDataNode.isLoading()) {
+		if (ArbilDataNode.isStringChildNode(currentDataNode.getUrlString())) {
+		    // cause the parent node to be loaded
+		    currentDataNode.getParentDomNode();
+		} else if (MetadataFormat.isPathMetadata(currentDataNode.getUrlString()) || ArbilDataNode.isPathHistoryFile(currentDataNode.getUrlString())) {
+		    threadManager.addNodeToQueue(currentDataNode);
+		} else if (!MetadataFormat.isPathMetadata(currentDataNode.getUrlString())) {
 //                    currentImdiObject.clearIcon(); // do not do this
-                }
-            }
-            if (registeringObject != null && registeringObject instanceof ArbilDataNodeContainer) {
-                currentDataNode.registerContainer((ArbilDataNodeContainer) registeringObject);
-            }
-        }
-        return currentDataNode;
+		}
+	    }
+	    if (registeringObject != null && registeringObject instanceof ArbilDataNodeContainer) {
+		currentDataNode.registerContainer((ArbilDataNodeContainer) registeringObject);
+	    }
+	}
+	return currentDataNode;
     }
 
     // return the node only if it has already been loaded otherwise return null
     @Override
     public ArbilDataNode getArbilDataNodeOnlyIfLoaded(URI arbilUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        arbilUri = ArbilDataNodeService.normaliseURI(arbilUri);
-        return arbilHashTable.get(arbilUri.toString());
+	arbilUri = ArbilDataNodeService.normaliseURI(arbilUri);
+	return arbilHashTable.get(arbilUri.toString());
     }
 
     // reload the node only if it has already been loaded otherwise ignore
     @Override
     public void requestReloadOnlyIfLoaded(URI arbilUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        arbilUri = ArbilDataNodeService.normaliseURI(arbilUri);
-        ArbilDataNode currentDataNode = arbilHashTable.get(arbilUri.toString());
-        if (currentDataNode != null) {
-            requestReload(currentDataNode);
-        }
+	arbilUri = ArbilDataNodeService.normaliseURI(arbilUri);
+	ArbilDataNode currentDataNode = arbilHashTable.get(arbilUri.toString());
+	if (currentDataNode != null) {
+	    requestReload(currentDataNode);
+	}
     }
 
     public void requestReload(ArbilDataNode currentDataNode) {
-        requestReload(currentDataNode, LoadingState.LOADED);
+	requestReload(currentDataNode, null);
+    }
+
+    public void requestReload(ArbilDataNode currentDataNode, ArbilDataNodeLoaderCallBack callback) {
+	requestReload(currentDataNode, LoadingState.LOADED, callback);
     }
 
     public void requestShallowReload(ArbilDataNode currentDataNode) {
-        requestReload(currentDataNode, LoadingState.PARTIAL);
+	requestReload(currentDataNode, LoadingState.PARTIAL, null);
     }
 
     // reload the node or if it is an imdichild node then reload its parent
-    private void requestReload(ArbilDataNode currentDataNode, LoadingState loadingState) {
-        if (currentDataNode.isChildNode()) {
-            currentDataNode = currentDataNode.getParentDomNode();
-        }
-        removeNodesNeedingSave(currentDataNode);
+    private void requestReload(ArbilDataNode currentDataNode, LoadingState loadingState, ArbilDataNodeLoaderCallBack callback) {
+	if (currentDataNode.isChildNode()) {
+	    currentDataNode = currentDataNode.getParentDomNode();
+	}
+	removeNodesNeedingSave(currentDataNode);
 
-        // Never override requested full load with partial load
-        if (!LoadingState.LOADED.equals(currentDataNode.getRequestedLoadingState())) {
-            currentDataNode.setRequestedLoadingState(loadingState);
-        }
+	// Never override requested full load with partial load
+	if (!LoadingState.LOADED.equals(currentDataNode.getRequestedLoadingState())) {
+	    currentDataNode.setRequestedLoadingState(loadingState);
+	}
 
-        threadManager.addNodeToQueue(currentDataNode);
-//        }
+	threadManager.addNodeToQueue(currentDataNode);
+	threadManager.addLoaderCallback(currentDataNode, callback);
     }
 
     @Override
     public void requestReloadAllNodes() {
-        for (ArbilDataNode currentDataNode : arbilHashTable.values()) { // Should use copy of collection (e.g. toArray) to prevent concurrency exceptions?
-            requestReload(currentDataNode);
-        }
+	for (ArbilDataNode currentDataNode : arbilHashTable.values()) { // Should use copy of collection (e.g. toArray) to prevent concurrency exceptions?
+	    requestReload(currentDataNode);
+	}
     }
 
     @Override
     public void startLoaderThreads() {
-        threadManager.startLoaderThreads();
+	threadManager.startLoaderThreads();
     }
 
     public void stopLoaderThreads() {
-        threadManager.stopLoaderThreads();
+	threadManager.stopLoaderThreads();
     }
 
     @Override
     protected void finalize() throws Throwable {
-        // stop the thread
-        threadManager.setContinueThread(false);
-        super.finalize();
+	// stop the thread
+	threadManager.setContinueThread(false);
+	super.finalize();
     }
 
     @Override
     public void addNodeNeedingSave(ArbilDataNode nodeToSave) {
-        nodeToSave = nodeToSave.getParentDomNode();
-        if (!nodesNeedingSave.contains(nodeToSave)) {
-            nodesNeedingSave.add(nodeToSave);
-        }
+	nodeToSave = nodeToSave.getParentDomNode();
+	if (!nodesNeedingSave.contains(nodeToSave)) {
+	    nodesNeedingSave.add(nodeToSave);
+	}
     }
 
     @Override
     public void removeNodesNeedingSave(ArbilDataNode savedNode) {
-        nodesNeedingSave.remove(savedNode);
+	nodesNeedingSave.remove(savedNode);
     }
 
     @Override
     public ArbilDataNode[] getNodesNeedSave() {
-        return nodesNeedingSave.toArray(new ArbilDataNode[]{});
+	return nodesNeedingSave.toArray(new ArbilDataNode[]{});
     }
 
     @Override
     public boolean nodesNeedSave() {
-        return nodesNeedingSave.size() > 0;
+	return nodesNeedingSave.size() > 0;
     }
 
     @Override
     public synchronized void saveNodesNeedingSave(boolean updateIcons) {
-        // this is syncronised to avoid issues from the key repeat on linux which fails to destinguish between key up events and key repeat events
-        while (nodesNeedingSave.size() > 0) {
-            // remove the node from the save list not in the save function because otherwise if the save fails the application will lock up
-            ArbilDataNode currentNode = nodesNeedingSave.remove(0);
-            if (currentNode != null) {
-                currentNode.saveChangesToCache(updateIcons); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
-                if (updateIcons) {
-                    requestReload(currentNode);
-                }
-            }
-        }
+	// this is syncronised to avoid issues from the key repeat on linux which fails to destinguish between key up events and key repeat events
+	while (nodesNeedingSave.size() > 0) {
+	    // remove the node from the save list not in the save function because otherwise if the save fails the application will lock up
+	    ArbilDataNode currentNode = nodesNeedingSave.remove(0);
+	    if (currentNode != null) {
+		currentNode.saveChangesToCache(updateIcons); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
+		if (updateIcons) {
+		    requestReload(currentNode);
+		}
+	    }
+	}
     }
 
     public URI getNodeURI(PluginDataNode dataNode) throws WrongNodeTypeException {
-        if (dataNode instanceof ArbilDataNode) {
-            return ((ArbilDataNode) dataNode).getURI();
-        } else {
-            throw new WrongNodeTypeException("Not an ArbilDataNode.");
-        }
+	if (dataNode instanceof ArbilDataNode) {
+	    return ((ArbilDataNode) dataNode).getURI();
+	} else {
+	    throw new WrongNodeTypeException("Not an ArbilDataNode.");
+	}
     }
 
     public boolean isNodeLoading(PluginDataNode dataNode) {
-        if (dataNode instanceof ArbilDataNode) {
-            return ((ArbilDataNode) dataNode).isLoading();
-        } else {
-            return false;
-        }
+	if (dataNode instanceof ArbilDataNode) {
+	    return ((ArbilDataNode) dataNode).isLoading();
+	} else {
+	    return false;
+	}
     }
 
     /**
@@ -236,7 +240,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
      */
     @Override
     public boolean isSchemaCheckLocalFiles() {
-        return threadManager.isSchemaCheckLocalFiles();
+	return threadManager.isSchemaCheckLocalFiles();
     }
 
     /**
@@ -244,17 +248,17 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
      */
     @Override
     public void setSchemaCheckLocalFiles(boolean schemaCheckLocalFiles) {
-        threadManager.setSchemaCheckLocalFiles(schemaCheckLocalFiles);
+	threadManager.setSchemaCheckLocalFiles(schemaCheckLocalFiles);
     }
 
     public ArbilDataNode createNewDataNode(URI uri) {
-        return new ArbilDataNode(dataNodeService, uri);
+	return new ArbilDataNode(dataNodeService, uri);
     }
 
     /**
      * @return the threadManager
      */
     protected DataNodeLoaderThreadManager getThreadManager() {
-        return threadManager;
+	return threadManager;
     }
 }
