@@ -491,11 +491,12 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     // this will be hit by each imdi node in the table when the application starts hence it needs to be either put in a queue or be synchronised
     protected synchronized void reloadTableDataPrivate() { // with the queue this does not need to be synchronised but in this case it will not slow things too much
 	int previousColumnCount = getColumnCount();
+	String[] previousColumnNames = Arrays.copyOf(getColumnNames(), getColumnNames().length);
 
 	ArbilDataNode[] tableRowsArbilArray = updateAllDataNodes();
 
 	updateViewOrientation(tableRowsArbilArray);
-	initTableData(tableRowsArbilArray, previousColumnCount);
+	initTableData(tableRowsArbilArray, previousColumnNames, previousColumnCount);
     }
 
     private ArbilDataNode[] updateAllDataNodes() {
@@ -560,7 +561,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	}
     }
 
-    private void initTableData(ArbilDataNode[] tableRowsArbilArray, int previousColumnCount) {
+    private void initTableData(ArbilDataNode[] tableRowsArbilArray, String[] previousColumnNames, int previousColumnCount) {
 	String[] columnNamesTemp; // will contain translated field names (for column headers)
 	String[] fieldNames; // will contain actual field names
 	ArbilTableCell[][] newData;
@@ -696,7 +697,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	cellColour = setCellColours(newData);
 	Object[][] prevousData = getData();
 	setData(newData);
-	if (previousColumnCount != getColumnCount() || prevousData.length != getData().length) {
+	if (previousColumnCount != getColumnCount() || prevousData.length != getData().length
+		||!Arrays.equals(previousColumnNames, getColumnNames())) {
 	    try {
 		fireTableStructureChanged();
 	    } catch (Exception ex) {
