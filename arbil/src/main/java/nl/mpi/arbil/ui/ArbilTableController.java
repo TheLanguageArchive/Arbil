@@ -345,15 +345,15 @@ public class ArbilTableController {
 	final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
 	if (canContainField) {
 	    if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
-		// TODO: case of multifield (https://trac.mpi.nl/ticket/2469)
 		try {
 		    new MetadataBuilder().addChildNode(dataNode, xmlPath, null, null, null, new NodeCreationCallback() {
 			public void nodeCreated(ArbilDataNode dataNode, URI nodeURI) {
-			    final String keyName = columnField.getKeyName();
-			    if (keyName != null) {
-				// case of keys (https://trac.mpi.nl/ticket/2468)
-				setKeyName(dataNode, nodeURI, keyName);
-			    } // else: case of optional field (https://trac.mpi.nl/ticket/2470) covered
+			    logger.debug("Field created from placeholder");
+			    // Successful creation covers the case of optional fields (https://trac.mpi.nl/ticket/2470). 
+			    // The following call also checks other cases
+			    processAddedFieldFromPlaceholder(dataNode, nodeURI, columnField);
+			    dataNode.saveChangesToCache(false);
+			    dataNode.reloadNode();
 			}
 		    });
 		} catch (ArbilMetadataException mdEx) {
@@ -366,7 +366,27 @@ public class ArbilTableController {
 	}
     }
 
-    private void setKeyName(final ArbilDataNode dataNode, URI addedNodeUri, final String keyName) throws NumberFormatException {
+    private void processAddedFieldFromPlaceholder(ArbilDataNode dataNode, URI nodeURI, ArbilField columnField) throws NumberFormatException {
+	// Check case of keys (https://trac.mpi.nl/ticket/2468) and case of multilingual field (https://trac.mpi.nl/ticket/2469)
+	final String keyName = columnField.getKeyName();
+	final String languageId = columnField.getLanguageId();
+	// If both are null, skip expensive operation of looking for field
+	if (keyName != null || languageId != null) {
+	    final ArbilField field = getFieldForURI(dataNode, nodeURI);
+	    if (field == null) {
+		throw new RuntimeException(String.format("Field '%s' not found on data node '%s'", nodeURI.getFragment(), dataNode.toString()));
+	    } else {
+		if (keyName != null) {
+		    field.setKeyName(keyName);
+		}
+		if (languageId != null) {
+		    field.setLanguageId(languageId);
+		}
+	    }
+	}
+    }
+
+    private ArbilField getFieldForURI(final ArbilDataNode dataNode, URI addedNodeUri) throws NumberFormatException {
 	if (dataNode.waitTillLoaded()) {
 	    final String fieldPath = addedNodeUri.getFragment();//.substring(dataNode.getURI().getFragment().length() + 1);
 	    final Pattern pattern = Pattern.compile("^(.*?)(\\((\\d+)\\))?$");
@@ -377,13 +397,12 @@ public class ArbilTableController {
 		final int fieldPathIndex = fieldPathIndexString == null ? 0 : Integer.parseInt(fieldPathIndexString) - 1; // path index starts at 1, array at 0
 		for (ArbilField[] fieldArray : dataNode.getFields().values()) {
 		    if (fieldArray.length > fieldPathIndex && fieldArray[fieldPathIndex].getFullXmlPath().startsWith(fieldPathBase)) {
-			fieldArray[fieldPathIndex].setKeyName(keyName);
+			return fieldArray[fieldPathIndex];
 		    }
 		}
 	    }
-	} else {
-	    // something went wrong while waiting until loaded
 	}
+	return null;
     }
 
     public void checkPopup(MouseEvent evt, boolean checkSelection) {
