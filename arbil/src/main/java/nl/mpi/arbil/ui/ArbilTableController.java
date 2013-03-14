@@ -362,7 +362,7 @@ public class ArbilTableController {
 		}
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue(String.format("The node '%s' cannot contain a field '%s'", dataNode.toString(), columnField.getTranslateFieldName()), "Insert field");
+	    dialogHandler.addMessageDialogToQueue(String.format("The node '%s' cannot contain a field of the same type as '%s' in '%s'", dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), "Insert field");
 	}
     }
 
