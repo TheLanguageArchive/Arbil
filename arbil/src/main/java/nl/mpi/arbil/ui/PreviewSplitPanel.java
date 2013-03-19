@@ -41,16 +41,19 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
     private static WindowManager windowManager;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
+	//TODO: PreviewSplitPanel should not be singleton, then this can go
 	windowManager = windowManagerInstance;
     }
-    private static ArbilTableController tableController;
+    private static TableController tableController;
 
-    public static void setTableController(ArbilTableController treeHelperInstance) {
+    public static void setTableController(TableController treeHelperInstance) {
+	//TODO: PreviewSplitPanel should not be singleton, then this can go
 	tableController = treeHelperInstance;
     }
     private static PreviewSplitPanel instance;
 
     public static synchronized PreviewSplitPanel getInstance() {
+	//TODO: PreviewSplitPanel should not be singleton, then this can go
 	if (instance == null) {
 	    instance = new PreviewSplitPanel();
 	}

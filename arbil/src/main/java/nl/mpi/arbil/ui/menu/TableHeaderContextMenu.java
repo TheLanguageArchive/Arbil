@@ -34,8 +34,8 @@ import javax.swing.table.TableColumn;
 import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.ui.ArbilTableModel;
+import nl.mpi.arbil.ui.TableController;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
@@ -47,9 +47,9 @@ public class TableHeaderContextMenu extends JPopupMenu {
     private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
     private final ArbilTable table;
     private final ArbilTableModel tableModel;
-    private final ArbilTableController tableController;
+    private final TableController tableController;
 
-    public TableHeaderContextMenu(final ArbilTableController tableController, final ArbilTable table, final int targetColumn) {
+    public TableHeaderContextMenu(final TableController tableController, final ArbilTable table, final int targetColumn) {
 	this.table = table;
 	this.tableModel = table.getArbilTableModel();
 	this.tableController = tableController;

@@ -78,13 +78,13 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 	    new EmptyBorder(0, 5, 0, 0)); // Inner border - empty white space (inset)
     private static Border labelPadding = new EmptyBorder(2, 0, 2, 0);
     private final ImageBoxRenderer imageBoxRenderer;
-    private final ArbilTableController tableController;
+    private final TableController tableController;
 
     public ArbilDataNode getDataNode() {
 	return this.dataNode;
     }
 
-    public ArbilSubnodesPanel(ArbilDataNode dataNode, ArbilTableController tableController, ImageBoxRenderer imageBoxRenderer) {
+    public ArbilSubnodesPanel(ArbilDataNode dataNode, TableController tableController, ImageBoxRenderer imageBoxRenderer) {
 	// Construct a top-level subnodes panel (with no parent)
 	this(dataNode, null, tableController, imageBoxRenderer);
     }
@@ -101,7 +101,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 	return parent == null;
     }
 
-    private ArbilSubnodesPanel(ArbilDataNode dataNode, ArbilSubnodesPanel parent, ArbilTableController tableController, ImageBoxRenderer imageBoxRenderer) {
+    private ArbilSubnodesPanel(ArbilDataNode dataNode, ArbilSubnodesPanel parent, TableController tableController, ImageBoxRenderer imageBoxRenderer) {
 	super();
 	this.imageBoxRenderer = imageBoxRenderer;
 	this.dataNode = dataNode;

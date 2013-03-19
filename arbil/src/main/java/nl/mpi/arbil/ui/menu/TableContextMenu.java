@@ -24,7 +24,7 @@ import javax.swing.ListSelectionModel;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.ui.ArbilTableController;
+import nl.mpi.arbil.ui.TableController;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
@@ -34,9 +34,9 @@ import nl.mpi.arbil.util.BugCatcherManager;
  */
 public class TableContextMenu extends ArbilContextMenu {
 
-    private final ArbilTableController tableController;
+    private final TableController tableController;
 
-    public TableContextMenu(ArbilTable table, ArbilTableController tableController) {
+    public TableContextMenu(ArbilTable table, TableController tableController) {
 	super();
 	this.tableController = tableController;
 

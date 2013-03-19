@@ -32,7 +32,7 @@ public class ArbilSubnodesScrollPane extends JScrollPane implements ArbilWindowC
 
     private ArbilSubnodesPanel panel;
 
-    public ArbilSubnodesScrollPane(ArbilDataNode dataNode, ArbilTableController tableController, ImageBoxRenderer imageBoxRenderer) {
+    public ArbilSubnodesScrollPane(ArbilDataNode dataNode, TableController tableController, ImageBoxRenderer imageBoxRenderer) {
         this(new ArbilSubnodesPanel(dataNode, tableController, imageBoxRenderer));
     }
 

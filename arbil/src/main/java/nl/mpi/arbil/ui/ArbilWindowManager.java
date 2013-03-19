@@ -152,9 +152,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     public void setImageBoxRenderer(ImageBoxRenderer imageBoxRenderer) {
 	this.imageBoxRenderer = imageBoxRenderer;
     }
-    private ArbilTableController tableController;
+    private TableController tableController;
 
-    public void setTableController(ArbilTableController tableController) {
+    public void setTableController(TableController tableController) {
 	this.tableController = tableController;
     }
 

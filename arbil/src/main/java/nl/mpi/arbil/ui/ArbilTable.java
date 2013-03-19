@@ -70,9 +70,9 @@ public class ArbilTable extends JTable implements PluginArbilTable {
     private int lastRowCount = -1;
     private int lastColumnPreferedWidth = 0;
     protected boolean allowNodeDrop = true;
-    private final ArbilTableController tableController;
+    private final TableController tableController;
 
-    public ArbilTable(ArbilTableModel arbilTableModel, ArbilTableController tableController, String frameTitle) {
+    public ArbilTable(ArbilTableModel arbilTableModel, TableController tableController, String frameTitle) {
 	this.tableController = tableController;
 	this.arbilTableModel = arbilTableModel;
 	this.arbilTableModel.setShowIcons(true);

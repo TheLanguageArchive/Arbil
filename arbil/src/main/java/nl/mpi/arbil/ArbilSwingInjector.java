@@ -26,12 +26,12 @@ import nl.mpi.arbil.ui.ArbilHyperlinkListener;
 import nl.mpi.arbil.ui.ArbilNodeSearchColumnComboBox;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.ui.CmdiProfilesPanel;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.RemoteServerSearchTermPanel;
+import nl.mpi.arbil.ui.TableController;
 import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.ArbilContextMenu;
@@ -118,7 +118,7 @@ public class ArbilSwingInjector extends ArbilInjector {
     }
 
     @Override
-    public void injectTableController(ArbilTableController tableController) {
+    public void injectTableController(TableController tableController) {
 	super.injectTableController(tableController);
 	//TODO: PreviewSplitPanel should not be singleton, then this can go
 	PreviewSplitPanel.setTableController(tableController);

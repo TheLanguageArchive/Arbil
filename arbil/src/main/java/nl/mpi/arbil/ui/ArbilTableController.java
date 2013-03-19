@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilTableController {
+public class ArbilTableController implements TableController {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilTableController.class);
     public static final String DELETE_ROW_ACTION_KEY = "deleteRow";
@@ -91,23 +91,28 @@ public class ArbilTableController {
 	this.windowManager = windowManager;
     }
 
+    @Override
     public void initKeyMapping(ArbilTable table) {
 	table.getInputMap(JTable.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), DELETE_ROW_ACTION_KEY);
 	table.getActionMap().put(DELETE_ROW_ACTION_KEY, deleteRowAction);
     }
 
+    @Override
     public MouseListener getTableMouseListener() {
 	return tableMouseListener;
     }
 
+    @Override
     public MouseListener getTableHeaderMouseListener() {
 	return tableHeaderMouseListener;
     }
 
+    @Override
     public void openNodesInNewTable(ArbilDataNode[] nodes, String fieldName, ArbilDataNode registeredOwner) {
 	windowManager.openFloatingTableOnce(nodes, String.format("%s in %s", fieldName, registeredOwner));
     }
 
+    @Override
     public void showRowChildData(ArbilTableModel tableModel) {
 	Object[] possibilities = tableModel.getChildNames();
 	String selectionResult = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
@@ -117,11 +122,13 @@ public class ArbilTableController {
 	}
     }
 
+    @Override
     public void viewSelectedTableRows(ArbilTable table) {
 	int[] selectedRows = table.getSelectedRows();
 	windowManager.openFloatingTableOnce(table.getArbilTableModel().getSelectedDataNodes(selectedRows), null);
     }
 
+    @Override
     public void showColumnViewsEditor(ArbilTable table) {
 	table.updateStoredColumnWidths();
 	try {
@@ -137,6 +144,7 @@ public class ArbilTableController {
 	}
     }
 
+    @Override
     public void saveCurrentColumnView(ArbilTable table) {
 	try {
 	    String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
@@ -158,6 +166,7 @@ public class ArbilTableController {
      * @param table table to get selection from
      * @return whether deletion was carried out
      */
+    @Override
     public boolean deleteSelectedFields(ArbilTable table) {
 	final ArbilField[] selectedFields = table.getSelectedFields();
 	if (selectedFields != null) {
@@ -176,6 +185,7 @@ public class ArbilTableController {
      * @param columnName name of the column/field to remove
      * @return whether deletion was carried out
      */
+    @Override
     public boolean deleteColumnFieldFromAllNodes(ArbilTable table, String columnName) {
 	final List<ArbilDataNode> rowNodes = Collections.list(table.getArbilTableModel().getArbilDataNodes());
 	final List<ArbilField> fieldsToDelete = new ArrayList<ArbilField>(rowNodes.size());
@@ -241,6 +251,7 @@ public class ArbilTableController {
 	return selectedFieldHashtable;
     }
 
+    @Override
     public void copySelectedCellToColumn(ArbilTable table) {
 	try {
 	    final String messageString = java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ABOUT TO REPLACE ALL VALUES IN COLUMN {0} WITH THE VALUE {1}(<MULTIPLE VALUES> WILL NOT BE AFFECTED)"), new Object[]{table.getArbilTableModel().getColumnName(table.getSelectedColumn()), table.getArbilTableModel().getValueAt(table.getSelectedRow(), table.getSelectedColumn())});
@@ -255,10 +266,12 @@ public class ArbilTableController {
 	}
     }
 
+    @Override
     public void deleteNodes(ArbilTable table) {
 	treeHelper.deleteNodes(table);
     }
 
+    @Override
     public void jumpToSelectionInTree(ArbilTable table) {
 	try {
 	    treeHelper.jumpToSelectionInTree(false, table.getDataNodeForSelection());
@@ -267,6 +280,7 @@ public class ArbilTableController {
 	}
     }
 
+    @Override
     public void showContextForSelectedNodes(ArbilTable table) {
 	final Set<ArbilDataNode> parentNodes = new HashSet<ArbilDataNode>();
 	for (ArbilField selectedField : table.getSelectedFields()) {
@@ -275,6 +289,7 @@ public class ArbilTableController {
 	windowManager.openFloatingSubnodesWindows(parentNodes.toArray(new ArbilDataNode[]{}));
     }
 
+    @Override
     public void highlightMatchingRows(ArbilTable table) {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
 	final int selectedRow = table.getSelectedRow();
@@ -294,6 +309,7 @@ public class ArbilTableController {
 	}
     }
 
+    @Override
     public void startLongFieldEditorForSelectedFields(ArbilTable table) {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
 	int[] selectedRows = table.getSelectedRows();
@@ -336,6 +352,7 @@ public class ArbilTableController {
      * Use when cell value is field place holder, meaning that the node does not
      * contain the selected field and may not be able to.
      */
+    @Override
     public synchronized void addFieldFromPlaceholder(final ArbilTable table, final int selectedFieldIndex, ArbilFieldPlaceHolder placeholder) {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
 	final String xmlPath = placeholder.getFieldName();
@@ -405,6 +422,7 @@ public class ArbilTableController {
 	return null;
     }
 
+    @Override
     public void checkPopup(MouseEvent evt, boolean checkSelection) {
 	final ArbilTable table = getEventSourceAsArbilTable(evt);
 	final ArbilTableModel tableModel = table.getArbilTableModel();

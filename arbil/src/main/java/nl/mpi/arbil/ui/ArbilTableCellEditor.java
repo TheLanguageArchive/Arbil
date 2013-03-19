@@ -70,7 +70,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
      * Action key that starts appending to field in editor
      */
     public static final int APPEND_TO_FIELD_ACTION_KEY = KeyEvent.VK_F2;
-    private final ArbilTableController tableController;
+    private final TableController tableController;
     private final JPanel editorPanel;
     private final ArbilTableCellRenderer arbilTableCellRenderer;
     private final JLabel button;
@@ -106,7 +106,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	}
     };
 
-    public ArbilTableCellEditor(ArbilTableController tableController) {
+    public ArbilTableCellEditor(TableController tableController) {
 	this.tableController = tableController;
 
 	arbilTableCellRenderer = new ArbilTableCellRenderer();
