@@ -49,7 +49,7 @@ public class MetadataBuilderTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
-	injector.injectHandlers();
+	injector.injectDefaultHandlers();
 	dataNodeloader = injector.getDataNodeLoader();
     }
 

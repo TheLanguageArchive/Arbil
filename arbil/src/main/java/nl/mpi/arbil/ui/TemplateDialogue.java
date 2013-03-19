@@ -234,7 +234,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
     }
     
     public static void main(String[] args) {
-	new ArbilDesktopInjector().injectHandlers();
+	new ArbilDesktopInjector().injectDefaultHandlers();
 	TemplateDialogue.showTemplatesDialogue();
 	System.exit(0);
     }

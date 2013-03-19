@@ -40,7 +40,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
     public void init() {
         final ArbilDesktopInjector injector = new ArbilDesktopInjector();
         // TODO: test if this suffices
-        injector.injectHandlers();
+        injector.injectDefaultHandlers();
         dataNodeLoader = injector.getDataNodeLoader();
         try {
             java.awt.EventQueue.invokeAndWait(new Runnable() {

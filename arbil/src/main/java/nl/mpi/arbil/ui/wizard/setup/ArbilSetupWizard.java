@@ -145,7 +145,7 @@ public class ArbilSetupWizard extends ArbilWizard {
     }
 
     public static void main(String args[]) {
-	new ArbilDesktopInjector().injectHandlers();
+	new ArbilDesktopInjector().injectDefaultHandlers();
 	ArbilWizard wizard = new ArbilSetupWizard();
 	wizard.showModalDialog();
     }

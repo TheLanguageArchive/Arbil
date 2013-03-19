@@ -50,7 +50,11 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     private ArbilTreeController treeController;
     private ArbilTableController tableController;
 
-    public synchronized void injectHandlers() {
+    /**
+     * <strong>To be used for testing scenario's only<strong>, will generate a new {@link ApplicationVersion} and {@link ArbilLogConfigurer}.
+     * For production workflows, use {@link #injectHandlers(nl.mpi.arbil.util.ApplicationVersionManager, nl.mpi.arbil.util.ArbilLogConfigurer) }
+     */
+    public synchronized void injectDefaultHandlers() {
 	final ArbilVersion arbilVersion = new ArbilVersion();
 	injectHandlers(new ApplicationVersionManager(arbilVersion), new ArbilLogConfigurer(arbilVersion, "arbil-log"));
     }
@@ -105,7 +109,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     }
 
     /**
-     * Should not be called before injectHandlers()!!
+     * Should not be called before injectDefaultHandlers()!!
      *
      * @return the treeHelper
      */
@@ -114,7 +118,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     }
 
     /**
-     * Should not be called before injectHandlers()!!
+     * Should not be called before injectDefaultHandlers()!!
      *
      * @return the tree controller
      */
@@ -123,7 +127,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     }
 
     /**
-     * Should not be called before injectHandlers()!!
+     * Should not be called before injectDefaultHandlers()!!
      *
      * @return the treeHelper
      */
@@ -132,7 +136,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     }
 
     /**
-     * Should not be called before injectHandlers()!!
+     * Should not be called before injectDefaultHandlers()!!
      *
      * @return the treeHelper
      */
@@ -141,7 +145,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     }
 
     /**
-     * Should not be called before injectHandlers()!!
+     * Should not be called before injectDefaultHandlers()!!
      *
      * @return the treeHelper
      */

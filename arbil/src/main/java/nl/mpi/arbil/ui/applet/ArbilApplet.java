@@ -37,12 +37,12 @@ public class ArbilApplet extends javax.swing.JApplet {
     public void init() {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
 	// TODO: test if this suffices
-	injector.injectHandlers();
+	injector.injectDefaultHandlers();
 	//System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 	try {
 	    SwingUtilities.invokeAndWait(new Runnable() {
 		public void run() {
-		    //injector.injectHandlers();
+		    //injector.injectDefaultHandlers();
 		    mainSplitPane = new javax.swing.JSplitPane();
 		    getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
 		    previewSplitPanel = PreviewSplitPanel.getInstance();
