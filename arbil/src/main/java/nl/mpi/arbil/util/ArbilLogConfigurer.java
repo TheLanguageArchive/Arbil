@@ -42,11 +42,12 @@ import org.slf4j.LoggerFactory;
 public final class ArbilLogConfigurer {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilLogConfigurer.class);
-    public static final String ARBIL_LOG_FILE_PREFIX = "arbil-log-";
+    private final String logFilePrefix;
     private final ApplicationVersion appVersion;
 
-    public ArbilLogConfigurer(ApplicationVersion applicationVersion) {
-	this.appVersion = applicationVersion;
+    public ArbilLogConfigurer(ApplicationVersion appVersion, String logFilePrefix) {
+	this.logFilePrefix = logFilePrefix;
+	this.appVersion = appVersion;
     }
 
     /**
@@ -167,7 +168,7 @@ public final class ArbilLogConfigurer {
     }
 
     private String getCurrentVersionLogFileName() {
-	return ARBIL_LOG_FILE_PREFIX + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".txt";
+	return logFilePrefix + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".txt";
     }
 
     private void startNewLogFile(File file, SessionStorage sessionStorage) {
@@ -193,7 +194,7 @@ public final class ArbilLogConfigurer {
 
     private void removeOldLogs(SessionStorage sessionStorage) {
 	// look for previous error logs for this version only
-	String currentApplicationVersionMatch = ARBIL_LOG_FILE_PREFIX + appVersion.currentMajor + "-" + appVersion.currentMinor + "-";
+	String currentApplicationVersionMatch = logFilePrefix + appVersion.currentMajor + "-" + appVersion.currentMinor + "-";
 	String currentLogFileMatch = getCurrentVersionLogFileName();
 	for (String currentFile : sessionStorage.getApplicationSettingsDirectory().list()) {
 	    if (currentFile.startsWith(currentApplicationVersionMatch)) {

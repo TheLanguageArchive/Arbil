@@ -50,7 +50,7 @@ public class ArbilApplet extends javax.swing.JApplet {
 		    arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController());
 		    mainSplitPane.setLeftComponent(arbilTreePanels);
 		    previewSplitPanel.setPreviewPanel(true);
-		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel, ArbilApplet.this, new ArbilLogConfigurer(new ArbilVersion()));
+		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel, ArbilApplet.this, new ArbilLogConfigurer(new ArbilVersion(), "arbil-applet-log"));
 		    setJMenuBar(arbilMenuBar);
 //                  LinorgWindowManager.getSingleInstance().setComponents(this);
 		    injector.getWindowManager().openIntroductionPage();

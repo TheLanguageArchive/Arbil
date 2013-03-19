@@ -41,7 +41,7 @@ public class ArbilApplet2 extends JApplet {
     private DataNodeLoader dataNodeLoader;
     private final ArbilVersion arbilVersion = new ArbilVersion();
     private final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
-    private final ArbilLogConfigurer logManager = new ArbilLogConfigurer(arbilVersion);
+    private final ArbilLogConfigurer logManager = new ArbilLogConfigurer(arbilVersion, "arbil-applet-log");
 
     private void initComponents(ArbilDesktopInjector injector) {
 	dataNodeLoader = injector.getDataNodeLoader();

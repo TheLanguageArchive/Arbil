@@ -52,7 +52,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     public synchronized void injectHandlers() {
 	final ArbilVersion arbilVersion = new ArbilVersion();
-	injectHandlers(new ApplicationVersionManager(arbilVersion), new ArbilLogConfigurer(arbilVersion));
+	injectHandlers(new ApplicationVersionManager(arbilVersion), new ArbilLogConfigurer(arbilVersion, "arbil-log"));
     }
 
     /**

@@ -56,6 +56,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.NodeCreationCallback;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
@@ -349,21 +350,24 @@ public class ArbilTableController implements TableController {
     }
 
     /**
-     * Use when cell value is field place holder, meaning that the node does not
-     * contain the selected field and may not be able to.
+     * Use when cell value is field place holder ('grey cells'), meaning that the node does not contain the selected field and may not be
+     * able to. This methods first checks whether the field can be inserted, and if so does it, saving any changes in the parent document.
      */
     @Override
     public synchronized void addFieldFromPlaceholder(final ArbilTable table, final int selectedFieldIndex, ArbilFieldPlaceHolder placeholder) {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
-	final String xmlPath = placeholder.getFieldName();
 	final ArbilDataNode dataNode = placeholder.getArbilDataNode();
 
 	final ArbilField columnField = tableModel.getColumnField(selectedFieldIndex);
-	final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
+	final String xmlPath = columnField.getGenericFullXmlPath();
+
+	final MetadataBuilder metadataBuilder = new MetadataBuilder();
+	final boolean canContainField = metadataBuilder.canAddChildNode(dataNode, xmlPath);
+	//dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
 	if (canContainField) {
 	    if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
 		try {
-		    new MetadataBuilder().addChildNode(dataNode, xmlPath, null, null, null, new NodeCreationCallback() {
+		    metadataBuilder.addChildNode(dataNode, xmlPath, null, null, null, new NodeCreationCallback() {
 			public void nodeCreated(ArbilDataNode dataNode, URI nodeURI) {
 			    logger.debug("Field created from placeholder");
 			    // Successful creation covers the case of optional fields (https://trac.mpi.nl/ticket/2470). 

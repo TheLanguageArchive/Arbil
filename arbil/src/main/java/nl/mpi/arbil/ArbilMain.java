@@ -61,7 +61,7 @@ public class ArbilMain extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
 	final ArbilVersion arbilVersion = new ArbilVersion();
-	final ArbilLogConfigurer logConfigurer = new ArbilLogConfigurer(arbilVersion);
+	final ArbilLogConfigurer logConfigurer = new ArbilLogConfigurer(arbilVersion, "arbil-log-");
 	// See if a logging configuration has been specified manually
 	if (System.getProperty("java.util.logging.config.file") == null) {
 	    // No logging configured, use built in initial logging properties
