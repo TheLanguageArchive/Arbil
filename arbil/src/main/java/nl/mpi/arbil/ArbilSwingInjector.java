@@ -117,12 +117,9 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilMenuBar.setDataNodeLoader(dataNodeLoader);
     }
 
-    @Override
     public void injectTableController(TableController tableController) {
-	super.injectTableController(tableController);
 	//TODO: PreviewSplitPanel should not be singleton, then this can go
 	PreviewSplitPanel.setTableController(tableController);
     }
-    
     
 }

@@ -147,8 +147,4 @@ public abstract class ArbilInjector {
 	ApplicationVersionManager.setSessionStorage(sessionStorage);
 	ArbilTemplateManager.setSessionStorage(sessionStorage);
     }
-
-    public void injectTableController(TableController tableController) {
-	//nothing in this implementation
-    }
 }
