@@ -529,8 +529,8 @@ public class MetadataBuilder {
 				    // reload with new reload callback that wraps the creation callback
 				    final URI newNodePath = addedNodePath;
 				    dataNodeLoader.requestReload(destinationNode, new ArbilDataNodeLoaderCallBack() {
-					public void dataNodeLoaded(ArbilDataNode dataNode) {
-					    creationCallback.nodeCreated(dataNode, newNodePath);
+					public void dataNodeLoaded(ArbilDataNode reloadedDestinationNode) {
+					    creationCallback.nodeCreated(reloadedDestinationNode, newNodePath);
 					}
 				    });
 				}
@@ -544,7 +544,11 @@ public class MetadataBuilder {
 			}
 //            needsSaveToDisk = true;
 		    } else {
-			logger.debug("adding new node");
+			logger.debug("adding new metadata node of type {} as reference to {}", nodeType, destinationNode);
+			if (!destinationNode.equals(destinationNode.getParentDomNode())) {
+			    logger.error("Node type '{}' not a child node according to template. Destination node '{}' not a parent dom node.", nodeType, destinationNode);
+			    throw new ArbilMetadataException("Cannot create reference on child node");
+			}
 			URI targetFileURI = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
 			if (CmdiProfileReader.pathIsProfile(nodeType)) {
 			    // Is CMDI profile
@@ -555,14 +559,13 @@ public class MetadataBuilder {
 //                      LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
 //                    }
 			    } catch (URISyntaxException ex) {
-				BugCatcherManager.getBugCatcher().logError(ex);
-				return null;
+				throw new ArbilMetadataException(String.format("Error while adding node to metadata hierarchy. Node type %s not a valid URI", nodeType), ex);
 			    }
 			} else {
 			    addedNodePath = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
 			}
 			if (destinationNode.getFile().exists()) {
-			    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
+			    destinationNode.getParentDomNode().getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
 			    destinationNode.getParentDomNode().loadArbilDom();
 			    if (creationCallback != null) {
 				creationCallback.nodeCreated(destinationNode, addedNodePath);
