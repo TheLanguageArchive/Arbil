@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.flap.model.AbstractDataNode;
 import nl.mpi.flap.model.FieldGroup;
 import nl.mpi.flap.model.PluginDataNode;
 
@@ -38,162 +37,131 @@ public abstract class ArbilRootNode extends ArbilNode {
     final private URI nodeUri;
 
     protected ArbilRootNode(URI nodeUri, String name, ImageIcon icon, boolean local) {
-	this.nodeUri = nodeUri;
-	this.name = name;
-	this.icon = icon;
-	this.local = local;
+        this.nodeUri = nodeUri;
+        this.name = name;
+        this.icon = icon;
+        this.local = local;
     }
 
     @Override
     public String toString() {
-	return name;
+        return name;
     }
 
     public ImageIcon getIcon() {
-	return icon;
+        return icon;
     }
 
     public ArbilDataNode[] getAllChildren() {
-	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public void getAllChildren(Vector<ArbilDataNode> allChildren) {
-	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public int getChildCount() {
-	return getChildArray().length;
-    }
-
-    @Override
-    public void setID(String id) {
-	throw new UnsupportedOperationException("Not supported yet.");
+        return getChildArray().length;
     }
 
     @Override
     public String getID() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void setLabel(String label) {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String getLabel() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void setFieldGroups(List<FieldGroup> fieldGroups) {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public List<FieldGroup> getFieldGroups() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void setChildIds(List<String> idString) {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public List<String> getChildIds() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public boolean hasCatalogue() {
-	return false;
+        return false;
     }
 
     public boolean hasHistory() {
-	return false;
+        return false;
     }
 
     public boolean hasLocalResource() {
-	return false;
+        return false;
     }
 
     public boolean hasResource() {
-	return false;
+        return false;
     }
 
     public boolean isArchivableFile() {
-	return false;
+        return false;
     }
 
     public boolean isCatalogue() {
-	return false;
+        return false;
     }
 
     public boolean isChildNode() {
-	return false;
+        return false;
     }
 
     public boolean isCmdiMetaDataNode() {
-	return false;
+        return false;
     }
 
     public boolean isCorpus() {
-	return false;
+        return false;
     }
 
     public boolean isDirectory() {
-	return false;
+        return false;
     }
 
     public boolean isEditable() {
-	return false;
+        return false;
     }
 
     public boolean isEmptyMetaNode() {
-	return false;
+        return false;
     }
 
     public boolean isFavorite() {
-	return false;
+        return false;
     }
 
     public boolean isLocal() {
-	return this.local;
+        return this.local;
     }
 
     public boolean isMetaDataNode() {
-	return false;
+        return false;
     }
 
     public boolean isResourceSet() {
-	return false;
+        return false;
     }
 
     public boolean isSession() {
-	return false;
+        return false;
     }
 
     public boolean isLoading() {
-	return false;
+        return false;
     }
 
     public boolean isDataLoaded() {
-	return true;
+        return true;
     }
 
     @Override
     public boolean isDataPartiallyLoaded() {
-	return true;
+        return true;
     }
 
     @Override
     public List<? extends PluginDataNode> getChildList() {
-	return Arrays.asList(getChildArray());
-    }
-
-    @Override
-    public void setChildList(List<? extends AbstractDataNode> childNodes) {
-	//TODO: This can be removed when we switch to the composition approach for (de)serialization
-	throw new UnsupportedOperationException("Not supported");
+        return Arrays.asList(getChildArray());
     }
 }

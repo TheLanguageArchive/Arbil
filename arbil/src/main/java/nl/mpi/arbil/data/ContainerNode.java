@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.flap.model.AbstractDataNode;
 import nl.mpi.flap.model.DataNodeType;
 import nl.mpi.flap.model.FieldGroup;
 import nl.mpi.flap.model.PluginDataNode;
@@ -41,77 +40,57 @@ public class ContainerNode extends ArbilNode implements Comparable {
     final private URI nodeUri;
 
     public ContainerNode(URI nodeUri, String labelString, ImageIcon imageIcon, ArbilNode[] childNodes) {
-	this.nodeUri = nodeUri;
-	this.childNodes = childNodes;
-	this.labelString = labelString;
-	this.imageIcon = imageIcon;
+        this.nodeUri = nodeUri;
+        this.childNodes = childNodes;
+        this.labelString = labelString;
+        this.imageIcon = imageIcon;
     }
 
     public int compareTo(Object o) {
-	return labelString.compareTo(o.toString());
+        return labelString.compareTo(o.toString());
     }
 
     public void setChildNodes(ArbilNode[] childNodes) {
-	this.childNodes = childNodes;
+        this.childNodes = childNodes;
     }
 
     @Override
     public boolean equals(Object obj) {
-	if (obj == null) {
-	    return false;
-	}
-	if (getClass() != obj.getClass()) {
-	    return false;
-	}
-	final ContainerNode other = (ContainerNode) obj;
-	if ((this.labelString == null) ? (other.labelString != null) : !this.labelString.equals(other.labelString)) {
-	    return false;
-	}
-	return true;
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ContainerNode other = (ContainerNode) obj;
+        if ((this.labelString == null) ? (other.labelString != null) : !this.labelString.equals(other.labelString)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
-	int hash = 17;
+        int hash = 17;
 //        hash = 19 * hash + Arrays.deepHashCode(this.childNodes);
 //        hash = 19 * hash + this.childNodes.hashCode();
-	hash = 19 * hash + (this.labelString != null ? this.labelString.hashCode() : 0);
-	return hash;
+        hash = 19 * hash + (this.labelString != null ? this.labelString.hashCode() : 0);
+        return hash;
     }
 
     @Override
     public String toString() {
-	return labelString + " (" + childNodes.length + ")";
+        return labelString + " (" + childNodes.length + ")";
     }
 
     @Override
     public ArbilNode[] getChildArray() {
-	return childNodes;
-    }
-
-    @Override
-    public void setID(String id) {
-	throw new UnsupportedOperationException("Not supported yet.");
+        return childNodes;
     }
 
     @Override
     public String getLabel() {
-	return this.toString();
-    }
-
-    @Override
-    public List<String> getChildIds() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void setLabel(String label) {
-	labelString = label;
-    }
-
-    @Override
-    public void setFieldGroups(List<FieldGroup> fieldGroups) {
-	throw new UnsupportedOperationException("Not supported yet.");
+        return this.toString();
     }
 
 //    @Override
@@ -119,172 +98,156 @@ public class ContainerNode extends ArbilNode implements Comparable {
 //        throw new UnsupportedOperationException("Not supported yet.");
 //    }
     @Override
-    public void setChildIds(List<String> idString) {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public DataNodeType getType() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void setType(DataNodeType dataNodeType) {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String getID() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public ImageIcon getIcon() {
-	return imageIcon;
+        return imageIcon;
     }
 
     @Override
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
-	for (ArbilNode currentChild : childNodes) {
-	    currentChild.registerContainer(containerToAdd);
-	}
+        for (ArbilNode currentChild : childNodes) {
+            currentChild.registerContainer(containerToAdd);
+        }
     }
 
     @Override
     public void removeContainer(ArbilDataNodeContainer containerToRemove) {
-	for (ArbilNode currentChild : childNodes) {
-	    currentChild.removeContainer(containerToRemove);
-	}
+        for (ArbilNode currentChild : childNodes) {
+            currentChild.removeContainer(containerToRemove);
+        }
     }
 
     @Override
     public ArbilDataNode[] getAllChildren() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void getAllChildren(Vector<ArbilDataNode> allChildren) {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public int getChildCount() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean hasCatalogue() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean hasHistory() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean hasLocalResource() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean hasResource() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean isArchivableFile() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isCatalogue() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isChildNode() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean isCmdiMetaDataNode() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isCorpus() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isDataLoaded() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean isDataPartiallyLoaded() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean isDirectory() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isEditable() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isEmptyMetaNode() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isFavorite() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isLoading() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isLocal() {
-	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean isMetaDataNode() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isResourceSet() {
-	return false;
+        return false;
     }
 
     @Override
     public boolean isSession() {
-	return false;
+        return false;
     }
 
     @Override
     public List<FieldGroup> getFieldGroups() {
-	return Collections.emptyList();
+        return Collections.emptyList();
     }
 
     @Override
     public List<? extends PluginDataNode> getChildList() {
-	return Arrays.asList(childNodes);
-    }
-
-    @Override
-    public void setChildList(List<? extends AbstractDataNode> newChildren) {
-	//TODO: This can be removed when we switch to the composition approach for (de)serialization
-	this.childNodes = newChildren.toArray(new ArbilNode[]{});
+        return Arrays.asList(childNodes);
     }
 }

@@ -19,7 +19,7 @@ package nl.mpi.arbil.data;
 
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.flap.model.AbstractDataNode;
+import nl.mpi.flap.model.PluginDataNode;
 
 /**
  * Interface for nodes, either data nodes, root nodes or potentially other kinds
@@ -27,7 +27,7 @@ import nl.mpi.flap.model.AbstractDataNode;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public abstract class ArbilNode extends AbstractDataNode {
+public abstract class ArbilNode implements PluginDataNode {
 
     protected Vector<ArbilDataNodeContainer> /*<Component>*/ containersOfThisNode;
 
