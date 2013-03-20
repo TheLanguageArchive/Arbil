@@ -90,8 +90,10 @@ public final class ArbilLogConfigurer {
      */
     public void setLogFile(File logFile, Level level) throws IOException {
 	final java.util.logging.Logger defaultLogger = LogManager.getLogManager().getLogger("");
+	logger.info("Reconfiguring logging to send output to {}", logFile.getAbsolutePath());
 	for (Handler handler : defaultLogger.getHandlers()) {
 	    if (handler instanceof FileHandler) {
+		logger.debug("Closing and removing 1 FileHandler: {}", ((FileHandler) handler));
 		((FileHandler) handler).close();
 		defaultLogger.removeHandler(handler);
 	    }
@@ -127,9 +129,7 @@ public final class ArbilLogConfigurer {
 		removeOldLogs(sessionStorage);
 		// Try to configure a log file in the application storage directory
 		final File logFile = getLogFile(sessionStorage);
-		logger.debug("Reconfiguring logging to write to {}", logFile);
 		setLogFile(logFile, Level.INFO);
-		logger.debug("Reconfigured logging to write to {}", logFile);
 		return true;
 	    } catch (IOException ex) {
 		logger.warn("Could not configure log file in session storage directory", ex);
@@ -145,16 +145,18 @@ public final class ArbilLogConfigurer {
      * @return whether successful
      */
     private boolean configureFromPropertiesFile(File loggingProperties) {
-	logger.debug("Looking for logging logging properties at {}", loggingProperties);
+	logger.debug("Looking for custom logging configuration properties at {}", loggingProperties);
 	if (loggingProperties.exists()) {
 	    try {
 		configureLogging(new FileInputStream(loggingProperties));
-		logger.debug("Reconfigured logging from logging properties at {}", loggingProperties);
+		logger.info("Reconfigured logging from logging properties at {}", loggingProperties);
 		return true;
 	    } catch (FileNotFoundException ex) {
 		// should not occur, existence has been checked for
-		logger.error("Could not find file {}", loggingProperties, ex);
+		logger.error("Could not find custom logging configuration file {}", loggingProperties, ex);
 	    }
+	} else {
+	    logger.debug("No custom logging configuration found");
 	}
 	return false;
     }
