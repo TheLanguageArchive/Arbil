@@ -363,23 +363,13 @@ public class ArbilTableController implements TableController {
 
 	final MetadataBuilder metadataBuilder = new MetadataBuilder();
 	final boolean canContainField = metadataBuilder.canAddChildNode(dataNode, xmlPath);
-	//dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
 	if (canContainField) {
-	    if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
+	    if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?\nThis will save pending changes.", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
 		try {
-		    metadataBuilder.addChildNode(dataNode, xmlPath, null, null, null, new NodeCreationCallback() {
-			public void nodeCreated(ArbilDataNode dataNode, URI nodeURI) {
-			    logger.debug("Field created from placeholder");
-			    // Successful creation covers the case of optional fields (https://trac.mpi.nl/ticket/2470). 
-			    // The following call also checks other cases
-			    processAddedFieldFromPlaceholder(dataNode, nodeURI, columnField);
-			    dataNode.saveChangesToCache(false);
-			    dataNode.reloadNode();
-			}
-		    });
+		    addChildNodeForFieldFromPlaceholder(metadataBuilder, dataNode, columnField, xmlPath);
 		} catch (ArbilMetadataException mdEx) {
 		    logger.error("Error while trying to create field", mdEx);
-		    dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details", "Error");
+		    dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details.", "Error");
 		}
 	    }
 	} else {
@@ -387,15 +377,49 @@ public class ArbilTableController implements TableController {
 	}
     }
 
-    private void processAddedFieldFromPlaceholder(ArbilDataNode dataNode, URI nodeURI, ArbilField columnField) throws NumberFormatException {
-	// Check case of keys (https://trac.mpi.nl/ticket/2468) and case of multilingual field (https://trac.mpi.nl/ticket/2469)
+    private void addChildNodeForFieldFromPlaceholder(final MetadataBuilder metadataBuilder, final ArbilDataNode dataNode, final ArbilField columnField, final String xmlPath) throws ArbilMetadataException {
+	final URI resultURI = metadataBuilder.addChildNode(dataNode, xmlPath, dataNode.getURI().getFragment(), null, null, new NodeCreationCallback() {
+	    /**
+	     * Post-creation-and-reload callback; only at this stage additional field properties can be set
+	     */
+	    public void nodeCreated(ArbilDataNode reloadedDataNode, URI nodeURI) {
+		logger.debug("Field created from placeholder");
+		// Successful creation covers the case of optional fields (https://trac.mpi.nl/ticket/2470).
+		// The following calls also check the other cases
+		try {
+		    processAddedFieldFromPlaceholder(reloadedDataNode, nodeURI, columnField);
+		} catch (ArbilMetadataException mdEx) {
+		    logger.error("Error while setting attributes on field", mdEx);
+		    dialogHandler.addMessageDialogToQueue("Could not set attributes for new field. See error log for details", "Error");
+		}
+		reloadedDataNode.saveChangesToCache(false);
+		reloadedDataNode.reloadNode();
+	    }
+	});
+
+	if (resultURI == null) {
+	    // This usually means some error occurred in MetadataBuilder or MetadataReader which was caught but not propagated
+	    throw new ArbilMetadataException("Field could not be created. See previous messages for details.");
+	}
+    }
+
+    /**
+     * Checks the case of keys (https://trac.mpi.nl/ticket/2468) and the case of
+     * multilingual field (https://trac.mpi.nl/ticket/2469) by setting properties on the field node
+     *
+     * @param dataNode node that has the field
+     * @param nodeURI full URI of field to set properties for
+     * @param columnField sample field for the column
+     * @throws ArbilMetadataException if the specified field cannot be found on the provided data node
+     */
+    private void processAddedFieldFromPlaceholder(ArbilDataNode dataNode, URI nodeURI, ArbilField columnField) throws ArbilMetadataException {
 	final String keyName = columnField.getKeyName();
 	final String languageId = columnField.getLanguageId();
 	// If both are null, skip expensive operation of looking for field
 	if (keyName != null || languageId != null) {
-	    final ArbilField field = getFieldForURI(dataNode, nodeURI);
+	    final ArbilField field = getAddedField(dataNode, nodeURI);
 	    if (field == null) {
-		throw new RuntimeException(String.format("Field '%s' not found on data node '%s'", nodeURI.getFragment(), dataNode.toString()));
+		throw new ArbilMetadataException(String.format("Field '%s' not found on data node '%s'", nodeURI.getFragment(), dataNode.toString()));
 	    } else {
 		if (keyName != null) {
 		    field.setKeyName(keyName);
@@ -407,18 +431,31 @@ public class ArbilTableController implements TableController {
 	}
     }
 
-    private ArbilField getFieldForURI(final ArbilDataNode dataNode, URI addedNodeUri) throws NumberFormatException {
+    /**
+     * Locates a newly added field in a node by its URI. Assumes the field is the last in its field group.
+     *
+     * @param dataNode node that contains the new field
+     * @param addedNodeUri URI of the newly added field
+     * @return field if found, null otherwise
+     */
+    private ArbilField getAddedField(final ArbilDataNode dataNode, URI addedNodeUri) {
 	if (dataNode.waitTillLoaded()) {
 	    final String fieldPath = addedNodeUri.getFragment();//.substring(dataNode.getURI().getFragment().length() + 1);
 	    final Pattern pattern = Pattern.compile("^(.*?)(\\((\\d+)\\))?$");
 	    final Matcher matcher = pattern.matcher(fieldPath);
 	    if (matcher.matches()) {
 		final String fieldPathBase = matcher.group(1);
-		final String fieldPathIndexString = matcher.group(3);
-		final int fieldPathIndex = fieldPathIndexString == null ? 0 : Integer.parseInt(fieldPathIndexString) - 1; // path index starts at 1, array at 0
 		for (ArbilField[] fieldArray : dataNode.getFields().values()) {
-		    if (fieldArray.length > fieldPathIndex && fieldArray[fieldPathIndex].getFullXmlPath().startsWith(fieldPathBase)) {
-			return fieldArray[fieldPathIndex];
+		    // The last field in the array is the newest one and is the one we want to check
+		    ArbilField field = fieldArray[fieldArray.length - 1];
+		    // Does the xml path match?
+		    if (field.getFullXmlPath().startsWith(fieldPathBase)) {
+			// Check if field is empty, it should be - if not log a warning
+			if (field.getFieldValue().length() > 0) {
+			    logger.warn("Value for new field is not the empty string but {}. Possibly wrong field was selected?", field.getFieldValue());
+			}
+			// This is the newly added field
+			return field;
 		    }
 		}
 	    }
