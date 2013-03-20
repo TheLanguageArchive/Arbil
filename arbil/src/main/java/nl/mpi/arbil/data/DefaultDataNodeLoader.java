@@ -143,19 +143,26 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     }
 
     // reload the node or if it is an imdichild node then reload its parent
-    private void requestReload(ArbilDataNode currentDataNode, LoadingState loadingState, ArbilDataNodeLoaderCallBack callback) {
-	if (currentDataNode.isChildNode()) {
-	    currentDataNode = currentDataNode.getParentDomNode();
+    private void requestReload(final ArbilDataNode requestNode, LoadingState loadingState, ArbilDataNodeLoaderCallBack callback) {
+	// We want to reload the node's parent dom node
+	final ArbilDataNode reloadNode;
+	if (requestNode.isChildNode()) {
+	    reloadNode = requestNode.getParentDomNode();
+	} else {
+	    reloadNode = requestNode;
 	}
-	removeNodesNeedingSave(currentDataNode);
+	removeNodesNeedingSave(reloadNode);
 
 	// Never override requested full load with partial load
-	if (!LoadingState.LOADED.equals(currentDataNode.getRequestedLoadingState())) {
-	    currentDataNode.setRequestedLoadingState(loadingState);
+	if (!LoadingState.LOADED.equals(reloadNode.getRequestedLoadingState())) {
+	    reloadNode.setRequestedLoadingState(loadingState);
 	}
 
-	threadManager.addNodeToQueue(currentDataNode);
-	threadManager.addLoaderCallback(currentDataNode, callback);
+	if (callback != null) {
+	    // Callback should happen on the request node
+	    threadManager.addLoaderCallback(requestNode, callback);
+	}
+	threadManager.addNodeToQueue(reloadNode);
     }
 
     @Override

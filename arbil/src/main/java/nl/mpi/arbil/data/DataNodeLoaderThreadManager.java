@@ -17,12 +17,14 @@
  */
 package nl.mpi.arbil.data;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -56,7 +58,7 @@ public class DataNodeLoaderThreadManager {
     private final Vector<ArbilDataNode> arbilRemoteNodesToInit = new Vector<ArbilDataNode>();
     private final Vector<ArbilDataNode> arbilLocalNodesToInit = new Vector<ArbilDataNode>();
     private boolean schemaCheckLocalFiles = false;
-    private final Map<ArbilDataNode, Collection<ArbilDataNodeLoaderCallBack>> callbacksMap = Collections.synchronizedMap(new HashMap<ArbilDataNode, Collection<ArbilDataNodeLoaderCallBack>>());
+    private final Map<ArbilDataNode, Collection<Entry<ArbilDataNode, ArbilDataNodeLoaderCallBack>>> callbacksMap = Collections.synchronizedMap(new HashMap<ArbilDataNode, Collection<Entry<ArbilDataNode, ArbilDataNodeLoaderCallBack>>>());
 
     public DataNodeLoaderThreadManager() {
 	continueThread = true;
@@ -73,23 +75,33 @@ public class DataNodeLoaderThreadManager {
      * @param callback callback object to trigger after reload
      */
     public void addLoaderCallback(ArbilDataNode dataNode, ArbilDataNodeLoaderCallBack callback) {
-	if (callback != null) {
-	    synchronized (callbacksMap) {
-		Collection<ArbilDataNodeLoaderCallBack> callbacks = callbacksMap.get(dataNode);
-		if (callbacks == null) {
-		    callbacks = new ArrayList<ArbilDataNodeLoaderCallBack>();
-		    callbacksMap.put(dataNode, callbacks);
-		}
-		callbacks.add(callback);
+	synchronized (callbacksMap) {
+	    // map by parent dom node, reload always happens on parent dom
+	    final ArbilDataNode parentDomNode = dataNode.getParentDomNode();
+	    Collection<Entry<ArbilDataNode, ArbilDataNodeLoaderCallBack>> parentDomNodeCallbacks = callbacksMap.get(parentDomNode);
+	    if (parentDomNodeCallbacks == null) {
+		// each map entry has a tuple {data node (child node of reloaded parent dom), callback}
+		// this way the callback can be called on the child node for which it was registered
+		parentDomNodeCallbacks = new ArrayList<Entry<ArbilDataNode, ArbilDataNodeLoaderCallBack>>();
+		callbacksMap.put(parentDomNode, parentDomNodeCallbacks);
 	    }
+	    parentDomNodeCallbacks.add(new AbstractMap.SimpleImmutableEntry<ArbilDataNode, ArbilDataNodeLoaderCallBack>(dataNode, callback));
 	}
     }
 
+    /**
+     *
+     * @param dataNode parent dom node to call callbacks for
+     */
     private void callCallBacks(ArbilDataNode dataNode) {
-	Collection<ArbilDataNodeLoaderCallBack> callbacks = callbacksMap.remove(dataNode);
+	final Collection<Entry<ArbilDataNode, ArbilDataNodeLoaderCallBack>> callbacks = callbacksMap.remove(dataNode);
 	if (callbacks != null) {
-	    for (ArbilDataNodeLoaderCallBack callback : callbacks) {
-		callback.dataNodeLoaded(dataNode);
+	    for (Entry<ArbilDataNode, ArbilDataNodeLoaderCallBack> callbackEntry : callbacks) {
+		final ArbilDataNode targetNode = callbackEntry.getKey();
+		final ArbilDataNodeLoaderCallBack callback = callbackEntry.getValue();
+		if (callback != null) {
+		    callback.dataNodeLoaded(targetNode);
+		}
 	    }
 	}
     }
@@ -322,7 +334,7 @@ public class DataNodeLoaderThreadManager {
 	    return arbilLocalNodesToInit;
 	}
 
-	protected void loadNode(ArbilDataNode currentArbilDataNode) {
+	protected void loadNode(final ArbilDataNode currentArbilDataNode) {
 	    if (currentArbilDataNode.getNeedsSaveToDisk(false)) {
 		currentArbilDataNode.saveChangesToCache(false);
 	    }
