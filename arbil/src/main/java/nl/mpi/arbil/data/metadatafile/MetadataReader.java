@@ -72,8 +72,8 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class MetadataReader {
-    private final static Logger logger = LoggerFactory.getLogger(MetadataReader.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(MetadataReader.class);
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -185,9 +185,16 @@ public class MetadataReader {
 	    return null;
 	}
 
-	// Copy (1:1) template to new local file
-	URI addedPathUri = copyToDisk(templateUrl, destinationFile);
+	try {
+	    // Copy (1:1) template to new local file
+	    copyToDisk(templateUrl, destinationFile);
+	} catch (IOException ex) {
+	    logger.warn("Could not copy template file from {} to {} due to an I/O exception: {}", templateUrl, destinationFile, ex.getMessage());
+	    logger.debug("Details for I/O exception while copying from template file", ex);
+	    return null;
+	}
 
+	URI addedPathUri = destinationFile.toURI();
 	try {
 	    // Open new metadata file
 	    Document addedDocument = ArbilComponentBuilder.getDocument(addedPathUri);
@@ -225,7 +232,7 @@ public class MetadataReader {
 	return addedPathUri;
     }
 
-    private URI copyToDisk(URL sourceURL, File targetFile) {
+    private void copyToDisk(URL sourceURL, File targetFile) throws IOException {
 	InputStream in = null;
 	OutputStream out = null;
 	try {
@@ -243,27 +250,14 @@ public class MetadataReader {
 	    out.flush();
 	    out.close();
 	    out = null;
-	    return targetFile.toURI();
-	} catch (Exception ex) {
-	    logger.debug("copyToDisk: {}", ex);
-	    BugCatcherManager.getBugCatcher().logError(ex);
 	} finally {
 	    if (in != null) {
-		try {
-		    in.close();
-		} catch (IOException ioe) {
-		    BugCatcherManager.getBugCatcher().logError(ioe);
-		}
+		in.close();
 	    }
 	    if (out != null) {
-		try {
-		    out.close();
-		} catch (IOException ioe2) {
-		    BugCatcherManager.getBugCatcher().logError(ioe2);
-		}
+		out.close();
 	    }
 	}
-	return null;
     }
 
     public String getNodeTypeFromMimeType(String mimeType) {
@@ -657,7 +651,7 @@ public class MetadataReader {
 			    isSingleton = maxOccurs == 1;
 			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
 			    metaNode.setParentDomNode(parentDomNode);
-			    
+
 			    metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
 			    if (!parentChildTree.containsKey(metaNode)) {
 				parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
@@ -678,7 +672,7 @@ public class MetadataReader {
 			nodeURIStringBuilder.append(siblingSpacer);
 			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
 			subNode.setParentDomNode(parentDomNode);
-			
+
 			if (metaNode != null && !isSingleton) {
 			    // Add subnode to metanode
 			    parentChildTree.get(metaNode).add(subNode);

@@ -85,8 +85,8 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilComponentBuilder {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilComponentBuilder.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilComponentBuilder.class);
     public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
     public static final String RESOURCE_ID_PREFIX = "res_";
     private static MessageDialogHandler messageDialogHandler;
@@ -1085,7 +1085,6 @@ public class ArbilComponentBuilder {
 		}
 	    }
 	}
-	BugCatcherManager.getBugCatcher().logError(new Exception("Xpath issue, no node found for: " + targetXpath));
 	return null;
     }
 
@@ -1201,7 +1200,11 @@ public class ArbilComponentBuilder {
 	    try {
 		documentNode = selectSingleNode(targetDocument, targetXpath);
 	    } catch (TransformerException exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
+		logger.error("Transformer exception while looking op node at path {} in target document {}", targetXpath, targetDocument.getBaseURI(), exception);
+		return false;
+	    }
+	    if (documentNode == null) {
+		logger.debug("Target document {} does not have a node at path {}", targetDocument.getBaseURI(), targetXpath);
 		return false;
 	    }
 	}
@@ -1330,7 +1333,7 @@ public class ArbilComponentBuilder {
     }
 
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile, boolean addDummyData) {
-	logger.debug("createComponentFile: {}: {}",cmdiNodeFile, xsdFile);
+	logger.debug("createComponentFile: {}: {}", cmdiNodeFile, xsdFile);
 	try {
 	    Document workingDocument = getNewDocument();
 	    readSchema(workingDocument, xsdFile, addDummyData);

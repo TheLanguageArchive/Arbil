@@ -564,15 +564,19 @@ public class MetadataBuilder {
 			} else {
 			    addedNodePath = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
 			}
-			if (destinationNode.getFile().exists()) {
-			    destinationNode.getParentDomNode().getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
-			    destinationNode.getParentDomNode().loadArbilDom();
-			    if (creationCallback != null) {
-				creationCallback.nodeCreated(destinationNode, addedNodePath);
-			    }
+			if (addedNodePath == null) {
+			    throw new ArbilMetadataException("A node of the requested could not be created. See previous messages for details.");
 			} else {
-			    treeHelper.addLocation(addedNodePath);
-			    treeHelper.applyRootLocations();
+			    if (destinationNode.getFile().exists()) {
+				destinationNode.getParentDomNode().getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
+				destinationNode.getParentDomNode().loadArbilDom();
+				if (creationCallback != null) {
+				    creationCallback.nodeCreated(destinationNode, addedNodePath);
+				}
+			    } else {
+				treeHelper.addLocation(addedNodePath);
+				treeHelper.applyRootLocations();
+			    }
 			}
 		    }
 		    // CODE REMOVED: load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
