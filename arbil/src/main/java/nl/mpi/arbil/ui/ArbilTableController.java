@@ -73,7 +73,7 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilTableController implements TableController {
-
+    
     private final static Logger logger = LoggerFactory.getLogger(ArbilTableController.class);
     public static final String DELETE_ROW_ACTION_KEY = "deleteRow";
     /** Services used by controller */
@@ -85,34 +85,34 @@ public class ArbilTableController implements TableController {
     private final MouseListener tableHeaderMouseListener = new TableHeaderMouseListener();
     /** Actions provided by controller */
     private final Action deleteRowAction = new DeleteRowAction();
-
+    
     public ArbilTableController(TreeHelper treeHelper, MessageDialogHandler dialogHandler, WindowManager windowManager) {
 	this.treeHelper = treeHelper;
 	this.dialogHandler = dialogHandler;
 	this.windowManager = windowManager;
     }
-
+    
     @Override
     public void initKeyMapping(ArbilTable table) {
 	table.getInputMap(JTable.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), DELETE_ROW_ACTION_KEY);
 	table.getActionMap().put(DELETE_ROW_ACTION_KEY, deleteRowAction);
     }
-
+    
     @Override
     public MouseListener getTableMouseListener() {
 	return tableMouseListener;
     }
-
+    
     @Override
     public MouseListener getTableHeaderMouseListener() {
 	return tableHeaderMouseListener;
     }
-
+    
     @Override
     public void openNodesInNewTable(ArbilDataNode[] nodes, String fieldName, ArbilDataNode registeredOwner) {
 	windowManager.openFloatingTableOnce(nodes, String.format("%s in %s", fieldName, registeredOwner));
     }
-
+    
     @Override
     public void showRowChildData(ArbilTableModel tableModel) {
 	Object[] possibilities = tableModel.getChildNames();
@@ -122,13 +122,13 @@ public class ArbilTableController implements TableController {
 	    tableModel.addChildTypeToDisplay(selectionResult);
 	}
     }
-
+    
     @Override
     public void viewSelectedTableRows(ArbilTable table) {
 	int[] selectedRows = table.getSelectedRows();
 	windowManager.openFloatingTableOnce(table.getArbilTableModel().getSelectedDataNodes(selectedRows), null);
     }
-
+    
     @Override
     public void showColumnViewsEditor(ArbilTable table) {
 	table.updateStoredColumnWidths();
@@ -144,7 +144,7 @@ public class ArbilTableController implements TableController {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
-
+    
     @Override
     public void saveCurrentColumnView(ArbilTable table) {
 	try {
@@ -190,7 +190,7 @@ public class ArbilTableController implements TableController {
     public boolean deleteColumnFieldFromAllNodes(ArbilTable table, String columnName) {
 	final List<ArbilDataNode> rowNodes = Collections.list(table.getArbilTableModel().getArbilDataNodes());
 	final List<ArbilField> fieldsToDelete = new ArrayList<ArbilField>(rowNodes.size());
-
+	
 	for (ArbilDataNode rowNode : rowNodes) {
 	    final ArbilField[] fields = rowNode.getFields().get(columnName);
 	    if (fields != null) {
@@ -214,7 +214,7 @@ public class ArbilTableController implements TableController {
 	    return false;
 	}
     }
-
+    
     private boolean deleteFields(Collection<ArbilField> fields) {
 	// to delete these fields they must be separated into imdi tree objects and request delete for each one
 	// todo: the delete field action should also be available in the long field editor
@@ -236,7 +236,7 @@ public class ArbilTableController implements TableController {
 	    return false;
 	}
     }
-
+    
     private Map<ArbilDataNode, List<String>> getFieldDeletionMap(Collection<ArbilField> fields) {
 	final Map<ArbilDataNode, List<String>> selectedFieldHashtable = new HashMap<ArbilDataNode, List<String>>();
 	for (ArbilField currentField : fields) {
@@ -251,7 +251,7 @@ public class ArbilTableController implements TableController {
 	}
 	return selectedFieldHashtable;
     }
-
+    
     @Override
     public void copySelectedCellToColumn(ArbilTable table) {
 	try {
@@ -266,12 +266,12 @@ public class ArbilTableController implements TableController {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
-
+    
     @Override
     public void deleteNodes(ArbilTable table) {
 	treeHelper.deleteNodes(table);
     }
-
+    
     @Override
     public void jumpToSelectionInTree(ArbilTable table) {
 	try {
@@ -280,7 +280,7 @@ public class ArbilTableController implements TableController {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
-
+    
     @Override
     public void showContextForSelectedNodes(ArbilTable table) {
 	final Set<ArbilDataNode> parentNodes = new HashSet<ArbilDataNode>();
@@ -289,7 +289,7 @@ public class ArbilTableController implements TableController {
 	}
 	windowManager.openFloatingSubnodesWindows(parentNodes.toArray(new ArbilDataNode[]{}));
     }
-
+    
     @Override
     public void highlightMatchingRows(ArbilTable table) {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
@@ -309,7 +309,7 @@ public class ArbilTableController implements TableController {
 	    }
 	}
     }
-
+    
     @Override
     public void startLongFieldEditorForSelectedFields(ArbilTable table) {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
@@ -357,26 +357,30 @@ public class ArbilTableController implements TableController {
     public synchronized void addFieldFromPlaceholder(final ArbilTable table, final int selectedFieldIndex, ArbilFieldPlaceHolder placeholder) {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
 	final ArbilDataNode dataNode = placeholder.getArbilDataNode();
-
-	final ArbilField columnField = tableModel.getColumnField(selectedFieldIndex);
-	final String xmlPath = columnField.getGenericFullXmlPath();
-
-	final MetadataBuilder metadataBuilder = new MetadataBuilder();
-	final boolean canContainField = metadataBuilder.canAddChildNode(dataNode, xmlPath);
-	if (canContainField) {
-	    if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?\nThis will save pending changes.", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
-		try {
-		    addChildNodeForFieldFromPlaceholder(metadataBuilder, dataNode, columnField, xmlPath);
-		} catch (ArbilMetadataException mdEx) {
-		    logger.error("Error while trying to create field", mdEx);
-		    dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details.", "Error");
+	if (dataNode.isEditable()) {
+	    
+	    final ArbilField columnField = tableModel.getColumnField(selectedFieldIndex);
+	    final String xmlPath = columnField.getGenericFullXmlPath();
+	    
+	    final MetadataBuilder metadataBuilder = new MetadataBuilder();
+	    final boolean canContainField = metadataBuilder.canAddChildNode(dataNode, xmlPath);
+	    if (canContainField) {
+		if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?\nThis will save pending changes.", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
+		    try {
+			addChildNodeForFieldFromPlaceholder(metadataBuilder, dataNode, columnField, xmlPath);
+		    } catch (ArbilMetadataException mdEx) {
+			logger.error("Error while trying to create field", mdEx);
+			dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details.", "Error");
+		    }
 		}
+	    } else {
+		dialogHandler.addMessageDialogToQueue(String.format("The node '%s' cannot contain a field of the same type as '%s' in '%s'", dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), "Insert field");
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue(String.format("The node '%s' cannot contain a field of the same type as '%s' in '%s'", dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), "Insert field");
+	    logger.debug("Data node {} is not editable. Will not attempt to instantiate greyed out field", dataNode);
 	}
     }
-
+    
     private void addChildNodeForFieldFromPlaceholder(final MetadataBuilder metadataBuilder, final ArbilDataNode dataNode, final ArbilField columnField, final String xmlPath) throws ArbilMetadataException {
 	final URI resultURI = metadataBuilder.addChildNode(dataNode, xmlPath, dataNode.getURI().getFragment(), null, null, new NodeCreationCallback() {
 	    /**
@@ -396,7 +400,7 @@ public class ArbilTableController implements TableController {
 		reloadedDataNode.reloadNode();
 	    }
 	});
-
+	
 	if (resultURI == null) {
 	    // This usually means some error occurred in MetadataBuilder or MetadataReader which was caught but not propagated
 	    throw new ArbilMetadataException("Field could not be created. See previous messages for details.");
@@ -462,19 +466,19 @@ public class ArbilTableController implements TableController {
 	}
 	return null;
     }
-
+    
     @Override
     public void checkPopup(MouseEvent evt, boolean checkSelection) {
 	final ArbilTable table = getEventSourceAsArbilTable(evt);
 	final ArbilTableModel tableModel = table.getArbilTableModel();
-
+	
 	if (!tableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
 	    // set the clicked cell selected
 	    java.awt.Point p = evt.getPoint();
 	    int clickedRow = table.rowAtPoint(p);
 	    int clickedColumn = table.columnAtPoint(p);
 	    boolean clickedRowAlreadySelected = table.isRowSelected(clickedRow);
-
+	    
 	    if (checkSelection && !evt.isShiftDown() && !evt.isControlDown()) {
 		// if it is the right mouse button and there is already a selection then do not proceed in changing the selection
 		if (!(((evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown() */) && clickedRowAlreadySelected))) {
@@ -486,7 +490,7 @@ public class ArbilTableController implements TableController {
 		}
 	    }
 	}
-
+	
 	if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown() */) {
 //                    targetTable = (JTable) evt.getComponent();
 //                    logger.debug("set the current table");
@@ -498,49 +502,49 @@ public class ArbilTableController implements TableController {
 	    new TableContextMenu(table, this).show(evt.getX(), evt.getY());
 	}
     }
-
+    
     private class TableMouseListener extends MouseAdapter {
-
+	
 	@Override
 	public void mousePressed(MouseEvent evt) {
 	    checkPopup(evt, true);
 	}
-
+	
 	@Override
 	public void mouseReleased(MouseEvent evt) {
 	    checkPopup(evt, true);
 	}
     }
-
+    
     private class TableHeaderMouseListener extends MouseAdapter {
-
+	
 	@Override
 	public void mousePressed(MouseEvent evt) {
 	    checkTableHeaderPopup(evt);
 	}
-
+	
 	@Override
 	public void mouseReleased(MouseEvent evt) {
 	    checkTableHeaderPopup(evt);
 	}
-
+	
 	@Override
 	public void mouseClicked(MouseEvent evt) {
 	    final ArbilTable table = getEventSourceAsArbilTable(evt);
 	    final ArbilTableModel tableModel = table.getArbilTableModel();
-
+	    
 	    if (evt.getButton() == MouseEvent.BUTTON1) {
 		tableModel.sortByColumn(table.convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()))));
 		table.getTableHeader().revalidate();
 	    }
 	    checkTableHeaderPopup(evt);
 	}
-
+	
 	private void checkTableHeaderPopup(MouseEvent evt) {
 	    //final JTableHeader tableHeader = (JTableHeader) evt.getSource();
 	    final ArbilTable table = getEventSourceAsArbilTable(evt);// (ArbilTable) tableHeader.getTable();
 	    final ArbilTableModel tableModel = table.getArbilTableModel();
-
+	    
 	    if (!tableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
 		final int targetColumn = table.convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
 		logger.debug("showing header menu for column {}", targetColumn);
@@ -549,7 +553,7 @@ public class ArbilTableController implements TableController {
 	    }
 	}
     }
-
+    
     private ArbilTable getEventSourceAsArbilTable(InputEvent event) {
 	final Object source = event.getSource();
 	if (source instanceof ArbilTable) {
@@ -577,9 +581,9 @@ public class ArbilTableController implements TableController {
 	logger.warn("Could not find ArbilTable associated with InputEvent source {}", source);
 	throw new RuntimeException("Cannot find ArbilTable in component hierarchy from event");
     }
-
+    
     private class DeleteRowAction extends AbstractAction {
-
+	
 	public void actionPerformed(ActionEvent e) {
 	    treeHelper.deleteNodes(e.getSource());
 	}
