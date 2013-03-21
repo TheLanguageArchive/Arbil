@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeArrayTableCell;
@@ -698,19 +699,24 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	Object[][] prevousData = getData();
 	setData(newData);
 	if (previousColumnCount != getColumnCount() || prevousData.length != getData().length
-		||!Arrays.equals(previousColumnNames, getColumnNames())) {
-	    try {
-		fireTableStructureChanged();
-	    } catch (Exception ex) {
-		BugCatcherManager.getBugCatcher().logError(ex);
-	    }
+		|| !Arrays.equals(previousColumnNames, getColumnNames())) {
+	    // Fire changed event should happen on the swing thread; most of the time we are not at this point
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    fireTableStructureChanged();
+		}
+	    });
 	} else {
 	    for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
 		for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
-		    //                    if (prevousData[rowCounter][colCounter] != data[rowCounter][colCounter]) {
-		    //                        logger.debug("fireTableCellUpdated: " + rowCounter + ":" + colCounter);
-		    fireTableCellUpdated(rowCounter, colCounter);
-		    //                    }
+		    final int row = rowCounter;
+		    final int col = colCounter;
+		    // Fire changed event should happen on the swing thread; most of the time we are not at this point
+		    SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+			    fireTableCellUpdated(row, col);
+			}
+		    });
 		}
 	    }
 	}
