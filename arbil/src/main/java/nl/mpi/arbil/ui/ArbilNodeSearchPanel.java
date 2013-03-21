@@ -38,13 +38,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Document   : ArbilNodeSearchPanel
+ * Document : ArbilNodeSearchPanel
  * Created on : Feb 17, 2009, 4:42:59 PM
- * @author Peter.Withers@mpi.nl 
+ *
+ * @author Peter.Withers@mpi.nl
  */
 public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContainer {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilNodeSearchPanel.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilNodeSearchPanel.class);
     private ArbilNodeSearchPanel thisPanel = this;
     private JInternalFrame parentFrame;
     private ArbilTableModel resultsTableModel;
@@ -86,7 +87,6 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	JButton addButton = new JButton();
 	addButton.setText("+");
 	addButton.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    logger.debug("adding new term");
@@ -109,7 +109,6 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	stopButton = new JButton();
 	stopButton.setText("stop");
 	stopButton.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    stopSearch();
@@ -124,7 +123,6 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	searchButton = new JButton();
 	searchButton.setText("search");
 	searchButton.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    startSearch();
@@ -250,46 +248,53 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	}
 
 	private void populateSearchTerms() {
-	    try {
-		SwingUtilities.invokeAndWait(new Runnable() {
-
-		    public void run() {
-			for (Component currentTermComp : searchTermsPanel.getComponents()) {
-			    ((ArbilNodeSearchTermPanel) currentTermComp).populateSearchTerm();
-			}
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    for (Component currentTermComp : searchTermsPanel.getComponents()) {
+			((ArbilNodeSearchTermPanel) currentTermComp).populateSearchTerm();
 		    }
-		});
-	    } catch (InterruptedException ex) {
-	    } catch (InvocationTargetException ex) {
-	    }
+		}
+	    });
 	}
 
 	private void saveColumnOptions() {
-	    ArrayList<String> columns = new ArrayList<String>(searchTermsPanel.getComponentCount());
-	    for (Component currentTermComp : searchTermsPanel.getComponents()) {
-		((ArbilNodeSearchTermPanel) currentTermComp).addCurrentSearchColumnOption();
-		columns.add(((ArbilNodeSearchTermPanel) currentTermComp).searchFieldName);
-	    }
-	    ArbilNodeSearchColumnComboBox.addOptions(columns);
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    ArrayList<String> columns = new ArrayList<String>(searchTermsPanel.getComponentCount());
+		    for (Component currentTermComp : searchTermsPanel.getComponents()) {
+			((ArbilNodeSearchTermPanel) currentTermComp).addCurrentSearchColumnOption();
+			columns.add(((ArbilNodeSearchTermPanel) currentTermComp).searchFieldName);
+		    }
+		    ArbilNodeSearchColumnComboBox.addOptions(columns);
+		}
+	    });
 	}
 
 	private void executeSearch() {
 	    searchService.splitLocalRemote();
 
-	    if (remoteServerSearchTerm != null) {
-		searchProgressBar.setIndeterminate(true);
-		searchProgressBar.setString("connecting to server");
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    if (remoteServerSearchTerm != null) {
+			searchProgressBar.setIndeterminate(true);
+			searchProgressBar.setString("connecting to server");
 
-		searchService.fetchRemoteSearchResults();
+			searchService.fetchRemoteSearchResults();
 
-		searchProgressBar.setString("");
-		searchProgressBar.setIndeterminate(false);
-	    }
+			searchProgressBar.setString("");
+			searchProgressBar.setIndeterminate(false);
+		    }
+		}
+	    });
 
 	    searchService.searchLocalNodes();
 
 	    if (searchService.isSearchStopped()) {
-		searchProgressBar.setString("search canceled");
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			searchProgressBar.setString("search canceled");
+		    }
+		});
 	    } else {
 		// collect the max nodes found only if the search completed
 		searchService.setTotalNodesToSearch(searchService.getTotalSearched());
@@ -299,7 +304,6 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	private void finishUI() {
 	    try {
 		SwingUtilities.invokeAndWait(new Runnable() {
-
 		    public void run() {
 			searchProgressBar.setIndeterminate(false);
 			searchProgressBar.setValue(0);
@@ -316,7 +320,6 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	private void prepareUI() {
 	    try {
 		SwingUtilities.invokeAndWait(new Runnable() {
-
 		    public void run() {
 			searchProgressBar.setIndeterminate(true);
 			searchProgressBar.setMinimum(0);
@@ -330,7 +333,8 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 
 	/**
 	 * Implements ArbilSearchListener method, called for each element that gets searched
-	 * @param currentElement 
+	 *
+	 * @param currentElement
 	 */
 	public void searchProgress(Object currentElement) {
 	    if (currentElement instanceof ArbilNode) {
@@ -347,9 +351,10 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     public boolean isFullyLoadedNodeRequired() {
 	return true;
     }
-    
+
     /**
      * Data node is to be removed from the container
+     *
      * @param dataNode Data node that should be removed
      */
     public void dataNodeRemoved(ArbilNode dataNode) {
@@ -358,6 +363,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 
     /**
      * Data node is clearing its icon
+     *
      * @param dataNode Data node that is clearing its icon
      */
     public void dataNodeIconCleared(ArbilNode dataNode) {
@@ -366,6 +372,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 
     /**
      * A new child node has been added to the destination node
+     *
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */

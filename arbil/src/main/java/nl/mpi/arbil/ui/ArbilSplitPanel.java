@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -78,7 +79,11 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 	tableScrollPane = new JScrollPane(arbilTable);
 	tableScrollPane.addComponentListener(new ComponentListener() {
 	    public void componentResized(ComponentEvent e) {
-		arbilTable.setColumnWidths();
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			arbilTable.setColumnWidths();
+		    }
+		});
 	    }
 
 	    public void componentMoved(ComponentEvent e) {
