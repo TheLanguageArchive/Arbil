@@ -21,14 +21,12 @@ import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.SwingUtilities;
@@ -126,7 +124,12 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		cellColour[rowCounter][colCounter] = new Color(16777215);
 	    }
 	}
-	fireTableDataChanged();
+
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		fireTableDataChanged();
+	    }
+	});
     }
 
     public boolean containsArbilDataNode(ArbilDataNode findable) {
@@ -136,7 +139,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	return getDataNodeHash().contains(findable);
     }
 
-    public void copyCellToColumn(int row, int col) {
+    public void copyCellToColumn(int row, final int col) {
 	// if the col or row provided here is invalid then we want to know about it so don't try to prevent such an error
 	//        if (row == -1 || col == -1) {
 	//            return;
@@ -147,8 +150,14 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		// TODO: a user may want to copy fields with multiple values to the whole column eg descritions in multiple languages
 		if (getData()[rowCounter][col].getContent() instanceof ArbilField) {
 		    ((ArbilField) getData()[rowCounter][col].getContent()).setFieldValue(((ArbilField) getData()[row][col].getContent()).getFieldValue(), false, false);
+
+		    final int currentRow = rowCounter;
+		    SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+			    fireTableCellUpdated(currentRow, col);
+			}
+		    });
 		}
-		fireTableCellUpdated(rowCounter, col);
 	    }
 	}
     }
@@ -328,19 +337,31 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     public void highlightMatchingCells(int row, int col) {
 	getHighlightCells().add(getRenderedText(getData()[row][col]));
 	cellColour = setCellColours(getData());
-	fireTableDataChanged();
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		fireTableDataChanged();
+	    }
+	});
     }
 
     public void highlightMatchingFieldPaths(String[] fieldPaths) {
 	highFieldPaths = fieldPaths;
 	cellColour = setCellColours(getData());
-	fireTableDataChanged();
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		fireTableDataChanged();
+	    }
+	});
     }
 
     public void highlightMatchingText(String highlightText) {
 	getHighlightCells().add(highlightText);
 	cellColour = setCellColours(getData());
-	fireTableDataChanged();
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		fireTableDataChanged();
+	    }
+	});
     }
 
     /**

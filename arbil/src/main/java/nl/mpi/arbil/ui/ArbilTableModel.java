@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilNode;
@@ -46,14 +47,13 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableModel extends AbstractArbilTableModel implements ClipboardOwner {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilTableModel.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTableModel.class);
     public static final char CSV_NEWLINE = '\n';
     public static final String CSV_SEPARATOR = "\t"; // excel seems to work with tab but not comma
     public static final String CSV_DOUBLE_QUOTE = "\"\"";
     public static final char CSV_QUOTE = '\"';
     public static final String CSV_QUOTE_STRING = "\"";
-    
     private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
@@ -112,10 +112,14 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
     }
 
     @Override
-    protected void updateHiddenColumnsLabel(int hiddenColumnCount, int hiddenCellsCount) {
+    protected void updateHiddenColumnsLabel(final int hiddenColumnCount, final int hiddenCellsCount) {
 	if (hiddenColumnsLabel != null) {
-	    hiddenColumnsLabel.setVisible(!hideContextMenuAndStatusBar && hiddenColumnCount > 0);
-	    hiddenColumnsLabel.setText(hiddenCellsCount + " cells hidden in " + hiddenColumnCount + " columns (edit \"Column View\" in the table header to show)");
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    hiddenColumnsLabel.setVisible(!hideContextMenuAndStatusBar && hiddenColumnCount > 0);
+		    hiddenColumnsLabel.setText(hiddenCellsCount + " cells hidden in " + hiddenColumnCount + " columns (edit \"Column View\" in the table header to show)");
+		}
+	    });
 	}
     }
 
@@ -255,8 +259,12 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
     @Override
     protected synchronized void reloadTableDataPrivate() {
 	super.reloadTableDataPrivate();
-	updateImageDisplayPanel(); // update the image panel now the rows have been sorted and the data array updated
 	setWidthsChanged(false);
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		updateImageDisplayPanel(); // update the image panel now the rows have been sorted and the data array updated
+	    }
+	});
     }
 
     public void requestReloadTableData() {
