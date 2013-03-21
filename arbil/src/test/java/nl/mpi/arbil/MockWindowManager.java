@@ -55,8 +55,7 @@ public class MockWindowManager implements WindowManager {
     public void openFloatingSubnodesWindows(ArbilDataNode[] arbilDataNodes) {
     }
 
-    public JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl) {
-	return null;
+    public void openUrlWindowOnce(String frameTitle, URL locationUrl) {
     }
 
     public ProgressMonitor newProgressMonitor(Object message, String note, int min, int max) {

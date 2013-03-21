@@ -558,6 +558,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	}
     }
 
+    /**
+     * Thread safe, can be called from outside the Swing Event Dispatching Thread
+     */
     public void openIntroductionPage() {
 	// open the introduction page
 	// TODO: always get this page from the server if available, but also save it for off line use
@@ -585,27 +588,31 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 //        logger.debug("destinationUrl: " + destinationUrl);
 //        openUrlWindowOnce("Features/Known Bugs", destinationUrl);
 
-	initWindows();
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		initWindows();
 
-	if (!treeHelper.locationsHaveBeenAdded()) {
-	    logger.debug("no local locations found, showing help window");
-	    try {
-		ArbilHelp helpComponent = ArbilHelp.getArbilHelpInstance();
-		if (null == focusWindow(ArbilHelp.helpWindowTitle)) {
-		    createWindow(ArbilHelp.helpWindowTitle, helpComponent);
+		if (!treeHelper.locationsHaveBeenAdded()) {
+		    logger.debug("no local locations found, showing help window");
+		    try {
+			ArbilHelp helpComponent = ArbilHelp.getArbilHelpInstance();
+			if (null == focusWindow(ArbilHelp.helpWindowTitle)) {
+			    createWindow(ArbilHelp.helpWindowTitle, helpComponent);
+			}
+			helpComponent.setCurrentPage(ArbilHelp.IMDI_HELPSET, ArbilHelp.INTRODUCTION_PAGE);
+		    } catch (IOException ex) {
+			// Ignore, don't show help window
+			BugCatcherManager.getBugCatcher().logError(ex);
+		    } catch (SAXException ex) {
+			// Ignore, don't show help window
+			BugCatcherManager.getBugCatcher().logError(ex);
+		    }
 		}
-		helpComponent.setCurrentPage(ArbilHelp.IMDI_HELPSET, ArbilHelp.INTRODUCTION_PAGE);
-	    } catch (IOException ex) {
-		// Ignore, don't show help window
-		BugCatcherManager.getBugCatcher().logError(ex);
-	    } catch (SAXException ex) {
-		// Ignore, don't show help window
-		BugCatcherManager.getBugCatcher().logError(ex);
+		startKeyListener();
+		setMessagesCanBeShown(true);
+		showMessageDialogQueue();
 	    }
-	}
-	startKeyListener();
-	setMessagesCanBeShown(true);
-	showMessageDialogQueue();
+	});
     }
 
     /**
@@ -616,29 +623,31 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	    // load the saved windows
 	    Hashtable windowListHashtable = (Hashtable) sessionStorage.loadObject("openWindows");
 	    for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
-		String currentWindowName = windowNamesEnum.nextElement().toString();
+		final String currentWindowName = windowNamesEnum.nextElement().toString();
 		logger.debug("currentWindowName: {}", currentWindowName);
-		ArbilWindowState windowState;
-		Object windowStateObject = windowListHashtable.get(currentWindowName);
+		final ArbilWindowState windowState;
+		{
+		    Object windowStateObject = windowListHashtable.get(currentWindowName);
 
 //                Vector imdiURLs;
 //                Point windowLocation = null;
 //                Dimension windowSize = null;
 
-		if (windowStateObject instanceof Vector) {
-		    // In previous versions or Arbil, window state was stored as a vector of IMDI urls
-		    windowState = new ArbilWindowState();
-		    windowState.currentNodes = (Vector) windowStateObject;
-		} else if (windowStateObject instanceof ArbilWindowState) {
-		    windowState = (ArbilWindowState) windowStateObject;
-		} else {
-		    throw new Exception("Unknown window state format");
+		    if (windowStateObject instanceof Vector) {
+			// In previous versions or Arbil, window state was stored as a vector of IMDI urls
+			windowState = new ArbilWindowState();
+			windowState.currentNodes = (Vector) windowStateObject;
+		    } else if (windowStateObject instanceof ArbilWindowState) {
+			windowState = (ArbilWindowState) windowStateObject;
+		    } else {
+			throw new Exception("Unknown window state format");
+		    }
 		}
 
 		//= (Vector) windowListHashtable.get(currentWindowName);
 //                logger.debug("imdiEnumeration: " + imdiEnumeration);
 		if (windowState.currentNodes != null) {
-		    ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[windowState.currentNodes.size()];
+		    final ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[windowState.currentNodes.size()];
 		    for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
 			try {
 			    imdiObjectsArray[arrayCounter] = (dataNodeLoader.getArbilDataNode(null, new URI(windowState.currentNodes.elementAt(arrayCounter).toString())));
@@ -648,23 +657,28 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 		    }
 
 		    // Create window array for open method to put new window reference in
-		    Component[] window = new Component[1];
-		    if (windowState.windowType == ArbilWindowState.ArbilWindowType.nodeTable) {
-			openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window, windowState.fieldView);
-		    } else if (windowState.windowType == ArbilWindowState.ArbilWindowType.subnodesPanel) {
-			openFloatingSubnodesWindowOnce(imdiObjectsArray[0], currentWindowName, window);
-		    }
+		    final Component[] window = new Component[1];
+		    SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
 
-		    if (window[0] != null) {
-			// Set size of new window from saved state
-			if (windowState.size != null) {
-			    window[0].setSize(windowState.size);
+			    if (windowState.windowType == ArbilWindowState.ArbilWindowType.nodeTable) {
+				openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window, windowState.fieldView);
+			    } else if (windowState.windowType == ArbilWindowState.ArbilWindowType.subnodesPanel) {
+				openFloatingSubnodesWindowOnce(imdiObjectsArray[0], currentWindowName, window);
+			    }
+
+			    if (window[0] != null) {
+				// Set size of new window from saved state
+				if (windowState.size != null) {
+				    window[0].setSize(windowState.size);
+				}
+				// Set location new window from saved state
+				if (windowState.location != null) {
+				    window[0].setLocation(fixLocation(windowState.location));
+				}
+			    }
 			}
-			// Set location new window from saved state
-			if (windowState.location != null) {
-			    window[0].setLocation(fixLocation(windowState.location));
-			}
-		    }
+		    });
 		}
 
 		//openFloatingTable(null, currentWindowName);
@@ -1144,72 +1158,121 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	return currentInternalFrame;
     }
 
-    public JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl) {
-	JEditorPane htmlDisplay = new JEditorPane();
-	htmlDisplay.setEditable(false);
-	htmlDisplay.setContentType("text/html");
-	try {
-	    htmlDisplay.setPage(locationUrl);
-	    htmlDisplay.addHyperlinkListener(new ArbilHyperlinkListener());
+    /**
+     * Thread safe, can be called from outside the Swing Event Dispatching Thread
+     */
+    public void openUrlWindowOnce(final String frameTitle, final URL locationUrl) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
 
-	    //gridViewInternalFrame.setMaximum(true);
-	} catch (Exception ex) {
-	    BugCatcherManager.getBugCatcher().logError(ex);
-//            logger.debug(ex.getMessage());
-	}
+		JEditorPane htmlDisplay = new JEditorPane();
+		htmlDisplay.setEditable(false);
+		htmlDisplay.setContentType("text/html");
+		try {
+		    htmlDisplay.setPage(locationUrl);
+		    htmlDisplay.addHyperlinkListener(new ArbilHyperlinkListener());
+		} catch (Exception ex) {
+		    logger.error("Error while adding text contents to window", ex);
+		}
 
-	JInternalFrame existingWindow = focusWindow(frameTitle);
-	if (existingWindow == null) {
-//            return openUrlWindow(frameTitle, htmlDisplay);
-	    JScrollPane jScrollPane6;
-	    jScrollPane6 = new javax.swing.JScrollPane();
-	    jScrollPane6.setViewportView(htmlDisplay);
-	    createWindow(frameTitle, jScrollPane6);
-	} else {
-	    ((JScrollPane) existingWindow.getContentPane().getComponent(0)).setViewportView(htmlDisplay);
-	}
-	return htmlDisplay;
+		JInternalFrame existingWindow = focusWindow(frameTitle);
+		if (existingWindow == null) {
+		    JScrollPane jScrollPane6;
+		    jScrollPane6 = new javax.swing.JScrollPane();
+		    jScrollPane6.setViewportView(htmlDisplay);
+		    createWindow(frameTitle, jScrollPane6);
+		} else {
+		    ((JScrollPane) existingWindow.getContentPane().getComponent(0)).setViewportView(htmlDisplay);
+		}
+	    }
+	});
     }
 
-    public void openSearchTable(ArbilNode[] selectedNodes, String frameTitle) {
-	// Create tabel with model and split panel to show it in
-	ArbilTableModel resultsTableModel = new ArbilTableModel(imageBoxRenderer);
-	ArbilTable arbilTable = new ArbilTable(resultsTableModel, tableController, frameTitle);
-	arbilTable.setAllowNodeDrop(false);
-	ArbilSplitPanel tablePanel = new ArbilSplitPanel(arbilTable);
+    /**
+     * Thread safe, can be called from outside the Swing Event Dispatching Thread
+     *
+     * @param selectedNodes nodes to add to search
+     * @param frameTitle title for search frame
+     */
+    public void openSearchTable(final ArbilNode[] selectedNodes, final String frameTitle) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		// Create tabel with model and split panel to show it in
+		ArbilTableModel resultsTableModel = new ArbilTableModel(imageBoxRenderer);
+		ArbilTable arbilTable = new ArbilTable(resultsTableModel, tableController, frameTitle);
+		arbilTable.setAllowNodeDrop(false);
+		ArbilSplitPanel tablePanel = new ArbilSplitPanel(arbilTable);
 
-	// Create window with search table in center
-	JInternalFrame searchFrame = this.createWindow(frameTitle, tablePanel);
-	// Add search panel above
-	ArbilNodeSearchPanel searchPanel = new ArbilNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes);
-	searchFrame.add(searchPanel, BorderLayout.NORTH);
+		// Create window with search table in center
+		JInternalFrame searchFrame = ArbilWindowManager.this.createWindow(frameTitle, tablePanel);
+		// Add search panel above
+		ArbilNodeSearchPanel searchPanel = new ArbilNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes);
+		searchFrame.add(searchPanel, BorderLayout.NORTH);
 
-	// Prepare table panel and window for display
-	tablePanel.setSplitDisplay();
-	tablePanel.addFocusListener(searchFrame);
-	searchFrame.pack();
+		// Prepare table panel and window for display
+		tablePanel.setSplitDisplay();
+		tablePanel.addFocusListener(searchFrame);
+		searchFrame.pack();
+	    }
+	});
     }
 
+    /**
+     * Not thread safe, only call on the Swing Event Dispatching Thread
+     *
+     * @param pluginArbilTableModel
+     * @param tableName
+     * @return new arbil table with the specified name and model
+     */
     public PluginArbilTable createTable(PluginArbilTableModel pluginArbilTableModel, String tableName) {
 	return new ArbilTable((ArbilTableModel) pluginArbilTableModel, tableController, tableName);
     }
 
+    /**
+     * Not thread safe, only call on the Swing Event Dispatching Thread
+     *
+     * @return a new arbil table model with no imagebox renderer
+     */
     public PluginArbilTableModel createTableModel() {
 	return new ArbilTableModel(null);
     }
 
-    public void openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
-	openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
+    /**
+     * Thread safe, can be called from outside the Swing Event Dispatching Thread
+     */
+    public void openFloatingTableOnce(final URI[] rowNodesArray, final String frameTitle) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
+	    }
+	});
     }
 
-    public void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
-	openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
+    /**
+     * Thread safe, can be called from outside the Swing Event Dispatching Thread
+     */
+    public void openFloatingTableOnce(final ArbilDataNode[] rowNodesArray, final String frameTitle) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
+	    }
+	});
     }
 
-    public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
-	openFloatingTableGetModel(rowNodesArray, frameTitle, null, null);
+    /**
+     * Thread safe, can be called from outside the Swing Event Dispatching Thread
+     */
+    public void openFloatingTable(final ArbilDataNode[] rowNodesArray, final String frameTitle) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		openFloatingTableGetModel(rowNodesArray, frameTitle, null, null);
+	    }
+	});
     }
 
+    /**
+     * Not thread safe, only call on the Swing Event Dispatching Thread
+     */
     public ArbilTableModel openFloatingTableOnceGetModel(URI[] rowNodesArray, String frameTitle) {
 	ArbilDataNode[] tableNodes = new ArbilDataNode[rowNodesArray.length];
 	ArrayList<String> fieldPathsToHighlight = new ArrayList<String>();
@@ -1245,6 +1308,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	return targetTableModel;
     }
 
+    /**
+     * Not thread safe, only call on the Swing Event Dispatching Thread
+     */
     public ArbilTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
 	HashSet<ArbilDataNode> tableNodes = new HashSet();
 	for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
@@ -1261,6 +1327,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	return openFloatingTableOnceGetModel(tableNodes.toArray(new ArbilDataNode[]{}), frameTitle);
     }
 
+    /**
+     * Not thread safe, only call on the Swing Event Dispatching Thread
+     */
     public ArbilTableModel openFloatingTableOnceGetModel(ArbilDataNode[] rowNodesArray, String frameTitle) {
 	if (rowNodesArray.length == 1 && rowNodesArray[0] != null && rowNodesArray[0].isInfoLink) {
 	    try {
@@ -1310,6 +1379,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     }
 
     /**
+     * Not thread safe, only call on the Swing Event Dispatching Thread
      *
      * @param rowNodesArray
      * @param frameTitle
@@ -1344,41 +1414,48 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 
     /**
      * Opens a new window containing a scrollpane with a nested collection of
-     * tables for the specified node and all of its subnodes.
+     * tables for the specified node and all of its subnodes. Thread safe.
      *
      * @param arbilDataNode Node to open window for
      * @param frameTitle Title of window to be created
      */
     public void openFloatingSubnodesWindows(ArbilDataNode[] arbilDataNodes) {
-	for (ArbilDataNode arbilDataNode : arbilDataNodes) {
+	for (final ArbilDataNode arbilDataNode : arbilDataNodes) {
 	    openFloatingSubnodesWindowOnce(arbilDataNode, arbilDataNode.toString(), null);
 	}
     }
 
-    private void openFloatingSubnodesWindowOnce(ArbilDataNode arbilDataNode, String frameTitle, Component[] window) {
+    private void openFloatingSubnodesWindowOnce(final ArbilDataNode arbilDataNode, final String frameTitle, final Component[] window) {
 	// Check if no subnodes window is opened with the same data node as top level node yet
-
-	for (String currentWindowName : windowList.keySet()) {
-	    Component[] currentWindow = (Component[]) windowList.get(currentWindowName);
-	    for (Component childComponent : ((JInternalFrame) currentWindow[0]).getContentPane().getComponents()) {
-		// loop through all the child components in the window (there will probably only be one)
-		if (childComponent instanceof ArbilSubnodesScrollPane) {
-		    if (((ArbilSubnodesScrollPane) childComponent).getDataNode().equals(arbilDataNode)) {
-			// Make window get focus - a window was requested after all
-			focusWindow(currentWindowName);
-			// Return so a new window does not get created
-			return;
+	for (final String currentWindowName : windowList.keySet()) {
+	    final Component[] currentWindow = (Component[]) windowList.get(currentWindowName);
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    for (Component childComponent : ((JInternalFrame) currentWindow[0]).getContentPane().getComponents()) {
+			// loop through all the child components in the window (there will probably only be one)
+			if (childComponent instanceof ArbilSubnodesScrollPane) {
+			    if (((ArbilSubnodesScrollPane) childComponent).getDataNode().equals(arbilDataNode)) {
+				// Make window get focus - a window was requested after all
+				focusWindow(currentWindowName);
+				// Return so a new window does not get created
+				return;
+			    }
+			}
 		    }
 		}
-	    }
+	    });
 	}
 
-	ArbilSubnodesScrollPane scrollPane = new ArbilSubnodesScrollPane(arbilDataNode, tableController, imageBoxRenderer);
-	JInternalFrame tableFrame = createWindow(frameTitle, scrollPane);
-	tableFrame.addInternalFrameListener(scrollPane.getInternalFrameListener());
-	if (window != null && window.length > 0) {
-	    window[0] = tableFrame;
-	}
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		ArbilSubnodesScrollPane scrollPane = new ArbilSubnodesScrollPane(arbilDataNode, tableController, imageBoxRenderer);
+		JInternalFrame tableFrame = createWindow(frameTitle, scrollPane);
+		tableFrame.addInternalFrameListener(scrollPane.getInternalFrameListener());
+		if (window != null && window.length > 0) {
+		    window[0] = tableFrame;
+		}
+	    }
+	});
     }
 
     public boolean openFileInExternalApplication(URI targetUri) {

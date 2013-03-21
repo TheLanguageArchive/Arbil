@@ -44,7 +44,7 @@ public class ArbilWicketWindowManager implements WindowManager {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl) {
+    public void openUrlWindowOnce(String frameTitle, URL locationUrl) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 

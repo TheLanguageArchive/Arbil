@@ -46,7 +46,7 @@ public interface WindowManager {
 
     void openFloatingSubnodesWindows(ArbilDataNode[] arbilDataNodes);
 
-    JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl);
+    void openUrlWindowOnce(String frameTitle, URL locationUrl);
 
     ProgressMonitor newProgressMonitor(Object message, String note, int min, int max);
 
