@@ -95,6 +95,12 @@ public class ArbilDragDrop {
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
 	dialogHandler = dialogHandlerInstance;
     }
+    private static TableController tableController;
+
+    public static void setTableController(TableController treeHelperInstance) {
+	//TODO: PreviewSplitPanel should not be singleton, then this can go
+	tableController = treeHelperInstance;
+    }
 
     private ArbilDragDrop() {
 	dataNodeFlavour = new DataFlavor(ArbilDataNode.class, "ArbilDataNode");
@@ -247,7 +253,7 @@ public class ArbilDragDrop {
 		}
 	    } else if (comp instanceof ArbilTable) {
 		ArbilTable sourceTable = (ArbilTable) comp;
-		sourceTable.copySelectedTableRowsToClipBoard();
+		tableController.copySelectedTableRowsToClipBoard(sourceTable);
 	    } else {
 		super.exportToClipboard(comp, clip, action);
 	    }
@@ -467,7 +473,7 @@ public class ArbilDragDrop {
 	    try {
 		logger.debug("importData: {}", comp);
 		if (comp instanceof ArbilTable && draggedArbilNodes == null) {
-		    ((ArbilTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
+		    tableController.pasteIntoSelectedTableRowsFromClipBoard((ArbilTable) comp);
 		} else if (draggedArbilNodes != null) {
 		    return importNodes(comp);
 		}

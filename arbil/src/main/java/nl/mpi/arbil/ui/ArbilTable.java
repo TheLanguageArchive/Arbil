@@ -43,7 +43,6 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
-import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.flap.plugin.PluginArbilTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,11 +58,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
     public final static int MIN_COLUMN_WIDTH = 50;
     public final static int MAX_COLUMN_WIDTH = 300;
     private final static Logger logger = LoggerFactory.getLogger(ArbilTable.class);
-    private static MessageDialogHandler dialogHandler;
-
-    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
-	dialogHandler = dialogHandlerInstance;
-    }
     private final ArbilTableModel arbilTableModel;
     private final TableController tableController;
     private final JListToolTip listToolTip = new JListToolTip();
@@ -351,29 +345,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	};
     }
 
-    public void copySelectedTableRowsToClipBoard() {
-	int[] selectedRows = this.getSelectedRows();
-	// only copy if there is at lease one row selected
-	if (selectedRows.length > 0) {
-	    logger.debug("coll select mode: {}", this.getColumnSelectionAllowed());
-	    logger.debug("cell select mode: {}", this.getCellSelectionEnabled());
-	    // when a user selects a cell and uses ctrl+a to change the selection the selection mode does not change from cell to row allCellsSelected is to resolve this error
-	    boolean allCellsSelected = this.getSelectedRowCount() == this.getRowCount() && this.getSelectedColumnCount() == this.getColumnCount();
-	    if (this.getCellSelectionEnabled() && !allCellsSelected) {
-		logger.debug("cell select mode");
-		ArbilField[] selectedFields = getSelectedFields();
-		if (selectedFields != null) {
-		    arbilTableModel.copyArbilFields(selectedFields);
-		}
-	    } else {
-		logger.debug("row select mode");
-		arbilTableModel.copyArbilRows(selectedRows);
-	    }
-	} else {
-	    dialogHandler.addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
-	}
-    }
-
     public ArbilField[] getSelectedFields() {
 	// there is a limitation in the jtable in the way selections can be made so there is no point making this more complicated than a single contigious selection
 	HashSet<ArbilField> selectedFields = new HashSet<ArbilField>();
@@ -404,18 +375,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    return selectedFields.toArray(new ArbilField[]{});
 	} else {
 	    return null;
-	}
-    }
-
-    public void pasteIntoSelectedTableRowsFromClipBoard() {
-	ArbilField[] selectedFields = getSelectedFields();
-	if (selectedFields != null) {
-	    String pasteResult = arbilTableModel.pasteIntoArbilFields(selectedFields);
-	    if (pasteResult != null) {
-		dialogHandler.addMessageDialogToQueue(pasteResult, "Paste into Table");
-	    }
-	} else {
-	    dialogHandler.addMessageDialogToQueue("No rows selected", "Paste into Table");
 	}
     }
 

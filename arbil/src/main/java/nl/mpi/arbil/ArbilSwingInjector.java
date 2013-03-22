@@ -46,7 +46,7 @@ import nl.mpi.arbil.util.WindowManager;
 /**
  *
  * Extension of ArbilInjector that also injects into swing UI classes
- * 
+ *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilSwingInjector extends ArbilInjector {
@@ -98,7 +98,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilHyperlinkListener.setMessageDialogHandler(messageDialogHandler);
 	ArbilDragDrop.setMessageDialogHandler(messageDialogHandler);
 	ArbilLongFieldEditor.setMessageDialogHandler(messageDialogHandler);
-	ArbilTable.setMessageDialogHandler(messageDialogHandler);
 	TemplateDialogue.setMessageDialogHandler(messageDialogHandler);
 	ArbilFieldViewTableModel.setMessageDialogHandler(messageDialogHandler);
 	CmdiProfilesPanel.setMessageDialogHandler(messageDialogHandler);
@@ -120,6 +119,7 @@ public class ArbilSwingInjector extends ArbilInjector {
     public void injectTableController(TableController tableController) {
 	//TODO: PreviewSplitPanel should not be singleton, then this can go
 	PreviewSplitPanel.setTableController(tableController);
+	//TODO: ArbilDragDrop should not be singleton, then this can go
+	ArbilDragDrop.setTableController(tableController);
     }
-    
 }

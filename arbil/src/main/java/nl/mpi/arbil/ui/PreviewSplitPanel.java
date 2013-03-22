@@ -89,7 +89,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	    public boolean importData(JComponent comp, Transferable t) {
 		// Import is always from clipboard (no drag in preview table)
 		if (comp instanceof ArbilTable) {
-		    ((ArbilTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
+		    tableController.pasteIntoSelectedTableRowsFromClipBoard((ArbilTable) comp);
 		}
 		return false;
 	    }
@@ -97,7 +97,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	    @Override
 	    public void exportToClipboard(JComponent comp, Clipboard clip, int action) throws IllegalStateException {
 		if (comp instanceof ArbilTable) {
-		    ((ArbilTable) comp).copySelectedTableRowsToClipBoard();
+		    tableController.copySelectedTableRowsToClipBoard((ArbilTable) comp);
 		}
 	    }
 	});
