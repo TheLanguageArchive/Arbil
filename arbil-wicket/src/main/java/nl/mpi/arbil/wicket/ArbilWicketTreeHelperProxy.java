@@ -125,4 +125,14 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper {
     public void addLocations(InputStream inputStream) throws IOException {
 	getTreeHelper().addLocations(inputStream);
     }
+
+    @Override
+    public boolean isGroupFavouritesByType() {
+	return getTreeHelper().isGroupFavouritesByType();
+    }
+
+    @Override
+    public void setGroupFavouritesByType(boolean groupFavouritesByType) {
+	getTreeHelper().setGroupFavouritesByType(groupFavouritesByType);
+    }
 }
