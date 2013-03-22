@@ -1199,6 +1199,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	    public void run() {
 		// Create tabel with model and split panel to show it in
 		ArbilTableModel resultsTableModel = new ArbilTableModel(imageBoxRenderer);
+		resultsTableModel.setForceHorizontalView(true);
 		ArbilTable arbilTable = new ArbilTable(resultsTableModel, tableController, frameTitle);
 		arbilTable.setAllowNodeDrop(false);
 		ArbilSplitPanel tablePanel = new ArbilSplitPanel(arbilTable);

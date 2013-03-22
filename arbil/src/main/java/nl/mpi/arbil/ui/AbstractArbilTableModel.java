@@ -70,6 +70,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private String[] columnNames = new String[0];
     private Color cellColour[][] = new Color[0][0];
     private ArbilField[] displayedColumnFields;
+    private boolean forceHorizontalView = false;
 
     public AbstractArbilTableModel(ArbilFieldView tableFieldView) {
 	this.tableFieldView = tableFieldView;
@@ -559,7 +560,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private void updateViewOrientation(ArbilDataNode[] tableRowsArbilArray) {
 	// set the view to either horizontal or vertical and set the default sort
 	boolean lastHorizontalView = isHorizontalView();
-	horizontalView = tableRowsArbilArray.length > 1;
+	horizontalView = forceHorizontalView || tableRowsArbilArray.length > 1;
 	if (!isHorizontalView()) {
 	    // set the table for a single image if that is all that is shown
 	    //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
@@ -860,6 +861,10 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
      */
     protected int getSortColumn() {
 	return sortColumn;
+    }
+
+    public void setForceHorizontalView(boolean forceHorizontalView) {
+	this.forceHorizontalView = forceHorizontalView;
     }
 
 //    private class TableRowComparator implements Comparator<ImdiField[]> {
