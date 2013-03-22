@@ -37,8 +37,8 @@ import nl.mpi.arbil.util.TreeHelper;
  */
 public class ArbilTrackingTree extends ArbilTree {
 
-    public ArbilTrackingTree(ArbilTreeController treeController, TreeHelper treeHelper) {
-	super(treeController, treeHelper);
+    public ArbilTrackingTree(ArbilTreeController treeController, TreeHelper treeHelper, PreviewSplitPanel previewPanel) {
+	super(treeController, treeHelper, previewPanel);
     }
     private HashMap<ArbilNode, TreeNode> treeNodeMap = new HashMap<ArbilNode, TreeNode>();
 

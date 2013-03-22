@@ -22,12 +22,15 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import nl.mpi.arbil.MacAdapter.MacAdapterException;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.ui.ArbilDragDrop;
+import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.ui.ArbilTaskStatusBar;
 import nl.mpi.arbil.ui.ArbilTreeController;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
@@ -55,6 +58,8 @@ public class ArbilMain extends javax.swing.JFrame {
     private final ApplicationVersionManager versionManager;
     private final ArbilMimeHashQueue mimeHashQueue;
     private final ArbilLogConfigurer logConfigurer;
+    private final ArbilTableController tableController;
+    private final ArbilSessionStorage sessionStorage;
 
     /**
      * @param args the command line arguments
@@ -96,6 +101,8 @@ public class ArbilMain extends javax.swing.JFrame {
 	this.treeController = injector.getTreeController();
 	this.windowManager = injector.getWindowManager();
 	this.mimeHashQueue = injector.getMimeHashQueue();
+	this.tableController = injector.getTableController();
+	this.sessionStorage = injector.getSessionStorage();
     }
 
     public void run() {
@@ -127,10 +134,13 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	initComponents();
 	windowManager.addTaskListener(statusBar);
-	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
+	PreviewSplitPanel previewSplitPanel = new PreviewSplitPanel(windowManager, tableController);
 	mainSplitPane.setRightComponent(previewSplitPanel);
 
-	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController);
+	final ArbilDragDrop dragDrop = new ArbilDragDrop(sessionStorage, treeHelper, windowManager, windowManager, tableController);
+	windowManager.setDragDrop(dragDrop);
+	
+	final ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController, previewSplitPanel, dragDrop);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
 	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null, logConfigurer);
 	setJMenuBar(arbilMenuBar);

@@ -48,7 +48,6 @@ import nl.mpi.arbil.favourites.ArbilFavourites;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,53 +61,24 @@ import org.slf4j.LoggerFactory;
 public class ArbilDragDrop {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilDragDrop.class);
-    private static SessionStorage sessionStorage;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
-    private static ArbilDragDrop singleInstance = null;
-
-    static synchronized public ArbilDragDrop getSingleInstance() {
-	if (singleInstance == null) {
-	    singleInstance = new ArbilDragDrop();
-	}
-	return singleInstance;
-    }
-    private static ArbilTreeHelper treeHelper;
-
-    public static void setTreeHelper(TreeHelper treeHelperInstance) {
-	if (treeHelperInstance instanceof ArbilTreeHelper) {
-	    treeHelper = (ArbilTreeHelper) treeHelperInstance;
-	} else {
-	    throw new RuntimeException("ArbilDragDrop requires ArbilTreeHelper, found " + treeHelperInstance.getClass());
-	}
-
-    }
-    private static WindowManager windowManager;
-
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
-    private static MessageDialogHandler dialogHandler;
-
-    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
-	dialogHandler = dialogHandlerInstance;
-    }
-    private static TableController tableController;
-
-    public static void setTableController(TableController treeHelperInstance) {
-	//TODO: PreviewSplitPanel should not be singleton, then this can go
-	tableController = treeHelperInstance;
-    }
-
-    private ArbilDragDrop() {
-	dataNodeFlavour = new DataFlavor(ArbilDataNode.class, "ArbilDataNode");
-	arbilNodeSelection = new ArbilNodeSelection();
-    }
+    private final SessionStorage sessionStorage;
+    private final ArbilTreeHelper treeHelper;
+    private final WindowManager windowManager;
+    private final MessageDialogHandler dialogHandler;
+    private final TableController tableController;
     // There are numerous limitations of drag and drop in 1.5 and to overcome the resulting issues we need to share the same transferable object on both the drag source and the drop target
-    private DataFlavor dataNodeFlavour;
-    private ArbilNodeSelection arbilNodeSelection;
+    private final DataFlavor dataNodeFlavour;
+    private final ArbilNodeSelection arbilNodeSelection;
+
+    public ArbilDragDrop(SessionStorage sessionStorage, ArbilTreeHelper treeHelper, WindowManager windowManager, MessageDialogHandler dialogHandler, TableController tableController) {
+	this.sessionStorage = sessionStorage;
+	this.treeHelper = treeHelper;
+	this.windowManager = windowManager;
+	this.dialogHandler = dialogHandler;
+	this.tableController = tableController;
+	this.dataNodeFlavour = new DataFlavor(ArbilDataNode.class, "ArbilDataNode");
+	this.arbilNodeSelection = new ArbilNodeSelection();
+    }
 
     public void addDrag(JTable tableSource) {
 	tableSource.setDragEnabled(true);

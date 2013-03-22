@@ -38,27 +38,8 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class PreviewSplitPanel extends javax.swing.JSplitPane {
 
-    private static WindowManager windowManager;
-
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	//TODO: PreviewSplitPanel should not be singleton, then this can go
-	windowManager = windowManagerInstance;
-    }
-    private static TableController tableController;
-
-    public static void setTableController(TableController treeHelperInstance) {
-	//TODO: PreviewSplitPanel should not be singleton, then this can go
-	tableController = treeHelperInstance;
-    }
-    private static PreviewSplitPanel instance;
-
-    public static synchronized PreviewSplitPanel getInstance() {
-	//TODO: PreviewSplitPanel should not be singleton, then this can go
-	if (instance == null) {
-	    instance = new PreviewSplitPanel();
-	}
-	return instance;
-    }
+    private final WindowManager windowManager;
+    private final TableController tableController;
     private ArbilTable previewTable = null;
     private boolean previewTableShown = false;
     private JScrollPane rightScrollPane;
@@ -66,7 +47,9 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
     private JPanel previewPanel;
     private Container parentComponent;
 
-    private PreviewSplitPanel() {
+    public PreviewSplitPanel(WindowManager windowManager, TableController tableController) {
+	this.windowManager = windowManager;
+	this.tableController = tableController;
 	this.setDividerSize(5);
 	this.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 	this.setName("rightSplitPane");
@@ -146,8 +129,8 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
     /**
      * @return the previewTableShown
      */
-    public static boolean isPreviewTableShown() {
-	return getInstance().previewTableShown;
+    public boolean isPreviewTableShown() {
+	return previewTableShown;
     }
 
     /**

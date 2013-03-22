@@ -56,7 +56,6 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.NodeCreationCallback;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TableContextMenu;

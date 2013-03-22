@@ -32,6 +32,7 @@ import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilTreeController;
 import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
@@ -79,7 +80,7 @@ public class ProfilePreview {
 	    MessageDialogHandler dialogHandler = windowManager;
 	    TreeHelper treeHelper = new ArbilTreeHelper(sessionStorage, windowManager);
 	    ArbilTreeController treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, dialogHandler, dataNodeLoader, new ArbilMimeHashQueue(windowManager, sessionStorage), new ApplicationVersionManager(new ArbilVersion()));
-	    ArbilTree demoTree = new ArbilTree(treeController, treeHelper);
+	    ArbilTree demoTree = new ArbilTree(treeController, treeHelper, new PreviewSplitPanel(windowManager, null));
 	    demoTree.setModel(demoTreeModel);
 	    demoTree.requestResort();
 	    JDialog demoDialogue = new JDialog();

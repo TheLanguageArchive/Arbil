@@ -55,21 +55,17 @@ public class ArbilSwingInjector extends ArbilInjector {
     public void injectSessionStorage(SessionStorage sessionStorage) {
 	super.injectSessionStorage(sessionStorage);
 	ArbilFieldViews.setSessionStorage(sessionStorage);
-	ArbilSplitPanel.setSessionStorage(sessionStorage);
 	ArbilNodeSearchColumnComboBox.setSessionStorage(sessionStorage);
 	ArbilMenuBar.setSessionStorage(sessionStorage);
 	ImportExportDialog.setSessionStorage(sessionStorage);
 	ArbilSetupWizard.setSessionStorage(sessionStorage);
 	ArbilHyperlinkListener.setSessionStorage(sessionStorage);
-	ArbilDragDrop.setSessionStorage(sessionStorage);
     }
 
     @Override
     public void injectTreeHelper(TreeHelper treeHelper) {
 	super.injectTreeHelper(treeHelper);
 	ArbilSetupWizard.setTreeHelper(treeHelper);
-	ArbilSplitPanel.setTreeHelper(treeHelper);
-	ArbilDragDrop.setTreeHelper(treeHelper);
 	ArbilMenuBar.setTreeHelper(treeHelper);
     }
 
@@ -83,9 +79,7 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilContextMenu.setWindowManager(windowManager);
 	LanguageListDialogue.setWindowManager(windowManager);
 	CmdiProfilesPanel.setWindowManager(windowManager);
-	PreviewSplitPanel.setWindowManager(windowManager);
 	ArbilHyperlinkListener.setWindowManager(windowManager);
-	ArbilDragDrop.setWindowManager(windowManager);
 	ArbilLongFieldEditor.setWindowManager(windowManager);
 	ArbilMenuBar.setWindowManager(windowManager);
 	TemplateDialogue.setWindowManager(windowManager);
@@ -96,7 +90,6 @@ public class ArbilSwingInjector extends ArbilInjector {
     public void injectDialogHandler(MessageDialogHandler messageDialogHandler) {
 	super.injectDialogHandler(messageDialogHandler);
 	ArbilHyperlinkListener.setMessageDialogHandler(messageDialogHandler);
-	ArbilDragDrop.setMessageDialogHandler(messageDialogHandler);
 	ArbilLongFieldEditor.setMessageDialogHandler(messageDialogHandler);
 	TemplateDialogue.setMessageDialogHandler(messageDialogHandler);
 	ArbilFieldViewTableModel.setMessageDialogHandler(messageDialogHandler);
@@ -114,12 +107,5 @@ public class ArbilSwingInjector extends ArbilInjector {
 	ArbilHyperlinkListener.setDataNodeLoader(dataNodeLoader);
 	ArbilContextMenu.setDataNodeLoader(dataNodeLoader);
 	ArbilMenuBar.setDataNodeLoader(dataNodeLoader);
-    }
-
-    public void injectTableController(TableController tableController) {
-	//TODO: PreviewSplitPanel should not be singleton, then this can go
-	PreviewSplitPanel.setTableController(tableController);
-	//TODO: ArbilDragDrop should not be singleton, then this can go
-	ArbilDragDrop.setTableController(tableController);
     }
 }
