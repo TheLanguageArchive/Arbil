@@ -65,12 +65,13 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	dialogHandler = dialogHandlerInstance;
     }
     private final ArbilTableModel arbilTableModel;
+    private final TableController tableController;
     private final JListToolTip listToolTip = new JListToolTip();
     private int lastColumnCount = -1;
     private int lastRowCount = -1;
     private int lastColumnPreferedWidth = 0;
+    private boolean deferColumnWidthUpdates = false;
     protected boolean allowNodeDrop = true;
-    private final TableController tableController;
 
     public ArbilTable(ArbilTableModel arbilTableModel, TableController tableController, String frameTitle) {
 	this.tableController = tableController;
@@ -161,30 +162,46 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	return super.getRowHeight();
     }
 
+    /**
+     * Enables/disables column width updates on table updates. When re-enabled this also triggers a recalculation of column widths
+     *
+     * @param deferColumnWidthUpdates
+     */
+    public void setDeferColumnWidthUpdates(boolean deferColumnWidthUpdates) {
+	final boolean reenabled = deferColumnWidthUpdates && this.deferColumnWidthUpdates != deferColumnWidthUpdates;
+	this.deferColumnWidthUpdates = deferColumnWidthUpdates;
+	if (reenabled) {
+	    setColumnWidths();
+	    //maybe it's better to request reload on the table model
+	}
+    }
+
     public void setColumnWidths() {
-	// resize the columns only if the number of columns or rows have changed
-	boolean resizeColumns = arbilTableModel.isWidthsChanged() || lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
-	lastColumnCount = this.getModel().getColumnCount();
-	lastRowCount = this.getModel().getRowCount();
-	int parentWidth = this.getParent().getWidth();
-	if (this.getRowCount() > 0 && this.getColumnCount() > 2) {
-	    if (resizeColumns) {
-		doResizeColumns();
-	    } else if (this.getParent() != null) {
-		int lastColumnWidth = this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).getWidth();
-		int totalColWidth = this.getColumnModel().getTotalColumnWidth();
-		boolean lastcolumnSquished = lastColumnWidth < MIN_COLUMN_WIDTH;
-		if (parentWidth > totalColWidth) {
-		    setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-		} else if (parentWidth < totalColWidth) { // if the widths are equal then don't change anything
-		    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		} else if (lastcolumnSquished) { // unless the last column is squished
-		    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		    this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).setPreferredWidth(lastColumnPreferedWidth);
+	if (!deferColumnWidthUpdates) {
+	    // resize the columns only if the number of columns or rows have changed
+	    boolean resizeColumns = arbilTableModel.isWidthsChanged() || lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
+	    lastColumnCount = this.getModel().getColumnCount();
+	    lastRowCount = this.getModel().getRowCount();
+	    int parentWidth = this.getParent().getWidth();
+	    if (this.getRowCount() > 0 && this.getColumnCount() > 2) {
+		if (resizeColumns) {
+		    doResizeColumns();
+		} else if (this.getParent() != null) {
+		    int lastColumnWidth = this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).getWidth();
+		    int totalColWidth = this.getColumnModel().getTotalColumnWidth();
+		    boolean lastcolumnSquished = lastColumnWidth < MIN_COLUMN_WIDTH;
+		    if (parentWidth > totalColWidth) {
+			setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		    } else if (parentWidth < totalColWidth) { // if the widths are equal then don't change anything
+			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		    } else if (lastcolumnSquished) { // unless the last column is squished
+			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).setPreferredWidth(lastColumnPreferedWidth);
+		    }
 		}
+	    } else {
+		setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	    }
-	} else {
-	    setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	}
     }
 

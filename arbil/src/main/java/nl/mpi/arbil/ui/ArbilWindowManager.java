@@ -1207,7 +1207,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 		// Create window with search table in center
 		JInternalFrame searchFrame = ArbilWindowManager.this.createWindow(frameTitle, tablePanel);
 		// Add search panel above
-		ArbilNodeSearchPanel searchPanel = new ArbilNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes);
+		ArbilNodeSearchPanel searchPanel = new ArbilNodeSearchPanel(searchFrame, arbilTable, selectedNodes);
 		searchFrame.add(searchPanel, BorderLayout.NORTH);
 
 		// Prepare table panel and window for display
