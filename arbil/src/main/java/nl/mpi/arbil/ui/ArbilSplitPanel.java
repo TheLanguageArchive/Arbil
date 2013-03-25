@@ -17,7 +17,6 @@
  */
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
@@ -36,6 +35,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.ui.menu.ImagePreviewContextMenu;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.TreeHelper;
