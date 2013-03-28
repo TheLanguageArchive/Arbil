@@ -148,7 +148,7 @@
 		<configuration>
 		    <entries>
 			<entry>
-			    <path>${basedir}</path>
+			    <path>${basedir}/src</path>
 			    <!-- this will populate "arbil.version.revision" -->
 			    <prefix>arbil.version</prefix>
 			</entry>
@@ -274,7 +274,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-help</artifactId>
-            <version>2.5.35875-stable</version>
+            <version>2.5.35876-stable</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
