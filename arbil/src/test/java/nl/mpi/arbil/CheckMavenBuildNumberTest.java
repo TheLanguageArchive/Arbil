@@ -28,7 +28,7 @@ import org.junit.Test;
 public class CheckMavenBuildNumberTest {
 
     @Test
-    public void testGetNodeTypeFromMimeType() {
+    public void testMavenBuildNumber() {
         // this tests that the correct build number is specified in the pom.xml based on the current svn version
         // either the correct build number or a snapshot version are valid
         String errorMessage = "The maven version does not match either the snapshot nor the current svn build number.\n The pom.xml must be updated, please use either the correct build number or a snapshot version.";
