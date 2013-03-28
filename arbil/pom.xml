@@ -135,27 +135,27 @@
 		    </execution>
 		</executions>
 	    </plugin>	   
-	    <plugin>
-		<groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
-		<artifactId>svn-revision-number-maven-plugin</artifactId>
-		<version>1.13</version>
-		<executions>
-		    <execution>
-			<goals>
-			    <goal>revision</goal>
-			</goals>
-		    </execution>
-		</executions>
-		<configuration>
-		    <entries>
-			<entry>
-			    <path>${basedir}</path>
+            <plugin>
+                <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
+                <artifactId>svn-revision-number-maven-plugin</artifactId>
+                <version>1.13</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <entries>
+                        <entry>
+			    <path>${basedir}/src</path>
 			    <!-- this will populate "arbil.version.revision" -->
 			    <prefix>arbil.version</prefix>
-			</entry>
-		    </entries>
-		</configuration>
-	    </plugin>
+                        </entry>
+                    </entries>
+                </configuration>
+            </plugin>
 	    <plugin>
 		<!-- 
 		    License plugin checks for presence of license header in all source files (with some exceptions, see excludes below).
