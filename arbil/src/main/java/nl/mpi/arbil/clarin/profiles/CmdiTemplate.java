@@ -351,7 +351,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		}
 	    }
 	} catch (IOException e) {
-	    logger.error("Could not open the required profile schema file: {}", templateFile, e.getMessage());
+	    logger.error("Could not open the required profile schema file: {}", e.getMessage());
 	    // Usually file not found, only print stack trace in debug
 	    logger.debug("Could not open the required profile schema file", e);
 	    messageDialogHandler.addMessageDialogToQueue(String.format("Could not open the required template file: %s. See error log for details ", getTemplateFile().getName()), "Load Clarin Template");
