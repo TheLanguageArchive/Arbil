@@ -331,18 +331,25 @@ public class CmdiTemplate extends ArbilTemplate {
 	    templateFile = sessionStorage.updateCache(xsdFile.toString(), SCHEMA_CACHE_EXPIRY_DAYS, false);
 	}
 	try {
-	    final InputStream inputStream = new FileInputStream(templateFile);
-	    //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
-	    final XmlOptions xmlOptions = new XmlOptions();
-	    xmlOptions.setCharacterEncoding("UTF-8");
-	    xmlOptions.setEntityResolver(new ArbilEntityResolver(xsdFile));
+	    InputStream inputStream = null;
+	    try {
+		inputStream = new FileInputStream(templateFile);
+		//Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
+		final XmlOptions xmlOptions = new XmlOptions();
+		xmlOptions.setCharacterEncoding("UTF-8");
+		xmlOptions.setEntityResolver(new ArbilEntityResolver(xsdFile));
 //            xmlOptions.setCompileDownloadUrls();
-	    final SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
-	    final SchemaType schemaType = sts.documentTypes()[0];
+		final SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+		final SchemaType schemaType = sts.documentTypes()[0];
 
-	    final CachedXPathAPI xPathAPI = new CachedXPathAPI();
-	    determineNameFromHeader(xPathAPI);
-	    constructXml(schemaType, arrayListGroup, "", xPathAPI);
+		final CachedXPathAPI xPathAPI = new CachedXPathAPI();
+		determineNameFromHeader(xPathAPI);
+		constructXml(schemaType, arrayListGroup, "", xPathAPI);
+	    } finally {
+		if (inputStream != null) {
+		    inputStream.close();
+		}
+	    }
 	} catch (IOException e) {
 	    logger.error("Could not open the required template file: {}", templateFile, e);
 	    messageDialogHandler.addMessageDialogToQueue("Could not open the required template file: " + getTemplateFile().getName(), "Load Clarin Template");
