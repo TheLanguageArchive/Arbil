@@ -38,6 +38,10 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     private final static Logger logger = LoggerFactory.getLogger(DefaultDataNodeLoader.class);
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
+    /**
+     * Thread and queue manager, at the moment also has the implementation of the actual loading threads (structure and relation between
+     * this class and the thread manager should to be reconsidered)
+     */
     private DataNodeLoaderThreadManager threadManager;
     private ArbilDataNodeService dataNodeService;
 
