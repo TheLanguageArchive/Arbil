@@ -45,7 +45,19 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     private DataNodeLoaderThreadManager threadManager;
     private ArbilDataNodeService dataNodeService;
 
-    public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager) {
+    public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager, ArbilDataNodeService dataNodeService) {
+	this(loaderThreadManager);
+	this.dataNodeService = dataNodeService;
+    }
+
+    /**
+     * Constructor that does not set a data node service; <strong>remember to call {@link #setDataNodeService(nl.mpi.arbil.data.ArbilDataNodeService)
+     * } as soon as possible after construction</strong>. You may want to consider constructing a
+     * {@link nl.mpi.arbil.data.ArbilDataNodeLoader} instead.
+     *
+     * @param loaderThreadManager
+     */
+    protected DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager) {
 	logger.debug("ArbilDataNodeLoader init");
 	threadManager = loaderThreadManager;
     }
@@ -54,10 +66,6 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 	this.dataNodeService = dataNodeService;
     }
 
-//    public ImdiTreeObject isImdiObjectLoaded(String localUrlString) {
-//        localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
-//        return imdiHashTable.get(localUrlString);
-//    }
     @Override
     public ArbilDataNode getArbilDataNodeWithoutLoading(URI localUri) {
 	ArbilDataNode currentDataNode = null;
