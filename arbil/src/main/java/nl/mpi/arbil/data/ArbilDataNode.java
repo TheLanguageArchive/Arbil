@@ -640,16 +640,17 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	if (this != getParentDomNode()) { // isloading does this parent check pretty much already
 	    return getParentDomNode().waitTillLoaded();
 	} else {
-	    if (isLoading()) {
+	    while (isLoading()) {
 		logger.debug("isLoading");
 		try {
-		    getParentDomNode().wait();
 		    logger.debug("wait");
+		    getParentDomNode().wait(1000);
 		    if (isLoading()) {
-			logger.debug("waited till loaded but its still loading: " + this.getUrlString());
+			logger.debug("waited till loaded (or timeout) but its still loading: {}", this.getUrlString());
 		    }
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
+		} catch (InterruptedException ex) {
+		    logger.debug("Interrupted while waiting for node to be loaded", ex);
+		    Thread.currentThread().interrupt();
 		    return false;
 		}
 	    }
@@ -674,8 +675,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	}
     }
 
-    public synchronized boolean isLoading() {
-	return getParentDomNode().isLoadingCount > 0;
+    public boolean isLoading() {
+	synchronized (loadingCountLock) {
+	    return getParentDomNode().isLoadingCount > 0;
+	}
     }
 
     @Override
