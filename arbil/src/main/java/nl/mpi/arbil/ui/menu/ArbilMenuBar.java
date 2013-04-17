@@ -64,6 +64,7 @@ import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
+import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.pluginloader.PluginService;
 import nl.mpi.pluginloader.ui.PluginMenu;
 import org.xml.sax.SAXException;
@@ -571,7 +572,16 @@ public class ArbilMenuBar extends JMenuBar {
     private void initPluginMenu() {
 	final ArbilPluginManager pluginManager = new ArbilPluginManager(ArbilSessionStorage.getSingleInstance(), ArbilWindowManager.getSingleInstance(), ArbilDataNodeLoader.getSingleInstance(), GuiHelper.linorgBugCatcher);
 	final List<URL> pluginUlrs = pluginManager.getPluginsFromDirectoriesAndPluginsList();
-	this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[]{})), pluginManager, true));
+	final String javaVersion = System.getProperty("java.version");
+	if (!(javaVersion.startsWith("1.4.") || javaVersion.startsWith("1.5."))) {
+	    try {
+		this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[]{})), pluginManager, true));
+	    } catch (NoClassDefFoundError error) {
+		GuiHelper.linorgBugCatcher.logError(new Exception("Failed to initialize plugin system. Probably JRE version issue despite check.", error));
+	    }
+	} else {
+	    System.err.println("Plugins are NOT enabled due to unsupported java version " + javaVersion);
+	}
     }
 
     private void initWindowMenu() {
