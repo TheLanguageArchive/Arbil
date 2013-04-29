@@ -25,6 +25,7 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -482,9 +483,14 @@ public class ArbilDragDrop {
 		logger.debug("dragged: {}", draggedArbilNodes[draggedCounter]);
 	    }
 	    if (treeHelper.componentIsTheFavouritesTree(currentDropTarget)) {
-		// Target component is the favourites tree
-		boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedArbilNodes, true);
-		return resultValue;
+		try {
+		    // Target component is the favourites tree
+		    boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedArbilNodes, true);
+		    return resultValue;
+		} catch (ArbilMetadataException ex) {
+		    logger.error("Error while adding favourite", ex);
+		    return false;
+		}
 	    } else {
 		return importToLocalTree(dropTree);
 	    }
@@ -609,7 +615,12 @@ public class ArbilDragDrop {
 				    continueMove = !(moveMultiple && detailsOption == 3);
 				}
 				if (continueMove && (moveAll || detailsOption == 0)) {
-				    doMoveLocalNodes(dropTargetUserObject, dropTargetDataNode, currentNode, draggedCounter, arbilNodesDeleteList);
+				    try {
+					doMoveLocalNodes(dropTargetUserObject, dropTargetDataNode, currentNode, draggedCounter, arbilNodesDeleteList);
+				    } catch (IOException ex) {
+					logger.error("Error moving {}", currentNode, ex);
+					continueMove = dialogHandler.showConfirmDialogBox(String.format("Could not move %s due to error. See log for details. Continue moving nodes?", currentNode), "Error moving nodes");
+				    }
 				}
 			    }
 			}
@@ -640,7 +651,7 @@ public class ArbilDragDrop {
 	    return false;
 	}
 
-	private void doMoveLocalNodes(Object dropTargetUserObject, final ArbilDataNode dropTargetDataNode, final ArbilDataNode currentNode, int draggedCounter, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList) {
+	private void doMoveLocalNodes(Object dropTargetUserObject, final ArbilDataNode dropTargetDataNode, final ArbilDataNode currentNode, int draggedCounter, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList) throws IOException {
 	    boolean addNodeResult = false;
 	    if (dropTargetUserObject instanceof ArbilDataNode) {
 		if (dropTargetDataNode.isCorpus()) {

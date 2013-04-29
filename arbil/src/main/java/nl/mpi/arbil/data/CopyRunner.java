@@ -47,8 +47,8 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class CopyRunner implements Runnable {
-    private final static Logger logger = LoggerFactory.getLogger(CopyRunner.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(CopyRunner.class);
     public final static String DISK_FREE_LABEL_TEXT = "Total Disk Free: ";
     private final ImportExportUI impExpUI;
     private final SessionStorage sessionStorage;
@@ -185,7 +185,7 @@ public class CopyRunner implements Runnable {
 		    journalActionString = "import";
 		} else {
 		    // This is an export to a location on the file system
-		    if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
+		    if (impExpUI.isRenameFileToNodeName()) {
 			calculateTreeFileName(currentRetrievableFile, Collections.<URI[]>emptyList());
 		    } else {
 			currentRetrievableFile.calculateUriFileName();
@@ -253,21 +253,21 @@ public class CopyRunner implements Runnable {
 		}
 	    }
 	} catch (ArbilMetadataException ex) {
-	    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
+	    logger.error("Error processing {} with destination {}", currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, ex);
 	    totalErrors++;
 	    impExpUI.addToMetadataCopyErrors(currentRetrievableFile.sourceURI);
-	    impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
+	    impExpUI.appendToTaskOutput(String.format("Unable to process the file: %1$s (%2$s)", currentRetrievableFile.sourceURI, ex.getLocalizedMessage()));
 	} catch (MalformedURLException ex) {
-	    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
+	    logger.error("Error processing {} with destination {}", currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, ex);
 	    totalErrors++;
 	    impExpUI.addToMetadataCopyErrors(currentRetrievableFile.sourceURI);
-	    impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
+	    impExpUI.appendToTaskOutput(String.format("Unable to process the file: %1$s", currentRetrievableFile.sourceURI));
 	    logger.debug("Error getting links from: {}", currentRetrievableFile.sourceURI);
 	} catch (IOException ex) {
-	    BugCatcherManager.getBugCatcher().logError(currentRetrievableFile.sourceURI.toString(), ex);
+	    logger.error("Error while trying to copy {} to {}", currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, ex);
 	    totalErrors++;
 	    impExpUI.addToMetadataCopyErrors(currentRetrievableFile.sourceURI);
-	    impExpUI.appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
+	    impExpUI.appendToTaskOutput(String.format("Unable to process the file: %1$s (%2$s)", currentRetrievableFile.sourceURI, ex.getLocalizedMessage()));
 	}
 	totalLoaded++;
 	final int getCount = getList.size();

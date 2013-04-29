@@ -297,6 +297,8 @@ public class MetadataBuilder {
 		    addNodes(destinationNode, nodeTypeDisplayNames, addableNodes);
 		} catch (ArbilMetadataException exception) {
 		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+		} catch (IOException exception) {
+		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
 		} catch (UnsupportedOperationException exception) {
 		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
 		} finally {
@@ -316,7 +318,7 @@ public class MetadataBuilder {
 	};
     }
 
-    public void addNodes(final ArbilDataNode destinationNode, final String[] nodeTypeDisplayNames, final ArbilDataNode[] addableNodes) throws ArbilMetadataException {
+    public void addNodes(final ArbilDataNode destinationNode, final String[] nodeTypeDisplayNames, final ArbilDataNode[] addableNodes) throws ArbilMetadataException, IOException {
 	if (destinationNode == null) {
 	    doAddNodes(null, nodeTypeDisplayNames, addableNodes);
 	} else {
@@ -327,7 +329,7 @@ public class MetadataBuilder {
 	}
     }
 
-    private void doAddNodes(final ArbilDataNode destinationNode, final String[] nodeTypeDisplayName, final ArbilDataNode[] addableNode) throws ArbilMetadataException {
+    private void doAddNodes(final ArbilDataNode destinationNode, final String[] nodeTypeDisplayName, final ArbilDataNode[] addableNode) throws ArbilMetadataException, IOException {
 
 	// Split inputs between metadata ndoes and non-metadata nodes
 
@@ -445,7 +447,7 @@ public class MetadataBuilder {
 	return null;
     }
 
-    private void addMetaDataNode(final ArbilDataNode destinationNode, final List<ArbilDataNode> addableNodes) throws ArbilMetadataException {
+    private void addMetaDataNode(final ArbilDataNode destinationNode, final List<ArbilDataNode> addableNodes) throws ArbilMetadataException, IOException {
 	for (ArbilDataNode addableNode : addableNodes) {
 	    URI addedNodeUri;
 	    if (addableNode.getURI().getFragment() == null) {

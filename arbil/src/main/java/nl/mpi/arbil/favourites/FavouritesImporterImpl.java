@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import nl.mpi.arbil.ArbilMetadataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +36,10 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class FavouritesImporterImpl implements FavouritesImporter {
-
+    
     private final static Logger logger = LoggerFactory.getLogger(FavouritesImporterImpl.class);
     private final FavouritesService favouritesService;
-
+    
     public FavouritesImporterImpl(FavouritesService favouritesService) {
 	this.favouritesService = favouritesService;
     }
@@ -51,14 +52,18 @@ public class FavouritesImporterImpl implements FavouritesImporter {
     public void importFavourites(File importDirectory) throws FavouritesImportExportException {
 	final URI importFile = new File(importDirectory, FavouritesExporter.FAVOURITES_LIST_FILE).toURI();
 	final List<URI> locations = readFavouritesLocations(importFile);
-
-	// Add locations as favourites
-	for (URI favouriteURI : locations) {
-	    // Resolve against location of import file
-	    favouritesService.addAsFavourite(importFile.resolve(favouriteURI));
+	
+	try {
+	    // Add locations as favourites
+	    for (URI favouriteURI : locations) {
+		// Resolve against location of import file
+		favouritesService.addAsFavourite(importFile.resolve(favouriteURI));
+	    }
+	} catch (ArbilMetadataException ex) {
+	    throw new FavouritesImportExportException(ex);
 	}
     }
-
+    
     private List<URI> readFavouritesLocations(URI location) throws FavouritesImportExportException {
 	try {
 	    final InputStream openStream = location.toURL().openStream();
@@ -87,7 +92,7 @@ public class FavouritesImporterImpl implements FavouritesImporter {
 	    throw new FavouritesImportExportException("Error while trying to read favourites list", ex);
 	}
     }
-
+    
     private boolean lineIsComment(String favouritesLine) {
 	return favouritesLine.startsWith("#");
     }

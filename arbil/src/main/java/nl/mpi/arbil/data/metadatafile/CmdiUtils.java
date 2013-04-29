@@ -27,10 +27,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.BugCatcherManager;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -39,9 +39,9 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- *  Document   : CmdiUtils
- *  Created on : May 22, 2010, 10:30:36 AM
- *  Author     : Peter Withers
+ * Document : CmdiUtils
+ * Created on : May 22, 2010, 10:30:36 AM
+ * Author : Peter Withers
  */
 public class CmdiUtils implements MetadataUtils {
 
@@ -49,7 +49,7 @@ public class CmdiUtils implements MetadataUtils {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
+    public void copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws IOException, ArbilMetadataException {
 	try {
 	    final ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 	    final Document document = ArbilComponentBuilder.getDocument(sourceURI);
@@ -82,21 +82,18 @@ public class CmdiUtils implements MetadataUtils {
 	    }
 	    // Write to disk
 	    ArbilComponentBuilder.savePrettyFormatting(document, destinationFile);
-	    return true;
-	} catch (IOException e) {
-	    BugCatcherManager.getBugCatcher().logError(e);
 	} catch (ParserConfigurationException e) {
-	    BugCatcherManager.getBugCatcher().logError(e);
+	    throw new ArbilMetadataException("Parser error: " + e.getMessage(), e);
 	} catch (SAXException e) {
-	    BugCatcherManager.getBugCatcher().logError(e);
+	    throw new ArbilMetadataException("Parser error: " + e.getMessage(), e);
 	}
-	return false;
     }
 
     /**
      * Returns all ResourceLinks in the specified file
+     *
      * @param nodeURI
-     * @return 
+     * @return
      */
     public URI[] getCorpusLinks(URI nodeURI) {
 	ArrayList<URI> returnUriList = new ArrayList<URI>();
@@ -134,6 +131,7 @@ public class CmdiUtils implements MetadataUtils {
 
     /**
      * Copies all schema files found in the specified document that are local or relative to the destination of the MD copy action
+     *
      * @param mdSourceURI Source location of the metadata file copy action
      * @param mdDestinationFile Destination file for the metadata file copy action
      * @param mdDocument Metadata document that is being copied
@@ -208,12 +206,12 @@ public class CmdiUtils implements MetadataUtils {
     }
 
     /**
-     * 
+     *
      * @param inStream
      * @param outFile
      * @return Number of bytes read
      * @throws FileNotFoundException When output file not found
-     * @throws IOException 
+     * @throws IOException
      */
     private static int copyFile(InputStream inStream, File outFile) throws FileNotFoundException, IOException {
 	final int bufferLength = 1024 * 3;
