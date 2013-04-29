@@ -287,46 +287,54 @@ public class CopyRunner implements Runnable {
 	    }
 	    final RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
 	    if (MetadataFormat.isPathMetadata(currentLink)) {
-		getList.add(gettableLinkUri);
-		if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
-		    // On export there is the option to rename the file to the name of the node as present in the metadata
+		copyMetadataLink(gettableLinkUri, retrievableLink, exportDestinationDirectory, getList, uncopiedLinks, linksUriArray, linkCount);
+	    } else {
+		copyResourceLink(currentRetrievableFile, currentLink, retrievableLink, exportDestinationDirectory, uncopiedLinks, linksUriArray, linkCount);
+	    }
+	}
+    }
+
+    private void copyMetadataLink(final URI gettableLinkUri, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI> getList, List<URI[]> uncopiedLinks, URI[] linksUriArray, int linkCount) {
+	getList.add(gettableLinkUri);
+	if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
+	    // On export there is the option to rename the file to the name of the node as present in the metadata
+	    calculateTreeFileName(retrievableLink, uncopiedLinks);
+	} else {
+	    retrievableLink.calculateUriFileName();
+	}
+	uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.destinationFile.toURI()});
+    }
+
+    private void copyResourceLink(RetrievableFile currentRetrievableFile, final String currentLink, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI[]> uncopiedLinks, URI[] linksUriArray, int linkCount) throws MalformedURLException {
+	if (!impExpUI.isCopyFilesOnImport() && !impExpUI.isCopyFilesOnExport()) {
+	    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
+	} else {
+	    File downloadFileLocation;
+	    if (exportDestinationDirectory == null) {
+		downloadFileLocation = sessionStorage.updateCache(currentLink, impExpUI.getShibbolethNegotiator(), false, false, impExpUI.getDownloadAbortFlag(), impExpUI);
+	    } else {
+		if (impExpUI.isRenameFileToNodeName()) {
 		    calculateTreeFileName(retrievableLink, uncopiedLinks);
 		} else {
 		    retrievableLink.calculateUriFileName();
 		}
-		uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.destinationFile.toURI()});
-	    } else {
-		if (!impExpUI.isCopyFilesOnImport() && !impExpUI.isCopyFilesOnExport()) {
-		    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
-		} else {
-		    File downloadFileLocation;
-		    if (exportDestinationDirectory == null) {
-			downloadFileLocation = sessionStorage.updateCache(currentLink, impExpUI.getShibbolethNegotiator(), false, false, impExpUI.getDownloadAbortFlag(), impExpUI);
-		    } else {
-			if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
-			    calculateTreeFileName(retrievableLink, uncopiedLinks);
-			} else {
-			    retrievableLink.calculateUriFileName();
-			}
-			if (!retrievableLink.destinationFile.getParentFile().exists()) {
-			    if (!retrievableLink.destinationFile.getParentFile().mkdirs()) {
-				BugCatcherManager.getBugCatcher().logError(new IOException("Could not create missing parent directory for " + retrievableLink.destinationFile));
-			    }
-			}
-			downloadFileLocation = retrievableLink.destinationFile;
-			sessionStorage.saveRemoteResource(new URL(currentLink), downloadFileLocation, impExpUI.getShibbolethNegotiator(), true, false, impExpUI.getDownloadAbortFlag(), impExpUI);
-			impExpUI.setProgressText(" ");
-		    }
-		    if (downloadFileLocation != null && downloadFileLocation.exists()) {
-			impExpUI.appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
-			uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
-		    } else {
-			impExpUI.appendToResourceCopyOutput("Download failed: " + currentLink + " \n");
-			impExpUI.addToFileCopyErrors(currentRetrievableFile.sourceURI);
-			uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
-			resourceCopyErrors++;
+		if (!retrievableLink.destinationFile.getParentFile().exists()) {
+		    if (!retrievableLink.destinationFile.getParentFile().mkdirs()) {
+			BugCatcherManager.getBugCatcher().logError(new IOException("Could not create missing parent directory for " + retrievableLink.destinationFile));
 		    }
 		}
+		downloadFileLocation = retrievableLink.destinationFile;
+		sessionStorage.saveRemoteResource(new URL(currentLink), downloadFileLocation, impExpUI.getShibbolethNegotiator(), true, false, impExpUI.getDownloadAbortFlag(), impExpUI);
+		impExpUI.setProgressText(" ");
+	    }
+	    if (downloadFileLocation != null && downloadFileLocation.exists()) {
+		impExpUI.appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
+		uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
+	    } else {
+		impExpUI.appendToResourceCopyOutput("Download failed: " + currentLink + " \n");
+		impExpUI.addToFileCopyErrors(currentRetrievableFile.sourceURI);
+		uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
+		resourceCopyErrors++;
 	    }
 	}
     }
