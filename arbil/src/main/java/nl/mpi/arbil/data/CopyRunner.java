@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
+import nl.mpi.arbil.data.metadatafile.MetadataUtils.MetadataLinkSet;
 import nl.mpi.arbil.ui.ImportExportUI;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -201,9 +202,9 @@ public class CopyRunner implements Runnable {
 		    throw new ArbilMetadataException("Metadata format could not be determined");
 		}
 		final List<URI[]> uncopiedLinks = new ArrayList<URI[]>();
-		final URI[] linksUriArray = metadataUtils.getCorpusLinks(currentRetrievableFile.sourceURI);
-		if (linksUriArray != null) {
-		    copyLinks(exportDestinationDirectory, linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
+		final MetadataLinkSet linkSet = metadataUtils.getCorpusLinks(currentRetrievableFile.sourceURI);
+		if (linkSet != null) {
+		    copyLinks(exportDestinationDirectory, linkSet, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
 		}
 
 		boolean overwriteFile = false;
@@ -277,24 +278,40 @@ public class CopyRunner implements Runnable {
 	}
     }
 
-    private void copyLinks(final File exportDestinationDirectory, URI[] linksUriArray, Map<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, List<URI> getList, List<URI[]> uncopiedLinks) throws MalformedURLException {
-	for (int linkCount = 0; linkCount < linksUriArray.length && !impExpUI.isStopCopy(); linkCount++) {
-	    logger.debug("Link: {}", linksUriArray[linkCount].toString());
-	    final String currentLink = linksUriArray[linkCount].toString();
-	    final URI gettableLinkUri = linksUriArray[linkCount].normalize();
-	    if (!seenFiles.containsKey(gettableLinkUri)) {
-		seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
-	    }
-	    final RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
-	    if (MetadataFormat.isPathMetadata(currentLink)) {
-		copyMetadataLink(gettableLinkUri, retrievableLink, exportDestinationDirectory, getList, uncopiedLinks, linksUriArray, linkCount);
+    private void copyLinks(final File exportDestinationDirectory, MetadataLinkSet linksUriArray, Map<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, List<URI> getList, List<URI[]> uncopiedLinks) throws MalformedURLException {
+	// Copy resource links
+	for (final URI linkUri : linksUriArray.getResourceLinks()) {
+	    if (impExpUI.isStopCopy()) {
+		return;
 	    } else {
-		copyResourceLink(currentRetrievableFile, currentLink, retrievableLink, exportDestinationDirectory, uncopiedLinks, linksUriArray, linkCount);
+		logger.debug("Resource link: {}", linkUri);
+		final String currentLink = linkUri.toString();
+		final URI gettableLinkUri = linkUri.normalize();
+		if (!seenFiles.containsKey(gettableLinkUri)) {
+		    seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
+		}
+		final RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
+		copyResourceLink(currentRetrievableFile, currentLink, retrievableLink, exportDestinationDirectory, uncopiedLinks, linkUri);
+	    }
+	}
+
+	// Copy metadata links
+	for (final URI linkUri : linksUriArray.getMetadataLinks()) {
+	    if (impExpUI.isStopCopy()) {
+		return;
+	    } else {
+		logger.debug("Metadata link: {}", linkUri);
+		final URI gettableLinkUri = linkUri.normalize();
+		if (!seenFiles.containsKey(gettableLinkUri)) {
+		    seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
+		}
+		final RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
+		copyMetadataLink(gettableLinkUri, retrievableLink, exportDestinationDirectory, getList, uncopiedLinks, linkUri);
 	    }
 	}
     }
 
-    private void copyMetadataLink(final URI gettableLinkUri, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI> getList, List<URI[]> uncopiedLinks, URI[] linksUriArray, int linkCount) {
+    private void copyMetadataLink(final URI gettableLinkUri, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI> getList, List<URI[]> uncopiedLinks, URI linkUri) {
 	getList.add(gettableLinkUri);
 	if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
 	    // On export there is the option to rename the file to the name of the node as present in the metadata
@@ -302,12 +319,12 @@ public class CopyRunner implements Runnable {
 	} else {
 	    retrievableLink.calculateUriFileName();
 	}
-	uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.destinationFile.toURI()});
+	uncopiedLinks.add(new URI[]{linkUri, retrievableLink.destinationFile.toURI()});
     }
 
-    private void copyResourceLink(RetrievableFile currentRetrievableFile, final String currentLink, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI[]> uncopiedLinks, URI[] linksUriArray, int linkCount) throws MalformedURLException {
+    private void copyResourceLink(RetrievableFile currentRetrievableFile, final String currentLink, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI[]> uncopiedLinks, URI linkUri) throws MalformedURLException {
 	if (!impExpUI.isCopyFilesOnImport() && !impExpUI.isCopyFilesOnExport()) {
-	    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
+	    uncopiedLinks.add(new URI[]{linkUri, linkUri});
 	} else {
 	    File downloadFileLocation;
 	    if (exportDestinationDirectory == null) {
@@ -329,11 +346,11 @@ public class CopyRunner implements Runnable {
 	    }
 	    if (downloadFileLocation != null && downloadFileLocation.exists()) {
 		impExpUI.appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
-		uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
+		uncopiedLinks.add(new URI[]{linkUri, downloadFileLocation.toURI()});
 	    } else {
 		impExpUI.appendToResourceCopyOutput("Download failed: " + currentLink + " \n");
 		impExpUI.addToFileCopyErrors(currentRetrievableFile.sourceURI);
-		uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
+		uncopiedLinks.add(new URI[]{linkUri, linkUri});
 		resourceCopyErrors++;
 	    }
 	}
@@ -379,6 +396,7 @@ public class CopyRunner implements Runnable {
 	private String fileName;
 	private String fileSuffix;
 	boolean lamusFriendly;
+	boolean metadata;
 
 	public RetrievableFile(URI sourceURILocal, File destinationDirectoryLocal) {
 	    sourceURI = sourceURILocal;

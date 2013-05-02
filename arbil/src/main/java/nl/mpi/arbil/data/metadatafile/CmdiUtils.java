@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
@@ -95,12 +96,14 @@ public class CmdiUtils implements MetadataUtils {
      * @param nodeURI
      * @return
      */
-    public URI[] getCorpusLinks(URI nodeURI) {
-	ArrayList<URI> returnUriList = new ArrayList<URI>();
+    public MetadataLinkSet getCorpusLinks(URI nodeURI) {
+	List<URI> metadataLinks = new ArrayList<URI>();
+	List<URI> resourceLinks = new ArrayList<URI>();
 	// Get resource links in file
 	CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
 	ArrayList<CmdiResourceLink> links = cmdiComponentLinkReader.readLinks(nodeURI);
 	if (links != null) {
+
 	    // Traverse links
 	    for (CmdiResourceLink link : links) {
 		try {
@@ -111,14 +114,18 @@ public class CmdiUtils implements MetadataUtils {
 			    // Resolve to absolute path
 			    linkUri = nodeURI.resolve(linkUri);
 			}
-			returnUriList.add(linkUri);
+			if (link.resourceType.equalsIgnoreCase("Metadata")) {
+			    metadataLinks.add(linkUri);
+			} else {
+			    resourceLinks.add(linkUri);
+			}
 		    }
 		} catch (URISyntaxException ex) {
 		    BugCatcherManager.getBugCatcher().logError("Invalid link URI found in " + nodeURI.toString(), ex);
 		}
 	    }
 	}
-	return returnUriList.toArray(new URI[]{});
+	return new MetadataLinkSet(resourceLinks, metadataLinks);
     }
 
     public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks) {

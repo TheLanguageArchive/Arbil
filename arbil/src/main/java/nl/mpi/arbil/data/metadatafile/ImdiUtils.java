@@ -22,10 +22,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.imdi.api.IMDIDom;
@@ -42,15 +45,15 @@ import org.w3c.dom.Document;
  * Author : Peter Withers
  */
 public class ImdiUtils implements MetadataUtils {
-
+    
     private final static Logger logger = LoggerFactory.getLogger(ImdiUtils.class);
     private static MessageDialogHandler messageDialogHandler;
-
+    
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     public final static IMDIDom api = new IMDIDom();
-
+    
     private boolean isCatalogue(URI sourceURI) {
 	try {
 	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
@@ -64,7 +67,7 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return false;
     }
-
+    
     private boolean isSession(URI sourceURI) {
 	try {
 	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
@@ -130,12 +133,12 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return true;
     }
-
+    
     public void copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws IOException, ArbilMetadataException {
-
+	
 	OurURL inUrlLocal = new OurURL(sourceURI.toURL());
 	OurURL destinationUrl = new OurURL(destinationFile.toURI().toURL());
-
+	
 	org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 	checkImdiApiResult(nodDom, sourceURI);
 	if (nodDom == null) {
@@ -206,11 +209,11 @@ public class ImdiUtils implements MetadataUtils {
 	    }
 	}
     }
-
+    
     public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
     public boolean removeCorpusLink(URI nodeURI, URI linkURI[]) {
 	try {
 	    OurURL destinationUrl = new OurURL(nodeURI.toString());
@@ -248,8 +251,8 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return false;
     }
-
-    public URI[] getCorpusLinks(URI nodeURI) throws ArbilMetadataException {
+    
+    public MetadataLinkSet getCorpusLinks(URI nodeURI) throws ArbilMetadataException {
 	try {
 	    OurURL destinationUrl = new OurURL(nodeURI.toString());
 	    Document nodDom = api.loadIMDIDocument(destinationUrl, false);
@@ -261,18 +264,25 @@ public class ImdiUtils implements MetadataUtils {
 	    allImdiLinks = api.getIMDILinks(nodDom, destinationUrl, WSNodeType.UNKNOWN);
 	    checkImdiApiResult(allImdiLinks, nodeURI);
 	    if (allImdiLinks != null) {
-		URI[] returnUriArray = new URI[allImdiLinks.length];
+		//URI[] returnUriArray = new URI[allImdiLinks.length];
+		List<URI> metadataLinks = new ArrayList<URI>();
+		List<URI> resourceLinks = new ArrayList<URI>();
 		for (int linkCount = 0; linkCount < allImdiLinks.length; linkCount++) {
 		    try {
 			checkImdiApiResult(allImdiLinks[linkCount], nodeURI);
-			returnUriArray[linkCount] = allImdiLinks[linkCount].getRawURL().toURL().toURI();
-			checkImdiApiResult(returnUriArray[linkCount], nodeURI);
+			final URI linkUri = allImdiLinks[linkCount].getRawURL().toURL().toURI();
+			checkImdiApiResult(linkUri, nodeURI);
+			if (MetadataFormat.isPathImdi(linkUri.toString())) {
+			    metadataLinks.add(linkUri);
+			} else {
+			    resourceLinks.add(linkUri);
+			}
 		    } catch (URISyntaxException exception) {
 			BugCatcherManager.getBugCatcher().logError(exception);
 			messageDialogHandler.addMessageDialogToQueue("Error reading one of the links via the IMDI API", "Get Links");
 		    }
 		}
-		return returnUriArray;
+		return new MetadataLinkSet(resourceLinks, metadataLinks);
 	    }
 	} catch (MalformedURLException exception) {
 	    BugCatcherManager.getBugCatcher().logError(exception);
@@ -280,7 +290,7 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return null;
     }
-
+    
     private void checkImdiApiResult(Object resultUnknown, URI imdiURI) {
 	if (resultUnknown == null) {
 	    BugCatcherManager.getBugCatcher().logError(new Exception("The IMDI API returned null for: " + imdiURI.toString()));
