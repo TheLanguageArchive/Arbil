@@ -34,12 +34,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Vector;
+import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -330,15 +329,14 @@ public class ArbilDataNodeService {
 	logger.debug("saveChangesToCache");
 
 	synchronized (datanode.getParentDomLockObject()) {
+	    // this lock is to prevent the metadata file being modified and reloaded in the middle of this process
 	    ArbilJournal.getSingleInstance().clearFieldChangeHistory();
 	    if (!datanode.isLocal() /* nodeUri.getScheme().toLowerCase().startsWith("http") */) {
 		logger.debug("should not try to save remote files");
 		return;
 	    }
-	    ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
-	    // this lock is to prevent the metadata file being modified and reloaded in the middle of this process
-	    createFieldUpdateRequests(datanode, fieldUpdateRequests);
-	    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	    final List<FieldUpdateRequest> fieldUpdateRequests = createFieldUpdateRequests(datanode);
+	    final ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 	    boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
 	    if (!result) {
 		messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
@@ -351,25 +349,41 @@ public class ArbilDataNodeService {
 	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
 
-    private void createFieldUpdateRequests(ArbilDataNode datanode, ArrayList<FieldUpdateRequest> fieldUpdateRequests) {
-	Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
-	datanode.getAllFields(allFields);
-	for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
-	    {
-		ArbilField[] currentFieldArray = fieldsEnum.nextElement();
-		for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
-		    ArbilField currentField = currentFieldArray[fieldCounter];
-		    if (currentField.fieldNeedsSaveToDisk()) {
-			FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
-			currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
-			currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
-			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
-			currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
-			currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
-			currentFieldUpdateRequest.attributeValuesMap = currentField.getAttributeValuesMap();
-			fieldUpdateRequests.add(currentFieldUpdateRequest);
-		    }
+    private List<FieldUpdateRequest> createFieldUpdateRequests(ArbilDataNode datanode) {
+	final List<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
+	final List<ArbilField[]> allFields = new ArrayList<ArbilField[]>();
+	getAllFields(datanode, allFields);
+	for (ArbilField[] currentFieldArray : allFields) {
+	    for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
+		final ArbilField currentField = currentFieldArray[fieldCounter];
+		if (currentField.fieldNeedsSaveToDisk()) {
+		    final FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
+		    currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
+		    currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
+		    currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
+		    currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
+		    currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
+		    currentFieldUpdateRequest.attributeValuesMap = currentField.getAttributeValuesMap();
+		    fieldUpdateRequests.add(currentFieldUpdateRequest);
 		}
+	    }
+	}
+	return fieldUpdateRequests;
+    }
+
+    /**
+     * Vector gets populated with all fields relevant to the parent node that
+     * includes all indinodechild fields but not from any other imdi file
+     *
+     * @param dataNode node to get all children for
+     * @param allFields List to populate
+     */
+    protected void getAllFields(ArbilDataNode dataNode, List<ArbilField[]> allFields) {
+	logger.debug("getAllFields: {}", this);
+	allFields.addAll(dataNode.getFields().values());
+	for (ArbilDataNode currentChild : dataNode.getChildArray()) {
+	    if (currentChild.isChildNode()) {
+		getAllFields(currentChild, allFields);
 	    }
 	}
     }
@@ -613,6 +627,7 @@ public class ArbilDataNodeService {
 
     /**
      * Retrieves the direct ancestor of the specified child node
+     *
      * @param node child node to find direct ancestor for
      * @return the direct ancestor of the specified node
      */
@@ -777,14 +792,14 @@ public class ArbilDataNodeService {
 
     private void updateMetadataChildNodes(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
 	Document nodDom = ArbilComponentBuilder.getDocument(dataNode.getURI());
-	Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree = new Hashtable<ArbilDataNode, HashSet<ArbilDataNode>>();
+	Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree = new HashMap<ArbilDataNode, Set<ArbilDataNode>>();
 	dataNode.childLinks = loadMetadataChildNodes(dataNode, nodDom, parentChildTree);
 	checkRemovedChildNodes(parentChildTree);
     }
 
-    private String[][] loadMetadataChildNodes(ArbilDataNode dataNode, Document nodDom, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
-	Vector<String[]> childLinks = new Vector<String[]>();
-	Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
+    private String[][] loadMetadataChildNodes(ArbilDataNode dataNode, Document nodDom, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
+	List<String[]> childLinks = new ArrayList<String[]>();
+	Map<String, Integer> siblingNodePathCounter = new HashMap<String, Integer>();
 	// get the metadata format information required to read this nodes metadata
 //        final String metadataStartPath = MetadataFormat.getMetadataStartPath(nodeUri.getPath());
 	String fullNodePath = "";
@@ -809,8 +824,8 @@ public class ArbilDataNodeService {
 	return childLinks.toArray(new String[][]{});
     }
 
-    private void checkRemovedChildNodes(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
-	for (Entry<ArbilDataNode, HashSet<ArbilDataNode>> entry : parentChildTree.entrySet()) {
+    private void checkRemovedChildNodes(Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
+	for (Entry<ArbilDataNode, Set<ArbilDataNode>> entry : parentChildTree.entrySet()) {
 	    ArbilDataNode currentNode = entry.getKey();
 	    // logger.debug("setting childArray on: " + currentNode.getUrlString());
 	    // save the old child array
@@ -831,17 +846,16 @@ public class ArbilDataNodeService {
     }
 
     private void getDirectoryLinks(ArbilDataNode dataNode) {
-	File[] dirLinkArray = null;
-	File nodeFile = dataNode.getFile();
+	final File nodeFile = dataNode.getFile();
 	if (nodeFile != null && nodeFile.isDirectory()) {
-	    dirLinkArray = nodeFile.listFiles();
-	    Vector<ArbilDataNode> childLinksTemp = new Vector<ArbilDataNode>();
+	    final File[] dirLinkArray = nodeFile.listFiles();
+	    final List<ArbilDataNode> childLinksTemp = new ArrayList<ArbilDataNode>();
 	    for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
 		try {
 		    //                    logger.debug("nodeFile: " + nodeFile);
 		    //                    logger.debug("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
-		    URI childURI = dirLinkArray[linkCount].toURI();
-		    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNodeWithoutLoading(childURI);
+		    final URI childURI = dirLinkArray[linkCount].toURI();
+		    final ArbilDataNode currentNode = dataNodeLoader.getArbilDataNodeWithoutLoading(childURI);
 		    if (treeHelper.isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {
 			childLinksTemp.add(currentNode);
 		    }

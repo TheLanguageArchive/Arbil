@@ -32,10 +32,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -152,7 +151,7 @@ public class MetadataReader {
     }
 
     private URL constructTemplateUrl(String templateType) {
-	URL templateUrl = null;
+	URL templateUrl;
 	if (CmdiProfileReader.pathIsProfile(templateType)) {
 	    try {
 		return new URL(templateType);
@@ -263,9 +262,9 @@ public class MetadataReader {
     public String getNodeTypeFromMimeType(String mimeType) {
 	logger.debug("getNodeTypeFromMimeType: {}", mimeType);
 	for (String[] formatType : new String[][]{
-		    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource", "Manual/WrittenResource"},
-		    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile", "Manual/MediaFile"}
-		}) {
+	    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource", "Manual/WrittenResource"},
+	    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile", "Manual/MediaFile"}
+	}) {
 	    if (formatType[2].equals(mimeType)) {
 		logger.debug("UsingOverrideNodeType: {}", formatType[1]);
 		return formatType[1];
@@ -588,9 +587,9 @@ public class MetadataReader {
      * @param nodeOrderCounter
      * @return
      */
-    public int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, final String nodePath, String fullNodePath,
-	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
-	    , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter, boolean shallowLoading) {
+    public int iterateChildNodes(ArbilDataNode parentNode, List<String[]> childLinks, Node startNode, final String nodePath, String fullNodePath,
+	    Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
+	    , Map<String, Integer> siblingNodePathCounter, int nodeOrderCounter, boolean shallowLoading) {
 	//        logger.debug("iterateChildNodes: " + nodePath);
 	if (!parentChildTree.containsKey(parentNode)) {
 	    parentChildTree.put(parentNode, new HashSet<ArbilDataNode>());
@@ -636,7 +635,7 @@ public class MetadataReader {
 
 		ArbilDataNode destinationNode;
 		String siblingNodePath = childNodePath;
-		if (localName != null && childsMetaNode != null) {
+		if (childsMetaNode != null) {
 		    try {
 			ArbilDataNode metaNode = null;
 			String pathUrlXpathSeparator = "";
@@ -709,9 +708,9 @@ public class MetadataReader {
      * Updates counters and enters recursive iteration for child nodes.
      * Also adds referenced resources to the tree
      */
-    private int enterChildNodesRecursion(ArbilDataNode parentNode, Vector<String[]> childLinks, Node childNode, NamedNodeMap childNodeAttributes,
+    private int enterChildNodesRecursion(ArbilDataNode parentNode, List<String[]> childLinks, Node childNode, NamedNodeMap childNodeAttributes,
 	    ArbilDataNode destinationNode, String localName, String parentNodePath, String siblingNodePath, String fullSubNodePath,
-	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter, boolean shallowLoading) throws DOMException {
+	    Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, Map<String, Integer> siblingNodePathCounter, int nodeOrderCounter, boolean shallowLoading) throws DOMException {
 
 	NodeList childNodes = childNode.getChildNodes();
 	boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
@@ -762,7 +761,7 @@ public class MetadataReader {
 	return nodeOrderCounter;
     }
 
-    private int countSiblings(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, ArbilDataNode parentNode, String localName) {
+    private int countSiblings(Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, ArbilDataNode parentNode, String localName) {
 	// todo: this might need to be revisited
 	// this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
 	int siblingCount = 1;
@@ -793,7 +792,7 @@ public class MetadataReader {
 	} // end get the xml node id
     }
 
-    private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, boolean shouldAddCurrent) {
+    private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Map<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, List<String[]> childLinks, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, boolean shouldAddCurrent) {
 
 	// Handle special attributes
 
@@ -904,7 +903,7 @@ public class MetadataReader {
 	return nodeOrderCounter;
     }
 
-    private void addReferencedResources(ArbilDataNode parentNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, Vector<String[]> childLinks, ArbilDataNode destinationNode) {
+    private void addReferencedResources(ArbilDataNode parentNode, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, List<String[]> childLinks, ArbilDataNode destinationNode) {
 	String clarinRefIds = getNamedAttributeValue(childNodeAttributes, "ref");
 	if (clarinRefIds != null && clarinRefIds.length() > 0) {
 	    CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getCmdiComponentLinkReader();
@@ -927,7 +926,7 @@ public class MetadataReader {
      * @param parentChildTree Parent-child tree that is constructed
      * @param childLinks Child links collection that is constructed
      */
-    public void addUnreferencedResources(ArbilDataNode parentNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Vector<String[]> childLinks) {
+    public void addUnreferencedResources(ArbilDataNode parentNode, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, List<String[]> childLinks) {
 	CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getCmdiComponentLinkReader();
 	if (cmdiComponentLinkReader != null) {
 	    for (CmdiResourceLink link : cmdiComponentLinkReader.cmdiResourceLinkArray) {
@@ -938,7 +937,7 @@ public class MetadataReader {
 	}
     }
 
-    private void addResourceLinkNode(ArbilDataNode parentNode, ArbilDataNode destinationNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, CmdiResourceLink clarinLink, Vector<String[]> childLinks) {
+    private void addResourceLinkNode(ArbilDataNode parentNode, ArbilDataNode destinationNode, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, CmdiResourceLink clarinLink, List<String[]> childLinks) {
 	if (clarinLink != null) {
 	    try {
 		URI linkURI = clarinLink.getLinkUri();
@@ -1032,7 +1031,7 @@ public class MetadataReader {
 	}
     }
 
-    private void getImdiCatalogue(NamedNodeMap attributesMap, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws DOMException {
+    private void getImdiCatalogue(NamedNodeMap attributesMap, ArbilDataNode parentNode, List<String[]> childLinks, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) throws DOMException {
 	// get the imdi catalogue if it exists
 	Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
 	if (catalogueLinkAtt != null) {

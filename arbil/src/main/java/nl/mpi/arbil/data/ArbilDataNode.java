@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -74,7 +74,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     private ArbilDataNodeService dataNodeService;
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
-    private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
+    private HashMap<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     protected ArbilDataNode[] childArray = new ArbilDataNode[0];
     //private boolean dataLoaded;
     private LoadingState loadingState = LoadingState.UNLOADED;
@@ -287,7 +287,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	//                currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
 	//            }
 	//        }
-	fieldHashtable = new Hashtable<String, ArbilField[]>();
+	fieldHashtable = new HashMap<String, ArbilField[]>();
 	setLoadingState(LoadingState.UNLOADED);
 	hashString = null;
 	//mpiMimeType = null;
@@ -362,7 +362,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      * @return an array of all the child nodes
      */
     public ArbilDataNode[] getAllChildren() {
-	Vector<ArbilDataNode> allChildren = new Vector<ArbilDataNode>();
+	List<ArbilDataNode> allChildren = new ArrayList<ArbilDataNode>();
 	getAllChildren(allChildren);
 	return allChildren.toArray(new ArbilDataNode[]{});
     }
@@ -373,7 +373,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      *
      * @param An empty vector, to which all the child nodes will be added.
      */
-    public void getAllChildren(Vector<ArbilDataNode> allChildren) {
+    public void getAllChildren(List<ArbilDataNode> allChildren) {
 	logger.debug("getAllChildren: {}", this.getUrlString());
 	if (this.isSession() || this.isCatalogue() || this.isChildNode() || this.isCmdiMetaDataNode()) {
 	    for (ArbilDataNode currentChild : childArray) {
@@ -517,22 +517,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	return childArray.length > 0;
     }
 
-    /**
-     * Vector gets populated with all fields relevant to the parent node that
-     * includes all indinodechild fields but not from any other imdi file
-     *
-     * @param allFields Vector to populate
-     */
-    protected void getAllFields(Vector<ArbilField[]> allFields) {
-	logger.debug("getAllFields: {}", this);
-	allFields.addAll(fieldHashtable.values());
-	for (ArbilDataNode currentChild : childArray) {
-	    if (currentChild.isChildNode()) {
-		currentChild.getAllFields(allFields);
-	    }
-	}
-    }
-
     // this is used to delete an IMDI node from a corpus branch
     public void deleteCorpusLink(ArbilDataNode[] targetImdiNodes) {
 	dataNodeService.deleteCorpusLink(this, targetImdiNodes);
@@ -578,7 +562,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      *
      * @return A hashtable of the fields
      */
-    public Hashtable<String, ArbilField[]> getFields() {
+    public Map<String, ArbilField[]> getFields() {
 	// store the Hastable for next call
 	// if hashtable is null then load from imdi
 	return fieldHashtable;
