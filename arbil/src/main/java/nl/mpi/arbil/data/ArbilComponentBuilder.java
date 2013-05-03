@@ -475,7 +475,7 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    public boolean setFieldValues(ArbilDataNode arbilDataNode, FieldUpdateRequest[] fieldUpdates) {
+    public boolean setFieldValues(ArbilDataNode arbilDataNode, Collection<FieldUpdateRequest> fieldUpdates) {
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
 	    logger.debug("setFieldValues: " + arbilDataNode);
@@ -513,7 +513,7 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    private boolean doFieldUpdates(FieldUpdateRequest[] fieldUpdates, Document targetDocument, ArbilDataNode arbilDataNode) throws DOMException, TransformerException {
+    private boolean doFieldUpdates(Collection<FieldUpdateRequest> fieldUpdates, Document targetDocument, ArbilDataNode arbilDataNode) throws DOMException, TransformerException {
 	for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
 	    logger.debug("currentFieldUpdate: {}", currentFieldUpdate.fieldPath);
 	    // todo: search for and remove any reource links referenced by this node or its sub nodes

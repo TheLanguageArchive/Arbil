@@ -64,11 +64,12 @@ import org.xml.sax.SAXException;
 public class ArbilDataNodeService {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilDataNodeService.class);
-    private DataNodeLoader dataNodeLoader;
-    private MessageDialogHandler messageDialogHandler;
-    private SessionStorage sessionStorage;
-    private MimeHashQueue mimeHashQueue;
-    private TreeHelper treeHelper;
+    private final DataNodeLoader dataNodeLoader;
+    private final MessageDialogHandler messageDialogHandler;
+    private final SessionStorage sessionStorage;
+    private final MimeHashQueue mimeHashQueue;
+    private final TreeHelper treeHelper;
+    private final ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 
     public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	this.messageDialogHandler = messageDialogHandler;
@@ -326,7 +327,7 @@ public class ArbilDataNodeService {
 	    saveChangesToCache(datanode.getParentDomNode());
 	    return;
 	}
-	logger.debug("saveChangesToCache");
+	logger.debug("saveChangesToCache {}", datanode);
 
 	synchronized (datanode.getParentDomLockObject()) {
 	    // this lock is to prevent the metadata file being modified and reloaded in the middle of this process
@@ -336,14 +337,10 @@ public class ArbilDataNodeService {
 		return;
 	    }
 	    final List<FieldUpdateRequest> fieldUpdateRequests = createFieldUpdateRequests(datanode);
-	    final ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-	    boolean result = componentBuilder.setFieldValues(datanode, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
-	    if (!result) {
-		messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
-	    } else {
+	    if (componentBuilder.setFieldValues(datanode, fieldUpdateRequests)) {
 		datanode.nodeNeedsSaveToDisk = false;
-		//            // update the icon to indicate the change
-		//            setImdiNeedsSaveToDisk(null, false);
+	    } else {
+		messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
 	    }
 	}
 	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
@@ -831,7 +828,8 @@ public class ArbilDataNodeService {
 	    // save the old child array
 	    ArbilDataNode[] oldChildArray = currentNode.childArray;
 	    // set the new child array
-	    currentNode.childArray = entry.getValue().toArray(new ArbilDataNode[]{});
+	    final Set<ArbilDataNode> newChildren = entry.getValue();
+	    currentNode.childArray = newChildren.toArray(new ArbilDataNode[newChildren.size()]);
 	    // check the old child array and for each that is no longer in the child array make sure they are removed from any containers (tables or trees)
 	    List currentChildList = Arrays.asList(currentNode.childArray);
 	    for (ArbilDataNode currentOldChild : oldChildArray) {
@@ -865,7 +863,7 @@ public class ArbilDataNodeService {
 		}
 	    }
 	    //childLinks = childLinksTemp.toArray(new String[][]{});
-	    dataNode.childArray = childLinksTemp.toArray(new ArbilDataNode[]{});
+	    dataNode.childArray = childLinksTemp.toArray(new ArbilDataNode[childLinksTemp.size()]);
 	}
     }
     //</editor-fold>
