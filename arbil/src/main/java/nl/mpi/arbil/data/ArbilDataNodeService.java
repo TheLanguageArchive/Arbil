@@ -70,6 +70,7 @@ public class ArbilDataNodeService {
     private final MimeHashQueue mimeHashQueue;
     private final TreeHelper treeHelper;
     private final ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+    private final MetadataReader metadataReader = MetadataReader.getSingleInstance();
 
     public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
 	this.messageDialogHandler = messageDialogHandler;
@@ -162,7 +163,7 @@ public class ArbilDataNodeService {
 		    // Get source node
 		    ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
 		    // Check if it can be contained by destination node
-		    if (MetadataReader.getSingleInstance().nodeCanExistInNode(dataNode, templateDataNode)) {
+		    if (metadataReader.nodeCanExistInNode(dataNode, templateDataNode)) {
 			// Add source to destination
 			new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
 		    } else {
@@ -190,7 +191,7 @@ public class ArbilDataNodeService {
 	    }
 	}
 	for (String[] currentLinkPair : dataNode.getChildLinks()) {
-	    String currentChildPath = currentLinkPair[0];
+	    final String currentChildPath = currentLinkPair[0];
 	    if (!targetNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
 		messageDialogHandler.addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
 		return false;
@@ -794,13 +795,13 @@ public class ArbilDataNodeService {
 	checkRemovedChildNodes(parentChildTree);
     }
 
-    private String[][] loadMetadataChildNodes(ArbilDataNode dataNode, Document nodDom, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
-	List<String[]> childLinks = new ArrayList<String[]>();
-	Map<String, Integer> siblingNodePathCounter = new HashMap<String, Integer>();
+    private List<String[]> loadMetadataChildNodes(ArbilDataNode dataNode, Document nodDom, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
+	final List<String[]> childLinks = new ArrayList<String[]>();
+	final Map<String, Integer> siblingNodePathCounter = new HashMap<String, Integer>();
 	// get the metadata format information required to read this nodes metadata
 //        final String metadataStartPath = MetadataFormat.getMetadataStartPath(nodeUri.getPath());
-	String fullNodePath = "";
-	Node startNode = nodDom.getFirstChild();
+	final String fullNodePath = "";
+	final Node startNode = nodDom.getFirstChild();
 //	if (metadataStartPath.length() > 0) {
 //	    fullNodePath = metadataStartPath.substring(0, metadataStartPath.lastIndexOf("."));
 //	    final String metadataXpath = metadataStartPath.replaceAll("\\.", "/:"); //"/:Kinnate/:Entity";
@@ -813,12 +814,12 @@ public class ArbilDataNodeService {
 //	}
 	// load the fields from the imdi file
 	final boolean shallowLoading = LoadingState.PARTIAL.equals(dataNode.getRequestedLoadingState());
-	MetadataReader.getSingleInstance().iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0, shallowLoading);
+	metadataReader.iterateChildNodes(dataNode, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0, shallowLoading);
 	if (dataNode.isCmdiMetaDataNode()) {
 	    // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
-	    MetadataReader.getSingleInstance().addUnreferencedResources(dataNode, parentChildTree, childLinks);
+	    metadataReader.addUnreferencedResources(dataNode, parentChildTree, childLinks);
 	}
-	return childLinks.toArray(new String[][]{});
+	return childLinks;
     }
 
     private void checkRemovedChildNodes(Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
@@ -831,7 +832,7 @@ public class ArbilDataNodeService {
 	    final Set<ArbilDataNode> newChildren = entry.getValue();
 	    currentNode.childArray = newChildren.toArray(new ArbilDataNode[newChildren.size()]);
 	    // check the old child array and for each that is no longer in the child array make sure they are removed from any containers (tables or trees)
-	    List currentChildList = Arrays.asList(currentNode.childArray);
+	    final List currentChildList = Arrays.asList(currentNode.childArray);
 	    for (ArbilDataNode currentOldChild : oldChildArray) {
 		if (!currentChildList.contains(currentOldChild)) {
 		    // remove from any containers that its found in

@@ -102,7 +102,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     private boolean nodeEnabled;
     public boolean hasSchemaError = false;
     // merge to one array of domid url ArbilDataNode
-    protected String[][] childLinks = new String[0][0]; // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null    
+    protected List<String[]> childLinks = new ArrayList<String[]>(); // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null    
     private int isLoadingCount = 0;
     final private Object loadingCountLock = new Object();
     @Deprecated
@@ -1437,7 +1437,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     /**
      * @return the childLinks
      */
-    protected String[][] getChildLinks() {
+    protected List<String[]> getChildLinks() {
 	return childLinks;
     }
 
