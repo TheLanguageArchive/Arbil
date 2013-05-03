@@ -96,7 +96,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     private URI nodeUri;
     private boolean containerNode = false;
     public ArbilField resourceUrlField;
-    public CmdiComponentLinkReader cmdiComponentLinkReader = null;
+    private CmdiComponentLinkReader cmdiComponentLinkReader = null;
     public boolean isDirectory;
     private ImageIcon icon;
     private boolean nodeEnabled;
@@ -1429,7 +1429,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     /**
      * @return the cmdiComponentLinkReader
      */
-    public CmdiComponentLinkReader getCmdiComponentLinkReader() {
+    public synchronized CmdiComponentLinkReader getCmdiComponentLinkReader() {
+	if (cmdiComponentLinkReader == null) {
+	    cmdiComponentLinkReader = new CmdiComponentLinkReader();
+	}
 	return getParentDomNode().cmdiComponentLinkReader;
     }
 

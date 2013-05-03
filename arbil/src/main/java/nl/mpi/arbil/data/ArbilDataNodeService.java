@@ -44,7 +44,6 @@ import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -772,10 +771,7 @@ public class ArbilDataNodeService {
 	if (dataNode.isCmdiMetaDataNode()) {
 	    // load the links from the cmdi file
 	    // the links will be hooked to the relevent nodes when the rest of the xml is read
-	    dataNode.cmdiComponentLinkReader = new CmdiComponentLinkReader();
-	    dataNode.cmdiComponentLinkReader.readLinks(dataNode.getURI());
-	} else {
-	    dataNode.cmdiComponentLinkReader = null;
+	    dataNode.getCmdiComponentLinkReader().readLinks(dataNode.getURI());
 	}
     }
 

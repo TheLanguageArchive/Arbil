@@ -177,11 +177,8 @@ public class ArbilComponentBuilder {
 //            File cmdiNodeFile = imdiTreeObject.getFile();
 //            String nodeFragment = "";
 
-	    String resourceProxyId = null;
-	    CmdiComponentLinkReader linkReader = arbilDataNode.getParentDomNode().cmdiComponentLinkReader;
-	    if (linkReader != null) {
-		resourceProxyId = linkReader.getProxyId(resourceNode.getUrlString());
-	    }
+	    final CmdiComponentLinkReader linkReader = arbilDataNode.getParentDomNode().getCmdiComponentLinkReader();
+	    String resourceProxyId = linkReader.getProxyId(resourceNode.getUrlString());
 	    boolean newResourceProxy = (resourceProxyId == null);
 	    if (newResourceProxy) {
 		// generate a uuid for new resource
@@ -1095,9 +1092,9 @@ public class ArbilComponentBuilder {
 	    // convert the syntax inherited from the imdi api into xpath
 	    // Because most imdi files use a name space syntax we need to try both queries
 	    return new String[]{
-			targetXpath.replaceAll("\\.", "/"),
-			targetXpath.replaceAll("\\.@([^.]*)$", "/@$1").replaceAll("\\.", "/:") // Attributes (.@) should not get colon hence the two steps
-		    };
+		targetXpath.replaceAll("\\.", "/"),
+		targetXpath.replaceAll("\\.@([^.]*)$", "/@$1").replaceAll("\\.", "/:") // Attributes (.@) should not get colon hence the two steps
+	    };
 	}
 
     }
