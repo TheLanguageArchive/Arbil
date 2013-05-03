@@ -179,7 +179,7 @@ public class CopyRunner implements Runnable {
     private void copyFile(final RetrievableFile currentRetrievableFile, final File exportDestinationDirectory, final Map<URI, RetrievableFile> seenFiles, final List<URI> doneList, final List<URI> getList, final XsdChecker xsdChecker) {
 	try {
 	    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
-		String journalActionString;
+		final String journalActionString;
 		if (exportDestinationDirectory == null) {
 		    // This is an import into the local corpus
 		    currentRetrievableFile.calculateUriFileName();
@@ -201,17 +201,19 @@ public class CopyRunner implements Runnable {
 		if (metadataUtils == null) {
 		    throw new ArbilMetadataException("Metadata format could not be determined");
 		}
+
 		final List<URI[]> uncopiedLinks = new ArrayList<URI[]>();
 		final MetadataLinkSet linkSet = metadataUtils.getCorpusLinks(currentRetrievableFile.sourceURI);
 		if (linkSet != null) {
 		    copyLinks(exportDestinationDirectory, linkSet, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
 		}
 
-		boolean overwriteFile = false;
-
+		final boolean overwriteFile;
 		if (currentRetrievableFile.destinationFile.exists()) {
 		    totalExisting++;
 		    overwriteFile = impExpUI.askOverwrite(currentRetrievableFile);
+		} else {
+		    overwriteFile = false;
 		}
 
 		// Request to stop copy can have been triggered from UI (probably when presenting user with pre-existing copy)
@@ -326,10 +328,12 @@ public class CopyRunner implements Runnable {
 	if (!impExpUI.isCopyFilesOnImport() && !impExpUI.isCopyFilesOnExport()) {
 	    uncopiedLinks.add(new URI[]{linkUri, linkUri});
 	} else {
-	    File downloadFileLocation;
+	    final File downloadFileLocation;
 	    if (exportDestinationDirectory == null) {
+		// On export
 		downloadFileLocation = sessionStorage.updateCache(currentLink, impExpUI.getShibbolethNegotiator(), false, false, impExpUI.getDownloadAbortFlag(), impExpUI);
 	    } else {
+		// On import
 		if (impExpUI.isRenameFileToNodeName()) {
 		    calculateTreeFileName(retrievableLink, uncopiedLinks);
 		} else {
