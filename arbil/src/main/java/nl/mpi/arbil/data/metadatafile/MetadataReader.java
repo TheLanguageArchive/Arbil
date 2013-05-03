@@ -944,7 +944,10 @@ public class MetadataReader {
 		if (linkURI != null) {
 		    linkURI = parentNode.getURI().resolve(linkURI);
 		    childLinks.add(new String[]{clarinLink.toString(), clarinLink.resourceProxyId});
-		    parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(linkURI));
+		    final ArbilDataNode resourceLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(linkURI);
+		    // Unless resource proxy type is metadata, treat as resource
+		    resourceLinkNode.setResourceNode(!clarinLink.resourceType.equals("Metadata"));
+		    parentChildTree.get(destinationNode).add(resourceLinkNode);
 		    clarinLink.addReferencingNode();
 		}
 	    } catch (URISyntaxException ex) {

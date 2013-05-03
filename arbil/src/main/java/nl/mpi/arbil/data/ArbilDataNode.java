@@ -117,6 +117,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     private ArbilDataNode domParentNode = null; // the parent imdi containing the dom, only set for imdi child nodes
     //public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
+    private boolean resourceNode = false;
     private final Object domLockObjectPrivate = new Object();
     private final static String NODE_LOADING_TEXT = "loading node...";
     public static final String EMPTY_NODE_STRING_VALUE = "                      ";
@@ -886,15 +887,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	}
     }
 
-    /**
-     * Gets the ULR string of the resource file if it is available.
-     *
-     * @return a URL string of the resource file
-     */
-    private String getResource() {
-	return resourceUrlField.getFieldValue();
-    }
-
     public boolean hasHistory() {
 	if (!this.isLocal()) {
 	    // only local files can have a history
@@ -1045,7 +1037,9 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     public boolean isMetaDataNode() {
 	if (nodeUri != null /* && nodDom != null */) {
-	    if (isChildNode()) {
+	    if (resourceNode) {
+		return false;
+	    } else if (isChildNode()) {
 		return true;
 	    } else {
 		return MetadataFormat.isPathMetadata(nodeUri.getPath());
@@ -1451,5 +1445,14 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     public ArbilDataNode getParentNode() {
 	return dataNodeService.getParentOfNode(this);
+    }
+
+    /**
+     * 
+     * @param resource whether this node should be treated as resource regardless of its URI
+     * @see #isMetaDataNode() 
+     */
+    public void setResourceNode(boolean resource) {
+	this.resourceNode = resource;
     }
 }
