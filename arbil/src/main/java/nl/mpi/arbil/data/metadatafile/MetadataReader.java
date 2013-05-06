@@ -793,33 +793,39 @@ public class MetadataReader {
     }
 
     private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Map<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, List<String[]> childLinks, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, boolean shouldAddCurrent) {
-
 	// Handle special attributes
-
-	String cvType = null;
-	String cvUrlString = null;
-	String keyName = null;
-	String languageId = null;
+	final String cvType;
+	final String cvUrlString;
+	final String keyName;
+	final String languageId;
 	if (childNodeAttributes != null) {
 	    // IMDI only...
 	    cvType = getNamedAttributeValue(childNodeAttributes, "Type");
 	    // IMDI only...
 	    cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
-	    // IMDI only...
-	    languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
-	    if (languageId == null) {
-		// CMDI and generic XML
+
+	    final String languageIdAttribute = getNamedAttributeValue(childNodeAttributes, "LanguageId");
+	    if (languageIdAttribute != null) {
+		// LanguageId attribute - IMDI only
+		languageId = languageIdAttribute;
+	    } else {
+		// xml:lang attribute - CMDI and generic XML
 		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
 	    }
-	    // IMDI only...
+	    // Key name - IMDI only
 	    keyName = getNamedAttributeValue(childNodeAttributes, "Name");
+	} else {
+	    cvType = null;
+	    cvUrlString = null;
+	    keyName = null;
+	    languageId = null;
 	}
 
-	List<String[]> attributePaths = null;
-	Map<String, Object> attributesValueMap = null;
-	boolean allowsLanguageId = false;
-	// For CMDI nodes, get field attribute paths from schema and values from document before creating arbil field
+	final List<String[]> attributePaths;
+	final Map<String, Object> attributesValueMap;
+	final boolean allowsLanguageId;
 	if (destinationNode.isCmdiMetaDataNode()) {
+	    // For CMDI nodes, get field attribute paths from schema and values from document before creating arbil field
 	    final String nodePath = fullSubNodePath.replaceAll("\\(\\d+\\)", "");
 	    CmdiTemplate template = (CmdiTemplate) destinationNode.getNodeTemplate();
 	    attributePaths = template.getEditableAttributesForPath(nodePath);
@@ -833,12 +839,15 @@ public class MetadataReader {
 	    }
 	    allowsLanguageId = template.pathAllowsLanguageId(nodePath); //CMDI case where language id is optional as specified by schema
 	} else {
-	    allowsLanguageId = languageId != null; //IMDI case where language id comes from template
+	    // IMDI case where language id comes from template
+	    allowsLanguageId = languageId != null;
+	    // No custom attributes
+	    attributePaths = null;
+	    attributesValueMap = null;
 	}
 
 	// is a leaf not a branch
-	//            logger.debug("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-	ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath), allowsLanguageId, attributePaths, attributesValueMap);
+	final ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath), allowsLanguageId, attributePaths, attributesValueMap);
 	// TODO: about to write this function
 	//GuiHelper.imdiSchema.convertXmlPathToUiPath();
 	// TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
@@ -864,41 +873,19 @@ public class MetadataReader {
 	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
 	}
 
-	if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
-	    //                logger.debug("Adding: " + fieldToAdd);
-	    //                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
-	    //                fieldToAdd.translateFieldName(siblingNodePath);
-	    destinationNode.addField(fieldToAdd);
-	} else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
-	    //                logger.debug("LinkValue: " + fieldValue);
-	    //                logger.debug("ParentPath: " + parentPath);
-	    //                logger.debug("Parent: " + this.getUrlString());
-	    try {
+	if (shouldAddCurrent) {
+	    if (fieldToAdd.isDisplayable()) {
+		// add as field
+		destinationNode.addField(fieldToAdd);
+	    } else if (fieldToAdd.xmlPath.startsWith(".METATRANSCRIPT.Corpus.CorpusLink") && fieldValue.length() > 0) {
+		// add corpus link
 		URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
 		childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
 		ArbilDataNode linkedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(linkPath);
 		linkedNode.setNodeText(fieldToAdd.getKeyName());
 		parentChildTree.get(parentNode).add(linkedNode);
-	    } catch (Exception ex) {
-		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
-	} //                // the corpus link nodes are used but via the api.getlinks so dont log them here
-	//                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
-	//            if (debugOn && !fieldToAdd.xmlPath.contains("CorpusLink")) {
-	//                // the corpus link nodes are used but via the api.getlinks so dont log them here
-	//                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
-	//                if (namedNodeMap != null) {
-	//                    for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
-	//                        String attributeName = fieldToAdd.xmlPath + ":" + namedNodeMap.item(attributeCounter).getNodeName();
-	//                        // add all attributes even if they contain no value
-	//                        // TODO: check if this should be removed yet
-	//                        if (!listDiscardedOfAttributes.contains(attributeName) && !attributeName.endsWith(":id")) {
-	//                            // also ignore any id attributes that would have been attached to blank fields
-	//                            listDiscardedOfAttributes.add(attributeName);
-	//                        }
-	//                    }
-	//                }
-	//            }
+	}
 	fieldToAdd.finishLoading();
 	return nodeOrderCounter;
     }
