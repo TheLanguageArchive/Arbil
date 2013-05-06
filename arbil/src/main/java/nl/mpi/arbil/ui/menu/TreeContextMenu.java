@@ -174,7 +174,11 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	if (leadSelectedNode instanceof ArbilRootNode) {
 	    if (leadSelectedNode.equals((((DefaultMutableTreeNode) treeHelper.getFavouritesTreeModel().getRoot()).getUserObject()))) {
+		// Selected node is Favourites root node
 		importExportFavouritesMenuItem.setVisible(true);
+
+		groupFavouritesMenuItem.setState(treeHelper.isGroupFavouritesByType());
+		groupFavouritesMenuItem.setVisible(true);
 	    }
 	}
 
@@ -306,6 +310,18 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    }
 	});
 	addItem(CATEGORY_NODE, PRIORITY_MIDDLE + 5, reloadSubnodesMenuItem);
+
+	groupFavouritesMenuItem.setText("Group Favourites by Type");//java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW HIDDEN FILES"));
+	groupFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		try {
+		    treeHelper.setGroupFavouritesByType(groupFavouritesMenuItem.getState());
+		} catch (Exception ex) {
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	});
+	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_TOP, groupFavouritesMenuItem);
 
 	addMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD"));
 	addMenu.addMenuListener(new javax.swing.event.MenuListener() {
@@ -510,7 +526,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	addItem(CATEGORY_WORKING_DIR, PRIORITY_MIDDLE, showHiddenFilesMenuItem);
+	addItem(CATEGORY_WORKING_DIR, PRIORITY_MIDDLE + 5, showHiddenFilesMenuItem);
 
 	removeLocalDirectoryMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("REMOVE LINK TO DIRECTORY"));
 	removeLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -780,6 +796,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	addFromFavouritesMenu.setVisible(false);
 	addResourcesFavouritesMenu.setVisible(false);
 	importExportFavouritesMenuItem.setVisible(false);
+	groupFavouritesMenuItem.setVisible(false);
 	//viewChangesMenuItem.setVisible(false);
 	//sendToServerMenuItem.setVisible(false);
 	validateMenuItem.setVisible(false);
@@ -801,6 +818,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     private JMenuItem addResourcesFavouritesMenu = new JMenuItem();
     private JMenuItem addLocalDirectoryMenuItem = new JMenuItem();
     private JCheckBoxMenuItem showHiddenFilesMenuItem = new JCheckBoxMenuItem();
+    private JCheckBoxMenuItem groupFavouritesMenuItem = new JCheckBoxMenuItem();
     private JMenuItem addDefaultLocationsMenuItem = new JMenuItem();
     private JMenu addMenu = new JMenu();
     private JMenuItem addRemoteCorpusMenuItem = new JMenuItem();

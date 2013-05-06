@@ -242,6 +242,11 @@ public class ArbilField extends HistoryField implements Serializable {
         return getFullXmlPath().replaceAll("\\(\\d*?\\)", "(x)").replaceFirst("\\(x\\)$", "");
     }
 
+    @Override
+    public String getPath() {
+        return getFullXmlPath();
+    }
+
     public String getFullXmlPath() {
         String returnValue;
         String[] pathStringArray = this.getParentDataNode().getUrlString().split("#");

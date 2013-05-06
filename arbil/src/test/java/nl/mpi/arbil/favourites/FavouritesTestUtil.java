@@ -72,7 +72,9 @@ public class FavouritesTestUtil {
 		will(returnValue(false));
 	    }
 	});
-	final DataNodeLoader loader = new DefaultDataNodeLoader(new DataNodeLoaderThreadManager());
+	final DataNodeLoader loader = new DefaultDataNodeLoader(new DataNodeLoaderThreadManager()) {
+	    // sort of broken extension since we don't set a ArbilDataNodeService; not needed here though since we only "get without loading"
+	};
 	return loader;
     }
 }

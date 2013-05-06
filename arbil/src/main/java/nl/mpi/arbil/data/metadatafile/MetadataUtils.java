@@ -18,13 +18,15 @@
 package nl.mpi.arbil.data.metadatafile;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import nl.mpi.arbil.ArbilMetadataException;
 
 /**
- *  Document   : MetadataUtils
- *  Created on : May 22, 2010, 7:56:46 AM
- *  Author     : Peter Withers
+ * Document : MetadataUtils
+ * Created on : May 22, 2010, 7:56:46 AM
+ * Author : Peter Withers
  */
 public interface MetadataUtils {
 
@@ -34,7 +36,26 @@ public interface MetadataUtils {
 
     public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks);
 
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws ArbilMetadataException;
+    public void copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws IOException, ArbilMetadataException;
 
-    public URI[] getCorpusLinks(URI nodeURI) throws ArbilMetadataException;
+    public MetadataLinkSet getCorpusLinks(URI nodeURI) throws ArbilMetadataException;
+
+    public class MetadataLinkSet {
+
+	private final List<URI> resourceLinks;
+	private final List<URI> metadataLinks;
+
+	public MetadataLinkSet(List<URI> resourceLinks, List<URI> metadataLinks) {
+	    this.resourceLinks = resourceLinks;
+	    this.metadataLinks = metadataLinks;
+	}
+
+	public List<URI> getResourceLinks() {
+	    return resourceLinks;
+	}
+
+	public List<URI> getMetadataLinks() {
+	    return metadataLinks;
+	}
+    }
 }

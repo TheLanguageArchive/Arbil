@@ -36,7 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages the loader threads and queues for loading ArbilDataNodes.
+ * Manages the loader threads and queues for loading ArbilDataNodes. It also has the implementation of the actual loading threads. Structure
+ * and relation between this class and te DataNodeLoader should to be reconsidered.
  * Used by DataNodeLoader.
  *
  * @see nl.mpi.arbil.data.DataNodeLoader

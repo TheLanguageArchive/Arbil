@@ -91,8 +91,10 @@ public class FavouritesExporterImpl implements FavouritesExporter {
 	    final MetadataUtils mdUtils = ArbilDataNode.getMetadataUtils(targetFileUri.toString());
 	    // Copy file using metadata utils
 	    mdUtils.copyMetadataFile(sourceFileUri, new File(targetFileUri), null, false);
-	} catch (ArbilMetadataException ex) {
+	} catch (IOException ex) {
 	    throw new FavouritesImportExportException("Could not copy metadata file", ex);
+	} catch (ArbilMetadataException ex) {
+	    throw new FavouritesImportExportException("Could not process metadata file", ex);
 	} catch (URISyntaxException ex) {
 	    throw new FavouritesImportExportException("Invalid target URI", ex);
 	}

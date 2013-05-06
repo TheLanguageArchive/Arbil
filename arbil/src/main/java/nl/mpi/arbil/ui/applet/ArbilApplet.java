@@ -20,9 +20,9 @@ package nl.mpi.arbil.ui.applet;
 import javax.swing.SwingUtilities;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ArbilVersion;
-import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.BugCatcherManager;
 
@@ -32,7 +32,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilApplet extends javax.swing.JApplet {
-
+    
     @Override
     public void init() {
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
@@ -45,9 +45,9 @@ public class ArbilApplet extends javax.swing.JApplet {
 		    //injector.injectDefaultHandlers();
 		    mainSplitPane = new javax.swing.JSplitPane();
 		    getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
-		    previewSplitPanel = PreviewSplitPanel.getInstance();
+		    previewSplitPanel = new PreviewSplitPanel(injector.getWindowManager(), injector.getTableController());
 		    mainSplitPane.setRightComponent(previewSplitPanel);
-		    arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController());
+		    arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), previewSplitPanel, null);
 		    mainSplitPane.setLeftComponent(arbilTreePanels);
 		    previewSplitPanel.setPreviewPanel(true);
 		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel, ArbilApplet.this, new ArbilLogConfigurer(new ArbilVersion(), "arbil-applet-log"));
@@ -62,7 +62,7 @@ public class ArbilApplet extends javax.swing.JApplet {
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
-
+    
     public void start() {
     }
     private javax.swing.JSplitPane mainSplitPane;

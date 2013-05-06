@@ -56,7 +56,6 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.NodeCreationCallback;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
@@ -357,23 +356,27 @@ public class ArbilTableController implements TableController {
     public synchronized void addFieldFromPlaceholder(final ArbilTable table, final int selectedFieldIndex, ArbilFieldPlaceHolder placeholder) {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
 	final ArbilDataNode dataNode = placeholder.getArbilDataNode();
+	if (dataNode.isEditable()) {
 
-	final ArbilField columnField = tableModel.getColumnField(selectedFieldIndex);
-	final String xmlPath = columnField.getGenericFullXmlPath();
+	    final ArbilField columnField = tableModel.getColumnField(selectedFieldIndex);
+	    final String xmlPath = columnField.getGenericFullXmlPath();
 
-	final MetadataBuilder metadataBuilder = new MetadataBuilder();
-	final boolean canContainField = metadataBuilder.canAddChildNode(dataNode, xmlPath);
-	if (canContainField) {
-	    if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?\nThis will save pending changes.", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
-		try {
-		    addChildNodeForFieldFromPlaceholder(metadataBuilder, dataNode, columnField, xmlPath);
-		} catch (ArbilMetadataException mdEx) {
-		    logger.error("Error while trying to create field", mdEx);
-		    dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details.", "Error");
+	    final MetadataBuilder metadataBuilder = new MetadataBuilder();
+	    final boolean canContainField = metadataBuilder.canAddChildNode(dataNode, xmlPath);
+	    if (canContainField) {
+		if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?\nThis will save pending changes.", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
+		    try {
+			addChildNodeForFieldFromPlaceholder(metadataBuilder, dataNode, columnField, xmlPath);
+		    } catch (ArbilMetadataException mdEx) {
+			logger.error("Error while trying to create field", mdEx);
+			dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details.", "Error");
+		    }
 		}
+	    } else {
+		dialogHandler.addMessageDialogToQueue(String.format("The node '%s' cannot contain a field of the same type as '%s' in '%s'", dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), "Insert field");
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue(String.format("The node '%s' cannot contain a field of the same type as '%s' in '%s'", dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), "Insert field");
+	    logger.debug("Data node {} is not editable. Will not attempt to instantiate greyed out field", dataNode);
 	}
     }
 
@@ -461,6 +464,42 @@ public class ArbilTableController implements TableController {
 	    }
 	}
 	return null;
+    }
+
+    public void copySelectedTableRowsToClipBoard(ArbilTable table) {
+	int[] selectedRows = table.getSelectedRows();
+	// only copy if there is at lease one row selected
+	if (selectedRows.length > 0) {
+	    logger.debug("coll select mode: {}", table.getColumnSelectionAllowed());
+	    logger.debug("cell select mode: {}", table.getCellSelectionEnabled());
+	    // when a user selects a cell and uses ctrl+a to change the selection the selection mode does not change from cell to row allCellsSelected is to resolve this error
+	    boolean allCellsSelected = table.getSelectedRowCount() == table.getRowCount() && table.getSelectedColumnCount() == table.getColumnCount();
+	    final ArbilTableModel arbilTableModel = table.getArbilTableModel();
+	    if (table.getCellSelectionEnabled() && !allCellsSelected) {
+		logger.debug("cell select mode");
+		ArbilField[] selectedFields = table.getSelectedFields();
+		if (selectedFields != null) {
+		    arbilTableModel.copyArbilFields(selectedFields);
+		}
+	    } else {
+		logger.debug("row select mode");
+		arbilTableModel.copyArbilRows(selectedRows);
+	    }
+	} else {
+	    dialogHandler.addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
+	}
+    }
+
+    public void pasteIntoSelectedTableRowsFromClipBoard(ArbilTable table) {
+	ArbilField[] selectedFields = table.getSelectedFields();
+	if (selectedFields != null) {
+	    String pasteResult = table.getArbilTableModel().pasteIntoArbilFields(selectedFields);
+	    if (pasteResult != null) {
+		dialogHandler.addMessageDialogToQueue(pasteResult, "Paste into Table");
+	    }
+	} else {
+	    dialogHandler.addMessageDialogToQueue("No rows selected", "Paste into Table");
+	}
     }
 
     @Override

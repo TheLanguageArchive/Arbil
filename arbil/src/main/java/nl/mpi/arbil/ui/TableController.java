@@ -81,5 +81,9 @@ public interface TableController {
     void startLongFieldEditorForSelectedFields(ArbilTable table);
 
     void viewSelectedTableRows(ArbilTable table);
+
+    void copySelectedTableRowsToClipBoard(ArbilTable table);
+
+    void pasteIntoSelectedTableRowsFromClipBoard(ArbilTable table);
     
 }

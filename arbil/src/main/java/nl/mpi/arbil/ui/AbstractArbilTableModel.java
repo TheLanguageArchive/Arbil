@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.SwingUtilities;
@@ -70,6 +71,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private String[] columnNames = new String[0];
     private Color cellColour[][] = new Color[0][0];
     private ArbilField[] displayedColumnFields;
+    private boolean forceHorizontalView = false;
 
     public AbstractArbilTableModel(ArbilFieldView tableFieldView) {
 	this.tableFieldView = tableFieldView;
@@ -559,7 +561,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private void updateViewOrientation(ArbilDataNode[] tableRowsArbilArray) {
 	// set the view to either horizontal or vertical and set the default sort
 	boolean lastHorizontalView = isHorizontalView();
-	horizontalView = tableRowsArbilArray.length > 1;
+	horizontalView = forceHorizontalView || tableRowsArbilArray.length > 1;
 	if (!isHorizontalView()) {
 	    // set the table for a single image if that is all that is shown
 	    //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
@@ -627,7 +629,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    final int childColumnsIndex = columnNamesTemp.length - getChildColumnNames().size();
 	    for (ArbilDataNode currentNode : tableRowsArbilArray) {
 		//                logger.debug("currentNode: " + currentNode.toString());
-		Hashtable<String, ArbilField[]> fieldsHash = currentNode.getFields();
+		Map<String, ArbilField[]> fieldsHash = currentNode.getFields();
 		if (isShowIcons()) {
 		    // First column contains node icon
 		    newData[rowCounter][0] = new ArbilDataNodeTableCell(currentNode);
@@ -683,11 +685,10 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		newData = allocateCellData(0, columnNamesTemp.length);
 	    } else {
 		if (tableRowsArbilArray[0] != null) {
-		    Hashtable<String, ArbilField[]> fieldsHash = tableRowsArbilArray[0].getFields();
+		    Map<String, ArbilField[]> fieldsMap = tableRowsArbilArray[0].getFields();
 		    // calculate the real number of rows
 		    Vector<ArbilField> allRowFields = new Vector();
-		    for (Enumeration<ArbilField[]> valuesEnum = fieldsHash.elements(); valuesEnum.hasMoreElements();) {
-			ArbilField[] currentFieldArray = valuesEnum.nextElement();
+		    for (ArbilField[] currentFieldArray : fieldsMap.values()) {
 			for (ArbilField currentField : currentFieldArray) {
 			    if (currentField.xmlPath.length() > 0) {
 				// prevent non fields being displayed
@@ -860,6 +861,10 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
      */
     protected int getSortColumn() {
 	return sortColumn;
+    }
+
+    public void setForceHorizontalView(boolean forceHorizontalView) {
+	this.forceHorizontalView = forceHorizontalView;
     }
 
 //    private class TableRowComparator implements Comparator<ImdiField[]> {

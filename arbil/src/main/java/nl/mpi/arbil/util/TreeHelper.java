@@ -24,9 +24,7 @@ package nl.mpi.arbil.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
 
@@ -94,6 +92,8 @@ public interface TreeHelper {
      * @return the showHiddenFilesInTree
      */
     boolean isShowHiddenFilesInTree();
+    
+    boolean isGroupFavouritesByType();
 
     void jumpToSelectionInTree(boolean silent, ArbilDataNode cellDataNode);
 
@@ -114,4 +114,6 @@ public interface TreeHelper {
     void saveLocations(ArbilDataNode[] nodesToAdd, ArbilDataNode[] nodesToRemove);
 
     void setShowHiddenFilesInTree(boolean showState);
+    
+    void setGroupFavouritesByType(boolean groupFavouritesByType);
 }

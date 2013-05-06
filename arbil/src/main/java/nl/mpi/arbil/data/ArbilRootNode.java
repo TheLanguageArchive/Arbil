@@ -20,7 +20,6 @@ package nl.mpi.arbil.data;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 import javax.swing.ImageIcon;
 import nl.mpi.flap.model.FieldGroup;
 import nl.mpi.flap.model.PluginDataNode;
@@ -56,7 +55,7 @@ public abstract class ArbilRootNode extends ArbilNode {
         throw new UnsupportedOperationException();
     }
 
-    public void getAllChildren(Vector<ArbilDataNode> allChildren) {
+    public void getAllChildren(List<ArbilDataNode> allChildren) {
         throw new UnsupportedOperationException();
     }
 

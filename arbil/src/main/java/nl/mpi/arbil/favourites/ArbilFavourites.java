@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -43,107 +44,107 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFavourites implements FavouritesService {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilFavourites.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilFavourites.class);
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
-        messageDialogHandler = handler;
+	messageDialogHandler = handler;
     }
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-        sessionStorage = sessionStorageInstance;
+	sessionStorage = sessionStorageInstance;
     }
     private static TreeHelper treeHelper;
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
-        treeHelper = treeHelperInstance;
+	treeHelper = treeHelperInstance;
     }
     //    private Hashtable<String, ImdiTreeObject> userFavourites;
     static private ArbilFavourites singleInstance = null;
 
     static synchronized public ArbilFavourites getSingleInstance() {
-        if (singleInstance == null) {
-            singleInstance = new ArbilFavourites();
-        }
-        return singleInstance;
+	if (singleInstance == null) {
+	    singleInstance = new ArbilFavourites();
+	}
+	return singleInstance;
     }
 
     // this will load any favourites in the old format and delete the old format file
     // this is not used now but should be kept in case some users need to import locations from olde versions of the application
     public void convertOldFormatLocationListsX() {
-        try {
-            File oldLocationsFile = new File(sessionStorage.getProjectDirectory(), "locationsList");
-            File oldFavouritesFile = new File(sessionStorage.getProjectDirectory(), "selectedFavourites");
-            if (oldLocationsFile.exists()) {
-                Vector<String> locationsList = (Vector<String>) sessionStorage.loadObject("locationsList");
-                if (oldFavouritesFile.exists()) {
-                    Vector<String> userFavouritesStrings = (Vector<String>) sessionStorage.loadObject("selectedFavourites");
-                    locationsList.addAll(userFavouritesStrings);
-                    sessionStorage.saveStringArray("locationsList", locationsList.toArray(new String[]{}));
-                    oldFavouritesFile.deleteOnExit();
-                }
-                if (null == sessionStorage.loadStringArray("locationsList")) {
-                    sessionStorage.saveStringArray("locationsList", locationsList.toArray(new String[]{}));
-                }
-            }
-        } catch (Exception ex) {
-            BugCatcherManager.getBugCatcher().logError(ex);
-        }
+	try {
+	    File oldLocationsFile = new File(sessionStorage.getProjectDirectory(), "locationsList");
+	    File oldFavouritesFile = new File(sessionStorage.getProjectDirectory(), "selectedFavourites");
+	    if (oldLocationsFile.exists()) {
+		Vector<String> locationsList = (Vector<String>) sessionStorage.loadObject("locationsList");
+		if (oldFavouritesFile.exists()) {
+		    Vector<String> userFavouritesStrings = (Vector<String>) sessionStorage.loadObject("selectedFavourites");
+		    locationsList.addAll(userFavouritesStrings);
+		    sessionStorage.saveStringArray("locationsList", locationsList.toArray(new String[]{}));
+		    oldFavouritesFile.deleteOnExit();
+		}
+		if (null == sessionStorage.loadStringArray("locationsList")) {
+		    sessionStorage.saveStringArray("locationsList", locationsList.toArray(new String[]{}));
+		}
+	    }
+	} catch (Exception ex) {
+	    BugCatcherManager.getBugCatcher().logError(ex);
+	}
     }
 
-    public boolean toggleFavouritesList(ArbilDataNode[] dataNodeArray, boolean setAsTempate) {
-        logger.debug("toggleFavouriteList: {}", setAsTempate);
-        if (setAsTempate) {
-            boolean selectionNeedsSave = false;
-            for (ArbilDataNode currentNode : dataNodeArray) {
-                if (currentNode.getNeedsSaveToDisk(false)) {
-                    selectionNeedsSave = true;
-                }
-            }
-            if (selectionNeedsSave) {
-                messageDialogHandler.addMessageDialogToQueue("Changes must be saved before adding to the favourites.", "Add Favourites");
-                return false;
-            }
-        }
-        for (ArbilDataNode currentNode : dataNodeArray) {
-            if (setAsTempate && currentNode.isContainerNode()) {
-                // don't add this node, but do add its children (if there are any)
-                if (currentNode.getChildArray().length > 0) {
-                    toggleFavouritesList(currentNode.getChildArray(), true);
-                }
-            } else {
-                if (setAsTempate) {
-                    addAsFavourite(currentNode.getURI());
-                } else {
-                    removeFromFavourites(currentNode.getURI());
-                    // TODO: remove from any tables and update the tree roots
+    public boolean toggleFavouritesList(ArbilDataNode[] dataNodeArray, boolean setAsTempate) throws ArbilMetadataException {
+	logger.debug("toggleFavouriteList: {}", setAsTempate);
+	if (setAsTempate) {
+	    boolean selectionNeedsSave = false;
+	    for (ArbilDataNode currentNode : dataNodeArray) {
+		if (currentNode.getNeedsSaveToDisk(false)) {
+		    selectionNeedsSave = true;
+		}
+	    }
+	    if (selectionNeedsSave) {
+		messageDialogHandler.addMessageDialogToQueue("Changes must be saved before adding to the favourites.", "Add Favourites");
+		return false;
+	    }
+	}
+	for (ArbilDataNode currentNode : dataNodeArray) {
+	    if (setAsTempate && currentNode.isContainerNode()) {
+		// don't add this node, but do add its children (if there are any)
+		if (currentNode.getChildArray().length > 0) {
+		    toggleFavouritesList(currentNode.getChildArray(), true);
+		}
+	    } else {
+		if (setAsTempate) {
+		    addAsFavourite(currentNode.getURI());
+		} else {
+		    removeFromFavourites(currentNode.getURI());
+		    // TODO: remove from any tables and update the tree roots
 //                currentImdiObject.setFavouriteStatus(false);
-                }
-            }
-        }
-        return true;
+		}
+	    }
+	}
+	return true;
     }
 
     @Override
-    public void addAsFavourite(URI imdiUri) {
-        try {
-            URI baseUri = new URI(imdiUri.toString().split("#")[0]);
-            String fileSuffix = imdiUri.getPath().substring(imdiUri.getPath().lastIndexOf("."));
-            File destinationFile = File.createTempFile("fav-", fileSuffix, sessionStorage.getFavouritesDir());
-            ArbilDataNode.getMetadataUtils(baseUri.toString()).copyMetadataFile(baseUri, destinationFile, makeLinksAbsolute(imdiUri), true);
+    public void addAsFavourite(URI imdiUri) throws ArbilMetadataException {
+	try {
+	    URI baseUri = new URI(imdiUri.toString().split("#")[0]);
+	    String fileSuffix = imdiUri.getPath().substring(imdiUri.getPath().lastIndexOf("."));
+	    File destinationFile = File.createTempFile("fav-", fileSuffix, sessionStorage.getFavouritesDir());
+	    ArbilDataNode.getMetadataUtils(baseUri.toString()).copyMetadataFile(baseUri, destinationFile, makeLinksAbsolute(imdiUri), true);
 
-            URI copiedFileURI = destinationFile.toURI();
-            // creating a uri with separate parameters could cause the url to be reencoded
-            // hence this has been converted to use the string URI constuctor
+	    URI copiedFileURI = destinationFile.toURI();
+	    // creating a uri with separate parameters could cause the url to be reencoded
+	    // hence this has been converted to use the string URI constuctor
 //            URI favouriteUri = new URI(copiedFileURI.getScheme(), copiedFileURI.getUserInfo(), copiedFileURI.getHost(), copiedFileURI.getPort(), copiedFileURI.getPath(), copiedFileURI.getQuery(),
 //                    imdiUri.getFragment());
-            String uriString = copiedFileURI.toString().split("#")[0] /* fragment removed */;
-            if (imdiUri.getFragment() != null) {
-                uriString = uriString + "#" + imdiUri.getFragment();
-            }
-            URI favouriteUri = new URI(uriString);
+	    String uriString = copiedFileURI.toString().split("#")[0] /* fragment removed */;
+	    if (imdiUri.getFragment() != null) {
+		uriString = uriString + "#" + imdiUri.getFragment();
+	    }
+	    URI favouriteUri = new URI(uriString);
 //            if (!userFavourites.containsKey(favouriteUrlString)) {
 //                ImdiTreeObject favouriteImdiObject = GuiHelper.imdiLoader.getImdiObject(null, favouriteUrlString);
 //                userFavourites.put(favouriteUrlString, favouriteImdiObject);
@@ -151,11 +152,13 @@ public class ArbilFavourites implements FavouritesService {
 //                loadSelectedFavourites();
 //                favouriteImdiObject.setFavouriteStatus(true);
 //            }
-            treeHelper.addLocation(favouriteUri);
-            treeHelper.applyRootLocations();
-        } catch (Exception ex) {
-            BugCatcherManager.getBugCatcher().logError(ex);
-        }
+	    treeHelper.addLocation(favouriteUri);
+	    treeHelper.applyRootLocations();
+	} catch (ArbilMetadataException ex) {
+	    throw (ex);
+	} catch (Exception ex) {
+	    logger.error("Error while adding favourite", ex);
+	}
     }
 
     /**
@@ -165,32 +168,32 @@ public class ArbilFavourites implements FavouritesService {
      * @return update array for resource links with items for links that currently are not absolute. For IMDI will return null.
      */
     private URI[][] makeLinksAbsolute(URI imdiUri) {
-        List<URI[]> relativeLinks = null;
-        if (ArbilDataNode.isPathCmdi(imdiUri.toString())) {
-            relativeLinks = new ArrayList<URI[]>();
-            ArrayList<CmdiResourceLink> resourceLinks = new CmdiComponentLinkReader().readLinks(imdiUri);
-            for (CmdiResourceLink link : resourceLinks) {
-                try {
-                    final URI linkUri = link.getLinkUri();
-                    if (!linkUri.isAbsolute()) {
-                        relativeLinks.add(new URI[]{linkUri, link.getResolvedLinkUri()});
-                    }
-                } catch (URISyntaxException ex) {
-                    // resource proxy has syntax error in link. skip
-                    BugCatcherManager.getBugCatcher().logError(ex);
-                }
-            }
-        }
-        if (relativeLinks != null) {
-            return relativeLinks.toArray(new URI[][]{});
-        } else {
-            return null;
-        }
+	List<URI[]> relativeLinks = null;
+	if (ArbilDataNode.isPathCmdi(imdiUri.toString())) {
+	    relativeLinks = new ArrayList<URI[]>();
+	    ArrayList<CmdiResourceLink> resourceLinks = new CmdiComponentLinkReader().readLinks(imdiUri);
+	    for (CmdiResourceLink link : resourceLinks) {
+		try {
+		    final URI linkUri = link.getLinkUri();
+		    if (!linkUri.isAbsolute()) {
+			relativeLinks.add(new URI[]{linkUri, link.getResolvedLinkUri()});
+		    }
+		} catch (URISyntaxException ex) {
+		    // resource proxy has syntax error in link. skip
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	}
+	if (relativeLinks != null) {
+	    return relativeLinks.toArray(new URI[][]{});
+	} else {
+	    return null;
+	}
     }
 
     private void removeFromFavourites(URI imdiUri) {
-        treeHelper.removeLocation(imdiUri);
-        treeHelper.applyRootLocations();
+	treeHelper.removeLocation(imdiUri);
+	treeHelper.applyRootLocations();
     }
 
 //    public void saveSelectedFavourites() {
@@ -208,94 +211,94 @@ public class ArbilFavourites implements FavouritesService {
 //        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
 //    }
     public ArbilDataNode[] listFavouritesFor(Object targetNodeUserObject) {
-        logger.debug("listFavouritesFor: {}", targetNodeUserObject);
-        ArrayList<ArbilDataNode> validFavourites = new ArrayList<ArbilDataNode>();
-        if (targetNodeUserObject instanceof ArbilNode) {
-            ArbilDataNode targetDataNode = null;
+	logger.debug("listFavouritesFor: {}", targetNodeUserObject);
+	ArrayList<ArbilDataNode> validFavourites = new ArrayList<ArbilDataNode>();
+	if (targetNodeUserObject instanceof ArbilNode) {
+	    ArbilDataNode targetDataNode = null;
 
-            boolean targetIsDataNode = (targetNodeUserObject instanceof ArbilDataNode);
-            boolean targetIsLocalCorpusRoot;
-            if (targetIsDataNode) {
-                targetDataNode = (ArbilDataNode) targetNodeUserObject;
-                targetIsLocalCorpusRoot = false;
-            } else {
-                targetIsLocalCorpusRoot = targetNodeUserObject == ((DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot()).getUserObject();
-            }
+	    boolean targetIsDataNode = (targetNodeUserObject instanceof ArbilDataNode);
+	    boolean targetIsLocalCorpusRoot;
+	    if (targetIsDataNode) {
+		targetDataNode = (ArbilDataNode) targetNodeUserObject;
+		targetIsLocalCorpusRoot = false;
+	    } else {
+		targetIsLocalCorpusRoot = targetNodeUserObject == ((DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot()).getUserObject();
+	    }
 
-            boolean targetIsCorpus = targetIsDataNode && targetDataNode.isCorpus();
-            boolean targetIsSession = targetIsDataNode && targetDataNode.isSession();
-            boolean targetIsChildNode = targetIsDataNode && targetDataNode.isChildNode();
-            for (ArbilDataNode currentFavouritesObject : treeHelper.getFavouriteNodes()) {
-                boolean addThisFavourites = false;
-                if (targetIsLocalCorpusRoot) {
-                    // Local corpus root can only contain non-child nodes
-                    addThisFavourites = !currentFavouritesObject.isChildNode();
-                } else if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
-                    addThisFavourites = true;
-                } else if (targetIsSession && currentFavouritesObject.isChildNode()) {
-                    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
-                } else if (targetIsChildNode && currentFavouritesObject.isChildNode()) {
-                    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
-                }
-                if (addThisFavourites) {
+	    boolean targetIsCorpus = targetIsDataNode && targetDataNode.isCorpus();
+	    boolean targetIsSession = targetIsDataNode && targetDataNode.isSession();
+	    boolean targetIsChildNode = targetIsDataNode && targetDataNode.isChildNode();
+	    for (ArbilDataNode currentFavouritesObject : treeHelper.getFavouriteNodes()) {
+		boolean addThisFavourites = false;
+		if (targetIsLocalCorpusRoot) {
+		    // Local corpus root can only contain non-child nodes
+		    addThisFavourites = !currentFavouritesObject.isChildNode();
+		} else if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
+		    addThisFavourites = true;
+		} else if (targetIsSession && currentFavouritesObject.isChildNode()) {
+		    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
+		} else if (targetIsChildNode && currentFavouritesObject.isChildNode()) {
+		    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetDataNode, currentFavouritesObject);
+		}
+		if (addThisFavourites) {
 //                    logger.debug("adding: " + currentFavouritesObject);
-                    validFavourites.add(currentFavouritesObject);
-                } else {
-                    // imdi child favourites cannot be added to a corpus
-                    // sessions cannot be added to a session
+		    validFavourites.add(currentFavouritesObject);
+		} else {
+		    // imdi child favourites cannot be added to a corpus
+		    // sessions cannot be added to a session
 //                    logger.debug("omitting: " + currentFavouriteObject);
-                }
-            }
-        }
-        return validFavourites.toArray(new ArbilDataNode[0]);
+		}
+	    }
+	}
+	return validFavourites.toArray(new ArbilDataNode[0]);
     }
 
     public String getNodeType(ArbilDataNode favouriteNode, ArbilDataNode targetDataNode) {
-        // takes the source path and destination path and creates a complete combined path
-        // in:
-        // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(12).Languages.Language(5)
-        // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27)
-        // or in:
-        // favouriteXmlPath: .METATRANSCRIPT.Session.MDGroup.Actors.Actor(1)
-        // targetXmlPath:.METATRANSCRIPT.Session.MDGroup.Actors.Actor(3)
-        // out:
-        // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27).Languages.Language
+	// takes the source path and destination path and creates a complete combined path
+	// in:
+	// .METATRANSCRIPT.Session.MDGroup.Actors.Actor(12).Languages.Language(5)
+	// .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27)
+	// or in:
+	// favouriteXmlPath: .METATRANSCRIPT.Session.MDGroup.Actors.Actor(1)
+	// targetXmlPath:.METATRANSCRIPT.Session.MDGroup.Actors.Actor(3)
+	// out:
+	// .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27).Languages.Language
 
-        String favouriteXmlPath = favouriteNode.getURI().getFragment();
-        String targetXmlPath = targetDataNode.getURI().getFragment();
-        logger.debug("getNodeType: \nfavouriteXmlPath: {} targetXmlPath: {}", favouriteXmlPath, targetXmlPath);
-        String returnValue;
-        if (favouriteNode.isSession()) {
-            returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
-        } else if (favouriteNode.isCorpus()) {
-            returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus";
-        } else if (favouriteNode.isChildNode()) {
-            if (targetXmlPath == null) {
-                returnValue = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
-            } else {
-                // pass the (x) values on in the return value
-                logger.debug("targetXmlPath: {}", targetXmlPath);
-                logger.debug("favouriteXmlPath: {}", favouriteXmlPath);
-                favouriteXmlPath = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
-                String[] splitFavouriteXmlPath = favouriteXmlPath.split("\\)");
-                String[] splitTargetXmlPath = targetXmlPath.split("\\)");
-                logger.debug("splitFavouriteXmlPath: {} splitTargetXmlPath: {}", splitFavouriteXmlPath.length, splitTargetXmlPath.length);
-                returnValue = "";
-                for (int partCounter = 0; partCounter < splitFavouriteXmlPath.length; partCounter++) {
-                    if (splitTargetXmlPath.length > partCounter) {
-                        returnValue = returnValue.concat(splitTargetXmlPath[partCounter] + ")");
-                    } else {
-                        returnValue = returnValue.concat(splitFavouriteXmlPath[partCounter] + ")");
-                    }
-                }
-                returnValue = returnValue.replaceAll("\\)$", "");
-                returnValue = returnValue.replaceAll("\\(\\d*?$", "");
-            }
-        } else {
-            returnValue = null;
-        }
-        logger.debug("getNodeTypeReturnValue: {}", returnValue);
-        return returnValue;
+	String favouriteXmlPath = favouriteNode.getURI().getFragment();
+	String targetXmlPath = targetDataNode.getURI().getFragment();
+	logger.debug("getNodeType: \nfavouriteXmlPath: {} targetXmlPath: {}", favouriteXmlPath, targetXmlPath);
+	String returnValue;
+	if (favouriteNode.isSession()) {
+	    returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
+	} else if (favouriteNode.isCorpus()) {
+	    returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus";
+	} else if (favouriteNode.isChildNode()) {
+	    if (targetXmlPath == null) {
+		returnValue = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
+	    } else {
+		// pass the (x) values on in the return value
+		logger.debug("targetXmlPath: {}", targetXmlPath);
+		logger.debug("favouriteXmlPath: {}", favouriteXmlPath);
+		favouriteXmlPath = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
+		String[] splitFavouriteXmlPath = favouriteXmlPath.split("\\)");
+		String[] splitTargetXmlPath = targetXmlPath.split("\\)");
+		logger.debug("splitFavouriteXmlPath: {} splitTargetXmlPath: {}", splitFavouriteXmlPath.length, splitTargetXmlPath.length);
+		returnValue = "";
+		for (int partCounter = 0; partCounter < splitFavouriteXmlPath.length; partCounter++) {
+		    if (splitTargetXmlPath.length > partCounter) {
+			returnValue = returnValue.concat(splitTargetXmlPath[partCounter] + ")");
+		    } else {
+			returnValue = returnValue.concat(splitFavouriteXmlPath[partCounter] + ")");
+		    }
+		}
+		returnValue = returnValue.replaceAll("\\)$", "");
+		returnValue = returnValue.replaceAll("\\(\\d*?$", "");
+	    }
+	} else {
+	    returnValue = null;
+	}
+	logger.debug("getNodeTypeReturnValue: {}", returnValue);
+	return returnValue;
     }
 //    public void mergeFromFavourite(ImdiTreeObject targetImdiObject, ImdiTreeObject favouriteImdiObject, boolean overwriteValues) {
 ////        logger.debug("mergeFromFavourite: " + addedNodeUrl + " : " + imdiTemplateUrl);

@@ -25,6 +25,7 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -48,7 +49,6 @@ import nl.mpi.arbil.favourites.ArbilFavourites;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,47 +62,24 @@ import org.slf4j.LoggerFactory;
 public class ArbilDragDrop {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilDragDrop.class);
-    private static SessionStorage sessionStorage;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
-    private static ArbilDragDrop singleInstance = null;
-
-    static synchronized public ArbilDragDrop getSingleInstance() {
-	if (singleInstance == null) {
-	    singleInstance = new ArbilDragDrop();
-	}
-	return singleInstance;
-    }
-    private static ArbilTreeHelper treeHelper;
-
-    public static void setTreeHelper(TreeHelper treeHelperInstance) {
-	if (treeHelperInstance instanceof ArbilTreeHelper) {
-	    treeHelper = (ArbilTreeHelper) treeHelperInstance;
-	} else {
-	    throw new RuntimeException("ArbilDragDrop requires ArbilTreeHelper, found " + treeHelperInstance.getClass());
-	}
-
-    }
-    private static WindowManager windowManager;
-
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
-    private static MessageDialogHandler dialogHandler;
-
-    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
-	dialogHandler = dialogHandlerInstance;
-    }
-
-    private ArbilDragDrop() {
-	dataNodeFlavour = new DataFlavor(ArbilDataNode.class, "ArbilDataNode");
-	arbilNodeSelection = new ArbilNodeSelection();
-    }
+    private final SessionStorage sessionStorage;
+    private final ArbilTreeHelper treeHelper;
+    private final WindowManager windowManager;
+    private final MessageDialogHandler dialogHandler;
+    private final TableController tableController;
     // There are numerous limitations of drag and drop in 1.5 and to overcome the resulting issues we need to share the same transferable object on both the drag source and the drop target
-    private DataFlavor dataNodeFlavour;
-    private ArbilNodeSelection arbilNodeSelection;
+    private final DataFlavor dataNodeFlavour;
+    private final ArbilNodeSelection arbilNodeSelection;
+
+    public ArbilDragDrop(SessionStorage sessionStorage, ArbilTreeHelper treeHelper, WindowManager windowManager, MessageDialogHandler dialogHandler, TableController tableController) {
+	this.sessionStorage = sessionStorage;
+	this.treeHelper = treeHelper;
+	this.windowManager = windowManager;
+	this.dialogHandler = dialogHandler;
+	this.tableController = tableController;
+	this.dataNodeFlavour = new DataFlavor(ArbilDataNode.class, "ArbilDataNode");
+	this.arbilNodeSelection = new ArbilNodeSelection();
+    }
 
     public void addDrag(JTable tableSource) {
 	tableSource.setDragEnabled(true);
@@ -247,7 +224,7 @@ public class ArbilDragDrop {
 		}
 	    } else if (comp instanceof ArbilTable) {
 		ArbilTable sourceTable = (ArbilTable) comp;
-		sourceTable.copySelectedTableRowsToClipBoard();
+		tableController.copySelectedTableRowsToClipBoard(sourceTable);
 	    } else {
 		super.exportToClipboard(comp, clip, action);
 	    }
@@ -467,7 +444,7 @@ public class ArbilDragDrop {
 	    try {
 		logger.debug("importData: {}", comp);
 		if (comp instanceof ArbilTable && draggedArbilNodes == null) {
-		    ((ArbilTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
+		    tableController.pasteIntoSelectedTableRowsFromClipBoard((ArbilTable) comp);
 		} else if (draggedArbilNodes != null) {
 		    return importNodes(comp);
 		}
@@ -506,9 +483,14 @@ public class ArbilDragDrop {
 		logger.debug("dragged: {}", draggedArbilNodes[draggedCounter]);
 	    }
 	    if (treeHelper.componentIsTheFavouritesTree(currentDropTarget)) {
-		// Target component is the favourites tree
-		boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedArbilNodes, true);
-		return resultValue;
+		try {
+		    // Target component is the favourites tree
+		    boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedArbilNodes, true);
+		    return resultValue;
+		} catch (ArbilMetadataException ex) {
+		    logger.error("Error while adding favourite", ex);
+		    return false;
+		}
 	    } else {
 		return importToLocalTree(dropTree);
 	    }
@@ -633,7 +615,12 @@ public class ArbilDragDrop {
 				    continueMove = !(moveMultiple && detailsOption == 3);
 				}
 				if (continueMove && (moveAll || detailsOption == 0)) {
-				    doMoveLocalNodes(dropTargetUserObject, dropTargetDataNode, currentNode, draggedCounter, arbilNodesDeleteList);
+				    try {
+					doMoveLocalNodes(dropTargetUserObject, dropTargetDataNode, currentNode, draggedCounter, arbilNodesDeleteList);
+				    } catch (IOException ex) {
+					logger.error("Error moving {}", currentNode, ex);
+					continueMove = dialogHandler.showConfirmDialogBox(String.format("Could not move %s due to error. See log for details. Continue moving nodes?", currentNode), "Error moving nodes");
+				    }
 				}
 			    }
 			}
@@ -664,7 +651,7 @@ public class ArbilDragDrop {
 	    return false;
 	}
 
-	private void doMoveLocalNodes(Object dropTargetUserObject, final ArbilDataNode dropTargetDataNode, final ArbilDataNode currentNode, int draggedCounter, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList) {
+	private void doMoveLocalNodes(Object dropTargetUserObject, final ArbilDataNode dropTargetDataNode, final ArbilDataNode currentNode, int draggedCounter, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList) throws IOException {
 	    boolean addNodeResult = false;
 	    if (dropTargetUserObject instanceof ArbilDataNode) {
 		if (dropTargetDataNode.isCorpus()) {

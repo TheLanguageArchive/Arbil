@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.mpi</groupId>
-    <artifactId>arbil</artifactId>
+    <artifactId>arbil-clavas</artifactId>
     <packaging>jar</packaging>
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
     <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
     <!--<version>${arbil.majorVersion}.${arbil.minorVersion}.33660-${arbil.branch}</version>-->
-    <name>Arbil</name>   
+    <name>Arbil CLAVAS</name>   
     
     <parent>
         <groupId>nl.mpi</groupId>
@@ -135,27 +135,27 @@
 		    </execution>
 		</executions>
 	    </plugin>	   
-	    <plugin>
-		<groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
-		<artifactId>svn-revision-number-maven-plugin</artifactId>
-		<version>1.13</version>
-		<executions>
-		    <execution>
-			<goals>
-			    <goal>revision</goal>
-			</goals>
-		    </execution>
-		</executions>
-		<configuration>
-		    <entries>
-			<entry>
-			    <path>${basedir}</path>
+            <plugin>
+                <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
+                <artifactId>svn-revision-number-maven-plugin</artifactId>
+                <version>1.13</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <entries>
+                        <entry>
+			    <path>${basedir}/src</path>
 			    <!-- this will populate "arbil.version.revision" -->
 			    <prefix>arbil.version</prefix>
-			</entry>
-		    </entries>
-		</configuration>
-	    </plugin>
+                        </entry>
+                    </entries>
+                </configuration>
+            </plugin>
 	    <plugin>
 		<!-- 
 		    License plugin checks for presence of license header in all source files (with some exceptions, see excludes below).
@@ -208,7 +208,7 @@
 	<dependency>
 	    <groupId>org.apache.xmlbeans</groupId>
 	    <artifactId>xmlbeans</artifactId>
-	    <version>2.4.0</version>
+	    <version>2.6.0</version>
 	    <scope>compile</scope>
 	</dependency>
 	<dependency>
@@ -247,12 +247,12 @@
 	<dependency>
 	    <groupId>net.sf.saxon</groupId>
 	    <artifactId>Saxon-HE</artifactId>
-	    <version>9.4</version>
+	    <version>9.4.0.7</version>
 	</dependency>
 	<dependency>
 	    <groupId>xerces</groupId>
 	    <artifactId>xercesImpl</artifactId>
-	    <version>2.9.0</version>
+	    <version>2.11.0</version>
 	</dependency>
 	<dependency>
 	    <groupId>xalan</groupId>
@@ -262,7 +262,7 @@
 	<dependency>
 	    <groupId>commons-digester</groupId>
 	    <artifactId>commons-digester</artifactId>
-	    <version>2.0</version>
+	    <version>2.1</version>
 	</dependency>
 	<dependency>
 	    <groupId>nl.mpi</groupId>

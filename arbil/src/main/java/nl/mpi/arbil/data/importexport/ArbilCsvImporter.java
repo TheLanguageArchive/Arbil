@@ -21,7 +21,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.Map;
 import java.util.StringTokenizer;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -122,7 +122,7 @@ public class ArbilCsvImporter {
                         String nodeType = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
                         ArbilDataNode addedImdiObject = dataNodeLoader.getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode, nodeType, null, null, null));
                         addedImdiObject.waitTillLoaded();
-                        Hashtable<String, ArbilField[]> addedNodesFields = addedImdiObject.getFields();
+                        Map<String, ArbilField[]> addedNodesFields = addedImdiObject.getFields();
                         String[] currentLineArray = currentLine.split(fileType);
                         cleanQuotes(currentLineArray, fileType);
                         for (int columnCounter = 0; columnCounter < csvHeaders.length && columnCounter < currentLineArray.length; columnCounter++) {

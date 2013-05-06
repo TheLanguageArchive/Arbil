@@ -47,9 +47,10 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilNodeSearchPanel.class);
     private ArbilNodeSearchPanel thisPanel = this;
-    private JInternalFrame parentFrame;
-    private ArbilTableModel resultsTableModel;
-    private ArbilNode[] selectedNodes;
+    private final JInternalFrame parentFrame;
+    private final ArbilTableModel resultsTableModel;
+    private final ArbilTable table;
+    private final ArbilNode[] selectedNodes;
     private JPanel searchTermsPanel;
     private JPanel inputNodePanel;
     private JProgressBar searchProgressBar;
@@ -59,11 +60,11 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     private ArbilSearch searchService;
     private Thread searchThread = null;
 
-    public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ArbilTableModel resultsTableModelLocal, ArbilNode[] localSelectedNodes) {
-	parentFrame = parentFrameLocal;
-	resultsTableModel = resultsTableModelLocal;
-	selectedNodes = localSelectedNodes.clone();
-	searchTermsPanel = new JPanel();
+    public ArbilNodeSearchPanel(JInternalFrame parentFrame, ArbilTable table, ArbilNode[] selectedNodes) {
+	this.parentFrame = parentFrame;
+	this.table = table;
+	this.resultsTableModel = table.getArbilTableModel();
+	this.selectedNodes = selectedNodes.clone();
 
 	setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -136,6 +137,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     }
 
     private void initSearchTermsPanel() {
+	searchTermsPanel = new JPanel();
 	searchTermsPanel.setLayout(new BoxLayout(searchTermsPanel, BoxLayout.PAGE_AXIS));
 	// check if this search includes remote nodes
 	boolean remoteSearch = false;
@@ -310,9 +312,11 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 			searchProgressBar.setMaximum(1000);
 			searchButton.setEnabled(true);
 			stopButton.setEnabled(false);
+			table.setDeferColumnWidthUpdates(false);
 		    }
 		});
 	    } catch (InterruptedException ex) {
+		Thread.currentThread().interrupt();
 	    } catch (InvocationTargetException ex) {
 	    }
 	}
@@ -324,9 +328,12 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 			searchProgressBar.setIndeterminate(true);
 			searchProgressBar.setMinimum(0);
 			searchProgressBar.setMaximum(searchService.getTotalNodesToSearch());
+			table.setColumnWidths();
+			table.setDeferColumnWidthUpdates(true);
 		    }
 		});
 	    } catch (InterruptedException ex) {
+		Thread.currentThread().interrupt();
 	    } catch (InvocationTargetException ex) {
 	    }
 	}

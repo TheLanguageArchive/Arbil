@@ -85,8 +85,8 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilComponentBuilder {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilComponentBuilder.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilComponentBuilder.class);
     public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
     public static final String RESOURCE_ID_PREFIX = "res_";
     private static MessageDialogHandler messageDialogHandler;
@@ -177,11 +177,8 @@ public class ArbilComponentBuilder {
 //            File cmdiNodeFile = imdiTreeObject.getFile();
 //            String nodeFragment = "";
 
-	    String resourceProxyId = null;
-	    CmdiComponentLinkReader linkReader = arbilDataNode.getParentDomNode().cmdiComponentLinkReader;
-	    if (linkReader != null) {
-		resourceProxyId = linkReader.getProxyId(resourceNode.getUrlString());
-	    }
+	    final CmdiComponentLinkReader linkReader = arbilDataNode.getParentDomNode().getCmdiComponentLinkReader();
+	    String resourceProxyId = linkReader.getProxyId(resourceNode.getUrlString());
 	    boolean newResourceProxy = (resourceProxyId == null);
 	    if (newResourceProxy) {
 		// generate a uuid for new resource
@@ -478,7 +475,7 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    public boolean setFieldValues(ArbilDataNode arbilDataNode, FieldUpdateRequest[] fieldUpdates) {
+    public boolean setFieldValues(ArbilDataNode arbilDataNode, Collection<FieldUpdateRequest> fieldUpdates) {
 	synchronized (arbilDataNode.getParentDomLockObject()) {
 	    //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
 	    logger.debug("setFieldValues: " + arbilDataNode);
@@ -516,7 +513,7 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    private boolean doFieldUpdates(FieldUpdateRequest[] fieldUpdates, Document targetDocument, ArbilDataNode arbilDataNode) throws DOMException, TransformerException {
+    private boolean doFieldUpdates(Collection<FieldUpdateRequest> fieldUpdates, Document targetDocument, ArbilDataNode arbilDataNode) throws DOMException, TransformerException {
 	for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
 	    logger.debug("currentFieldUpdate: {}", currentFieldUpdate.fieldPath);
 	    // todo: search for and remove any reource links referenced by this node or its sub nodes
@@ -1085,7 +1082,6 @@ public class ArbilComponentBuilder {
 		}
 	    }
 	}
-	BugCatcherManager.getBugCatcher().logError(new Exception("Xpath issue, no node found for: " + targetXpath));
 	return null;
     }
 
@@ -1096,9 +1092,9 @@ public class ArbilComponentBuilder {
 	    // convert the syntax inherited from the imdi api into xpath
 	    // Because most imdi files use a name space syntax we need to try both queries
 	    return new String[]{
-			targetXpath.replaceAll("\\.", "/"),
-			targetXpath.replaceAll("\\.@([^.]*)$", "/@$1").replaceAll("\\.", "/:") // Attributes (.@) should not get colon hence the two steps
-		    };
+		targetXpath.replaceAll("\\.", "/"),
+		targetXpath.replaceAll("\\.@([^.]*)$", "/@$1").replaceAll("\\.", "/:") // Attributes (.@) should not get colon hence the two steps
+	    };
 	}
 
     }
@@ -1201,7 +1197,11 @@ public class ArbilComponentBuilder {
 	    try {
 		documentNode = selectSingleNode(targetDocument, targetXpath);
 	    } catch (TransformerException exception) {
-		BugCatcherManager.getBugCatcher().logError(exception);
+		logger.error("Transformer exception while looking op node at path {} in target document {}", targetXpath, targetDocument.getBaseURI(), exception);
+		return false;
+	    }
+	    if (documentNode == null) {
+		logger.debug("Target document {} does not have a node at path {}", targetDocument.getBaseURI(), targetXpath);
 		return false;
 	    }
 	}
@@ -1330,7 +1330,7 @@ public class ArbilComponentBuilder {
     }
 
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile, boolean addDummyData) {
-	logger.debug("createComponentFile: {}: {}",cmdiNodeFile, xsdFile);
+	logger.debug("createComponentFile: {}: {}", cmdiNodeFile, xsdFile);
 	try {
 	    Document workingDocument = getNewDocument();
 	    readSchema(workingDocument, xsdFile, addDummyData);

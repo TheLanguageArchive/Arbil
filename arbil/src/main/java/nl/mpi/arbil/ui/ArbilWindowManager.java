@@ -157,11 +157,16 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     public void setTableController(TableController tableController) {
 	this.tableController = tableController;
     }
+    private ArbilDragDrop dragDrop;
+
+    public void setDragDrop(ArbilDragDrop dragDrop) {
+	this.dragDrop = dragDrop;
+	dragDrop.setTransferHandlerOnComponent(desktopPane);
+    }
 
     public ArbilWindowManager() {
 	desktopPane = new JDesktopPane();
 	desktopPane.setBackground(new java.awt.Color(204, 204, 204));
-	ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(desktopPane);
     }
 
     public void setMessagesCanBeShown(boolean messagesCanBeShown) {
@@ -1199,14 +1204,15 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	    public void run() {
 		// Create tabel with model and split panel to show it in
 		ArbilTableModel resultsTableModel = new ArbilTableModel(imageBoxRenderer);
+		resultsTableModel.setForceHorizontalView(true);
 		ArbilTable arbilTable = new ArbilTable(resultsTableModel, tableController, frameTitle);
 		arbilTable.setAllowNodeDrop(false);
-		ArbilSplitPanel tablePanel = new ArbilSplitPanel(arbilTable);
+		ArbilSplitPanel tablePanel = new ArbilSplitPanel(sessionStorage, treeHelper, dragDrop, arbilTable);
 
 		// Create window with search table in center
 		JInternalFrame searchFrame = ArbilWindowManager.this.createWindow(frameTitle, tablePanel);
 		// Add search panel above
-		ArbilNodeSearchPanel searchPanel = new ArbilNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes);
+		ArbilNodeSearchPanel searchPanel = new ArbilNodeSearchPanel(searchFrame, arbilTable, selectedNodes);
 		searchFrame.add(searchPanel, BorderLayout.NORTH);
 
 		// Prepare table panel and window for display
@@ -1399,7 +1405,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	}
 	ArbilTableModel arbilTableModel = fieldView == null ? new ArbilTableModel(imageBoxRenderer) : new ArbilTableModel(fieldView, imageBoxRenderer);
 	ArbilTable arbilTable = new ArbilTable(arbilTableModel, tableController, frameTitle);
-	ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
+	ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(sessionStorage, treeHelper, dragDrop, arbilTable);
 	arbilTableModel.addArbilDataNodes(rowNodesArray);
 	arbilSplitPanel.setSplitDisplay();
 	JInternalFrame tableFrame = this.createWindow(frameTitle, arbilSplitPanel);

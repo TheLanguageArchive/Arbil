@@ -43,7 +43,6 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
-import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.flap.plugin.PluginArbilTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,18 +58,14 @@ public class ArbilTable extends JTable implements PluginArbilTable {
     public final static int MIN_COLUMN_WIDTH = 50;
     public final static int MAX_COLUMN_WIDTH = 300;
     private final static Logger logger = LoggerFactory.getLogger(ArbilTable.class);
-    private static MessageDialogHandler dialogHandler;
-
-    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
-	dialogHandler = dialogHandlerInstance;
-    }
     private final ArbilTableModel arbilTableModel;
+    private final TableController tableController;
     private final JListToolTip listToolTip = new JListToolTip();
     private int lastColumnCount = -1;
     private int lastRowCount = -1;
     private int lastColumnPreferedWidth = 0;
+    private boolean deferColumnWidthUpdates = false;
     protected boolean allowNodeDrop = true;
-    private final TableController tableController;
 
     public ArbilTable(ArbilTableModel arbilTableModel, TableController tableController, String frameTitle) {
 	this.tableController = tableController;
@@ -161,30 +156,46 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	return super.getRowHeight();
     }
 
+    /**
+     * Enables/disables column width updates on table updates. When re-enabled this also triggers a recalculation of column widths
+     *
+     * @param deferColumnWidthUpdates
+     */
+    public void setDeferColumnWidthUpdates(boolean deferColumnWidthUpdates) {
+	final boolean reenabled = deferColumnWidthUpdates && this.deferColumnWidthUpdates != deferColumnWidthUpdates;
+	this.deferColumnWidthUpdates = deferColumnWidthUpdates;
+	if (reenabled) {
+	    setColumnWidths();
+	    //maybe it's better to request reload on the table model
+	}
+    }
+
     public void setColumnWidths() {
-	// resize the columns only if the number of columns or rows have changed
-	boolean resizeColumns = arbilTableModel.isWidthsChanged() || lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
-	lastColumnCount = this.getModel().getColumnCount();
-	lastRowCount = this.getModel().getRowCount();
-	int parentWidth = this.getParent().getWidth();
-	if (this.getRowCount() > 0 && this.getColumnCount() > 2) {
-	    if (resizeColumns) {
-		doResizeColumns();
-	    } else if (this.getParent() != null) {
-		int lastColumnWidth = this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).getWidth();
-		int totalColWidth = this.getColumnModel().getTotalColumnWidth();
-		boolean lastcolumnSquished = lastColumnWidth < MIN_COLUMN_WIDTH;
-		if (parentWidth > totalColWidth) {
-		    setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-		} else if (parentWidth < totalColWidth) { // if the widths are equal then don't change anything
-		    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		} else if (lastcolumnSquished) { // unless the last column is squished
-		    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		    this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).setPreferredWidth(lastColumnPreferedWidth);
+	if (!deferColumnWidthUpdates) {
+	    // resize the columns only if the number of columns or rows have changed
+	    boolean resizeColumns = arbilTableModel.isWidthsChanged() || lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
+	    lastColumnCount = this.getModel().getColumnCount();
+	    lastRowCount = this.getModel().getRowCount();
+	    int parentWidth = this.getParent().getWidth();
+	    if (this.getRowCount() > 0 && this.getColumnCount() > 2) {
+		if (resizeColumns) {
+		    doResizeColumns();
+		} else if (this.getParent() != null) {
+		    int lastColumnWidth = this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).getWidth();
+		    int totalColWidth = this.getColumnModel().getTotalColumnWidth();
+		    boolean lastcolumnSquished = lastColumnWidth < MIN_COLUMN_WIDTH;
+		    if (parentWidth > totalColWidth) {
+			setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		    } else if (parentWidth < totalColWidth) { // if the widths are equal then don't change anything
+			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		    } else if (lastcolumnSquished) { // unless the last column is squished
+			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).setPreferredWidth(lastColumnPreferedWidth);
+		    }
 		}
+	    } else {
+		setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	    }
-	} else {
-	    setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	}
     }
 
@@ -334,29 +345,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	};
     }
 
-    public void copySelectedTableRowsToClipBoard() {
-	int[] selectedRows = this.getSelectedRows();
-	// only copy if there is at lease one row selected
-	if (selectedRows.length > 0) {
-	    logger.debug("coll select mode: {}", this.getColumnSelectionAllowed());
-	    logger.debug("cell select mode: {}", this.getCellSelectionEnabled());
-	    // when a user selects a cell and uses ctrl+a to change the selection the selection mode does not change from cell to row allCellsSelected is to resolve this error
-	    boolean allCellsSelected = this.getSelectedRowCount() == this.getRowCount() && this.getSelectedColumnCount() == this.getColumnCount();
-	    if (this.getCellSelectionEnabled() && !allCellsSelected) {
-		logger.debug("cell select mode");
-		ArbilField[] selectedFields = getSelectedFields();
-		if (selectedFields != null) {
-		    arbilTableModel.copyArbilFields(selectedFields);
-		}
-	    } else {
-		logger.debug("row select mode");
-		arbilTableModel.copyArbilRows(selectedRows);
-	    }
-	} else {
-	    dialogHandler.addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
-	}
-    }
-
     public ArbilField[] getSelectedFields() {
 	// there is a limitation in the jtable in the way selections can be made so there is no point making this more complicated than a single contigious selection
 	HashSet<ArbilField> selectedFields = new HashSet<ArbilField>();
@@ -387,18 +375,6 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 	    return selectedFields.toArray(new ArbilField[]{});
 	} else {
 	    return null;
-	}
-    }
-
-    public void pasteIntoSelectedTableRowsFromClipBoard() {
-	ArbilField[] selectedFields = getSelectedFields();
-	if (selectedFields != null) {
-	    String pasteResult = arbilTableModel.pasteIntoArbilFields(selectedFields);
-	    if (pasteResult != null) {
-		dialogHandler.addMessageDialogToQueue(pasteResult, "Paste into Table");
-	    }
-	} else {
-	    dialogHandler.addMessageDialogToQueue("No rows selected", "Paste into Table");
 	}
     }
 

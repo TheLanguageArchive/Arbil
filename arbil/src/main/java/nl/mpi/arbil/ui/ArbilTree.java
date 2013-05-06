@@ -76,6 +76,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
     private boolean clearSelectionOnFocusLost = false;
     private final TreeHelper treeHelper;
     private final ArbilTreeController treeController;
+    private final PreviewSplitPanel previewSplitPanel;
 
     public void setCustomPreviewTable(ArbilTable customPreviewTable) {
 	this.customPreviewTable = customPreviewTable;
@@ -85,9 +86,10 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 	this.clearSelectionOnFocusLost = clearSelectionOnFocusLost;
     }
 
-    public ArbilTree(ArbilTreeController treeController, TreeHelper treeHelper) {
+    public ArbilTree(ArbilTreeController treeController, TreeHelper treeHelper, PreviewSplitPanel previewPanel) {
 	this.treeController = treeController;
 	this.treeHelper = treeHelper;
+	this.previewSplitPanel = previewPanel;
 
 	this.addMouseListener(new java.awt.event.MouseAdapter() {
 //                public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -189,9 +191,9 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 
     protected void putSelectionIntoPreviewTable() {
 	ArbilTable targetPreviewTable = customPreviewTable;
-	if (targetPreviewTable == null && PreviewSplitPanel.isPreviewTableShown() && PreviewSplitPanel.getInstance().getPreviewTable() != null) {
+	if (targetPreviewTable == null && previewSplitPanel.isPreviewTableShown() && previewSplitPanel.getPreviewTable() != null) {
 	    // if a custom preview table has not been set then check for the application wide preview table and use that if it is enabled
-	    targetPreviewTable = PreviewSplitPanel.getInstance().getPreviewTable();
+	    targetPreviewTable = previewSplitPanel.getPreviewTable();
 	}
 	if (targetPreviewTable != null) {
 	    TableCellEditor currentCellEditor = targetPreviewTable.getCellEditor(); // stop any editing so the changes get stored

@@ -126,7 +126,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.copySelectedTableRowsToClipBoard();
+		    tableController.copySelectedTableRowsToClipBoard(table);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -138,7 +138,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.pasteIntoSelectedTableRowsFromClipBoard();
+		    tableController.pasteIntoSelectedTableRowsFromClipBoard(table);
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}

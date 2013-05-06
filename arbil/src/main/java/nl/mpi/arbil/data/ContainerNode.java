@@ -132,7 +132,7 @@ public class ContainerNode extends ArbilNode implements Comparable {
     }
 
     @Override
-    public void getAllChildren(Vector<ArbilDataNode> allChildren) {
+    public void getAllChildren(List<ArbilDataNode> allChildren) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

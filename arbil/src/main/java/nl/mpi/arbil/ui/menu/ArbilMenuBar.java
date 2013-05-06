@@ -664,7 +664,16 @@ public class ArbilMenuBar extends JMenuBar {
     private void initPluginMenu() {
 	final ArbilPluginManager pluginManager = new ArbilPluginManager(sessionStorage, windowManager, dataNodeLoader, BugCatcherManager.getBugCatcher());
 	final List<URL> pluginUlrs = pluginManager.getPluginsFromDirectoriesAndPluginsList();
-	this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[]{})), pluginManager, true));
+	final String javaVersion = System.getProperty("java.version");
+	if (!(javaVersion.startsWith("1.4.") || javaVersion.startsWith("1.5."))) {
+	    try {
+		this.add(new PluginMenu(new PluginService(pluginUlrs.toArray(new URL[]{})), pluginManager, true));
+	    } catch (NoClassDefFoundError error) {
+		logger.error("Failed to initialize plugin system. Probably JRE version issue despite check.", error);
+	    }
+	} else {
+	    logger.warn("Plugins are NOT enabled due to unsupported java version {}", javaVersion);
+	}
     }
 
     private void initWindowMenu() {

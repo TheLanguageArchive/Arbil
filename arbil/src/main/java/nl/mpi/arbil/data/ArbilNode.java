@@ -17,6 +17,7 @@
  */
 package nl.mpi.arbil.data;
 
+import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import nl.mpi.flap.model.PluginDataNode;
@@ -49,7 +50,7 @@ public abstract class ArbilNode implements PluginDataNode {
      *
      * @param An empty vector, to which all the child nodes will be added.
      */
-    public abstract void getAllChildren(Vector<ArbilDataNode> allChildren);
+    public abstract void getAllChildren(List<ArbilDataNode> allChildren);
 
     /**
      * Gets an array of the children of this node.

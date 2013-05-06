@@ -22,35 +22,38 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerException;
+import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.MetadataFormat;
+import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.imdi.api.IMDIDom;
 import nl.mpi.imdi.api.IMDILink;
 import nl.mpi.imdi.api.WSNodeType;
 import nl.mpi.util.OurURL;
-import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.util.BugCatcherManager;
-import nl.mpi.arbil.util.MessageDialogHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
- *  Document   : ImdiUtilsL
- *  Created on : May 21, 2010, 9:30:03 PM
- *  Author     : Peter Withers
+ * Document : ImdiUtilsL
+ * Created on : May 21, 2010, 9:30:03 PM
+ * Author : Peter Withers
  */
 public class ImdiUtils implements MetadataUtils {
+    
     private final static Logger logger = LoggerFactory.getLogger(ImdiUtils.class);
-
     private static MessageDialogHandler messageDialogHandler;
-
+    
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     public final static IMDIDom api = new IMDIDom();
-
+    
     private boolean isCatalogue(URI sourceURI) {
 	try {
 	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
@@ -64,7 +67,7 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return false;
     }
-
+    
     private boolean isSession(URI sourceURI) {
 	try {
 	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
@@ -130,55 +133,54 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return true;
     }
-
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws ArbilMetadataException {
-	try {
-	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
-	    OurURL destinationUrl = new OurURL(destinationFile.toURI().toURL());
-
-	    org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
-	    checkImdiApiResult(nodDom, sourceURI);
-	    if (nodDom == null) {
-		BugCatcherManager.getBugCatcher().logError(new Exception(api.getMessage()));
-		messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API", "Copy IMDI File");
-		return false;
-	    } else {
-		IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.UNKNOWN);
-		checkImdiApiResult(links, sourceURI);
-		if (links != null && updateLinks) {
-		    for (IMDILink currentLink : links) {
-			URI linkUriToUpdate = null;
-			if (linksToUpdate != null) {
-			    for (URI[] updatableLink : linksToUpdate) {
-				try {
-				    if (currentLink.getRawURL().toURL().toURI().equals(updatableLink[0])) {
-					linkUriToUpdate = updatableLink[1];
-					break;
-				    }
-				} catch (URISyntaxException exception) {
-				    BugCatcherManager.getBugCatcher().logError(exception);
+    
+    public void copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws IOException, ArbilMetadataException {
+	
+	OurURL inUrlLocal = new OurURL(sourceURI.toURL());
+	OurURL destinationUrl = new OurURL(destinationFile.toURI().toURL());
+	
+	org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+	checkImdiApiResult(nodDom, sourceURI);
+	if (nodDom == null) {
+	    messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API. See error log for details.", "Copy IMDI File");
+	    throw new ArbilMetadataException(api.getMessage());
+	} else {
+	    IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.UNKNOWN);
+	    checkImdiApiResult(links, sourceURI);
+	    if (links != null && updateLinks) {
+		for (IMDILink currentLink : links) {
+		    URI linkUriToUpdate = null;
+		    if (linksToUpdate != null) {
+			for (URI[] updatableLink : linksToUpdate) {
+			    try {
+				if (currentLink.getRawURL().toURL().toURI().equals(updatableLink[0])) {
+				    linkUriToUpdate = updatableLink[1];
+				    break;
 				}
+			    } catch (URISyntaxException exception) {
+				BugCatcherManager.getBugCatcher().logError(exception);
 			    }
-			    logger.debug("currentLink: {} : {}", linkUriToUpdate, currentLink.getRawURL());
-			    if (linkUriToUpdate != null) {
-				// todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
-				// todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
-				// todo: cont... this must instead take oldurl newurl and the new imdi file location
+			}
+			logger.debug("currentLink: {} : {}", linkUriToUpdate, currentLink.getRawURL());
+			if (linkUriToUpdate != null) {
+			    // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
+			    // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
+			    // todo: cont... this must instead take oldurl newurl and the new imdi file location
 //                            boolean changeLinkResult = api.changeIMDILink(nodDom, new OurURL(linkUriToUpdate.toURL()), currentLink);
 //                            if (!changeLinkResult) {
 //                                checkImdiApiResult(null, sourceURI);
 //                                return false;
 //                            }
-				// todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
-				// Changed this to use setURL that has now been suggested but was previously advised against, in the hope of resolving the numerous errors with the api such as info links issues and resource data issues and bad url construction in links.
-				currentLink.setURL(new OurURL(linkUriToUpdate.toURL()));
-				//logger.debug("currentLink.getURL: " + currentLink.getURL());
-				boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
-				if (!changeLinkResult) {
-				    checkImdiApiResult(null, sourceURI);
-				    // changeIMDILink appears to always return false, at very least for corpus nodes!
-				    //return false;
-				}
+			    // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
+			    // Changed this to use setURL that has now been suggested but was previously advised against, in the hope of resolving the numerous errors with the api such as info links issues and resource data issues and bad url construction in links.
+			    currentLink.setURL(new OurURL(linkUriToUpdate.toURL()));
+			    //logger.debug("currentLink.getURL: " + currentLink.getURL());
+			    boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
+			    if (!changeLinkResult) {
+				checkImdiApiResult(null, sourceURI);
+				// changeIMDILink appears to always return false, at very least for corpus nodes!
+				//return false;
+			    }
 
 //                            String archiveHandle = currentLink.getURID();
 //                            api.removeIMDILink(nodDom, currentLink);
@@ -195,26 +197,23 @@ public class ImdiUtils implements MetadataUtils {
 //                                checkImdiApiResult(null, sourceURI);
 //                                return false;
 //                            }
-			    } else {
-				BugCatcherManager.getBugCatcher().logError(new Exception(api.getMessage()));
-				return false;
-			    }
+			} else {
+			    throw new ArbilMetadataException(api.getMessage());
 			}
 		    }
 		}
-		boolean removeIdAttributes = true;
-		return api.writeDOM(nodDom, destinationFile, removeIdAttributes);
 	    }
-	} catch (IOException e) {
-	    BugCatcherManager.getBugCatcher().logError(e);
-	    return false;
+	    boolean removeIdAttributes = true;
+	    if (!api.writeDOM(nodDom, destinationFile, removeIdAttributes)) {
+		throw new ArbilMetadataException(api.getMessage());
+	    }
 	}
     }
-
+    
     public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
     public boolean removeCorpusLink(URI nodeURI, URI linkURI[]) {
 	try {
 	    OurURL destinationUrl = new OurURL(nodeURI.toString());
@@ -252,8 +251,8 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return false;
     }
-
-    public URI[] getCorpusLinks(URI nodeURI) throws ArbilMetadataException {
+    
+    public MetadataLinkSet getCorpusLinks(URI nodeURI) throws ArbilMetadataException {
 	try {
 	    OurURL destinationUrl = new OurURL(nodeURI.toString());
 	    Document nodDom = api.loadIMDIDocument(destinationUrl, false);
@@ -265,18 +264,25 @@ public class ImdiUtils implements MetadataUtils {
 	    allImdiLinks = api.getIMDILinks(nodDom, destinationUrl, WSNodeType.UNKNOWN);
 	    checkImdiApiResult(allImdiLinks, nodeURI);
 	    if (allImdiLinks != null) {
-		URI[] returnUriArray = new URI[allImdiLinks.length];
+		//URI[] returnUriArray = new URI[allImdiLinks.length];
+		List<URI> metadataLinks = new ArrayList<URI>();
+		List<URI> resourceLinks = new ArrayList<URI>();
 		for (int linkCount = 0; linkCount < allImdiLinks.length; linkCount++) {
 		    try {
 			checkImdiApiResult(allImdiLinks[linkCount], nodeURI);
-			returnUriArray[linkCount] = allImdiLinks[linkCount].getRawURL().toURL().toURI();
-			checkImdiApiResult(returnUriArray[linkCount], nodeURI);
+			final URI linkUri = allImdiLinks[linkCount].getRawURL().toURL().toURI();
+			checkImdiApiResult(linkUri, nodeURI);
+			if (MetadataFormat.isPathImdi(linkUri.toString())) {
+			    metadataLinks.add(linkUri);
+			} else {
+			    resourceLinks.add(linkUri);
+			}
 		    } catch (URISyntaxException exception) {
 			BugCatcherManager.getBugCatcher().logError(exception);
 			messageDialogHandler.addMessageDialogToQueue("Error reading one of the links via the IMDI API", "Get Links");
 		    }
 		}
-		return returnUriArray;
+		return new MetadataLinkSet(resourceLinks, metadataLinks);
 	    }
 	} catch (MalformedURLException exception) {
 	    BugCatcherManager.getBugCatcher().logError(exception);
@@ -284,7 +290,7 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return null;
     }
-
+    
     private void checkImdiApiResult(Object resultUnknown, URI imdiURI) {
 	if (resultUnknown == null) {
 	    BugCatcherManager.getBugCatcher().logError(new Exception("The IMDI API returned null for: " + imdiURI.toString()));
@@ -294,6 +300,7 @@ public class ImdiUtils implements MetadataUtils {
 
     /**
      * Lets the user override type checker decision about mimetype and archivability
+     *
      * @param selectedNodes
      * @return Whether action was carried out (not canceled)
      */

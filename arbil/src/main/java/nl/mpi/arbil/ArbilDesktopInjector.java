@@ -103,7 +103,6 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
 	tableController = new ArbilTableController(treeHelper, messageDialogHandler, windowManager);
 	windowManager.setTableController(tableController);
-	injectTableController(tableController);
 
 	treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, messageDialogHandler, dataNodeLoader, mimeHashQueue, versionManager);
     }
@@ -155,5 +154,13 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
     public ImageBoxRenderer getImageBoxRenderer() {
 	return imageBoxRenderer;
+    }
+
+    public ArbilTableController getTableController() {
+	return tableController;
+    }
+
+    public ArbilSessionStorage getSessionStorage() {
+	return sessionStorage;
     }
 }

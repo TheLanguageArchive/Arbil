@@ -23,6 +23,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Hashtable;
+import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -140,7 +141,7 @@ class JListToolTip extends JToolTip {
 
     private void addLabelsForDataNode(ArbilDataNode tempObject) {
 	if (tempObject.isMetaDataNode()) {
-	    Hashtable<String, ArbilField[]> tempFields = tempObject.getFields();
+	    Map<String, ArbilField[]> tempFields = tempObject.getFields();
 	    addDetailLabel("Name: ", tempFields.get("Name"));
 	    addDetailLabel("Title: ", tempFields.get("Title"));
 	    addDetailLabel("Description: ", tempFields.get("Description"));

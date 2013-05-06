@@ -56,7 +56,6 @@ import nl.mpi.arbil.data.CmdiDocumentationLanguages;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaLocalElement;
@@ -192,8 +191,9 @@ public class CmdiTemplate extends ArbilTemplate {
 	    }
 
 	    // end sort and construct the preferredNameFields array
-	} catch (URISyntaxException urise) {
-	    BugCatcherManager.getBugCatcher().logError(urise);
+	} catch (URISyntaxException ex) {
+	    logger.error("Invalid URI for CMDI profile: {}", nameSpaceStringLocal);
+	    logger.debug("Invalid URI for CMDI profile", ex);
 	}
 	// this should be adequate for cmdi templates
 	//templatesArray = childNodePaths;
@@ -324,32 +324,40 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
-	File schemaFile;
+	// store the template file for later use such as adding child nodes
 	if (xsdFile.getScheme().equals("file")) {
-	    schemaFile = new File(xsdFile);
+	    templateFile = new File(xsdFile);
 	} else {
-	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), SCHEMA_CACHE_EXPIRY_DAYS, false);
+	    templateFile = sessionStorage.updateCache(xsdFile.toString(), SCHEMA_CACHE_EXPIRY_DAYS, false);
 	}
-	templateFile = schemaFile; // store the template file for later use such as adding child nodes
 	try {
-	    final InputStream inputStream = new FileInputStream(schemaFile);
-	    //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
-	    final XmlOptions xmlOptions = new XmlOptions();
-	    xmlOptions.setCharacterEncoding("UTF-8");
-	    xmlOptions.setEntityResolver(new ArbilEntityResolver(xsdFile));
+	    InputStream inputStream = null;
+	    try {
+		inputStream = new FileInputStream(templateFile);
+		//Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
+		final XmlOptions xmlOptions = new XmlOptions();
+		xmlOptions.setCharacterEncoding("UTF-8");
+		xmlOptions.setEntityResolver(new ArbilEntityResolver(xsdFile));
 //            xmlOptions.setCompileDownloadUrls();
-	    final SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
-	    final SchemaType schemaType = sts.documentTypes()[0];
+		final SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+		final SchemaType schemaType = sts.documentTypes()[0];
 
-	    final CachedXPathAPI xPathAPI = new CachedXPathAPI();
-	    determineNameFromHeader(xPathAPI);
-	    constructXml(schemaType, arrayListGroup, "", xPathAPI);
+		final CachedXPathAPI xPathAPI = new CachedXPathAPI();
+		determineNameFromHeader(xPathAPI);
+		constructXml(schemaType, arrayListGroup, "", xPathAPI);
+	    } finally {
+		if (inputStream != null) {
+		    inputStream.close();
+		}
+	    }
 	} catch (IOException e) {
-	    BugCatcherManager.getBugCatcher().logError(getTemplateFile().getName(), e);
-	    messageDialogHandler.addMessageDialogToQueue("Could not open the required template file: " + getTemplateFile().getName(), "Load Clarin Template");
+	    logger.error("Could not open the required profile schema file: {}", e.getMessage());
+	    // Usually file not found, only print stack trace in debug
+	    logger.debug("Could not open the required profile schema file", e);
+	    messageDialogHandler.addMessageDialogToQueue(String.format("Could not open the required template file: %s. See error log for details ", getTemplateFile().getName()), "Load Clarin Template");
 	} catch (XmlException e) {
-	    BugCatcherManager.getBugCatcher().logError(getTemplateFile().getName(), e);
-	    messageDialogHandler.addMessageDialogToQueue("Could not read the required template file: " + getTemplateFile().getName(), "Load Clarin Template");
+	    logger.error("Could not read the required template file: {}", templateFile, e);
+	    messageDialogHandler.addMessageDialogToQueue(String.format("Could not read the required template file: %s. See error log for details ", getTemplateFile().getName()), "Load Clarin Template");
 	}
     }
 
@@ -469,7 +477,7 @@ public class CmdiTemplate extends ArbilTemplate {
 			    nodePath = nodePathBase + "." + schemaParticleChild.getName().getLocalPart();
 			} else {
 			    nodePath = nodePathBase + ".unnamed";
-			    BugCatcherManager.getBugCatcher().logError(new Exception("unnamed node at: " + nodePath));
+			    logger.warn("unnamed node at: {} in {}", nodePath, getTemplateFile());
 			}
 			searchForAnnotations(schemaParticleChild, nodePath, arrayListGroup, xPathAPI);
 		    }
@@ -583,11 +591,11 @@ public class CmdiTemplate extends ArbilTemplate {
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		schemaDocument = documentBuilder.parse(getTemplateFile());
 	    } catch (IOException ex) {
-		BugCatcherManager.getBugCatcher().logError("Error while parsing schema", ex);
+		logger.error("Error while parsing schema", ex);
 	    } catch (ParserConfigurationException ex) {
-		BugCatcherManager.getBugCatcher().logError("Error while parsing schema", ex);
+		logger.error("Error while parsing schema", ex);
 	    } catch (SAXException ex) {
-		BugCatcherManager.getBugCatcher().logError("Error while parsing schema", ex);
+		logger.error("Error while parsing schema", ex);
 	    }
 	}
 	return schemaDocument;
@@ -642,7 +650,8 @@ public class CmdiTemplate extends ArbilTemplate {
 		descriptions = getDescriptionsForVocabulary(schemaType.getBaseType().getName().getLocalPart(), xPathAPI);
 	    } catch (Exception ex) {
 		// Fall back to using just the values, no descriptions
-		BugCatcherManager.getBugCatcher().logError(ex);
+		logger.warn("Error getting descriptions for vocabulary {} in {}: {}", nodePath, getTemplateFile(), ex.getMessage());
+		logger.debug("Error getting descriptions for vocabulary", ex);
 	    }
 
 	    for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
@@ -716,18 +725,18 @@ public class CmdiTemplate extends ArbilTemplate {
 	    // Read description from DCIF
 	    try {
 		if (!DATCAT_URI_SKIP_PATTERN.matcher(dcUri).matches()) {
-		    String description = readDescriptionForDataCategory(dcUri);
+		    final String description = readDescriptionForDataCategory(dcUri);
 		    if (description != null) {
 			dataCategoryDescriptionMap.put(dcUri, description);
 			return description;
 		    }
 		}
 	    } catch (ParserConfigurationException ex) {
-		BugCatcherManager.getBugCatcher().logError("Exception while trying to process data category at " + dcUri, ex);
+		logger.error("Exception while trying to process data category at {} in profile {}", dcUri, getTemplateFile(), ex);
 	    } catch (SAXException ex) {
-		BugCatcherManager.getBugCatcher().logError("Exception while trying to process data category at " + dcUri, ex);
+		logger.error("Exception while trying to process data category at {} in profile {}", dcUri, getTemplateFile(), ex);
 	    } catch (IOException ex) {
-		BugCatcherManager.getBugCatcher().logError("Exception while trying to process data category at " + dcUri, ex);
+		logger.error("Exception while trying to process data category at {} in profile {}", dcUri, getTemplateFile(), ex);
 	    }
 	    return "Data category: <" + dcUri + ">. No description available. See error log for details.";
 	}
@@ -743,16 +752,16 @@ public class CmdiTemplate extends ArbilTemplate {
      * @throws IOException
      */
     private String readDescriptionForDataCategory(String dcUri) throws ParserConfigurationException, SAXException, IOException {
-	String datCatURI = dcUri.concat(DATCAT_URI_DESCRIPTION_POSTFIX);
-	File datCatFile = sessionStorage.getFromCache(datCatURI, true); // follow redirects for datCatFiles
-	if (datCatFile == null) {
-	    BugCatcherManager.getBugCatcher().logError("File not found for data category URI " + dcUri, null);
-	    return null;
-	} else {
+	final String datCatURI = dcUri.concat(DATCAT_URI_DESCRIPTION_POSTFIX);
+	final File datCatFile = sessionStorage.getFromCache(datCatURI, true); // follow redirects for datCatFiles
+	if (datCatFile != null && datCatFile.exists()) {
 	    SAXParser parser = parserFactory.newSAXParser();
 	    DataCategoryDescriptionHandler handler = new DataCategoryDescriptionHandler();
 	    parser.parse(datCatFile, handler);
 	    return handler.getDescription();
+	} else {
+	    logger.warn("File not found for data category URI {}. Local cache: {}", datCatURI, datCatFile);
+	    return null;
 	}
     }
 

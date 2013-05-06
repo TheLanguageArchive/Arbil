@@ -18,6 +18,7 @@
 package nl.mpi.arbil.favourites;
 
 import java.net.URI;
+import nl.mpi.arbil.ArbilMetadataException;
 
 /**
  *
@@ -25,6 +26,6 @@ import java.net.URI;
  */
 public interface FavouritesService {
 
-    void addAsFavourite(URI uri);
+    void addAsFavourite(URI uri) throws ArbilMetadataException;
     
 }
