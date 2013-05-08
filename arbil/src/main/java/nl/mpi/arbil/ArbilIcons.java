@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilIcons {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilIcons.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilIcons.class);
     private static ApplicationVersionManager versionManager;
 
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
@@ -277,34 +277,7 @@ public class ArbilIcons {
 	    iconsList.add(lockedIcon);
 	}
 	String mimeTypeForNode = arbilNode.getAnyMimeType();
-	if (arbilNode.isMetaDataNode()) {
-	    if (arbilNode.isChildNode()) {
-//                if (arbilNode.isContainerNode()) {
-//                    iconsVector.add(dataCollectionIcon);
-//                } else 
-		if (arbilNode.isContainerNode()) {
-		    iconsList.add(dataContainerIcon);
-		} else if (arbilNode.isEmptyMetaNode()) {
-		    iconsList.add(dataemptyIcon);
-		} else {
-		    iconsList.add(dataIcon);
-		}
-	    } else if (arbilNode.isSession()) {
-		iconsList.add(sessionColorIcon);
-	    } else if (arbilNode.isCatalogue()) {
-		iconsList.add(catalogueColorIcon);
-	    } else if (arbilNode.isCorpus()) {
-		iconsList.add(corpusnodeColorIcon);
-	    } else if (arbilNode.isCmdiMetaDataNode()) {
-		iconsList.add(MetadataFormat.getFormatIcon(arbilNode.getURI().getPath()));
-	    } else {
-		// this icon might not be the best one to show in this case
-		if (arbilNode.isDataLoaded()) {
-		    iconsList.add(fileIcon);
-		}
-		//iconsVector.add(blankIcon);
-	    }
-	} else if (mimeTypeForNode != null) {
+	if (mimeTypeForNode != null) {
 	    mimeTypeForNode = mimeTypeForNode.toLowerCase();
 	    if (mimeTypeForNode.contains("audio")) {
 		iconsList.add(audioIcon);
@@ -342,6 +315,30 @@ public class ArbilIcons {
 	} else if (arbilNode.hasResource()) {
 	    // the resource is not found so show a unknow resource icon
 	    iconsList.add(fileIcon);
+	} else if (arbilNode.isMetaDataNode()) {
+	    if (arbilNode.isChildNode()) {
+		if (arbilNode.isContainerNode()) {
+		    iconsList.add(dataContainerIcon);
+		} else if (arbilNode.isEmptyMetaNode()) {
+		    iconsList.add(dataemptyIcon);
+		} else {
+		    iconsList.add(dataIcon);
+		}
+	    } else if (arbilNode.isSession()) {
+		iconsList.add(sessionColorIcon);
+	    } else if (arbilNode.isCatalogue()) {
+		iconsList.add(catalogueColorIcon);
+	    } else if (arbilNode.isCorpus()) {
+		iconsList.add(corpusnodeColorIcon);
+	    } else if (arbilNode.isCmdiMetaDataNode()) {
+		iconsList.add(MetadataFormat.getFormatIcon(arbilNode.getURI().getPath()));
+	    } else {
+		// this icon might not be the best one to show in this case
+		if (arbilNode.isDataLoaded()) {
+		    iconsList.add(fileIcon);
+		}
+		//iconsVector.add(blankIcon);
+	    }
 	} else if (arbilNode.isDirectory()) {
 	    iconsList.add(UIManager.getIcon("FileView.directoryIcon"));
 	} else {
