@@ -1528,9 +1528,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 //                    openCommand = "gnome-open ";
 		    launchedProcess = Runtime.getRuntime().exec(new String[]{"gnome-open", fileString});
 		}
-//                String execString = openCommand + targetUri.getPath();
+//                String execString = openCommand + targetUri.getNodePath();
 //                logger.debug(execString);
-//                Process launchedProcess = Runtime.getRuntime().exec(new String[]{openCommand, targetUri.getPath()});
+//                Process launchedProcess = Runtime.getRuntime().exec(new String[]{openCommand, targetUri.getNodePath()});
 		if (launchedProcess != null) {
 		    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
 		    String line;

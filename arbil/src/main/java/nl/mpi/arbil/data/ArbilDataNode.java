@@ -281,7 +281,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	}
 	//        if (currentTemplate == null) {
 	//            // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
-	//            if (isPathCmdi(nodeUri.getPath())) {
+	//            if (isPathCmdi(nodeUri.getNodePath())) {
 	//                // this must be loaded with the name space uri
 	//                //   currentTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate();
 	//            } else {
@@ -439,6 +439,20 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	    }
 	}
 	return null;
+    }
+
+    public String getNodePath() {
+	final String fragment = nodeUri.getFragment();
+	if (fragment == null) {
+	    return null;
+	} else {
+	    final String startPath = MetadataFormat.getMetadataStartPath(nodeUri.getPath());
+	    if (fragment.startsWith(startPath) && fragment.length() > startPath.length()) {
+		return fragment.substring(startPath.length() + 1);
+	    } else {
+		return fragment;
+	    }
+	}
     }
 
     public ArbilTemplate getNodeTemplate() {
@@ -1008,7 +1022,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	if (domParentNode == null) {
 	    if (nodeUri.getFragment() != null) {
 		try {
-		    //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
+		    //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getNodePath(), nodeUri.getQuery(), null /* fragment removed */));
 		    // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
 		    domParentNode = dataNodeService.loadArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
 		    //                    logger.debug("nodeUri: " + nodeUri);
@@ -1448,9 +1462,9 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     }
 
     /**
-     * 
+     *
      * @param resource whether this node should be treated as resource regardless of its URI
-     * @see #isMetaDataNode() 
+     * @see #isMetaDataNode()
      */
     public void setResourceNode(boolean resource) {
 	this.resourceNode = resource;

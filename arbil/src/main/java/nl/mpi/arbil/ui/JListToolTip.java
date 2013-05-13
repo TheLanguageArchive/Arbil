@@ -35,8 +35,9 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
- * Document   : JListToolTip
- * Created on : 
+ * Document : JListToolTip
+ * Created on :
+ *
  * @author Peter.Withers@mpi.nl
  */
 class JListToolTip extends JToolTip {
@@ -141,11 +142,15 @@ class JListToolTip extends JToolTip {
 
     private void addLabelsForDataNode(ArbilDataNode tempObject) {
 	if (tempObject.isMetaDataNode()) {
-	    Map<String, ArbilField[]> tempFields = tempObject.getFields();
+	    final Map<String, ArbilField[]> tempFields = tempObject.getFields();
 	    addDetailLabel("Name: ", tempFields.get("Name"));
 	    addDetailLabel("Title: ", tempFields.get("Title"));
 	    addDetailLabel("Description: ", tempFields.get("Description"));
 	    addTabbedLabel("Template: " + tempObject.getNodeTemplate().getTemplateName());
+	    final String nodePath = tempObject.getNodePath();
+	    if (nodePath != null) {
+		addTabbedLabel("Path: " + nodePath);
+	    }
 	    addDetailLabel("Format: ", tempFields.get("Format"));
 	} else {
 	    if (!tempObject.isDirectory()) {

@@ -45,7 +45,7 @@ public class MetadataFormat {
 	}
     }
     private final static Collection<FormatType> knownFormats = new CopyOnWriteArraySet<FormatType>(Arrays.asList(new FormatType[]{
-		new FormatType(".imdi", "", null, true),
+		new FormatType(".imdi", ".METATRANSCRIPT", null, true),
 		// todo: the filter strings used by the cmdi templates and metadata loading process should be reading the metadataStartXpath from here instead
 		new FormatType(".cmdi", ".CMD.Components", ArbilIcons.clarinIcon, false),
 		// Generic XML
