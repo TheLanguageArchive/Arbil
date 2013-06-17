@@ -44,6 +44,8 @@ public class ImgScalrMojoTest {
 
 	BufferedImage resultFile = ImageIO.read(outputFile);
 	assertEquals(5, resultFile.getWidth());
+
+	deleteRecursively(outputDir);
     }
 
     /**
@@ -63,6 +65,8 @@ public class ImgScalrMojoTest {
 
 	BufferedImage resultFile = ImageIO.read(outputFile);
 	assertEquals(5, resultFile.getHeight());
+
+	deleteRecursively(outputDir);
     }
 
     /**
@@ -84,6 +88,8 @@ public class ImgScalrMojoTest {
 	BufferedImage resultFile = ImageIO.read(outputFile);
 	assertEquals(5, resultFile.getHeight());
 	assertEquals(5, resultFile.getWidth());
+
+	deleteRecursively(outputDir);
     }
 
     /**
@@ -104,6 +110,8 @@ public class ImgScalrMojoTest {
 	BufferedImage originalFile = ImageIO.read(image);
 	BufferedImage resultFile = ImageIO.read(outputFile);
 	assertEquals(originalFile.getWidth(), resultFile.getWidth());
+
+	deleteRecursively(outputDir);
     }
 
     private File getFileForResource(String name) throws URISyntaxException {
@@ -113,7 +121,7 @@ public class ImgScalrMojoTest {
     }
 
     private File createTempDir() throws IOException {
-	File outputDir = File.createTempFile("imgScalrMojoTest", "");
+	File outputDir = File.createTempFile("imgScalrMojoTest", "", new File(System.getProperty("java.io.tmpdir")));
 	if (!outputDir.delete()) {
 	    throw new IOException("Could not delete temp file");
 	}
@@ -121,6 +129,21 @@ public class ImgScalrMojoTest {
 	    throw new IOException("Could not create temp dir");
 	}
 	return outputDir;
+    }
+
+    private boolean deleteRecursively(File file) {
+	if (!file.exists()) {
+	    return false;
+	} else {
+	    if (file.isDirectory()) {
+		for (File dirChild : file.listFiles()) {
+		    if (!deleteRecursively(dirChild)) {
+			return false;
+		    }
+		}
+	    }
+	    return file.delete();
+	}
     }
 
     /**
@@ -229,11 +252,11 @@ public class ImgScalrMojoTest {
 	fileSet.addInclude("*.png");
 	List filesToScale = instance.getFilesToScale();
 	assertEquals(1, filesToScale.size());
-	
+
 	fileSet.addInclude("*.png");
 	filesToScale = instance.getFilesToScale();
 	assertEquals(1, filesToScale.size());
-	
+
 	fileSet.addInclude("*.jpg");
 	filesToScale = instance.getFilesToScale();
 	assertEquals(2, filesToScale.size());
@@ -242,8 +265,6 @@ public class ImgScalrMojoTest {
 	filesToScale = instance.getFilesToScale();
 	assertEquals(2, filesToScale.size());
     }
-    
-    
 
     /**
      * Test of getFilesToScale method, of class ImgScalrMojo.
@@ -255,12 +276,12 @@ public class ImgScalrMojoTest {
 	fileSet.addInclude("%regex[(?i).*\\.jpg$]");
 	List filesToScale = instance.getFilesToScale();
 	assertEquals(1, filesToScale.size());
-	
+
 	fileSet.addInclude("%regex[(?i).*\\.PNG$]");
 	filesToScale = instance.getFilesToScale();
 	assertEquals(2, filesToScale.size());
-	
-	
+
+
 	fileSet.addInclude("%regex[image.*$]");
 	filesToScale = instance.getFilesToScale();
 	assertEquals(3, filesToScale.size());
