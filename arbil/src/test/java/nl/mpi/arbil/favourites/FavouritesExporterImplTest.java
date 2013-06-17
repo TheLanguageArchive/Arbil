@@ -47,6 +47,7 @@ public class FavouritesExporterImplTest {
 	sessionStorage = context.mock(SessionStorage.class);
 	// Temporary location to export to
 	exportLocation = createTempExportDir();
+	exportLocation.deleteOnExit();
     }
 
     private File createTempExportDir() throws IOException {
@@ -69,12 +70,12 @@ public class FavouritesExporterImplTest {
 	} else {
 	    if (file.isDirectory()) {
 		for (File dirChild : file.listFiles()) {
-		    return deleteRecursively(dirChild);
+		    if (!deleteRecursively(dirChild)) {
+			return false;
+		    }
 		}
-	    } else {
-		return file.delete();
 	    }
-	    return true;
+	    return file.delete();
 	}
     }
 
