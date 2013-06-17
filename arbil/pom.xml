@@ -274,7 +274,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-help</artifactId>
-            <version>2.5.36338-stable</version>
+            <version>2.5.37052-stable</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
