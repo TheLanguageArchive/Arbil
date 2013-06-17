@@ -18,6 +18,7 @@
 package nl.mpi.arbil.ui.favourites;
 
 import java.awt.Desktop;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -37,11 +38,11 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ExportAction extends AbstractAction {
-
+    
     private final static Logger logger = LoggerFactory.getLogger(ExportAction.class);
     private final PluginDialogHandler dialogHandler;
     private final FavouritesExporter exporter;
-
+    
     public ExportAction(PluginDialogHandler dialogHandler, FavouritesExporter exporter) {
 	super("export");
 	this.dialogHandler = dialogHandler;
@@ -60,7 +61,7 @@ public class ExportAction extends AbstractAction {
 	    throw new RuntimeException("Cannot retrieve favourites selection from UI, action source does not implement ExportUI");
 	}
     }
-
+    
     private void exportFavourites(List<ArbilDataNode> nodesToExport) {
 	if (nodesToExport.size() > 0) {
 	    try {
@@ -91,7 +92,10 @@ public class ExportAction extends AbstractAction {
      */
     private void openDirectory(File exportLocation) {
 	try {
-	    Desktop.getDesktop().open(exportLocation);
+	    if (!GraphicsEnvironment.isHeadless()) {
+		logger.info("Headless mode, not opening export target directory {}", exportLocation);
+		Desktop.getDesktop().open(exportLocation);
+	    }
 	} catch (IOException ex) {
 	    // No associated application, or the associated application fails to be launched. Fail silently.
 	    logger.warn("Could not open target location {}", exportLocation, ex);
