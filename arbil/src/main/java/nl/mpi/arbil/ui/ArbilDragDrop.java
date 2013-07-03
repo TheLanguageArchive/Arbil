@@ -28,6 +28,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -62,6 +63,7 @@ import org.slf4j.LoggerFactory;
 public class ArbilDragDrop {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilDragDrop.class);
+    private static final ResourceBundle RESOURCE = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final SessionStorage sessionStorage;
     private final ArbilTreeHelper treeHelper;
     private final WindowManager windowManager;
@@ -546,7 +548,7 @@ public class ArbilDragDrop {
 			logger.debug("ok to add local file");
 
 			logger.debug("dragged: {}", (Object) draggedArbilNodes);
-			new MetadataBuilder().requestAddNodes(dropTargetDataNode, "Resource", draggedArbilNodes);
+			new MetadataBuilder().requestAddNodes(dropTargetDataNode, RESOURCE.getString("RESOURCE"), draggedArbilNodes);
 			return true;
 		    }
 		}
@@ -602,15 +604,14 @@ public class ArbilDragDrop {
 				//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
 				if (!moveAll) {
 				    detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(),
-					    "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
-					    + /* " from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() + */ " to " + targetNodeName,
+					    String.format(RESOURCE.getString("MOVE_SOURCE_NODE_TO_TARGET_NODE"), draggedTreeNodes[draggedCounter].getUserObject(), targetNodeName),
 					    "Arbil",
 					    JOptionPane.DEFAULT_OPTION,
 					    JOptionPane.PLAIN_MESSAGE,
 					    null,
-					    (moveMultiple ? new Object[]{"Move", "Move all", "Skip", "Abort"}
-					    : new Object[]{"Move", "Cancel"}),
-					    moveMultiple ? "Skip" : "Cancel");
+					    (moveMultiple ? new Object[]{RESOURCE.getString("MOVE"), RESOURCE.getString("MOVE ALL"), RESOURCE.getString("SKIP"), RESOURCE.getString("ABORT")}
+					    : new Object[]{RESOURCE.getString("MOVE"), RESOURCE.getString("CANCEL")}),
+					    moveMultiple ? RESOURCE.getString("SKIP") : RESOURCE.getString("CANCEL"));
 				    moveAll = moveMultiple && detailsOption == 1;
 				    continueMove = !(moveMultiple && detailsOption == 3);
 				}
@@ -619,7 +620,7 @@ public class ArbilDragDrop {
 					doMoveLocalNodes(dropTargetUserObject, dropTargetDataNode, currentNode, draggedCounter, arbilNodesDeleteList);
 				    } catch (IOException ex) {
 					logger.error("Error moving {}", currentNode, ex);
-					continueMove = dialogHandler.showConfirmDialogBox(String.format("Could not move %s due to error. See log for details. Continue moving nodes?", currentNode), "Error moving nodes");
+					continueMove = dialogHandler.showConfirmDialogBox(String.format(RESOURCE.getString("COULD NOT MOVE %S DUE TO ERROR. SEE LOG FOR DETAILS. CONTINUE MOVING NODES?"), currentNode), RESOURCE.getString("ERROR MOVING NODES"));
 				    }
 				}
 			    }
@@ -665,13 +666,13 @@ public class ArbilDragDrop {
 			    addNodeResult = true;
 			} catch (ArbilMetadataException ex) {
 			    BugCatcherManager.getBugCatcher().logError(ex);
-			    dialogHandler.addMessageDialogToQueue(ex.getLocalizedMessage(), "Insert node error");
+			    dialogHandler.addMessageDialogToQueue(ex.getLocalizedMessage(), RESOURCE.getString("INSERT NODE ERROR"));
 			}
 		    }
 		} else if (dropTargetDataNode.isCmdiMetaDataNode()) {
 		    if (currentNode.isMetaDataNode() && !currentNode.isCmdiMetaDataNode()) {
 			//TODO: Add support for converting IMDI to CMDI. Should also be possible to add IMDI as 'dead' resource
-			dialogHandler.addMessageDialogToQueue("Moving IMDI metadata to CMDI metadata files is currently not supported", "Not supported");
+			dialogHandler.addMessageDialogToQueue(RESOURCE.getString("MOVING IMDI METADATA TO CMDI METADATA FILES IS CURRENTLY NOT SUPPORTED"), RESOURCE.getString("NOT SUPPORTED"));
 		    } else {
 			if (currentNode.isCmdiMetaDataNode() && currentNode.isChildNode()) {
 			    try {

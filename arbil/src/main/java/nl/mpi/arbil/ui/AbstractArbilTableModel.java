@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.SwingUtilities;
@@ -55,9 +56,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractArbilTableModel extends AbstractTableModel implements ArbilDataNodeContainer, PluginArbilTableModel {
 
     private final static Logger logger = LoggerFactory.getLogger(AbstractArbilTableModel.class);
+    private static final ResourceBundle RESOURCE = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     // NOTE: [] style arrays are not suitable for storing true constants
-    protected final static String SINGLE_NODE_VIEW_HEADING_NAME = "Field Name";
-    protected final static String SINGLE_NODE_VIEW_HEADING_VALUE = "Value";
+    protected final static String SINGLE_NODE_VIEW_HEADING_NAME = RESOURCE.getString("FIELD NAME");
+    protected final static String SINGLE_NODE_VIEW_HEADING_VALUE = RESOURCE.getString("VALUE");
     protected final static String[] SINGLE_NODE_VIEW_HEADINGS = new String[]{SINGLE_NODE_VIEW_HEADING_NAME, SINGLE_NODE_VIEW_HEADING_VALUE};
     private boolean showIcons = false;
     private boolean sortReverse = false;
