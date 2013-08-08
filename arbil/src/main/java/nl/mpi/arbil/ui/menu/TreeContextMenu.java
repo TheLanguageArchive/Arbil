@@ -20,6 +20,7 @@ package nl.mpi.arbil.ui.menu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Enumeration;
+import java.util.ResourceBundle;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -54,6 +55,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Twan Goosen
  */
 public class TreeContextMenu extends ArbilContextMenu {
+    private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
 
     private final TreeHelper treeHelper;
     private final MessageDialogHandler dialogHandler;
@@ -311,7 +313,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_NODE, PRIORITY_MIDDLE + 5, reloadSubnodesMenuItem);
 
-	groupFavouritesMenuItem.setText("Group Favourites by Type");//java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW HIDDEN FILES"));
+	groupFavouritesMenuItem.setText(menus.getString("GROUP FAVOURITES BY TYPE"));//java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW HIDDEN FILES"));
 	groupFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -637,7 +639,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_RESOURCE, PRIORITY_MIDDLE, setManualResourceLocationMenuItem);
 
-	forceTypeCheckMenuItem.setText("Force Type Checking");
+	forceTypeCheckMenuItem.setText(menus.getString("FORCE TYPE CHECKING"));
 	forceTypeCheckMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		treeController.forceTypeCheck(leadSelectedDataNode);
@@ -645,7 +647,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_RESOURCE, PRIORITY_BOTTOM, forceTypeCheckMenuItem);
 
-	importExportFavouritesMenuItem.setText("Import/Export Favourites");
+	importExportFavouritesMenuItem.setText(menus.getString("IMPORT/EXPORT FAVOURITES"));
 	importExportFavouritesMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		final FavouritesImportExportGUI importExportUI = new FavouritesImportExportGUI(dialogHandler, sessionStorage, treeHelper, versionManager.getApplicationVersion());
