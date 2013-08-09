@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
+import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
 import javax.swing.filechooser.FileFilter;
 import nl.mpi.arbil.favourites.FavouritesExporter;
@@ -48,9 +49,10 @@ public class ImportAction extends AbstractAction {
 
 	@Override
 	public String getDescription() {
-	    return "Favourites export file";
+	    return widgets.getString("FAVOURITES EXPORT FILE");
 	}
     });
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     public ImportAction(PluginDialogHandler dialogHandler, FavouritesImporter importer) {
 	super("import");
@@ -66,7 +68,7 @@ public class ImportAction extends AbstractAction {
     }
 
     private void importFavourites() {
-	final File[] exportLocation = dialogHandler.showFileSelectBox("Select favourites export to import", false, false, importFileMap, PluginDialogHandler.DialogueType.open, null);
+	final File[] exportLocation = dialogHandler.showFileSelectBox(widgets.getString("SELECT FAVOURITES EXPORT TO IMPORT"), false, false, importFileMap, PluginDialogHandler.DialogueType.open, null);
 	if (exportLocation != null && exportLocation.length > 0 && exportLocation[0] != null) {
 	    try {
 		if (exportLocation[0].isDirectory()) {
@@ -75,11 +77,11 @@ public class ImportAction extends AbstractAction {
 		    // If export file is selected instead of directory, pass parent (= directory)
 		    importer.importFavourites(exportLocation[0].getParentFile());
 		}
-		dialogHandler.addMessageDialogToQueue("Favourites have been imported", "Import complete");
+		dialogHandler.addMessageDialogToQueue(widgets.getString("FAVOURITES HAVE BEEN IMPORTED"), widgets.getString("IMPORT COMPLETE"));
 	    } catch (FavouritesImportExportException ex) {
 		logger.error("An error occurred while importing favourites", ex);
 		dialogHandler.addMessageDialogToQueue(
-			String.format("An error occurred while importing favourites:\n%s.\nSee error log for details.",
+			String.format(widgets.getString("FAVOURITES_AN ERROR OCCURRED WHILE IMPORTING FAVOURITES"),
 			ex.getMessage()), "Error");
 	    }
 	}

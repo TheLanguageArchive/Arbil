@@ -26,6 +26,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -63,8 +64,9 @@ import nl.mpi.flap.plugin.PluginDialogHandler;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
-    // UI components
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
+    // UI components
     private final JPanel panel;
     private final DefaultListModel nodesListModel;
     private final ListSelectionModel nodesListSelectionModel;
@@ -114,11 +116,11 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
 	importExportPanel.setPreferredSize(new Dimension(600, 400));
 
 	final JPanel importPanel = createImportPanel();
-	importPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Import favourites"));
+	importPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), widgets.getString("IMPORT FAVOURITES")));
 	importExportPanel.add(importPanel);
 
 	final JPanel exportPanel = createExportPanel();
-	exportPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Export favourites"));
+	exportPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), widgets.getString("EXPORT FAVOURITES")));
 	importExportPanel.add(exportPanel);
 
 	return importExportPanel;
@@ -128,8 +130,8 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
 	final JPanel importPanel = new JPanel(new BorderLayout());
 
 	final JTextArea importInstructions = new JTextArea(String.format(
-		"Press the import button, then choose an existing directory that has an exported collection of favourites. "
-		+ "The directory should contain a file called %s.\n",
+		widgets.getString("FAVOURITES_PRESS THE IMPORT BUTTON")
+		+ widgets.getString("FAVOURITES_THE DIRECTORY SHOULD CONTAIN A FILE CALLED"),
 		FavouritesExporter.FAVOURITES_LIST_FILE));
 	importInstructions.setEditable(false);
 	importInstructions.setLineWrap(true);
@@ -143,7 +145,7 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
 	importPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
 	final JButton importButton = new ImportButton(importAction);
-	importButton.setText("Import from disk");
+	importButton.setText(widgets.getString("IMPORT FROM DISK"));
 	buttonsPanel.add(importButton);
 
 	return importPanel;
@@ -152,11 +154,7 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
     private JPanel createExportPanel() {
 	final JPanel exportPanel = new JPanel(new BorderLayout());
 
-	final JTextArea exportInstructions = new JTextArea(
-		"Select one or more favourites that you wish to export from the list below, then press the export button. "
-		+ "Then select the directory to which you would like to export the selected favourites.\n\n"
-		+ "Hint: you can use modifier keys on the keyboard to select or deselect individual favourites (CTRL or CMD) "
-		+ "or to select a range (SHIFT).\n");
+	final JTextArea exportInstructions = new JTextArea(widgets.getString("FAVOURITES_SELECT ONE OR MORE FAVOURITES THAT YOU WISH TO EXPORT"));
 	exportInstructions.setEditable(false);
 	exportInstructions.setLineWrap(true);
 	exportInstructions.setWrapStyleWord(true);
@@ -169,11 +167,11 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
 	exportPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
 	final JButton refreshButton = new JButton(refreshAction);
-	refreshButton.setText("Refresh");
+	refreshButton.setText(widgets.getString("REFRESH"));
 	buttonsPanel.add(refreshButton);
 
 	final JButton exportButton = new ExportButton(exportAction);
-	exportButton.setText("Export selection");
+	exportButton.setText(widgets.getString("EXPORT SELECTION"));
 	buttonsPanel.add(exportButton);
 
 	JList nodesList = new JList(nodesListModel);

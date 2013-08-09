@@ -23,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.favourites.FavouritesExporter;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 public class ExportAction extends AbstractAction {
     
     private final static Logger logger = LoggerFactory.getLogger(ExportAction.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final PluginDialogHandler dialogHandler;
     private final FavouritesExporter exporter;
     
@@ -65,23 +67,23 @@ public class ExportAction extends AbstractAction {
     private void exportFavourites(List<ArbilDataNode> nodesToExport) {
 	if (nodesToExport.size() > 0) {
 	    try {
-		File[] exportLocation = dialogHandler.showFileSelectBox("Select export destination", true, false, null, PluginDialogHandler.DialogueType.save, null);
+		File[] exportLocation = dialogHandler.showFileSelectBox(widgets.getString("SELECT EXPORT DESTINATION"), true, false, null, PluginDialogHandler.DialogueType.save, null);
 		if (exportLocation != null && exportLocation.length > 0 && exportLocation[0] != null) {
 		    // Carry out export
 		    exporter.exportFavourites(exportLocation[0], nodesToExport.toArray(new ArbilDataNode[]{}));
 		    // Show result in file browser
 		    openDirectory(exportLocation[0]);
 		    // Applause!
-		    dialogHandler.addMessageDialogToQueue("Favourites have been exported", "Export complete");
+		    dialogHandler.addMessageDialogToQueue(widgets.getString("FAVOURITES HAVE BEEN EXPORTED"), widgets.getString("EXPORT COMPLETE"));
 		}
 	    } catch (FavouritesImportExportException ex) {
 		logger.error("An error occurred while exporting favourites", ex);
 		dialogHandler.addMessageDialogToQueue(
-			String.format("An error occurred while exporting favourites:\n%s.\nSee error log for details.",
+			String.format(widgets.getString("AN ERROR OCCURRED WHILE EXPORTING FAVOURITES"),
 			ex.getMessage()), "Error");
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue("No nodes are selected. Select at least one node to export.", "Select nodes to export");
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("NO NODES ARE SELECTED. SELECT AT LEAST ONE NODE TO EXPORT."), widgets.getString("SELECT NODES TO EXPORT"));
 	}
     }
 
