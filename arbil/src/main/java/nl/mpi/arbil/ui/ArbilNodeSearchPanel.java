@@ -19,9 +19,11 @@ package nl.mpi.arbil.ui;
 
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.ResourceBundle;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -45,6 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContainer {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final static Logger logger = LoggerFactory.getLogger(ArbilNodeSearchPanel.class);
     private ArbilNodeSearchPanel thisPanel = this;
     private final JInternalFrame parentFrame;
@@ -108,7 +111,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	buttonsProgressPanel.add(searchProgressBar);
 
 	stopButton = new JButton();
-	stopButton.setText("stop");
+	stopButton.setText(widgets.getString("SEARCH_STOP"));
 	stopButton.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -122,7 +125,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	buttonsProgressPanel.add(stopButton);
 
 	searchButton = new JButton();
-	searchButton.setText("search");
+	searchButton.setText(widgets.getString("SEARCH_SEARCH"));
 	searchButton.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -279,7 +282,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		public void run() {
 		    if (remoteServerSearchTerm != null) {
 			searchProgressBar.setIndeterminate(true);
-			searchProgressBar.setString("connecting to server");
+			searchProgressBar.setString(widgets.getString("SEARCH_CONNECTING TO SERVER"));
 
 			searchService.fetchRemoteSearchResults();
 
@@ -294,7 +297,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	    if (searchService.isSearchStopped()) {
 		SwingUtilities.invokeLater(new Runnable() {
 		    public void run() {
-			searchProgressBar.setString("search canceled");
+			searchProgressBar.setString(widgets.getString("SEARCH CANCELED"));
 		    }
 		});
 	    } else {
@@ -346,7 +349,10 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	public void searchProgress(Object currentElement) {
 	    if (currentElement instanceof ArbilNode) {
 		// todo: indicate how many metadata files searched rather than sub nodes
-		searchProgressBar.setString("searched: " + searchService.getTotalSearched() + "/" + searchService.getTotalNodesToSearch() + " found: " + searchService.getFoundNodes().size());
+		searchProgressBar.setString(MessageFormat.format(widgets.getString("SEARCHED: {0}/{1} FOUND: {2}"),
+			searchService.getTotalSearched(),
+			searchService.getTotalNodesToSearch(),
+			searchService.getFoundNodes().size()));
 	    }
 	    if (!parentFrame.isVisible() && searchService != null) {
 		// in the case that the user has closed the search window we want to stop the searchThread

@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.ResourceBundle;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -54,6 +55,7 @@ import org.slf4j.LoggerFactory;
 public class ArbilLogConsole {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilLogConsole.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final JDialog logDialog;
     private final JTextArea logTextArea;
     private Handler logHandler;
@@ -62,7 +64,7 @@ public class ArbilLogConsole {
 
     public ArbilLogConsole(Frame owner) {
 	// Create the dialog
-	logDialog = new JDialog(owner, "Arbil log console");
+	logDialog = new JDialog(owner, widgets.getString("ARBIL LOG CONSOLE"));
 	logDialog.setModal(false);
 	logDialog.setLayout(new BorderLayout());
 	logDialog.setSize(new Dimension(600, 400));
@@ -82,7 +84,7 @@ public class ArbilLogConsole {
 	bottomPanel.add(logLevelCombo, BorderLayout.LINE_START);
 
 	// Add a close button
-	final JButton closeButton = new JButton(new AbstractAction("Close") {
+	final JButton closeButton = new JButton(new AbstractAction(widgets.getString("CLOSE")) {
 	    public void actionPerformed(ActionEvent e) {
 		logDialog.dispose();
 	    }

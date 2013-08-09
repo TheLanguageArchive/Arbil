@@ -28,7 +28,6 @@ import javax.swing.event.ListDataListener;
 
 // Updates the split panel when there are resources or loose files in the list to display
 public class ArbilListDataListener implements ListDataListener {
-
     private ArbilSplitPanel arbilSplitPanel;
 
     public ArbilListDataListener(ArbilSplitPanel localArbilSplitPanel) {

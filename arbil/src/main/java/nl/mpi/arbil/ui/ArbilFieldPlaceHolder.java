@@ -34,7 +34,7 @@ public class ArbilFieldPlaceHolder implements Serializable {
     private transient ArbilDataNode arbilDataNode;
     private URI arbilDataNodeURI = null;
     private static DataNodeLoader dataNodeLoader;
-
+ 
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }

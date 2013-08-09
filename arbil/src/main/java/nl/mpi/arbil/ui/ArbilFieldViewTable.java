@@ -18,6 +18,7 @@
 package nl.mpi.arbil.ui;
 
 import java.awt.event.MouseEvent;
+import java.util.ResourceBundle;
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ArbilFieldViewTable extends JTable {
     private final static Logger logger = LoggerFactory.getLogger(ArbilFieldViewTable.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     public ArbilFieldViewTable(ArbilTableModel imdiTableModel) {
 	TableModel tableModel = new ArbilFieldViewTableModel(imdiTableModel);
@@ -126,9 +128,9 @@ public class ArbilFieldViewTable extends JTable {
 	java.awt.Point p = e.getPoint();
 	switch (columnAtPoint(p)) {
 	    case 2:
-		return "Show only checked fields (hides all others and overrides hide fields)";
+		return widgets.getString("FIELD_VIEW_TABLE_SHOW ONLY CHECKED FIELDS (HIDES ALL OTHERS AND OVERRIDES HIDE FIELDS)");
 	    case 3:
-		return "Hide checked fields (only active when no 'show only' selection is made)";
+		return widgets.getString("FIELD_VIEW_TABLE_HIDE CHECKED FIELDS (ONLY ACTIVE WHEN NO 'SHOW ONLY' SELECTION IS MADE)");
 	}
 	return null;
     }

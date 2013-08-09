@@ -17,18 +17,22 @@
  */
 package nl.mpi.arbil.ui;
 
+import java.text.MessageFormat;
 import java.util.Enumeration;
+import java.util.ResourceBundle;
 import javax.swing.table.DefaultTableModel;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
- * Document   : ArbilFieldViewTableModel
+ * Document : ArbilFieldViewTableModel
  * This table model is used to edit the field view for a given imdi table model
  * Split from ImdiFieldViews on : Dec 16, 2008, 10:27:30 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFieldViewTableModel extends DefaultTableModel {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private ArbilTableModel imdiTableModel;
     private static MessageDialogHandler dialogHandler;
 
@@ -40,7 +44,7 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 	imdiTableModel = localImdiTableModel;
 	//logger.debug("setting to: " + viewLabel);
 	// "Column Description",  is not relevant here because this is a list of column names not imdi fields
-	setColumnIdentifiers(new String[]{"Column Name", "Show Only", "Hide", "Column width"}); //, "Always Display"
+	setColumnIdentifiers(new String[]{widgets.getString("FIELD_VIEW_TABLE_COLUMN NAME"), widgets.getString("FIELD_VIEW_TABLE_SHOW ONLY"), widgets.getString("FIELD_VIEW_TABLE_HIDE"), widgets.getString("FIELD_VIEW_TABLE_COLUMN WIDTH")}); //, "Always Display"
 	// we want a table model even if it has no rows
 	ArbilFieldView currentView = imdiTableModel.getFieldView();
 	if (currentView != null) {
@@ -48,17 +52,17 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 	    for (Enumeration knownColumnNames = ((ArbilFieldView) currentView).getKnownColumns(); knownColumnNames.hasMoreElements();) {
 		String currentFieldName = knownColumnNames.nextElement().toString();
 		this.addRow(new Object[]{currentFieldName,
-			    //GuiHelper.imdiSchema.getHelpForField(currentFieldName),
-			    // set the show only fields
-			    ((ArbilFieldView) currentView).isShowOnlyColumn(currentFieldName),
-			    // set the hidden fields
-			    ((ArbilFieldView) currentView).isHiddenColumn(currentFieldName),
-			    // set width
-			    widthToString(((ArbilFieldView) currentView).getColumnWidth(currentFieldName))
-			//,
-			// set alays show fields
-			//((LinorgFieldView) currentView).isAlwaysShowColumn(currentFieldName)
-			});
+		    //GuiHelper.imdiSchema.getHelpForField(currentFieldName),
+		    // set the show only fields
+		    ((ArbilFieldView) currentView).isShowOnlyColumn(currentFieldName),
+		    // set the hidden fields
+		    ((ArbilFieldView) currentView).isHiddenColumn(currentFieldName),
+		    // set width
+		    widthToString(((ArbilFieldView) currentView).getColumnWidth(currentFieldName))
+		//,
+		// set alays show fields
+		//((LinorgFieldView) currentView).isAlwaysShowColumn(currentFieldName)
+		});
 	    }
 	}
     }
@@ -127,7 +131,9 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 				Integer width = Integer.parseInt((String) aValue);
 				imdiTableModel.setPreferredColumnWidth(targetColumnName, width);
 			    } catch (NumberFormatException ex) {
-				dialogHandler.addMessageDialogToQueue("Invalid width for column " + targetColumnName, "Column width invalid");
+				dialogHandler.addMessageDialogToQueue(
+					MessageFormat.format(widgets.getString("FIELD_VIEW_TABLE_INVALID WIDTH FOR COLUMN {0}"), targetColumnName),
+					widgets.getString("COLUMN WIDTH INVALID"));
 			    }
 			    break;
 			}
