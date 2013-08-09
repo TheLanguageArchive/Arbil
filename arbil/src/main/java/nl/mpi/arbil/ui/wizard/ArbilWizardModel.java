@@ -18,6 +18,7 @@
 package nl.mpi.arbil.ui.wizard;
 
 import java.util.HashMap;
+import java.util.ResourceBundle;
 
 /**
  * Model for the ArbilWizard. Hold the wizard's contents and keeps track of the wizard state
@@ -25,6 +26,7 @@ import java.util.HashMap;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilWizardModel {
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     private Object currentId = null;
     private final HashMap<Object, ArbilWizardContent> contents = new HashMap<Object, ArbilWizardContent>();

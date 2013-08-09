@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -54,6 +55,7 @@ public abstract class ArbilWizard {
     private final static String PREVIOUS_ACTION = "wizard_action_previous";
     private final static String CANCEL_ACTION = "wizard_action_cancel";
     private final static String FINISH_ACTION = "wizard_action_finish";
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     public ArbilWizard() {
 	this(null);
@@ -124,22 +126,22 @@ public abstract class ArbilWizard {
 		BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY))); // inside top line
         buttonsPanel.setBackground(Color.WHITE);
 
-	previousButton = new JButton("Previous");
+	previousButton = new JButton(widgets.getString("PREVIOUS"));
 	previousButton.setActionCommand(PREVIOUS_ACTION);
 	previousButton.addActionListener(buttonListener);
 	buttonsPanel.add(previousButton);
 
-	nextButton = new JButton("Next");
+	nextButton = new JButton(widgets.getString("NEXT"));
 	nextButton.setActionCommand(NEXT_ACTION);
 	nextButton.addActionListener(buttonListener);
 	buttonsPanel.add(nextButton);
 
-	finishButton = new JButton("Finish");
+	finishButton = new JButton(widgets.getString("FINISH"));
 	finishButton.setActionCommand(FINISH_ACTION);
 	finishButton.addActionListener(buttonListener);
 	buttonsPanel.add(finishButton);
 
-	cancelButton = new JButton("Cancel");
+	cancelButton = new JButton(widgets.getString("CANCEL"));
 	cancelButton.setActionCommand(CANCEL_ACTION);
 	cancelButton.addActionListener(buttonListener);
 	buttonsPanel.add(cancelButton);
@@ -149,7 +151,7 @@ public abstract class ArbilWizard {
 	} else {
 	    wizardDialog = new JDialog();
 	}
-	wizardDialog.setTitle("Arbil wizard");
+	wizardDialog.setTitle(widgets.getString("ARBIL WIZARD"));
 	wizardDialog.getContentPane().setLayout(new BorderLayout());
         wizardDialog.getContentPane().setBackground(Color.WHITE);
 	wizardDialog.getContentPane().add(wizardContentPanel, BorderLayout.CENTER);
