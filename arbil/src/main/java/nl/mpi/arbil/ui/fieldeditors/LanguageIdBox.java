@@ -22,6 +22,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.JComboBox;
 import javax.swing.SwingUtilities;
 import nl.mpi.arbil.data.ArbilField;
@@ -35,9 +36,10 @@ import nl.mpi.arbil.util.BugCatcherManager;
  */
 public class LanguageIdBox extends JComboBox {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     public final static int languageSelectWidth = 100;
-    private final static String defaultLanguageDropDownValue = "<select>";
-    private final static String initializingDropDownValue = "initializing...";
+    private final static String defaultLanguageDropDownValue = widgets.getString("<SELECT>");
+    private final static String initializingDropDownValue = widgets.getString("INITIALIZING...");
     private final ArbilField cellField;
 
     /**

@@ -27,6 +27,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -68,6 +69,8 @@ import nl.mpi.arbil.util.WindowManager;
  * Author : Peter Withers, Twan Goosen
  */
 public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContainer {
+
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     ArbilTable parentTable = null;
     ArbilDataNode parentArbilDataNode;
@@ -332,11 +335,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private JPanel createPreviousNextPanel() {
 	prevButton = new JButton(previousAction);
-	prevButton.setText("Previous");
+	prevButton.setText(widgets.getString("PREVIOUS"));
 	prevButton.setMnemonic('p');
 
 	nextButton = new JButton(nextAction);
-	nextButton.setText("Next");
+	nextButton.setText(widgets.getString("NEXT"));
 	nextButton.setMnemonic('n');
 
 	JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
@@ -619,7 +622,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     };
     private final static int ATTR_NAME_COLUMN = 0;
     private final static int ATTR_VALUE_COLUMN = 1;
-    private final static String[] ATTR_COLUMN_NAMES = new String[]{"Attribute", "Value"};
+    private final static String[] ATTR_COLUMN_NAMES = new String[]{widgets.getString("LONGFIELD_ATTRIBUTE"), widgets.getString("LONGFIED_ATTRIBUTE_VALUE")};
     private final static Class[] ATTR_COLUMN_TYPES = new Class[]{String.class, Object.class};
 
     private class FieldAttributesTableModel implements TableModel {
@@ -706,16 +709,16 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	}
 
 	private void addComponents() {
-	    add(new JLabel("Key Name: "), BorderLayout.LINE_START);
+	    add(new JLabel(widgets.getString("KEY NAME: ")), BorderLayout.LINE_START);
 	    add(keyNameLabel, BorderLayout.CENTER);
 	    add(changeKeyNameButton, BorderLayout.LINE_END);
 	}
 
 	private void initActionButtonsPanel() {
 	    JButton saveFieldNameButton = new JButton(keyNameSaveAction);
-	    saveFieldNameButton.setText("Apply");
+	    saveFieldNameButton.setText(widgets.getString("APPLY"));
 	    JButton cancelFieldNameButton = new JButton(keyNameCancelAction);
-	    cancelFieldNameButton.setText("Cancel");
+	    cancelFieldNameButton.setText(widgets.getString("CANCEL"));
 	    changeActionButtonsPanel = new JPanel(new BorderLayout());
 	    changeActionButtonsPanel.add(saveFieldNameButton, BorderLayout.LINE_START);
 	    changeActionButtonsPanel.add(cancelFieldNameButton, BorderLayout.LINE_END);
@@ -727,7 +730,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 		    enableEditMode();
 		}
 	    });
-	    changeKeyNameButton.setText("Change key name");
+	    changeKeyNameButton.setText(widgets.getString("CHANGE KEY NAME"));
 	    changeKeyNameButton.setMnemonic('c');
 	}
 
