@@ -44,11 +44,11 @@ public class LocalisationUtils {
     }
 
     private InputStream tryLocalizedResourceStream(String resourceLocation, final int extensionLocation, final String localeString) {
-	// Insert locale string before final extension (e.g. myresource.en_US.html)
-	final String localizedResourceLocation = String.format("%s.%s.%s",
+	// Insert locale string before final extension (e.g. myresource_en_US.html)
+	final String localizedResourceLocation = String.format("%s_%s%s",
 		resourceLocation.substring(0, extensionLocation),
 		localeString,
-		resourceLocation.substring(extensionLocation + 1));
+		resourceLocation.substring(extensionLocation));
 	return referenceClass.getResourceAsStream(localizedResourceLocation);
     }
 }
