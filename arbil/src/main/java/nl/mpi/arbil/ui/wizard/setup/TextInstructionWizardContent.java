@@ -32,18 +32,22 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import nl.mpi.arbil.localisation.LocalisationUtils;
 import nl.mpi.arbil.ui.wizard.ArbilWizardContent;
 import nl.mpi.arbil.util.BugCatcherManager;
 
 /**
  * Abstract Wizard content that has vertical box layout with JTextPane on top (BorderLayout.NORTH)
  * Contents of JTextPane come from resource with specified location
+ *
  * @see BorderLayout
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public abstract class TextInstructionWizardContent extends JPanel implements ArbilWizardContent {
 
     private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
+    private final static LocalisationUtils localisationUtils = new LocalisationUtils();
+
     /**
      * @param resourceLocation Location of text (HTML formatted) resource to show as introduction
      */
@@ -64,7 +68,7 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
 
     private String loadContentFromResource(String resourceLocation) {
 	try {
-	    final InputStream resourceStream = getClass().getResourceAsStream(resourceLocation);
+	    final InputStream resourceStream = localisationUtils.getLocalizedResourceStream(resourceLocation);
 	    if (resourceStream == null) {
 		BugCatcherManager.getBugCatcher().logError("Cannot load wizard text. Location: " + resourceLocation, null);
 	    } else {
@@ -104,7 +108,6 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
     public void refresh() {
     }
     private static HyperlinkListener hyperLinkListener = new HyperlinkListener() {
-
 	public void hyperlinkUpdate(HyperlinkEvent e) {
 	    if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 		if (Desktop.isDesktopSupported()) {
