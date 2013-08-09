@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -37,6 +38,7 @@ import nl.mpi.arbil.util.TreeHelper;
  */
 public class ArbilSetupWizard extends ArbilWizard {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -82,8 +84,8 @@ public class ArbilSetupWizard extends ArbilWizard {
     protected boolean onCancel() {
 	return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 		getWizardDialog(),
-		"Do you really want to cancel the wizard?",
-		"Cancel wizard",
+		widgets.getString("DO YOU REALLY WANT TO CANCEL THE WIZARD?"),
+		widgets.getString("CANCEL WIZARD"),
 		JOptionPane.YES_NO_OPTION,
 		JOptionPane.QUESTION_MESSAGE);
     }

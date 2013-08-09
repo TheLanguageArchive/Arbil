@@ -19,6 +19,7 @@ package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.ResourceBundle;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -30,6 +31,7 @@ import nl.mpi.arbil.ui.CmdiProfilesPanel;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class CmdiProfileSelectContent extends TextInstructionWizardContent {
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     private CmdiProfilesPanel profilesPanel;
 
@@ -37,7 +39,7 @@ public class CmdiProfileSelectContent extends TextInstructionWizardContent {
 	super("/nl/mpi/arbil/resources/html/wizard/CmdiProfileSelect.html");
 
 	profilesPanel = new CmdiProfilesPanel(wizardDialog);
-	profilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
+	profilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(widgets.getString("SETUP_CLARIN PROFILES")));
 	profilesPanel.setPreferredSize(new Dimension(200, 300));
 	profilesPanel.setInstructionsVisible(false); // don't show instructions in addition to the one in the wizard
 	profilesPanel.setVisible(false); // do not show until content panel is visible
@@ -60,8 +62,8 @@ public class CmdiProfileSelectContent extends TextInstructionWizardContent {
 	    doNext = true;
 	} else {
 	    doNext = JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,
-		    "You have not yet selected profiles to use. Are you sure you want to continue?",
-		    "No profiles selected",
+		    widgets.getString("SETUP_YOU HAVE NOT YET SELECTED PROFILES TO USE. ARE YOU SURE YOU WANT TO CONTINUE?"),
+		    widgets.getString("SETUP_NO PROFILES SELECTED"),
 		    JOptionPane.OK_CANCEL_OPTION,
 		    JOptionPane.WARNING_MESSAGE);
 	}

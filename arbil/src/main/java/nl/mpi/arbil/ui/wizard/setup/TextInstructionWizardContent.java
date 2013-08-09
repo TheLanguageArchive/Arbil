@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.util.ResourceBundle;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -42,6 +43,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  */
 public abstract class TextInstructionWizardContent extends JPanel implements ArbilWizardContent {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     /**
      * @param resourceLocation Location of text (HTML formatted) resource to show as introduction
      */
@@ -81,7 +83,7 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
 	} catch (IOException ex) {
 	    BugCatcherManager.getBugCatcher().logError("I/O exception while getting wizard text. Location: " + resourceLocation, ex);
 	}
-	return "Error while getting wizard text. Please check the error log.";
+	return widgets.getString("ERROR WHILE GETTING WIZARD TEXT. PLEASE CHECK THE ERROR LOG.");
     }
 
     public JComponent getContent() {

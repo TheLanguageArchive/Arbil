@@ -19,6 +19,7 @@ package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.ResourceBundle;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -30,6 +31,7 @@ import javax.swing.SwingConstants;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class MetadataFormatSelectContent extends TextInstructionWizardContent {
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     private final ArbilSetupWizardModel model;
     private final JCheckBox imdiCheckBox;
@@ -69,7 +71,7 @@ public class MetadataFormatSelectContent extends TextInstructionWizardContent {
 	if (model.isImdiSelected() || model.isCmdiSelected()) {
 	    return true;
 	} else {
-	    JOptionPane.showMessageDialog(this, "Select at least one of the options before continuing", "Select a metadata format", JOptionPane.WARNING_MESSAGE);
+	    JOptionPane.showMessageDialog(this, widgets.getString("SETUP_SELECT AT LEAST ONE OF THE OPTIONS BEFORE CONTINUING"), widgets.getString("SETUP_SELECT A METADATA FORMAT"), JOptionPane.WARNING_MESSAGE);
 	    return false;
 	}
     }

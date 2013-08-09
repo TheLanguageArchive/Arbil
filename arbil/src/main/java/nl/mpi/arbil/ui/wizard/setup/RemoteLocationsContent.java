@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -47,6 +48,7 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
     private JTextArea locationsTextArea;
     public final static String imdiDefaultsResource = "/nl/mpi/arbil/defaults/imdiLocations";
     public final static String cmdiDefaultsResource = "/nl/mpi/arbil/defaults/cmdiLocations";
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     public RemoteLocationsContent(ArbilSetupWizardModel model) {
 	super("/nl/mpi/arbil/resources/html/wizard/RemoteLocations.html");
@@ -82,8 +84,8 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
 	    return true;
 	} else {
 	    return JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,
-		    "You have not yet specified any remote locations. Are you sure you want to continue?",
-		    "No locations specified",
+		    widgets.getString("SETUP_YOU HAVE NOT YET SPECIFIED ANY REMOTE LOCATIONS. ARE YOU SURE YOU WANT TO CONTINUE?"),
+		    widgets.getString("SETUP_NO LOCATIONS SPECIFIED"),
 		    JOptionPane.OK_CANCEL_OPTION,
 		    JOptionPane.WARNING_MESSAGE);
 	}
@@ -92,8 +94,8 @@ public class RemoteLocationsContent extends TextInstructionWizardContent {
     @Override
     public boolean beforePrevious() {
 	if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,
-		"Doing this will reset the list of remote locations. Do you want to go back a step in the wizard?",
-		"Discard changes",
+		widgets.getString("DOING THIS WILL RESET THE LIST OF REMOTE LOCATIONS. DO YOU WANT TO GO BACK A STEP IN THE WIZARD?"),
+		widgets.getString("DISCARD CHANGES"),
 		JOptionPane.OK_CANCEL_OPTION,
 		JOptionPane.WARNING_MESSAGE)) {
 	    model.setRemoteLocations(null);

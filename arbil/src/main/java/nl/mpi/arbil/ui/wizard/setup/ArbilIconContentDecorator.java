@@ -19,6 +19,7 @@ package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -34,6 +35,7 @@ import nl.mpi.arbil.ui.wizard.ArbilWizardContent;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilIconContentDecorator extends JPanel implements ArbilWizardContent {
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     private ArbilWizardContent innerContent;
 
