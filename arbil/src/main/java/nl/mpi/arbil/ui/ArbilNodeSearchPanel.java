@@ -278,20 +278,9 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	private void executeSearch() {
 	    searchService.splitLocalRemote();
 
-	    SwingUtilities.invokeLater(new Runnable() {
-		public void run() {
-		    if (remoteServerSearchTerm != null) {
-			searchProgressBar.setIndeterminate(true);
-			searchProgressBar.setString(widgets.getString("SEARCH_CONNECTING TO SERVER"));
-
-			searchService.fetchRemoteSearchResults();
-
-			searchProgressBar.setString("");
-			searchProgressBar.setIndeterminate(false);
-		    }
-		}
-	    });
-
+	    if (remoteServerSearchTerm != null) {
+		prepareRemoteSearch();
+	    }
 	    searchService.searchLocalNodes();
 
 	    if (searchService.isSearchStopped()) {
@@ -304,6 +293,24 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		// collect the max nodes found only if the search completed
 		searchService.setTotalNodesToSearch(searchService.getTotalSearched());
 	    }
+	}
+
+	private void prepareRemoteSearch() {
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    searchProgressBar.setIndeterminate(true);
+		    searchProgressBar.setString(widgets.getString("SEARCH_CONNECTING TO SERVER"));
+		}
+	    });
+
+	    searchService.fetchRemoteSearchResults();
+
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    searchProgressBar.setString("");
+		    searchProgressBar.setIndeterminate(false);
+		}
+	    });
 	}
 
 	private void finishUI() {

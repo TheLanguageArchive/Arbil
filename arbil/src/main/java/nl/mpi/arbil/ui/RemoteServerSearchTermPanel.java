@@ -25,6 +25,7 @@ import java.util.ResourceBundle;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.search.ArbilRemoteSearch;
 import nl.mpi.arbil.search.RemoteServerSearchTerm;
@@ -85,13 +86,24 @@ public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerS
 
     @Override
     public URI[] getServerSearchResults(ArbilDataNode[] arbilDataNodeArray) {
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		resultCountLabel.setText(widgets.getString("SEARCH_CONNECTING TO SERVER"));
+	    }
+	});
+
 	final String searchFieldText = searchField.getText();
 	if (ArbilRemoteSearch.isEmptyQuery(searchFieldText)) {
 	    dialogHandler.addMessageDialogToQueue(widgets.getString("NO REMOTE SEARCH TERM PROVIDED, CANNOT SEARCH REMOTELY"), widgets.getString("REMOTE SEARCH"));
 	}
 
-	URI[] searchResult = remoteSearch.getServerSearchResults(searchFieldText, arbilDataNodeArray);
-	resultCountLabel.setText(String.format(widgets.getString("SEARCH_N FOUND ON SERVER "), searchResult.length));
+	final URI[] searchResult = remoteSearch.getServerSearchResults(searchFieldText, arbilDataNodeArray);
+
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		resultCountLabel.setText(String.format(widgets.getString("SEARCH_N FOUND ON SERVER "), searchResult.length));
+	    }
+	});
 	return searchResult;
     }
 }
