@@ -17,13 +17,12 @@
  */
 package nl.mpi.arbil.ui;
 
-import java.util.List;
-import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.Hashtable;
+import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -32,6 +31,8 @@ import javax.swing.JToolTip;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import nl.mpi.arbil.ArbilIcons;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
@@ -42,6 +43,7 @@ import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
  */
 class JListToolTip extends JToolTip {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     JPanel jPanel;
     Object targetObject;
     String preSpaces = "      ";
@@ -59,7 +61,7 @@ class JListToolTip extends JToolTip {
 
     private String truncateString(String inputString) {
 	if (inputString.length() > 100) {
-	    inputString = inputString.substring(0, 100) + "...";
+	    inputString = inputString.substring(0, 100) + widgets.getString("ELIPSIS");
 	}
 	return inputString + " ";// add a space to padd the end of the tooltip
     }
@@ -122,86 +124,86 @@ class JListToolTip extends JToolTip {
 	    addDetailLabelIcon(sb.toString(), ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) field));
 	}
 	if (field.isAttributeField()) {
-	    addDetailLabelIcon("Attribute of " + field.getParentDataNode().toString(), ArbilIcons.getSingleInstance().attributeIcon);
+	    addDetailLabelIcon(MessageFormat.format(widgets.getString("ATTRIBUTE OF {0}"), field.getParentDataNode().toString()), ArbilIcons.getSingleInstance().attributeIcon);
 	}
 	if (field.hasEditableFieldAttributes()) {
 	    final List<String[]> fieldAttributePaths = field.getAttributePaths();
-	    addDetailLabel("Field has " + fieldAttributePaths.size() + " attribute(s)");
+	    addDetailLabel(MessageFormat.format(widgets.getString("FIELD HAS {0} ATTRIBUTE(S)"), fieldAttributePaths.size()));
 	    for (String[] path : fieldAttributePaths) {
 		final Object attributeValue = field.getAttributeValue(path[0]);
 		if (attributeValue != null) {
 		    addDetailLabelIcon(path[1] + ": " + attributeValue, ArbilIcons.getSingleInstance().attributeIcon);
 		}
 	    }
-	    addDetailLabel("Open in long field editor to set attributes");
+	    addDetailLabel(widgets.getString("OPEN IN LONG FIELD EDITOR TO SET ATTRIBUTES"));
 	}
 	if (field.isAllowsLanguageId()) {
-	    addDetailLabelIcon("Field has language attribute", ArbilIcons.getSingleInstance().languageIcon);
+	    addDetailLabelIcon(widgets.getString("TOOLTIP_FIELD HAS LANGUAGE ATTRIBUTE"), ArbilIcons.getSingleInstance().languageIcon);
 	}
     }
 
     private void addLabelsForDataNode(ArbilDataNode tempObject) {
 	if (tempObject.isMetaDataNode()) {
 	    final Map<String, ArbilField[]> tempFields = tempObject.getFields();
-	    addDetailLabel("Name: ", tempFields.get("Name"));
-	    addDetailLabel("Title: ", tempFields.get("Title"));
-	    addDetailLabel("Description: ", tempFields.get("Description"));
-	    addTabbedLabel("Template: " + tempObject.getNodeTemplate().getTemplateName());
+	    addDetailLabel(widgets.getString("TOOLTIP_NAME: "), tempFields.get("Name"));
+	    addDetailLabel(widgets.getString("TOOLTIP_TITLE: "), tempFields.get("Title"));
+	    addDetailLabel(widgets.getString("TOOLTIP_DESCRIPTION: "), tempFields.get(widgets.getString("DESCRIPTION")));
+	    addTabbedLabel(MessageFormat.format(widgets.getString("TEMPLATE: {0}"), tempObject.getNodeTemplate().getTemplateName()));
 	    final String nodePath = tempObject.getNodePath();
 	    if (nodePath != null) {
-		addTabbedLabel("Path: " + nodePath);
+		addTabbedLabel(MessageFormat.format(widgets.getString("TOOLTIP_PATH: {0}"), nodePath));
 	    }
-	    addDetailLabel("Format: ", tempFields.get("Format"));
+	    addDetailLabel(widgets.getString("TOOLTIP_FORMAT: "), tempFields.get("Format"));
 	} else {
 	    if (!tempObject.isDirectory()) {
-		addTabbedLabel("Unattached file");
+		addTabbedLabel(widgets.getString("TOOLTIP_UNATTACHED FILE"));
 		if (tempObject.getTypeCheckerState().equals(TypeCheckerState.CHECKED)) {
 		    if (tempObject.isArchivableFile()) {
-			addTabbedLabel("Archivable file");
+			addTabbedLabel(widgets.getString("TOOLTIP_ARCHIVABLE FILE"));
 		    } else {
-			addTabbedLabel("Not archivable");
-			addTabbedLabel("Type checker message:\n\"" + tempObject.typeCheckerMessage + "\"");
+			addTabbedLabel(widgets.getString("TOOLTIP_NOT ARCHIVABLE"));
+			addTabbedLabel(MessageFormat.format(widgets.getString("TOOLTIP_TYPE CHECKER MESSAGE"), tempObject.typeCheckerMessage));
 		    }
 		} else {
-		    addTabbedLabel("Status: " + tempObject.getTypeCheckerState());
+		    addTabbedLabel(MessageFormat.format(widgets.getString("TOOLTIP_STATUS: {0}"), tempObject.getTypeCheckerState()));
 		}
 	    }
 	}
 	//if (tempObject.matchesInCache + tempObject.matchesLocalFileSystem + tempObject.matchesRemote > 0){
 
 	if (tempObject.hasResource() || (!tempObject.isMetaDataNode() && !tempObject.isDirectory())) {
-	    addTabbedLabel("Copies in cache: " + tempObject.matchesInCache);
-	    addTabbedLabel("Copies on local file system: " + tempObject.matchesLocalFileSystem);
-	    addTabbedLabel("Copies on server: ?"/* + tempObject.matchesRemote*/);
+	    addTabbedLabel(MessageFormat.format(widgets.getString("TOOLTIP_COPIES IN CACHE: {0}"), tempObject.matchesInCache));
+	    addTabbedLabel(MessageFormat.format(widgets.getString("TOOLTIP_COPIES ON LOCAL FILE SYSTEM: {0}"), tempObject.matchesLocalFileSystem));
+	    addTabbedLabel(widgets.getString("TOOLTIP_COPIES ON SERVER: ?")/* + tempObject.matchesRemote*/);
 	}
 
 	if (!tempObject.isLocal()) {
-	    addTabbedLabel("Remote file (read only)");
+	    addTabbedLabel(widgets.getString("TOOLTIP_REMOTE FILE (READ ONLY)"));
 	} else if (tempObject.hasResource()) {
 	    if (tempObject.resourceFileNotFound()) {
-		addTabbedLabel("Resource file not found");
+		addTabbedLabel(widgets.getString("TOOLTIP_RESOURCE FILE NOT FOUND"));
 	    }
 	} else if (tempObject.isMetaDataNode()) {
 	    if (tempObject.isEditable()) {
-		addTabbedLabel("Local file (editable)");
+		addTabbedLabel(widgets.getString("TOOLTIP_LOCAL FILE (EDITABLE)"));
 	    } else {
-		addTabbedLabel("Local file (read only)");
+		addTabbedLabel(widgets.getString("TOOLTIP_LOCAL FILE (READ ONLY)"));
 	    }
 	    if (tempObject.fileNotFound) {
-		addTabbedLabel("File not found");
+		addTabbedLabel(widgets.getString("TOOLTIP_FILE NOT FOUND"));
 	    }
 	}
 	if (tempObject.hasHistory()) {
-	    addTabbedLabel("History of changes are available");
+	    addTabbedLabel(widgets.getString("TOOLTIP_HISTORY OF CHANGES ARE AVAILABLE"));
 	}
 	if (tempObject.getNeedsSaveToDisk(true)) {
-	    addTabbedLabel("Unsaved changes");
+	    addTabbedLabel(widgets.getString("TOOLTIP_UNSAVED CHANGES"));
 	}
 	if (tempObject.isFavorite()) {
-	    addTabbedLabel("Available in the favourites menu");
+	    addTabbedLabel(widgets.getString("TOOLTIP_AVAILABLE IN THE FAVOURITES MENU"));
 	}
 	if (tempObject.hasSchemaError) {
-	    addTabbedLabel("Schema validation error (Check XML Conformance for details)");
+	    addTabbedLabel(widgets.getString("TOOLTIP_SCHEMA VALIDATION ERROR (CHECK XML CONFORMANCE FOR DETAILS)"));
 	}
     }
 

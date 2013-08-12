@@ -35,6 +35,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -74,13 +75,14 @@ import org.slf4j.LoggerFactory;
  */
 public class ImportExportDialog implements ImportExportUI {
     private final static Logger logger = LoggerFactory.getLogger(ImportExportDialog.class);
-
-    private final static String progressFoundLabelText = "Total Metadata Files Found: ";
-    private final static String progressProcessedLabelText = "Total Metadata Files Processed: ";
-    private final static String progressAlreadyInCacheLabelText = "Metadata Files already in Local Corpus: ";
-    private final static String progressFailedLabelText = "Metadata File Copy Errors: ";
-    private final static String progressXmlErrorsLabelText = "Metadata File Validation Errors: ";
-    private final static String resourceCopyErrorsLabelText = "Resource File Copy Errors: ";
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
+    
+    private final static String progressFoundLabelText = widgets.getString("TOTAL METADATA FILES FOUND: ");
+    private final static String progressProcessedLabelText = widgets.getString("TOTAL METADATA FILES PROCESSED: ");
+    private final static String progressAlreadyInCacheLabelText = widgets.getString("METADATA FILES ALREADY IN LOCAL CORPUS: ");
+    private final static String progressFailedLabelText = widgets.getString("METADATA FILE COPY ERRORS: ");
+    private final static String progressXmlErrorsLabelText = widgets.getString("METADATA FILE VALIDATION ERRORS: ");
+    private final static String resourceCopyErrorsLabelText = widgets.getString("RESOURCE FILE COPY ERRORS: ");
     final private JDialog importExportDialog;
     final private JPanel importExportPanel;
     private JPanel inputNodePanel;
@@ -199,7 +201,7 @@ public class ImportExportDialog implements ImportExportUI {
 	updateDialog(showingMoreOptions, showingDetails); // updateDialog no longer calls pack()
 
 	JPanel closeButtonPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-	closeButton = new JButton("Close");
+	closeButton = new JButton(widgets.getString("CLOSE"));
 	closeButton.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		importExportDialog.dispose();
@@ -213,9 +215,9 @@ public class ImportExportDialog implements ImportExportUI {
     }
 
     private JPanel createOptionsPanel() {
-	copyFilesExportCheckBox = new JCheckBox("Export Resource Files (if available)", false);
+	copyFilesExportCheckBox = new JCheckBox(widgets.getString("EXPORT RESOURCE FILES (IF AVAILABLE)"), false);
 
-	copyFilesImportCheckBox = new JCheckBox("Import Resource Files (if available)", false);
+	copyFilesImportCheckBox = new JCheckBox(widgets.getString("IMPORT RESOURCE FILES (IF AVAILABLE)"), false);
 	copyFilesImportCheckBox.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		shibbolethCheckBox.setVisible(copyFilesImportCheckBox.isSelected());
@@ -239,7 +241,7 @@ public class ImportExportDialog implements ImportExportUI {
 
 	JPanel moreOptionsButtonPanel = new JPanel(new BorderLayout());
 	showMoreButton = new JButton("");
-	showMoreButton.setToolTipText("Show/hide additional options");
+	showMoreButton.setToolTipText(widgets.getString("SHOW/HIDE ADDITIONAL OPTIONS"));
 	showMoreButton.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		try {
@@ -323,20 +325,20 @@ public class ImportExportDialog implements ImportExportUI {
 	taskOutput = new JTextArea(5, 20);
 	taskOutput.setMargin(new Insets(5, 5, 5, 5));
 	taskOutput.setEditable(false);
-	taskOutput.append("The details of the import / export process will be displayed here.\n");
-	detailsTabPane.add("Process Details", new JScrollPane(taskOutput));
+	taskOutput.append(widgets.getString("THE DETAILS OF THE IMPORT / EXPORT PROCESS WILL BE DISPLAYED HERE"));
+	detailsTabPane.add(widgets.getString("PROCESS DETAILS"), new JScrollPane(taskOutput));
 
 	xmlOutput = new JTextArea(5, 20);
 	xmlOutput.setMargin(new Insets(5, 5, 5, 5));
 	xmlOutput.setEditable(false);
-	xmlOutput.append("When the metadata files are imported or exported they will be validated (for XML schema conformance) and any errors will be reported here.\n");
-	detailsTabPane.add("Validation Errors", new JScrollPane(xmlOutput));
+	xmlOutput.append(widgets.getString("WHEN THE METADATA FILES ARE IMPORTED OR EXPORTED THEY WILL BE VALIDATED (FOR XML SCHEMA CONFORMANCE) AND ANY ERRORS WILL BE REPORTED HERE"));
+	detailsTabPane.add(widgets.getString("VALIDATION ERRORS"), new JScrollPane(xmlOutput));
 
 	resourceCopyOutput = new JTextArea(5, 20);
 	resourceCopyOutput.setMargin(new Insets(5, 5, 5, 5));
 	resourceCopyOutput.setEditable(false);
-	resourceCopyOutput.append("If copying of resource files is selected, any file copy errors will be reported here.\n");
-	detailsTabPane.add("Resource Copy Errors", new JScrollPane(resourceCopyOutput));
+	resourceCopyOutput.append(widgets.getString("IF COPYING OF RESOURCE FILES IS SELECTED, ANY FILE COPY ERRORS WILL BE REPORTED HERE"));
+	detailsTabPane.add(widgets.getString("RESOURCE COPY ERRORS"), new JScrollPane(resourceCopyOutput));
 
 	detailsPanel.add(detailsTabPane, BorderLayout.CENTER);
 
@@ -349,7 +351,7 @@ public class ImportExportDialog implements ImportExportUI {
 	progressFailedLabel = new JLabel(progressFailedLabelText);
 	progressXmlErrorsLabel = new JLabel(progressXmlErrorsLabelText);
 	resourceCopyErrorsLabel = new JLabel(resourceCopyErrorsLabelText);
-	showInTableButton = new JButton("Show errors in table");
+	showInTableButton = new JButton(widgets.getString("SHOW ERRORS IN TABLE"));
 	showInTableButton.setEnabled(false);
 	showInTableButton.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
@@ -413,7 +415,7 @@ public class ImportExportDialog implements ImportExportUI {
 	inputNodeLabelPanel.setLayout(new BorderLayout());
 	inputNodePanel = new JPanel();
 	inputNodePanel.setLayout(new java.awt.GridLayout());
-	inputNodeLabelPanel.add(new JLabel("From: "), BorderLayout.LINE_START);
+	inputNodeLabelPanel.add(new JLabel(widgets.getString("FROM: ")), BorderLayout.LINE_START);
 	inputNodeLabelPanel.add(inputNodePanel, BorderLayout.CENTER);
 	inputNodeLabelPanel.setAlignmentX(0);
 	inOutNodePanel.add(inputNodeLabelPanel);
@@ -422,14 +424,14 @@ public class ImportExportDialog implements ImportExportUI {
 	outputNodeLabelPanel.setLayout(new BorderLayout());
 	outputNodePanel = new JPanel();
 	outputNodePanel.setLayout(new java.awt.GridLayout());
-	outputNodeLabelPanel.add(new JLabel("To: "), BorderLayout.LINE_START);
+	outputNodeLabelPanel.add(new JLabel(widgets.getString("TO: ")), BorderLayout.LINE_START);
 	outputNodeLabelPanel.add(outputNodePanel, BorderLayout.CENTER);
 	outputNodeLabelPanel.setAlignmentX(0);
 	inOutNodePanel.add(outputNodeLabelPanel);
 
-	renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true);
-	renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", true);
-	shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
+	renameFileToNodeName = new JCheckBox(widgets.getString("IMPORT_EXPORT_RENAME METADATA FILES (TO MATCH LOCAL CORPUS TREE NAMES)"), true);
+	renameFileToLamusFriendlyName = new JCheckBox(widgets.getString("IMPORT_EXPORT_LIMIT CHARACTERS IN FILE NAMES (LAMUS FRIENDLY FORMAT)"), true);
+	shibbolethCheckBox = new JCheckBox(widgets.getString("IMPORT_EXPORT_SHIBBOLETH AUTHENTICATION VIA THE SURFNET METHOD"), false);
 
 	inOutNodePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 0));
 	return inOutNodePanel;
@@ -437,8 +439,8 @@ public class ImportExportDialog implements ImportExportUI {
 
     private JPanel createStartStopButtonsPanel() {
 	JPanel buttonsPanel = new JPanel(new FlowLayout());
-	stopButton = new JButton("Stop");
-	startButton = new JButton("Start");
+	stopButton = new JButton(widgets.getString("IMPORT_EXPORT_STOP"));
+	startButton = new JButton(widgets.getString("IMPORT_EXPORT_START"));
 	stopButton.setEnabled(false);
 	buttonsPanel.add(stopButton);
 	progressBar = new JProgressBar(0, 100);
@@ -476,7 +478,7 @@ public class ImportExportDialog implements ImportExportUI {
 
 	showDetailsButton = new JButton("");
 	buttonsPanel.add(showDetailsButton);
-	showDetailsButton.setToolTipText("Show/hide detailed information");
+	showDetailsButton.setToolTipText(widgets.getString("IMPORT_EXPORT_SHOW/HIDE DETAILED INFORMATION"));
 	showDetailsButton.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		try {
@@ -518,7 +520,7 @@ public class ImportExportDialog implements ImportExportUI {
     }
 
     public void importArbilBranch() {
-	File[] selectedFiles = dialogHandler.showMetadataFileSelectBox("Import", true);
+	File[] selectedFiles = dialogHandler.showMetadataFileSelectBox(widgets.getString("IMPORT"), true);
 	if (selectedFiles != null) {
 	    Vector importNodeVector = new Vector();
 	    for (File currentFile : selectedFiles) {
@@ -532,7 +534,7 @@ public class ImportExportDialog implements ImportExportUI {
     public void selectExportDirectoryAndExport(ArbilDataNode[] localCorpusSelectedNodes) {
 	// make sure the chosen directory is empty
 	// export the tree, maybe adjusting resource links so that resource files do not need to be copied
-	importExportDialog.setTitle("Export Branch");
+	importExportDialog.setTitle(widgets.getString("EXPORT BRANCH"));
 	File destinationDirectory = dialogHandler.showEmptyExportDirectoryDialogue(importExportDialog.getTitle());
 	if (destinationDirectory != null) {
 	    exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
@@ -543,7 +545,7 @@ public class ImportExportDialog implements ImportExportUI {
 	selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
 	if (!selectedNodesContainDataNode()) {
-	    dialogHandler.addMessageDialogToQueue("No relevant nodes are selected", importExportDialog.getTitle());
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("IMPORT_EXPORT_NO RELEVANT NODES ARE SELECTED"), importExportDialog.getTitle());
 	    return;
 	}
 	setNodesPanel(selectedNodes, inputNodePanel);
@@ -567,9 +569,9 @@ public class ImportExportDialog implements ImportExportUI {
 
     public void copyToCache(Vector localSelectedNodes) {
 	selectedNodes = localSelectedNodes;
-	importExportDialog.setTitle("Import Branch");
+	importExportDialog.setTitle(widgets.getString("IMPORT BRANCH"));
 	if (!selectedNodesContainDataNode()) {
-	    dialogHandler.addMessageDialogToQueue("No relevant nodes are selected", importExportDialog.getTitle());
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("IMPORT_EXPORT_NO RELEVANT NODES ARE SELECTED"), importExportDialog.getTitle());
 	    return;
 	}
 	setNodesPanel(selectedNodes, inputNodePanel);
@@ -616,8 +618,8 @@ public class ImportExportDialog implements ImportExportUI {
 		importExportDialog.setMinimumSize(null);
 	    }
 
-	    showMoreButton.setText(optionsFlag ? "< < Fewer options" : "More options> >");
-	    showDetailsButton.setText(detailsFlag ? "< < Hide details" : "Details > >");
+	    showMoreButton.setText(optionsFlag ? widgets.getString("< < FEWER OPTIONS") : widgets.getString("MORE OPTIONS> >"));
+	    showDetailsButton.setText(detailsFlag ? widgets.getString("< < HIDE DETAILS") : widgets.getString("DETAILS > >"));
 	    showingMoreOptions = optionsFlag;
 	    showingDetails = detailsFlag;
 	    importExportDialog.pack();
@@ -628,7 +630,7 @@ public class ImportExportDialog implements ImportExportUI {
 	setUItoRunningState();
 
 	final CopyRunner copyRunner = new CopyRunner(this, sessionStorage, dataNodeLoader, treeHelper);
-	new Thread(copyRunner, "performCopy").start();
+	new Thread(copyRunner, widgets.getString("PERFORMCOPY")).start();
     }
 
     @Override
@@ -861,7 +863,7 @@ public class ImportExportDialog implements ImportExportUI {
     public void onCopyEnd(final String finalMessage) throws HeadlessException {
 
 	logger.debug("finalMessageString: {}", finalMessage);
-	final Object[] options = {"Close", "Details"};
+	final Object[] options = {widgets.getString("CLOSE"), widgets.getString("DETAILS")};
 
 	SwingUtilities.invokeLater(new Runnable() {
 	    public void run() {
@@ -911,8 +913,8 @@ public class ImportExportDialog implements ImportExportUI {
     public boolean askOverwrite(RetrievableFile currentRetrievableFile) {
 	// Ask first time or if 'remember choice' was never selected
 	if (rememberedOverwriteFileResult == null || !rememberedOverwriteFileResult.isRememberChoice()) {
-	    final String message = String.format("The following file already exist in the target location:\n\n%s\n\n Overwrite?", currentRetrievableFile.getSourceURI());
-	    rememberedOverwriteFileResult = dialogHandler.showDialogBoxRememberChoice(message, "Overwrite file?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+	    final String message = String.format(widgets.getString("THE FOLLOWING FILE ALREADY EXIST IN THE TARGET LOCATION"), currentRetrievableFile.getSourceURI());
+	    rememberedOverwriteFileResult = dialogHandler.showDialogBoxRememberChoice(message, widgets.getString("OVERWRITE FILE?"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 	}
 
 	if (JOptionPane.CANCEL_OPTION == rememberedOverwriteFileResult.getResult()) {
@@ -924,7 +926,7 @@ public class ImportExportDialog implements ImportExportUI {
     }
 
     public boolean askCreateNewExportDir(File destinationFile) {
-	final Object[] dialogOptions = new Object[]{"Replace", "New location", "Cancel"};
+	final Object[] dialogOptions = new Object[]{widgets.getString("REPLACE"), widgets.getString("NEW LOCATION"), widgets.getString("CANCEL")};
 	final int newLocationOption = 1;
 	final int cancelOption = 2;
 
@@ -933,7 +935,7 @@ public class ImportExportDialog implements ImportExportUI {
 		+ "You will be able to decide for individual existing files whether to overwrite or not.\n\n"
 		+ "If you choose 'New location', a unique new file name will be created on basis of the original file\n"
 		+ "name and files that are already present.", destinationFile.getName());
-	int result = dialogHandler.showDialogBox(message, "Replace existing location?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, dialogOptions, "New location");
+	int result = dialogHandler.showDialogBox(message, widgets.getString("REPLACE EXISTING LOCATION?"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, dialogOptions, widgets.getString("NEW LOCATION"));
 	if (result == cancelOption) {
 	    setStopCopy(true);
 	    return false;
