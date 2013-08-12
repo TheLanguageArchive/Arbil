@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -51,6 +52,7 @@ import nl.mpi.arbil.util.XsdChecker;
  */
 public class ArbilTreeController {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final SessionStorage sessionStorage;
     private final TreeHelper treeHelper;
     private final WindowManager windowManager;
@@ -75,16 +77,16 @@ public class ArbilTreeController {
 	    if (remoteDataFile != null) {
 		ArbilDataNode originatingNode = dataNodeLoader.getArbilDataNodeWithoutLoading(remoteDataFile);
 		if (originatingNode.isLocal() && !originatingNode.getFile().exists()) {
-		    dialogHandler.addMessageDialogToQueue("The origional file location cannot be found", "Re Import Branch");
+		    dialogHandler.addMessageDialogToQueue(widgets.getString("THE ORIGIONAL FILE LOCATION CANNOT BE FOUND"), widgets.getString("RE IMPORT BRANCH"));
 		} else if (originatingNode.isMetaDataNode()) {
 		    ImportExportDialog importExportDialog = new ImportExportDialog(treePanels.localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
 		    importExportDialog.setDestinationNode(leadSelectedTreeNode); // TODO: do not re add the location in this case
 		    importExportDialog.copyToCache(new ArbilDataNode[]{originatingNode});
 		} else {
-		    dialogHandler.addMessageDialogToQueue("Could not determine the origional node type", "Re Import Branch");
+		    dialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT DETERMINE THE ORIGIONAL NODE TYPE"), widgets.getString("RE IMPORT BRANCH"));
 		}
 	    } else {
-		dialogHandler.addMessageDialogToQueue("Could not determine the origional location", "Re Import Branch");
+		dialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT DETERMINE THE ORIGIONAL LOCATION"), widgets.getString("RE IMPORT BRANCH"));
 	    }
 	} catch (Exception ex) {
 	    BugCatcherManager.getBugCatcher().logError(ex);
@@ -99,7 +101,7 @@ public class ArbilTreeController {
 	} else {
 	    initialValue = "";
 	}
-	String manualLocation = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the resource URI:", "Manual resource location", JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
+	String manualLocation = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), widgets.getString("ENTER THE RESOURCE URI:"), widgets.getString("MANUAL RESOURCE LOCATION"), JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
 	if (manualLocation != null) { // Not canceled
 	    try {
 		final URI locationURI = new URI(manualLocation);
@@ -107,10 +109,10 @@ public class ArbilTreeController {
 		    leadSelectedTreeNode.insertResourceLocation(locationURI);
 		}
 	    } catch (URISyntaxException ex) {
-		dialogHandler.addMessageDialogToQueue("The URI entered as a resource location is invalid. Please check the location and try again.", "Invalid URI");
+		dialogHandler.addMessageDialogToQueue(widgets.getString("THE URI ENTERED AS A RESOURCE LOCATION IS INVALID. PLEASE CHECK THE LOCATION AND TRY AGAIN."), widgets.getString("INVALID URI"));
 	    } catch (ArbilMetadataException ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
-		dialogHandler.addMessageDialogToQueue("Could not add resource to the metadata. Check the error log for details.", "Error adding resource");
+		dialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT ADD RESOURCE TO THE METADATA. CHECK THE ERROR LOG FOR DETAILS."), widgets.getString("ERROR ADDING RESOURCE"));
 	    }
 	}
     }
@@ -121,22 +123,22 @@ public class ArbilTreeController {
 		// See if creating a file out of the URI does not cause any issues
 		final File file = ArbilDataNode.getFile(locationURI);
 		if (file != null && !file.exists()) {
-		    dialogHandler.addMessageDialogToQueue("Warning: no file exists at the specified location!", "Manual resource location");
+		    dialogHandler.addMessageDialogToQueue(widgets.getString("WARNING: NO FILE EXISTS AT THE SPECIFIED LOCATION!"), widgets.getString("MANUAL RESOURCE LOCATION"));
 		}
 		return true;
 	    } catch (IllegalArgumentException ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
-		dialogHandler.addMessageDialogToQueue("Illegal file name. Check the error log for details.", "Error adding resource");
+		dialogHandler.addMessageDialogToQueue(widgets.getString("ILLEGAL FILE NAME. CHECK THE ERROR LOG FOR DETAILS."), widgets.getString("ERROR ADDING RESOURCE"));
 		return false;
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue("Location should be an absolute URI. This means it should start with a scheme, for example \"http://\" or \"file://\".", "Error adding resource");
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("LOCATION SHOULD BE AN ABSOLUTE URI"), widgets.getString("ERROR ADDING RESOURCE"));
 	    return false;
 	}
     }
 
     public void addRemoteCorpus() {
-	String addableLocation = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
+	String addableLocation = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), widgets.getString("ENTER THE URL"), widgets.getString("ADD LOCATION"), JOptionPane.PLAIN_MESSAGE);
 	addRemoteCorpus(addableLocation);
     }
 
@@ -145,33 +147,33 @@ public class ArbilTreeController {
 	    try {
 		treeHelper.addLocationInteractive(ArbilDataNodeService.conformStringToUrl(addableLocation));
 	    } catch (URISyntaxException ex) {
-		dialogHandler.addMessageDialogToQueue("Failed to add location to remote corpus. See error log for details.", "Error");
+		dialogHandler.addMessageDialogToQueue(widgets.getString("FAILED TO ADD LOCATION TO REMOTE CORPUS. SEE ERROR LOG FOR DETAILS."), widgets.getString("ERROR"));
 		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
 	}
     }
 
     public void searchSubnodes(ArbilTreePanels treePanels) {
-	windowManager.openSearchTable(((ArbilTree) treePanels.localCorpusTree).getAllSelectedNodes(), "Search");
+	windowManager.openSearchTable(((ArbilTree) treePanels.localCorpusTree).getAllSelectedNodes(), widgets.getString("SEARCH"));
     }
 
     public void searchRemoteSubnodes(ArbilTreePanels treePanels) {
-	windowManager.openSearchTable(((ArbilTree) treePanels.remoteCorpusTree).getSelectedNodes(), "Search Remote Corpus");
+	windowManager.openSearchTable(((ArbilTree) treePanels.remoteCorpusTree).getSelectedNodes(), widgets.getString("SEARCH REMOTE CORPUS"));
     }
 
     public void validateNodes(ArbilDataNode[] selectedTreeNodes) {
 	for (ArbilDataNode currentNode : selectedTreeNodes) {
 	    if (currentNode.getNeedsSaveToDisk(false)
 		    && JOptionPane.YES_OPTION == dialogHandler.showDialogBox(
-		    "Validation will be against the file on disk. Save changes first?",
-		    "Validation",
+		    widgets.getString("VALIDATION WILL BE AGAINST THE FILE ON DISK. SAVE CHANGES FIRST?"),
+		    widgets.getString("TREE_VALIDATION"),
 		    JOptionPane.YES_NO_OPTION,
 		    JOptionPane.WARNING_MESSAGE)) {
 		currentNode.saveChangesToCache(true);
 		currentNode.reloadNode();
 	    }
 	    XsdChecker xsdChecker = new XsdChecker();
-	    ((ArbilWindowManager) windowManager).createWindow("XsdChecker", xsdChecker);
+	    ((ArbilWindowManager) windowManager).createWindow(widgets.getString("XSDCHECKER"), xsdChecker);
 	    xsdChecker.checkXML(currentNode);
 	    xsdChecker.setDividerLocation(0.5);
 	}
@@ -199,7 +201,7 @@ public class ArbilTreeController {
 //                    }
 //                    treeHelper.reloadLocalCorpusTree(targetNode);
 	} catch (Exception ex) {
-	    dialogHandler.addMessageDialogToQueue("Failed to add from favourites, see error log for details.", "Error");
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("FAILED TO ADD FROM FAVOURITES, SEE ERROR LOG FOR DETAILS."), widgets.getString("ERROR"));
 	    BugCatcherManager.getBugCatcher().logError(ex);
 	}
     }
@@ -268,7 +270,7 @@ public class ArbilTreeController {
     }
 
     public void addLocalDirectory() {
-	File[] selectedFiles = dialogHandler.showDirectorySelectBox("Add Working Directory", true);
+	File[] selectedFiles = dialogHandler.showDirectorySelectBox(widgets.getString("ADD WORKING DIRECTORY"), true);
 	if (selectedFiles != null && selectedFiles.length > 0) {
 	    for (File currentDirectory : selectedFiles) {
 		treeHelper.addLocationInteractive(currentDirectory.toURI());
@@ -279,14 +281,14 @@ public class ArbilTreeController {
     public void addBulkResources(ArbilNode targetObject) {
 	try {
 	    final FavouriteSelectBox favouriteSelectBox = new FavouriteSelectBox(targetObject);
-	    File[] selectedFiles = dialogHandler.showFileSelectBox("Add Bulk Resources", false, true, null, MessageDialogHandler.DialogueType.open, favouriteSelectBox);
+	    File[] selectedFiles = dialogHandler.showFileSelectBox(widgets.getString("ADD BULK RESOURCES"), false, true, null, MessageDialogHandler.DialogueType.open, favouriteSelectBox);
 	    if (selectedFiles != null && selectedFiles.length > 0) {
 //                        BulkResourcesAdder bulkResourcesAdder = new BulkResourcesAdder(dialogHandler, favouriteSelectBox.getTargetNode(), favouriteSelectBox.getSelectedFavouriteNode(), selectedFiles);
 //                        bulkResourcesAdder.setCopyDirectoryStructure(favouriteSelectBox.getCopyDirectoryStructure());
 //                        bulkResourcesAdder.setMetadataFilePerResource(favouriteSelectBox.getMetadataFilePerResource());
 //                        bulkResourcesAdder.doBulkAdd();
 //                        if (favouriteSelectBox.getTargetNode() instanceof ArbilDataNode) {
-		new MetadataBuilder().requestAddNodeAndResources(favouriteSelectBox.getTargetNode(), "Add Bulk Resources", favouriteSelectBox.getSelectedFavouriteNode(), selectedFiles, favouriteSelectBox.getCopyDirectoryStructure(), favouriteSelectBox.getMetadataFilePerResource());
+		new MetadataBuilder().requestAddNodeAndResources(favouriteSelectBox.getTargetNode(), widgets.getString("ADD BULK RESOURCES"), favouriteSelectBox.getSelectedFavouriteNode(), selectedFiles, favouriteSelectBox.getCopyDirectoryStructure(), favouriteSelectBox.getMetadataFilePerResource());
 //                        } else {
 //                            new MetadataBuilder().requestAddRootNode(favouriteSelectBox.getSelectedFavouriteNode(), ((JMenuItem) evt.getSource()).getText());
 //                        }
@@ -314,9 +316,8 @@ public class ArbilTreeController {
 	    if (leadSelectedTreeNode != null) {
 		if (!leadSelectedTreeNode.getParentDomNode().getNeedsSaveToDisk(false)
 			|| dialogHandler.showConfirmDialogBox(
-			"Adding a node will save pending changes to \""
-			+ leadSelectedTreeNode.getParentDomNode().toString()
-			+ "\" to disk. Do you want to proceed?", "Save pending changes?")) {
+			String.format(widgets.getString("ADDING A NODE WILL SAVE PENDING CHANGES"), leadSelectedTreeNode.getParentDomNode().toString()),
+			widgets.getString("SAVE PENDING CHANGES?"))) {
 		    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, nodeType, nodeText);
 		}
 	    } else {
