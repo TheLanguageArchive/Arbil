@@ -26,6 +26,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.ResourceBundle;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -68,6 +69,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	messageDialogHandler = handler;
     }
     private static ApplicationVersionManager versionManager;
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
@@ -361,8 +363,8 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		clipBoardLines = clipBoardString.split("\r?\n|\r");
 	    }
 	    if (clipBoardLines.length == 1) {
-		String messageString = selectedCells.length + " fields will be overwritten with the single value on the clipboard.\nContinue?";
-		if (messageDialogHandler.showConfirmDialogBox(messageString, "Paste")) {
+		String messageString = String.format(widgets.getString("FIELDS WILL BE OVERWRITTEN WITH THE SINGLE VALUE ON THE CLIPBOARD"), selectedCells.length);
+		if (messageDialogHandler.showConfirmDialogBox(messageString, widgets.getString("PASTE"))) {
 		    for (ArbilField targetField : selectedCells) {
 			targetField.setFieldValue(clipBoardString, true, false);
 			pastedCount++;
@@ -384,7 +386,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		    singleNodeAxis = true;
 		}
 		if (!singleNodeAxis) {
-		    resultMessage = "Incorrect data to paste.\nThe data must be copied either from a table where only one IMDI file is displayed\nor by selecting individual cells in the table.";
+		    resultMessage = widgets.getString("INCORRECT DATA TO PASTE");
 		}
 		if (singleNodeAxis) {
 		    boolean pasteOneFieldToAll = clipBoardLines.length == 2; /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */ /* skip the header */
@@ -395,7 +397,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 			String[] clipBoardCells = clipBoardLine.split("\\t");
 			logger.debug("clipBoardCells.length: {}", clipBoardCells.length);
 			if (clipBoardCells.length != 2) {
-			    resultMessage = "Inconsistent number of columns in the data to paste.\nThe pasted data could be incorrect.";
+			    resultMessage = widgets.getString("INCONSISTENT NUMBER OF COLUMNS IN THE DATA TO PASTE");
 			} else {
 			    String currentFieldName = clipBoardCells[0].replaceAll(regexString, "");
 			    String currentFieldValue = clipBoardCells[1].replaceAll(regexString, "");
@@ -419,13 +421,13 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 			}
 		    }
 		    if (pastedFieldOverwritten) {
-			areYouSureMessageString = areYouSureMessageString + "Two fields of the same name are to be pasted into this table,\nthis will cause at least one field to be overwritten by another.\n\n";
+			areYouSureMessageString = areYouSureMessageString + widgets.getString("TWO FIELDS OF THE SAME NAME ARE TO BE PASTED");
 		    }
 		    if (deletingValuesCounter > 0) {
-			areYouSureMessageString = areYouSureMessageString + "There are " + deletingValuesCounter + " fields that will have their contents deleted by this paste action.\n\n";
+			areYouSureMessageString = areYouSureMessageString + java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("THERE ARE x FIELDS THAT WILL HAVE THEIR CONTENTS DELETED BY THIS PASTE ACTION"), new Object[]{deletingValuesCounter});
 		    }
 		    if (areYouSureMessageString.length() > 0) {
-			if (!messageDialogHandler.showConfirmDialogBox(areYouSureMessageString + "Continue?", "Paste")) {
+			if (!messageDialogHandler.showConfirmDialogBox(areYouSureMessageString + widgets.getString("CONTINUE?"), widgets.getString("PASTE"))) {
 			    return null;
 			}
 		    }
@@ -437,11 +439,11 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		    }
 		}
 	    } else {
-		resultMessage = "No data to paste.";
+		resultMessage = widgets.getString("NO DATA TO PASTE.");
 	    }
 	    if (pastedCount == 0) {
 		if (resultMessage == null) {
-		    resultMessage = "No fields matched the data on the clipboard.";
+		    resultMessage = widgets.getString("NO FIELDS MATCHED THE DATA ON THE CLIPBOARD.");
 		}
 	    }
 	} catch (Exception ex) {

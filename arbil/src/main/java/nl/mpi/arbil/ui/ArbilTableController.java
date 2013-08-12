@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,6 +75,7 @@ import org.slf4j.LoggerFactory;
 public class ArbilTableController implements TableController {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilTableController.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     public static final String DELETE_ROW_ACTION_KEY = "deleteRow";
     /** Services used by controller */
     private final TreeHelper treeHelper;
@@ -109,13 +111,13 @@ public class ArbilTableController implements TableController {
 
     @Override
     public void openNodesInNewTable(ArbilDataNode[] nodes, String fieldName, ArbilDataNode registeredOwner) {
-	windowManager.openFloatingTableOnce(nodes, String.format("%s in %s", fieldName, registeredOwner));
+	windowManager.openFloatingTableOnce(nodes, String.format(widgets.getString("%S IN %S"), fieldName, registeredOwner));
     }
 
     @Override
     public void showRowChildData(ArbilTableModel tableModel) {
 	Object[] possibilities = tableModel.getChildNames();
-	String selectionResult = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
+	String selectionResult = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), widgets.getString("SELECT THE CHILD NODE TYPE TO DISPLAY"), widgets.getString("SHOW CHILD NODES"), JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
 //      TODO: JOptionPane.show it would be good to have a miltiple select here
 	if ((selectionResult != null) && (selectionResult.length() > 0)) {
 	    tableModel.addChildTypeToDisplay(selectionResult);
@@ -134,7 +136,7 @@ public class ArbilTableController implements TableController {
 	try {
 	    ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(table.getArbilTableModel());
 	    JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(windowManager.getMainFrame()), true);
-	    editViewsDialog.setTitle("Editing Current Column View");
+	    editViewsDialog.setTitle(widgets.getString("EDITING CURRENT COLUMN VIEW"));
 	    JScrollPane js = new JScrollPane(fieldViewTable);
 	    editViewsDialog.getContentPane().add(js);
 	    editViewsDialog.setBounds(50, 50, 600, 400);
@@ -147,12 +149,12 @@ public class ArbilTableController implements TableController {
     @Override
     public void saveCurrentColumnView(ArbilTable table) {
 	try {
-	    String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
+	    String fieldViewName = (String) JOptionPane.showInputDialog(null, widgets.getString("ENTER A NAME TO SAVE THIS COLUMN VIEW AS"), widgets.getString("SAVE COLUMN VIEW"), JOptionPane.PLAIN_MESSAGE);
 	    // if the user did not cancel
 	    if (fieldViewName != null) {
 		table.updateStoredColumnWidths();
 		if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, table.getArbilTableModel().getFieldView())) {
-		    dialogHandler.addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
+		    dialogHandler.addMessageDialogToQueue(widgets.getString("A COLUMN VIEW WITH THE SAME NAME ALREADY EXISTS, NOTHING SAVED"), widgets.getString("SAVE COLUMN VIEW"));
 		}
 	    }
 	} catch (Exception ex) {
@@ -201,13 +203,13 @@ public class ArbilTableController implements TableController {
 			// Add to deletion list
 			fieldsToDelete.add(fields[0]);
 		    } else {
-			dialogHandler.addMessageDialogToQueue("This field cannot be deleted from one or more of the shown nodes", "Cannot delete");
+			dialogHandler.addMessageDialogToQueue(widgets.getString("THIS FIELD CANNOT BE DELETED FROM ONE OR MORE OF THE SHOWN NODES"), widgets.getString("CANNOT DELETE"));
 			return false;
 		    }
 		}
 	    }
 	}
-	if (dialogHandler.showConfirmDialogBox(String.format("Delete %d instance of the field '%s'?", fieldsToDelete.size(), columnName), "Delete field")) {
+	if (dialogHandler.showConfirmDialogBox(String.format(widgets.getString("DELETE %D INSTANCE OF THE FIELD '%S'?"), fieldsToDelete.size(), columnName), widgets.getString("DELETE FIELD"))) {
 	    return deleteFields(fieldsToDelete);
 	} else {
 	    return false;
@@ -294,13 +296,13 @@ public class ArbilTableController implements TableController {
 	final ArbilTableModel tableModel = table.getArbilTableModel();
 	final int selectedRow = table.getSelectedRow();
 	if (selectedRow == -1) {
-	    dialogHandler.addMessageDialogToQueue("No rows have been selected", "Highlight Matching Rows");
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("NO ROWS HAVE BEEN SELECTED"), widgets.getString("HIGHLIGHT MATCHING ROWS"));
 	    return;
 	}
 	final List<Integer> foundRows = tableModel.getMatchingRows(selectedRow);
 	table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	table.getSelectionModel().clearSelection();
-	dialogHandler.addMessageDialogToQueue("Found " + foundRows.size() + " matching rows", "Highlight Matching Rows");
+	dialogHandler.addMessageDialogToQueue(String.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FOUND %D MATCHING ROWS"), foundRows.size()), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("HIGHLIGHT MATCHING ROWS"));
 	for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
 	    for (int coloumCount = 0; coloumCount < table.getColumnCount(); coloumCount++) {
 		// TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
@@ -364,16 +366,16 @@ public class ArbilTableController implements TableController {
 	    final MetadataBuilder metadataBuilder = new MetadataBuilder();
 	    final boolean canContainField = metadataBuilder.canAddChildNode(dataNode, xmlPath);
 	    if (canContainField) {
-		if (dialogHandler.showConfirmDialogBox(String.format("Insert a new field '%s' in node '%s'?\nThis will save pending changes.", columnField.getTranslateFieldName(), dataNode.toString()), "Insert field")) {
+		if (dialogHandler.showConfirmDialogBox(String.format(widgets.getString("INSERT A NEW FIELD CONFIRM"), columnField.getTranslateFieldName(), dataNode.toString()), widgets.getString("INSERT FIELD"))) {
 		    try {
 			addChildNodeForFieldFromPlaceholder(metadataBuilder, dataNode, columnField, xmlPath);
 		    } catch (ArbilMetadataException mdEx) {
 			logger.error("Error while trying to create field", mdEx);
-			dialogHandler.addMessageDialogToQueue("Could not create field. See error log for details.", "Error");
+			dialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT CREATE FIELD. SEE ERROR LOG FOR DETAILS."), widgets.getString("ERROR"));
 		    }
 		}
 	    } else {
-		dialogHandler.addMessageDialogToQueue(String.format("The node '%s' cannot contain a field of the same type as '%s' in '%s'", dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), "Insert field");
+		dialogHandler.addMessageDialogToQueue(String.format(widgets.getString("THE NODE '%S' CANNOT CONTAIN A FIELD OF THE SAME TYPE AS '%S' IN '%S'"), dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), widgets.getString("INSERT FIELD"));
 	    }
 	} else {
 	    logger.debug("Data node {} is not editable. Will not attempt to instantiate greyed out field", dataNode);
@@ -392,8 +394,8 @@ public class ArbilTableController implements TableController {
 		try {
 		    processAddedFieldFromPlaceholder(reloadedDataNode, nodeURI, columnField);
 		} catch (ArbilMetadataException mdEx) {
-		    logger.error("Error while setting attributes on field", mdEx);
-		    dialogHandler.addMessageDialogToQueue("Could not set attributes for new field. See error log for details", "Error");
+		    logger.error(widgets.getString("ERROR WHILE SETTING ATTRIBUTES ON FIELD"), mdEx);
+		    dialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT SET ATTRIBUTES FOR NEW FIELD. SEE ERROR LOG FOR DETAILS"), widgets.getString("ERROR"));
 		}
 		reloadedDataNode.saveChangesToCache(false);
 		reloadedDataNode.reloadNode();
@@ -486,7 +488,7 @@ public class ArbilTableController implements TableController {
 		arbilTableModel.copyArbilRows(selectedRows);
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("NOTHING SELECTED TO COPY"), widgets.getString("TABLE COPY"));
 	}
     }
 
@@ -495,10 +497,10 @@ public class ArbilTableController implements TableController {
 	if (selectedFields != null) {
 	    String pasteResult = table.getArbilTableModel().pasteIntoArbilFields(selectedFields);
 	    if (pasteResult != null) {
-		dialogHandler.addMessageDialogToQueue(pasteResult, "Paste into Table");
+		dialogHandler.addMessageDialogToQueue(pasteResult, widgets.getString("PASTE INTO TABLE"));
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue("No rows selected", "Paste into Table");
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("NO ROWS SELECTED"), widgets.getString("PASTE INTO TABLE"));
 	}
     }
 
@@ -582,7 +584,7 @@ public class ArbilTableController implements TableController {
 
 	    if (!tableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
 		final int targetColumn = table.convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
-		logger.debug("showing header menu for column {}", targetColumn);
+		logger.debug(widgets.getString("SHOWING HEADER MENU FOR COLUMN {}"), targetColumn);
 		final JPopupMenu popupMenu = new TableHeaderContextMenu(ArbilTableController.this, table, targetColumn);
 		popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
 	    }

@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
@@ -58,6 +59,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
     public final static int MIN_COLUMN_WIDTH = 50;
     public final static int MAX_COLUMN_WIDTH = 300;
     private final static Logger logger = LoggerFactory.getLogger(ArbilTable.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final ArbilTableModel arbilTableModel;
     private final TableController tableController;
     private final JListToolTip listToolTip = new JListToolTip();
@@ -339,7 +341,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 		if (preferredColumnWidth == null) {
 		    return columnName;
 		} else {
-		    return String.format("%s [fixed width]", columnName);
+		    return String.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("TABLE_FIXED WIDTH"), columnName);
 		}
 	    }
 	};

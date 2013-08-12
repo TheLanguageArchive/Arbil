@@ -20,6 +20,7 @@ package nl.mpi.arbil.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FontMetrics;
+import java.util.ResourceBundle;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -33,6 +34,7 @@ import nl.mpi.arbil.data.ArbilTableCell;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     final ArbilIconCellRenderer arbilIconCellRenderer;
 

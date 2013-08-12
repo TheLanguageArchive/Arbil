@@ -29,6 +29,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
@@ -70,6 +71,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
      * Action key that starts appending to field in editor
      */
     public static final int APPEND_TO_FIELD_ACTION_KEY = KeyEvent.VK_F2;
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final TableController tableController;
     private final JPanel editorPanel;
     private final ArbilTableCellRenderer arbilTableCellRenderer;
