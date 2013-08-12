@@ -19,6 +19,7 @@ package nl.mpi.arbil.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
@@ -37,6 +38,7 @@ import nl.mpi.arbil.favourites.ArbilFavourites;
  * Author : Peter Withers
  */
 public class FavouriteSelectBox extends JPanel {
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     final ArbilNode targetNode;
     final JCheckBox metadataFilePerResourceCheckBox;
@@ -46,7 +48,7 @@ public class FavouriteSelectBox extends JPanel {
     public FavouriteSelectBox(ArbilNode targetNode) {
         this.targetNode = targetNode;
         this.setLayout(new BorderLayout());
-        this.setBorder(BorderFactory.createTitledBorder("Suitable Favourites"));
+        this.setBorder(BorderFactory.createTitledBorder(widgets.getString("SUITABLE FAVOURITES")));
         favouriteList = new JList(ArbilFavourites.getSingleInstance().listFavouritesFor(targetNode));
         favouriteList.setCellRenderer(new DefaultListCellRenderer() {
 
@@ -55,7 +57,7 @@ public class FavouriteSelectBox extends JPanel {
                 final JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 String labelString = value.toString();
                 if (labelString.length() > 50) {
-                    labelString = labelString.substring(0, 48) + "...";
+                    labelString = labelString.substring(0, 48) + widgets.getString("ELIPSIS");
                 }
                 listCellRendererComponent.setText(labelString);
                 listCellRendererComponent.setIcon(((ArbilDataNode) value).getIcon());
@@ -66,9 +68,9 @@ public class FavouriteSelectBox extends JPanel {
 //        this.add(new JLabel(targetNode.toString(), targetNode.getIcon(), JLabel.LEFT), BorderLayout.PAGE_END);
         JPanel optionsPanel = new JPanel();
         optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
-        metadataFilePerResourceCheckBox = new JCheckBox("Metadata for each resource", false);
+        metadataFilePerResourceCheckBox = new JCheckBox(widgets.getString("METADATA FOR EACH RESOURCE"), false);
         optionsPanel.add(metadataFilePerResourceCheckBox);
-        copyDirectoryStructureCheckBox = new JCheckBox("Copy directory structure", false);
+        copyDirectoryStructureCheckBox = new JCheckBox(widgets.getString("COPY DIRECTORY STRUCTURE"), false);
         optionsPanel.add(copyDirectoryStructureCheckBox);
         this.add(optionsPanel, BorderLayout.PAGE_END);
     }

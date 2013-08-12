@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ResourceBundle;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.DefaultEditorKit;
@@ -32,6 +33,7 @@ import javax.swing.text.html.HTMLDocument;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class HtmlViewPane extends JTextPane {
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     
     public HtmlViewPane() {
 	setContentType("text/html;charset=UTF-8");
@@ -59,7 +61,7 @@ public class HtmlViewPane extends JTextPane {
     
     public final void setContents(final InputStream itemStream) throws IOException {
 	if (itemStream == null) {
-	    setText("Page not found");
+	    setText(widgets.getString("PAGE NOT FOUND"));
 	} else {
 	    final StringBuilder completeHelpText = new StringBuilder();
 	    BufferedReader bufferedHelpReader = new BufferedReader(new InputStreamReader(itemStream, "UTF-8"));

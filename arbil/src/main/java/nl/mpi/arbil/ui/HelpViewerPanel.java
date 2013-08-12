@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -45,6 +46,7 @@ import nl.mpi.arbil.help.HelpItemsParser;
 import nl.mpi.arbil.util.BugCatcherManager;
 import org.xml.sax.SAXException;
 
+
 /**
  * A panel to view help resource sets consisting of an index file and a set of HTML pages and linked images.
  * This evolved from a class formerly known as ArbilHelp. A class by that name still exists but now is an Arbil specific extention
@@ -55,10 +57,11 @@ import org.xml.sax.SAXException;
  */
 public class HelpViewerPanel extends javax.swing.JPanel {
 
-    final static public String SHOTCUT_KEYS_PAGE = "Shortcut Keys";
-    final static public String INTRODUCTION_PAGE = "Overview";
-    final static public String helpWindowTitle = "Help Viewer";
-    final static public String DEFAULT_HELPSET = "Help";
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
+    final static public String SHOTCUT_KEYS_PAGE = widgets.getString("SHORTCUT KEYS");
+    final static public String INTRODUCTION_PAGE = widgets.getString("OVERVIEW");
+    final static public String helpWindowTitle = widgets.getString("HELP VIEWER");
+    final static public String DEFAULT_HELPSET = widgets.getString("HELP");
     private JTabbedPane tabbedPane;
     private JSplitPane jSplitPane1;
     private HtmlViewPane helpTextPane;
@@ -118,12 +121,12 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	} else {
 	    HelpIndex helpIndex = new HelpIndex();
 	    final HelpItem helpItem = new HelpItem();
-	    helpItem.setName("Help contents not found");
+	    helpItem.setName(widgets.getString("HELP CONTENTS NOT FOUND"));
 	    helpIndex.addSubItem(helpItem);
 	    helpTree.setHelpIndex(helpIndex);
 	}
 	helpTree.getIndexTree().getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	helpTree.setRootContentsNode(new DefaultMutableTreeNode("Contents"));
+	helpTree.setRootContentsNode(new DefaultMutableTreeNode(widgets.getString("CONTENTS")));
 	helpTree.setHelpTreeModel(new DefaultTreeModel(helpTree.getRootContentsNode(), true));
 	helpTree.getIndexTree().setModel(helpTree.getHelpTreeModel());
 	populateIndex(helpTree);
@@ -146,7 +149,6 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	    BugCatcherManager.getBugCatcher().logError(new Exception("Help page not found: " + helpPage));
 	}
     }
-
     private HelpItem getHelpFileByName(HelpIndex parentItem, String name) {
 	for (HelpItem child : parentItem.getSubItems()) {
 	    if (child.getName().replaceAll("^\\d+\\.", "").trim().equals(name)) {
@@ -317,7 +319,7 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	try {
 	    helpTextPane.setContents(itemStream);
 	} catch (IOException ioEx) {
-	    helpTextPane.setText("<p><strong>I/O exception while reading help contents</strong></p>");
+	    helpTextPane.setText(widgets.getString("<P><STRONG>I/O EXCEPTION WHILE READING HELP CONTENTS</STRONG></P>"));
 	    BugCatcherManager.getBugCatcher().logError(ioEx);
 	}
 	updateIndex(helpTree, itemResource);

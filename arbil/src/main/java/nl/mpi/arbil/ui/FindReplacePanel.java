@@ -23,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -43,9 +44,10 @@ import org.slf4j.LoggerFactory;
  */
 public class FindReplacePanel extends JPanel {
     private final static Logger logger = LoggerFactory.getLogger(FindReplacePanel.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
-    private final static String defaultFindText = "<enter find text>";
-    private final static String defaultReplaceText = "<enter replacement text>";
+    private final static String defaultFindText = widgets.getString("<ENTER FIND TEXT>");
+    private final static String defaultReplaceText = widgets.getString("<ENTER REPLACEMENT TEXT>");
     private final ArbilSplitPanel splitPanel;
     private final JButton closeButton;
     private final JTextField searchField;
@@ -63,7 +65,7 @@ public class FindReplacePanel extends JPanel {
 	replaceField.setName(defaultReplaceText);
 	searchField.setForeground(Color.gray);
 	replaceField.setForeground(Color.gray);
-	useJavaRegExCheckBox = new JCheckBox("Regular Expression");
+	useJavaRegExCheckBox = new JCheckBox(widgets.getString("REGULAR EXPRESSION"));
 	//replaceAllCheckBox = new JCheckBox("Replace All");
 	useJavaRegExCheckBox.setToolTipText("Use Java Style Regular Expressions (eg: "
 		+ ". any "
@@ -76,8 +78,8 @@ public class FindReplacePanel extends JPanel {
 		+ "$ line end)");
 
 	closeButton = new JButton(closeAction);
-	searchButton = new JButton("Find Next");
-	replaceButton = new JButton("Replace Selected");
+	searchButton = new JButton(widgets.getString("FIND NEXT"));
+	replaceButton = new JButton(widgets.getString("REPLACE SELECTED"));
 	searchField.addActionListener(findActionListener);
 	replaceField.addActionListener(findActionListener);
 //        useJavaRegExCheckBox.addActionListener(this);
@@ -85,7 +87,7 @@ public class FindReplacePanel extends JPanel {
 	replaceButton.addActionListener(findActionListener);
 	searchField.addFocusListener(findReplaceFocusListener);
 	replaceField.addFocusListener(findReplaceFocusListener);
-	this.add(new JLabel("Find:"));
+	this.add(new JLabel(widgets.getString("FIND:")));
 	this.add(searchField);
 	this.add(replaceField);
 //        this.add(useJavaRegExCheckBox);
