@@ -21,10 +21,13 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ResourceBundle;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -43,6 +46,7 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class TemplateDialogue extends javax.swing.JPanel {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private static WindowManager windowManager;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
@@ -73,15 +77,14 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	templatesPanel = new javax.swing.JPanel();
 	cmdiProfilesPanel = new CmdiProfilesPanel(parentFrame);
 
-	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("IMDI Templates"));
+	internalTemplatesPanel.setBorder(BorderFactory.createTitledBorder(widgets.getString("IMDI TEMPLATES")));
 	internalTemplatesPanel.setLayout(new java.awt.BorderLayout());
 
 	internalTemplatesButtonPanel.setLayout(new javax.swing.BoxLayout(internalTemplatesButtonPanel, javax.swing.BoxLayout.LINE_AXIS));
 
-	newTemplateButton.setText("New Template");
-	newTemplateButton.setToolTipText("Create a new editable template");
+	newTemplateButton.setText(widgets.getString("NEW TEMPLATE"));
+	newTemplateButton.setToolTipText(widgets.getString("CREATE A NEW EDITABLE TEMPLATE"));
 	newTemplateButton.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		newTemplateButtonActionPerformed(evt);
 	    }
@@ -94,7 +97,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	internalTemplatesPanel.add(templatesScrollPane, java.awt.BorderLayout.CENTER);
 
 
-	cmdiProfilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
+	cmdiProfilesPanel.setBorder(BorderFactory.createTitledBorder(widgets.getString("CLARIN PROFILES")));
 
 	// todo: this should probably have a cancel button also
 	JPanel outerPanel = new JPanel();
@@ -103,9 +106,8 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	outerPanel.add(cmdiProfilesPanel);
 	this.setLayout(new java.awt.BorderLayout());
 	this.add(outerPanel, java.awt.BorderLayout.CENTER);
-	JButton closeButton = new JButton("Close");
+	JButton closeButton = new JButton(widgets.getString("CLOSE"));
 	closeButton.addActionListener(new java.awt.event.ActionListener() {
-
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		parentFrame.setVisible(false);
 	    }
@@ -119,17 +121,17 @@ public class TemplateDialogue extends javax.swing.JPanel {
 
     private void newTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {
 	try {
-	    String newDirectoryName = JOptionPane.showInputDialog(windowManager.getMainFrame(), "Enter the name for the new template", windowManager.getMainFrame().getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+	    String newDirectoryName = JOptionPane.showInputDialog(windowManager.getMainFrame(), widgets.getString("ENTER THE NAME FOR THE NEW TEMPLATE"), windowManager.getMainFrame().getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
 	    // if the user cancels the directory string will be a empty string.
 	    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
-		dialogHandler.addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("THE TEMPLATE {0} ALREADY EXISTS"), newDirectoryName), widgets.getString("TEMPLATES"));
 	    }
 	    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
 	    if (freshTemplateFile != null) {
 		windowManager.openFileInExternalApplication(freshTemplateFile.toURI());
 		windowManager.openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
 	    } else {
-		dialogHandler.addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("THE TEMPLATE {0} COULD NOT BE CREATED."), newDirectoryName), widgets.getString("TEMPLATES"));
 	    }
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
 	    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
@@ -145,7 +147,6 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	targetPanel.removeAll();
 	targetPanel.setLayout(new javax.swing.BoxLayout(targetPanel, javax.swing.BoxLayout.PAGE_AXIS));
 	Collections.sort(checkBoxArray, new Comparator() {
-
 	    public int compare(Object firstItem, Object secondItem) {
 		return (((JCheckBox) firstItem).getText().compareToIgnoreCase(((JCheckBox) secondItem).getText()));
 	    }
@@ -162,7 +163,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).getRootTemplatesArray()) {
 	    JCheckBox templateCheckBox;
 	    templateCheckBox = new JCheckBox();
-	    templateCheckBox.setText(currentTemplateName[1] + " (internal)");
+	    templateCheckBox.setText(String.format(widgets.getString("%S (INTERNAL)"), currentTemplateName[1]));
 	    templateCheckBox.setName(currentTemplateName[1]);
 	    templateCheckBox.setActionCommand("builtin:" + currentTemplateName[0]);
 	    templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));
@@ -198,7 +199,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
     }
 
     public static void showTemplatesDialogue() {
-	showDialogue("Available Templates & Profiles");
+	showDialogue(widgets.getString("AVAILABLE TEMPLATES & PROFILES"));
     }
 
     protected static void showDialogue(String titleStirng) {
@@ -212,7 +213,6 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	dialog.setVisible(true);
     }
     public final static ActionListener templateSelectionListener = new ActionListener() {
-
 	public void actionPerformed(ActionEvent e) {
 	    if (((JCheckBox) e.getSource()).isSelected()) {
 		ArbilTemplateManager.getSingleInstance().addSelectedTemplates(e.getActionCommand());
@@ -221,7 +221,6 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	    }
 	}
     };
-
 
     protected static void setDialogHeight(JDialog dialog) {
 	// Make sure dialog height is less than window height, this fixes issues with windows task bar (yes I know..)
@@ -232,7 +231,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	    dialog.setSize((int) dialogSize.getWidth(), (int) maxHeight);
 	}
     }
-    
+
     public static void main(String[] args) {
 	new ArbilDesktopInjector().injectDefaultHandlers();
 	TemplateDialogue.showTemplatesDialogue();
