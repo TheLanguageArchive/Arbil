@@ -17,25 +17,28 @@
  */
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.search.ArbilRemoteSearch;
-import nl.mpi.arbil.search.RemoteServerSearchTerm;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.net.URI;
+import java.util.ResourceBundle;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.search.ArbilRemoteSearch;
+import nl.mpi.arbil.search.RemoteServerSearchTerm;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
- * Document   : RemoteServerSearchTermPanel
+ * Document : RemoteServerSearchTermPanel
  * Created on : Sept 22, 2010, 15:31:54 PM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerSearchTerm {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private ArbilNodeSearchPanel parentPanel;
     private JTextField searchField;
     private JLabel resultCountLabel;
@@ -54,7 +57,6 @@ public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerS
 	this.setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
 
 	searchField.addFocusListener(new FocusListener() {
-
 	    public void focusGained(FocusEvent e) {
 		if (searchField.getText().equals(valueFieldMessage)) {
 		    searchField.setText("");
@@ -71,7 +73,6 @@ public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerS
 	});
 
 	searchField.addKeyListener(new java.awt.event.KeyAdapter() {
-
 	    @Override
 	    public void keyReleased(java.awt.event.KeyEvent evt) {
 		parentPanel.stopSearch();
@@ -86,11 +87,11 @@ public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerS
     public URI[] getServerSearchResults(ArbilDataNode[] arbilDataNodeArray) {
 	final String searchFieldText = searchField.getText();
 	if (ArbilRemoteSearch.isEmptyQuery(searchFieldText)) {
-	    dialogHandler.addMessageDialogToQueue("No remote search term provided, cannot search remotely", "Remote Search");
+	    dialogHandler.addMessageDialogToQueue(widgets.getString("NO REMOTE SEARCH TERM PROVIDED, CANNOT SEARCH REMOTELY"), widgets.getString("REMOTE SEARCH"));
 	}
 
 	URI[] searchResult = remoteSearch.getServerSearchResults(searchFieldText, arbilDataNodeArray);
-	resultCountLabel.setText(searchResult.length + " found on server ");
+	resultCountLabel.setText(String.format(widgets.getString("SEARCH_N FOUND ON SERVER "), searchResult.length));
 	return searchResult;
     }
 }

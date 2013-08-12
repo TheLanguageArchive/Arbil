@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -36,6 +37,7 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class LanguageListDialogue extends TemplateDialogue implements ActionListener {
 
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private static WindowManager windowManager;
 
     public static void setWindowManager(WindowManager windowManagerInstance) {
@@ -51,7 +53,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 
     public static void showLanguageDialogue() {
 	//showDialogue("Available Languages");
-	JDialog dialog = new JDialog(windowManager.getMainFrame(), "Available Languages", true);
+	JDialog dialog = new JDialog(windowManager.getMainFrame(), widgets.getString("AVAILABLE LANGUAGES"), true);
 	LanguageListDialogue templateDialogue = new LanguageListDialogue(dialog);
 	templateDialogue.populateLists();
 	dialog.setContentPane(templateDialogue);
@@ -71,7 +73,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
     @Override
     protected void populateLists() {
 	cmdiProfilesPanel.getParent().remove(cmdiProfilesPanel);
-	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the field language select box for IMDI"));
+	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(widgets.getString("LANGUAGES TO DISPLAY IN THE FIELD LANGUAGE SELECT BOX FOR IMDI")));
 	List<String> selectedLanguages = documentationLanguages.getSelectedLanguagesArrayList();
 	checkBoxArray = new ArrayList<JCheckBox>();
 	for (ArbilVocabularyItem currentTemplate : documentationLanguages.getAllLanguages()) {
@@ -88,7 +90,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 	addSorted(templatesPanel, checkBoxArray);
 
 	JButton selectAllButton = new JButton();
-	selectAllButton.setText("Select All");
+	selectAllButton.setText(widgets.getString("LANGUAGES_SELECT ALL"));
 	selectAllButton.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		for (JCheckBox currentCheckBox : checkBoxArray) {
@@ -98,7 +100,7 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 	    }
 	});
 	JButton selectNoneButton = new JButton();
-	selectNoneButton.setText("Clear Selection");
+	selectNoneButton.setText(widgets.getString("LANGUAGES_CLEAR SELECTION"));
 	selectNoneButton.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		for (JCheckBox currentCheckBox : checkBoxArray) {

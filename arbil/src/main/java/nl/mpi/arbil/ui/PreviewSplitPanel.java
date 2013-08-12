@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
+import java.util.ResourceBundle;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,6 +38,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class PreviewSplitPanel extends javax.swing.JSplitPane {
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     private final WindowManager windowManager;
     private final TableController tableController;
@@ -55,7 +57,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	this.setName("rightSplitPane");
 
 	previewHiddenColumnLabel = new javax.swing.JLabel(" ");
-	previewTable = new ArbilTable(new ArbilTableModel(null), tableController, "Preview");
+	previewTable = new ArbilTable(new ArbilTableModel(null), tableController, widgets.getString("PANEL_PREVIEW"));
 	previewTable.getArbilTableModel().setHiddenColumnsLabel(previewHiddenColumnLabel);
 	initCopyPaste();
 
