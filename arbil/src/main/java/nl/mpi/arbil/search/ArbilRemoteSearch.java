@@ -22,8 +22,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,11 +44,13 @@ import org.xml.sax.SAXException;
 
 /**
  * Logic for carrying out a search on a remote corpus
+ *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilRemoteSearch {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilRemoteSearch.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilRemoteSearch.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private static MessageDialogHandler dialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
@@ -111,7 +115,7 @@ public class ArbilRemoteSearch {
 	    BugCatcherManager.getBugCatcher().logError(exception);
 	}
 	if (returnArray.size() >= maxResultNumber) {
-	    dialogHandler.addMessageDialogToQueue("Found more results than can be displayed, only showing the first " + maxResultNumber + " results", "Remote Search");
+	    dialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("FOUND MORE RESULTS THAN CAN BE DISPLAYED, ONLY SHOWING THE FIRST {0} RESULTS"), maxResultNumber), widgets.getString("REMOTE SEARCH"));
 	}
 	return returnArray.toArray(new String[]{});
     }
@@ -133,7 +137,7 @@ public class ArbilRemoteSearch {
 	    if (arbilDataNode.archiveHandle != null) {
 		fullQueryString += "&nodeid=" + arbilDataNode.archiveHandle;
 	    } else {
-		dialogHandler.addMessageDialogToQueue("Cannot search \"" + arbilDataNode + "\" because it does not have an archive handle", "Remote Search");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("CANNOT SEARCH \"{0}\" BECAUSE IT DOES NOT HAVE AN ARCHIVE HANDLE"), arbilDataNode), widgets.getString("REMOTE SEARCH"));
 	    }
 	}
 	// to search a branch we need the node id and to get that we need to have the handle and that might not exist, also to do any of that we would need to use an xmlrpc and include the lamusapi jar file to all versions of the application, so we will just search the entire archive since that takes about the same time to return the results
