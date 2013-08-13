@@ -137,7 +137,7 @@ public class ArbilRemoteSearch {
 	    if (arbilDataNode.archiveHandle != null) {
 		fullQueryString += "&nodeid=" + arbilDataNode.archiveHandle;
 	    } else {
-		dialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("CANNOT SEARCH \"{0}\" BECAUSE IT DOES NOT HAVE AN ARCHIVE HANDLE"), arbilDataNode), widgets.getString("REMOTE SEARCH"));
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("CANNOT SEARCH {0} BECAUSE IT DOES NOT HAVE AN ARCHIVE HANDLE"), arbilDataNode), widgets.getString("REMOTE SEARCH"));
 	    }
 	}
 	// to search a branch we need the node id and to get that we need to have the handle and that might not exist, also to do any of that we would need to use an xmlrpc and include the lamusapi jar file to all versions of the application, so we will just search the entire archive since that takes about the same time to return the results
