@@ -35,6 +35,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Matcher;
@@ -87,6 +88,7 @@ import org.xml.sax.SAXException;
 public class CmdiTemplate extends ArbilTemplate {
 
     private final static Logger logger = LoggerFactory.getLogger(CmdiTemplate.class);
+    private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     public static final String XML_NAMESPACE = ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace");
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
     public static final String LANGUAGE_ATTRIBUTE = String.format("{%1$s}lang", (XML_NAMESPACE));
@@ -354,10 +356,10 @@ public class CmdiTemplate extends ArbilTemplate {
 	    logger.error("Could not open the required profile schema file: {}", e.getMessage());
 	    // Usually file not found, only print stack trace in debug
 	    logger.debug("Could not open the required profile schema file", e);
-	    messageDialogHandler.addMessageDialogToQueue(String.format("Could not open the required template file: %s. See error log for details ", getTemplateFile().getName()), "Load Clarin Template");
+	    messageDialogHandler.addMessageDialogToQueue(String.format(services.getString("COULD NOT OPEN THE REQUIRED TEMPLATE FILE: %S. SEE ERROR LOG FOR DETAILS "), getTemplateFile().getName()), services.getString("LOAD CLARIN TEMPLATE"));
 	} catch (XmlException e) {
 	    logger.error("Could not read the required template file: {}", templateFile, e);
-	    messageDialogHandler.addMessageDialogToQueue(String.format("Could not read the required template file: %s. See error log for details ", getTemplateFile().getName()), "Load Clarin Template");
+	    messageDialogHandler.addMessageDialogToQueue(String.format(services.getString("COULD NOT READ THE REQUIRED TEMPLATE FILE: %S. SEE ERROR LOG FOR DETAILS "), getTemplateFile().getName()), services.getString("LOAD CLARIN TEMPLATE"));
 	}
     }
 
@@ -682,7 +684,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		// Create description request URI for datcat URI
 		return getDescriptionForDataCategory(datCat);
 	    } else {
-		return "No usage description found in this template for: " + fieldName;
+		return java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services").getString("NO USAGE DESCRIPTION FOUND IN THIS TEMPLATE FOR: {0}"), new Object[]{fieldName});
 	    }
 	}
     }
@@ -738,7 +740,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    } catch (IOException ex) {
 		logger.error("Exception while trying to process data category at {} in profile {}", dcUri, getTemplateFile(), ex);
 	    }
-	    return "Data category: <" + dcUri + ">. No description available. See error log for details.";
+	    return java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services").getString("DATA CATEGORY: <{0}>. NO DESCRIPTION AVAILABLE. SEE ERROR LOG FOR DETAILS."), new Object[]{dcUri});
 	}
     }
 

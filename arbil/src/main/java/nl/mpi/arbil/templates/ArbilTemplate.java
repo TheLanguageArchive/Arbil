@@ -19,12 +19,14 @@ package nl.mpi.arbil.templates;
 
 import java.io.File;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -46,9 +48,10 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplate {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilTemplate.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTemplate.class);
     private static MessageDialogHandler messageDialogHandler;
+    private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
@@ -456,7 +459,7 @@ public class ArbilTemplate {
 	if (helpString != null) {
 	    return helpString;
 	} else {
-	    return "No usage description found in this template for: " + fieldName;
+	    return MessageFormat.format(services.getString("NO USAGE DESCRIPTION FOUND IN THIS TEMPLATE FOR: {0}"), fieldName);
 	}
     }
 
@@ -579,7 +582,7 @@ public class ArbilTemplate {
 	    }
 	    return true;
 	} catch (Exception ex) {
-	    messageDialogHandler.addMessageDialogToQueue("The required template could not be read.", "Load Template");
+	    messageDialogHandler.addMessageDialogToQueue(services.getString("THE REQUIRED TEMPLATE COULD NOT BE READ."), services.getString("LOAD TEMPLATE"));
 	    BugCatcherManager.getBugCatcher().logError("A template could not be read.", ex);
 	    return false;
 	}
