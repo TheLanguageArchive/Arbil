@@ -22,10 +22,12 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ResourceBundle;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -46,14 +48,15 @@ import org.slf4j.LoggerFactory;
  * @author Peter Withers <br>
  */
 public class ArbilPluginManager implements PluginManager {
-    private final static Logger logger = LoggerFactory.getLogger(ArbilPluginManager.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilPluginManager.class);
     public static final String ARCHIVING_PLUGINS_DIR_NAME = "ArchivingPlugins";
     final private SessionStorage arbilSessionStorage;
     final private ArbilWindowManager dialogHandler;
     final private BugCatcher bugCatcher;
     final private PluginArbilDataNodeLoader arbilDataNodeLoader;
     final private HashSet<BaseModule> hashSet = new HashSet<BaseModule>();
+    private final ResourceBundle services = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
 
     public ArbilPluginManager(SessionStorage arbilSessionStorage, ArbilWindowManager dialogHandler, PluginArbilDataNodeLoader arbilDataNodeLoader, BugCatcher bugCatcher) {
 	this.arbilSessionStorage = arbilSessionStorage;
@@ -70,7 +73,7 @@ public class ArbilPluginManager implements PluginManager {
 		arbilJournal.addJounalWatcher((JournalWatcherPlugin) kinOathPlugin);
 		((JournalWatcherPlugin) kinOathPlugin).initJournalWatcher(arbilJournal);
 	    } catch (PluginException exception) {
-		dialogHandler.addMessageDialogToQueue("Failed to pass the journal to the requested plugin.\n" + exception.getMessage() + "\n" + kinOathPlugin.getName() + "\n" + kinOathPlugin.getMajorVersionNumber() + "." + kinOathPlugin.getMinorVersionNumber() + "." + kinOathPlugin.getBuildVersionNumber() + "\n" + kinOathPlugin.getDescription(), "Journal Plugin Error");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO PASS THE JOURNAL TO THE REQUESTED PLUGIN"), new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Journal Plugin Error");
 	    }
 	}
 	if (kinOathPlugin instanceof ActivatablePlugin) {
@@ -79,7 +82,7 @@ public class ArbilPluginManager implements PluginManager {
 		hashSet.add(kinOathPlugin);
 		pluginActivated = true;
 	    } catch (PluginException exception) {
-		dialogHandler.addMessageDialogToQueue("Failed to activate the requested plugin.\n" + exception.getMessage() + "\n" + kinOathPlugin.getName() + "\n" + kinOathPlugin.getMajorVersionNumber() + "." + kinOathPlugin.getMinorVersionNumber() + "." + kinOathPlugin.getBuildVersionNumber() + "\n" + kinOathPlugin.getDescription(), "Enable Plugin Error");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO ACTIVATE THE REQUESTED PLUGIN"), new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
 	    }
 	}
 	if (kinOathPlugin instanceof ArbilWindowPlugin) {
@@ -87,11 +90,11 @@ public class ArbilPluginManager implements PluginManager {
 		dialogHandler.createWindow(kinOathPlugin.getName(), ((ArbilWindowPlugin) kinOathPlugin).getUiPanel(dialogHandler, arbilSessionStorage, bugCatcher, arbilDataNodeLoader, dialogHandler));
 		pluginActivated = true;
 	    } catch (PluginException exception) {
-		dialogHandler.addMessageDialogToQueue("Failed to show the requested plugin.\n" + exception.getMessage() + "\n" + kinOathPlugin.getName() + "\n" + kinOathPlugin.getMajorVersionNumber() + "." + kinOathPlugin.getMinorVersionNumber() + "." + kinOathPlugin.getBuildVersionNumber() + "\n" + kinOathPlugin.getDescription(), "Enable Plugin Error");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO SHOW THE REQUESTED PLUGIN"), new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
 	    }
 	}
 	if (!pluginActivated) {
-	    dialogHandler.addMessageDialogToQueue("No method to activate this type of plugin yet.\n" + kinOathPlugin.getName() + "\n" + kinOathPlugin.getMajorVersionNumber() + "." + kinOathPlugin.getMinorVersionNumber() + "." + kinOathPlugin.getBuildVersionNumber() + "\n" + kinOathPlugin.getDescription(), "Enable Plugin");
+	    dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("NO METHOD TO ACTIVATE THIS TYPE OF PLUGIN YET"), new Object[]{kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin");
 	}
     }
 
@@ -101,10 +104,10 @@ public class ArbilPluginManager implements PluginManager {
 		((ActivatablePlugin) kinOathPlugin).deactivatePlugin(dialogHandler, arbilSessionStorage);
 		hashSet.remove(kinOathPlugin);
 	    } catch (PluginException exception) {
-		dialogHandler.addMessageDialogToQueue("Failed to deactivate the requested plugin.\n" + exception.getMessage() + "\n" + kinOathPlugin.getName() + "\n" + kinOathPlugin.getMajorVersionNumber() + "." + kinOathPlugin.getMinorVersionNumber() + "." + kinOathPlugin.getBuildVersionNumber() + "\n" + kinOathPlugin.getDescription(), "Enable Plugin Error");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO DEACTIVATE THE REQUESTED PLUGIN"), new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue("No method to deactivate this type of plugin yet.\n" + kinOathPlugin.getName() + "\n" + kinOathPlugin.getMajorVersionNumber() + "." + kinOathPlugin.getMinorVersionNumber() + "." + kinOathPlugin.getBuildVersionNumber() + "\n" + kinOathPlugin.getDescription(), "Enable Plugin");
+	    dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("NO METHOD TO DEACTIVATE THIS TYPE OF PLUGIN YET"), new Object[]{kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin");
 	}
     }
 
@@ -169,7 +172,7 @@ public class ArbilPluginManager implements PluginManager {
 			pluginUlrs.add(new URL(pluginString));
 		    } catch (MalformedURLException exception) {
 			logger.warn(exception.getMessage());
-			errorMessages = errorMessages + java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COULD NOT LOAD PLUGIN: {0}"), new Object[]{pluginString});
+			errorMessages = errorMessages + MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COULD NOT LOAD PLUGIN: {0}"), new Object[]{pluginString});
 		    }
 		}
 //            } else {
