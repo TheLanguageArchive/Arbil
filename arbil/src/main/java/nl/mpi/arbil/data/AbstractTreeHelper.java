@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -61,6 +62,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public static final String SHOW_HIDDEN_FILES_IN_TREE_OPTION = "showHiddenFilesInTree";
     public static final String GROUP_FAVOURITES_BY_TYPE_OPTION = "groupFavouritesByType";
     private final static Logger logger = LoggerFactory.getLogger(AbstractTreeHelper.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private DefaultTreeModel localCorpusTreeModel;
     private DefaultTreeModel remoteCorpusTreeModel;
     private DefaultTreeModel localDirectoryTreeModel;
@@ -429,7 +431,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	askDeleteNodes(nodesToDelete);
 	// If nodes were selected that do not have a parent, give notification
 	if (nodesToDelete.containsKey(null)) {
-	    messageDialogHandler.addMessageDialogToQueue(String.format("%d node(s) could not be deleted because they have no parent", nodesToDelete.get(null).size()), "Delete from parent");
+	    messageDialogHandler.addMessageDialogToQueue(String.format(widgets.getString("%D NODE(S) COULD NOT BE DELETED BECAUSE THEY HAVE NO PARENT"), nodesToDelete.get(null).size()), "Delete from parent");
 	}
     }
 
@@ -470,9 +472,9 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     private String getNodeDeleteMessage(ArbilDataNode parentNode, Collection<ArbilDataNode> children) {
 	if (children.size() == 1) {
-	    return String.format("Delete the node '%s' from its parent '%s'?\nThis will save pending changes.", children.iterator().next(), parentNode.toString());
+	    return String.format(widgets.getString("DELETE THE NODE '%S' FROM ITS PARENT '%S'?"), children.iterator().next(), parentNode.toString());
 	} else {
-	    return String.format("Delete %d nodes from their parent '%s'?\nThis will save pending changes.", children.size(), parentNode.toString());
+	    return String.format(widgets.getString("DELETE %D NODES FROM THEIR PARENT '%S'?"), children.size(), parentNode.toString());
 	}
     }
 

@@ -19,10 +19,12 @@ package nl.mpi.arbil.data;
 
 import java.awt.Component;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -42,46 +44,47 @@ import org.slf4j.LoggerFactory;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTreeHelper extends AbstractTreeHelper {
-    
+
     private final static Logger logger = LoggerFactory.getLogger(ArbilTreeHelper.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private SessionStorage sessionStorage;
     private ArbilTreePanels arbilTreePanel;
-    
+
     public ArbilTreeHelper(SessionStorage sessionStorage, MessageDialogHandler messageDialogHandler) {
 	super(messageDialogHandler);
 	this.sessionStorage = sessionStorage;
     }
-    
+
     public void init() {
 	initTrees();
 	// load any locations from the previous file formats
 	//LinorgFavourites.getSingleInstance().convertOldFormatLocationLists();
 	loadLocationsList();
     }
-    
+
     @Override
     protected SessionStorage getSessionStorage() {
 	return sessionStorage;
     }
-    
+
     public void setTrees(ArbilTreePanels arbilTreePanelLocal) {
 	arbilTreePanel = arbilTreePanelLocal;
 	arbilTreePanel.remoteCorpusTree.setName("RemoteCorpusTree");
 	arbilTreePanel.localCorpusTree.setName("LocalCorpusTree");
 	arbilTreePanel.localDirectoryTree.setName("LocalDirectoryTree");
 	arbilTreePanel.favouritesTree.setName("FavouritesTree");
-	
+
 	applyRootLocations();
     }
-    
+
     public boolean componentIsTheLocalCorpusTree(Component componentToTest) {
 	return componentToTest.equals(arbilTreePanel.localCorpusTree);
     }
-    
+
     public boolean componentIsTheFavouritesTree(Component componentToTest) {
 	return componentToTest.equals(arbilTreePanel.favouritesTree);
     }
-    
+
     @Override
     public void applyRootLocations() {
 	logger.debug("applyRootLocations");
@@ -90,12 +93,12 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 	arbilTreePanel.localDirectoryTree.requestResort();
 	arbilTreePanel.favouritesTree.requestResort();
     }
-    
+
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
 	logger.debug("localCorpusTree: {}", arbilTreePanel.localCorpusTree);
 	return (DefaultMutableTreeNode) arbilTreePanel.localCorpusTree.getSelectionPath().getLastPathComponent();
     }
-    
+
     public void deleteNodes(Object sourceObject) {
 	logger.debug("deleteNode: {}", sourceObject);
 	if (sourceObject == arbilTreePanel.localCorpusTree || sourceObject == arbilTreePanel.favouritesTree) {
@@ -108,7 +111,7 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 	    logger.info("Cannot delete from this source: {}", sourceObject);
 	}
     }
-    
+
     private void deleteNodesFromTree(final ArbilTree tree) {
 	TreePath currentNodePaths[] = tree.getSelectionPaths();
 	int toDeleteCount = 0;
@@ -132,9 +135,16 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 		}
 	    }
 	}
+
+	final String messageString;
+	if (toDeleteCount == 1) {
+	    messageString = MessageFormat.format(widgets.getString("DELETE THE NODE {0}?"), nameOfFirst) + "\n" + widgets.getString("THIS WILL ALSO SAVE ANY PENDING CHANGES TO DISK.");
+	} else {
+	    messageString = MessageFormat.format(widgets.getString("DELETE {0} NODES?"), toDeleteCount) + "\n" + widgets.getString("THIS WILL ALSO SAVE ANY PENDING CHANGES TO DISK.");
+	}
+
 	if (JOptionPane.OK_OPTION == getMessageDialogHandler().showDialogBox(
-		"Delete " + (toDeleteCount == 1 ? "the node \"" + nameOfFirst + "\"?" : toDeleteCount + " nodes?")
-		+ " This will also save any pending changes to disk.", "Delete",
+		messageString, widgets.getString("DELETE"),
 		JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 	    // make lists of nodes to delete
 	    Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList = new HashMap<ArbilDataNode, List<ArbilDataNode>>();
@@ -149,18 +159,18 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 	    deleteCmdiLinks(cmdiLinksDeleteList);
 	}
     }
-    
+
     @Override
     public boolean addLocationInteractive(URI addableLocation) {
 	boolean added = addLocation(addableLocation);
 	if (!added) {
 	    // alert the user when the node already exists and cannot be added again
-	    getMessageDialogHandler().addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
+	    getMessageDialogHandler().addMessageDialogToQueue(widgets.getString("THE LOCATION ALREADY EXISTS AND CANNOT BE ADDED AGAIN"), widgets.getString("ADD LOCATION"));
 	}
 	applyRootLocations();
 	return added;
     }
-    
+
     public ArbilTreePanels getArbilTreePanel() {
 	return arbilTreePanel;
     }
