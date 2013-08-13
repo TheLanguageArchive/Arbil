@@ -308,7 +308,7 @@ public class ImdiUtils implements MetadataUtils {
      */
     public boolean overrideTypecheckerDecision(ArbilDataNode[] selectedNodes) {
 	String titleString = services.getString("OVERRIDE TYPE CHECKER DECISION");
-	String messageString = services.getString("THE TYPE CHECKER DOES NOT RECOGNISE THE SELECTED FILE(S), WHICH MEANS THAT THEY\NARE NOT AN ARCHIVABLE TYPE. THIS ACTION WILL OVERRIDE THAT DECISION AND ALLOW YOU\NTO ADD THE FILE(S) TO A SESSION, AS EITHER MEDIA OR WRITTEN RESOURCES,\NHOWEVER IT MIGHT NOT BE POSSIBLE TO IMPORT THE RESULT TO THE CORPUS SERVER.");
+	String messageString = services.getString("THE TYPE CHECKER DOES NOT RECOGNISE THE SELECTED FILE(S)");
 	String[] optionStrings = {"WrittenResource", "MediaFile", services.getString("CANCEL")};
 	int userSelection = messageDialogHandler.showDialogBox(messageString, titleString, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, optionStrings, optionStrings[2]);
 	if (optionStrings[userSelection].equals("WrittenResource") || optionStrings[userSelection].equals("MediaFile")) {
