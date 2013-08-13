@@ -19,6 +19,7 @@ package nl.mpi.arbil.data;
 
 import java.net.URI;
 import java.util.Hashtable;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
 import nl.mpi.flap.model.PluginDataNode;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultDataNodeLoader implements DataNodeLoader {
 
     private final static Logger logger = LoggerFactory.getLogger(DefaultDataNodeLoader.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
     /**

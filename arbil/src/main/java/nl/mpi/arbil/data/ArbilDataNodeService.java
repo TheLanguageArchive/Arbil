@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
@@ -64,6 +66,7 @@ import org.xml.sax.SAXException;
 public class ArbilDataNodeService {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilDataNodeService.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final DataNodeLoader dataNodeLoader;
     private final MessageDialogHandler messageDialogHandler;
     private final SessionStorage sessionStorage;
@@ -117,7 +120,7 @@ public class ArbilDataNodeService {
 		for (String element : elements) {
 		}
 		for (ArbilDataNode clipboardNode : pasteIntoNode(dataNode, elements)) {
-		    new MetadataBuilder().requestAddNode(dataNode, "copy of " + clipboardNode, clipboardNode);
+		    new MetadataBuilder().requestAddNode(dataNode, MessageFormat.format(widgets.getString("COPY OF {0}"), clipboardNode), clipboardNode);
 		}
 	    }
 	} catch (Exception ex) {
@@ -138,7 +141,7 @@ public class ArbilDataNodeService {
 				if (dataNode.getFile().exists()) {
 				    if (!ignoreSaveChanges && clipboardNode.getNeedsSaveToDisk(false)) {
 					if (JOptionPane.CANCEL_OPTION == messageDialogHandler.showDialogBox(
-						"Some of the nodes to be copied contain unsaved changes.\nUnless they are saved, these changes will not be present in the resulting nodes. Continue anyway?", "Copying with unsaved changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+						widgets.getString("SOME OF THE NODES TO BE COPIED CONTAIN UNSAVED CHANGES"), widgets.getString("COPYING WITH UNSAVED CHANGES"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 					    return new ArrayList<ArbilDataNode>(0);
 					} else {
 					    ignoreSaveChanges = true;
@@ -148,16 +151,16 @@ public class ArbilDataNodeService {
 				    // this must use merge like favoirite to prevent instances end endless loops in corpus branches
 				    nodesToAdd.add(clipboardNode);
 				} else {
-				    messageDialogHandler.addMessageDialogToQueue("The target node's file does not exist", null);
+				    messageDialogHandler.addMessageDialogToQueue(widgets.getString("THE TARGET NODE'S FILE DOES NOT EXIST"), null);
 				}
 			    } else {
-				messageDialogHandler.addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
+				messageDialogHandler.addMessageDialogToQueue(widgets.getString("CANNOT PASTE SESSION SUBNODES INTO A CORPUS"), null);
 			    }
 			} else {
-			    messageDialogHandler.addMessageDialogToQueue("The target file is not in the cache", null);
+			    messageDialogHandler.addMessageDialogToQueue(widgets.getString("THE TARGET FILE IS NOT IN THE CACHE"), null);
 			}
 		    } else {
-			messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
+			messageDialogHandler.addMessageDialogToQueue(widgets.getString("PASTED STRING IS NOT AND IMDI FILE"), null);
 		    }
 		} else if (dataNode.isMetaDataNode() || dataNode.isSession()) {
 		    // Get source node
@@ -171,7 +174,7 @@ public class ArbilDataNodeService {
 			messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + dataNode.toString() + "'", "Cannot copy");
 		    }
 		} else { // Not corpus, session or metadata
-		    messageDialogHandler.addMessageDialogToQueue("Nodes of this type cannot be pasted into at this stage", null);
+		    messageDialogHandler.addMessageDialogToQueue(widgets.getString("NODES OF THIS TYPE CANNOT BE PASTED INTO AT THIS STAGE"), null);
 		}
 	    }
 	    return nodesToAdd;
@@ -193,7 +196,7 @@ public class ArbilDataNodeService {
 	for (String[] currentLinkPair : dataNode.getChildLinks()) {
 	    final String currentChildPath = currentLinkPair[0];
 	    if (!targetNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
-		messageDialogHandler.addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
+		messageDialogHandler.addMessageDialogToQueue(widgets.getString("ERROR ADDING NODE, COULD NOT WAIT FOR FILE TO LOAD"), widgets.getString("LOADING ERROR"));
 		return false;
 	    }
 	    if (currentChildPath.equals(targetNode.getUrlString())) {
@@ -201,11 +204,11 @@ public class ArbilDataNodeService {
 	    }
 	}
 	if (targetNode.getUrlString().equals(dataNode.getUrlString())) {
-	    messageDialogHandler.addMessageDialogToQueue("Cannot link or move a node into itself", null);
+	    messageDialogHandler.addMessageDialogToQueue(widgets.getString("CANNOT LINK OR MOVE A NODE INTO ITSELF"), null);
 	    return false;
 	}
 	if (linkAlreadyExists) {
-	    messageDialogHandler.addMessageDialogToQueue(targetNode + " already exists in " + dataNode + " and will not be added again", null);
+	    messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("{0} ALREADY EXISTS IN {1} AND WILL NOT BE ADDED AGAIN"), targetNode, dataNode), null);
 	    return false;
 	} else {
 	    // if link is not already there
@@ -223,7 +226,7 @@ public class ArbilDataNodeService {
 	    } catch (IOException ex) {
 		// Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
 		BugCatcherManager.getBugCatcher().logError("I/O exception while moving node " + targetNode.toString() + " to " + dataNode.toString(), ex);
-		messageDialogHandler.addMessageDialogToQueue("Could not move nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
+		messageDialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT MOVE NODES BECAUSE AN ERROR OCCURRED WHILE SAVING HISTORY FOR NODE. SEE ERROR LOG FOR DETAILS."), widgets.getString("ERROR WHILE MOVING NODES"));
 		return false;
 	    }
 	}
@@ -260,7 +263,7 @@ public class ArbilDataNodeService {
 	} catch (IOException ex) {
 	    // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
 	    BugCatcherManager.getBugCatcher().logError("I/O exception while deleting nodes from " + dataNode.toString(), ex);
-	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
+	    messageDialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT DELETE NODES BECAUSE AN ERROR OCCURRED WHILE SAVING HISTORY FOR NODE. SEE ERROR LOG FOR DETAILS."), widgets.getString("ERROR WHILE MOVING NODES"));
 	}
 
 	dataNode.getParentDomNode().clearIcon();
@@ -282,7 +285,7 @@ public class ArbilDataNodeService {
 		throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
 	    }
 	    if (resourceNode == null) {
-		throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
+		throw new ArbilMetadataException(MessageFormat.format(widgets.getString("UNKNOWN ERROR CREATING RESOURCE NODE FOR URI: {0}"), location.toString()));
 	    }
 
 	    new MetadataBuilder().requestAddNode(dataNode, null, resourceNode);
@@ -341,7 +344,7 @@ public class ArbilDataNodeService {
 	    if (componentBuilder.setFieldValues(datanode, fieldUpdateRequests)) {
 		datanode.nodeNeedsSaveToDisk = false;
 	    } else {
-		messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+		messageDialogHandler.addMessageDialogToQueue(widgets.getString("ERROR SAVING CHANGES TO DISK, CHECK THE LOG FILE VIA THE HELP MENU FOR MORE INFORMATION."), widgets.getString("SAVE"));
 	    }
 	}
 	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
@@ -491,11 +494,11 @@ public class ArbilDataNodeService {
 
 	    }
 	} catch (FileNotFoundException e) {
-	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + dataNode.toString(), "File not found");
+	    messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("{0}. HISTORY MAY BE BROKEN FOR {1}"), e.getLocalizedMessage(), dataNode.toString()), "File not found");
 	    BugCatcherManager.getBugCatcher().logError(e);
 	    return false;
 	} catch (IOException e) {
-	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + dataNode.toString(), "Error while reading or writing to disk");
+	    messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("{0}. HISTORY MAY BE BROKEN FOR {1}"), e.getLocalizedMessage(), dataNode.toString()), "Error while reading or writing to disk");
 	    BugCatcherManager.getBugCatcher().logError(e);
 	    return false;
 	} finally {
@@ -536,7 +539,7 @@ public class ArbilDataNodeService {
 		outFile.write(buffer, 0, bytesread);
 	    }
 	} catch (IOException iOException) {
-	    messageDialogHandler.addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
+	    messageDialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT COPY FILE WHEN RECOVERING FROM THE LAST HISTORY FILE."), widgets.getString("RECOVER HISTORY"));
 	    BugCatcherManager.getBugCatcher().logError(iOException);
 	} finally {
 	    if (inputStream != null) {
@@ -760,7 +763,7 @@ public class ArbilDataNodeService {
 	if (dataNode.isLocal() && !dataNode.getFile().exists() && new File(dataNode.getFile().getAbsolutePath() + ".0").exists()) {
 	    // if the file is missing then try to find a valid history file
 	    copyLastHistoryToCurrent(dataNode);
-	    messageDialogHandler.addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
+	    messageDialogHandler.addMessageDialogToQueue(widgets.getString("MISSING FILE HAS BEEN RECOVERED FROM THE LAST HISTORY ITEM."), widgets.getString("RECOVER HISTORY"));
 	}
 	try {
 	    //set the string name to unknown, it will be updated in the tostring function
@@ -772,9 +775,9 @@ public class ArbilDataNodeService {
 	    //            logger.debug("Invalid input URL: " + mue);
 	    File nodeFile = dataNode.getFile();
 	    if (nodeFile != null && nodeFile.exists()) {
-		dataNode.nodeText = "Could not load data";
+		dataNode.nodeText = widgets.getString("COULD NOT LOAD DATA");
 	    } else {
-		dataNode.nodeText = "File not found";
+		dataNode.nodeText = widgets.getString("FILE NOT FOUND");
 		dataNode.fileNotFound = true;
 	    }
 	}

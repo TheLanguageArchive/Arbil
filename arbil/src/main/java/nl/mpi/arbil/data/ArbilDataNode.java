@@ -33,6 +33,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
@@ -64,6 +65,7 @@ import org.slf4j.LoggerFactory;
 public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNode {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilDataNode.class);
+    private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     public static enum LoadingState {
 
@@ -119,7 +121,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     public File thumbnailFile = null;
     private boolean resourceNode = false;
     private final Object domLockObjectPrivate = new Object();
-    private final static String NODE_LOADING_TEXT = "loading node...";
+    private final static String NODE_LOADING_TEXT = widgets.getString("LOADING NODE...");
     public static final String EMPTY_NODE_STRING_VALUE = "                      ";
 
     protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
@@ -925,7 +927,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	File currentHistoryFile;
 	//        historyVector.add(new String[]{"Current", ""});
 	if (!isHeadRevision()) {
-	    historyVector.add(new String[]{"Last Save", ".x"});
+	    historyVector.add(new String[]{widgets.getString("HISTORY_LAST SAVE"), ".x"});
 	}
 	do {
 	    currentHistoryFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
