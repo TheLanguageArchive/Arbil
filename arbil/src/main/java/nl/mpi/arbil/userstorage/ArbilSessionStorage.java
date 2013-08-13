@@ -40,11 +40,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
@@ -71,6 +73,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
     public static final String UTF8_ENCODING = "UTF8";
     public static final String CONFIG_FILE = "arbil.config";
+    private final ResourceBundle services = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
 
     public void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
@@ -114,8 +117,9 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	}
 	// this moving of files is not relevant for projects and it does not work across devices so it has been removed, it should be replaced by the projects functionality
 	if (!moveFiles || JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
-		"Changing your current project from:\n" + fromDirectory.getParent() + "\nto:\n" + preferedCacheDirectory.getParent() + "\n"
-		+ "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+		java.text.MessageFormat.format(services.getString("CHANGING YOUR CURRENT PROJECT FROM {0} TO {1}"), fromDirectory.getParent(), preferedCacheDirectory.getParent())
+		+ "\n"
+		+ services.getString("ARBIL WILL NEED TO CLOSE ALL TABLES ONCE THE FILES ARE MOVED"), "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 //            if (moveFiles) {
 	    // move the files
 //                changeStorageDirectory(fromDirectory, preferedCacheDirectory);
@@ -151,12 +155,8 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	// This sometimes fails on Windows 7, JRE 6 without any clear reason. See https://trac.mpi.nl/ticket/1553
 	if (!success) {
 	    if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
-		    "The files in your 'Local Corpus' could not be moved to the requested location.\n"
-		    + "You can cancel now and nothing will be changed, or you can change the working\n"
-		    + "directory anyway.\n"
-		    + "If you continue, any corpus and session files in your 'Local Corpus' will move\n"
-		    + "into your 'Working Directories' tree and you will have to import them manually.\n"
-		    + "Do you wish to change the working directory despite this?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+		    services.getString("THE FILES IN YOUR 'LOCAL CORPUS' COULD NOT BE MOVED TO THE REQUESTED LOCATION"), 
+		    "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 		saveString("cacheDirectory", toDirectory.getAbsolutePath());
 		localCacheDirectory = null;
 		getProjectWorkingDirectory();
@@ -167,10 +167,10 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	    try {
 		Vector<String> locationsList = new Vector<String>();
 		for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{
-			    treeHelper.getRemoteCorpusNodes(),
-			    treeHelper.getLocalCorpusNodes(),
-			    treeHelper.getLocalFileNodes(),
-			    treeHelper.getFavouriteNodes()}) {
+		    treeHelper.getRemoteCorpusNodes(),
+		    treeHelper.getLocalCorpusNodes(),
+		    treeHelper.getLocalFileNodes(),
+		    treeHelper.getFavouriteNodes()}) {
 		    for (ArbilDataNode currentLocation : currentTreeArray) {
 			String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
 			logger.debug("currentLocationString: {}", currentLocationString);
@@ -355,10 +355,9 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
      */
     public Object loadObject(String filename) throws Exception {
 	logger.debug("loadObject: " + filename);
-	Object object = null;
 	// this must be allowed to throw so don't do checks here
 	ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(getApplicationSettingsDirectory(), filename)));
-	object = objstream.readObject();
+	Object object = objstream.readObject();
 	objstream.close();
 	if (object == null) {
 	    throw (new Exception("Loaded object is null"));
@@ -448,10 +447,10 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	}
 	if (!destinationConfigFile.exists() || destinationConfigFile.delete()) {
 	    if (!tempConfigFile.renameTo(destinationConfigFile)) {
-		messageDialogHandler.addMessageDialogToQueue("Error saving configuration to " + filename, "Error saving configuration");
+		messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("ERROR SAVING CONFIGURATION TO {0}"), filename), services.getString("ERROR SAVING CONFIGURATION"));
 	    }
 	} else {
-	    messageDialogHandler.addMessageDialogToQueue("Could not write new configuration to " + filename, "Error saving configuration");
+	    messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("COULD NOT WRITE NEW CONFIGURATION TO {0}"), filename), services.getString("ERROR SAVING CONFIGURATION"));
 	}
 //        try {
 //            Properties propertiesObject = new Properties();
