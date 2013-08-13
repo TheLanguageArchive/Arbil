@@ -190,10 +190,10 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	HashSet<ArbilDataNode> remoteCorpusNodesSet = new HashSet<ArbilDataNode>();
 	remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
 	for (String currentUrlString : new String[]{
-		    "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
-		    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi",
-		    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"
-		}) {
+	    "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
+	    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi",
+	    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"
+	}) {
 	    try {
 		remoteCorpusNodesSet.add(dataNodeLoader.getArbilDataNode(null, new URI(currentUrlString)));
 	    } catch (URISyntaxException ex) {
@@ -459,7 +459,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    if (parentNode != null) {
 		final Collection<ArbilDataNode> children = entry.getValue();
 		if (dialogResult == null || !dialogResult.isRememberChoice()) {
-		    dialogResult = messageDialogHandler.showDialogBoxRememberChoice(getNodeDeleteMessage(parentNode, children), "Delete from parent", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		    dialogResult = messageDialogHandler.showDialogBoxRememberChoice(getNodeDeleteMessage(parentNode, children), widgets.getString("DELETE FROM PARENT"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		}
 		if (dialogResult.getResult() == JOptionPane.OK_OPTION) {
 		    deleteChildNodes(parentNode, children);
