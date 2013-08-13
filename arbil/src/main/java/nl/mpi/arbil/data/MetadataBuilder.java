@@ -21,9 +21,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -49,6 +51,7 @@ import org.xml.sax.SAXException;
 public class MetadataBuilder {
 
     private final static Logger logger = LoggerFactory.getLogger(MetadataBuilder.class);
+    private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -121,7 +124,7 @@ public class MetadataBuilder {
 			try {
 			    Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
 			    if (nodDom == null) {
-				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
+				messageDialogHandler.addMessageDialogToQueue(services.getString("THE METADATA FILE COULD NOT BE OPENED"), services.getString("ADD NODE"));
 			    } else {
 				return MetadataReader.getSingleInstance().canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
 			    }
@@ -166,7 +169,7 @@ public class MetadataBuilder {
 
 			    // CODE REMOVED: previously, imdiLoaders was requested to reload destinationNode
 			} catch (ArbilMetadataException exception) {
-			    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+			    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), services.getString("INSERT NODE ERROR"));
 			}
 		    }
 		} finally {
@@ -180,9 +183,9 @@ public class MetadataBuilder {
 	    private ArbilDataNode processAddNodes(ArbilDataNode destinationNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
 
 		// make title for imdi table
-		String newTableTitleString = "new " + nodeTypeDisplayName;
+		String newTableTitleString = MessageFormat.format(services.getString("NEW {0}"), new Object[]{nodeTypeDisplayName});
 		if (destinationNode.isMetaDataNode() && destinationNode.getFile().exists()) {
-		    newTableTitleString = newTableTitleString + " in " + destinationNode.toString();
+		    newTableTitleString = newTableTitleString + MessageFormat.format(services.getString(" IN {0}"), new Object[]{destinationNode.toString()});
 		}
 
 		logger.debug("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
@@ -296,11 +299,11 @@ public class MetadataBuilder {
 		    }
 		    addNodes(destinationNode, nodeTypeDisplayNames, addableNodes);
 		} catch (ArbilMetadataException exception) {
-		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), services.getString("INSERT NODE ERROR"));
 		} catch (IOException exception) {
-		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), services.getString("INSERT NODE ERROR"));
 		} catch (UnsupportedOperationException exception) {
-		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), services.getString("INSERT NODE ERROR"));
 		} finally {
 		    if (destinationNode != null) {
 			destinationNode.updateLoadingState(-1);
@@ -417,7 +420,12 @@ public class MetadataBuilder {
 	    destinationNode.getParentDomNode().updateLoadingState(-1);
 	}
 	if (addedNodeURIs.size() > 0) {
-	    String title = String.format("New %1$s in %2$s", (addedNodeURIs.size() == 1 ? "resource" : "resources"), destinationNode.toString());
+	    final String title;
+	    if (addedNodeURIs.size() == 1) {
+		title = String.format(services.getString("NEW RESOURCE IN %S"), destinationNode);
+	    } else {
+		title = String.format(services.getString("NEW RESOURCES IN %S"), destinationNode);
+	    }
 	    windowManager.openFloatingTableOnce(addedNodeURIs.toArray(new URI[]{}), title);
 	}
     }
@@ -428,11 +436,12 @@ public class MetadataBuilder {
      * @return Manual nodetype, if set. Otherwise null
      */
     private String handleUnknownMimetype(ArbilDataNode currentArbilNode) {
-	if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox("There is no controlled vocabulary for either Written Resource or Media File that match \""
-		+ currentArbilNode.mpiMimeType + "\".\n"
-		+ "This probably means that the file is not archivable. However, you can proceed by manually selecting the resource type.\n\n"
-		+ "Do you want to proceed?\n\nWARNING: Doing this will not guarantee that your data will be uploadable to the corpus server!",
-		"Add Resource",
+	if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
+		MessageFormat.format(services.getString("THERE IS NO CONTROLLED VOCABULARY FOR EITHER WRITTEN RESOURCE OR MEDIA FILE THAT MATCH \"{0}\"."), currentArbilNode.mpiMimeType) + "\n"
+		+ services.getString("THIS PROBABLY MEANS THAT THE FILE IS NOT ARCHIVABLE. HOWEVER, YOU CAN PROCEED BY MANUALLY SELECTING THE RESOURCE TYPE.") + "\n\n"
+		+ services.getString("DO YOU WANT TO PROCEED?") + "\n\n"
+		+ services.getString("WARNING: DOING THIS WILL NOT GUARANTEE THAT YOUR DATA WILL BE UPLOADABLE TO THE CORPUS SERVER!"),
+		services.getString("ADD RESOURCE"),
 		JOptionPane.YES_NO_OPTION,
 		JOptionPane.PLAIN_MESSAGE)) {
 	    String originalMime = currentArbilNode.mpiMimeType;
@@ -518,7 +527,7 @@ public class MetadataBuilder {
 			try {
 			    Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
 			    if (nodDom == null) {
-				messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
+				messageDialogHandler.addMessageDialogToQueue(services.getString("THE METADATA FILE COULD NOT BE OPENED"), services.getString("ADD NODE"));
 			    } else {
 				addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
 				destinationNode.bumpHistory();

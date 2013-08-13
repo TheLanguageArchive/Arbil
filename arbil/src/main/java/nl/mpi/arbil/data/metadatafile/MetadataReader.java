@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -110,6 +111,7 @@ public class MetadataReader {
      */
     //public File selectedTemplateDirectory = null;
     public final static String imdiPathSeparator = ".";
+    private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     public boolean copyNewResourcesToCache = true; // todo: this variable should find a new home
 
     // todo: this should probably be moved into the arbiltemplate class
@@ -199,7 +201,7 @@ public class MetadataReader {
 	    Document addedDocument = ArbilComponentBuilder.getDocument(addedPathUri);
 	    if (addedDocument == null) {
 		//                BugCatcherManager.getBugCatcher().logError(new Exception(ImdiTreeObject.api.getMessage()));
-		messageDialogHandler.addMessageDialogToQueue("Error inserting create date", "Add from Template");
+		messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR INSERTING CREATE DATE"), services.getString("ADD FROM TEMPLATE"));
 	    } else {
 		// Set some values to new instance of metadata file
 
@@ -364,7 +366,7 @@ public class MetadataReader {
 		Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
 
 		if (insertableSectionDoc == null) {
-		    messageDialogHandler.addMessageDialogToQueue("Error reading template", "Insert from Template");
+		    messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING TEMPLATE"), services.getString("INSERT FROM TEMPLATE"));
 		} else {
 		    // insert values into the section that about to be added
 		    if (resourceUrl != null) {
@@ -567,7 +569,7 @@ public class MetadataReader {
 	if (!dataNodeLoader.nodesNeedSave()) {
 	    // Note TG: it may be good to add something like 'non-critical error' or something, so users feel safe to
 	    // ignore this if they do not know what it means.
-	    messageDialogHandler.addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
+	    messageDialogHandler.addMessageDialogToQueue(services.getString("A DOM ID ATTRIBUTE HAS BEEN FOUND IN ONE OR MORE FILES, THESE FILES WILL NEED TO BE SAVED TO CORRECT THIS."), services.getString("LOAD IMDI FILES"));
 	}
     }
 
@@ -989,7 +991,7 @@ public class MetadataReader {
 		 */
 	    } catch (Exception exception) {
 		BugCatcherManager.getBugCatcher().logError(exception);
-		messageDialogHandler.addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
+		messageDialogHandler.addMessageDialogToQueue(services.getString("COULD NOT FIND THE SCHEMA URL, SOME NODES WILL NOT DISPLAY CORRECTLY."), services.getString("CMDI SCHEMA LOCATION"));
 	    }
 	} else {
 	    // this is an imdi file so get an imdi template etc
