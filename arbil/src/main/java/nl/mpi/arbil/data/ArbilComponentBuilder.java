@@ -29,11 +29,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -87,6 +89,7 @@ import org.xml.sax.SAXException;
 public class ArbilComponentBuilder {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilComponentBuilder.class);
+    private final static ResourceBundle services = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
     public static final String RESOURCE_ID_PREFIX = "res_";
     private static MessageDialogHandler messageDialogHandler;
@@ -358,7 +361,7 @@ public class ArbilComponentBuilder {
 		    if (link.getReferencingNodesCount() == 0) {
 			// There was only one reference to this proxy and we deleted it, so remove the proxy
 			if (!removeResourceProxy(targetDocument, id)) {
-			    messageDialogHandler.addMessageDialogToQueue("Failed to remove resource proxy with id " + id, "Warning");
+			    messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO REMOVE RESOURCE PROXY WITH ID {0}"), id), "Warning");
 			}
 		    }
 		}
@@ -721,7 +724,7 @@ public class ArbilComponentBuilder {
 		    destinationXpath = targetFragment + destinationXpathParts[1];
 		} else {
 		    // Should not happen, either exact match or remainder
-		    messageDialogHandler.addMessageDialogToQueue("Unexpected relation between source and target paths. See error log for details.", "Insert node");
+		    messageDialogHandler.addMessageDialogToQueue(services.getString("UNEXPECTED RELATION BETWEEN SOURCE AND TARGET PATHS. SEE ERROR LOG FOR DETAILS."), services.getString("INSERT NODE"));
 		    BugCatcherManager.getBugCatcher().logError("destinationXpath: " + destinationXpath + "\ntargetFragment: " + targetFragment, null);
 		}
 	    }
@@ -976,7 +979,7 @@ public class ArbilComponentBuilder {
 		    return canInsertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
 		} catch (ArbilMetadataException exception) {
 		    BugCatcherManager.getBugCatcher().logError(exception);
-		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), services.getString("INSERT NODE ERROR"));
 		    return false;
 		}
 	    } catch (IOException exception) {
@@ -1399,7 +1402,7 @@ public class ArbilComponentBuilder {
 	    BugCatcherManager.getBugCatcher().logError(e);
 	} catch (XmlException e) {
 	    // TODO: this is not really a good place to message this so modify to throw
-	    messageDialogHandler.addMessageDialogToQueue("Could not read the XML Schema", "Error inserting node");
+	    messageDialogHandler.addMessageDialogToQueue(services.getString("COULD NOT READ THE XML SCHEMA"), services.getString("ERROR INSERTING NODE"));
 	    BugCatcherManager.getBugCatcher().logError(e);
 	}
 	return null;

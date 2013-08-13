@@ -123,7 +123,7 @@ public class IMDIVocabularies {
 		    progressMonitor.setProgress(succeededCount);
 		}
 		progressMonitor.close();
-		messageDialogHandler.addMessageDialogToQueue("Downloaded " + succeededCount + " out of the " + vocabulariesTable.size() + " vocabularies currently in use.\nYou will need to restart the application for the new vocabularies to take effect.", "Re-download Current Vocabularies");
+		messageDialogHandler.addMessageDialogToQueue(("Downloaded " + succeededCount + " out of the " + vocabulariesTable.size() + " vocabularies currently in use.\nYou will need to restart the application for the new vocabularies to take effect."), "Re-download Current Vocabularies");
 	    }
 	}.start();
     }
@@ -229,7 +229,7 @@ public class IMDIVocabularies {
 		saxParser.parse(inputSource, new SaxVocabularyHandler(vocabulary));
 		///////////////////////////////////////////////////////////////////////
 	    } catch (Exception ex) {
-		messageDialogHandler.addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
+		messageDialogHandler.addMessageDialogToQueue(("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options."), "Load Controlled Vocabulary");
 		BugCatcherManager.getBugCatcher().logError("A controlled vocabulary could not be read: " + vocabRemoteUrl, ex);
 	    }
 	}

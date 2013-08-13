@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -360,7 +361,7 @@ public class MetadataReader {
 	    logger.debug("templateUrl: {}", templateUrl);
 
 	    if (templateUrl == null) {
-		messageDialogHandler.addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
+		messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("NO TEMPLATE FOUND FOR"), elementName.substring(1)), "Load Template");
 		BugCatcherManager.getBugCatcher().logError(new Exception("No template found for: " + elementName.substring(1)));
 	    } else {
 		Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());

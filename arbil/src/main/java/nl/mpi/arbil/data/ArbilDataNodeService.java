@@ -66,6 +66,7 @@ import org.xml.sax.SAXException;
 public class ArbilDataNodeService {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilDataNodeService.class);
+    //TODO: Move strings to 'services' resource..
     private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final DataNodeLoader dataNodeLoader;
     private final MessageDialogHandler messageDialogHandler;
@@ -171,7 +172,7 @@ public class ArbilDataNodeService {
 			new MetadataBuilder().requestAddNode(dataNode, templateDataNode.toString(), templateDataNode);
 		    } else {
 			// Invalid copy/paste...
-			messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + dataNode.toString() + "'", "Cannot copy");
+			messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("CANNOT COPY {0} TO {1}"), templateDataNode.toString(), dataNode.toString()), "Cannot copy");
 		    }
 		} else { // Not corpus, session or metadata
 		    messageDialogHandler.addMessageDialogToQueue(widgets.getString("NODES OF THIS TYPE CANNOT BE PASTED INTO AT THIS STAGE"), null);
