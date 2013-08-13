@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -53,6 +54,7 @@ public class ImdiUtils implements MetadataUtils {
 	messageDialogHandler = handler;
     }
     public final static IMDIDom api = new IMDIDom();
+    private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     
     private boolean isCatalogue(URI sourceURI) {
 	try {
@@ -109,7 +111,7 @@ public class ImdiUtils implements MetadataUtils {
 	    checkImdiApiResult(nodDom, nodeURI);
 	    if (nodDom == null) {
 		BugCatcherManager.getBugCatcher().logError(new Exception(api.getMessage()));
-		messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
+		messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING VIA THE IMDI API"), services.getString("ADD LINK"));
 		return false;
 	    } else {
 		int nodeType = WSNodeType.CORPUS;
@@ -142,7 +144,7 @@ public class ImdiUtils implements MetadataUtils {
 	org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 	checkImdiApiResult(nodDom, sourceURI);
 	if (nodDom == null) {
-	    messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API. See error log for details.", "Copy IMDI File");
+	    messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING VIA THE IMDI API. SEE ERROR LOG FOR DETAILS."), services.getString("COPY IMDI FILE"));
 	    throw new ArbilMetadataException(api.getMessage());
 	} else {
 	    IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.UNKNOWN);
@@ -221,7 +223,7 @@ public class ImdiUtils implements MetadataUtils {
 	    checkImdiApiResult(nodDom, nodeURI);
 	    if (nodDom == null) {
 		BugCatcherManager.getBugCatcher().logError(new Exception(api.getMessage()));
-		messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API", "Remove IMDI Links");
+		messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING VIA THE IMDI API"), services.getString("REMOVE IMDI LINKS"));
 		return false;
 	    }
 	    IMDILink[] allImdiLinks;
@@ -247,7 +249,7 @@ public class ImdiUtils implements MetadataUtils {
 	    }
 	} catch (MalformedURLException exception) {
 	    BugCatcherManager.getBugCatcher().logError(exception);
-	    messageDialogHandler.addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
+	    messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING LINKS VIA THE IMDI API"), services.getString("GET LINKS"));
 	}
 	return false;
     }
@@ -279,14 +281,14 @@ public class ImdiUtils implements MetadataUtils {
 			}
 		    } catch (URISyntaxException exception) {
 			BugCatcherManager.getBugCatcher().logError(exception);
-			messageDialogHandler.addMessageDialogToQueue("Error reading one of the links via the IMDI API", "Get Links");
+			messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING ONE OF THE LINKS VIA THE IMDI API"), services.getString("GET LINKS"));
 		    }
 		}
 		return new MetadataLinkSet(resourceLinks, metadataLinks);
 	    }
 	} catch (MalformedURLException exception) {
 	    BugCatcherManager.getBugCatcher().logError(exception);
-	    messageDialogHandler.addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
+	    messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING LINKS VIA THE IMDI API"), services.getString("GET LINKS"));
 	}
 	return null;
     }
@@ -305,15 +307,15 @@ public class ImdiUtils implements MetadataUtils {
      * @return Whether action was carried out (not canceled)
      */
     public boolean overrideTypecheckerDecision(ArbilDataNode[] selectedNodes) {
-	String titleString = "Override Type Checker Decision";
-	String messageString = "The type checker does not recognise the selected file(s), which means that they\nare not an archivable type. This action will override that decision and allow you\nto add the file(s) to a session, as either media or written resources,\nhowever it might not be possible to import the result to the corpus server.";
-	String[] optionStrings = {"WrittenResource", "MediaFile", "Cancel"};
+	String titleString = services.getString("OVERRIDE TYPE CHECKER DECISION");
+	String messageString = services.getString("THE TYPE CHECKER DOES NOT RECOGNISE THE SELECTED FILE(S), WHICH MEANS THAT THEY\NARE NOT AN ARCHIVABLE TYPE. THIS ACTION WILL OVERRIDE THAT DECISION AND ALLOW YOU\NTO ADD THE FILE(S) TO A SESSION, AS EITHER MEDIA OR WRITTEN RESOURCES,\NHOWEVER IT MIGHT NOT BE POSSIBLE TO IMPORT THE RESULT TO THE CORPUS SERVER.");
+	String[] optionStrings = {"WrittenResource", "MediaFile", services.getString("CANCEL")};
 	int userSelection = messageDialogHandler.showDialogBox(messageString, titleString, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, optionStrings, optionStrings[2]);
 	if (optionStrings[userSelection].equals("WrittenResource") || optionStrings[userSelection].equals("MediaFile")) {
 	    for (ArbilDataNode currentNode : selectedNodes) {
 		if (currentNode.mpiMimeType == null) {
 		    currentNode.mpiMimeType = "Manual/" + optionStrings[userSelection];
-		    currentNode.typeCheckerMessage = "Manually overridden (might not be compatible with the archive)";
+		    currentNode.typeCheckerMessage = services.getString("MANUALLY OVERRIDDEN (MIGHT NOT BE COMPATIBLE WITH THE ARCHIVE)");
 		    currentNode.clearIcon();
 		}
 	    }
