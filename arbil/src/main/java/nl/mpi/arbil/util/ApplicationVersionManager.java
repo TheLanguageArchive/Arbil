@@ -22,25 +22,28 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Document   : ApplicationVersionManager
+ * Document : ApplicationVersionManager
  * Created on : Mar 11, 2009, 10:13:10 AM
+ *
  * @author Peter.Withers@mpi.nl
  */
 public class ApplicationVersionManager {
-    private final static Logger logger = LoggerFactory.getLogger(ApplicationVersionManager.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(ApplicationVersionManager.class);
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     private static SessionStorage sessionStorage;
+    private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
@@ -48,7 +51,7 @@ public class ApplicationVersionManager {
     private ApplicationVersion applicationVersion;
 
     /**
-     * 
+     *
      * @param appVersion Version information to use
      */
     public ApplicationVersionManager(ApplicationVersion appVersion) {
@@ -64,7 +67,7 @@ public class ApplicationVersionManager {
 	if (cachePath.delete()) {
 	    logger.debug("Dropped old version file");
 	} else {
-	    messageDialogHandler.addMessageDialogToQueue("Could not write to storage directory. Update check failed!", "Error");
+	    messageDialogHandler.addMessageDialogToQueue(services.getString("COULD NOT WRITE TO STORAGE DIRECTORY. UPDATE CHECK FAILED!"), services.getString("ERROR"));
 	}
 	return this.checkForUpdate();
     }
@@ -131,7 +134,7 @@ public class ApplicationVersionManager {
 	    if (0 == restartProcess.waitFor()) {
 		System.exit(0);
 	    } else {
-		messageDialogHandler.addMessageDialogToQueue("There was an error restarting the application.\nThe update will take effect next time the application is restarted.", null);
+		messageDialogHandler.addMessageDialogToQueue(services.getString("THERE WAS AN ERROR RESTARTING THE APPLICATION.THE UPDATE WILL TAKE EFFECT NEXT TIME THE APPLICATION IS RESTARTED."), null);
 	    }
 	} catch (Exception e) {
 	    BugCatcherManager.getBugCatcher().logError(e);
@@ -144,10 +147,9 @@ public class ApplicationVersionManager {
 		this.checkForAndUpdateViaJavaws();
 	    } else {
 		new Thread("checkForUpdate") {
-
 		    @Override
 		    public void run() {
-			messageDialogHandler.addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
+			messageDialogHandler.addMessageDialogToQueue(services.getString("THERE IS A NEW VERSION AVAILABLE.PLEASE GO TO THE WEBSITE AND UPDATE VIA THE DOWNLOAD LINK."), null);
 		    }
 		}.start();
 	    }
@@ -168,22 +170,20 @@ public class ApplicationVersionManager {
     public void checkForAndUpdateViaJavaws() {
 	//if (last check date not today)
 	new Thread("checkForAndUpdateViaJavaws") {
-
 	    @Override
 	    public void run() {
 		String webstartUrlString = System.getProperty("nl.mpi.webstartUpdateUrl");
 //                logger.debug(webStartUrlString);
 		{
 		    if (webstartUrlString != null && !isLatestVersion()) {
-//                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
-			switch (messageDialogHandler.showDialogBox("There is a new version available\nDo you want to update now?", applicationVersion.applicationTitle, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+			switch (messageDialogHandler.showDialogBox(services.getString("There is a new version available"), applicationVersion.applicationTitle, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 			    case JOptionPane.NO_OPTION:
 				break;
 			    case JOptionPane.YES_OPTION:
 				if (doUpdate(webstartUrlString)) {
 				    restartApplication(webstartUrlString);
 				} else {
-				    messageDialogHandler.addMessageDialogToQueue("There was an error updating the application.\nPlease go to the website and update via the download link.", null);
+				    messageDialogHandler.addMessageDialogToQueue(services.getString("THERE WAS AN ERROR UPDATING THE APPLICATION.PLEASE GO TO THE WEBSITE AND UPDATE VIA THE DOWNLOAD LINK."), null);
 				}
 				break;
 			    default:
