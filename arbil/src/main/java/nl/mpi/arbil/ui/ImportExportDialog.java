@@ -415,7 +415,7 @@ public class ImportExportDialog implements ImportExportUI {
 	inputNodeLabelPanel.setLayout(new BorderLayout());
 	inputNodePanel = new JPanel();
 	inputNodePanel.setLayout(new java.awt.GridLayout());
-	inputNodeLabelPanel.add(new JLabel(widgets.getString("FROM: ")), BorderLayout.LINE_START);
+	inputNodeLabelPanel.add(new JLabel(widgets.getString("EXPORT_FROM: ")), BorderLayout.LINE_START);
 	inputNodeLabelPanel.add(inputNodePanel, BorderLayout.CENTER);
 	inputNodeLabelPanel.setAlignmentX(0);
 	inOutNodePanel.add(inputNodeLabelPanel);
@@ -424,7 +424,7 @@ public class ImportExportDialog implements ImportExportUI {
 	outputNodeLabelPanel.setLayout(new BorderLayout());
 	outputNodePanel = new JPanel();
 	outputNodePanel.setLayout(new java.awt.GridLayout());
-	outputNodeLabelPanel.add(new JLabel(widgets.getString("TO: ")), BorderLayout.LINE_START);
+	outputNodeLabelPanel.add(new JLabel(widgets.getString("EXPORT_TO: ")), BorderLayout.LINE_START);
 	outputNodeLabelPanel.add(outputNodePanel, BorderLayout.CENTER);
 	outputNodeLabelPanel.setAlignmentX(0);
 	inOutNodePanel.add(outputNodeLabelPanel);
