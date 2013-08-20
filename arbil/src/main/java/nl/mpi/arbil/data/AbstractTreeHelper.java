@@ -431,7 +431,12 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	askDeleteNodes(nodesToDelete);
 	// If nodes were selected that do not have a parent, give notification
 	if (nodesToDelete.containsKey(null)) {
-	    messageDialogHandler.addMessageDialogToQueue(String.format(widgets.getString("%D NODE(S) COULD NOT BE DELETED BECAUSE THEY HAVE NO PARENT"), nodesToDelete.get(null).size()), "Delete from parent");
+	    final int nodeCount = nodesToDelete.get(null).size();
+	    if (nodeCount > 1) {
+		messageDialogHandler.addMessageDialogToQueue(String.format(widgets.getString("%D NODES COULD NOT BE DELETED BECAUSE THEY HAVE NO PARENT"), nodeCount), widgets.getString("DELETE FROM PARENT"));
+	    } else {
+		messageDialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT DELETE NODE BECAUSE IT HAS NO PARENT"), widgets.getString("DELETE FROM PARENT"));
+	    }
 	}
     }
 
