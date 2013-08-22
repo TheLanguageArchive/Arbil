@@ -73,7 +73,7 @@ public class ArbilPluginManager implements PluginManager {
 		arbilJournal.addJounalWatcher((JournalWatcherPlugin) kinOathPlugin);
 		((JournalWatcherPlugin) kinOathPlugin).initJournalWatcher(arbilJournal);
 	    } catch (PluginException exception) {
-		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO PASS THE JOURNAL TO THE REQUESTED PLUGIN"), new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Journal Plugin Error");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO PASS THE JOURNAL TO THE REQUESTED PLUGIN") + "\n{0}\n{1}\n{2}.{3}.{4}\n{5}", new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Journal Plugin Error");
 	    }
 	}
 	if (kinOathPlugin instanceof ActivatablePlugin) {
@@ -82,7 +82,7 @@ public class ArbilPluginManager implements PluginManager {
 		hashSet.add(kinOathPlugin);
 		pluginActivated = true;
 	    } catch (PluginException exception) {
-		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO ACTIVATE THE REQUESTED PLUGIN"), new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO ACTIVATE THE REQUESTED PLUGIN") + "\n{0}\n{1}\n{2}.{3}.{4}\n{5}", new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
 	    }
 	}
 	if (kinOathPlugin instanceof ArbilWindowPlugin) {
@@ -90,11 +90,11 @@ public class ArbilPluginManager implements PluginManager {
 		dialogHandler.createWindow(kinOathPlugin.getName(), ((ArbilWindowPlugin) kinOathPlugin).getUiPanel(dialogHandler, arbilSessionStorage, bugCatcher, arbilDataNodeLoader, dialogHandler));
 		pluginActivated = true;
 	    } catch (PluginException exception) {
-		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO SHOW THE REQUESTED PLUGIN"), new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO SHOW THE REQUESTED PLUGIN") + "\n{0}\n{1}\n{2}.{3}.{4}\n{5}", new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
 	    }
 	}
 	if (!pluginActivated) {
-	    dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("NO METHOD TO ACTIVATE THIS TYPE OF PLUGIN YET"), new Object[]{kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin");
+	    dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("NO METHOD TO ACTIVATE THIS TYPE OF PLUGIN YET") + "\n{0}\n{1}.{2}.{3}\n{4}", new Object[]{kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin");
 	}
     }
 
@@ -104,10 +104,10 @@ public class ArbilPluginManager implements PluginManager {
 		((ActivatablePlugin) kinOathPlugin).deactivatePlugin(dialogHandler, arbilSessionStorage);
 		hashSet.remove(kinOathPlugin);
 	    } catch (PluginException exception) {
-		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO DEACTIVATE THE REQUESTED PLUGIN"), new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("FAILED TO DEACTIVATE THE REQUESTED PLUGIN") + "\n{0}\n{1}\n{2}.{3}.{4}\n{5}", new Object[]{exception.getMessage(), kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin Error");
 	    }
 	} else {
-	    dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("NO METHOD TO DEACTIVATE THIS TYPE OF PLUGIN YET"), new Object[]{kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin");
+	    dialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("NO METHOD TO DEACTIVATE THIS TYPE OF PLUGIN YET") + "\n{0}\n{1}.{2}.{3}\n{4}", new Object[]{kinOathPlugin.getName(), kinOathPlugin.getMajorVersionNumber(), kinOathPlugin.getMinorVersionNumber(), kinOathPlugin.getBuildVersionNumber(), kinOathPlugin.getDescription()}), "Enable Plugin");
 	}
     }
 
