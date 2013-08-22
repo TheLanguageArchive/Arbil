@@ -183,9 +183,11 @@ public class MetadataBuilder {
 	    private ArbilDataNode processAddNodes(ArbilDataNode destinationNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
 
 		// make title for imdi table
-		String newTableTitleString = MessageFormat.format(services.getString("NEW {0}"), new Object[]{nodeTypeDisplayName});
+		final String newTableTitleString;
 		if (destinationNode.isMetaDataNode() && destinationNode.getFile().exists()) {
-		    newTableTitleString = newTableTitleString + MessageFormat.format(services.getString(" IN {0}"), new Object[]{destinationNode.toString()});
+		    newTableTitleString = MessageFormat.format(services.getString("NEW {0} IN {1}"), nodeTypeDisplayName, destinationNode.toString());
+		} else {
+		    newTableTitleString = MessageFormat.format(services.getString("NEW {0}"), nodeTypeDisplayName);
 		}
 
 		logger.debug("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
