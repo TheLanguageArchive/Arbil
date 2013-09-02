@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" 
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <book>
+  <title>Arbil</title>
+  <subtitle>Arbil 2.4</subtitle>
+  <subtitle>for editing and managing CMDI metadata</subtitle>
   <bookinfo>
-    <orgname>Max Planck Institute for Psycholinguistics, Nijmegen, The Netherlands</orgname>
-    <date>October 2012</date>
-    <subtitle>Arbil</subtitle>
-    <subtitle>for editing and managing CMDI metadata</subtitle>
-    <releaseinfo>Arbil manual</releaseinfo>
+    <orgname>The Language Archive, MPI for Psycholinguistics, Nijmegen, The Netherlands</orgname>
     <mediaobject>
       <imageobject>
         <imagedata fileref="images/arbil-icon.png"/>
@@ -17,6 +17,13 @@
         <imagedata fileref="images/Clarin_logo2.png" contentwidth="45%"/>
       </imageobject>
     </mediaobject>
+    <releaseinfo>This manual was last updated on </releaseinfo>
+    <releaseinfo>The latest version can be found at: <ulink
+        url="http://http://tla.mpi.nl/tools/tla-tools/arbil/"
+        >http://http://tla.mpi.nl/tools/tla-tools/arbil/</ulink></releaseinfo>
+    <releaseinfo>Anastasios Vogiatzis (June 2012)</releaseinfo>
+    <releaseinfo>Claudia Zabeo (December 2012)</releaseinfo>
+    <releaseinfo>Janna Voelpel (August 2013)</releaseinfo>
   </bookinfo>
   <chapter id="Ch_Introduction">
     <title>Introduction</title>
@@ -50,6 +57,9 @@
           url="http://www.clarin.eu/cmdi">Clarin website</ulink>).</para>
       <para>For a less detailed program description, see the <ulink
           url="http://tla.mpi.nl/tools/tla-tools/arbil">Arbil User Guide</ulink>. </para>
+      <para>You can access all the informations present in this manual from the application itself,
+        using the Help Menu. There you will also find additional informations about technical
+        topics.</para>
       <para>We encourage you to provide feedback, comments, and suggestions so that we can improve
         the documentation to better meet your needs. Also, in case of problems that are not
         addressed anywhere in this guide, please use the <ulink
@@ -93,12 +103,12 @@
           >options</emphasis> menu.</para>
       <figure>
         <title>Arbil workspace</title>
-          <mediaobject>
-            <imageobject>
+        <mediaobject>
+          <imageobject>
             <imagedata fileref="images/cmdi_Arbil_workspace.png" contentdepth="80%" scalefit="1"
               width="100%"/>
           </imageobject>
-          </mediaobject>
+        </mediaobject>
       </figure>
     </section>
     <section id="Sec_Work_Flow">
@@ -148,38 +158,61 @@
         exported metadata) to the Local Corpus root, one has to access the File menu in Arbil's menu
         bar. </para>
     </section>
-    <section><title>Arbil icons</title><para>The following table defines graphical icons used by
-        Abril:</para><para/>
+    <section>
+      <title>Arbil icons</title>
+      <para>The following table defines graphical icons used by Abril:</para>
+      <para/>
       <para><inlinegraphic fileref="images/clarinE.png"/> CMDI metadata</para>
-      <para><inlinegraphic fileref="images/attribute.png"/>Attribute </para><para><inlinegraphic fileref="images/top_node_icon.png"/> The top node
-        of the Remote Corpus tree (read only) </para><para><inlinegraphic fileref="images/top_node_local_corpus_icon.png"/> The top node of the Local Corpus tree
-        (contains local files) </para><para><inlinegraphic fileref="images/top_node_working_dir_icon.png"/> Top node of the Working Directories tree
-        (short cuts of files in the Local Corpus) </para><para><inlinegraphic fileref="images/local_corpus_tree_icon.png"/> The file is in the Local Corpus  (local
-        file) </para><para><inlinegraphic fileref="images/remote_server_icon.png"/> The file is on
-        the remote server (read only) </para><para><inlinegraphic fileref="images/R%20n%20L.png"/>
-          The file is located in the local corpus but has been imported from the remote
-          server</para><para><inlinegraphic fileref="images/right.png"/>Closed node (sub-components
-        are folded)</para><para>
+      <para><inlinegraphic fileref="images/attribute.png"/>Attribute </para>
+      <para><inlinegraphic fileref="images/top_node_icon.png"/> The top node of the Remote Corpus
+        tree (read only) </para>
+      <para><inlinegraphic fileref="images/top_node_local_corpus_icon.png"/> The top node of the
+        Local Corpus tree (contains local files) </para>
+      <para><inlinegraphic fileref="images/top_node_working_dir_icon.png"/> Top node of the Working
+        Directories tree (short cuts of files in the Local Corpus) </para>
+      <para><inlinegraphic fileref="images/local_corpus_tree_icon.png"/> The file is in the Local
+        Corpus (local file) </para>
+      <para><inlinegraphic fileref="images/remote_server_icon.png"/> The file is on the remote
+        server (read only) </para>
+      <para><inlinegraphic fileref="images/R_n_L.png"/> The file is located in the local corpus but
+        has been imported from the remote server</para>
+      <para><inlinegraphic fileref="images/right.png"/>Closed node (sub-components are
+        folded)</para>
+      <para>
         <inlinegraphic fileref="images/down.png"/>Open node (direct sub-components are
-        displayed</para><para><inlinegraphic fileref="images/imdi_contains_data.png"/> node that contains data </para>
+        displayed</para>
+      <para><inlinegraphic fileref="images/imdi_contains_data.png"/> node that contains data </para>
       <para><inlinegraphic fileref="images/imdi_contains_data.png"/><inlinegraphic
           fileref="images/unknown_type_archivable.png"/> Resource without specified resource
-        link</para><para><inlinegraphic fileref="images/GreyDiamond.png"/>
+        link</para>
+      <para><inlinegraphic fileref="images/GreyDiamond.png"/>
         <inlinegraphic fileref="images/2.png" contentdepth="10"/> CMDI node with subnodes; number of
         subnodes indicated in the brackets.</para>
       <para><inlinegraphic fileref="images/dataempty.png"/> Node has optional fields but contains no
-        data</para><para><inlinegraphic fileref="images/written_resources_icon.png"/> Written resource </para><para><inlinegraphic fileref="images/video_resources_icon.png"/> Video resource </para><para><inlinegraphic fileref="images/audio_resources_icon.png"/> Audio resource </para><para><inlinegraphic fileref="images/image_resources_icon.png"/>Image resource </para><para><inlinegraphic fileref="images/lock.png" contentdepth="100%"/> Resource is locked and can only
-        be opened by users with access rights.</para><para><inlinegraphic fileref="images/unlock.png" contentdepth="100%"/> Resource is unlocked for the
-        user</para><para><inlinegraphic fileref="images/i.png"/>Info
-          file</para><para><inlinegraphic fileref="images/unknown_type_archivable.png"/> In resources: archivable file of
-        an unknown type</para><para><inlinegraphic contentdepth="100%" fileref="images/file.png"/> File that is not an archivable
-        format and therefore cannot be added as a resource </para><para><inlinegraphic fileref="images/favourites_icon.png"/> The node has been added to the list of the
-        favourites and can be duplicated via the favourites add menu </para><para><inlinegraphic fileref="images/loading01.png"/> Node is currently being loaded </para><para><inlinegraphic fileref="images/not_found_icon.png"/> File not
-        found</para>
+        data</para>
+      <para><inlinegraphic fileref="images/written_resources_icon.png"/> Written resource </para>
+      <para><inlinegraphic fileref="images/video_resources_icon.png"/> Video resource </para>
+      <para><inlinegraphic fileref="images/audio_resources_icon.png"/> Audio resource </para>
+      <para><inlinegraphic fileref="images/image_resources_icon.png"/>Image resource </para>
+      <para><inlinegraphic fileref="images/lock.png" contentdepth="100%"/> Resource is locked and
+        can only be opened by users with access rights.</para>
+      <para><inlinegraphic fileref="images/unlock.png" contentdepth="100%"/> Resource is unlocked
+        for the user</para>
+      <para><inlinegraphic fileref="images/i.png"/>Info file</para>
+      <para><inlinegraphic fileref="images/unknown_type_archivable.png"/> In resources: archivable
+        file of an unknown type</para>
+      <para><inlinegraphic contentdepth="100%" fileref="images/file.png"/> File that is not an
+        archivable format and therefore cannot be added as a resource </para>
+      <para><inlinegraphic fileref="images/favourites_icon.png"/> The node has been added to the
+        list of the favourites and can be duplicated via the favourites add menu </para>
+      <para><inlinegraphic fileref="images/loading01.png"/> Node is currently being loaded </para>
+      <para><inlinegraphic fileref="images/not_found_icon.png"/> File not found</para>
       <para><inlinegraphic fileref="images/vocabulary_closed.png" align="left" contentdepth="80%"/>
         Cosed controlled vocabulary</para>
       <para><inlinegraphic fileref="images/language1.png" align="left" contentdepth="100%"/>
-        Language selection on field (e.g. Description language)</para><para/></section>
+        Language selection on field (e.g. Description language)</para>
+      <para/>
+    </section>
   </chapter>
   <chapter>
     <title>Starting Arbil</title>
@@ -198,7 +231,7 @@
       </footnote> of the remote metadata that you will be working on frequently, you can add it to
       this list so that it will be available on the root level of the tree in the <emphasis
         role="italic">Remote corpus box</emphasis>. After finishing with <emphasis role="italic"
-        >Remote locations</emphasis> press <emphasis role="italic">next</emphasis>  (Figure 2.4) and
+        >Remote locations</emphasis> press <emphasis role="italic">next</emphasis> (Figure 2.4) and
       then the <emphasis role="italic">Finish</emphasis> button. You can reopen the wizard through
       the <emphasis role="italic">Help</emphasis> menu by choosing <emphasis role="italic">Run setup
         wizard</emphasis>.</para>
@@ -268,12 +301,12 @@
           window.</para>
         <figure>
           <title>Adding a remote location</title>
-            <mediaobject>
-              <imageobject>
+          <mediaobject>
+            <imageobject>
               <imagedata contentdepth="70%" fileref="images/Adding_a_remote_location.png"
                 scalefit="1" width="70%"/>
             </imageobject>
-            </mediaobject>
+          </mediaobject>
         </figure>
         <para>Since you might not want to use all of the collections of CMDI instances in the Remote
           Corpus, it is also possible to remove any of the locations of the Remote Corpus at the
@@ -312,13 +345,13 @@
         <para>
           <figure>
             <title>Viewing multiple selected corpora</title>
-              <mediaobject>
-                <imageobject>
+            <mediaobject>
+              <imageobject>
                 <imagedata contentdepth="45%"
                   fileref="images/cmdi_Viewing_multiple_selected_corpora.png" scalefit="1"
                   width="80%"/>
               </imageobject>
-              </mediaobject>
+            </mediaobject>
           </figure>
         </para>
         <para>There are also two other quick ways for viewing corpus information. </para>
@@ -338,12 +371,12 @@
             linkend="Sec_Local_Corpus">see Section 3.2</link>).</para>
         <figure>
           <title>Not editable cells in a table</title>
-            <mediaobject>
-              <imageobject>
+          <mediaobject>
+            <imageobject>
               <imagedata contentdepth="70%" fileref="images/cmdi_not_editable_cells_in_a_table.png"
                 scalefit="1" width="80%"/>
             </imageobject>
-            </mediaobject>
+          </mediaobject>
         </figure>
         <para>In some cases you will see that instead of a value in a cell in the table there is a
           caption: &lt;multiple values>. This means that there is more than one value for this data
@@ -410,11 +443,12 @@
           resources that need authentication.</para>
         <figure>
           <title>Importing a corpus branch to Local Corpus</title>
-          <mediaobject><imageobject>
+          <mediaobject>
+            <imageobject>
               <imagedata fileref="images/cmdi_importing_a_corpus_branch_to_local_corpus.png"
                 contentdepth="50%" scalefit="1" width="50%"/>
-            </imageobject></mediaobject>
-          
+            </imageobject>
+          </mediaobject>
         </figure>
       </section>
       <section id="Sec_New_Corpora">
@@ -423,26 +457,29 @@
           can also create your own metadata instances. Moreover, you can add an existing profile;
           with multiple profile instances it is possible to build a tree structure.</para>
         <para>To do this, select the top node of the Local Corpus (corpus node), right click it and
-          select the option <emphasis role="italic">Add ></emphasis>  and then you can choose the
+          select the option <emphasis role="italic">Add ></emphasis> and then you can choose the
           profile or component(s) you want to add.</para>
       </section>
     </section>
-    <section id="Sec_Working_Directories"><title>Working Directories</title><para>Beneath the Local Corpus window, you will find two different tabs: <emphasis role="italic"
-          >Files</emphasis> and <emphasis role="italic">Favourites</emphasis>. This section
-        describes <emphasis role="italic">Files</emphasis> and its <emphasis role="italic">Working
-          Directories</emphasis> while <link linkend="Sec_Favourites">Section 3.4</link> focuses
-          on<emphasis role="italic"> Favourites</emphasis>. This window is responsible for linking a
-        folder from your computer to Arbil so that media files can be transferred into your corpus.
-        It is advisable to have one or more folders on your computer that contains all the necessary
-        files that you would like to upload to your corpus. This way, you can simply link this
-        folder and retrieve all the necessary files.</para><para>The option <emphasis role="italic">Files</emphasis> is selected by default. Its <emphasis
-          role="italic">Working Directories</emphasis> are meant to keep at hand the resources that
-        you want to add to your corpus (such as annotations, audio files, pictures etc.). To add a
-        new Working Directory, right click on the Working Directory node and select <emphasis
-          role="italic">Add Working Directory</emphasis>. Now browse to the directory you want to
-        add, select it and click <emphasis role="italic">Open</emphasis>. In the figure <link
-          linkend="image_linked_folder">3.7</link>, the directory "Recursion pics" is about to be
-        added to the Working directory, so as to access the media files present in this
+    <section id="Sec_Working_Directories">
+      <title>Working Directories</title>
+      <para>Beneath the Local Corpus window, you will find two different tabs: <emphasis
+          role="italic">Files</emphasis> and <emphasis role="italic">Favourites</emphasis>. This
+        section describes <emphasis role="italic">Files</emphasis> and its <emphasis role="italic"
+          >Working Directories</emphasis> while <link linkend="Sec_Favourites">Section 3.4</link>
+        focuses on<emphasis role="italic"> Favourites</emphasis>. This window is responsible for
+        linking a folder from your computer to Arbil so that media files can be transferred into
+        your corpus. It is advisable to have one or more folders on your computer that contains all
+        the necessary files that you would like to upload to your corpus. This way, you can simply
+        link this folder and retrieve all the necessary files.</para>
+      <para>The option <emphasis role="italic">Files</emphasis> is selected by default. Its
+          <emphasis role="italic">Working Directories</emphasis> are meant to keep at hand the
+        resources that you want to add to your corpus (such as annotations, audio files, pictures
+        etc.). To add a new Working Directory, right click on the Working Directory node and select
+          <emphasis role="italic">Add Working Directory</emphasis>. Now browse to the directory you
+        want to add, select it and click <emphasis role="italic">Open</emphasis>. In the figure
+          <link linkend="image_linked_folder">3.7</link>, the directory "Recursion pics" is about to
+        be added to the Working directory, so as to access the media files present in this
         folder.</para>
       <para>
         <figure>
@@ -476,7 +513,8 @@
       <para>Browsing through Working Directories is very similar to browsing through the Remote or
         the Local Corpus. To open/close a folder click on the bullet or double click on its name. If
         you have added or modified the content of a directory outside Arbil, by right clicking on
-        the Working Directory, you can update its content in Arbil (the <emphasis role="italic">Reload</emphasis> option).</para>
+        the Working Directory, you can update its content in Arbil (the <emphasis role="italic"
+          >Reload</emphasis> option).</para>
       <para>Viewing file information is done in the same way as it has been described in Section
         3.1.2. (<link linkend="Sec_Viewing_Corpus_Information">Viewing Remote Corpus
           Information</link>). Remember that if you place the cursor over a file, an information
@@ -547,44 +585,42 @@
         </screenshot>
       </figure>
       <para/>
-        <para>In order to add an element from the local corpus to the Favourites List, right click
-          its node and choose <emphasis role="italic">Add to Favourites List.</emphasis> The element
-          now appears in the Favourites List. You can also just drag them from the corpus tree
-          structure, right down to the Favourites List. If this element is needed again, you can
-          place it into a preferable location in your Local Corpus either by dragging it from the
-          Favourites list or Copy/Paste it in one of the Local Corpus (sub)branches. </para>
-      
+      <para>In order to add an element from the local corpus to the Favourites List, right click its
+        node and choose <emphasis role="italic">Add to Favourites List.</emphasis> The element now
+        appears in the Favourites List. You can also just drag them from the corpus tree structure,
+        right down to the Favourites List. If this element is needed again, you can place it into a
+        preferable location in your Local Corpus either by dragging it from the Favourites list or
+        Copy/Paste it in one of the Local Corpus (sub)branches. </para>
       <figure>
         <title>Adding to favourites via menu</title>
         <mediaobject>
           <imageobject>
-              <imagedata fileref="images/cmdi_adding_to_favourites_via_menu.png" contentdepth="50%"
-              />
-            </imageobject>
+            <imagedata fileref="images/cmdi_adding_to_favourites_via_menu.png" contentdepth="50%"/>
+          </imageobject>
         </mediaobject>
       </figure>
       <para> </para>
-        <para>Once you have completed your Favourites list, you can start using it. Let's say you
-          want to add a particular Actor to a session - in order to do this choose the node in
-          question, right click it and choose <emphasis role="italic">Favourites</emphasis>,
-            <emphasis role="italic">Add from Favourites</emphasis> and click on the right actor. You
-          can also do this by "drag and drop".<figure>
-            <title>Adding from Favourites to a component</title>
-            <mediaobject>
-              <imageobject>
-                <imagedata fileref="images/cmdi_Adding_from_favourites_to_a_component.png"
-                  contentdepth="50%"/>
-              </imageobject>
-            </mediaobject>
-          </figure></para>
-        <para>Note that the items in the Favourite List can be viewed and edited in the same way as
-          the elements of the Local Corpus (right click and View/Edit Selected). This means that if
-          you make changes to your favourites you have to right click on them and select Save
-          Changes to Disk to make them permanent (or use Ctrl/cmd+S). The favourites which have been
-          edited turn in blue which indicates this element still has to be saved locally.</para>
+      <para>Once you have completed your Favourites list, you can start using it. Let's say you want
+        to add a particular Actor to a session - in order to do this choose the node in question,
+        right click it and choose <emphasis role="italic">Favourites</emphasis>, <emphasis
+          role="italic">Add from Favourites</emphasis> and click on the right actor. You can also do
+        this by "drag and drop".<figure>
+          <title>Adding from Favourites to a component</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/cmdi_Adding_from_favourites_to_a_component.png"
+                contentdepth="50%"/>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
+      <para>Note that the items in the Favourite List can be viewed and edited in the same way as
+        the elements of the Local Corpus (right click and View/Edit Selected). This means that if
+        you make changes to your favourites you have to right click on them and select Save Changes
+        to Disk to make them permanent (or use Ctrl/cmd+S). The favourites which have been edited
+        turn in blue which indicates this element still has to be saved locally.</para>
     </section>
     <section>
-      <title>Managing Selected Profiles </title>
+      <title id="link_to_appendix">Managing Selected Profiles </title>
       <para>From the Options menu, choose <emphasis role="italic">Templates and Profiles</emphasis>.
         On the right of the page you will see the available CMDI profiles. You can select from the
         list or add new ones.<figure>
@@ -596,6 +632,13 @@
             </imageobject>
           </mediaobject>
         </figure></para>
+      <para>The button <emphasis role="italic">Download all</emphasis> (3 in the above picture)
+        allows you to download all the available profiles. Therefore you will be able to see them
+        also without an internet connection. When you add new profiles manually, or there are
+        changes on them, you need to reload, through the button <emphasis role="italic">Reload
+          Selection</emphasis> (2), so that Arbil will see the changes and use the latest version of
+        a profile. With the button <emphasis role="italic">Refresh List</emphasis> (1) you will get
+        the latest list of profiles form the server.</para>
       <para>In order to add new profile, select the dialogue box <emphasis role="italic">Add
           URL</emphasis> and paste into it the URL of the profile you want to import. You can find
         the URL, for instance, in the Clarin website, under the Component Registry. Note that only
@@ -627,10 +670,10 @@
         profile. Different ones will appear accordingly for each profile you decide to use.</para>
       <para>Notice how some manu items have the <inlinegraphic
           fileref="images/imdi_contains_data.png" contentdepth="60%"/> icon, whereas others have a
-          <inlinegraphic fileref="images/new field.png" contentdepth="60%"/> icon. The
+          <inlinegraphic fileref="images/new_field.png" contentdepth="60%"/> icon. The
           <inlinegraphic fileref="images/imdi_contains_data.png" contentdepth="60%"/> icon
         represents a component that will be displayed in the hierarchy whereas the <inlinegraphic
-          fileref="images/new field.png" contentwidth="" contentdepth="60%"/> icon adds a new field
+          fileref="images/new_field.png" contentwidth="" contentdepth="60%"/> icon adds a new field
         (discussed below).<figure>
           <title>Adding a new component or element</title>
           <mediaobject>
@@ -643,8 +686,8 @@
     <sect1 id="Sec_Adding_More_Descriptions">
       <title>Adding more field elements</title>
       <para>Generally, every profile contains a particular set of fields which can be edited. Adding
-          <inlinegraphic fileref="images/new%20field.png" contentdepth="50%"/> elements implies
-        adding a new metadata field to the selected node.</para>
+          <inlinegraphic fileref="images/new_field.png" contentdepth="50%"/> elements implies adding
+        a new metadata field to the selected node.</para>
       <para><figure>
           <title>Standard field name</title>
           <mediaobject>
@@ -679,12 +722,12 @@
           <inlinegraphic contentdepth="60%" fileref="images/file.png"/> icon).</para>
       <figure>
         <title>Adding a resource by dragging and dropping</title>
-          <mediaobject>
-            <imageobject>
+        <mediaobject>
+          <imageobject>
             <imagedata fileref="images/cmdi_Adding a resource by dragging and dropping.png"
               contentdepth="50%" scalefit="1" width="40%"/>
           </imageobject>
-          </mediaobject>
+        </mediaobject>
       </figure>
       <para>It is also possible to add resources, either from a remote location, i.e. the web,
         manually. This can be done by right clicking on a node and select <emphasis role="italic"
@@ -692,7 +735,7 @@
         appears.</para>
       <para>
         <figure>
-          <title>Insert  manual remote resources</title>
+          <title>Insert manual remote resources</title>
           <mediaobject>
             <imageobject>
               <imagedata fileref="images/cmdi_insert_manual_remote_resource.png" contentdepth="50%"
@@ -701,6 +744,8 @@
           </mediaobject>
         </figure>
       </para>
+      <para>When adding multiple resources from the Working Directories to a CMDI file, they will
+        get processed together and appear in a single result table.</para>
     </sect1>
     <sect1 id="Sec_Moving_Sessions">
       <title>Moving instances</title>
@@ -709,7 +754,6 @@
         new location. It is also possible to move subnodes of collection, e.g. Actors, across
         sessions. However not all locations will be accepted, depending on the type of the dragged
         node.</para>
-      
     </sect1>
     <sect1 id="Sec_Deleting_Corpus_Elements">
       <title>Deleting linked instances </title>
@@ -770,7 +814,7 @@
         has been displayed, the attributes fields are ready to be edited. There is also the
         possibility of working on them through the <emphasis role="italic">Long Field
           Editor</emphasis>. Here, in case of long descriptions, one or more attribute fields can be
-        edited.                                                        </para>
+        edited. </para>
       <para>Note that whether attributes are present or not depends on the profile that has been
         selected.</para>
       <para>
@@ -816,7 +860,7 @@
               width="100%"/>
           </imageobject>
         </mediaobject>
-      </figure>      
+      </figure>
     </sect1>
     <sect1 id="Sec_Editing_Multiple_Cells">
       <title>Editing multiple cells</title>
@@ -888,33 +932,44 @@
           </mediaobject>
         </figure>
       </para>
+      <para>It is possible to show the entire document containing any specific node that is shown in
+        the horizontal table view. To do this, right click a cell or row and select <emphasis
+          role="italic">Show Context</emphasis>. This menu item opens the hierarchical 'sub-nodes'
+        view on the root of the document that contains the selected cell or row.<figure>
+          <title>Show Context Menu</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/ShowContextMenu.png" contentdepth="70%"/>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
       <sect2>
         <title><emphasis role="italic">Find</emphasis> and <emphasis role="italic"
             >Replace</emphasis></title>
-      <para>Another option in editing cells is the <emphasis role="italic">Find and
-          Replace</emphasis> option activated by pressing CTRL+F when in a table, or by right
-        clicking on a cell and selecting "Find/Replace". In this case a line appears at the bottom
-        of the table with two boxes (figure 5.7); the left box is used to define the term you intend
-        to find in order to replace. Replacing is not done by typing in each cell you intend to
-        change, but by adding the new term in the right box. By pressing the <emphasis role="italic"
-          >Find Next</emphasis> key the term specified in the first box is highlighted in the table,
-        you can either change it by pressing the <emphasis role="italic">Replace Selected</emphasis>
-        key, or skip it and move to the next by pressing <emphasis role="italic">Find
-          Next</emphasis>. Once you have moved to the next term in the table, you cannot go to a
-        previous. In that case you will have to select a previous cell to start from and continue
-        searching.</para>
-      <para>
-        <figure>
-          <title>Find and Replace</title>
-          <mediaobject>
-            <imageobject>
+        <para>Another option in editing cells is the <emphasis role="italic">Find and
+            Replace</emphasis> option activated by pressing CTRL+F when in a table, or by right
+          clicking on a cell and selecting "Find/Replace". In this case a line appears at the bottom
+          of the table with two boxes (figure 5.7); the left box is used to define the term you
+          intend to find in order to replace. Replacing is not done by typing in each cell you
+          intend to change, but by adding the new term in the right box. By pressing the <emphasis
+            role="italic">Find Next</emphasis> key the term specified in the first box is
+          highlighted in the table, you can either change it by pressing the <emphasis role="italic"
+            >Replace Selected</emphasis> key, or skip it and move to the next by pressing <emphasis
+            role="italic">Find Next</emphasis>. Once you have moved to the next term in the table,
+          you cannot go to a previous. In that case you will have to select a previous cell to start
+          from and continue searching.</para>
+        <para>
+          <figure>
+            <title>Find and Replace</title>
+            <mediaobject>
+              <imageobject>
                 <imagedata fileref="images/find_and_replace.png" scalefit="1" contentdepth="100%"
                   width="100%"/>
               </imageobject>
-          </mediaobject>
-        </figure>
-      </para>
-    </sect2>
+            </mediaobject>
+          </figure>
+        </para>
+      </sect2>
     </sect1>
     <sect1>
       <title>Editing All Metadata of a Subnode </title>
@@ -1073,14 +1128,13 @@
         exactly you want to search e.g. within Corpus, Session, Catalogue, Actor etc.</para>
       <figure>
         <title>Selecting search locations</title>
-          <mediaobject>
-            <imageobject>
+        <mediaobject>
+          <imageobject>
             <imagedata contentdepth="60%" fileref="images/cmdi_selecting_search_location.png"
               scalefit="1" width="40%"/>
           </imageobject>
-          </mediaobject>
+        </mediaobject>
       </figure>
-      
       <para>In the search window you can further specify in which column you want to search. By
         clicking on <emphasis role="italic">column</emphasis> a drop down list appears which
         contains pre-defined common values and previously entered column names; it is also possible
@@ -1090,17 +1144,15 @@
         appear in the drop down list again. After specifying the column (i.e. Name), give the value
         name you look for, e.g. "Blance", and click on <emphasis role="italic"
         >Search</emphasis>.</para>
-      
       <para>By selecting either <emphasis role="italic">Equal</emphasis> (<inlinegraphic
           fileref="images/Equal.jpeg" contentdepth="50%"/>) or <emphasis role="italic"
           >Unequal</emphasis> (<inlinegraphic fileref="images/Unequal.jpg" contentdepth="50%"/>),
         you will need to specify whether your search results should match the word you filled in or
         rather show you where this word does not appear.</para>
-    </sect1></chapter>
+    </sect1>
+  </chapter>
   <chapter>
     <title>Exporting and Importing data</title>
-  
-  
     <sect1 id="Exporting_data_from_Arbil">
       <title>Exporting data from Arbil</title>
       <para>After creating new branches or editing collections from an already existing archive, you
@@ -1112,37 +1164,38 @@
           >Export Branch Destination Directory</emphasis>.</para>
       <figure>
         <title>Exporting files</title>
-          <mediaobject>
-            <imageobject>
+        <mediaobject>
+          <imageobject>
             <imagedata contentdepth="50%" fileref="images/cmdi_Exporting_files.png" scalefit="1"
               width="50%"/>
           </imageobject>
-          </mediaobject>
+        </mediaobject>
       </figure>
       <para>The following message may appear if the destination directory is not empty:</para>
       <figure>
         <title>Export alert message</title>
-          <mediaobject>
-            <imageobject>
-            <imagedata contentdepth="100%" fileref="images/exporting_branch_details.png" scalefit="1" width="40%"/>
+        <mediaobject>
+          <imageobject>
+            <imagedata contentdepth="100%" fileref="images/exporting_branch_details.png"
+              scalefit="1" width="40%"/>
           </imageobject>
-          </mediaobject>
+        </mediaobject>
       </figure>
       <para>Selecting <emphasis role="italic">OK</emphasis> will lead you to a new message window
         where, before clicking on <emphasis role="italic">Start</emphasis>, you can chose the option
-          <emphasis role="italic">Show Details and Options</emphasis>:</para>
+          <emphasis role="italic">More Options</emphasis>:</para>
       <figure>
         <title>Export window with details</title>
-          <mediaobject>
-            <imageobject>
-            <imagedata contentdepth="40%" fileref="images/cmdi_export_window_with_details.png"
-              scalefit="1" width="40%"/>
+        <mediaobject>
+          <imageobject>
+            <imagedata contentdepth="70%" fileref="images/cmdi-Export_branch.png" scalefit="1"
+              width="40%"/>
           </imageobject>
-          </mediaobject>
+        </mediaobject>
       </figure>
       <para>The options <emphasis role="italic">Rename Metadata Files</emphasis> and <emphasis
           role="italic">Limit Characters in File Names </emphasis>is already checked. The option
-          <emphasis role="italic">Copy Resource Files</emphasis> are explained in the <link
+          <emphasis role="italic">Export Resource Files</emphasis> are explained in the <link
           linkend="Sec_Import_to_Local_Corpus"><emphasis role="italic">Import to Local
             Corpus</emphasis> section</link> (3.2.1).</para>
     </sect1>
@@ -1153,7 +1206,7 @@
         and selecting <emphasis role="italic">Import to Local Corpus</emphasis>, or by drag and
         drop. </para>
       <para>In the case you want to import data from you local computer disk, or the network, you
-        can do this from the  menu bar by going to <emphasis role="italic">Files</emphasis>,
+        can do this from the menu bar by going to <emphasis role="italic">Files</emphasis>,
           <emphasis role="italic">Import</emphasis> and then selecting the data from your local
         disk, or the network; your data is imported at the root level. </para>
       <para><emphasis role="italic">Import Branch</emphasis> (i.e.. importing a piece of your
@@ -1204,7 +1257,8 @@
           </imageobject>
         </mediaobject>
       </figure>
-    </sect1></chapter>
+    </sect1>
+  </chapter>
   <chapter>
     <title>Exiting Arbil</title>
     <para>Before exiting Arbil make sure that you have saved all your changes. This can easily be
@@ -1216,7 +1270,7 @@
         Exiting</emphasis>; choose <emphasis role="italic">Yes</emphasis> or <emphasis role="italic"
         >No</emphasis>, Arbil is now closed.</para>
   </chapter>
-    <chapter>
+  <chapter>
     <title>Shortcut Keys</title>
     <para>In Arbil you can use the following shortcuts:</para>
     <table>
@@ -1301,40 +1355,40 @@
         </tbody>
       </tgroup>
     </table>
-      <table>
-        <title>Tree short cut keys</title>
-        <tgroup cols="2">
-          <tbody>
-            <row>
-              <entry>DELETE</entry>
-              <entry>Delete the selected node in the tree</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-      <table>
-        <title>Long field editor short cut keys</title>
-        <tgroup cols="2">
-          <tbody>
-            <row>
-              <entry>CTRL+UP</entry>
-              <entry>Go to previous field</entry>
-            </row>
-            <row>
-              <entry>CTRL+DOWN</entry>
-              <entry>Go the next field</entry>
-            </row>
-            <row>
-              <entry>CTRL+LEFT</entry>
-              <entry>Go to previous tab</entry>
-            </row>
-            <row>
-              <entry>CTRL+RIGHT</entry>
-              <entry>Go to next tab</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+    <table>
+      <title>Tree short cut keys</title>
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry>DELETE</entry>
+            <entry>Delete the selected node in the tree</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+    <table>
+      <title>Long field editor short cut keys</title>
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry>CTRL+UP</entry>
+            <entry>Go to previous field</entry>
+          </row>
+          <row>
+            <entry>CTRL+DOWN</entry>
+            <entry>Go the next field</entry>
+          </row>
+          <row>
+            <entry>CTRL+LEFT</entry>
+            <entry>Go to previous tab</entry>
+          </row>
+          <row>
+            <entry>CTRL+RIGHT</entry>
+            <entry>Go to next tab</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
   </chapter>
   <chapter role="application-help-only">
     <title>Technical details</title>
@@ -1346,15 +1400,262 @@
         storage directory (to find out what that is, select Local Corpus Storage Directory from the
         Options menu). It will then automatically be installed in the type checker as soon as type
         checking takes place for the first time during a session. You will need to restart Arbil if
-        it is already running.</para>      
+        it is already running.</para>
       <para>For information about obtaining or creating a custom file types configuration, please
         contact your administrator.</para>
     </section>
     <section>
       <title>Templates</title>
-      <para>Templates are currently in development, but they will be used to customise the components added via the "Add" menu.</para>
-      <para>To create a new template, create a directory in the ".arbil/templates" directory. This is where all the files relevant to that template will be stored. This directory will now be selectable via the "options/templates" menu.</para>
-      <para>Each template can have its own XSL which is used via the "view formatted" menu. The XSL must be in the selected templates directory and be called "format.xsl". For example: .arbil/templates/{template name}/format.xsl. If there are any additional files required by the XSL they can be placed in the same directory as the XSL file.</para>
+      <para>Templates are currently in development, but they will be used to customise the
+        components added via the "Add" menu.</para>
+      <para>To create a new template, create a directory in the ".arbil/templates" directory. This
+        is where all the files relevant to that template will be stored. This directory will now be
+        selectable via the "options/templates" menu.</para>
+      <para>Each template can have its own XSL which is used via the "view formatted" menu. The XSL
+        must be in the selected templates directory and be called "format.xsl". For example:
+        .arbil/templates/{template name}/format.xsl. If there are any additional files required by
+        the XSL they can be placed in the same directory as the XSL file.</para>
+    </section>
+    <section>
+      <title>Plugins</title>
+      <para>Plugins add extra functionality to Arbil. They are provided as '.jar' files that can be
+        placed in a special location where Arbil will detect them and add them as items to the
+        'Plugins' menu (which is hidden unless plugins have actually been detected).</para>
+      <para>To install a plugin, place the .jar file in one of the following directories: </para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para>~/ArchivingPlugins (Linux or MacOS)</para>
+          </listitem>
+          <listitem>
+            <para>%APPDATA%/ArchivingPlugins (Windows)</para>
+          </listitem>
+          <listitem>
+            <para>%USERPROFILE%/ArchivingPlugins (Windows)</para>
+          </listitem>
+          <listitem>
+            <para>&lt;ARBIL STORAGE DIRECTORY>/ArchivingPlugins</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>If none of the locations already exist, you can create one. Some options will not be
+        available on all operating systems. ~ denotes the user's home directory on Unix systems.
+        %APPDATA% and %USERPROFILE% are system environments available in Windows. Use the 'run
+        command' option (Windows key + R) to open locations that contain the environment
+        variable.</para>
+      <para>&lt;ARBIL STORAGE DIRECTORY> is the directory called .arbil that contains the
+        configuration files and by default is the parent directory of the working files
+        directory.</para>
+      <para>After installing the plugin you should restart Arbil for it to become available in the
+        Plugins menu of the menu bar.</para>
+      <para/>
+    </section>
+    <section>
+      <title>Custom logging configuration</title>
+      <para>If present, a logging configuration will be read and applied from a file called 
+        'logging.properties' in the application configuration directory ('.arbil'). An
+      example of such a configuration is given below.</para>
+      <para><screen>
+        handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+        
+        # Default global logging level.
+        .level = ALL
+        
+        ############################################################
+        # Handler specific properties.
+        # Describes specific configuration info for Handlers.
+        ############################################################
+        
+        # default file output is in user's home directory.
+        java.util.logging.FileHandler.pattern = %h/arbil.log
+        java.util.logging.FileHandler.level = WARNING
+        java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+        
+        # Limit the message that are printed on the console to INFO and above.
+        java.util.logging.ConsoleHandler.level = INFO
+        java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+        
+        
+        ############################################################
+        # Facility specific properties.
+        ############################################################
+        
+        java.level = WARNING
+        javax.level = WARNING
+        sun.level = WARNING
+        
+        nl.mpi.arbil.level = FINEST
+        nl.mpi.flap.level = FINEST
+        nl.mpi.level = FINEST
+      </screen></para>
     </section>
   </chapter>
+  <appendix>
+    <title>CMDI ecosystem</title>
+    <para> CMDI - “Component Metadata infrastructure” – is a metadata framework in which metadata
+      blueprints can be described and reused. Metadata is data about data, giving various kinds of
+      information about the data contained, e.g. about protagonists, places, the date of gathering
+      data etc. To manage this metadata in a diligent way certain ready-made options for description
+      can facilitate production of well-ordered information about data. In addition to creating
+      metadata (components) always from scratch, CMDI allows to use existing description options
+      –blueprints in the form of ‘profiles and components’ (see <xref linkend="figure_1"/> below).
+      These existing blueprints can be edited in the component registry according to individual
+      needs, if necessary. Further, editing the content of metadata descriptions can be done as a
+      next step in Arbil.  </para>
+    <para>
+      <figure>
+        <title id="figure_1"> Building profiles from components according to the projects’
+          individual demands with CMDI in the component browser. </title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="../cmdi_guide/images/Component_CMDImanual_image0.png" scalefit="1"
+              contentdepth="100%" width="100%"/>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </para>
+    <para>CLARIN has established this infrastructure of ready-made building blocks (components) to
+      overcome “dispersion of metadata in diverse formats” (see <ulink
+        url="http://www.clarin.eu/node/3219">CLARIN website</ulink> about CMDI): Through the use of
+      standardized building blocks metadata will not be subject to arbitrary and very diverse,
+      individually preferred ways of describing data about data (=metadata). All necessary
+      information can be extracted easily from the standardized metadata-descriptions without having
+      to study the data themselves and first understanding the individual way authors of metadata
+      have set up their descriptions. Through standardization working with metadata is thus made
+      easy for authors and users. All in all, the potential of sharing and storing self-designed
+      components and profiles for reuse by others facilitates flexible, but structured metadata
+      building and search among various language resources.</para>
+    <para>Another advantage of CMDI is the possibility of linking elements in components and
+      profiles to the <ulink url="https://catalog.clarin.eu/isocat/interface/index.html">ISOcat
+        concept registry</ulink>. This registry is a central framework for gathering concepts in
+      various domains and has special profile for metadata related categories. Through creating
+      links to this registry users searching for certain kinds of data in ISOcat will be enabled to
+      find all data of different authors, thanks to standardized metadata descriptions and the
+      central registry. ISOcat is thus highly recommended to be browsed through and to create links
+      to when working with CMDI, which can be done from inside the Component Registry. </para>
+    <para>The last significant related instrument of CLARIN to be mentioned here is the <ulink
+        url="http://catalog.clarin.eu/vlo/">VLO</ulink> (Virtual Language Observatory). This website
+      gives an overview over metadata from a number of registries covering a large number of
+      institutions making use of CDMI. Additionally all metadata which has been created with the
+      help of CMDI is available in the diverse records provided by the institutions. This service
+      facilitates the search for and exchange of data with the help of metadata among researchers’
+      communities in the field.</para>
+    <sect1>
+      <title>
+        <emphasis role="bold">Creating profiles and components in the Component Registry</emphasis>
+      </title>
+      <para>For building, searching and using profiles and components a tool has been developed,
+        which is the Component Registry. The <ulink
+          url="http://catalog.clarin.eu/ds/ComponentRegistry/">component registry</ulink> can be
+        found including a <ulink url="http://www.clarin.eu/node/3223">manual</ulink> on the CLARIN
+        website. Yet, in this short introduction of CMDI the most basic features for using the
+        infrastructure will be outlined.</para>
+      <sect2>
+        <title>Login</title>
+        <para>To login to the ‘Component Registry’ one has to choose one’s organization from the
+          list or opt for "Clarin Guest Accounts". To log out simply end the browser session. </para>
+      </sect2>
+      <sect2>
+        <title> Features of the Component Registry</title>
+        <para> The first way of using CMDI is browsing through registered components and profiles.
+          The second is editing and creating components or profiles. Registering and storing
+          components or CMDI profiles are more functions in the component registry. To illustrate
+          the workflow in the component registry consult the following <xref linkend="figure_2"/>: </para>
+        <para>
+          <figure>
+            <title id="figure_2">Workflow from CMDI to Arbil</title>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="../cmdi_guide/images/Component_CMDImanual_dummies_image0.1.png"
+                  width="100%" scalefit="1" contentdepth="100%"/>
+              </imageobject>
+            </mediaobject>
+          </figure>
+        </para>
+        <sect3>
+          <title>Component Browser</title>
+          <para>The start screen of the <ulink url="http://catalog.clarin.eu/ds/ComponentRegistry/#"
+              >Component Registry</ulink> is called the component browser, which is the entry point
+            for using other functions (editing and importing) (see <xref linkend="figure_3"/>).
+            First though the user can either browse for ‘profiles’ or ‘components’. Search-terms can
+            be typed in a field at the top on the right to filter out non-matching items.
+            Additionally the user can switch between public and (unpublished, private) user
+            workspaces. For more information on individual profiles or components, one can select
+            the entity in question and details will appear in the panel below. This can be
+            optionally displayed in an interactive default view (to explore structure more in depth)
+            or an xml-view of the actual component assessed. </para>
+          <para>Right-clicking on items in the list leads to options such as downloading profiles or
+            components as xml representations or the respective xsd. The latter can be loaded into
+            Arbil for usage before publication, see section ' <xref linkend="link_to_appendix"
+              >Managing Selected Profiles</xref>' and suits further use by other tools within
+            CLARIN.</para>
+          <para>
+            <figure>
+              <title id="figure_3"> Component Registry window and functions offered: The first red
+                demarcation shows the option to choose between profiles and components (1). The
+                second demarcation shows the option to choose for public or private space (2). The
+                third demarcation highlights the filter option field (3).</title>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="../cmdi_guide/images/componentbrowser_Cmdimanual_image2.png"
+                    contentdepth="100%" scalefit="1" width="100%"/>
+                </imageobject>
+              </mediaobject>
+             </figure>
+          </para>
+        </sect3>
+        <sect3>
+          <title>Component Editor</title>
+          <para>With the help of the component editor the user can create a new profile or component
+            – where applicable using existing building blocks (see <xref linkend="figure_4"/>). Via
+            the three buttons on the left at the top in the Component Registry the component editor
+            is to be opened: The first option allows creating a new profile or component in a
+            private workspace (“Create new”). Using the second (“edit (as new)”) a selected item can
+            be opened in the editor after authentication of the user, depending on whether it is a
+            copy of a public space or an item in the users’ workspace. The last option (“Import”)
+            leads to an import form, which will not be discussed in this chapter. </para>
+          <para>
+            <figure>
+              <title id="figure_4"> Component editor. The first red demarcation indicates where you
+                find the main menu bar in the component editor (1). The second demarcation shows
+                where information is found about whether a component or a profile is edited (2). The
+                third one shows the option to add attributes (3). In the fourth demarcation the
+                field for editing elements is stressed (4). The last highlights the option to choose
+                from public or private space to drag existing components into the editor (5).</title>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="../cmdi_guide/images/ComponentEditor_ecosystem_Arbil_image4.png"
+                    contentdepth="100%" scalefit="1" width="100%"/>
+                </imageobject>
+              </mediaobject>
+            </figure>
+          </para>
+          <para>To reuse existing components (edit (as new) –function) select an existing component
+            from the list below, drag it over the editing pane. Here options will be highlighted
+            where dropping the component is possible. If the component already exists, at this point
+            a reference will be automatically generated to it. Be aware that components which you
+            you have not published yet cannot be used by anyone else. Instead referenced components
+            which you create and publish can be reused by others (when viewing profiles these
+            components are marked by a blue frame in the list of the lower part of the screen). The
+            green buttons indicate options for adding new components (“+component”, ”+element”,
+            “+attribute”), so that newly created fields can be worked on. Up and down arrows allow
+            to reorder elements and components.  </para>
+          <para>The “save”-function can be used to submit and overwrite existing profiles or
+            components in private workspaces. Existing profiles or components can be used as a basis
+            for new profiles or components without overwriting the existing. In this case the user
+            can apply “save as new” in their private workspaces and work on the profiles and
+            components to adapt them to their needs. The function “publish in public space” is to
+            submit a profile or component as a building-block accessible for others, finalizing the
+            modeling phase of that particular profile or component since after publication, a
+            profile or component cannot be changed anymore. To return to the component browser and
+            discard changes, press “cancel”. </para>
+          <para>For more detailed information about more elaborate editing processes (type, import,
+            concept links, action links, comments and priority display) have a look at the <ulink
+              url="http://tla.mpi.nl/cmdi-metadata/">CMDI manual</ulink>, the <ulink
+              url="http://www.clarin.eu/node/3219">CLARIN website</ulink> or the extensive <ulink
+              url="http://tla.mpi.nl/cmdi-metadata/">CMDI manual</ulink> of the TLA.</para>
+        </sect3>
+      </sect2>
+    </sect1>
+  </appendix>
 </book>

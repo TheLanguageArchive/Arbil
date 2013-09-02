@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" 
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <book>
+  <title>Arbil</title>
+  <subtitle>for editing and managing IMDI metadata</subtitle>
+  <subtitle>Version 2.4</subtitle>
   <bookinfo>
     <orgname>Max Planck Institute for Psycholinguistics, Nijmegen, The Netherlands</orgname>
-    <date>23 June 2012</date>
-    <subtitle>Arbil</subtitle>
-    <subtitle>for editing and managing IMDI metadata</subtitle>
-    <releaseinfo>Arbil manual</releaseinfo>
+    
     <mediaobject>
       <imageobject>
         <imagedata fileref="images/arbil-icon.png"/>
       </imageobject>
     </mediaobject>
-    <mediaobject>
-      <imageobject>
-        <imagedata fileref="images/logo.png"/>
-      </imageobject>
-    </mediaobject>
-    <authorgroup>
-      <author>
-        <surname>George Saad, Anastasios Vogiatzis, Katarzyna Wojtylak</surname>
-      </author>
-    </authorgroup>
+    
+    <releaseinfo>This manual was last updated on 2012-12-20</releaseinfo>
+    <releaseinfo>The latest version can be found at: <ulink url="http://tla.mpi.nl/tools/tla-tools/arbil/">http://tla.mpi.nl/tools/tla-tools/arbil/</ulink></releaseinfo>
+    <releaseinfo>George Saad</releaseinfo>
+    <releaseinfo>Anastosios Vogiatzis</releaseinfo>
+    <releaseinfo>Katarzyna Wojtylak</releaseinfo>
+    <releaseinfo>Claudia Zabeo</releaseinfo>
+    <releaseinfo>Michal Czaplinski</releaseinfo>
+    
   </bookinfo>
   <chapter id="Ch_Introduction">
     <title>Introduction</title>
     <para>Arbil is an application for arranging research material and associated metadata into a
       format appropriate for archiving. </para>
-    <para>Arbil is designed so that it can be used off line in remote locations. The data can be
+    <para>Arbil is designed so that it can be used off-line in a remote location. The data can be
       entered at any stage in part or as a whole. When an internet connection is available the work
       can then be transferred to the main archive via Lamus.</para>
     <section id="Sec_General_Information">
       <title>General Information</title>
-      <para/>
       <para>Two steps are required in adding a corpus to the MPI Archive. The first involves
         creating the corpus, editing the metadata and converting it into an archivable format using
           <emphasis role="bold">ARBIL</emphasis>(Archive Builder) while the second involves
@@ -40,7 +39,7 @@
           >LAMUS</emphasis> .</para>
       <para>This manual describes in detail the first step i.e. <emphasis role="bold"
           >Arbil</emphasis>. For the second step, <emphasis role="bold">Lamus</emphasis>, please
-        refer to the <ulink url="http://www.lat-mpi.eu/tools/lamus/">LAMUS manual</ulink>). </para>
+        refer to the <ulink url="http://tla.mpi.nl/tools/tla-tools/lamus">LAMUS manual</ulink>). </para>
       <para>The MPI Archive can ONLY accept corpora which are in the .IMDI format. By creating a
         corpus through Arbil, you create an IMDI file ready to be exported to the Archive. </para>
       <para> Arbil allows you to view all the corpora in the Archive or any other remote location
@@ -50,7 +49,7 @@
       <para/>
       <para> In short, Arbil allows you to: </para>
       <para>1) View the Archive</para>
-      <para>2) Import metadata from the Archive &amp; edit.</para>
+      <para>2) Import metadata from the Archive &amp; edit them.</para>
       <para>3) Create new corpora, with new metadata and media files.</para>
       <para>4) Export the IMDI files, ready to be archived</para>
       <para/>
@@ -63,11 +62,14 @@
         more powerful user interface and functionality. This manual contains detailed information on
         how to use Arbil: create new corpus structures/session nodes, and modify existing corpora.
         It does not explain the internal structure of IMDI (for more information on the IMDI
-        metadata set, please see <ulink url="http://www.lat-mpi.eu/tools/imdi/">the LAT
+        metadata set, please see <ulink url="http://tla.mpi.nl/tools/tla_tools/imdi">the TLA
           website</ulink>).</para>
       <para>For a less detailed program description, see the <ulink
           url="http://www.mpi.nl/corpus/html/arbil-imdi_ug/index.html">Arbil User
         Guide</ulink>.</para>
+      <para>You can access all the informations present in this manual from the application itself,
+        using the Help Menu. There you will also find additional informations  about technical
+        topics.</para>
       <para>We encourage you to provide feedback, comments, and suggestions so that we can improve
         the documentation to better meet your needs. Also, in case of problems that are not
         addressed anywhere in this guide, please use the <ulink
@@ -75,12 +77,13 @@
     </section>
     <section id="Sec_Overview">
       <title>Overview</title>
-      <para>The way you start working on your data is twofold: </para>
-      <para>a) you either create a new corpus or </para>
-      <para>b) make a copy of an already existing corpus or its branch from the server and edit it.
-        Either way, the files you create/edit will be saved on your computer (in the so called
-          <emphasis role="bold">Local Corpus</emphasis>). This enables you to work off-line in
-        remote locations while still in the field. Changes you make in Arbil will <emphasis
+      <para>The way you start working on your data is twofold - you can either:</para>
+      <para>a) create a new corpus; or </para>
+      <para>b) make a copy of an already existing corpus or its branch from the server and edit
+        it.</para>
+      <para>Either way, the files you create/edit will be saved on your computer (in the so called
+          <emphasis role="bold">Local Corpus</emphasis>). This enables you to work off-line in a
+        remote location while still in the field. Changes you make in Arbil will <emphasis
           role="underline">not</emphasis> affect the archive.</para>
       <para>Arbil consists of 6 working areas as shown in the figure below:</para>
       <para>- 1) <emphasis role="bold">The Menu Bar</emphasis> allows you to access the main
@@ -88,15 +91,16 @@
       <para>- 2) <emphasis role="bold">The</emphasis>
         <link linkend="Sec_Remote_Corpus"><emphasis role="bold">Remote Corpus</emphasis></link>
         contains locations from the Language Archive. This is where you can view corpora and choose
-        to import.</para>
+        ones you wish to import.</para>
       <para>- 3) <emphasis role="bold">The</emphasis>
         <link linkend="Sec_Local_Corpus"><emphasis role="bold">Local Corpus</emphasis></link>
         contains the user's main working area. This is where corpora from the Remote Corpus can be
-        imported and edited. It's also used for creating new corpora.</para>
+        imported and edited. It is also used for creating new corpora.</para>
       <para>- 4) <emphasis role="bold">The</emphasis>
         <link linkend="Sec_Working_Directories"><emphasis role="bold">Files /Favourites (Working
             Directories)</emphasis></link>. This is where you can link directories from your
-        computer to Arbil in order to import media files and create favourite metadata items.</para>
+        computer to Arbil in order to import media files and create favourite metadata items. It is
+        useful for quickly accessing frequently used item.</para>
       <para>- 5) <emphasis role="bold">The Preview Area </emphasis>shows metadata of the selected
         node (In the figure below, it displays the details for "New Corpus"). It changes every time
         a new node is selected.</para>
@@ -148,9 +152,12 @@
       <para>In order to create a new node, add a node in the Local Corpus and follow the same
         steps.</para>
       <para>Note: This is as far as you can get using Arbil. </para>
-      <para>6) Once the work is finished, Open <ulink url="http://www.lat-mpi.eu/tools/lamus/"
-          >Lamus</ulink> and import the directory (folder) which contains the corpora. It will then
-        be <link lang="" linkend="Sec_Favourites">uploaded to the archive</link>.</para>
+      <para>6) Once the work is finished, Open <ulink url="http://tla.mpi.nl/tools/tla-tools/lamus"
+          >Lamus</ulink> and import the directory (folder) which contains the corpora. It is crucial
+        to note that instead of uploading single files you can make use of the potentials of Arbil
+        and upload entire directories including all linkages among the individual files contained.
+        Via Lamus it can then be <link lang="" linkend="Sec_Favourites">uploaded to the
+          archive</link>.</para>
       <para>Corpus and session nodes are easily edited directly in Arbil (see <link
           linkend="Ch_Editing_Corpus_Structure">chapter 4</link> and <link
           linkend="Ch_Editing_Metadata">chapter 5</link>) but they can also be worked on in an <link
@@ -167,7 +174,7 @@
       <para>In Arbil all work on corpora and sessions takes place in the Local Corpus tree. The
         various import, export, and edit operations displayed in the figure above, can usually be
         triggered by right-clicking on elements in the Local Corpus, or via "drag and drop" (e.g..
-        clicking on an element in the Remote Corpus, holding the mouse key, and dragging the element
+        clicking on an element in the Remote Corpus, holding the mouse key and dragging the element
         to the Local Corpus, or to a corpus node within the Local Corpus). Media files (i. e. audio
         and video recordings) and written resources can also be added to sessions via "drag and
         drop" from the Working Directories tree in the Files tab. Only for importing previously
@@ -180,9 +187,8 @@
         (contains local files) </para><para><inlinegraphic fileref="images/top_node_working_dir_icon.png"/> Top node of the Working Directories tree
         (short cuts of files in the Local Corpus) </para><para><inlinegraphic fileref="images/local_corpus_tree_icon.png"/> The file is in the Local Corpus  (local
         file) </para><para><inlinegraphic fileref="images/remote_server_icon.png"/> The file is on
-        the remote server (read only) </para><para><inlinegraphic fileref="images/R%20n%20L.png"/>
-          The file is located in the local corpus but has been imported from the remote
-          server</para><para><inlinegraphic fileref="images/corpus_branch_icon.png"/> Corpus branch </para><para><inlinegraphic fileref="images/catalogue_icon.png"/>Catalogue</para><para><inlinegraphic fileref="images/session_icon.png"/> IMDI session</para><para><inlinegraphic fileref="images/right.png"/>Closed node (sub-components
+        the remote server (read only) </para><para><inlinegraphic fileref="images/R_n_L.png"/> The file is located in the local corpus but has
+        been imported from the remote server</para><para><inlinegraphic fileref="images/corpus_branch_icon.png"/> Corpus branch </para><para><inlinegraphic fileref="images/catalogue_icon.png"/>Catalogue</para><para><inlinegraphic fileref="images/session_icon.png"/> IMDI session</para><para><inlinegraphic fileref="images/right.png"/>Closed node (sub-components
         are folded)</para><para>
         <inlinegraphic fileref="images/down.png"/>Open node (direct sub-components are
         displayed</para><para><inlinegraphic fileref="images/imdi_contains_data.png"/> IMDI node that contains data </para>
@@ -217,10 +223,11 @@
     <para>When you open Arbil for the first time the <emphasis role="italic">wizard</emphasis>
       appears and gives you the ability to configure Arbil to your needs. The first window is a
       welcome window, press <emphasis role="italic">next</emphasis> to move to the second step of
-      the wizard. In this window you select the metadata format i.e. IMDI or CMDI; you can choose
-      one of them or both. In this manual we will assume just IMDI. The third window gives you the
-      ability to choose the corpora that will appear in the <emphasis role="italic">Remote
-        corpus</emphasis> box. If you know the URL<footnote id="fn_url">
+      the wizard. In this window, you select the metadata format i.e. IMDI or CMDI; you can choose
+      one or both of them. In this manual we will assume that IMDI is used but the instructions
+      apply equivalently to CMDI . The third window gives you the ability to choose the corpora that
+      will appear in the <emphasis role="italic">Remote corpus</emphasis> box. If you know the
+        URL<footnote id="fn_url">
         <para>You can copy the URL of a corpus by selecting the node in the remote tree in Arbil
           when the wizard is not showing, right click and select 'Copy'; or get it from the IMDI
           browser by navigating to the corpus, right click the node and select 'Create bookmark' and
@@ -399,22 +406,18 @@
           local corpus icon <inlinegraphic fileref="images/top_node_local_corpus_icon.png"
             scalefit="1" contentdepth="70%"/>. You can also right click on the corpus node you want
           to import and choose<emphasis role="italic"> Import to Local Corpus.</emphasis> In the
-          dialogue box that pops up you can check the <emphasis role="italic">Show Details and
-            Options</emphasis> box in order to: </para>
+          dialogue box that pops up you can choose to: </para>
         <para>(1) <emphasis role="italic">Overwrite Local Changes</emphasis> : Overwrite an existing
           local corpus/session node from the same original location. When is this option useful?
           Consider the likely scenario that you have imported a node from the Remote corpus and
           started editing it. If you want to reset the changes, you can reimport it from the Remote
-          Corpus and check the <emphasis role="italic">overwrite local changes </emphasis>box. You
-          can apply this option to every branch of the corpora. To do so, first check<link
-            linkend="image_overwrite_local_changes">Show details and options</link> box; in the
-          window that appears select the function <link linkend="image_overwrite_local_changes"
-            >Overwrite local changes</link>.</para>
+          Corpus and check the <emphasis role="italic">Overwrite local changes </emphasis>box. You
+          can apply this option to every branch of the corpora. </para>
         <figure>
-          <title>Show details and options</title>
+          <title>Import Branch</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/ImportCata.png" contentdepth="40%"
+              <imagedata fileref="images/Imdi_Import_branch.png" contentdepth="70%"
                 id="images_show_details_and_options"/>
             </imageobject>
           </mediaobject>
@@ -423,7 +426,7 @@
           <title>Overwrite local changes</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/ImportCata3.png" contentdepth="45%"
+              <imagedata fileref="images/Imdi_Overwrite_local_changes.png" contentdepth="70%"
                 id="image_overwrite_local_changes"/>
             </imageobject>
           </mediaobject>
@@ -432,17 +435,19 @@
           Corpus and you want to edit it again, editing should not be done in the already existing
           file in your Local Corpus. In this case you have to reimport the corpus from the Remote
           Corpus where your uploaded it before via Lamus.</para>
-        <para>(2) <emphasis role="italic">Copy Resource Files</emphasis>: Import resource files to
+        <para>(2) <emphasis role="italic">Import Resource Files</emphasis>: Import resource files to
           your computer. Please be aware that copying the resource files may take some time and will
-          use disk space on your computer. When you press <emphasis role="italic">Start</emphasis>,
-          the branch will be copied to your Local Corpus tree. The process can be interrupted by
-          clicking <emphasis role="italic">Stop</emphasis>. Note that Arbil cannot deal with
-          resources that need authentication.</para>
+          use disk space on your computer. Click on <emphasis role="italic">More Options</emphasis>
+          and check <emphasis role="italic">Import Resource Files</emphasis> (if available). When
+          you press <emphasis role="italic">Start</emphasis>, the branch will be copied to your
+          Local Corpus tree. The process can be interrupted by clicking <emphasis role="italic"
+            >Stop</emphasis>. Note that Arbil cannot deal with resources that need
+          authentication.</para>
         <figure>
           <title>Importing a corpus branch to Local Corpus</title>
           <mediaobject><imageobject>
-              <imagedata fileref="images/Import_box.png" contentdepth="50%" scalefit="1" width="50%"
-              />
+              <imagedata fileref="images/Imdi_importing_corpus_branch_to_local_corpus.png"
+                contentdepth="70%" scalefit="1" width="50%"/>
             </imageobject></mediaobject>
           
         </figure>
@@ -682,10 +687,10 @@
         can also add additional elements to session nodes and catalogues. If you right click on a
         catalogue > add, you will see a list of items available in the context menu. Notice how some
         elements have the <inlinegraphic fileref="images/imdi_contains_data.png" contentdepth="50%"
-        /> icon, whereas others have a icon<inlinegraphic fileref="images/new%20field.png"
+        /> icon, whereas others have a icon<inlinegraphic fileref="images/new_field.png"
           contentdepth="50%"/>. The <inlinegraphic fileref="images/imdi_contains_data.png"
           contentdepth="50%"/> icon represents a component that will be displayed in the hierarchy
-        whereas the <inlinegraphic fileref="images/new%20field.png" contentdepth="50%"/> icon adds a
+        whereas the <inlinegraphic fileref="images/new_field.png" contentdepth="50%"/> icon adds a
         new field (discussed below).</para>
       <figure>
         <title>Catalogue context menu</title>
@@ -699,7 +704,7 @@
     <sect1 id="Sec_Adding_More_Descriptions">
       <title>Adding more field components</title>
       <para>Generally, every corpus/ session/ catalogue contains a particular set of fields which
-        can be edited. Adding <inlinegraphic fileref="images/new%20field.png" contentdepth="50%"/>
+        can be edited. Adding <inlinegraphic fileref="images/new_field.png" contentdepth="50%"/>
         elements implies adding a new metadata field to the selected node.</para>
       <para>
         <figure>
@@ -795,13 +800,18 @@
           </mediaobject>
         </figure>
       </para>
+      <para>When adding multiple resources from the Working Directories to a session, they will get
+        processed together and appear in a single result table.</para>
     </sect1>
     <sect1 id="Sec_Moving_Sessions">
-      <title>Moving corpus and session nodes</title>
+      <title>Coping and moving corpus and session nodes</title>
       <para>Arbil allows to move both corpus and session nodes from one location to another. To do
         it, select in your Local Corpus a corpus/session you would like to move and drag and drop it
         to the new location. It is also possible to move subnodes of sessions, e.g. Actors, across
         sessions.</para>
+      <para>Be aware that when you copy a node, Arbil does not recognize it as a node but rather as a
+        file. That means that the whole structure of subnodes has not been copied properly. You need
+        to do in a second moment.</para>
       
     </sect1>
     <sect1 id="Sec_Deleting_Corpus_Elements">
@@ -973,6 +983,17 @@
           </mediaobject>
         </figure>
       </para>
+      <para>It is possible to show the entire document containing any specific node that is shown
+        in the horizontal table view. To do this, right click a cell or row and select <emphasis
+        role="italic">Show Context</emphasis>. This menu item opens the hierarchical 'sub-nodes'
+        view on the root of the document that contains the selected cell or row.<figure>
+          <title>Show Context </title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/ImdiShowContextMenu.png" contentdepth="70%"/>
+            </imageobject>
+          </mediaobject>
+        </figure></para>
       <sect2>
         <title><emphasis role="italic">Find</emphasis> and <emphasis role="italic"
             >Replace</emphasis></title>
@@ -1455,6 +1476,84 @@
       <para>Templates are currently in development, but they will be used to customise the components added via the "Add" menu.</para>
       <para>To create a new template, create a directory in the ".arbil/templates" directory. This is where all the files relevant to that template will be stored. This directory will now be selectable via the "options/templates" menu.</para>
       <para>Each template can have its own XSL which is used via the "view formatted" menu. The XSL must be in the selected templates directory and be called "format.xsl". For example: .arbil/templates/{template name}/format.xsl. If there are any additional files required by the XSL they can be placed in the same directory as the XSL file.</para>
+    </section>
+    <section>
+      <title>New languages </title>
+      <para>More languages can be added to the MPI-Languages CV upon request. Send an e-mail to
+        corpus.manager@mpi.nl with the name and the ISO 639-3 code of the language you want to
+        add.</para>
+    </section>
+    <section>
+      <title>Plugins</title>
+      <para>Plugins add extra functionality to Arbil. They are provided as '.jar' files that can be
+        placed in a special location where Arbil will detect them and add them as items to the
+        'Plugins' menu (which is hidden unless plugins have actually been detected).</para>
+      <para>To install a plugin, place the .jar file in one of the following directories: </para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para>~/ArchivingPlugins (Linux or MacOS)</para>
+          </listitem>
+          <listitem>
+            <para>%APPDATA%/ArchivingPlugins (Windows)</para>
+          </listitem>
+          <listitem>
+            <para>%USERPROFILE%/ArchivingPlugins (Windows)</para>
+          </listitem>
+          <listitem>
+            <para>&lt;ARBIL STORAGE DIRECTORY>/ArchivingPlugins</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>If none of the locations already exist, you can create one. Some options will not be
+        available on all operating systems. ~ denotes the user's home directory on Unix systems.
+        %APPDATA% and %USERPROFILE% are system environments available in Windows. Use the 'run
+        command' option (Windows key + R) to open locations that contain the environment
+        variable.</para>
+      <para>&lt;ARBIL STORAGE DIRECTORY> is the directory called .arbil that contains the
+        configuration files and by default is the parent directory of the working files
+        directory.</para>
+      <para>After installing the plugin you should restart Arbil for it to
+        become available in the Plugins menu of the menu bar.</para>
+    </section>
+    <section>
+      <title>Custom logging configuration</title>
+      <para>If present, a logging configuration will be read and applied from a file called 
+        'logging.properties' in the application configuration directory ('.arbil'). An
+      example of such a configuration is given below.</para>
+      <para><screen>
+        handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+        
+        # Default global logging level.
+        .level = ALL
+        
+        ############################################################
+        # Handler specific properties.
+        # Describes specific configuration info for Handlers.
+        ############################################################
+        
+        # default file output is in user's home directory.
+        java.util.logging.FileHandler.pattern = %h/arbil.log
+        java.util.logging.FileHandler.level = WARNING
+        java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+        
+        # Limit the message that are printed on the console to INFO and above.
+        java.util.logging.ConsoleHandler.level = INFO
+        java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+        
+        
+        ############################################################
+        # Facility specific properties.
+        ############################################################
+        
+        java.level = WARNING
+        javax.level = WARNING
+        sun.level = WARNING
+        
+        nl.mpi.arbil.level = FINEST
+        nl.mpi.flap.level = FINEST
+        nl.mpi.level = FINEST
+      </screen></para>
     </section>
   </chapter>
 </book>
