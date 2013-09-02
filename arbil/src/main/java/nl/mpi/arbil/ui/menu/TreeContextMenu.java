@@ -92,9 +92,9 @@ public class TreeContextMenu extends ArbilContextMenu {
 	final boolean showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
 	final boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 
-	viewSelectedNodesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW SELECTED"));
-	viewSelectedSubnodesMenuItem.setText(leadSelectedDataNode != null && leadSelectedDataNode.isEditable() ? java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EDIT ALL METADATA") : java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW ALL METADATA"));
-	editInLongFieldEditor.setText(leadSelectedDataNode != null && leadSelectedDataNode.getParentDomNode().isEditable() ? java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EDIT IN LONG FIELD EDITOR") : java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW IN LONG FIELD EDITOR"));
+	viewSelectedNodesMenuItem.setText(menus.getString("VIEW SELECTED"));
+	viewSelectedSubnodesMenuItem.setText(leadSelectedDataNode != null && leadSelectedDataNode.isEditable() ? menus.getString("EDIT ALL METADATA") : menus.getString("VIEW ALL METADATA"));
+	editInLongFieldEditor.setText(leadSelectedDataNode != null && leadSelectedDataNode.getParentDomNode().isEditable() ? menus.getString("EDIT IN LONG FIELD EDITOR") : menus.getString("VIEW IN LONG FIELD EDITOR"));
 //        mergeWithFavouritesMenu.setEnabled(false);
 	deleteMenuItem.setEnabled(true);
 
@@ -108,7 +108,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		searchRemoteBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1 && !leadSelectedDataNode.isCmdiMetaDataNode());
 	    }
 	    if (tree == getTreePanel().localCorpusTree) {
-		viewSelectedNodesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW/EDIT SELECTED"));
+		viewSelectedNodesMenuItem.setText(menus.getString("VIEW/EDIT SELECTED"));
 		//removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
 		pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
 		searchSubnodesMenuItem.setVisible(selectionCount > 0);
@@ -161,7 +161,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		removeFromFavouritesMenuItem.setEnabled(isFavouriteTopLevel);
 
 		addMenu.setVisible(selectedTreeNodes.length == 1);// for now adding is limited to single node selections
-		viewSelectedNodesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW/EDIT SELECTED"));
+		viewSelectedNodesMenuItem.setText(menus.getString("VIEW/EDIT SELECTED"));
 		// for now deleting is limited to single node selections, to prevent top level favourites for being deleted in multi-selections
 		deleteMenuItem.setVisible(!isFavouriteTopLevel && selectedTreeNodes.length == 1);
 		deleteMenuItem.setEnabled(!isFavouriteTopLevel && selectedTreeNodes.length == 1);
@@ -197,7 +197,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
 
     private void setUpActions() {
-	viewSelectedNodesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW SELECTED"));
+	viewSelectedNodesMenuItem.setText(menus.getString("VIEW SELECTED"));
 	viewSelectedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		treeController.viewSelectedNodes((ArbilTree) getInvoker());
@@ -219,7 +219,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_NODE, PRIORITY_TOP + 2, viewSelectedSubnodesMenuItem);
 
-	deleteMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("DELETE"));
+	deleteMenuItem.setText(menus.getString("DELETE"));
 	deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -231,12 +231,12 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_EDIT, PRIORITY_TOP + 10, deleteMenuItem);
 
-	copyNodeUrlMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY"));
+	copyNodeUrlMenuItem.setText(menus.getString("COPY"));
 	copyNodeUrlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    if (selectedTreeNodes == null) {
-			dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("NO NODE SELECTED"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY"));
+			dialogHandler.addMessageDialogToQueue(menus.getString("NO NODE SELECTED"), menus.getString("COPY"));
 		    } else {
 			ArbilTree sourceTree = (ArbilTree) getInvoker();
 			sourceTree.copyNodeUrlToClipboard(selectedTreeNodes);
@@ -248,7 +248,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_EDIT, PRIORITY_TOP + 15, copyNodeUrlMenuItem);
 
-	pasteMenuItem1.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PASTE"));
+	pasteMenuItem1.setText(menus.getString("PASTE"));
 	pasteMenuItem1.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -262,7 +262,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_EDIT, PRIORITY_TOP + 20, pasteMenuItem1);
 
-	searchRemoteBranchMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SEARCH REMOTE CORPUS"));
+	searchRemoteBranchMenuItem.setText(menus.getString("SEARCH REMOTE CORPUS"));
 	searchRemoteBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -274,7 +274,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_NODE, PRIORITY_MIDDLE, searchRemoteBranchMenuItem);
 
-	copyBranchMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("IMPORT TO LOCAL CORPUS"));
+	copyBranchMenuItem.setText(menus.getString("IMPORT TO LOCAL CORPUS"));
 	copyBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -286,7 +286,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE, copyBranchMenuItem);
 
-	searchSubnodesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SEARCH"));
+	searchSubnodesMenuItem.setText(menus.getString("SEARCH"));
 	searchSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -298,7 +298,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_NODE, PRIORITY_MIDDLE, searchSubnodesMenuItem);
 
-	reloadSubnodesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RELOAD"));
+	reloadSubnodesMenuItem.setText(menus.getString("RELOAD"));
 	reloadSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -313,7 +313,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_NODE, PRIORITY_MIDDLE + 5, reloadSubnodesMenuItem);
 
-	groupFavouritesMenuItem.setText(menus.getString("GROUP FAVOURITES BY TYPE"));//java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW HIDDEN FILES"));
+	groupFavouritesMenuItem.setText(menus.getString("GROUP FAVOURITES BY TYPE"));//menus.getString("SHOW HIDDEN FILES"));
 	groupFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -325,7 +325,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_TOP, groupFavouritesMenuItem);
 
-	addMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD"));
+	addMenu.setText(menus.getString("ADD"));
 	addMenu.addMenuListener(new javax.swing.event.MenuListener() {
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
@@ -343,7 +343,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_TOP, addMenu);
 
-	addFromFavouritesMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD FROM FAVOURITES"));
+	addFromFavouritesMenu.setText(menus.getString("ADD FROM FAVOURITES"));
 	addFromFavouritesMenu.addMenuListener(new javax.swing.event.MenuListener() {
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
@@ -357,7 +357,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addFromFavouritesMenu);
 
-	addResourcesFavouritesMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD BULK RESOURCES VIA FAVOURITES"));
+	addResourcesFavouritesMenu.setText(menus.getString("ADD BULK RESOURCES VIA FAVOURITES"));
 	addResourcesFavouritesMenu.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 
@@ -373,9 +373,9 @@ public class TreeContextMenu extends ArbilContextMenu {
 	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addResourcesFavouritesMenu);
 
 	if (leadSelectedDataNode != null && leadSelectedDataNode.isContainerNode()) {
-	    addToFavouritesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD CHILDREN TO FAVOURITES LIST"));
+	    addToFavouritesMenuItem.setText(menus.getString("ADD CHILDREN TO FAVOURITES LIST"));
 	} else {
-	    addToFavouritesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD TO FAVOURITES LIST"));
+	    addToFavouritesMenuItem.setText(menus.getString("ADD TO FAVOURITES LIST"));
 	}
 	addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -388,7 +388,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE + 5, addToFavouritesMenuItem);
 
-	removeFromFavouritesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("REMOVE FROM FAVOURITES LIST"));
+	removeFromFavouritesMenuItem.setText(menus.getString("REMOVE FROM FAVOURITES LIST"));
 	removeFromFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -403,7 +403,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 //        mergeWithFavouritesMenu.setText("Merge With Favourite");
 //        mergeWithFavouritesMenu.setActionCommand("Merge With Favouurite");
 
-	validateMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK XML CONFORMANCE"));
+	validateMenuItem.setText(menus.getString("CHECK XML CONFORMANCE"));
 	validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -415,7 +415,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_XML, PRIORITY_MIDDLE, validateMenuItem);
 
-	historyMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("HISTORY"));
+	historyMenu.setText(menus.getString("HISTORY"));
 	historyMenu.addMenuListener(new javax.swing.event.MenuListener() {
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
@@ -434,7 +434,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	addItem(CATEGORY_EDIT, PRIORITY_BOTTOM, historyMenu);
 
 
-	addRemoteCorpusMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD REMOTE LOCATION"));
+	addRemoteCorpusMenuItem.setText(menus.getString("ADD REMOTE LOCATION"));
 	addRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -447,7 +447,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE, addRemoteCorpusMenuItem);
 
-	addRemoteCorpusToRootMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD TO TREE ROOT"));
+	addRemoteCorpusToRootMenuItem.setText(menus.getString("ADD TO TREE ROOT"));
 	addRemoteCorpusToRootMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -461,7 +461,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 
 	addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE, addRemoteCorpusToRootMenuItem);
-	addDefaultLocationsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD DEFAULT REMOTE LOCATIONS"));
+	addDefaultLocationsMenuItem.setText(menus.getString("ADD DEFAULT REMOTE LOCATIONS"));
 	addDefaultLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -469,7 +469,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 			treeHelper.applyRootLocations();
 		    } else {
 			// alert the user when the node already exists and cannot be added again
-			dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("THE DEFAULT LOCATIONS ALREADY EXISTS AND WILL NOT BE ADDED AGAIN"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD DEFAULT LOCATIONS"));
+			dialogHandler.addMessageDialogToQueue(menus.getString("THE DEFAULT LOCATIONS ALREADY EXISTS AND WILL NOT BE ADDED AGAIN"), menus.getString("ADD DEFAULT LOCATIONS"));
 		    }
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
@@ -478,7 +478,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE + 5, addDefaultLocationsMenuItem);
 
-	removeRemoteCorpusMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("REMOVE REMOTE LOCATION"));
+	removeRemoteCorpusMenuItem.setText(menus.getString("REMOVE REMOTE LOCATION"));
 	removeRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -505,7 +505,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 //	});
 //	addItem(CATEGORY_DISK, PRIORITY_BOTTOM + 5, removeCachedCopyMenuItem);
 
-	addLocalDirectoryMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ADD WORKING DIRECTORY"));
+	addLocalDirectoryMenuItem.setText(menus.getString("ADD WORKING DIRECTORY"));
 	addLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -518,7 +518,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	addItem(CATEGORY_WORKING_DIR, PRIORITY_TOP, addLocalDirectoryMenuItem);
 
-	showHiddenFilesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW HIDDEN FILES"));
+	showHiddenFilesMenuItem.setText(menus.getString("SHOW HIDDEN FILES"));
 	showHiddenFilesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -530,7 +530,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_WORKING_DIR, PRIORITY_MIDDLE + 5, showHiddenFilesMenuItem);
 
-	removeLocalDirectoryMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("REMOVE LINK TO DIRECTORY"));
+	removeLocalDirectoryMenuItem.setText(menus.getString("REMOVE LINK TO DIRECTORY"));
 	removeLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -577,7 +577,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 //        });
 //        add(sendToServerMenuItem);
 
-	exportMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EXPORT"));
+	exportMenuItem.setText(menus.getString("EXPORT"));
 	exportMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -590,7 +590,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_DISK, PRIORITY_TOP + 5, exportMenuItem);
 
-	importCsvMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("IMPORT CSV"));
+	importCsvMenuItem.setText(menus.getString("IMPORT CSV"));
 	importCsvMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -603,7 +603,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_IMPORT, PRIORITY_TOP, importCsvMenuItem);
 
-	importBranchMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("IMPORT BRANCH"));
+	importBranchMenuItem.setText(menus.getString("IMPORT BRANCH"));
 	importBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -619,9 +619,9 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	if (leadSelectedDataNode != null) {
 	    if (leadSelectedDataNode.isSession()) {
-		reImportBranchMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RE-IMPORT THIS SESSION"));
+		reImportBranchMenuItem.setText(menus.getString("RE-IMPORT THIS SESSION"));
 	    } else {
-		reImportBranchMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RE-IMPORT THIS BRANCH"));
+		reImportBranchMenuItem.setText(menus.getString("RE-IMPORT THIS BRANCH"));
 	    }
 	    reImportBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -631,7 +631,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    addItem(CATEGORY_IMPORT, PRIORITY_MIDDLE, reImportBranchMenuItem);
 	}
 
-	setManualResourceLocationMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("INSERT MANUAL RESOURCE LOCATION"));
+	setManualResourceLocationMenuItem.setText(menus.getString("INSERT MANUAL RESOURCE LOCATION"));
 	setManualResourceLocationMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		treeController.setManualResourceLocation(leadSelectedDataNode);
@@ -733,7 +733,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    try {
 			if (!leadSelectedDataNode.resurrectHistory(evt.getActionCommand())) {
-			    dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COULD NOT REVERT VERSION, NO CHANGES MADE"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("HISTORY"));
+			    dialogHandler.addMessageDialogToQueue(menus.getString("COULD NOT REVERT VERSION, NO CHANGES MADE"), menus.getString("HISTORY"));
 			}
 		    } catch (Exception ex) {
 			BugCatcherManager.getBugCatcher().logError(ex);

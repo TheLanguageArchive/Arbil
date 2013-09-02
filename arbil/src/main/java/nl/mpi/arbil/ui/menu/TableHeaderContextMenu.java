@@ -123,7 +123,7 @@ public class TableHeaderContextMenu extends JPopupMenu {
 		tableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
 	    }
 	});
-	final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("MAKE ALL COLUMNS THE SIZE OF"), new Object[]{targetColumnName}));
+	final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem(java.text.MessageFormat.format(menus.getString("MAKE ALL COLUMNS THE SIZE OF"), new Object[]{targetColumnName}));
 	setAllColumnsSizeFromColumn.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		int targetWidth = table.getColumnModel().getColumn(targetColumn).getWidth();
@@ -168,7 +168,7 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	});
 
 	if (tableModel.isHorizontalView()) {
-	    final JMenu thisColumnMenu = new JMenu(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("THIS COLUMN"), new Object[]{(targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName)}));
+	    final JMenu thisColumnMenu = new JMenu(java.text.MessageFormat.format(menus.getString("THIS COLUMN"), new Object[]{(targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName)}));
 	    thisColumnMenu.add(setFixedColumnSize);
 	    thisColumnMenu.add(setColumnSizeAuto);
 	    if (targetColumn != 0) {

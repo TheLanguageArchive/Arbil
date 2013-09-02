@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ArbilContextMenu extends JPopupMenu {
     private final static Logger logger = LoggerFactory.getLogger(ArbilContextMenu.class);
+    private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
 
     private static MessageDialogHandler dialogHandler;
 
@@ -109,12 +111,12 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     protected abstract void setAllInvisible();
 
     private void setUpCommonActions() {
-        browseForResourceFileMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("BROWSE FOR RESOURCE FILE"));
+        browseForResourceFileMenuItem.setText(menus.getString("BROWSE FOR RESOURCE FILE"));
         browseForResourceFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    File[] selectedFiles = dialogHandler.showFileSelectBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SELECT RESOURCE FILE"), false, false, null, MessageDialogHandler.DialogueType.open, null);
+                    File[] selectedFiles = dialogHandler.showFileSelectBox(menus.getString("SELECT RESOURCE FILE"), false, false, null, MessageDialogHandler.DialogueType.open, null);
                     if (selectedFiles != null && selectedFiles.length > 0) {
                         leadSelectedDataNode.resourceUrlField.setFieldValue(selectedFiles[0].toURL().toExternalForm(), true, false);
                     }
@@ -125,7 +127,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         });
         addItem(CATEGORY_RESOURCE, PRIORITY_TOP, browseForResourceFileMenuItem);
 
-        saveMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SAVE CHANGES TO DISK"));
+        saveMenuItem.setText(menus.getString("SAVE CHANGES TO DISK"));
         saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -144,7 +146,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
         addItem(CATEGORY_DISK, PRIORITY_TOP, saveMenuItem);
 
-        overrideTypeCheckerDecision.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("OVERRIDE TYPE CHECKER DECISION"));
+        overrideTypeCheckerDecision.setText(menus.getString("OVERRIDE TYPE CHECKER DECISION"));
         overrideTypeCheckerDecision.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -157,7 +159,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         });
         addItem(CATEGORY_WORKING_DIR, PRIORITY_TOP, overrideTypeCheckerDecision);
 
-        openInExternalApplicationMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("OPEN IN EXTERNAL APPLICATION"));
+        openInExternalApplicationMenuItem.setText(menus.getString("OPEN IN EXTERNAL APPLICATION"));
         // todo: add custom applicaitons menu with dialogue to enter them: suffix, switches, applicaiton file
         openInExternalApplicationMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -171,7 +173,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         });
         addItem(CATEGORY_DISK, PRIORITY_BOTTOM, openInExternalApplicationMenuItem);
 
-        viewXmlMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW XML"));
+        viewXmlMenuItem.setText(menus.getString("VIEW XML"));
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -186,7 +188,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         });
 
         addItem(CATEGORY_XML, PRIORITY_TOP, viewXmlMenuItem);
-        viewXmlMenuItemFormatted.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW IMDI FORMATTED"));
+        viewXmlMenuItemFormatted.setText(menus.getString("VIEW IMDI FORMATTED"));
         viewXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -201,7 +203,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         });
         addItem(CATEGORY_XML, PRIORITY_TOP + 5, viewXmlMenuItemFormatted);
 
-        openXmlMenuItemFormatted.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("OPEN IMDI FORMATTED"));
+        openXmlMenuItemFormatted.setText(menus.getString("OPEN IMDI FORMATTED"));
         openXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -216,7 +218,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         });
         addItem(CATEGORY_XML, PRIORITY_TOP + 10, openXmlMenuItemFormatted);
 
-        exportHtmlMenuItemFormatted.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EXPORT IMDI TO HTML"));
+        exportHtmlMenuItemFormatted.setText(menus.getString("EXPORT IMDI TO HTML"));
         exportHtmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -228,7 +230,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                     }
                 } catch (Exception ex) {
                     BugCatcherManager.getBugCatcher().logError(ex);
-                    dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EXPORT TO HTML FAILED. CHECK THE ERROR LOG FOR DETAILS."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EXPORT FAILED"));
+                    dialogHandler.addMessageDialogToQueue(menus.getString("EXPORT TO HTML FAILED. CHECK THE ERROR LOG FOR DETAILS."), menus.getString("EXPORT FAILED"));
                 }
             }
         });

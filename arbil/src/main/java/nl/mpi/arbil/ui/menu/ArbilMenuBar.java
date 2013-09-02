@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
 import javax.swing.JCheckBoxMenuItem;
@@ -82,6 +83,7 @@ import org.xml.sax.SAXException;
 public class ArbilMenuBar extends JMenuBar {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilMenuBar.class);
+    private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
     public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
     private final WebstartHelper webstartHelper = new WebstartHelper();
     private static SessionStorage sessionStorage;
@@ -100,8 +102,7 @@ public class ArbilMenuBar extends JMenuBar {
 	if (treeHelperInstance instanceof ArbilTreeHelper) {
 	    treeHelper = (ArbilTreeHelper) treeHelperInstance;
 	} else {
-	    throw new RuntimeException(java.text.MessageFormat.format(
-		    java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ARBILMENUBAR REQUIRES ARBILTREEHELPER. FOUND {0}"),
+	    throw new RuntimeException(java.text.MessageFormat.format(menus.getString("ARBILMENUBAR REQUIRES ARBILTREEHELPER. FOUND {0}"),
 		    new Object[]{treeHelperInstance.getClass()}));
 	}
     }
@@ -111,7 +112,7 @@ public class ArbilMenuBar extends JMenuBar {
 	if (windowManagerInstance instanceof ArbilWindowManager) {
 	    windowManager = (ArbilWindowManager) windowManagerInstance;
 	} else {
-	    throw new RuntimeException(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ARBILMENUBAR REQUIRES ARBILWINDOWMANAGER. FOUND {0}"),
+	    throw new RuntimeException(java.text.MessageFormat.format(menus.getString("ARBILMENUBAR REQUIRES ARBILWINDOWMANAGER. FOUND {0}"),
 		    new Object[]{windowManagerInstance.getClass()}));
 	}
     }
@@ -207,17 +208,17 @@ public class ArbilMenuBar extends JMenuBar {
 	try {
 	    return ArbilHelp.getArbilHelpInstance();
 	} catch (IOException ioEx) {
-	    dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("I/O ERROR WHILE TRYING TO READ HELP SYSTEM! SEE ERROR LOG FOR DETAILS."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ERROR"));
+	    dialogHandler.addMessageDialogToQueue(menus.getString("I/O ERROR WHILE TRYING TO READ HELP SYSTEM! SEE ERROR LOG FOR DETAILS."), menus.getString("ERROR"));
 	    BugCatcherManager.getBugCatcher().logError(ioEx);
 	} catch (SAXException saxEx) {
-	    dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PARSER ERROR WHILE TRYING TO READ HELP SYSTEM! SEE ERROR LOG FOR DETAILS."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ERROR"));
+	    dialogHandler.addMessageDialogToQueue(menus.getString("PARSER ERROR WHILE TRYING TO READ HELP SYSTEM! SEE ERROR LOG FOR DETAILS."), menus.getString("ERROR"));
 	    BugCatcherManager.getBugCatcher().logError(saxEx);
 	}
 	return null;
     }
 
     private void initFileMenu() {
-	fileMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("FILE"));
+	fileMenu.setText(menus.getString("FILE"));
 	fileMenu.addMenuListener(new MenuListener() {
 	    public void menuCanceled(MenuEvent evt) {
 	    }
@@ -230,7 +231,7 @@ public class ArbilMenuBar extends JMenuBar {
 		showChangedNodesMenuItem.setEnabled(dataNodeLoader.nodesNeedSave());
 	    }
 	});
-	saveFileMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SAVE CHANGES"));
+	saveFileMenuItem.setText(menus.getString("SAVE CHANGES"));
 	saveFileMenuItem.setEnabled(false);
 	saveFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -243,7 +244,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	fileMenu.add(saveFileMenuItem);
-	showChangedNodesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW MODIFIED NODES"));
+	showChangedNodesMenuItem.setText(menus.getString("SHOW MODIFIED NODES"));
 	showChangedNodesMenuItem.setEnabled(false);
 	showChangedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -259,14 +260,14 @@ public class ArbilMenuBar extends JMenuBar {
 			    }
 			}
 		    }
-		    windowManager.openFloatingTable(individualChangedNodes.toArray(new ArbilDataNode[]{}), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("MODIFIED NODES"));
+		    windowManager.openFloatingTable(individualChangedNodes.toArray(new ArbilDataNode[]{}), menus.getString("MODIFIED NODES"));
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
 	    }
 	});
 	fileMenu.add(showChangedNodesMenuItem);
-	importMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("IMPORT..."));
+	importMenuItem.setText(menus.getString("IMPORT..."));
 	importMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -277,7 +278,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	fileMenu.add(importMenuItem);
-	exitMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EXIT"));
+	exitMenuItem.setText(menus.getString("EXIT"));
 	exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -291,15 +292,15 @@ public class ArbilMenuBar extends JMenuBar {
 	    fileMenu.add(exitMenuItem);
 	} else {
 	    // create the applet shibboleth menu items
-	    String loggedInUserName = containerApplet.getParameter(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("USERNAME"));
+	    String loggedInUserName = containerApplet.getParameter(menus.getString("USERNAME"));
 	    // in php this could be: $_SERVER["REMOTE_USER"] or $_SERVER["eduPersonPrincipalName"] or $_SERVER["HTTP_EDUPERSONPRINCIPALNAME"]
 	    if (loggedInUserName == null) {
-		loggedInUserName = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("UNKNOWN USER");
+		loggedInUserName = menus.getString("UNKNOWN USER");
 	    }
-	    JMenuItem logoutButton = new JMenuItem(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LOG OUT ({0})"), new Object[]{loggedInUserName}));
+	    JMenuItem logoutButton = new JMenuItem(java.text.MessageFormat.format(menus.getString("LOG OUT ({0})"), new Object[]{loggedInUserName}));
 	    logoutButton.addActionListener(new java.awt.event.ActionListener() {
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
-		    String logoutUrl = containerApplet.getParameter(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LOGOUTURL"));
+		    String logoutUrl = containerApplet.getParameter(menus.getString("LOGOUTURL"));
 		    try {
 			//			String userName = containerApplet.getParameter("UserName");
 			if (containerApplet != null) {
@@ -307,8 +308,8 @@ public class ArbilMenuBar extends JMenuBar {
 			    containerApplet.getAppletContext().showDocument(new URL(logoutUrl));
 			}
 		    } catch (MalformedURLException ex) {
-			dialogHandler.addMessageDialogToQueue(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("INVALID LOGOUT URL: {0}"),
-				new Object[]{logoutUrl}), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LOGOUT ERROR"));
+			dialogHandler.addMessageDialogToQueue(java.text.MessageFormat.format(menus.getString("INVALID LOGOUT URL: {0}"),
+				new Object[]{logoutUrl}), menus.getString("LOGOUT ERROR"));
 			BugCatcherManager.getBugCatcher().logError(ex);
 		    }
 		}
@@ -319,7 +320,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initEditMenu() {
-	editMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EDIT"));
+	editMenu.setText(menus.getString("EDIT"));
 	editMenu.addMenuListener(new javax.swing.event.MenuListener() {
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
@@ -334,7 +335,7 @@ public class ArbilMenuBar extends JMenuBar {
 		//                copyMenuItem.setEnabled(currentFocusOwner instanceof ImdiTree);
 	    }
 	});
-	copyMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY"));
+	copyMenuItem.setText(menus.getString("COPY"));
 	copyMenuItem.setEnabled(false);
 	//        by the time the menu action has occured the focus has moved to the root pane of the application, this further supports the concept that a global copy paste for a multi focus UI is a flawed concept
 	//        copyMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -354,7 +355,7 @@ public class ArbilMenuBar extends JMenuBar {
 	//            }
 	//        });
 	//        editMenu.add(copyMenuItem);
-	pasteMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PASTE"));
+	pasteMenuItem.setText(menus.getString("PASTE"));
 	pasteMenuItem.setEnabled(false);
 	//        pasteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	//
@@ -363,7 +364,7 @@ public class ArbilMenuBar extends JMenuBar {
 	//            }
 	//        });
 	//        editMenu.add(pasteMenuItem);
-	undoMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("UNDO"));
+	undoMenuItem.setText(menus.getString("UNDO"));
 	undoMenuItem.setEnabled(false);
 	undoMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -381,7 +382,7 @@ public class ArbilMenuBar extends JMenuBar {
 		return (windowManager.getCurrentFrameComponent() instanceof ArbilSplitPanel);
 	    }
 	};
-	searchReplaceMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("FIND/REPLACE"));
+	searchReplaceMenuItem.setText(menus.getString("FIND/REPLACE"));
 	searchReplaceMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		Component selectedComponent = windowManager.getCurrentFrameComponent();
@@ -393,7 +394,7 @@ public class ArbilMenuBar extends JMenuBar {
 	editMenu.add(searchReplaceMenuItem);
 
 	editMenu.add(undoMenuItem);
-	redoMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("REDO"));
+	redoMenuItem.setText(menus.getString("REDO"));
 	redoMenuItem.setEnabled(false);
 	redoMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -410,7 +411,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private void initOptionsMenu() {
 
-	optionsMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("OPTIONS"));
+	optionsMenu.setText(menus.getString("OPTIONS"));
 
 //        editLocationsMenuItem.setText("Locations");
 //        editLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -425,7 +426,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(editLocationsMenuItem);
 
-	templatesMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("TEMPLATES & PROFILES..."));
+	templatesMenu.setText(menus.getString("TEMPLATES & PROFILES..."));
 	templatesMenu.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -462,7 +463,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(viewFavouritesMenuItem);
 
-	setCacheDirectoryMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LOCAL CORPUS STORAGE DIRECTORY"));
+	setCacheDirectoryMenu.setText(menus.getString("LOCAL CORPUS STORAGE DIRECTORY"));
 	setCacheDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
 	    public void menuCanceled(javax.swing.event.MenuEvent evt) {
 	    }
@@ -476,12 +477,12 @@ public class ArbilMenuBar extends JMenuBar {
 		cacheDirectoryMenuItem.setText(sessionStorage.getProjectWorkingDirectory().getAbsolutePath());
 		cacheDirectoryMenuItem.setEnabled(false);
 		JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
-		changeCacheDirectoryMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("MOVE LOCAL CORPUS STORAGE DIRECTORY..."));
+		changeCacheDirectoryMenuItem.setText(menus.getString("MOVE LOCAL CORPUS STORAGE DIRECTORY..."));
 		changeCacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 		    public void actionPerformed(java.awt.event.ActionEvent evt) {
 			try {
 			    dialogHandler.offerUserToSaveChanges();
-			    File[] selectedFiles = dialogHandler.showDirectorySelectBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("MOVE LOCAL CORPUS STORAGE DIRECTORY"), false);
+			    File[] selectedFiles = dialogHandler.showDirectorySelectBox(menus.getString("MOVE LOCAL CORPUS STORAGE DIRECTORY"), false);
 			    if (selectedFiles != null && selectedFiles.length > 0) {
 				//fileChooser.setCurrentDirectory(LinorgSessionStorage.getArbilHelpInstance().getCacheDirectory());
 				sessionStorage.changeCacheDirectory(selectedFiles[0], true);
@@ -515,7 +516,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        optionsMenu.add(localStorageDirectoriesMenu);
 	optionsMenu.add(setCacheDirectoryMenu);
 
-	editPreferredLanguagesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EDIT IMDI LANGUAGE LIST..."));
+	editPreferredLanguagesMenuItem.setText(menus.getString("EDIT IMDI LANGUAGE LIST..."));
 	editPreferredLanguagesMenuItem.setEnabled(true);
 	editPreferredLanguagesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -524,7 +525,7 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	optionsMenu.add(editPreferredLanguagesMenuItem);
 
-	updateAllLoadedVocabulariesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RE-DOWNLOAD CURRENT VOCABULARIES"));
+	updateAllLoadedVocabulariesMenuItem.setText(menus.getString("RE-DOWNLOAD CURRENT VOCABULARIES"));
 	updateAllLoadedVocabulariesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		IMDIVocabularies.getSingleInstance().redownloadCurrentlyLoadedVocabularies();
@@ -533,14 +534,14 @@ public class ArbilMenuBar extends JMenuBar {
 	optionsMenu.add(updateAllLoadedVocabulariesMenuItem);
 
 	saveWindowsCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("saveWindows", true));
-	saveWindowsCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SAVE WINDOWS ON EXIT"));
+	saveWindowsCheckBoxMenuItem.setText(menus.getString("SAVE WINDOWS ON EXIT"));
 	optionsMenu.add(saveWindowsCheckBoxMenuItem);
 
 	showSelectionPreviewCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("showSelectionPreview", true));
 	previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
 	showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
 //        showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.META_MASK));
-	showSelectionPreviewCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW SELECTION PREVIEW"));
+	showSelectionPreviewCheckBoxMenuItem.setText(menus.getString("SHOW SELECTION PREVIEW"));
 	showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -553,7 +554,7 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	optionsMenu.add(showSelectionPreviewCheckBoxMenuItem);
 
-	showStatusBarMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW STATUS BAR"));
+	showStatusBarMenuItem.setText(menus.getString("SHOW STATUS BAR"));
 	showStatusBarMenuItem.setState(sessionStorage.loadBoolean("showStatusBar", false));
 	showStatusBarMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
 	showStatusBarMenuItem.addActionListener(new ActionListener() {
@@ -565,12 +566,12 @@ public class ArbilMenuBar extends JMenuBar {
 	optionsMenu.add(showStatusBarMenuItem);
 
 	checkNewVersionAtStartCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("checkNewVersionAtStart", true));
-	checkNewVersionAtStartCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK FOR NEW VERSION ON START"));
+	checkNewVersionAtStartCheckBoxMenuItem.setText(menus.getString("CHECK FOR NEW VERSION ON START"));
 	optionsMenu.add(checkNewVersionAtStartCheckBoxMenuItem);
 
 	copyNewResourcesCheckBoxMenuItem.setSelected(MetadataReader.getSingleInstance().copyNewResourcesToCache);
-	copyNewResourcesCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COPY NEW RESOURCES INTO CACHE"));
-	copyNewResourcesCheckBoxMenuItem.setToolTipText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("WHEN ADDING A NEW RESOURCE TO A SESSION THIS OPTIONS WILL COPY THE FILE INTO THE LOCAL CACHE RATHER THAN LINKING TO ITS CURRENT LOCATION. THIS OPTION CAN MAKE A CONSIDERABLE DIFFERENCE TO DISK USE IF YOU ARE HANDLING LARGE FILES."));
+	copyNewResourcesCheckBoxMenuItem.setText(menus.getString("COPY NEW RESOURCES INTO CACHE"));
+	copyNewResourcesCheckBoxMenuItem.setToolTipText(menus.getString("WHEN ADDING A NEW RESOURCE TO A SESSION THIS OPTIONS WILL COPY THE FILE INTO THE LOCAL CACHE RATHER THAN LINKING TO ITS CURRENT LOCATION. THIS OPTION CAN MAKE A CONSIDERABLE DIFFERENCE TO DISK USE IF YOU ARE HANDLING LARGE FILES."));
 	copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		MetadataReader.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
@@ -580,20 +581,20 @@ public class ArbilMenuBar extends JMenuBar {
 	optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
 
 	checkResourcePermissionsCheckBoxMenuItem.setSelected(mimeHashQueue.isCheckResourcePermissions());
-	checkResourcePermissionsCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK PERMISSIONS FOR REMOTE RESOURCES"));
-	checkResourcePermissionsCheckBoxMenuItem.setToolTipText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("THIS OPTION CHECKS THE SERVER PERMISSIONS FOR REMOTE RESOURCES AND SHOWS ICONS ACCORDINGLY."));
+	checkResourcePermissionsCheckBoxMenuItem.setText(menus.getString("CHECK PERMISSIONS FOR REMOTE RESOURCES"));
+	checkResourcePermissionsCheckBoxMenuItem.setToolTipText(menus.getString("THIS OPTION CHECKS THE SERVER PERMISSIONS FOR REMOTE RESOURCES AND SHOWS ICONS ACCORDINGLY."));
 	checkResourcePermissionsCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		mimeHashQueue.setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
 		sessionStorage.saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
-		dialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("THE SETTING CHANGE WILL BE EFFECTIVE WHEN ARBIL IS RESTARTED."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK PERMISSIONS FOR REMOTE RESOURCES"));
+		dialogHandler.addMessageDialogToQueue(menus.getString("THE SETTING CHANGE WILL BE EFFECTIVE WHEN ARBIL IS RESTARTED."), menus.getString("CHECK PERMISSIONS FOR REMOTE RESOURCES"));
 	    }
 	});
 	optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
 
-	schemaCheckLocalFiles.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ALWAYS CHECK LOCAL METADATA FILES FOR XML CONFORMANCE"));
+	schemaCheckLocalFiles.setText(menus.getString("ALWAYS CHECK LOCAL METADATA FILES FOR XML CONFORMANCE"));
 	schemaCheckLocalFiles.setSelected(dataNodeLoader.isSchemaCheckLocalFiles());
-	schemaCheckLocalFiles.setToolTipText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("THIS OPTION CHECKS ALL LOCAL METADATA FILES FOR XML CONFORMANCE EVERY TIME THEY ARE LOADED. IF THE METADATA FILE DOES NOT VALIDATE AGAINST THE SCHEMA IT WILL BE HIGHLIGHTED RED IN THE TREE."));
+	schemaCheckLocalFiles.setToolTipText(menus.getString("THIS OPTION CHECKS ALL LOCAL METADATA FILES FOR XML CONFORMANCE EVERY TIME THEY ARE LOADED. IF THE METADATA FILE DOES NOT VALIDATE AGAINST THE SCHEMA IT WILL BE HIGHLIGHTED RED IN THE TREE."));
 	schemaCheckLocalFiles.addItemListener(new java.awt.event.ItemListener() {
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		dataNodeLoader.setSchemaCheckLocalFiles(schemaCheckLocalFiles.isSelected());
@@ -603,7 +604,7 @@ public class ArbilMenuBar extends JMenuBar {
 	optionsMenu.add(schemaCheckLocalFiles);
 
 	trackTableSelectionCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("trackTableSelection", false));
-	trackTableSelectionCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("TRACK TABLE SELECTION IN TREE"));
+	trackTableSelectionCheckBoxMenuItem.setText(menus.getString("TRACK TABLE SELECTION IN TREE"));
 	trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -618,7 +619,7 @@ public class ArbilMenuBar extends JMenuBar {
 	optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
 
 	useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("useLanguageIdInColumnName", false));
-	useLanguageIdInColumnNameCheckBoxMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW LANGUAGE IN COLUMN NAME"));
+	useLanguageIdInColumnNameCheckBoxMenuItem.setText(menus.getString("SHOW LANGUAGE IN COLUMN NAME"));
 	useLanguageIdInColumnNameCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -636,7 +637,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	optionsMenu.add(new JSeparator());
 
-	viewMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("COLUMN VIEW FOR NEW TABLES"));
+	viewMenu.setText(menus.getString("COLUMN VIEW FOR NEW TABLES"));
 	viewMenu.addMenuListener(new MenuListener() {
 	    public void menuCanceled(MenuEvent evt) {
 	    }
@@ -650,7 +651,7 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	optionsMenu.add(viewMenu);
 
-	editFieldViewsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("EDIT COLUMN VIEWS"));
+	editFieldViewsMenuItem.setText(menus.getString("EDIT COLUMN VIEWS"));
 	editFieldViewsMenuItem.setEnabled(false);
 //        editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 //
@@ -679,21 +680,21 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initWindowMenu() {
-	windowMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("WINDOW"));
+	windowMenu.setText(menus.getString("WINDOW"));
 
-	resetWindowsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RESET WINDOW LOCATIONS"));
+	resetWindowsMenuItem.setText(menus.getString("RESET WINDOW LOCATIONS"));
 	resetWindowsMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		if (dialogHandler.showConfirmDialogBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RESET ALL WINDOWS TO DEFAULT SIZE AND LOCATION?"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RESET WINDOWS"))) {
+		if (dialogHandler.showConfirmDialogBox(menus.getString("RESET ALL WINDOWS TO DEFAULT SIZE AND LOCATION?"), menus.getString("RESET WINDOWS"))) {
 		    windowManager.resetWindows();
 		}
 	    }
 	});
 
-	closeWindowsMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CLOSE ALL WINDOWS"));
+	closeWindowsMenuItem.setText(menus.getString("CLOSE ALL WINDOWS"));
 	closeWindowsMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		if (dialogHandler.showConfirmDialogBox(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CLOSE ALL WINDOWS?"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CLOSE WINDOWS"))) {
+		if (dialogHandler.showConfirmDialogBox(menus.getString("CLOSE ALL WINDOWS?"), menus.getString("CLOSE WINDOWS"))) {
 		    windowManager.closeAllWindows();
 		}
 	    }
@@ -707,7 +708,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initHelpMenu() {
-	helpMenu.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("HELP"));
+	helpMenu.setText(menus.getString("HELP"));
 	helpMenu.addMenuListener(new MenuListener() {
 	    public void menuCanceled(MenuEvent evt) {
 	    }
@@ -719,7 +720,7 @@ public class ArbilMenuBar extends JMenuBar {
 		viewErrorLogMenuItem.setEnabled(logConfigurer.getLogFile(sessionStorage).exists());
 	    }
 	});
-	aboutMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ABOUT"));
+	aboutMenuItem.setText(menus.getString("ABOUT"));
 	aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -731,7 +732,7 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	helpMenu.add(aboutMenuItem);
 	helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
-	helpMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("HELP"));
+	helpMenuItem.setText(menus.getString("HELP"));
 	helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -742,16 +743,16 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(helpMenuItem);
-	setupWizardMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("RUN SETUP WIZARD"));
+	setupWizardMenuItem.setText(menus.getString("RUN SETUP WIZARD"));
 	setupWizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("YES"));
+		sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, menus.getString("YES"));
 		ArbilWizard wizard = new ArbilSetupWizard(windowManager.getMainFrame());
 		wizard.showModalDialog();
 	    }
 	});
 	helpMenu.add(setupWizardMenuItem);
-	arbilForumMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ARBIL FORUM (WEBSITE)"));
+	arbilForumMenuItem.setText(menus.getString("ARBIL FORUM (WEBSITE)"));
 	arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -763,7 +764,7 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	helpMenu.add(arbilForumMenuItem);
 
-	logConsoleMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW LOG CONSOLE"));
+	logConsoleMenuItem.setText(menus.getString("SHOW LOG CONSOLE"));
 	logConsoleMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		new ArbilLogConsole(windowManager.getMainFrame()).show();
@@ -771,11 +772,11 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	if (webstartHelper.isWebStart()) {
 	    logConsoleMenuItem.setEnabled(false);
-	    logConsoleMenuItem.setToolTipText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LOG CONSOLE NOT AVAILABLE WEB START"));
+	    logConsoleMenuItem.setToolTipText(menus.getString("LOG CONSOLE NOT AVAILABLE WEB START"));
 	}
 	helpMenu.add(logConsoleMenuItem);
 
-	viewErrorLogMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW ERROR LOG"));
+	viewErrorLogMenuItem.setText(menus.getString("VIEW ERROR LOG"));
 	viewErrorLogMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
@@ -786,15 +787,15 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(viewErrorLogMenuItem);
-	checkForUpdatesMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK FOR UPDATES"));
+	checkForUpdatesMenuItem.setText(menus.getString("CHECK FOR UPDATES"));
 	checkForUpdatesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    if (!versionManager.forceUpdateCheck()) {
 			ApplicationVersion appVersion = versionManager.getApplicationVersion();
 			String versionString = appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision;
-			dialogHandler.addMessageDialogToQueue(java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("NO UPDATES FOUND, CURRENT VERSION IS {0}"),
-				new Object[]{versionString}), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("CHECK FOR UPDATES"));
+			dialogHandler.addMessageDialogToQueue(java.text.MessageFormat.format(menus.getString("NO UPDATES FOUND, CURRENT VERSION IS {0}"),
+				new Object[]{versionString}), menus.getString("CHECK FOR UPDATES"));
 		    }
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
@@ -803,7 +804,7 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	helpMenu.add(checkForUpdatesMenuItem);
 
-	shortCutKeysjMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHORT CUT KEYS"));
+	shortCutKeysjMenuItem.setText(menus.getString("SHORT CUT KEYS"));
 	shortCutKeysjMenuItem.addActionListener(
 		new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -941,7 +942,7 @@ public class ArbilMenuBar extends JMenuBar {
     private boolean saveApplicationState() {
 	if (dataNodeLoader.nodesNeedSave()) {
 	    // TODO: why is LinorgWindowManager.getArbilHelpInstance().offerUserToSaveChanges(); not used?
-	    switch (JOptionPane.showConfirmDialog(this, java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SAVE CHANGES BEFORE EXITING?"), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("ARBIL"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+	    switch (JOptionPane.showConfirmDialog(this, menus.getString("SAVE CHANGES BEFORE EXITING?"), menus.getString("ARBIL"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 		case JOptionPane.NO_OPTION:
 		    break;
 		case JOptionPane.YES_OPTION:
