@@ -761,7 +761,7 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	helpMenu.add(arbilForumMenuItem);
 
-	logConsoleMenuItem.setText("Show log console");
+	logConsoleMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHOW LOG CONSOLE"));
 	logConsoleMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		new ArbilLogConsole(windowManager.getMainFrame()).show();
