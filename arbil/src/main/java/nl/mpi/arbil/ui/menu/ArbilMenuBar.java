@@ -65,6 +65,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.arbil.util.WebstartHelper;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
 import nl.mpi.pluginloader.PluginService;
@@ -82,6 +83,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilMenuBar.class);
     public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
+    private final WebstartHelper webstartHelper = new WebstartHelper();
     private static SessionStorage sessionStorage;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
@@ -767,6 +769,10 @@ public class ArbilMenuBar extends JMenuBar {
 		new ArbilLogConsole(windowManager.getMainFrame()).show();
 	    }
 	});
+	if (webstartHelper.isWebStart()) {
+	    logConsoleMenuItem.setEnabled(false);
+	    logConsoleMenuItem.setToolTipText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LOG CONSOLE NOT AVAILABLE WEB START"));
+	}
 	helpMenu.add(logConsoleMenuItem);
 
 	viewErrorLogMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("VIEW ERROR LOG"));
@@ -800,14 +806,14 @@ public class ArbilMenuBar extends JMenuBar {
 	shortCutKeysjMenuItem.setText(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SHORT CUT KEYS"));
 	shortCutKeysjMenuItem.addActionListener(
 		new java.awt.event.ActionListener() {
-		    public void actionPerformed(java.awt.event.ActionEvent evt) {
-			try {
-			    shortCutKeysjMenuItemActionPerformed(evt);
-			} catch (Exception ex) {
-			    BugCatcherManager.getBugCatcher().logError(ex);
-			}
-		    }
-		});
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		try {
+		    shortCutKeysjMenuItemActionPerformed(evt);
+		} catch (Exception ex) {
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	});
 	helpMenu.add(shortCutKeysjMenuItem);
 //	printHelpMenuItem.setText("Print Help File");
 //	printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {

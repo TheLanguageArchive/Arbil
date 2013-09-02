@@ -49,6 +49,7 @@ public class ApplicationVersionManager {
 	sessionStorage = sessionStorageInstance;
     }
     private ApplicationVersion applicationVersion;
+    private final WebstartHelper webstartHelper = new WebstartHelper();
 
     /**
      *
@@ -103,11 +104,11 @@ public class ApplicationVersionManager {
 	return true;
     }
 
-    private boolean doUpdate(String webstartUrlString) {
+    private boolean doUpdate(String updateUrl) {
 	BufferedReader errorStreamReader = null;
 	try {
 	    //TODO: check the version of javaws before calling this
-	    Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws", "-import", webstartUrlString});
+	    Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws", "-import", updateUrl});
 	    errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
 	    String line;
 	    while ((line = errorStreamReader.readLine()) != null) {
@@ -128,9 +129,9 @@ public class ApplicationVersionManager {
 	return false;
     }
 
-    private void restartApplication(String webstartUrlString) {
+    private void restartApplication(String updateUrl) {
 	try {
-	    Process restartProcess = Runtime.getRuntime().exec(new String[]{"javaws", webstartUrlString});
+	    Process restartProcess = Runtime.getRuntime().exec(new String[]{"javaws", updateUrl});
 	    if (0 == restartProcess.waitFor()) {
 		System.exit(0);
 	    } else {
@@ -143,7 +144,7 @@ public class ApplicationVersionManager {
 
     public boolean checkForUpdate() {
 	if (!isLatestVersion()) {
-	    if (this.hasWebStartUrl()) {
+	    if (webstartHelper.isWebStart()) {
 		this.checkForAndUpdateViaJavaws();
 	    } else {
 		new Thread("checkForUpdate") {
@@ -160,28 +161,23 @@ public class ApplicationVersionManager {
 //        }
     }
 
-    public boolean hasWebStartUrl() {
-	logger.debug("hasWebStartUrl");
-	String webstartUpdateUrl = System.getProperty("nl.mpi.webstartUpdateUrl");
-	logger.debug("webstartUpdateUrl: {}", webstartUpdateUrl);
-	return null != webstartUpdateUrl;
-    }
-
-    public void checkForAndUpdateViaJavaws() {
+    /**
+     * Update by re-starting webstart location
+     */
+    private void checkForAndUpdateViaJavaws() {
 	//if (last check date not today)
 	new Thread("checkForAndUpdateViaJavaws") {
 	    @Override
 	    public void run() {
-		String webstartUrlString = System.getProperty("nl.mpi.webstartUpdateUrl");
-//                logger.debug(webStartUrlString);
+		final String updateUrl = webstartHelper.getWebstartUrl();
 		{
-		    if (webstartUrlString != null && !isLatestVersion()) {
+		    if (updateUrl != null && !isLatestVersion()) {
 			switch (messageDialogHandler.showDialogBox(services.getString("There is a new version available"), applicationVersion.applicationTitle, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 			    case JOptionPane.NO_OPTION:
 				break;
 			    case JOptionPane.YES_OPTION:
-				if (doUpdate(webstartUrlString)) {
-				    restartApplication(webstartUrlString);
+				if (doUpdate(updateUrl)) {
+				    restartApplication(updateUrl);
 				} else {
 				    messageDialogHandler.addMessageDialogToQueue(services.getString("THERE WAS AN ERROR UPDATING THE APPLICATION.PLEASE GO TO THE WEBSITE AND UPDATE VIA THE DOWNLOAD LINK."), null);
 				}
