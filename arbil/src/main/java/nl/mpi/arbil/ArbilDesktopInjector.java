@@ -71,7 +71,6 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 	injectSessionStorage(sessionStorage);
 
 	BugCatcherManager.setBugCatcher(new LoggingBugCatcher());
-	ArbilJournal.setBugCatcher(BugCatcherManager.getBugCatcher());
 
 	windowManager = new ArbilWindowManager();
 	windowManager.setSessionStorage(sessionStorage);
