@@ -354,7 +354,7 @@ public class ArbilComponentBuilder {
 		for (String id : resourceProxyIds) {
 		    CmdiResourceLink link = linkReader.getResourceLink(id);
 		    if (link == null) {
-			BugCatcherManager.getBugCatcher().logError(new NullPointerException("Resource link not found for id " + id));
+			logger.error("Resource link not found for id {}", id);
 			return false;
 		    }
 		    link.removeReferencingNode();

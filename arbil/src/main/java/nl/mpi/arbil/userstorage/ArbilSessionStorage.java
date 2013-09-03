@@ -155,7 +155,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	// This sometimes fails on Windows 7, JRE 6 without any clear reason. See https://trac.mpi.nl/ticket/1553
 	if (!success) {
 	    if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
-		    services.getString("THE FILES IN YOUR 'LOCAL CORPUS' COULD NOT BE MOVED TO THE REQUESTED LOCATION"), 
+		    services.getString("THE FILES IN YOUR 'LOCAL CORPUS' COULD NOT BE MOVED TO THE REQUESTED LOCATION"),
 		    "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 		saveString("cacheDirectory", toDirectory.getAbsolutePath());
 		localCacheDirectory = null;
@@ -615,7 +615,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 
 	    saveRemoteResource(pathUrl, cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
 	} catch (MalformedURLException mul) {
-	    logError(new Exception(pathString, mul));
+	    logError(pathString, mul);
 	}
 	return cachePath;
     }
@@ -707,7 +707,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	pathString = preProcessPathString(pathString);
 	for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", getProjectDirectoryName()}) {
 	    if (pathString.indexOf(searchString) > -1) {
-		logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
+		logger.error("Recursive path error (about to be corrected) in: {}", pathString);
 		pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
 	    }
 	}
@@ -715,7 +715,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	File returnFile = new File(getProjectWorkingDirectory(), cachePath);
 	if (!returnFile.getParentFile().exists()) {
 	    if (!returnFile.getParentFile().mkdirs()) {
-		logError(new Exception("Could not ccrate directory structure for saving " + pathString));
+		logger.error("Could not ccrate directory structure for saving {}", pathString);
 		return null;
 	    }
 	}

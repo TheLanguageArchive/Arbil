@@ -235,7 +235,7 @@ public class CopyRunner implements Runnable {
 			}
 			if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
 			    if (!currentRetrievableFile.destinationFile.getParentFile().mkdir()) {
-				BugCatcherManager.getBugCatcher().logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
+				logger.error("Could not create missing parent directory for {}", currentRetrievableFile.destinationFile);
 			    }
 			}
 			metadataUtils.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
@@ -341,7 +341,7 @@ public class CopyRunner implements Runnable {
 		}
 		if (!retrievableLink.destinationFile.getParentFile().exists()) {
 		    if (!retrievableLink.destinationFile.getParentFile().mkdirs()) {
-			BugCatcherManager.getBugCatcher().logError(new IOException("Could not create missing parent directory for " + retrievableLink.destinationFile));
+			logger.error("Could not create missing parent directory for {}", retrievableLink.destinationFile);
 		    }
 		}
 		downloadFileLocation = retrievableLink.destinationFile;

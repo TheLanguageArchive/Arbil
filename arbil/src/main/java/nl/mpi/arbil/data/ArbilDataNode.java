@@ -463,7 +463,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	} else if (this.isChildNode()) {
 	    return this.getParentDomNode().getNodeTemplate();
 	} else {
-	    //new LinorgBugCatcher().logError(new Exception("Corpus Branch Null Template"));
 	    return ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
 	}
     }
@@ -481,7 +480,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	    File destinationDir = new File(currentFileName);
 	    if (!destinationDir.exists()) {
 		if (!destinationDir.mkdir()) {
-		    BugCatcherManager.getBugCatcher().logError(new Exception("Could not create directory " + destinationDir.getAbsolutePath()));
+		    logger.error("Could not create directory {}", destinationDir.getAbsolutePath());
 		}
 	    }
 	    return destinationDir;

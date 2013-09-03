@@ -201,7 +201,6 @@ public class MetadataReader {
 	    // Open new metadata file
 	    Document addedDocument = ArbilComponentBuilder.getDocument(addedPathUri);
 	    if (addedDocument == null) {
-		//                BugCatcherManager.getBugCatcher().logError(new Exception(ImdiTreeObject.api.getMessage()));
 		messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR INSERTING CREATE DATE"), services.getString("ADD FROM TEMPLATE"));
 	    } else {
 		// Set some values to new instance of metadata file
@@ -362,7 +361,7 @@ public class MetadataReader {
 
 	    if (templateUrl == null) {
 		messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("NO TEMPLATE FOUND FOR"), elementName.substring(1)), "Load Template");
-		BugCatcherManager.getBugCatcher().logError(new Exception("No template found for: " + elementName.substring(1)));
+		logger.error("No template found for: {}", elementName.substring(1));
 	    } else {
 		Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
 
@@ -379,7 +378,7 @@ public class MetadataReader {
 
 		    Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
 		    if (insertableNode == null) {
-			BugCatcherManager.getBugCatcher().logError(new Exception("InsertableSection not found in the template"));
+			logger.error("InsertableSection not found in the template");
 		    }
 		    return importNodesAddedFromTemplate(targetImdiDom, targetMetadataUri, targetXpath, targetRef, insertableNode, insertBefore, maxOccurs);
 		}

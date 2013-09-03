@@ -694,42 +694,7 @@ public class ImportExportDialog implements ImportExportUI {
 	    }
 	}
     }
-//
-//    private void removeEmptyDirectoryPaths(File currentDirectory, File[] destinationFile) {
-//	File[] childDirectories = currentDirectory.listFiles();
-//	if (childDirectories != null && childDirectories.length == 1) {
-//	    removeEmptyDirectoryPaths(childDirectories[0], destinationFile);
-//	    if (childDirectories[0].isDirectory()) {
-//		childDirectories[0].delete();
-//	    }
-//	} else {
-//	    try {
-//		File tempFile = destinationFile[0] = File.createTempFile("tmp-" + currentDirectory.getName(), "", exportDestinationDirectory);
-//		destinationFile[1] = new File(exportDestinationDirectory, currentDirectory.getName());
-//		if (tempFile.delete()) {
-//		    if (!currentDirectory.renameTo(tempFile)) {
-//			BugCatcherManager.getBugCatcher().logError(new Exception("Error while renaming file"));
-//		    }
-//		}
-//	    } catch (Exception ex) {
-//		BugCatcherManager.getBugCatcher().logError(ex);
-//	    }
-//	}
-//    }
-//        private String getShallowestDirectory() {
-//        int childrenToLoad = 0, loadedChildren = 0;
-//        Enumeration selectedNodesEnum = selectedNodes.elements();
-//        while (selectedNodesEnum.hasMoreElements()) {
-//            Object currentElement = selectedNodesEnum.nextElement();
-//            if (currentElement instanceof ImdiTreeObject) {
-//                int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getRecursiveChildCount();
-//                childrenToLoad += tempChildCountArray[0];
-//                loadedChildren += tempChildCountArray[1];
-//            }
-//        }
-//        return (new int[]{childrenToLoad, loadedChildren});
-//    }
-
+    
     @Override
     public boolean isCopyFilesOnImport() {
 	return copyFilesImportCheckBox.isSelected();

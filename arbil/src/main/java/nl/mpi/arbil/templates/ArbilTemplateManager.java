@@ -39,6 +39,8 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.DownloadAbortFlag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ArbilTemplateManager.java
@@ -48,6 +50,7 @@ import nl.mpi.arbil.util.DownloadAbortFlag;
  */
 public class ArbilTemplateManager {
 
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTemplateManager.class);
     public static final String CLARIN_PREFIX = "clarin:";
     public static final String CUSTOM_PREFIX = "custom:";
     private static final String PREFIX_REGEX = "^(clarin|custom):(\"(.*)\":)?(.*)$";
@@ -113,7 +116,7 @@ public class ArbilTemplateManager {
 	    // Make example-components directory
 	    File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
 	    if (!examplesDirectory.mkdir()) { // create the example components directory
-		BugCatcherManager.getBugCatcher().logError(new IOException("Could not create example components directory: " + examplesDirectory));
+		logger.error("Could not create example components directory: {}");
 	    }
 	    // copy example components from the jar file
 	    for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
@@ -442,7 +445,7 @@ public class ArbilTemplateManager {
 	File templatesDir = getTemplateDirectory();
 	if (!templatesDir.exists()) {
 	    if (!templatesDir.mkdir()) {
-		BugCatcherManager.getBugCatcher().logError(new IOException("Could not create template directory: " + templatesDir));
+		logger.error("Could not create template directory: {}", templatesDir);
 	    }
 	}
 	ArrayList<String> templateList = new ArrayList<String>();
@@ -499,7 +502,7 @@ public class ArbilTemplateManager {
 		return null;
 	    }
 	} else {
-	    BugCatcherManager.getBugCatcher().logError(new Exception("Name space URL not provided, cannot load the CMDI template, please check the XML file and ensure that the name space is specified."));
+	    logger.error("Name space URL not provided, cannot load the CMDI template, please check the XML file and ensure that the name space is specified.");
 	    return null;
 	}
     }

@@ -482,7 +482,7 @@ public class MetadataBuilder {
 	    } else {
 		if (destinationNode == null) {
 		    // Cannot add subnode to local corpus tree root
-		    BugCatcherManager.getBugCatcher().logError(new Exception("Attempt to add child node to local corpus root"));
+		    logger.warn("Attempt to add child node to local corpus root");
 		    return;
 		}
 		addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);

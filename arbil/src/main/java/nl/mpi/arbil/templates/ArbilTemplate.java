@@ -270,45 +270,6 @@ public class ArbilTemplate {
 	nodepath = nodepath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
 	logger.debug("nodepath: {}", nodepath);
 	logger.debug("targetNodePath: {}", targetNodePath);
-
-	/*try {
-	 //            logger.debug("get templatesDirectory");
-	 File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
-	 //            logger.debug("check templatesDirectory");
-	 if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
-	 //                logger.debug("using templatesDirectory");
-	 String[] testingListing = templatesDirectory.list();
-	 Arrays.sort(testingListing);
-	 for (String itemString : testingListing) {
-	 logger.debug("\"" + itemString + "\",");
-	 }
-	 Arrays.sort(templatesArray, new Comparator() {
-	
-	 public int compare(Object obj1, Object obj2) {
-	 return ((String[]) obj1)[0].compareToIgnoreCase(((String[]) obj2)[0]);
-	 }
-	 });
-	 int linesRead = 0;
-	 for (String[] currentTemplate : templatesArray) {
-	 //                    logger.debug("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
-	 if (testingListing != null) {
-	 if (!testingListing[linesRead].equals(currentTemplate[0])) {
-	 logger.debug("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
-	 //                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
-	 }
-	 }
-	 linesRead++;
-	 }
-	 if (testingListing != null) {
-	 if (testingListing.length - 2 != linesRead) {
-	 logger.debug(testingListing[linesRead]);
-	 //                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
-	 }
-	 }
-	 }
-	 } catch (Exception ex) {
-	 GuiHelper.linorgBugCatcher.logError(ex);
-	 }*/
 	for (String[] currentTemplate : templatesArray) {
 //            ==================================== TemplateComponent-FileName-NodePath-DisplayName
 //            String templateFileName = currentTemplate[0];

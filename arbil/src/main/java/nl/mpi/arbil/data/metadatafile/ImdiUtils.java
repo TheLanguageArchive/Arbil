@@ -46,16 +46,16 @@ import org.w3c.dom.Document;
  * Author : Peter Withers
  */
 public class ImdiUtils implements MetadataUtils {
-    
+
     private final static Logger logger = LoggerFactory.getLogger(ImdiUtils.class);
     private static MessageDialogHandler messageDialogHandler;
-    
+
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     public final static IMDIDom api = new IMDIDom();
     private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
-    
+
     private boolean isCatalogue(URI sourceURI) {
 	try {
 	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
@@ -69,7 +69,7 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return false;
     }
-    
+
     private boolean isSession(URI sourceURI) {
 	try {
 	    OurURL inUrlLocal = new OurURL(sourceURI.toURL());
@@ -84,25 +84,6 @@ public class ImdiUtils implements MetadataUtils {
 	return false;
     }
 
-    // addDomIds is only used for testing
-//    public boolean addDomIds(URI nodeURI) {
-//        try {
-//            Document nodDom;
-//            OurURL inUrlLocal = new OurURL(nodeURI.toURL());
-//            nodDom = api.loadIMDIDocument(inUrlLocal, false);
-//            if (nodDom == null) {
-//                BugCatcherManager.getBugCatcher().logError(new Exception(api.getMessage()));
-//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
-//                return false;
-//            } else {
-//                api.writeDOM(nodDom, new File(nodeURI), false);
-//                return true;
-//            }
-//        } catch (MalformedURLException ex) {
-//            BugCatcherManager.getBugCatcher().logError(ex);
-//        }
-//        return true;
-//    }
     public boolean addCorpusLink(URI nodeURI, URI linkURI[]) {
 	try {
 	    Document nodDom;
@@ -110,7 +91,7 @@ public class ImdiUtils implements MetadataUtils {
 	    nodDom = api.loadIMDIDocument(inUrlLocal, false);
 	    checkImdiApiResult(nodDom, nodeURI);
 	    if (nodDom == null) {
-		BugCatcherManager.getBugCatcher().logError(new Exception(api.getMessage()));
+		logger.error(api.getMessage());
 		messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING VIA THE IMDI API"), services.getString("ADD LINK"));
 		return false;
 	    } else {
@@ -135,12 +116,12 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return true;
     }
-    
+
     public void copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws IOException, ArbilMetadataException {
-	
+
 	OurURL inUrlLocal = new OurURL(sourceURI.toURL());
 	OurURL destinationUrl = new OurURL(destinationFile.toURI().toURL());
-	
+
 	org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 	checkImdiApiResult(nodDom, sourceURI);
 	if (nodDom == null) {
@@ -211,18 +192,18 @@ public class ImdiUtils implements MetadataUtils {
 	    }
 	}
     }
-    
+
     public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     public boolean removeCorpusLink(URI nodeURI, URI linkURI[]) {
 	try {
 	    OurURL destinationUrl = new OurURL(nodeURI.toString());
 	    Document nodDom = api.loadIMDIDocument(destinationUrl, false);
 	    checkImdiApiResult(nodDom, nodeURI);
 	    if (nodDom == null) {
-		BugCatcherManager.getBugCatcher().logError(new Exception(api.getMessage()));
+		logger.error(api.getMessage());
 		messageDialogHandler.addMessageDialogToQueue(services.getString("ERROR READING VIA THE IMDI API"), services.getString("REMOVE IMDI LINKS"));
 		return false;
 	    }
@@ -253,7 +234,7 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return false;
     }
-    
+
     public MetadataLinkSet getCorpusLinks(URI nodeURI) throws ArbilMetadataException {
 	try {
 	    OurURL destinationUrl = new OurURL(nodeURI.toString());
@@ -292,11 +273,11 @@ public class ImdiUtils implements MetadataUtils {
 	}
 	return null;
     }
-    
+
     private void checkImdiApiResult(Object resultUnknown, URI imdiURI) {
 	if (resultUnknown == null) {
-	    BugCatcherManager.getBugCatcher().logError(new Exception("The IMDI API returned null for: " + imdiURI.toString()));
-	    BugCatcherManager.getBugCatcher().logError("The following is the last known error from the API: ", new Exception(api.getMessage()));
+	    logger.error("The IMDI API returned null for: {}", imdiURI.toString());
+	    logger.error("The following is the last known error from the API: {}", api.getMessage());
 	}
     }
 

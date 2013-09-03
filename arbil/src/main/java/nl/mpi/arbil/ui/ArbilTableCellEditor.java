@@ -441,7 +441,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 		registeredOwner = ((ArbilField) cellValue[0]).getParentDataNode();
 	    }
 	} else {
-	    BugCatcherManager.getBugCatcher().logError(new Exception("value is null in convertCellValue"));
+	    logger.error("value is null in convertCellValue");
 	}
     }
 

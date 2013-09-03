@@ -1290,7 +1290,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 		    String fieldPath = rowNodesArray[arrayCounter].getFragment();
 		    String parentNodeFragment;
 		    if (parentNode.nodeTemplate == null) {
-			BugCatcherManager.getBugCatcher().logError(new Exception("nodeTemplate null in: " + parentNode.getUrlString()));
+			logger.error("nodeTemplate null in: {}", parentNode.getUrlString());
 			parentNodeFragment = "";
 		    } else {
 			parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);

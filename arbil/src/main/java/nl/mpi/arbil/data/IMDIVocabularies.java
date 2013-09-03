@@ -28,11 +28,11 @@ import javax.swing.ProgressMonitor;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcher;
-import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -44,15 +44,11 @@ import org.xml.sax.XMLReader;
  */
 public class IMDIVocabularies {
 
+    private final static Logger logger = LoggerFactory.getLogger(IMDIVocabularies.class);
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
-    }
-    private static BugCatcher bugCatcher;
-
-    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
-	bugCatcher = bugCatcherInstance;
     }
     private static WindowManager windowManager;
 
@@ -145,7 +141,7 @@ public class IMDIVocabularies {
 		}
 		if (!foundTrigger) {
 		    if (!fieldPath.equals(".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language")) {
-			BugCatcherManager.getBugCatcher().logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingArbilField.getParentDataNode().getUrlString()));
+			logger.error("Missing Field Trigger for: {} in {}", fieldPath, originatingArbilField.getParentDataNode().getUrlString());
 		    }
 		}
 	    }
@@ -230,7 +226,7 @@ public class IMDIVocabularies {
 		///////////////////////////////////////////////////////////////////////
 	    } catch (Exception ex) {
 		messageDialogHandler.addMessageDialogToQueue(("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options."), "Load Controlled Vocabulary");
-		BugCatcherManager.getBugCatcher().logError("A controlled vocabulary could not be read: " + vocabRemoteUrl, ex);
+		logger.error("A controlled vocabulary could not be read: {}", vocabRemoteUrl, ex);
 	    }
 	}
     }
@@ -277,7 +273,7 @@ public class IMDIVocabularies {
 		    currentVocabItem = new ArbilVocabularyItem(vocabName, vocabCode, followUpVocab);
 		    collectedVocab.getVocabularyItemsUnfiltered().add(currentVocabItem);
 		} else {
-		    bugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.getVocabularyUrl()));
+		    logger.error("Vocabulary item has no name in {}", collectedVocab.getVocabularyUrl());
 		}
 	    }
 	}

@@ -594,7 +594,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    } else {
 		messageDialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ERROR DELETING NODE, CHECK THE LOG FILE VIA THE HELP MENU FOR MORE INFORMATION."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("DELETE NODE"));
 	    }
-	    //BugCatcherManager.getBugCatcher().logError(new Exception("deleteFromDomViaId"));
 	}
     }
 

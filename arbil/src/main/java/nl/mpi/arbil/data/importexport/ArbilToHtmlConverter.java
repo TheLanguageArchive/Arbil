@@ -33,9 +33,9 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.xml.utils.DefaultErrorHandler;
 
 /**
- *  Document   : ArbilToHtmlConverter
- *  Created on : Apr 15, 2010, 1:33:02 PM
- *  Author     : Peter Withers
+ * Document : ArbilToHtmlConverter
+ * Created on : Apr 15, 2010, 1:33:02 PM
+ * Author : Peter Withers
  */
 public class ArbilToHtmlConverter {
 
@@ -116,7 +116,7 @@ public class ArbilToHtmlConverter {
 		//InputStream inputStream = this.getClass().getResourceAsStream("html/imdi-viewer/" + dependantFileString);
 		InputStream inputStream = this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/xsl/" + dependantFileString);
 		if (inputStream == null) {
-		    BugCatcherManager.getBugCatcher().logError(new Exception("Missing file in jar: " + dependantFileString));
+		    BugCatcherManager.getBugCatcher().logError("Missing file in jar: " + dependantFileString, null);
 		} else {
 		    int bufferLength = 1024 * 4;
 		    byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file

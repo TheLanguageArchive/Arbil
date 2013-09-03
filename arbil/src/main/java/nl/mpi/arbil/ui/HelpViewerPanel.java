@@ -44,8 +44,9 @@ import nl.mpi.arbil.help.HelpIndex;
 import nl.mpi.arbil.help.HelpItem;
 import nl.mpi.arbil.help.HelpItemsParser;
 import nl.mpi.arbil.util.BugCatcherManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-
 
 /**
  * A panel to view help resource sets consisting of an index file and a set of HTML pages and linked images.
@@ -57,6 +58,7 @@ import org.xml.sax.SAXException;
  */
 public class HelpViewerPanel extends javax.swing.JPanel {
 
+    private final static Logger logger = LoggerFactory.getLogger(HelpViewerPanel.class);
     private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     final static public String SHOTCUT_KEYS_PAGE = widgets.getString("SHORTCUT KEYS");
     final static public String INTRODUCTION_PAGE = widgets.getString("OVERVIEW");
@@ -146,9 +148,10 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	if (helpFile != null) {
 	    showHelpItem(getHelpTree(helpSet), helpFile.getFile());
 	} else {
-	    BugCatcherManager.getBugCatcher().logError(new Exception("Help page not found: " + helpPage));
+	    logger.error("Help page not found: {}", helpPage);
 	}
     }
+
     private HelpItem getHelpFileByName(HelpIndex parentItem, String name) {
 	for (HelpItem child : parentItem.getSubItems()) {
 	    if (child.getName().replaceAll("^\\d+\\.", "").trim().equals(name)) {
