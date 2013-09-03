@@ -185,7 +185,7 @@
 			<exclude>**/*.icns</exclude>
 			<exclude>**/*.php</exclude>
 			<exclude>installer/**</exclude>
-			<exclude>nbactions.xml</exclude>
+			<exclude>nbactions*.xml</exclude>
 			<exclude>nb-configuration.xml</exclude>
 			<exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
 			<exclude>src/main/resources/nl/mpi/arbil/resources/templates/**</exclude>
