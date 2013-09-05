@@ -189,6 +189,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		try {
 		    searchThreadLock.wait(1000);
 		} catch (InterruptedException ie) {
+		    return;
 		}
 	    }
 	}
@@ -200,16 +201,20 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	    waitForSearch();
 	}
 	logger.debug("start search");
-	searchButton.setEnabled(false);
-	stopButton.setEnabled(true);
-	resultsTableModel.removeAllArbilDataNodeRows();
-	performSearch();
-    }
+	SwingUtilities.invokeLater(new Runnable() {
+	    public void run() {
+		searchButton.setEnabled(false);
+		stopButton.setEnabled(true);
+		
+		// clear previous results
+		resultsTableModel.removeAllArbilDataNodeRows();
 
-    private void performSearch() {
-	searchThread = new Thread(new SearchThread(), "performSearch");
-	searchThread.setPriority(Thread.NORM_PRIORITY - 1);
-	searchThread.start();
+		//start search thread (on swing thread to make sure results table model was cleared first)
+		searchThread = new Thread(new SearchThread(), "performSearch");
+		searchThread.setPriority(Thread.NORM_PRIORITY - 1);
+		searchThread.start();
+	    }
+	});
     }
 
     /**
@@ -237,7 +242,15 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		finishUI();
 		// add the results to the table
 		resultsTableModel.addArbilDataNodes(Collections.enumeration(searchService.getFoundNodes()));
-		searchService.clearResults();
+		for (ArbilNodeSearchTerm searchTerm : searchService.getNodeSearchTerms()) {
+		    final String searchString = searchTerm.getSearchString();
+		    SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+			    resultsTableModel.highlightMatchingText(searchString);
+			}
+		    });
+		}
+		searchService = null;
 		searchThreadLock.notifyAll();
 	    }
 	}
