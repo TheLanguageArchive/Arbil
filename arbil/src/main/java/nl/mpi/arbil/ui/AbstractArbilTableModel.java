@@ -761,14 +761,18 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    cellColourTemp = new Color[dataTemp.length][dataTemp[0].length];
 	    Color currentHighlightColur = new Color(0xFFFFFF);
 	    for (Enumeration currentHighlight = getHighlightCells().elements(); currentHighlight.hasMoreElements();) {
-		// rotate the next colour
-		currentHighlightColur = new Color(currentHighlightColur.getGreen() - 40, currentHighlightColur.getRed(), currentHighlightColur.getBlue());
-		String currentText = currentHighlight.nextElement().toString();
-		// search the table for matching cells
-		for (int rowCounter = 0; rowCounter < dataTemp.length; rowCounter++) {
-		    for (int colCounter = 0; colCounter < dataTemp[rowCounter].length; colCounter++) {
-			if (getRenderedText(dataTemp[rowCounter][colCounter]).equals(currentText)) {
-			    cellColourTemp[rowCounter][colCounter] = currentHighlightColur;
+		// rotate the next colour (swap red and green and reduce new red value for variation)
+		final int newRed = (255 + currentHighlightColur.getGreen() - 40) % 255; // always stays between 0 and 255
+		final int newGreen = currentHighlightColur.getRed();
+		currentHighlightColur = new Color(newRed, newGreen, currentHighlightColur.getBlue());
+		final String currentText = currentHighlight.nextElement().toString();
+		if (currentText != null) {
+		    // search the table for matching cells
+		    for (int rowCounter = 0; rowCounter < dataTemp.length; rowCounter++) {
+			for (int colCounter = 0; colCounter < dataTemp[rowCounter].length; colCounter++) {
+			    if (currentText.equals(getRenderedText(dataTemp[rowCounter][colCounter]))) {
+				cellColourTemp[rowCounter][colCounter] = currentHighlightColur;
+			    }
 			}
 		    }
 		}
