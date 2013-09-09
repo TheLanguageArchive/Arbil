@@ -20,6 +20,7 @@ package nl.mpi.arbilcommons.ui;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import nl.mpi.arbil.userstorage.CommonsSessionStorage;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -33,7 +34,9 @@ public class LocalisationSelectorTest {
 
     /**
      * Test of askUser method, of class LocalisationSelector.
+     * This is an integration test which includes GUI interaction so it should not be run in automated tests.
      */
+    @Ignore
     @Test
     public void testAskUser() {
         System.out.println("askUser");
