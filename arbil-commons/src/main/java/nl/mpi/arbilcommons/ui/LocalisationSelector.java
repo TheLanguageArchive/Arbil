@@ -23,7 +23,6 @@ import java.util.Locale;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import nl.mpi.arbil.userstorage.CommonsSessionStorage;
 
 /**
@@ -31,7 +30,7 @@ import nl.mpi.arbil.userstorage.CommonsSessionStorage;
  *
  * @author Peter Withers <peter.withers@mpi.nl>
  */
-public class LocalisationSelector extends JPanel {
+public class LocalisationSelector {
 
     private static final String SELECTED_LOCALE_KEY = "selectedLocale";
     private static final String SYSTEM_DEFAULT = "<system default>";
@@ -45,56 +44,13 @@ public class LocalisationSelector extends JPanel {
         for (String locale : availableLocales) {
             knownLocales.add(new Locale(locale));
         }
-//        initUI();
     }
 
     public LocalisationSelector(CommonsSessionStorage sessionStorage, List<Locale> knownLocales) {
         this.sessionStorage = sessionStorage;
         this.knownLocales = knownLocales;
-//        initUI();
     }
 
-//    private void initUI() {
-////        JComboBox<Locale> comboBox = new JComboBox<Locale>(knownLocales.toArray(new Locale[knownLocales.size()]));
-//        JComboBox<Locale> comboBox = new JComboBox<Locale>(new ComboBoxModel<Locale>() {
-//            int selected = 0;
-//
-//            public void setSelectedItem(Object anItem) {
-//                if (anItem instanceof Locale) {
-//                    selected = knownLocales.indexOf(anItem) + 1;
-//                } else {
-//                    selected = 0;
-//                }
-//            }
-//
-//            public Object getSelectedItem() {
-//                if (selected == 0) {
-//                    return SYSTEM_DEFAULT;
-//                } else {
-//                    return knownLocales.get(selected - 1);
-//                }
-//            }
-//
-//            public int getSize() {
-//                return knownLocales.size() + 1;
-//            }
-//
-//            public Locale getElementAt(int index) {
-//                if (selected == 0) {
-//                    return null;
-//                } else {
-//                    return knownLocales.get(index - 1);
-//                }
-//            }
-//
-//            public void addListDataListener(ListDataListener l) {
-//            }
-//
-//            public void removeListDataListener(ListDataListener l) {
-//            }
-//        });
-//        this.add(comboBox);
-//    }
     private Locale getSavedLocale() {
         final String selectedLocaleString = sessionStorage.loadString(SELECTED_LOCALE_KEY);
         if (selectedLocaleString == null || selectedLocaleString.equals(SYSTEM_DEFAULT)) {
@@ -113,41 +69,88 @@ public class LocalisationSelector extends JPanel {
     }
 
     public void askUser(JFrame jFrame, Icon icon) {
-        String[] possibilities = new String[knownLocales.size() + 1];
-        possibilities[0] = SYSTEM_DEFAULT;
+        class LocaleOption {
+
+            private final Locale locale;
+            private final String displayName;
+
+            public LocaleOption(Locale locale) {
+                this.locale = locale;
+                this.displayName = locale.getDisplayLanguage();
+            }
+
+            public LocaleOption(String displayName) {
+                this.locale = null;
+                this.displayName = displayName;
+            }
+
+            public Locale getLocale() {
+                return locale;
+            }
+
+            @Override
+            public String toString() {
+                return displayName;
+            }
+
+            @Override
+            public int hashCode() {
+                int hash = 5;
+                hash = 37 * hash + (this.locale != null ? this.locale.hashCode() : 0);
+                return hash;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj == null) {
+                    return false;
+                }
+                if (getClass() != obj.getClass()) {
+                    return false;
+                }
+                final LocaleOption other = (LocaleOption) obj;
+                if (other.getLocale() == null) {
+                    return locale == null;
+                }
+                return other.getLocale().equals(locale);
+            }
+        }
+        LocaleOption[] possibilities = new LocaleOption[knownLocales.size() + 1];
+        possibilities[0] = new LocaleOption(SYSTEM_DEFAULT);
         int localeIndex = 1;
         // loop the locales and add them to posibilities
         for (Locale locale : knownLocales) {
-            possibilities[localeIndex] = locale.getDisplayLanguage();
+            possibilities[localeIndex] = new LocaleOption(locale);
             localeIndex++;
         }
         final Locale savedLocale = getSavedLocale();
-        final String defaultValue = (savedLocale == null) ? SYSTEM_DEFAULT : savedLocale.getDisplayLanguage();
-        Object userSelection = JOptionPane.showInputDialog(
+        final LocaleOption defaultValue = (savedLocale == null) ? new LocaleOption(SYSTEM_DEFAULT) : new LocaleOption(savedLocale);
+        LocaleOption userSelection = (LocaleOption) JOptionPane.showInputDialog(
                 jFrame,
-                "Complete the sentence:\n"
-                + "\"Green eggs and...\"",
-                "Customized Dialog",
+                "Please select your preferred language",
+                "Language Selection",
                 JOptionPane.PLAIN_MESSAGE,
                 icon,
                 possibilities, defaultValue);
 
         if ((userSelection != null)) {
-            if (userSelection == SYSTEM_DEFAULT) {
+            if (userSelection.getLocale() == null) {
                 setSavedLocale(null);
-            } else if (userSelection instanceof Locale) {
-                setSavedLocale((Locale) userSelection);
+            } else {
+                setSavedLocale(userSelection.getLocale());
             }
         }
     }
 
+    public boolean hasSavedLocal() {
+        final String selectedLocaleString = sessionStorage.loadString(SELECTED_LOCALE_KEY);
+        return selectedLocaleString != null && selectedLocaleString.length() > 0;
+    }
+
     public void setLanguageFromSaved() {
-//        AccessController.doPrivileged(
-//            new SetPropertyAction("user.language", "en");
-//            Locale.setDefault()
-//		System.setProperty("user.language", "sv");
-//		System.setProperty("user.country", "SE");
-//);
-        Locale.setDefault(Locale.ENGLISH);
+        final Locale savedLocale = getSavedLocale();
+        if (savedLocale != null) {
+            Locale.setDefault(savedLocale);
+        }
     }
 }

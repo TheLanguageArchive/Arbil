@@ -17,9 +17,6 @@
  */
 package nl.mpi.arbilcommons.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import nl.mpi.arbil.userstorage.CommonsSessionStorage;
@@ -42,21 +39,6 @@ public class LocalisationSelectorTest {
         System.out.println("askUser");
         JFrame jFrame = null;
         Icon icon = null;
-//        final List<Locale> localeList = new ArrayList<Locale>();
-//        localeList.add(Locale.UK);
-//        localeList.add(Locale.FRENCH);
-//        localeList.add(Locale.JAPANESE);
-//        localeList.add(Locale.ITALIAN);
-//        localeList.add(new Locale("cn", "CHINESE"));
-//        localeList.add(new Locale("en", "English"));
-//        localeList.add(new Locale("it", "ITALIAN"));
-//        localeList.add(new Locale("fr", "FRENCH"));
-//        localeList.add(new Locale("it", "ITALIAN"));
-//        localeList.add(new Locale("it", "ITALIAN"));
-//        localeList.add(new Locale("it", "ITALIAN"));
-//        for (Locale locale : Locale.getAvailableLocales()) {
-//            System.out.println(locale.getDisplayLanguage());
-//        }
         LocalisationSelector instance = new LocalisationSelector(new CommonsSessionStorage() {
             String savedValue = null;
 
@@ -94,7 +76,7 @@ public class LocalisationSelectorTest {
             public void saveString(String filename, String storableValue) {
                 savedValue = storableValue;
             }
-        }, /*localeList*/ new String[]{"en", "cn", "cz", "ee", "it"});
+        }, new String[]{"en", "pt", "fr", "ee", "it", "ko", "zh"});
         instance.askUser(jFrame, icon);
         instance.askUser(jFrame, icon);
         instance.askUser(jFrame, icon);
