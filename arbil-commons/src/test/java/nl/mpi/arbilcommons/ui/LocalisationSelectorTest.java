@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2012 Max Planck Institute for Psycholinguistics
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,9 +17,10 @@
  */
 package nl.mpi.arbilcommons.ui;
 
+import java.io.File;
 import javax.swing.Icon;
 import javax.swing.JFrame;
-import nl.mpi.arbil.userstorage.CommonsSessionStorage;
+import nl.mpi.flap.plugin.PluginSessionStorage;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -33,8 +34,9 @@ public class LocalisationSelectorTest {
     }
 
     /**
-     * Test of askUser method, of class LocalisationSelector.
-     * This is an integration test which includes GUI interaction so it should not be run in automated tests.
+     * Test of askUser method, of class LocalisationSelector. This is an
+     * integration test which includes GUI interaction so it should not be run
+     * in automated tests.
      */
     @Ignore
     @Test
@@ -42,31 +44,18 @@ public class LocalisationSelectorTest {
         System.out.println("askUser");
         JFrame jFrame = null;
         Icon icon = null;
-        LocalisationSelector instance = new LocalisationSelector(new CommonsSessionStorage() {
+        LocalisationSelector instance = new LocalisationSelector(new PluginSessionStorage() {
             String savedValue = null;
 
-            @Override
-            protected String[] getAppDirectoryAlternatives() {
+            public File getApplicationSettingsDirectory() {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            @Override
-            protected String getProjectDirectoryName() {
+            public File getProjectDirectory() {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            @Override
-            protected void logError(Exception exception) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            @Override
-            protected void logError(String message, Exception exception) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            @Override
-            public Object loadObject(String filename) throws Exception {
+            public File getProjectWorkingDirectory() {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 

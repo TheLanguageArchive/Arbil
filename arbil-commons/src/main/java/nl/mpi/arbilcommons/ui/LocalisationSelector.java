@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2012 Max Planck Institute for Psycholinguistics
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@ import java.util.Locale;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import nl.mpi.arbil.userstorage.CommonsSessionStorage;
+import nl.mpi.flap.plugin.PluginSessionStorage;
 
 /**
  * Created on : Sep 9, 2013, 10:34:40 AM
@@ -34,11 +34,11 @@ public class LocalisationSelector {
 
     private static final String SELECTED_LOCALE_KEY = "selectedLocale";
     private static final String SYSTEM_DEFAULT = "<system default>";
-    private final CommonsSessionStorage sessionStorage;
+    private final PluginSessionStorage sessionStorage;
     // list of known locales which might differ between applications that use this local selection widget
     private final List<Locale> knownLocales;
 
-    public LocalisationSelector(CommonsSessionStorage sessionStorage, String[] availableLocales) {
+    public LocalisationSelector(PluginSessionStorage sessionStorage, String[] availableLocales) {
         this.sessionStorage = sessionStorage;
         knownLocales = new ArrayList<Locale>();
         for (String locale : availableLocales) {
@@ -46,7 +46,7 @@ public class LocalisationSelector {
         }
     }
 
-    public LocalisationSelector(CommonsSessionStorage sessionStorage, List<Locale> knownLocales) {
+    public LocalisationSelector(PluginSessionStorage sessionStorage, List<Locale> knownLocales) {
         this.sessionStorage = sessionStorage;
         this.knownLocales = knownLocales;
     }
