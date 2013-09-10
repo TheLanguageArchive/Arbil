@@ -68,7 +68,7 @@ public class LocalisationSelector {
         }
     }
 
-    public void askUser(JFrame jFrame, Icon icon) {
+    public void askUser(JFrame jFrame, Icon icon, String please_select_your_preferred_language, String language_Selection, String system_Default) {
         class LocaleOption {
 
             private final Locale locale;
@@ -116,7 +116,7 @@ public class LocalisationSelector {
             }
         }
         LocaleOption[] possibilities = new LocaleOption[knownLocales.size() + 1];
-        possibilities[0] = new LocaleOption(SYSTEM_DEFAULT);
+        possibilities[0] = new LocaleOption(system_Default);
         int localeIndex = 1;
         // loop the locales and add them to posibilities
         for (Locale locale : knownLocales) {
@@ -124,11 +124,9 @@ public class LocalisationSelector {
             localeIndex++;
         }
         final Locale savedLocale = getSavedLocale();
-        final LocaleOption defaultValue = (savedLocale == null) ? new LocaleOption(SYSTEM_DEFAULT) : new LocaleOption(savedLocale);
+        final LocaleOption defaultValue = (savedLocale == null) ? new LocaleOption(system_Default) : new LocaleOption(savedLocale);
         LocaleOption userSelection = (LocaleOption) JOptionPane.showInputDialog(
-                jFrame,
-                "Please select your preferred language",
-                "Language Selection",
+                jFrame, please_select_your_preferred_language, language_Selection,
                 JOptionPane.PLAIN_MESSAGE,
                 icon,
                 possibilities, defaultValue);

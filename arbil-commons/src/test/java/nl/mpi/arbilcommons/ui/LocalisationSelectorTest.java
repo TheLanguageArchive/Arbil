@@ -69,11 +69,11 @@ public class LocalisationSelectorTest {
                 savedValue = storableValue;
             }
         }, new String[]{"en", "pt", "fr", "ee", "it", "ko", "zh"});
-        instance.askUser(jFrame, icon);
-        instance.askUser(jFrame, icon);
-        instance.askUser(jFrame, icon);
-        instance.askUser(jFrame, icon);
-        instance.askUser(jFrame, icon);
-        instance.askUser(jFrame, icon);
+        instance.askUser(jFrame, icon, "please select bla", "select language", "system default");
+        instance.askUser(jFrame, icon, "please select bla", "select language", "system default");
+        instance.askUser(jFrame, icon, "please select bla", "select language", "system default");
+        instance.askUser(jFrame, icon, "please select bla", "select language", "system default");
+        instance.askUser(jFrame, icon, "please select bla", "select language", "system default");
+        instance.askUser(jFrame, icon, "please select bla", "select language", "system default");
     }
 }
