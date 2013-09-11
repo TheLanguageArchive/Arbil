@@ -47,21 +47,14 @@ import nl.mpi.arbil.util.WindowManager;
 public class TemplateDialogue extends javax.swing.JPanel {
 
     private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
-    private static WindowManager windowManager;
+    private final WindowManager windowManager;
+    private final MessageDialogHandler dialogHandler;
+    private final JDialog parentFrame;
 
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
-    private static MessageDialogHandler dialogHandler;
-
-    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
-	dialogHandler = dialogHandlerInstance;
-    }
-    JDialog parentFrame;
-
-    /** Creates new form TemplateDialogue */
-    public TemplateDialogue(JDialog parentFrameLocal) {
-	parentFrame = parentFrameLocal;
+    public TemplateDialogue(WindowManager windowManager, MessageDialogHandler dialogHandler, JDialog parentFrame) {
+	this.windowManager = windowManager;
+	this.dialogHandler = dialogHandler;
+	this.parentFrame = parentFrame;
 	initComponents();
     }
 
@@ -198,18 +191,18 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	}
     }
 
-    public static void showTemplatesDialogue() {
-	showDialogue(widgets.getString("AVAILABLE TEMPLATES & PROFILES"));
+    public static void showTemplatesDialogue(WindowManager windowManager, MessageDialogHandler dialogueHandler) {
+	showDialogue(widgets.getString("AVAILABLE TEMPLATES & PROFILES"), windowManager, dialogueHandler);
     }
 
-    protected static void showDialogue(String titleStirng) {
+    protected static void showDialogue(String titleStirng, WindowManager windowManager, MessageDialogHandler dialogueHandler) {
 	JDialog dialog = new JDialog(windowManager.getMainFrame(), titleStirng, true);
-	TemplateDialogue templateDialogue = new TemplateDialogue(dialog);
+	TemplateDialogue templateDialogue = new TemplateDialogue(windowManager, dialogueHandler, dialog);
 	dialog.setContentPane(templateDialogue);
 	templateDialogue.populateLists();
 	templateDialogue.loadProfiles(false);
 	dialog.pack();
-	setDialogHeight(dialog);
+	setDialogHeight(dialog, windowManager);
 	dialog.setVisible(true);
     }
     public final static ActionListener templateSelectionListener = new ActionListener() {
@@ -222,7 +215,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	}
     };
 
-    protected static void setDialogHeight(JDialog dialog) {
+    protected static void setDialogHeight(JDialog dialog, WindowManager windowManager) {
 	// Make sure dialog height is less than window height, this fixes issues with windows task bar (yes I know..)
 	final Dimension dialogSize = dialog.getPreferredSize();
 	final double maxHeight = windowManager.getMainFrame().getSize().getHeight() - 10;
@@ -233,8 +226,9 @@ public class TemplateDialogue extends javax.swing.JPanel {
     }
 
     public static void main(String[] args) {
-	new ArbilDesktopInjector().injectDefaultHandlers();
-	TemplateDialogue.showTemplatesDialogue();
+	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
+	injector.injectDefaultHandlers();
+	TemplateDialogue.showTemplatesDialogue(injector.getWindowManager(), injector.getWindowManager());
 	System.exit(0);
     }
     // Variables declaration

@@ -72,12 +72,10 @@ public class ArbilSwingInjector extends ArbilInjector {
     public void injectWindowManager(WindowManager windowManager) {
 	super.injectWindowManager(windowManager);
 	ArbilContextMenu.setWindowManager(windowManager);
-	LanguageListDialogue.setWindowManager(windowManager);
 	CmdiProfilesPanel.setWindowManager(windowManager);
 	ArbilHyperlinkListener.setWindowManager(windowManager);
 	ArbilLongFieldEditor.setWindowManager(windowManager);
 	ArbilMenuBar.setWindowManager(windowManager);
-	TemplateDialogue.setWindowManager(windowManager);
 	ImportExportDialog.setWindowManager(windowManager);
     }
 
@@ -86,7 +84,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	super.injectDialogHandler(messageDialogHandler);
 	ArbilHyperlinkListener.setMessageDialogHandler(messageDialogHandler);
 	ArbilLongFieldEditor.setMessageDialogHandler(messageDialogHandler);
-	TemplateDialogue.setMessageDialogHandler(messageDialogHandler);
 	ArbilFieldViewTableModel.setMessageDialogHandler(messageDialogHandler);
 	CmdiProfilesPanel.setMessageDialogHandler(messageDialogHandler);
 	ArbilContextMenu.setMessageDialogHandler(messageDialogHandler);

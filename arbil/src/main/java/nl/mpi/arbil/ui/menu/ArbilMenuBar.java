@@ -433,7 +433,7 @@ public class ArbilMenuBar extends JMenuBar {
         templatesMenu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    TemplateDialogue.showTemplatesDialogue();
+                    TemplateDialogue.showTemplatesDialogue(windowManager, dialogHandler);
                 } catch (Exception ex) {
                     BugCatcherManager.getBugCatcher().logError(ex);
                 }
@@ -523,7 +523,7 @@ public class ArbilMenuBar extends JMenuBar {
         editPreferredLanguagesMenuItem.setEnabled(true);
         editPreferredLanguagesMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LanguageListDialogue.showLanguageDialogue();
+                LanguageListDialogue.showLanguageDialogue(windowManager, dialogHandler);
             }
         });
         optionsMenu.add(editPreferredLanguagesMenuItem);

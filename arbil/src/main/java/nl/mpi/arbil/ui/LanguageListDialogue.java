@@ -28,6 +28,7 @@ import javax.swing.JDialog;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -35,39 +36,27 @@ import nl.mpi.arbil.util.WindowManager;
  * Created on : Jul 6, 2010, 3:00:09 PM
  * Author : Peter Withers
  */
-public class LanguageListDialogue extends TemplateDialogue implements ActionListener {
+public class LanguageListDialogue extends TemplateDialogue {
 
     private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
-    private static WindowManager windowManager;
-
-    public static void setWindowManager(WindowManager windowManagerInstance) {
-	windowManager = windowManagerInstance;
-    }
     private ArrayList<JCheckBox> checkBoxArray;
     private final DocumentationLanguages documentationLanguages;
 
-    public LanguageListDialogue(JDialog parentFrameLocal) {
-	super(parentFrameLocal);
-	documentationLanguages = ArbilTemplateManager.getSingleInstance().getDefaultTemplate().getDocumentationLanguages();
+    public LanguageListDialogue(JDialog parentFrameLocal, WindowManager windowManager, MessageDialogHandler dialogueHandler) {
+	super(windowManager, dialogueHandler, parentFrameLocal);
+	this.documentationLanguages = ArbilTemplateManager.getSingleInstance().getDefaultTemplate().getDocumentationLanguages();
     }
 
-    public static void showLanguageDialogue() {
+    public static void showLanguageDialogue(WindowManager windowManager, MessageDialogHandler dialogueHandler) {
 	//showDialogue("Available Languages");
-	JDialog dialog = new JDialog(windowManager.getMainFrame(), widgets.getString("AVAILABLE LANGUAGES"), true);
-	LanguageListDialogue templateDialogue = new LanguageListDialogue(dialog);
-	templateDialogue.populateLists();
-	dialog.setContentPane(templateDialogue);
-	dialog.pack();
-	setDialogHeight(dialog);
-	dialog.setVisible(true);
-    }
+	final JDialog dialog = new JDialog(windowManager.getMainFrame(), widgets.getString("AVAILABLE LANGUAGES"), true);
+	final LanguageListDialogue languageListDialogue = new LanguageListDialogue(dialog, windowManager, dialogueHandler);
+	languageListDialogue.populateLists();
 
-    public void actionPerformed(ActionEvent e) {
-	if (((JCheckBox) e.getSource()).isSelected()) {
-	    documentationLanguages.addselectedLanguage(e.getActionCommand());
-	} else {
-	    documentationLanguages.removeselectedLanguages(e.getActionCommand());
-	}
+	dialog.setContentPane(languageListDialogue);
+	dialog.pack();
+	setDialogHeight(dialog, windowManager);
+	dialog.setVisible(true);
     }
 
     @Override
@@ -84,7 +73,15 @@ public class LanguageListDialogue extends TemplateDialogue implements ActionList
 	    languageCheckBox.setActionCommand(currentTemplate.itemDisplayName);
 	    languageCheckBox.setSelected(selectedLanguages.contains(currentTemplate.itemDisplayName));
 	    languageCheckBox.setToolTipText(currentTemplate.itemDisplayName);
-	    languageCheckBox.addActionListener(this);
+	    languageCheckBox.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    if (((JCheckBox) e.getSource()).isSelected()) {
+			documentationLanguages.addselectedLanguage(e.getActionCommand());
+		    } else {
+			documentationLanguages.removeselectedLanguages(e.getActionCommand());
+		    }
+		}
+	    });
 	    checkBoxArray.add(languageCheckBox);
 	}
 	addSorted(templatesPanel, checkBoxArray);
