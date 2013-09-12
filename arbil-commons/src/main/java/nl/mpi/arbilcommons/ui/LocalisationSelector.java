@@ -39,116 +39,131 @@ public class LocalisationSelector {
     private final List<Locale> knownLocales;
 
     public LocalisationSelector(PluginSessionStorage sessionStorage, String[] availableLocales) {
-        this.sessionStorage = sessionStorage;
-        knownLocales = new ArrayList<Locale>();
-        for (String locale : availableLocales) {
-            knownLocales.add(new Locale(locale));
-        }
+	this.sessionStorage = sessionStorage;
+	knownLocales = new ArrayList<Locale>();
+	for (String locale : availableLocales) {
+	    knownLocales.add(createLocale(locale));
+	}
     }
 
     public LocalisationSelector(PluginSessionStorage sessionStorage, List<Locale> knownLocales) {
-        this.sessionStorage = sessionStorage;
-        this.knownLocales = knownLocales;
+	this.sessionStorage = sessionStorage;
+	this.knownLocales = knownLocales;
     }
 
     private Locale getSavedLocale() {
-        final String selectedLocaleString = sessionStorage.loadString(SELECTED_LOCALE_KEY);
-        if (selectedLocaleString == null || selectedLocaleString.equals(SYSTEM_DEFAULT)) {
-            return null;
-        } else {
-            return new Locale(selectedLocaleString);
-        }
+	final String selectedLocaleString = sessionStorage.loadString(SELECTED_LOCALE_KEY);
+	if (selectedLocaleString == null || selectedLocaleString.equals(SYSTEM_DEFAULT)) {
+	    return null;
+	} else {
+	    return createLocale(selectedLocaleString);
+	}
     }
 
     private void setSavedLocale(Locale locale) {
-        if (locale == null) {
-            sessionStorage.saveString(SELECTED_LOCALE_KEY, SYSTEM_DEFAULT);
-        } else {
-            sessionStorage.saveString(SELECTED_LOCALE_KEY, locale.toString());
-        }
+	if (locale == null) {
+	    sessionStorage.saveString(SELECTED_LOCALE_KEY, SYSTEM_DEFAULT);
+	} else {
+	    sessionStorage.saveString(SELECTED_LOCALE_KEY, locale.toString());
+	}
     }
 
     public void askUser(JFrame jFrame, Icon icon, String please_select_your_preferred_language, String language_Selection, String system_Default) {
-        class LocaleOption {
+	class LocaleOption {
 
-            private final Locale locale;
-            private final String displayName;
+	    private final Locale locale;
+	    private final String displayName;
 
-            public LocaleOption(Locale locale) {
-                this.locale = locale;
-                this.displayName = locale.getDisplayLanguage();
-            }
+	    public LocaleOption(Locale locale) {
+		this.locale = locale;
+		if (locale.getCountry().length() == 0) {
+		    this.displayName = locale.getDisplayLanguage(locale);
+		} else {
+		    this.displayName = String.format("%s (%s)", locale.getDisplayLanguage(locale), locale.getDisplayCountry(locale));
+		}
+	    }
 
-            public LocaleOption(String displayName) {
-                this.locale = null;
-                this.displayName = displayName;
-            }
+	    public LocaleOption(String displayName) {
+		this.locale = null;
+		this.displayName = displayName;
+	    }
 
-            public Locale getLocale() {
-                return locale;
-            }
+	    public Locale getLocale() {
+		return locale;
+	    }
 
-            @Override
-            public String toString() {
-                return displayName;
-            }
+	    @Override
+	    public String toString() {
+		return displayName;
+	    }
 
-            @Override
-            public int hashCode() {
-                int hash = 5;
-                hash = 37 * hash + (this.locale != null ? this.locale.hashCode() : 0);
-                return hash;
-            }
+	    @Override
+	    public int hashCode() {
+		int hash = 5;
+		hash = 37 * hash + (this.locale != null ? this.locale.hashCode() : 0);
+		return hash;
+	    }
 
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == null) {
-                    return false;
-                }
-                if (getClass() != obj.getClass()) {
-                    return false;
-                }
-                final LocaleOption other = (LocaleOption) obj;
-                if (other.getLocale() == null) {
-                    return locale == null;
-                }
-                return other.getLocale().equals(locale);
-            }
-        }
-        LocaleOption[] possibilities = new LocaleOption[knownLocales.size() + 1];
-        possibilities[0] = new LocaleOption(system_Default);
-        int localeIndex = 1;
-        // loop the locales and add them to posibilities
-        for (Locale locale : knownLocales) {
-            possibilities[localeIndex] = new LocaleOption(locale);
-            localeIndex++;
-        }
-        final Locale savedLocale = getSavedLocale();
-        final LocaleOption defaultValue = (savedLocale == null) ? new LocaleOption(system_Default) : new LocaleOption(savedLocale);
-        LocaleOption userSelection = (LocaleOption) JOptionPane.showInputDialog(
-                jFrame, please_select_your_preferred_language, language_Selection,
-                JOptionPane.PLAIN_MESSAGE,
-                icon,
-                possibilities, defaultValue);
+	    @Override
+	    public boolean equals(Object obj) {
+		if (obj == null) {
+		    return false;
+		}
+		if (getClass() != obj.getClass()) {
+		    return false;
+		}
+		final LocaleOption other = (LocaleOption) obj;
+		if (other.getLocale() == null) {
+		    return locale == null;
+		}
+		return other.getLocale().equals(locale);
+	    }
+	}
+	LocaleOption[] possibilities = new LocaleOption[knownLocales.size() + 1];
+	possibilities[0] = new LocaleOption(system_Default);
+	int localeIndex = 1;
+	// loop the locales and add them to posibilities
+	for (Locale locale : knownLocales) {
+	    possibilities[localeIndex] = new LocaleOption(locale);
+	    localeIndex++;
+	}
+	final Locale savedLocale = getSavedLocale();
+	final LocaleOption defaultValue = (savedLocale == null) ? new LocaleOption(system_Default) : new LocaleOption(savedLocale);
+	LocaleOption userSelection = (LocaleOption) JOptionPane.showInputDialog(
+		jFrame, please_select_your_preferred_language, language_Selection,
+		JOptionPane.PLAIN_MESSAGE,
+		icon,
+		possibilities, defaultValue);
 
-        if ((userSelection != null)) {
-            if (userSelection.getLocale() == null) {
-                setSavedLocale(null);
-            } else {
-                setSavedLocale(userSelection.getLocale());
-            }
-        }
+	if ((userSelection != null)) {
+	    if (userSelection.getLocale() == null) {
+		setSavedLocale(null);
+	    } else {
+		setSavedLocale(userSelection.getLocale());
+	    }
+	}
     }
 
     public boolean hasSavedLocal() {
-        final String selectedLocaleString = sessionStorage.loadString(SELECTED_LOCALE_KEY);
-        return selectedLocaleString != null && selectedLocaleString.length() > 0;
+	final String selectedLocaleString = sessionStorage.loadString(SELECTED_LOCALE_KEY);
+	return selectedLocaleString != null && selectedLocaleString.length() > 0;
     }
 
     public void setLanguageFromSaved() {
-        final Locale savedLocale = getSavedLocale();
-        if (savedLocale != null) {
-            Locale.setDefault(savedLocale);
-        }
+	final Locale savedLocale = getSavedLocale();
+	if (savedLocale != null) {
+	    Locale.setDefault(savedLocale);
+	}
+    }
+
+    private static Locale createLocale(String localeString) {
+	if (localeString.contains("_")) {
+	    // language and country codes, e.g. en_US
+	    final String[] localeTokens = localeString.split("_");
+	    return new Locale(localeTokens[0], localeTokens[1]);
+	} else {
+	    // only language code
+	    return new Locale(localeString);
+	}
     }
 }
