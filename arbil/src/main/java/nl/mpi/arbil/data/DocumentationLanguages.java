@@ -86,22 +86,20 @@ public abstract class DocumentationLanguages {
 		    return getDefaultLanguages();
 		}
 		return new ArrayList<String>(Arrays.asList(storedLanguages));
-	    } else {
-		logger.info("No selectedLanguages file, will create one now.");
 	    }
 	} catch (Exception e) {
 	    // Most likely an IOException
-	    logger.error("Error while trying to read language file, will try to create new one.", e);
+	    logger.error("Error while trying to read language file, falling back to defaults", e);
 	}
 	return null;
     }
 
     public synchronized List<String> getSelectedLanguagesOrDefault() {
 	final List<String> storedLanguages = getSelectedLanguages();
-	if (storedLanguages != null) {
-	    return storedLanguages;
+	if (storedLanguages == null) {
+	    return getDefaultLanguages();
 	} else {
-	    return(getDefaultLanguages());
+	    return storedLanguages;
 	}
     }
 
