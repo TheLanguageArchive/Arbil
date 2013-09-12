@@ -81,6 +81,10 @@ public abstract class DocumentationLanguages {
 	try {
 	    final String[] storedLanguages = sessionStorage.loadStringArray(selectedLanguagesKey);
 	    if (storedLanguages != null) {
+		if (storedLanguages.length == 1 && storedLanguages[0].equals(ALL_LANGUAGES)) {
+		    // wildcard for all available languages
+		    return getDefaultLanguages();
+		}
 		return new ArrayList<String>(Arrays.asList(storedLanguages));
 	    } else {
 		logger.info("No selectedLanguages file, will create one now.");
@@ -97,9 +101,7 @@ public abstract class DocumentationLanguages {
 	if (storedLanguages != null) {
 	    return storedLanguages;
 	} else {
-	    // save default languages
-	    saveSelectedLanguages(getDefaultLanguages());
-	    return getSelectedLanguages();
+	    return(getDefaultLanguages());
 	}
     }
 
@@ -114,7 +116,7 @@ public abstract class DocumentationLanguages {
     }
 
     public synchronized void removeselectedLanguages(String templateString) {
-	final List<String> selectedLanguages = getSelectedLanguages();
+	final List<String> selectedLanguages = getSelectedLanguagesOrDefault();
 	while (selectedLanguages.contains(templateString)) {
 	    selectedLanguages.remove(templateString);
 	}
@@ -123,7 +125,12 @@ public abstract class DocumentationLanguages {
 
     protected void saveSelectedLanguages(List<String> selectedLanguages) {
 	try {
-	    sessionStorage.saveStringArray(selectedLanguagesKey, selectedLanguages.toArray(new String[]{}));
+	    if (selectedLanguages.containsAll(getDefaultLanguages())) {
+		// Store wildcard for all languages
+		sessionStorage.saveStringArray(selectedLanguagesKey, new String[]{ALL_LANGUAGES});
+	    } else {
+		sessionStorage.saveStringArray(selectedLanguagesKey, selectedLanguages.toArray(new String[]{}));
+	    }
 	} catch (IOException ex) {
 	    logger.error("Could not store language selection", ex);
 	}
