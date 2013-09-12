@@ -23,7 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import nl.mpi.arbil.userstorage.SessionStorage;
-import nl.mpi.arbil.util.BugCatcherManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -32,6 +33,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
  */
 public abstract class DocumentationLanguages {
 
+    private final static Logger logger = LoggerFactory.getLogger(DocumentationLanguages.class);
     private final String selectedLanguagesKey;
     private final SessionStorage sessionStorage;
     private final static String ALL_LANGUAGES = "_ALL_LANGUAGES_";
@@ -48,16 +50,6 @@ public abstract class DocumentationLanguages {
 	    selectedLanguages.add(currentTemplate.itemDisplayName);
 	}
 	return selectedLanguages;
-    }
-
-    public synchronized void addselectedLanguage(String templateString) {
-	List<String> selectedLanguages = getSelectedLanguages();
-	if (selectedLanguages == null) {
-	    selectedLanguages = Collections.singletonList(templateString);
-	} else {
-	    selectedLanguages.add(templateString);
-	}
-	saveSelectedLanguages(selectedLanguages);
     }
 
     public abstract List<ArbilVocabularyItem> getAllLanguages();
@@ -81,42 +73,50 @@ public abstract class DocumentationLanguages {
      */
     public abstract List<ArbilVocabularyItem> getSortedLanguageListSubset();
 
-    protected List<String> getSelectedLanguages() {
-	List<String> selectedLanguages = new ArrayList<String>();
+    /**
+     *
+     * @return a newly instantiated <em>mutable</em> list of the stored selected languages, null if nothing was stored
+     */
+    private List<String> getSelectedLanguages() {
 	try {
 	    final String[] storedLanguages = sessionStorage.loadStringArray(selectedLanguagesKey);
 	    if (storedLanguages != null) {
-		selectedLanguages.addAll(Arrays.asList(storedLanguages));
-		return selectedLanguages;
+		return new ArrayList<String>(Arrays.asList(storedLanguages));
+	    } else {
+		logger.info("No selectedLanguages file, will create one now.");
 	    }
 	} catch (Exception e) {
-	    BugCatcherManager.getBugCatcher().logError("No selectedLanguages file, will create one now.", e);
+	    // Most likely an IOException
+	    logger.error("Error while trying to read language file, will try to create new one.", e);
 	}
 	return null;
     }
 
     public synchronized List<String> getSelectedLanguagesOrDefault() {
-	try {
-	    final String[] storedLanguages = sessionStorage.loadStringArray(selectedLanguagesKey);
-	    if (storedLanguages != null) {
-		return Arrays.asList(storedLanguages);
-	    }
-	} catch (IOException e) {
-	    BugCatcherManager.getBugCatcher().logError("Could not read selectedLanguages file, will create one now.", e);
+	final List<String> storedLanguages = getSelectedLanguages();
+	if (storedLanguages != null) {
+	    return storedLanguages;
+	} else {
+	    // save default languages
+	    saveSelectedLanguages(getDefaultLanguages());
+	    return getSelectedLanguages();
 	}
-	saveSelectedLanguages(getDefaultLanguages());
-	return getSelectedLanguages();
+    }
+
+    public synchronized void addselectedLanguage(String templateString) {
+	final List<String> selectedLanguages = getSelectedLanguages();
+	if (selectedLanguages == null) {
+	    saveSelectedLanguages(Collections.singletonList(templateString));
+	} else {
+	    selectedLanguages.add(templateString);
+	    saveSelectedLanguages(selectedLanguages);
+	}
     }
 
     public synchronized void removeselectedLanguages(String templateString) {
-	ArrayList<String> selectedLanguages = new ArrayList<String>();
-	try {
-	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(selectedLanguagesKey)));
-	    while (selectedLanguages.contains(templateString)) {
-		selectedLanguages.remove(templateString);
-	    }
-	} catch (IOException ex) {
-	    BugCatcherManager.getBugCatcher().logError(ex);
+	final List<String> selectedLanguages = getSelectedLanguages();
+	while (selectedLanguages.contains(templateString)) {
+	    selectedLanguages.remove(templateString);
 	}
 	saveSelectedLanguages(selectedLanguages);
     }
@@ -125,7 +125,7 @@ public abstract class DocumentationLanguages {
 	try {
 	    sessionStorage.saveStringArray(selectedLanguagesKey, selectedLanguages.toArray(new String[]{}));
 	} catch (IOException ex) {
-	    BugCatcherManager.getBugCatcher().logError(ex);
+	    logger.error("Could not store language selection", ex);
 	}
     }
 }
