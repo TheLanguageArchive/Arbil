@@ -107,7 +107,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     }
 
     public ArbilSessionStorage() {
-	HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
+	HttpURLConnection.setFollowRedirects(false); // TODO: replace with calls to setInstanceFollowRedirects in the right places
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {

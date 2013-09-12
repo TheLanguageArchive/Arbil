@@ -24,13 +24,13 @@ import nl.mpi.arbil.ui.ArbilTreeController;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImageBoxRenderer;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.LoggingBugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
-import nl.mpi.arbilcommons.journal.ArbilJournal;
 
 /**
  * Takes care of injecting certain class instances into objects or classes.
@@ -56,16 +56,16 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
      */
     public synchronized void injectDefaultHandlers() {
 	final ArbilVersion arbilVersion = new ArbilVersion();
-	injectHandlers(new ApplicationVersionManager(arbilVersion), new ArbilLogConfigurer(arbilVersion, "arbil-log"));
+	injectHandlers(new ArbilSessionStorage(), new ApplicationVersionManager(arbilVersion), new ArbilLogConfigurer(arbilVersion, "arbil-log"));
     }
 
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
-    public synchronized void injectHandlers(final ApplicationVersionManager versionManager, final ArbilLogConfigurer logManager) {
-	injectVersionManager(versionManager);
-
-	sessionStorage = new ArbilSessionStorage();
+    public synchronized void injectHandlers(final ArbilSessionStorage sessionStorage, final ApplicationVersionManager versionManager, final ArbilLogConfigurer logManager) {
+	this.injectVersionManager(versionManager);
+	this.sessionStorage = sessionStorage;
+	
 	// From now on log to application storage directory
 	logManager.configureLoggingFromSessionStorage(sessionStorage);
 	injectSessionStorage(sessionStorage);

@@ -32,6 +32,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
@@ -62,7 +63,6 @@ public class ArbilMain extends javax.swing.JFrame {
     private final ArbilLogConfigurer logConfigurer;
     private final ArbilTableController tableController;
     private final ArbilSessionStorage sessionStorage;
-    private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
 
     /**
      * @param args the command line arguments
@@ -77,15 +77,21 @@ public class ArbilMain extends javax.swing.JFrame {
 	}
 
 	logger.info("Starting Arbil");
+	final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
+	final ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
 
 	System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 	System.setProperty("apple.awt.graphics.UseQuartz", "true");
 	System.setProperty("apple.laf.useScreenMenuBar", "true");
 	java.awt.EventQueue.invokeLater(new Runnable() {
 	    public void run() {
-		final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
+		// setting version manager on icon because it may be needed for localisation popup
+		ArbilIcons.setVersionManager(versionManager);
+		// set localisation from stored setting as early as possible because some initialisations may be locale sensitive
+		checkLocalisation(sessionStorage);
+
 		try {
-		    new ArbilMain(versionManager, logConfigurer).run();
+		    new ArbilMain(sessionStorage, versionManager, logConfigurer).run();
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
@@ -93,26 +99,25 @@ public class ArbilMain extends javax.swing.JFrame {
 	});
     }
 
-    public ArbilMain(ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer) {
+    public ArbilMain(ArbilSessionStorage sessionStorage, ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer) {
 	this.versionManager = versionManager;
 	this.logConfigurer = logConfigurer;
+	this.sessionStorage = sessionStorage;
 
 	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
-	injector.injectHandlers(versionManager, logConfigurer);
+	injector.injectHandlers(sessionStorage, versionManager, logConfigurer);
 
 	this.treeHelper = injector.getTreeHelper();
 	this.treeController = injector.getTreeController();
 	this.windowManager = injector.getWindowManager();
 	this.mimeHashQueue = injector.getMimeHashQueue();
 	this.tableController = injector.getTableController();
-	this.sessionStorage = injector.getSessionStorage();
     }
 
     public void run() {
 	initApplication();
 	initUI();
 	checkFirstRun();
-	checkLocalisation();
     }
 
     private void initApplication() {
@@ -196,13 +201,13 @@ public class ArbilMain extends javax.swing.JFrame {
 	windowManager.openIntroductionPage();
     }
 
-    private void checkLocalisation() {
+    private static void checkLocalisation(SessionStorage sessionStorage) {
 	final String availableLanguages = ResourceBundle.getBundle("nl/mpi/arbil/localisation/AvailableLanguages").getString("LANGUAGE CODES");
 	final LocalisationSelector localisationSelector = new LocalisationSelector(sessionStorage, availableLanguages.split(","));
 	if (!localisationSelector.hasSavedLocal()) {
-	    final String please_select_your_preferred_language = menus.getString("PLEASE SELECT YOUR PREFERRED LANGUAGE");
-	    final String language_Selection = menus.getString("LANGUAGE SELECTION");
-	    final String system_Default = menus.getString("SYSTEM DEFAULT");
+	    final String please_select_your_preferred_language = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PLEASE SELECT YOUR PREFERRED LANGUAGE");
+	    final String language_Selection = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LANGUAGE SELECTION");
+	    final String system_Default = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SYSTEM DEFAULT");
 	    localisationSelector.askUser(null, ArbilIcons.getSingleInstance().linorgIcon, please_select_your_preferred_language, language_Selection, system_Default);
 	}
 	localisationSelector.setLanguageFromSaved();
