@@ -34,23 +34,20 @@ public abstract class DocumentationLanguages {
 
     private final String selectedLanguagesKey;
     private final SessionStorage sessionStorage;
+    private final static String ALL_LANGUAGES = "_ALL_LANGUAGES_";
 
     public DocumentationLanguages(String selectedLanguagesKey, SessionStorage sessionStorage) {
 	this.selectedLanguagesKey = selectedLanguagesKey;
 	this.sessionStorage = sessionStorage;
     }
 
-    protected List<String> addDefaultLanguages() {
+    private List<String> getDefaultLanguages() {
 	final List<ArbilVocabularyItem> imdiLanguages = getAllLanguages();
-	List<String> selectedLanguages = getSelectedLanguages();
-	if (selectedLanguages == null) {
-	    selectedLanguages = new ArrayList<String>(imdiLanguages.size());
-	}
+	List<String> selectedLanguages = new ArrayList<String>(imdiLanguages.size());
 	for (ArbilVocabularyItem currentTemplate : imdiLanguages) {
 	    selectedLanguages.add(currentTemplate.itemDisplayName);
 	}
-	saveSelectedLanguages(selectedLanguages);
-	return getSelectedLanguages();
+	return selectedLanguages;
     }
 
     public synchronized void addselectedLanguage(String templateString) {
@@ -66,17 +63,16 @@ public abstract class DocumentationLanguages {
     public abstract List<ArbilVocabularyItem> getAllLanguages();
 
     protected synchronized List<ArbilVocabularyItem> getLanguageListSubset(List<ArbilVocabularyItem> allLanguages) {
-	List<ArbilVocabularyItem> languageListSubset = new ArrayList<ArbilVocabularyItem>();
+	final List<ArbilVocabularyItem> languageListSubset = new ArrayList<ArbilVocabularyItem>();
 	if (allLanguages != null) {
-	    List<String> selectedLanguages = getSelectedLanguagesArrayList();
+	    final List<String> selectedLanguages = getSelectedLanguagesOrDefault();
 	    for (ArbilVocabularyItem currentVocabItem : allLanguages) {
 		if (selectedLanguages.contains(currentVocabItem.itemDisplayName)) {
 		    languageListSubset.add(currentVocabItem);
 		}
 	    }
 	}
-	return languageListSubset; //.toArray(new ArbilVocabularyItem[]{});
-	//.toArray(new ArbilVocabularyItem[]{});
+	return languageListSubset;
     }
 
     /**
@@ -85,26 +81,31 @@ public abstract class DocumentationLanguages {
      */
     public abstract List<ArbilVocabularyItem> getSortedLanguageListSubset();
 
-    protected ArrayList<String> getSelectedLanguages() {
-	ArrayList<String> selectedLanguages = new ArrayList<String>();
+    protected List<String> getSelectedLanguages() {
+	List<String> selectedLanguages = new ArrayList<String>();
 	try {
-	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(selectedLanguagesKey)));
+	    final String[] storedLanguages = sessionStorage.loadStringArray(selectedLanguagesKey);
+	    if (storedLanguages != null) {
+		selectedLanguages.addAll(Arrays.asList(storedLanguages));
+		return selectedLanguages;
+	    }
 	} catch (Exception e) {
 	    BugCatcherManager.getBugCatcher().logError("No selectedLanguages file, will create one now.", e);
-	    return null;
 	}
-	return selectedLanguages;
+	return null;
     }
 
-    public synchronized List<String> getSelectedLanguagesArrayList() {
-	ArrayList<String> selectedLanguages = new ArrayList<String>();
+    public synchronized List<String> getSelectedLanguagesOrDefault() {
 	try {
-	    selectedLanguages.addAll(Arrays.asList(sessionStorage.loadStringArray(selectedLanguagesKey)));
-	    return selectedLanguages;
-	} catch (Exception e) {
-	    BugCatcherManager.getBugCatcher().logError("No selectedLanguages file, will create one now.", e);
-	    return addDefaultLanguages();
+	    final String[] storedLanguages = sessionStorage.loadStringArray(selectedLanguagesKey);
+	    if (storedLanguages != null) {
+		return Arrays.asList(storedLanguages);
+	    }
+	} catch (IOException e) {
+	    BugCatcherManager.getBugCatcher().logError("Could not read selectedLanguages file, will create one now.", e);
 	}
+	saveSelectedLanguages(getDefaultLanguages());
+	return getSelectedLanguages();
     }
 
     public synchronized void removeselectedLanguages(String templateString) {

@@ -63,7 +63,7 @@ public class LanguageListDialogue extends TemplateDialogue {
     protected void populateLists() {
 	cmdiProfilesPanel.getParent().remove(cmdiProfilesPanel);
 	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(widgets.getString("LANGUAGES TO DISPLAY IN THE FIELD LANGUAGE SELECT BOX FOR IMDI")));
-	List<String> selectedLanguages = documentationLanguages.getSelectedLanguagesArrayList();
+	List<String> selectedLanguages = documentationLanguages.getSelectedLanguagesOrDefault();
 	checkBoxArray = new ArrayList<JCheckBox>();
 	for (ArbilVocabularyItem currentTemplate : documentationLanguages.getAllLanguages()) {
 	    JCheckBox languageCheckBox;
