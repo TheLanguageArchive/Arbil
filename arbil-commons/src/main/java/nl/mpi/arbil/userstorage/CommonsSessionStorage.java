@@ -38,7 +38,7 @@ public abstract class CommonsSessionStorage implements PluginSessionStorage {
 
     private final static Logger logger = LoggerFactory.getLogger(CommonsSessionStorage.class);
     protected File localCacheDirectory = null;
-    protected File storageDirectory = null;
+    private File storageDirectory = null;
     protected PluginDialogHandler messageDialogHandler;
 
     protected abstract String[] getAppDirectoryAlternatives();

@@ -497,7 +497,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	Properties propertiesObject = new Properties();
 	FileInputStream propertiesInStream = null;
 	try {
-	    propertiesInStream = new FileInputStream(new File(storageDirectory, CONFIG_FILE));
+	    propertiesInStream = new FileInputStream(new File(getApplicationSettingsDirectory(), CONFIG_FILE));
 	    if (canUsePropertiesReaderWriter()) {
 		InputStreamReader reader = new InputStreamReader(propertiesInStream, UTF8_ENCODING);
 		propertiesObject.load(reader);
@@ -523,7 +523,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	FileOutputStream propertiesOutputStream = null;
 	try {
 	    //new OutputStreamWriter
-	    propertiesOutputStream = new FileOutputStream(new File(storageDirectory, CONFIG_FILE));
+	    propertiesOutputStream = new FileOutputStream(new File(getApplicationSettingsDirectory(), CONFIG_FILE));
 	    if (canUsePropertiesReaderWriter()) {
 		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, UTF8_ENCODING);
 		configObject.store(propertiesOutputStreamWriter, null);
