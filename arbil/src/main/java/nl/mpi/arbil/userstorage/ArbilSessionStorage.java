@@ -581,6 +581,9 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	    expireDate.setTime(calendar.getTime().getTime());
 
 	    fileNeedsUpdate = expireDate.after(lastModified);
+	    if (fileNeedsUpdate) {
+		logger.info("Existing file {} in cache will be updated (at least {} days since {})", pathString, expireCacheDays, lastModified);
+	    }
 	}
 	return updateCache(pathString, targetFile, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
 //	}

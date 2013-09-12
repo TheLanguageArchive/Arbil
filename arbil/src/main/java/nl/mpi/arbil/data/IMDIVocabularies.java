@@ -46,6 +46,10 @@ public class IMDIVocabularies {
 
     private final static Logger logger = LoggerFactory.getLogger(IMDIVocabularies.class);
     private static MessageDialogHandler messageDialogHandler;
+    /**
+     * Update IMDI vocabularies from server every two weeks
+     */
+    public static final int VOCABULARY_UPDATE_FREQUENCY = 14;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
@@ -194,8 +198,7 @@ public class IMDIVocabularies {
 
     synchronized public void parseRemoteFile(String vocabRemoteUrl) {
 	if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
-	    File cachedFile = sessionStorage.updateCache(vocabRemoteUrl, null, false, false, new DownloadAbortFlag(), null);
-	    // this delete is for testing only!!! new File(cachePath).delete();
+	    File cachedFile = sessionStorage.updateCache(vocabRemoteUrl, VOCABULARY_UPDATE_FREQUENCY, false);
 	    if (!cachedFile.exists()) {
 		String backupPath = "/nl/mpi/arbil/resources/IMDI/FallBack/" + cachedFile.getName();
 		URL backUp = this.getClass().getResource(backupPath);
