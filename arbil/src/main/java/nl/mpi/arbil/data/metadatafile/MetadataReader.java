@@ -714,8 +714,8 @@ public class MetadataReader {
 	    ArbilDataNode destinationNode, String localName, String parentNodePath, String siblingNodePath, String fullSubNodePath,
 	    Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, Map<String, Integer> siblingNodePathCounter, int nodeOrderCounter, boolean shallowLoading) throws DOMException {
 
-	NodeList childNodes = childNode.getChildNodes();
-	boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
+	final NodeList childNodes = childNode.getChildNodes();
+	final boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
 		|| (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE));
 	// calculate the xpath index for multiple fields like description
 	if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
@@ -733,34 +733,12 @@ public class MetadataReader {
 	    // and add all editable component attributes as field
 	    if (childNodeAttributes != null) {
 		if (parentNode.isCmdiMetaDataNode()) {
-		    for (int i = 0; i < childNodeAttributes.getLength(); i++) {
-			Node attrNode = childNodeAttributes.item(i);
-			String attrName = CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
-			String attrPath = siblingNodePath + ".@" + attrName;
-			String fullAttrPath = fullSubNodePath + ".@" + attrName;
-			if (!siblingNodePathCounter.containsKey(fullAttrPath)) {
-			    siblingNodePathCounter.put(fullAttrPath, 0);
-			}
-			if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath.replaceAll("\\(\\d*?\\)", ""))) {
-			    nodeOrderCounter = addEditableField(nodeOrderCounter,
-				    destinationNode,
-				    attrPath, //siblingNodePath,
-				    attrNode.getNodeValue(),
-				    siblingNodePathCounter,
-				    fullAttrPath, //fullSubNodePath,
-				    parentNode,
-				    childLinks,
-				    parentChildTree,
-				    null, // don't pass childNodeAttributes as they're the parent's attributes 
-				    true);
-			}
-		    }
+		    nodeOrderCounter = addCmdiAttributeFields(nodeOrderCounter, childNodeAttributes, destinationNode, siblingNodePath, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree);
 		}
 	    }
 	}
 
-	nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter, shallowLoading);
-	return nodeOrderCounter;
+	return iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter, shallowLoading);
     }
 
     private int countSiblings(Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, ArbilDataNode parentNode, String localName) {
@@ -889,6 +867,32 @@ public class MetadataReader {
 	    }
 	}
 	fieldToAdd.finishLoading();
+	return nodeOrderCounter;
+    }
+
+    private int addCmdiAttributeFields(int nodeOrderCounter, NamedNodeMap childNodeAttributes, ArbilDataNode destinationNode, String siblingNodePath, Map<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, List<String[]> childLinks, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) throws DOMException {
+	for (int i = 0; i < childNodeAttributes.getLength(); i++) {
+	    Node attrNode = childNodeAttributes.item(i);
+	    String attrName = CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
+	    String attrPath = siblingNodePath + ".@" + attrName;
+	    String fullAttrPath = fullSubNodePath + ".@" + attrName;
+	    if (!siblingNodePathCounter.containsKey(fullAttrPath)) {
+		siblingNodePathCounter.put(fullAttrPath, 0);
+	    }
+	    if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath.replaceAll("\\(\\d*?\\)", ""))) {
+		nodeOrderCounter = addEditableField(nodeOrderCounter,
+			destinationNode,
+			attrPath, //siblingNodePath,
+			attrNode.getNodeValue(),
+			siblingNodePathCounter,
+			fullAttrPath, //fullSubNodePath,
+			parentNode,
+			childLinks,
+			parentChildTree,
+			null, // don't pass childNodeAttributes as they're the parent's attributes 
+			true);
+	    }
+	}
 	return nodeOrderCounter;
     }
 
