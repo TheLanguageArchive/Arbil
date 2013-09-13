@@ -60,6 +60,7 @@ import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.userstorage.ArbilConfiguration;
+import nl.mpi.arbil.userstorage.ArbilConfigurationManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -96,6 +97,7 @@ public class ArbilMenuBar extends JMenuBar {
     private final ArbilLogConfigurer logConfigurer;
     private final ApplicationVersionManager versionManager;
     private final ArbilConfiguration applicationConfiguration;
+    private final ArbilConfigurationManager configurationManager;
     private JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
     private JMenuItem saveFileMenuItem = new JMenuItem();
@@ -110,6 +112,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem templatesMenu = new JMenuItem();
     private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem = new JCheckBoxMenuItem();
     private JCheckBoxMenuItem useLanguageIdInColumnNameCheckBoxMenuItem = new JCheckBoxMenuItem();
+    private JMenuItem verbatimXmlStructureMenuItem = new JCheckBoxMenuItem();
     private JMenuItem undoMenuItem = new JMenuItem();
 //    private JMenuItem viewFavouritesMenuItem;
 //    private JMenu setStorageDirectoryMenu;
@@ -166,6 +169,7 @@ public class ArbilMenuBar extends JMenuBar {
 	this.dataNodeLoader = dataNodeLoader;
 	this.sessionStorage = sessionStorage;
 	this.mimeHashQueue = mimeHashQueue;
+	this.configurationManager = new ArbilConfigurationManager(sessionStorage);
 
 	initFileMenu();
 	initEditMenu();
@@ -606,7 +610,18 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	optionsMenu.add(useLanguageIdInColumnNameCheckBoxMenuItem);
 
-	this.add(optionsMenu);
+	verbatimXmlStructureMenuItem.setSelected(applicationConfiguration.isVerbatimXmlTreeStructure());
+	verbatimXmlStructureMenuItem.setText(menus.getString("MENU OPTION VERBATIM XML STRUCTURE IN TREE"));
+	verbatimXmlStructureMenuItem.setEnabled(true);
+	verbatimXmlStructureMenuItem.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+		applicationConfiguration.setVerbatimXmlTreeStructure(verbatimXmlStructureMenuItem.isSelected());
+		configurationManager.write(applicationConfiguration);
+		windowManager.addMessageDialogToQueue("Arbil needs to be restarted for the changes to take effect", menus.getString("MENU OPTION VERBATIM XML STRUCTURE IN TREE"));
+		//TODO: reload templates and nodes instead of message dialogue
+	    }
+	});
+	optionsMenu.add(verbatimXmlStructureMenuItem);
 
 	optionsMenu.add(new JSeparator());
 
@@ -635,6 +650,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	//TODO: Implement editFieldViewsMenuItem and re-enable
 //        optionsMenu.add(editFieldViewsMenuItem);
+	this.add(optionsMenu);
     }
 
     private void initPluginMenu() {
@@ -654,7 +670,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private void initWindowMenu() {
 	windowManager.setWindowMenu(windowMenu);
-	
+
 	windowMenu.setText(menus.getString("WINDOW"));
 
 	resetWindowsMenuItem.setText(menus.getString("RESET WINDOW LOCATIONS"));

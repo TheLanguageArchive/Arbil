@@ -34,7 +34,7 @@ public class ArbilConfigurationManager {
 	this.sessionStorage = sessionStorage;
     }
 
-    public ArbilConfiguration read() {
+    public synchronized ArbilConfiguration read() {
 	logger.info("Reading configuration from session storage");
 	final ArbilConfiguration configuration = new ArbilConfiguration();
 	configuration.setVerbatimXmlTreeStructure(sessionStorage.loadBoolean(VERBATIM_XML_TREE_STRUCTURE, false));
@@ -42,7 +42,7 @@ public class ArbilConfigurationManager {
 	return configuration;
     }
 
-    public void write(ArbilConfiguration configuration) {
+    public synchronized void write(ArbilConfiguration configuration) {
 	logger.info("Writing configuration to session storage");
 	logger.debug("Writing configuration values:\n{}", configuration);
 	sessionStorage.saveBoolean(VERBATIM_XML_TREE_STRUCTURE, configuration.isVerbatimXmlTreeStructure());
