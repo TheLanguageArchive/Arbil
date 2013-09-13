@@ -138,7 +138,6 @@ public abstract class ArbilInjector {
 	ArbilJournal.setSessionStorage(sessionStorage);
 	IMDIVocabularies.setSessionStorage(sessionStorage);
 	MetadataBuilder.setSessionStorage(sessionStorage);
-	MetadataReader.setSessionStorage(sessionStorage);
 	CmdiProfileReader.setSessionStorage(sessionStorage);
 	ProfilePreview.setSessionStorage(sessionStorage);
 	ArbilFavourites.setSessionStorage(sessionStorage);

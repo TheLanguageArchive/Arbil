@@ -28,6 +28,7 @@ public class ArbilConfigurationManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ArbilConfigurationManager.class);
     public static final String VERBATIM_XML_TREE_STRUCTURE = "verbatimXmlTreeStructure";
+    public static final String COPY_NEW_RESOURCES = "copyNewResources";
     private final SessionStorage sessionStorage;
 
     public ArbilConfigurationManager(SessionStorage sessionStorage) {
@@ -36,8 +37,11 @@ public class ArbilConfigurationManager {
 
     public synchronized ArbilConfiguration read() {
 	logger.info("Reading configuration from session storage");
+	
 	final ArbilConfiguration configuration = new ArbilConfiguration();
 	configuration.setVerbatimXmlTreeStructure(sessionStorage.loadBoolean(VERBATIM_XML_TREE_STRUCTURE, false));
+	configuration.setCopyNewResourcesToCache(sessionStorage.loadBoolean(VERBATIM_XML_TREE_STRUCTURE, false));
+	
 	logger.debug("Finished reading configuration:\n{}", configuration);
 	return configuration;
     }
@@ -45,6 +49,10 @@ public class ArbilConfigurationManager {
     public synchronized void write(ArbilConfiguration configuration) {
 	logger.info("Writing configuration to session storage");
 	logger.debug("Writing configuration values:\n{}", configuration);
+	
 	sessionStorage.saveBoolean(VERBATIM_XML_TREE_STRUCTURE, configuration.isVerbatimXmlTreeStructure());
+	sessionStorage.saveBoolean(COPY_NEW_RESOURCES, configuration.isCopyNewResourcesToCache());
+	
+	logger.debug("Finished writing configuration");
     }
 }

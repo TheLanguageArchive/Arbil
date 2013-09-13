@@ -23,7 +23,8 @@ package nl.mpi.arbil.userstorage;
  */
 public class ArbilConfiguration {
 
-    private boolean verbatimXmlTreeStructure;
+    private boolean verbatimXmlTreeStructure = false;
+    public boolean copyNewResourcesToCache = false;
 
     public boolean isVerbatimXmlTreeStructure() {
 	return verbatimXmlTreeStructure;
@@ -33,10 +34,19 @@ public class ArbilConfiguration {
 	this.verbatimXmlTreeStructure = verbatimXmlTreeStructure;
     }
 
+    public boolean isCopyNewResourcesToCache() {
+	return copyNewResourcesToCache;
+    }
+
+    public void setCopyNewResourcesToCache(boolean copyNewResourcesToCache) {
+	this.copyNewResourcesToCache = copyNewResourcesToCache;
+    }
+
     @Override
     public String toString() {
 	StringBuilder sb = new StringBuilder();
 	sb.append(String.format("Verbatim XML tree structure: %b\n", verbatimXmlTreeStructure));
+	sb.append(String.format("Copy new resources to cache: %b\n", copyNewResourcesToCache));
 	return sb.toString();
     }
 }

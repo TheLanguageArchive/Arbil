@@ -76,11 +76,7 @@ import org.xml.sax.SAXException;
 public class MetadataReader {
 
     private final static Logger logger = LoggerFactory.getLogger(MetadataReader.class);
-    private static SessionStorage sessionStorage;
 
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
     static private MetadataReader singleInstance = null;
 
     static synchronized public MetadataReader getSingleInstance() {
@@ -104,17 +100,13 @@ public class MetadataReader {
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
     }
-
-    private MetadataReader() {
-	copyNewResourcesToCache = sessionStorage.loadBoolean("copyNewResources", false);
-    }
+    
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
     //public File selectedTemplateDirectory = null;
     public final static String imdiPathSeparator = ".";
     private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
-    public boolean copyNewResourcesToCache = true; // todo: this variable should find a new home
     private ArbilConfiguration applicationConfiguration; //TODO: make immutable and get injected through constructor (post singleton)
 
     // todo: this should probably be moved into the arbiltemplate class
@@ -441,7 +433,7 @@ public class MetadataReader {
 	//                    String localFilePath = resourcePath; // will be changed when copied to the cache
 	// copy the file to the imdi directory
 	try {
-	    if (copyNewResourcesToCache) {
+	    if (applicationConfiguration.isCopyNewResourcesToCache()) {
 		//                            URL resourceUrl = new URL(resourcePath);
 		//                    String resourcesDirName = "resources";
 		File originalFile = new File(resourceUrl);
