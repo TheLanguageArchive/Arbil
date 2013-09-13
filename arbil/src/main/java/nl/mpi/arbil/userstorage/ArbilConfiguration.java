@@ -32,4 +32,11 @@ public class ArbilConfiguration {
     public void setVerbatimXmlTreeStructure(boolean verbatimXmlTreeStructure) {
 	this.verbatimXmlTreeStructure = verbatimXmlTreeStructure;
     }
+
+    @Override
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append(String.format("Verbatim XML tree structure: %b\n", verbatimXmlTreeStructure));
+	return sb.toString();
+    }
 }
