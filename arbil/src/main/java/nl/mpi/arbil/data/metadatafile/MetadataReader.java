@@ -52,6 +52,7 @@ import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.userstorage.ArbilConfiguration;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -114,6 +115,7 @@ public class MetadataReader {
     public final static String imdiPathSeparator = ".";
     private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     public boolean copyNewResourcesToCache = true; // todo: this variable should find a new home
+    private ArbilConfiguration applicationConfiguration; //TODO: make immutable and get injected through constructor (post singleton)
 
     // todo: this should probably be moved into the arbiltemplate class
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
@@ -1038,5 +1040,9 @@ public class MetadataReader {
 		parentChildTree.get(parentNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink));
 	    }
 	}
+    }
+
+    public void setApplicationConfiguration(ArbilConfiguration applicationConfiguration) {
+	this.applicationConfiguration = applicationConfiguration;
     }
 }

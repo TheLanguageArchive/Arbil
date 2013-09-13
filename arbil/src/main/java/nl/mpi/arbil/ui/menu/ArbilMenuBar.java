@@ -59,6 +59,7 @@ import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
+import nl.mpi.arbil.userstorage.ArbilConfiguration;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -89,6 +90,7 @@ public class ArbilMenuBar extends JMenuBar {
     public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
     private final WebstartHelper webstartHelper = new WebstartHelper();
     private static SessionStorage sessionStorage;
+    private final ArbilConfiguration applicationConfiguration;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
         sessionStorage = sessionStorageInstance;
@@ -192,10 +194,11 @@ public class ArbilMenuBar extends JMenuBar {
         versionManager = versionManagerInstance;
     }
 
-    public ArbilMenuBar(PreviewSplitPanel previewSplitPanel, JApplet containerApplet, ArbilLogConfigurer logConfigurer) {
+    public ArbilMenuBar(ArbilConfiguration appConfiguration, PreviewSplitPanel previewSplitPanel, JApplet containerApplet, ArbilLogConfigurer logConfigurer) {
         this.containerApplet = containerApplet;
         this.previewSplitPanel = previewSplitPanel;
         this.logConfigurer = logConfigurer;
+	this.applicationConfiguration = appConfiguration;
 
         initFileMenu();
         initEditMenu();

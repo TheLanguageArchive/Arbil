@@ -23,6 +23,8 @@ import java.awt.event.WindowEvent;
 import java.util.ResourceBundle;
 import nl.mpi.arbil.MacAdapter.MacAdapterException;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.ArbilDragDrop;
 import nl.mpi.arbil.ui.ArbilTableController;
 import nl.mpi.arbil.ui.ArbilTaskStatusBar;
@@ -31,6 +33,8 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.userstorage.ArbilConfiguration;
+import nl.mpi.arbil.userstorage.ArbilConfigurationManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
@@ -115,11 +119,23 @@ public class ArbilMain extends javax.swing.JFrame {
     }
 
     public void run() {
+	final ArbilConfiguration config = readConfig();
 	initApplication();
-	initUI();
+	initUI(config);
 	checkFirstRun();
     }
 
+
+    private ArbilConfiguration readConfig() {
+	ArbilConfigurationManager configManager = new ArbilConfigurationManager(sessionStorage);
+	ArbilConfiguration appConfig = configManager.read();
+	
+	// Set shared config on using objects
+	ArbilTemplateManager.getSingleInstance().setApplicationConfiguration(appConfig);
+	MetadataReader.getSingleInstance().setApplicationConfiguration(appConfig);
+	return appConfig;
+    }
+    
     private void initApplication() {
 
 	try {
@@ -132,7 +148,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	mimeHashQueue.init();
     }
 
-    private void initUI() {
+    private void initUI(ArbilConfiguration appConfig) {
 	this.addWindowListener(new WindowAdapter() {
 	    @Override
 	    public void windowClosing(WindowEvent e) {
@@ -151,7 +167,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	final ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController, previewSplitPanel, dragDrop);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
-	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null, logConfigurer);
+	arbilMenuBar = new ArbilMenuBar(appConfig, previewSplitPanel, null, logConfigurer);
 	setJMenuBar(arbilMenuBar);
 
 	mainSplitPane.setDividerLocation(0.25);

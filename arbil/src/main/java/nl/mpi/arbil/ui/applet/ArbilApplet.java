@@ -23,6 +23,7 @@ import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.userstorage.ArbilConfiguration;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
 import nl.mpi.arbil.util.BugCatcherManager;
 
@@ -50,7 +51,7 @@ public class ArbilApplet extends javax.swing.JApplet {
 		    arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), previewSplitPanel, null);
 		    mainSplitPane.setLeftComponent(arbilTreePanels);
 		    previewSplitPanel.setPreviewPanel(true);
-		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel, ArbilApplet.this, new ArbilLogConfigurer(new ArbilVersion(), "arbil-applet-log"));
+		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(new ArbilConfiguration(), previewSplitPanel, ArbilApplet.this, new ArbilLogConfigurer(new ArbilVersion(), "arbil-applet-log"));
 		    setJMenuBar(arbilMenuBar);
 //                  LinorgWindowManager.getSingleInstance().setComponents(this);
 		    injector.getWindowManager().openIntroductionPage();

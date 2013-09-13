@@ -36,6 +36,7 @@ import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileSchemaHeaderReader;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.userstorage.ArbilConfiguration;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.DownloadAbortFlag;
@@ -57,7 +58,8 @@ public class ArbilTemplateManager {
     private static final Pattern PREFIX_PATTERN = Pattern.compile(PREFIX_REGEX);
     private final CmdiProfileSchemaHeaderReader headerReader = new CmdiProfileSchemaHeaderReader();
     private static SessionStorage sessionStorage;
-
+    private ArbilConfiguration applicationConfiguration; //TODO: make immutable and get injected through constructor (post singleton)
+    
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
@@ -545,7 +547,7 @@ public class ArbilTemplateManager {
      * @return Loaded CMDI template
      */
     private ArbilTemplate loadCmdiTemplateProfile(String nameSpaceString) {
-	CmdiTemplate cmdiTemplate = new CmdiTemplate(sessionStorage);
+	CmdiTemplate cmdiTemplate = new CmdiTemplate(sessionStorage, applicationConfiguration.isVerbatimXmlTreeStructure());
 	cmdiTemplate.loadTemplate(nameSpaceString, CmdiProfileReader.getSingleInstance());
 	cmdiTemplate.startLoadingDatacategoryDescriptions();
 	templatesHashTable.put(nameSpaceString, cmdiTemplate);
@@ -573,5 +575,9 @@ public class ArbilTemplateManager {
 	} else {
 	    return templatesHashTable.get(templateName);
 	}
+    }
+
+    public void setApplicationConfiguration(ArbilConfiguration applicationConfiguration) {
+	this.applicationConfiguration = applicationConfiguration;
     }
 }

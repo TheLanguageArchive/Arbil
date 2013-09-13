@@ -24,6 +24,8 @@ import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.userstorage.ArbilConfiguration;
+import nl.mpi.arbil.userstorage.ArbilConfigurationManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
@@ -52,7 +54,7 @@ public class ArbilApplet2 extends JApplet {
 	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), previewSplitPanel, null);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
 	mainSplitPane.setRightComponent(previewSplitPanel);
-	arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this, logManager);
+	arbilMenuBar = new ArbilMenuBar(new ArbilConfiguration(), previewSplitPanel, this, logManager);
 	ArbilMimeHashQueue.setAllowCookies(true);
 	add(mainSplitPane, java.awt.BorderLayout.CENTER);
 	setJMenuBar(arbilMenuBar);
