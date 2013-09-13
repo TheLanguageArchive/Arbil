@@ -47,7 +47,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerException;
-import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileProvider.CmdiProfile;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -56,7 +55,6 @@ import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.data.CmdiDocumentationLanguages;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.templates.ArbilTemplate;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.xmlbeans.SchemaAnnotation;
@@ -926,13 +924,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
 	return false;
     }
-
-    public static void main(String args[]) {
-	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
-	injector.injectDefaultHandlers();
-	CmdiTemplate template = new CmdiTemplate(new ArbilSessionStorage());
-	template.loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1289827960126/xsd", CmdiProfileReader.getSingleInstance());
-    }
+    
     /**
      * Compares for display preference. Paths of equal length get grouped together. Within those groups, ordering is on basis of
      * displayPriority
