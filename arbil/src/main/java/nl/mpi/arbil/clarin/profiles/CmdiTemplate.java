@@ -54,6 +54,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.data.CmdiDocumentationLanguages;
+import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -87,7 +88,6 @@ import org.xml.sax.SAXException;
  */
 public class CmdiTemplate extends ArbilTemplate {
 
-    private final static boolean VERBATIM_XML = true;
     private final static Logger logger = LoggerFactory.getLogger(CmdiTemplate.class);
     private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     public static final String XML_NAMESPACE = ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace");
@@ -118,6 +118,7 @@ public class CmdiTemplate extends ArbilTemplate {
     public final static Pattern DATCAT_URI_SKIP_PATTERN = Pattern.compile(".*purl\\.org.*");
     // todo: these filter strings should really be read from the metadata format
     private final static String filterString[] = {".CMD.Resources.", ".CMD.Header.", ".Kinnate.Entity."};
+    private final static String cmdiStartPath = MetadataFormat.getMetadataStartPath(".cmdi") + ".";
     public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
     private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     private static MessageDialogHandler messageDialogHandler;
@@ -126,11 +127,23 @@ public class CmdiTemplate extends ArbilTemplate {
 	messageDialogHandler = handler;
     }
     private final SessionStorage sessionStorage;
+    private final boolean verbatimXml;
 
     public CmdiTemplate(SessionStorage sessionStorage) {
+	this(sessionStorage, false);
+    }
+
+    /**
+     * 
+     * @param sessionStorage session storage used to store/retrieve cached copies of XSD's
+     * @param useVerbatimXmlStructure whether to make child paths for every level in the XML structure; if false, compacts structure
+     */
+    public CmdiTemplate(SessionStorage sessionStorage, boolean useVerbatimXmlStructure) {
 	super(new CmdiDocumentationLanguages(sessionStorage));
 	this.sessionStorage = sessionStorage;
+	this.verbatimXml = useVerbatimXmlStructure;
     }
+    
     private String nameSpaceString;
     private Document schemaDocument;
     private Map<String, String> dataCategoriesMap;
@@ -324,10 +337,8 @@ public class CmdiTemplate extends ArbilTemplate {
 	    return false;
 	}
 	// refuse filtered paths
-	for (String currentFilter : filterString) {
-	    if (childPathString[0].startsWith(currentFilter)) {
-		return false;
-	    }
+	if (isFilteredPath(childPathString[0])) {
+	    return false;
 	}
 	return allowEntry;
     }
@@ -393,7 +404,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		SchemaType currentSchemaType = schemaProperty.getType();
 		currentNodeMenuName = localName;
 		subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString, xPathAPI);
-		if (cardinality.canHaveMultiple)/* || (VERBATIM_XML))*/ {
+		if (cardinality.canHaveMultiple || (verbatimXml && pathString.startsWith(cmdiStartPath))) {
 		    if (subNodeCount > 0) {
 			// todo check for case of one or only single sub element and when found do not add as a child path
 			arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
@@ -902,6 +913,15 @@ public class CmdiTemplate extends ArbilTemplate {
 			return true;
 		    }
 		}
+	    }
+	}
+	return false;
+    }
+
+    private boolean isFilteredPath(String path) {
+	for (String currentFilter : filterString) {
+	    if (path.startsWith(currentFilter)) {
+		return true;
 	    }
 	}
 	return false;
