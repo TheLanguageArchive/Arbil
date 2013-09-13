@@ -25,9 +25,7 @@ import nl.mpi.arbil.ui.ArbilHyperlinkListener;
 import nl.mpi.arbil.ui.ArbilNodeSearchColumnComboBox;
 import nl.mpi.arbil.ui.CmdiProfilesPanel;
 import nl.mpi.arbil.ui.ImportExportDialog;
-import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.RemoteServerSearchTermPanel;
-import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.ArbilContextMenu;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
@@ -61,7 +59,6 @@ public class ArbilSwingInjector extends ArbilInjector {
     public void injectTreeHelper(TreeHelper treeHelper) {
 	super.injectTreeHelper(treeHelper);
 	ArbilSetupWizard.setTreeHelper(treeHelper);
-	ArbilMenuBar.setTreeHelper(treeHelper);
     }
 
     public void injectMimeHashQueue(MimeHashQueue mimeHashQueue) {
@@ -75,7 +72,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	CmdiProfilesPanel.setWindowManager(windowManager);
 	ArbilHyperlinkListener.setWindowManager(windowManager);
 	ArbilLongFieldEditor.setWindowManager(windowManager);
-	ArbilMenuBar.setWindowManager(windowManager);
 	ImportExportDialog.setWindowManager(windowManager);
     }
 
