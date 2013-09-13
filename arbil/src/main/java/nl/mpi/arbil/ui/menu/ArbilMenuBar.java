@@ -87,32 +87,16 @@ public class ArbilMenuBar extends JMenuBar {
     private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
     public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
     private final WebstartHelper webstartHelper = new WebstartHelper();
-    private static SessionStorage sessionStorage;
-    private final ArbilConfiguration applicationConfiguration;
-
-    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
-	sessionStorage = sessionStorageInstance;
-    }
-    private static MimeHashQueue mimeHashQueue;
-
-    public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance) {
-	mimeHashQueue = mimeHashQueueInstance;
-    }
+    private final SessionStorage sessionStorage;
+    private final MimeHashQueue mimeHashQueue;
     private final ArbilTreeHelper treeHelper;
-
     private final ArbilWindowManager windowManager;
-
-    private static MessageDialogHandler dialogHandler;
-
-    public static void setMessageDialogHandler(MessageDialogHandler dialogHandlerInstance) {
-	dialogHandler = dialogHandlerInstance;
-    }
-    private static DataNodeLoader dataNodeLoader;
-
-    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
-	dataNodeLoader = dataNodeLoaderInstance;
-    }
-    final static public JMenu windowMenu = new JMenu();
+    private final MessageDialogHandler dialogHandler;
+    private final DataNodeLoader dataNodeLoader;
+    private final ArbilLogConfigurer logConfigurer;
+    private final ApplicationVersionManager versionManager;
+    private final ArbilConfiguration applicationConfiguration;
+    private JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
     private JMenuItem saveFileMenuItem = new JMenuItem();
     private JMenuItem showChangedNodesMenuItem = new JMenuItem();
@@ -157,7 +141,6 @@ public class ArbilMenuBar extends JMenuBar {
     private JCheckBoxMenuItem showStatusBarMenuItem = new JCheckBoxMenuItem();
     private final PreviewSplitPanel previewSplitPanel;
     private final JApplet containerApplet;
-    private final ArbilLogConfigurer logConfigurer;
     private JMenuItem exitMenuItem = new JMenuItem() {
 	@Override
 	public boolean isVisible() {
@@ -170,19 +153,19 @@ public class ArbilMenuBar extends JMenuBar {
 	    return !isMacOsMenu();
 	}
     };
-    private static ApplicationVersionManager versionManager;
 
-    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
-	versionManager = versionManagerInstance;
-    }
-
-    public ArbilMenuBar(ArbilConfiguration appConfiguration, PreviewSplitPanel previewSplitPanel, JApplet containerApplet, ArbilLogConfigurer logConfigurer, ArbilTreeHelper treeHelper, ArbilWindowManager windowManager) {
+    public ArbilMenuBar(ArbilConfiguration appConfiguration, SessionStorage sessionStorage, MessageDialogHandler dialogHandler, ArbilWindowManager windowManager, ArbilTreeHelper treeHelper, DataNodeLoader dataNodeLoader, MimeHashQueue mimeHashQueue, ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer, JApplet containerApplet, PreviewSplitPanel previewSplitPanel) {
 	this.containerApplet = containerApplet;
 	this.previewSplitPanel = previewSplitPanel;
+	this.versionManager = versionManager;
 	this.logConfigurer = logConfigurer;
 	this.applicationConfiguration = appConfiguration;
 	this.treeHelper = treeHelper;
 	this.windowManager = windowManager;
+	this.dialogHandler = dialogHandler;
+	this.dataNodeLoader = dataNodeLoader;
+	this.sessionStorage = sessionStorage;
+	this.mimeHashQueue = mimeHashQueue;
 
 	initFileMenu();
 	initEditMenu();
@@ -670,6 +653,8 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initWindowMenu() {
+	windowManager.setWindowMenu(windowMenu);
+	
 	windowMenu.setText(menus.getString("WINDOW"));
 
 	resetWindowsMenuItem.setText(menus.getString("RESET WINDOW LOCATIONS"));

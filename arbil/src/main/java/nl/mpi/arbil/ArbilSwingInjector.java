@@ -49,7 +49,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	super.injectSessionStorage(sessionStorage);
 	ArbilFieldViews.setSessionStorage(sessionStorage);
 	ArbilNodeSearchColumnComboBox.setSessionStorage(sessionStorage);
-	ArbilMenuBar.setSessionStorage(sessionStorage);
 	ImportExportDialog.setSessionStorage(sessionStorage);
 	ArbilSetupWizard.setSessionStorage(sessionStorage);
 	ArbilHyperlinkListener.setSessionStorage(sessionStorage);
@@ -59,10 +58,6 @@ public class ArbilSwingInjector extends ArbilInjector {
     public void injectTreeHelper(TreeHelper treeHelper) {
 	super.injectTreeHelper(treeHelper);
 	ArbilSetupWizard.setTreeHelper(treeHelper);
-    }
-
-    public void injectMimeHashQueue(MimeHashQueue mimeHashQueue) {
-	ArbilMenuBar.setMimeHashQueue(mimeHashQueue);
     }
 
     @Override
@@ -84,7 +79,6 @@ public class ArbilSwingInjector extends ArbilInjector {
 	CmdiProfilesPanel.setMessageDialogHandler(messageDialogHandler);
 	ArbilContextMenu.setMessageDialogHandler(messageDialogHandler);
 	RemoteServerSearchTermPanel.setMessageDialogHandler(messageDialogHandler);
-	ArbilMenuBar.setMessageDialogHandler(messageDialogHandler);
 	ImportExportDialog.setMessageDialogHandler(messageDialogHandler);
 	ArbilRemoteSearch.setMessageDialogHandler(messageDialogHandler);
     }
@@ -94,6 +88,5 @@ public class ArbilSwingInjector extends ArbilInjector {
 	super.injectDataNodeLoader(dataNodeLoader);
 	ArbilHyperlinkListener.setDataNodeLoader(dataNodeLoader);
 	ArbilContextMenu.setDataNodeLoader(dataNodeLoader);
-	ArbilMenuBar.setDataNodeLoader(dataNodeLoader);
     }
 }

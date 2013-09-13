@@ -22,6 +22,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ResourceBundle;
 import nl.mpi.arbil.MacAdapter.MacAdapterException;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -67,6 +68,7 @@ public class ArbilMain extends javax.swing.JFrame {
     private final ArbilLogConfigurer logConfigurer;
     private final ArbilTableController tableController;
     private final ArbilSessionStorage sessionStorage;
+    private final ArbilDataNodeLoader dataNodeLoader;
 
     /**
      * @param args the command line arguments
@@ -116,6 +118,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	this.windowManager = injector.getWindowManager();
 	this.mimeHashQueue = injector.getMimeHashQueue();
 	this.tableController = injector.getTableController();
+	this.dataNodeLoader = injector.getDataNodeLoader();
     }
 
     public void run() {
@@ -125,17 +128,16 @@ public class ArbilMain extends javax.swing.JFrame {
 	checkFirstRun();
     }
 
-
     private ArbilConfiguration readConfig() {
 	ArbilConfigurationManager configManager = new ArbilConfigurationManager(sessionStorage);
 	ArbilConfiguration appConfig = configManager.read();
-	
+
 	// Set shared config on using objects
 	ArbilTemplateManager.getSingleInstance().setApplicationConfiguration(appConfig);
 	MetadataReader.getSingleInstance().setApplicationConfiguration(appConfig);
 	return appConfig;
     }
-    
+
     private void initApplication() {
 
 	try {
@@ -167,7 +169,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	final ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController, previewSplitPanel, dragDrop);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
-	arbilMenuBar = new ArbilMenuBar(appConfig, previewSplitPanel, null, logConfigurer, treeHelper, windowManager);
+	arbilMenuBar = new ArbilMenuBar(appConfig, sessionStorage, windowManager, windowManager, treeHelper, dataNodeLoader, mimeHashQueue, versionManager, logConfigurer, null, previewSplitPanel);
 	setJMenuBar(arbilMenuBar);
 
 	mainSplitPane.setDividerLocation(0.25);

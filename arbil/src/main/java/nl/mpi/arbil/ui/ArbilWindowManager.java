@@ -61,6 +61,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -129,7 +130,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     private Collection<ArbilTaskListener> taskListeners = new HashSet<ArbilTaskListener>();
     private ApplicationVersionManager versionManager;
     private ImageBoxRenderer imageBoxRenderer;
-
+    private JMenu windowMenu;
+    
     public void setVersionManager(ApplicationVersionManager versionManagerInstance) {
         versionManager = versionManagerInstance;
     }
@@ -164,6 +166,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
         dragDrop.setTransferHandlerOnComponent(desktopPane);
     }
 
+    public void setWindowMenu(JMenu windowMenu) {
+	this.windowMenu = windowMenu;
+    }
+    
     public ArbilWindowManager() {
         desktopPane = new JDesktopPane();
         desktopPane.setBackground(new java.awt.Color(204, 204, 204));
@@ -865,8 +871,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
                 Component[] windowAndMenu = windowList.get(windowName);
 
                 // Remove from windows menu
-                if (ArbilMenuBar.windowMenu != null && windowAndMenu != null) {
-                    ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
+                if (windowMenu != null && windowAndMenu != null) {
+                    windowMenu.remove(windowAndMenu[1]);
                 }
 
                 // Check if the child component(s) implement ArbilWindowComponent. If so, call their window closed method
@@ -880,8 +886,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             }
         });
         windowList.put(currentWindowName, new Component[]{windowFrame, windowMenuItem});
-        if (ArbilMenuBar.windowMenu != null) {
-            ArbilMenuBar.windowMenu.add(windowMenuItem);
+        if (windowMenu != null) {
+            windowMenu.add(windowMenuItem);
         }
         return currentWindowName;
     }
@@ -907,8 +913,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             if (focusedWindow != null) {
                 String windowName = focusedWindow.getName();
                 Component[] windowAndMenu = (Component[]) windowList.get(windowName);
-                if (windowAndMenu != null && ArbilMenuBar.windowMenu != null) {
-                    ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
+                if (windowAndMenu != null && windowMenu != null) {
+                    windowMenu.remove(windowAndMenu[1]);
                 }
                 windowList.remove(windowName);
                 desktopPane.remove(focusedWindow);
@@ -1074,8 +1080,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
             if (focusedWindow != null) {
                 String windowName = focusedWindow.getName();
                 Component[] windowAndMenu = (Component[]) windowList.get(windowName);
-                if (windowAndMenu != null && ArbilMenuBar.windowMenu != null) {
-                    ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
+                if (windowAndMenu != null && windowMenu != null) {
+                    windowMenu.remove(windowAndMenu[1]);
                 }
                 windowList.remove(windowName);
                 getDesktopPane().remove(focusedWindow);
