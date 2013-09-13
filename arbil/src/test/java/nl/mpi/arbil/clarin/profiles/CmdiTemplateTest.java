@@ -36,18 +36,17 @@ import static org.junit.Assert.*;
 public class CmdiTemplateTest {
 
     private static final Mockery context = new JUnit4Mockery();
-    private static SessionStorage sessionStorage;
     private static CmdiTemplate instance;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-	sessionStorage = context.mock(SessionStorage.class);
-	instance = new CmdiTemplate(sessionStorage);
+	SessionStorage sessionStorage = context.mock(SessionStorage.class);
+	instance = new CmdiTemplate(sessionStorage, false); // false -> most tests assume non-verbatim mode
 
-	readTestProfile();
+	readTestProfile(instance, context, sessionStorage);
     }
 
-    private static void readTestProfile() throws URISyntaxException {
+    private static void readTestProfile(CmdiTemplate template, Mockery context, final SessionStorage sessionStorage) throws URISyntaxException {
 	final String testProfileUri = CmdiTemplateTest.class.getResource("/nl/mpi/arbil/data/Example_Profile_Instance.xsd").toString();
 
 	final CmdiProfileProvider profileReader = context.mock(CmdiProfileProvider.class);
@@ -66,7 +65,7 @@ public class CmdiTemplateTest {
 	    }
 	});
 
-	instance.loadTemplate(testProfileUri, profileReader);
+	template.loadTemplate(testProfileUri, profileReader);
     }
 
     @Test
@@ -177,11 +176,43 @@ public class CmdiTemplateTest {
     @Test
     public void testPathIsChildNode() {
 	{
+	    // this should always be a child node
 	    final String result = instance.pathIsChildNode(".CMD.Components.Example_Profile_Instance.example-component-actor.ActorLanguage");
 	    assertEquals("example-component-actor", result);
 	}
 	{
+	    // this should be a child node in verbatim mode (so not in this case!)
+	    final String result = instance.pathIsChildNode(".CMD.Components.Example_Profile_Instance.example-component-actor");
+	    assertNull(result);
+	}
+	{
+	    // this should never be a child node
 	    final String result = instance.pathIsChildNode(".CMD.Components.Example_Profile_Instance.example-component-actor.title");
+	    assertNull(result);
+	}
+    }
+
+    @Test
+    public void testPathIsChildNodeXmlVerbatim() throws Exception {
+	// testing in verbatim XML mode, cannot share static instance of CmdiTemplate so some code duplication is required here..
+	final Mockery xmlVerbatimContext = new JUnit4Mockery();
+	final SessionStorage xmlVerbatimSessionStorage = xmlVerbatimContext.mock(SessionStorage.class);
+	final CmdiTemplate xmlVerbatimInstance = new CmdiTemplate(xmlVerbatimSessionStorage, true);
+	readTestProfile(xmlVerbatimInstance, xmlVerbatimContext, xmlVerbatimSessionStorage);
+
+	{
+	    // this should always be a child node
+	    final String result = xmlVerbatimInstance.pathIsChildNode(".CMD.Components.Example_Profile_Instance.example-component-actor.ActorLanguage");
+	    assertEquals("example-component-actor", result);
+	}
+	{
+	    // this should be a child node in verbatim mode
+	    final String result = xmlVerbatimInstance.pathIsChildNode(".CMD.Components.Example_Profile_Instance.example-component-actor");
+	    assertEquals("Example_Profile_Instance", result);
+	}
+	{
+	    // this should never be a child node
+	    final String result = xmlVerbatimInstance.pathIsChildNode(".CMD.Components.Example_Profile_Instance.example-component-actor.title");
 	    assertNull(result);
 	}
     }
