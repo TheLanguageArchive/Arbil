@@ -622,7 +622,7 @@ public class MetadataReader {
 		if (fullNodePath.length() == 0) {
 		    getTemplate(childNode, parentNode, childNodeAttributes);
 		}
-		if (localName.equals("Corpus")) {
+		if (localName.equals("Corpus")) { //TODO: Only for IMDI
 		    getImdiCatalogue(childNodeAttributes, parentNode, childLinks, parentChildTree);
 		}
 

@@ -87,6 +87,7 @@ import org.xml.sax.SAXException;
  */
 public class CmdiTemplate extends ArbilTemplate {
 
+    private final static boolean VERBATIM_XML = true;
     private final static Logger logger = LoggerFactory.getLogger(CmdiTemplate.class);
     private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     public static final String XML_NAMESPACE = ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace");
@@ -115,6 +116,8 @@ public class CmdiTemplate extends ArbilTemplate {
      * Pattern of URIs that should not be parsed as DCIF (but may occur as datcat URIs)
      */
     public final static Pattern DATCAT_URI_SKIP_PATTERN = Pattern.compile(".*purl\\.org.*");
+    // todo: these filter strings should really be read from the metadata format
+    private final static String filterString[] = {".CMD.Resources.", ".CMD.Header.", ".Kinnate.Entity."};
     public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
     private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     private static MessageDialogHandler messageDialogHandler;
@@ -129,8 +132,6 @@ public class CmdiTemplate extends ArbilTemplate {
 	this.sessionStorage = sessionStorage;
     }
     private String nameSpaceString;
-    // todo: these filter strings should really be read from the metadata format
-    private String filterString[] = {".CMD.Resources.", ".CMD.Header.", ".Kinnate.Entity."};
     private Document schemaDocument;
     private Map<String, String> dataCategoriesMap;
     private final Map<String, String> dataCategoryDescriptionMap = Collections.synchronizedMap(new HashMap<String, String>());
@@ -273,23 +274,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	Vector<String[]> childTypes = new Vector<String[]>();
 	if (targetNodeUserObject instanceof ArbilDataNode) {
 	    for (String[] childPathString : templatesArray) {
-		boolean allowEntry = false;
-		// allowing due to null path
-		if (targetNodeXpath == null) {
-		    allowEntry = true;
-		} else if (childPathString[0].startsWith(targetNodeXpath)) {
-		    allowEntry = true;
-		}
-		//disallowing addint to itself
-		if (childPathString[0].equals(targetNodeXpath) && isComponentPath) {
-		    allowEntry = false;
-		}
-		for (String currentFilter : filterString) {
-		    if (childPathString[0].startsWith(currentFilter)) {
-			allowEntry = false;
-		    }
-		}
-		if (allowEntry) {
+		if (shouldAllowChildTypeEntry(targetNodeXpath, childPathString, isComponentPath)) {
 		    childTypes.add(new String[]{childPathString[1], childPathString[0]});
 		}
 	    }
@@ -323,6 +308,28 @@ public class CmdiTemplate extends ArbilTemplate {
 	    });
 	}
 	return childTypes.elements();
+    }
+
+    private boolean shouldAllowChildTypeEntry(String targetNodeXpath, String[] childPathString, boolean isComponentPath) {
+	boolean allowEntry = false;
+	// allowing due to null path
+	if (targetNodeXpath == null) {
+	    allowEntry = true;
+	} else if (childPathString[0].startsWith(targetNodeXpath)) {
+	    allowEntry = true;
+	}
+
+	//disallowing addint to itself
+	if (childPathString[0].equals(targetNodeXpath) && isComponentPath) {
+	    return false;
+	}
+	// refuse filtered paths
+	for (String currentFilter : filterString) {
+	    if (childPathString[0].startsWith(currentFilter)) {
+		return false;
+	    }
+	}
+	return allowEntry;
     }
 
     private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
@@ -386,7 +393,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		SchemaType currentSchemaType = schemaProperty.getType();
 		currentNodeMenuName = localName;
 		subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString, xPathAPI);
-		if (cardinality.canHaveMultiple) {
+		if (cardinality.canHaveMultiple)/* || (VERBATIM_XML))*/ {
 		    if (subNodeCount > 0) {
 			// todo check for case of one or only single sub element and when found do not add as a child path
 			arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
