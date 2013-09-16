@@ -149,7 +149,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     }
 
     public void requestReload(ArbilDataNode currentDataNode, ArbilDataNodeLoaderCallBack callback) {
-	requestReload(currentDataNode, LoadingState.LOADED, callback);
+	requestReload(currentDataNode, currentDataNode.getRequestedLoadingState(), callback);
     }
 
     public void requestShallowReload(ArbilDataNode currentDataNode) {
@@ -181,7 +181,8 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 
     @Override
     public void requestReloadAllNodes() {
-	for (ArbilDataNode currentDataNode : arbilHashTable.values()) { // Should use copy of collection (e.g. toArray) to prevent concurrency exceptions?
+	final ArbilDataNode[] currentNodes = arbilHashTable.values().toArray(new ArbilDataNode[]{});
+	for (ArbilDataNode currentDataNode : currentNodes) { 
 	    requestReload(currentDataNode);
 	}
     }

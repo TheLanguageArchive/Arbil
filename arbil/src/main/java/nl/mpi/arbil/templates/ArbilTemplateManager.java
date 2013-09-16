@@ -537,6 +537,12 @@ public class ArbilTemplateManager {
 	    }
 	}
     }
+    
+    public void unloadCmdiTemplates(){
+	synchronized (cmdiLoadingState) {
+	    templatesHashTable.clear();
+	}
+    }
 
     /**
      * Loads a CMDI profile template and tells others to wait for it.
