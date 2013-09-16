@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -793,10 +794,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	    }
 	}
 	if (isInfoLink) {
-	    String infoTitle = fieldHashtable.values().iterator().next()[0].getFieldValue();
-	    infoTitle = infoTitle.trim();
-	    if (infoTitle.length() > 0) {
-		nodeText = infoTitle;
+	    final Iterator<ArbilField[]> fieldsIterator = fieldHashtable.values().iterator();
+	    if (fieldsIterator.hasNext()) {
+		String infoTitle = fieldsIterator.next()[0].getFieldValue();
+		infoTitle = infoTitle.trim();
+		if (infoTitle.length() > 0) {
+		    nodeText = infoTitle;
+		}
 	    }
 	}
 	//        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
