@@ -53,7 +53,6 @@ import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.ArbilConfiguration;
-import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -76,7 +75,6 @@ import org.xml.sax.SAXException;
 public class MetadataReader {
 
     private final static Logger logger = LoggerFactory.getLogger(MetadataReader.class);
-
     static private MetadataReader singleInstance = null;
 
     static synchronized public MetadataReader getSingleInstance() {
@@ -100,7 +98,6 @@ public class MetadataReader {
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
     }
-    
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
@@ -642,8 +639,9 @@ public class MetadataReader {
 			boolean isSingleton = false;
 			// Build URI for metaNode or subNode
 			final StringBuilder nodeURIStringBuilder = new StringBuilder(4).append(parentNode.getURI().toString()).append(pathUrlXpathSeparator).append(siblingNodePath);
-			if (maxOccurs > 1 || maxOccurs == -1 || !(parentDomNode.nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
-			    isSingleton = maxOccurs == 1;
+			if ((!applicationConfiguration.isVerbatimXmlTreeStructure() && (maxOccurs > 1 || maxOccurs == -1))
+				|| !(parentDomNode.nodeTemplate instanceof CmdiTemplate)) { // this version of the metanode creation should always be run for imdi files 
+			    isSingleton = maxOccurs == 1; // 
 			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
 			    metaNode.setParentDomNode(parentDomNode);
 
