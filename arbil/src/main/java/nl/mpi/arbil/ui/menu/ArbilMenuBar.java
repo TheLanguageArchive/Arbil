@@ -620,9 +620,10 @@ public class ArbilMenuBar extends JMenuBar {
 			menus.getString("MENU SWITCH XML VERBATIM STRUCTURE CONFIRM"),
 			menus.getString("MENU OPTION VERBATIM XML STRUCTURE IN TREE"))) {
 		    applicationConfiguration.setVerbatimXmlTreeStructure(verbatimXmlStructureMenuItem.isSelected());
+		    dataNodeLoader.saveNodesNeedingSave(false);
 		    configurationManager.write(applicationConfiguration);
 		    ArbilTemplateManager.getSingleInstance().unloadCmdiTemplates();
-		    dataNodeLoader.requestReloadAllNodes();
+		    dataNodeLoader.requestReloadAllMetadataNodes();
 		}
 		verbatimXmlStructureMenuItem.setSelected(applicationConfiguration.isVerbatimXmlTreeStructure());
 	    }

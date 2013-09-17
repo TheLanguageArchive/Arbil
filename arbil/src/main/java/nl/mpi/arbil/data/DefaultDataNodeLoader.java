@@ -182,8 +182,18 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     @Override
     public void requestReloadAllNodes() {
 	final ArbilDataNode[] currentNodes = arbilHashTable.values().toArray(new ArbilDataNode[]{});
-	for (ArbilDataNode currentDataNode : currentNodes) { 
+	for (ArbilDataNode currentDataNode : currentNodes) {
 	    requestReload(currentDataNode);
+	}
+    }
+
+    @Override
+    public void requestReloadAllMetadataNodes() {
+	final ArbilDataNode[] currentNodes = arbilHashTable.values().toArray(new ArbilDataNode[]{});
+	for (ArbilDataNode currentDataNode : currentNodes) {
+	    if (currentDataNode.isMetaDataNode()) {
+		requestReload(currentDataNode);
+	    }
 	}
     }
 

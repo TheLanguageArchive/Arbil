@@ -58,6 +58,8 @@ public interface DataNodeLoader extends PluginArbilDataNodeLoader {
     public void requestShallowReload(ArbilDataNode dataNode);
 
     void requestReloadAllNodes();
+    
+    void requestReloadAllMetadataNodes();
 
     void requestReloadOnlyIfLoaded(URI arbilUri);
 
