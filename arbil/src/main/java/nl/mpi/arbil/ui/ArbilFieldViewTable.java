@@ -127,9 +127,9 @@ public class ArbilFieldViewTable extends JTable {
     public String getToolTipText(MouseEvent e) {
 	java.awt.Point p = e.getPoint();
 	switch (columnAtPoint(p)) {
-	    case 2:
+	    case ArbilFieldViewTableModel.SHOW_ONLY_COLUMN:
 		return widgets.getString("FIELD_VIEW_TABLE_SHOW ONLY CHECKED FIELDS (HIDES ALL OTHERS AND OVERRIDES HIDE FIELDS)");
-	    case 3:
+	    case ArbilFieldViewTableModel.HIDE_COLUMN:
 		return widgets.getString("FIELD_VIEW_TABLE_HIDE CHECKED FIELDS (ONLY ACTIVE WHEN NO 'SHOW ONLY' SELECTION IS MADE)");
 	}
 	return null;

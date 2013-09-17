@@ -70,10 +70,10 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 	java.lang.String.class, /*java.lang.String.class,*/ java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
     };
     private int showOnlyEnabledCount = -1;
-    private static final int fieldNameColumn = 0;
-    private static final int showOnlyColumn = 1;
-    private static final int hideColumn = 2;
-    private static final int widthColumn = 3;
+    public static final int FIELD_NAME_COLUMN = 0;
+    public static final int SHOW_ONLY_COLUMN = 1;
+    public static final int HIDE_COLUMN = 2;
+    public static final int WIDTH_COLUMN = 3;
 
     @Override
     public Class getColumnClass(int columnIndex) {
@@ -83,21 +83,21 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
     @Override
     public boolean isCellEditable(int row, int column) {
 //        logger.debug("isCellEditable showOnlyEnabledCount: " + showOnlyEnabledCount);
-	if (column == hideColumn) {
+	if (column == HIDE_COLUMN) {
 	    if (showOnlyEnabledCount < 0) { // count the show only selection
 		showOnlyEnabledCount = 0;
 		for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
-		    //if (((Boolean) getValueAt(rowCounter, showOnlyColumn)) == true) {
-		    if (getValueAt(rowCounter, showOnlyColumn).equals(true)) {
+		    //if (((Boolean) getValueAt(rowCounter, SHOW_ONLY_COLUMN)) == true) {
+		    if (getValueAt(rowCounter, SHOW_ONLY_COLUMN).equals(true)) {
 			showOnlyEnabledCount++;
 		    }
 		}
 
 	    }
 	    return showOnlyEnabledCount == 0;
-//                    return (getValueAt(row, showOnlyColumn).equals(true) || showOnlyEnabledCount == 0);
+//                    return (getValueAt(row, SHOW_ONLY_COLUMN).equals(true) || showOnlyEnabledCount == 0);
 	}
-	return (column == showOnlyColumn || column == hideColumn || column == widthColumn);
+	return (column == SHOW_ONLY_COLUMN || column == HIDE_COLUMN || column == WIDTH_COLUMN);
     }
 
     @Override
@@ -106,23 +106,23 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 	// clear the show only count to retrigger the checking process
 	showOnlyEnabledCount = -1;
 	boolean booleanState = Boolean.TRUE.equals(aValue);
-	String targetColumnName = getValueAt(row, fieldNameColumn).toString();
+	String targetColumnName = getValueAt(row, FIELD_NAME_COLUMN).toString();
 	switch (column) {
-	    case showOnlyColumn:
+	    case SHOW_ONLY_COLUMN:
 		if (booleanState) {
 		    imdiTableModel.getFieldView().addShowOnlyColumn(targetColumnName);
 		} else {
 		    imdiTableModel.getFieldView().removeShowOnlyColumn(targetColumnName);
 		}
 		break;
-	    case hideColumn:
+	    case HIDE_COLUMN:
 		if (booleanState) {
 		    imdiTableModel.getFieldView().addHiddenColumn(targetColumnName);
 		} else {
 		    imdiTableModel.getFieldView().removeHiddenColumn(targetColumnName);
 		}
 		break;
-	    case widthColumn:
+	    case WIDTH_COLUMN:
 		if (aValue != null) {
 		    if (aValue instanceof String) {
 			String intString = ((String) aValue).trim();
