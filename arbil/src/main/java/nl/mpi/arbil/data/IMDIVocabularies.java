@@ -23,7 +23,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.ResourceBundle;
 import javax.swing.ProgressMonitor;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -45,6 +47,8 @@ import org.xml.sax.XMLReader;
 public class IMDIVocabularies {
 
     private final static Logger logger = LoggerFactory.getLogger(IMDIVocabularies.class);
+    private final ResourceBundle services = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
+
     private static MessageDialogHandler messageDialogHandler;
     /**
      * Update IMDI vocabularies from server every two weeks
@@ -108,7 +112,7 @@ public class IMDIVocabularies {
 	    public void run() {
 		int succeededCount = 0;
 		int failedCount = 0;
-		ProgressMonitor progressMonitor = windowManager.newProgressMonitor("Downloading currently loaded vocabularies", "", 0, vocabulariesTable.size());
+		ProgressMonitor progressMonitor = windowManager.newProgressMonitor(services.getString("DOWNLOADING CURRENTLY LOADED VOCABULARIES"), "", 0, vocabulariesTable.size());
 		for (String currentUrl : vocabulariesTable.keySet()) {
 		    if (sessionStorage.replaceCacheCopy(currentUrl)) {
 			succeededCount++;
@@ -119,11 +123,11 @@ public class IMDIVocabularies {
 			progressMonitor.close();
 			break;
 		    }
-		    progressMonitor.setNote("downloaded: " + succeededCount + " failed: " + failedCount);
+		    progressMonitor.setNote(MessageFormat.format(services.getString("DOWNLOADED: {0} FAILED: {1}"), succeededCount, failedCount));
 		    progressMonitor.setProgress(succeededCount);
 		}
 		progressMonitor.close();
-		messageDialogHandler.addMessageDialogToQueue(("Downloaded " + succeededCount + " out of the " + vocabulariesTable.size() + " vocabularies currently in use.\nYou will need to restart the application for the new vocabularies to take effect."), "Re-download Current Vocabularies");
+		messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("DOWNLOADED {0} OUT OF THE {1} VOCABULARIES CURRENTLY IN USE YOU WILL NEED TO RESTART THE APPLICATION FOR THE NEW VOCABULARIES TO TAKE EFFECT"), succeededCount, vocabulariesTable.size()),java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services").getString("RE-DOWNLOAD CURRENT VOCABULARIES"));
 	    }
 	}.start();
     }
@@ -228,7 +232,7 @@ public class IMDIVocabularies {
 		saxParser.parse(inputSource, new SaxVocabularyHandler(vocabulary));
 		///////////////////////////////////////////////////////////////////////
 	    } catch (Exception ex) {
-		messageDialogHandler.addMessageDialogToQueue(("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options."), "Load Controlled Vocabulary");
+		messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("A CONTROLLED VOCABULARY COULD NOT BE READ SOME FIELDS MAY NOT SHOW ALL OPTIONS"), vocabRemoteUrl),java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services").getString("LOAD CONTROLLED VOCABULARY"));
 		logger.error("A controlled vocabulary could not be read: {}", vocabRemoteUrl, ex);
 	    }
 	}
