@@ -27,6 +27,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -111,7 +112,7 @@ public class ArbilTableController implements TableController {
 
     @Override
     public void openNodesInNewTable(ArbilDataNode[] nodes, String fieldName, ArbilDataNode registeredOwner) {
-	windowManager.openFloatingTableOnce(nodes, String.format(widgets.getString("%S IN %S"), fieldName, registeredOwner));
+	windowManager.openFloatingTableOnce(nodes, MessageFormat.format(widgets.getString("%S IN %S"), fieldName, registeredOwner));
     }
 
     @Override
@@ -209,7 +210,7 @@ public class ArbilTableController implements TableController {
 		}
 	    }
 	}
-	if (dialogHandler.showConfirmDialogBox(String.format(widgets.getString("DELETE %D INSTANCE OF THE FIELD '%S'?"), fieldsToDelete.size(), columnName), widgets.getString("DELETE FIELD"))) {
+	if (dialogHandler.showConfirmDialogBox(MessageFormat.format(widgets.getString("DELETE %D INSTANCE OF THE FIELD '%S'?"), fieldsToDelete.size(), columnName), widgets.getString("DELETE FIELD"))) {
 	    return deleteFields(fieldsToDelete);
 	} else {
 	    return false;
@@ -302,7 +303,7 @@ public class ArbilTableController implements TableController {
 	final List<Integer> foundRows = tableModel.getMatchingRows(selectedRow);
 	table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	table.getSelectionModel().clearSelection();
-	dialogHandler.addMessageDialogToQueue(String.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("FOUND %D MATCHING ROWS"), foundRows.size()), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("HIGHLIGHT MATCHING ROWS"));
+	dialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("FOUND %D MATCHING ROWS"), foundRows.size()), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("HIGHLIGHT MATCHING ROWS"));
 	for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
 	    for (int coloumCount = 0; coloumCount < table.getColumnCount(); coloumCount++) {
 		// TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
@@ -366,7 +367,7 @@ public class ArbilTableController implements TableController {
 	    final MetadataBuilder metadataBuilder = new MetadataBuilder();
 	    final boolean canContainField = metadataBuilder.canAddChildNode(dataNode, xmlPath);
 	    if (canContainField) {
-		if (dialogHandler.showConfirmDialogBox(String.format(widgets.getString("INSERT A NEW FIELD CONFIRM"), columnField.getTranslateFieldName(), dataNode.toString()), widgets.getString("INSERT FIELD"))) {
+		if (dialogHandler.showConfirmDialogBox(MessageFormat.format(widgets.getString("INSERT A NEW FIELD CONFIRM"), columnField.getTranslateFieldName(), dataNode.toString()), widgets.getString("INSERT FIELD"))) {
 		    try {
 			addChildNodeForFieldFromPlaceholder(metadataBuilder, dataNode, columnField, xmlPath);
 		    } catch (ArbilMetadataException mdEx) {
@@ -375,7 +376,7 @@ public class ArbilTableController implements TableController {
 		    }
 		}
 	    } else {
-		dialogHandler.addMessageDialogToQueue(String.format(widgets.getString("THE NODE '%S' CANNOT CONTAIN A FIELD OF THE SAME TYPE AS '%S' IN '%S'"), dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), widgets.getString("INSERT FIELD"));
+		dialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("THE NODE '%S' CANNOT CONTAIN A FIELD OF THE SAME TYPE AS '%S' IN '%S'"), dataNode.toString(), columnField.getTranslateFieldName(), columnField.getParentDataNode().toString()), widgets.getString("INSERT FIELD"));
 	    }
 	} else {
 	    logger.debug("Data node {} is not editable. Will not attempt to instantiate greyed out field", dataNode);

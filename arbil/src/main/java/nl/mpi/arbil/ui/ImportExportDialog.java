@@ -33,6 +33,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ResourceBundle;
@@ -878,7 +879,7 @@ public class ImportExportDialog implements ImportExportUI {
     public boolean askOverwrite(RetrievableFile currentRetrievableFile) {
 	// Ask first time or if 'remember choice' was never selected
 	if (rememberedOverwriteFileResult == null || !rememberedOverwriteFileResult.isRememberChoice()) {
-	    final String message = String.format(widgets.getString("THE FOLLOWING FILE ALREADY EXIST IN THE TARGET LOCATION"), currentRetrievableFile.getSourceURI());
+	    final String message = MessageFormat.format(widgets.getString("THE FOLLOWING FILE ALREADY EXIST IN THE TARGET LOCATION"), currentRetrievableFile.getSourceURI());
 	    rememberedOverwriteFileResult = dialogHandler.showDialogBoxRememberChoice(message, widgets.getString("OVERWRITE FILE?"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 	}
 

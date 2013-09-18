@@ -19,6 +19,7 @@ package nl.mpi.arbil.ui.favourites;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -81,7 +82,7 @@ public class ImportAction extends AbstractAction {
 	    } catch (FavouritesImportExportException ex) {
 		logger.error("An error occurred while importing favourites", ex);
 		dialogHandler.addMessageDialogToQueue(
-			String.format(widgets.getString("FAVOURITES_AN ERROR OCCURRED WHILE IMPORTING FAVOURITES"),
+			MessageFormat.format(widgets.getString("FAVOURITES_AN ERROR OCCURRED WHILE IMPORTING FAVOURITES"),
 			ex.getMessage()), "Error");
 	    }
 	}

@@ -23,6 +23,7 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -363,7 +364,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		clipBoardLines = clipBoardString.split("\r?\n|\r");
 	    }
 	    if (clipBoardLines.length == 1) {
-		String messageString = String.format(widgets.getString("FIELDS WILL BE OVERWRITTEN WITH THE SINGLE VALUE ON THE CLIPBOARD"), selectedCells.length);
+		String messageString = MessageFormat.format(widgets.getString("FIELDS WILL BE OVERWRITTEN WITH THE SINGLE VALUE ON THE CLIPBOARD"), selectedCells.length);
 		if (messageDialogHandler.showConfirmDialogBox(messageString, widgets.getString("PASTE"))) {
 		    for (ArbilField targetField : selectedCells) {
 			targetField.setFieldValue(clipBoardString, true, false);

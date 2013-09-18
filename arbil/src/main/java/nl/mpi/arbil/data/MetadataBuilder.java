@@ -424,9 +424,9 @@ public class MetadataBuilder {
 	if (addedNodeURIs.size() > 0) {
 	    final String title;
 	    if (addedNodeURIs.size() == 1) {
-		title = String.format(services.getString("NEW RESOURCE IN %S"), destinationNode);
+		title = MessageFormat.format(services.getString("NEW RESOURCE IN %S"), destinationNode);
 	    } else {
-		title = String.format(services.getString("NEW RESOURCES IN %S"), destinationNode);
+		title = MessageFormat.format(services.getString("NEW RESOURCES IN %S"), destinationNode);
 	    }
 	    windowManager.openFloatingTableOnce(addedNodeURIs.toArray(new URI[]{}), title);
 	}

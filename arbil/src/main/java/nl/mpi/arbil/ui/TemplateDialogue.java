@@ -156,7 +156,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
 	for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).getRootTemplatesArray()) {
 	    JCheckBox templateCheckBox;
 	    templateCheckBox = new JCheckBox();
-	    templateCheckBox.setText(String.format(widgets.getString("%S (INTERNAL)"), currentTemplateName[1]));
+	    templateCheckBox.setText(MessageFormat.format(widgets.getString("%S (INTERNAL)"), currentTemplateName[1]));
 	    templateCheckBox.setName(currentTemplateName[1]);
 	    templateCheckBox.setActionCommand("builtin:" + currentTemplateName[0]);
 	    templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));

@@ -26,6 +26,7 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
@@ -604,7 +605,7 @@ public class ArbilDragDrop {
 				//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
 				if (!moveAll) {
 				    detailsOption = JOptionPane.showOptionDialog(windowManager.getMainFrame(),
-					    String.format(widgets.getString("MOVE_SOURCE_NODE_TO_TARGET_NODE"), draggedTreeNodes[draggedCounter].getUserObject(), targetNodeName),
+					    MessageFormat.format(widgets.getString("MOVE_SOURCE_NODE_TO_TARGET_NODE"), draggedTreeNodes[draggedCounter].getUserObject(), targetNodeName),
 					    "Arbil",
 					    JOptionPane.DEFAULT_OPTION,
 					    JOptionPane.PLAIN_MESSAGE,
@@ -620,7 +621,7 @@ public class ArbilDragDrop {
 					doMoveLocalNodes(dropTargetUserObject, dropTargetDataNode, currentNode, draggedCounter, arbilNodesDeleteList);
 				    } catch (IOException ex) {
 					logger.error("Error moving {}", currentNode, ex);
-					continueMove = dialogHandler.showConfirmDialogBox(String.format(widgets.getString("COULD NOT MOVE %S DUE TO ERROR. SEE LOG FOR DETAILS. CONTINUE MOVING NODES?"), currentNode), widgets.getString("ERROR MOVING NODES"));
+					continueMove = dialogHandler.showConfirmDialogBox(MessageFormat.format(widgets.getString("COULD NOT MOVE %S DUE TO ERROR. SEE LOG FOR DETAILS. CONTINUE MOVING NODES?"), currentNode), widgets.getString("ERROR MOVING NODES"));
 				    }
 				}
 			    }

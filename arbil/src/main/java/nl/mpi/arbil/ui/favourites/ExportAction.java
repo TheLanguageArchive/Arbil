@@ -22,6 +22,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
@@ -79,7 +80,7 @@ public class ExportAction extends AbstractAction {
 	    } catch (FavouritesImportExportException ex) {
 		logger.error("An error occurred while exporting favourites", ex);
 		dialogHandler.addMessageDialogToQueue(
-			String.format(widgets.getString("AN ERROR OCCURRED WHILE EXPORTING FAVOURITES"),
+			MessageFormat.format(widgets.getString("AN ERROR OCCURRED WHILE EXPORTING FAVOURITES"),
 			ex.getMessage()), "Error");
 	    }
 	} else {

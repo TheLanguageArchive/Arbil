@@ -26,6 +26,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -341,7 +342,7 @@ public class ArbilTable extends JTable implements PluginArbilTable {
 		if (preferredColumnWidth == null) {
 		    return columnName;
 		} else {
-		    return String.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("TABLE_FIXED WIDTH"), columnName);
+		    return MessageFormat.format(widgets.getString("TABLE_FIXED WIDTH"), columnName);
 		}
 	    }
 	};

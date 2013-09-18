@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -101,7 +102,7 @@ public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerS
 
 	SwingUtilities.invokeLater(new Runnable() {
 	    public void run() {
-		resultCountLabel.setText(String.format(widgets.getString("SEARCH_N FOUND ON SERVER "), searchResult.length));
+		resultCountLabel.setText(MessageFormat.format(widgets.getString("SEARCH_N FOUND ON SERVER "), searchResult.length));
 	    }
 	});
 	return searchResult;

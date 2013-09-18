@@ -23,6 +23,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -316,7 +317,7 @@ public class ArbilTreeController {
 	    if (leadSelectedTreeNode != null) {
 		if (!leadSelectedTreeNode.getParentDomNode().getNeedsSaveToDisk(false)
 			|| dialogHandler.showConfirmDialogBox(
-			String.format(widgets.getString("ADDING A NODE WILL SAVE PENDING CHANGES"), leadSelectedTreeNode.getParentDomNode().toString()),
+			MessageFormat.format(widgets.getString("ADDING A NODE WILL SAVE PENDING CHANGES"), leadSelectedTreeNode.getParentDomNode().toString()),
 			widgets.getString("SAVE PENDING CHANGES?"))) {
 		    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, nodeType, nodeText);
 		}

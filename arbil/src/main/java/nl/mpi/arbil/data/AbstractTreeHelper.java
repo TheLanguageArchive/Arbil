@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -433,7 +434,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	if (nodesToDelete.containsKey(null)) {
 	    final int nodeCount = nodesToDelete.get(null).size();
 	    if (nodeCount > 1) {
-		messageDialogHandler.addMessageDialogToQueue(String.format(widgets.getString("%D NODES COULD NOT BE DELETED BECAUSE THEY HAVE NO PARENT"), nodeCount), widgets.getString("DELETE FROM PARENT"));
+		messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("%D NODES COULD NOT BE DELETED BECAUSE THEY HAVE NO PARENT"), nodeCount), widgets.getString("DELETE FROM PARENT"));
 	    } else {
 		messageDialogHandler.addMessageDialogToQueue(widgets.getString("COULD NOT DELETE NODE BECAUSE IT HAS NO PARENT"), widgets.getString("DELETE FROM PARENT"));
 	    }
@@ -477,9 +478,9 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     private String getNodeDeleteMessage(ArbilDataNode parentNode, Collection<ArbilDataNode> children) {
 	if (children.size() == 1) {
-	    return String.format(widgets.getString("DELETE THE NODE '%S' FROM ITS PARENT '%S'?"), children.iterator().next(), parentNode.toString());
+	    return MessageFormat.format(widgets.getString("DELETE THE NODE '%S' FROM ITS PARENT '%S'?"), children.iterator().next(), parentNode.toString());
 	} else {
-	    return String.format(widgets.getString("DELETE %D NODES FROM THEIR PARENT '%S'?"), children.size(), parentNode.toString());
+	    return MessageFormat.format(widgets.getString("DELETE %D NODES FROM THEIR PARENT '%S'?"), children.size(), parentNode.toString());
 	}
     }
 

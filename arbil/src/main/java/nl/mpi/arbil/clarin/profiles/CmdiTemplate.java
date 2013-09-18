@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -372,10 +373,10 @@ public class CmdiTemplate extends ArbilTemplate {
 	    logger.error("Could not open the required profile schema file: {}", e.getMessage());
 	    // Usually file not found, only print stack trace in debug
 	    logger.debug("Could not open the required profile schema file", e);
-	    messageDialogHandler.addMessageDialogToQueue(String.format(services.getString("COULD NOT OPEN THE REQUIRED TEMPLATE FILE: %S. SEE ERROR LOG FOR DETAILS "), getTemplateFile().getName()), services.getString("LOAD CLARIN TEMPLATE"));
+	    messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("COULD NOT OPEN THE REQUIRED TEMPLATE FILE: %S. SEE ERROR LOG FOR DETAILS "), getTemplateFile().getName()), services.getString("LOAD CLARIN TEMPLATE"));
 	} catch (XmlException e) {
 	    logger.error("Could not read the required template file: {}", templateFile, e);
-	    messageDialogHandler.addMessageDialogToQueue(String.format(services.getString("COULD NOT READ THE REQUIRED TEMPLATE FILE: %S. SEE ERROR LOG FOR DETAILS "), getTemplateFile().getName()), services.getString("LOAD CLARIN TEMPLATE"));
+	    messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(services.getString("COULD NOT READ THE REQUIRED TEMPLATE FILE: %S. SEE ERROR LOG FOR DETAILS "), getTemplateFile().getName()), services.getString("LOAD CLARIN TEMPLATE"));
 	}
     }
 
