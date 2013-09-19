@@ -991,30 +991,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 //                                    logger.debug(ex.getMessage());
 				}
 			    }
-			    // Handle save, undo and redo keys
-			    if ((keyEvent.isMetaDown() || keyEvent.isControlDown())
-				    && (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_Y || keyCode == KeyEvent.VK_Z)) {
-				// stop any table cell edits
-				stopEditingInCurrentWindow();
-				if (keyCode == KeyEvent.VK_S) {
-				    // Save all changes
-				    stopEditingInCurrentWindow();
-				    dataNodeLoader.saveNodesNeedingSave(true);
-				}
-				if (keyCode == java.awt.event.KeyEvent.VK_Z) {
-				    if (keyEvent.isShiftDown()) {
-					// Redo
-					ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
-				    } else {
-					// Undo
-					ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
-				    }
-				}
-				if (keyCode == java.awt.event.KeyEvent.VK_Y) {
-				    // Redo
-				    ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
-				}
-			    }
 			}
 		    }
 		}

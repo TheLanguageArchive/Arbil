@@ -220,18 +220,10 @@ public class ArbilMenuBar extends JMenuBar {
 		showChangedNodesMenuItem.setEnabled(dataNodeLoader.nodesNeedSave());
 	    }
 	});
-	saveFileMenuItem.setText(menus.getString("SAVE CHANGES"));
 	saveFileMenuItem.setEnabled(false);
-	saveFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    windowManager.stopEditingInCurrentWindow();
-		    dataNodeLoader.saveNodesNeedingSave(true);
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
-	    }
-	});
+	saveFileMenuItem.setAction(saveAction);
+	saveFileMenuItem.setText(menus.getString("SAVE CHANGES"));
+
 	fileMenu.add(saveFileMenuItem);
 	showChangedNodesMenuItem.setText(menus.getString("SHOW MODIFIED NODES"));
 	showChangedNodesMenuItem.setEnabled(false);
@@ -353,17 +345,13 @@ public class ArbilMenuBar extends JMenuBar {
 	//            }
 	//        });
 	//        editMenu.add(pasteMenuItem);
-	undoMenuItem.setText(menus.getString("UNDO"));
 	undoMenuItem.setEnabled(false);
-	undoMenuItem.addActionListener(new java.awt.event.ActionListener() {
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
-	    }
-	});
+	undoMenuItem.setAction(undoAction);
+	undoMenuItem.setText(menus.getString("UNDO"));
+
+	redoMenuItem.setEnabled(false);
+	redoMenuItem.setAction(redoAction);
+	redoMenuItem.setText(menus.getString("REDO"));
 
 	searchReplaceMenuItem = new JMenuItem() {
 	    @Override
@@ -380,20 +368,9 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
-	editMenu.add(searchReplaceMenuItem);
 
+	editMenu.add(searchReplaceMenuItem);
 	editMenu.add(undoMenuItem);
-	redoMenuItem.setText(menus.getString("REDO"));
-	redoMenuItem.setEnabled(false);
-	redoMenuItem.addActionListener(new java.awt.event.ActionListener() {
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
-	    }
-	});
 	editMenu.add(redoMenuItem);
 	this.add(editMenu);
     }
@@ -884,9 +861,21 @@ public class ArbilMenuBar extends JMenuBar {
 	final int modifier = isMacOsMenu() ? KeyEvent.META_DOWN_MASK : KeyEvent.CTRL_DOWN_MASK;
 
 	saveFileMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_S);
-	saveFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, modifier));
-	undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, modifier));
-	redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_DOWN_MASK | modifier));
+	final KeyStroke saveKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_S, modifier);
+	saveFileMenuItem.setAccelerator(saveKeyStroke);
+	getActionMap().put("save", saveAction);
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(saveKeyStroke, "save");
+	
+	final KeyStroke undoKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_Z, modifier);
+	undoMenuItem.setAccelerator(undoKeyStroke);
+	getActionMap().put("undo", undoAction);
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(undoKeyStroke, "undo");
+
+	final KeyStroke redoKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.SHIFT_DOWN_MASK | modifier);
+	redoMenuItem.setAccelerator(redoKeyStroke);
+	getActionMap().put("redo", redoAction);
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(redoKeyStroke, "redo");
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, modifier), "redo");
 
 	searchReplaceMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_F);
 	searchReplaceMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, modifier));
@@ -1180,6 +1169,36 @@ public class ArbilMenuBar extends JMenuBar {
     private final Action zoomResetAction = new AbstractAction("Reset zoom") {
 	public void actionPerformed(ActionEvent ae) {
 	    windowManager.resetFontScale();
+	}
+    };
+    private final Action saveAction = new AbstractAction() {
+	public void actionPerformed(ActionEvent ae) {
+	    try {
+		windowManager.stopEditingInCurrentWindow();
+		dataNodeLoader.saveNodesNeedingSave(true);
+	    } catch (Exception ex) {
+		BugCatcherManager.getBugCatcher().logError(ex);
+	    }
+	}
+    };
+    private final Action redoAction = new AbstractAction() {
+	public void actionPerformed(ActionEvent ae) {
+	    try {
+		windowManager.stopEditingInCurrentWindow();
+		ArbilJournal.getSingleInstance().redoFromFieldChangeHistory();
+	    } catch (Exception ex) {
+		BugCatcherManager.getBugCatcher().logError(ex);
+	    }
+	}
+    };
+    private final Action undoAction = new AbstractAction() {
+	public void actionPerformed(ActionEvent ae) {
+	    try {
+		windowManager.stopEditingInCurrentWindow();
+		ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
+	    } catch (Exception ex) {
+		BugCatcherManager.getBugCatcher().logError(ex);
+	    }
 	}
     };
 }
