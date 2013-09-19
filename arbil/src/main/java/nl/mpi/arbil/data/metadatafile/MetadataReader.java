@@ -104,7 +104,7 @@ public class MetadataReader {
     //public File selectedTemplateDirectory = null;
     public final static String imdiPathSeparator = ".";
     private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
-    private ArbilConfiguration applicationConfiguration; //TODO: make immutable and get injected through constructor (post singleton)
+    private ArbilConfiguration applicationConfiguration = new ArbilConfiguration(); //TODO: make immutable and get injected through constructor (post singleton)
 
     // todo: this should probably be moved into the arbiltemplate class
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {

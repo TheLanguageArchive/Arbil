@@ -58,8 +58,8 @@ public class ArbilTemplateManager {
     private static final Pattern PREFIX_PATTERN = Pattern.compile(PREFIX_REGEX);
     private final CmdiProfileSchemaHeaderReader headerReader = new CmdiProfileSchemaHeaderReader();
     private static SessionStorage sessionStorage;
-    private ArbilConfiguration applicationConfiguration; //TODO: make immutable and get injected through constructor (post singleton)
-    
+    private ArbilConfiguration applicationConfiguration = new ArbilConfiguration(); //TODO: make immutable and get injected through constructor (post singleton)
+
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
@@ -537,8 +537,8 @@ public class ArbilTemplateManager {
 	    }
 	}
     }
-    
-    public void unloadCmdiTemplates(){
+
+    public void unloadCmdiTemplates() {
 	synchronized (cmdiLoadingState) {
 	    templatesHashTable.clear();
 	}
@@ -553,17 +553,19 @@ public class ArbilTemplateManager {
      * @return Loaded CMDI template
      */
     private ArbilTemplate loadCmdiTemplateProfile(String nameSpaceString) {
-	CmdiTemplate cmdiTemplate = new CmdiTemplate(sessionStorage, applicationConfiguration.isVerbatimXmlTreeStructure());
-	cmdiTemplate.loadTemplate(nameSpaceString, CmdiProfileReader.getSingleInstance());
-	cmdiTemplate.startLoadingDatacategoryDescriptions();
-	templatesHashTable.put(nameSpaceString, cmdiTemplate);
-
-	synchronized (cmdiLoadingState) {
-	    cmdiLoadingState.remove(nameSpaceString);
-	    cmdiLoadingState.notifyAll();
+	try {
+	    CmdiTemplate cmdiTemplate = new CmdiTemplate(sessionStorage, applicationConfiguration.isVerbatimXmlTreeStructure());
+	    cmdiTemplate.loadTemplate(nameSpaceString, CmdiProfileReader.getSingleInstance());
+	    cmdiTemplate.startLoadingDatacategoryDescriptions();
+	    templatesHashTable.put(nameSpaceString, cmdiTemplate);
+	    return cmdiTemplate;
+	} finally {
+	    // remove from loading state whether load was successful or not
+	    synchronized (cmdiLoadingState) {
+		cmdiLoadingState.remove(nameSpaceString);
+		cmdiLoadingState.notifyAll();
+	    }
 	}
-
-	return cmdiTemplate;
     }
 
     public ArbilTemplate getTemplate(String templateName) {
