@@ -40,7 +40,7 @@ public class ArbilConfigurationManager {
 	
 	final ArbilConfiguration configuration = new ArbilConfiguration();
 	configuration.setVerbatimXmlTreeStructure(sessionStorage.loadBoolean(VERBATIM_XML_TREE_STRUCTURE, false));
-	configuration.setCopyNewResourcesToCache(sessionStorage.loadBoolean(VERBATIM_XML_TREE_STRUCTURE, false));
+	configuration.setCopyNewResourcesToCache(sessionStorage.loadBoolean(COPY_NEW_RESOURCES, false));
 	
 	logger.debug("Finished reading configuration:\n{}", configuration);
 	return configuration;

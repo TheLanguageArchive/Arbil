@@ -52,20 +52,26 @@ public class ArbilConfigurationManagerTest {
 	    {
 		oneOf(sessionStorage).loadBoolean(ArbilConfigurationManager.VERBATIM_XML_TREE_STRUCTURE, false);
 		will(returnValue(true));
+		oneOf(sessionStorage).loadBoolean(ArbilConfigurationManager.COPY_NEW_RESOURCES, false);
+		will(returnValue(true));
 	    }
 	});
 	ArbilConfiguration result = instance.read();
 	assertTrue(result.isVerbatimXmlTreeStructure());
+	assertTrue(result.isCopyNewResourcesToCache());
 
 	// read config set 2
 	context.checking(new Expectations() {
 	    {
 		oneOf(sessionStorage).loadBoolean(ArbilConfigurationManager.VERBATIM_XML_TREE_STRUCTURE, false);
 		will(returnValue(false));
+		oneOf(sessionStorage).loadBoolean(ArbilConfigurationManager.COPY_NEW_RESOURCES, false);
+		will(returnValue(false));
 	    }
 	});
 	result = instance.read();
 	assertFalse(result.isVerbatimXmlTreeStructure());
+	assertFalse(result.isCopyNewResourcesToCache());
     }
 
     /**
@@ -77,18 +83,22 @@ public class ArbilConfigurationManagerTest {
 
 	// write config set 1
 	config.setVerbatimXmlTreeStructure(true);
+	config.setCopyNewResourcesToCache(true);
 	context.checking(new Expectations() {
 	    {
 		oneOf(sessionStorage).saveBoolean(ArbilConfigurationManager.VERBATIM_XML_TREE_STRUCTURE, true);
+		oneOf(sessionStorage).saveBoolean(ArbilConfigurationManager.COPY_NEW_RESOURCES, true);
 	    }
 	});
 	instance.write(config);
 
 	// write config set 2
 	config.setVerbatimXmlTreeStructure(false);
+	config.setCopyNewResourcesToCache(false);
 	context.checking(new Expectations() {
 	    {
 		oneOf(sessionStorage).saveBoolean(ArbilConfigurationManager.VERBATIM_XML_TREE_STRUCTURE, false);
+		oneOf(sessionStorage).saveBoolean(ArbilConfigurationManager.COPY_NEW_RESOURCES, false);
 	    }
 	});
 	instance.write(config);
