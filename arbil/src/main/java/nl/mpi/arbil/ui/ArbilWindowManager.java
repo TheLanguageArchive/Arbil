@@ -990,28 +990,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 				    BugCatcherManager.getBugCatcher().logError(ex);
 //                                    logger.debug(ex.getMessage());
 				}
-			    } else if ((keyEvent.isMetaDown() || keyEvent.isControlDown()) && keyCode == KeyEvent.VK_MINUS) {
-				changeFontScale(-FONT_SCALE_STEP);
-			    } else if ((keyEvent.isMetaDown() || keyEvent.isControlDown()) && (keyCode == KeyEvent.VK_EQUALS || keyCode == KeyEvent.VK_PLUS)) {
-				changeFontScale(+FONT_SCALE_STEP);
-			    } else if ((keyEvent.isMetaDown() || keyEvent.isControlDown()) && keyCode == KeyEvent.VK_0) {
-				resetFontScale();
 			    }
 			    // Handle save, undo and redo keys
 			    if ((keyEvent.isMetaDown() || keyEvent.isControlDown())
 				    && (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_Y || keyCode == KeyEvent.VK_Z)) {
 				// stop any table cell edits
-				Component compFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-				while (compFocusOwner != null) {
-				    if (compFocusOwner instanceof ArbilTable) {
-					TableCellEditor currentEditor = ((ArbilTable) compFocusOwner).getCellEditor();
-					if (currentEditor != null) {
-					    currentEditor.stopCellEditing();
-					    break;
-					}
-				    }
-				    compFocusOwner = compFocusOwner.getParent();
-				}
+				stopEditingInCurrentWindow();
 				if (keyCode == KeyEvent.VK_S) {
 				    // Save all changes
 				    stopEditingInCurrentWindow();

@@ -20,6 +20,7 @@ package nl.mpi.arbil.ui.menu;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ResourceBundle;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
 import javax.swing.JCheckBoxMenuItem;
@@ -38,6 +41,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
@@ -76,6 +80,9 @@ import nl.mpi.pluginloader.ui.PluginMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+
+import static javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
+import static javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW;
 
 /**
  * ArbilMenuBar.java Created on Jul 9, 2009, 12:01:02 PM
@@ -117,7 +124,7 @@ public class ArbilMenuBar extends JMenuBar {
 //    private JMenuItem viewFavouritesMenuItem;
 //    private JMenu setStorageDirectoryMenu;
     private JMenu setCacheDirectoryMenu = new JMenu();
-    private JMenu viewMenu = new JMenu();
+    private JMenu columnViewMenu = new JMenu();
     private JMenuItem resetWindowsMenuItem = new JMenuItem();
     private JMenuItem closeWindowsMenuItem = new JMenuItem();
     private JMenu optionsMenu = new JMenu();
@@ -142,6 +149,10 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem setupWizardMenuItem = new JMenuItem();
     private JMenuItem importMenuItem = new JMenuItem();
     private JCheckBoxMenuItem showStatusBarMenuItem = new JCheckBoxMenuItem();
+    private JMenu viewMenu = new JMenu();
+    private JMenuItem zoomInMenuItem = new JMenuItem();
+    private JMenuItem zoomOutMenuItem = new JMenuItem();
+    private JMenuItem zoomResetMenuItem = new JMenuItem();
     private final PreviewSplitPanel previewSplitPanel;
     private final JApplet containerApplet;
     private JMenuItem exitMenuItem = new JMenuItem() {
@@ -173,6 +184,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	initFileMenu();
 	initEditMenu();
+	initViewMenu();
 	initOptionsMenu();
 	initPluginMenu();
 	initWindowMenu();
@@ -384,6 +396,18 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	editMenu.add(redoMenuItem);
 	this.add(editMenu);
+    }
+
+    private void initViewMenu() {
+	zoomInMenuItem.setAction(zoomInAction);
+	zoomOutMenuItem.setAction(zoomOutAction);
+	zoomResetMenuItem.setAction(zoomResetAction);
+
+	viewMenu.setText("View");
+	viewMenu.add(zoomInMenuItem);
+	viewMenu.add(zoomOutMenuItem);
+	viewMenu.add(zoomResetMenuItem);
+	this.add(viewMenu);
     }
 
     private void initOptionsMenu() {
@@ -632,8 +656,8 @@ public class ArbilMenuBar extends JMenuBar {
 
 	optionsMenu.add(new JSeparator());
 
-	viewMenu.setText(menus.getString("COLUMN VIEW FOR NEW TABLES"));
-	viewMenu.addMenuListener(new MenuListener() {
+	columnViewMenu.setText(menus.getString("COLUMN VIEW FOR NEW TABLES"));
+	columnViewMenu.addMenuListener(new MenuListener() {
 	    public void menuCanceled(MenuEvent evt) {
 	    }
 
@@ -644,7 +668,7 @@ public class ArbilMenuBar extends JMenuBar {
 		viewMenuMenuSelected(evt);
 	    }
 	});
-	optionsMenu.add(viewMenu);
+	optionsMenu.add(columnViewMenu);
 
 	editFieldViewsMenuItem.setText(menus.getString("EDIT COLUMN VIEWS"));
 	editFieldViewsMenuItem.setEnabled(false);
@@ -857,16 +881,41 @@ public class ArbilMenuBar extends JMenuBar {
 	// These shortcuts are also configured in ArbilWindowManager through an AWT event listener to make sure they are globablly available
 	// even before the menu has been accessed.
 
+	final int modifier = isMacOsMenu() ? KeyEvent.META_DOWN_MASK : KeyEvent.CTRL_DOWN_MASK;
+
 	saveFileMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_S);
-	saveFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
-	undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
-	redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+	saveFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, modifier));
+	undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, modifier));
+	redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_DOWN_MASK | modifier));
+
 	searchReplaceMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_F);
-	searchReplaceMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
+	searchReplaceMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, modifier));
+
+	// Zoom in shortcuts
+	zoomInMenuItem.setMnemonic(KeyEvent.VK_PLUS);
+	zoomInMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, modifier));
+	getActionMap().put("zoomIn", zoomInAction);
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, modifier), "zoomIn");
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, modifier), "zoomIn");
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, modifier), "zoomIn");
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, modifier | KeyEvent.SHIFT_DOWN_MASK), "zoomIn");
+
+	// Zoom out shortcuts
+	zoomOutMenuItem.setMnemonic(KeyEvent.VK_MINUS);
+	zoomOutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, modifier));
+	getActionMap().put("zoomOut", zoomOutAction);
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, modifier), "zoomOut");
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, modifier), "zoomOut");
+
+	// Zoom reset shortcuts
+	zoomResetMenuItem.setMnemonic(KeyEvent.VK_0);
+	zoomResetMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, modifier));
+	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_0, modifier), "zoomReset");
+
     }
 
     private void viewMenuMenuSelected(MenuEvent evt) {
-	initViewMenu(viewMenu);
+	initViewMenu(columnViewMenu);
     }
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -1116,5 +1165,21 @@ public class ArbilMenuBar extends JMenuBar {
      */
     public void setMacOsMenu(boolean macOsMenu) {
 	this.macOsMenu = macOsMenu;
+	setUpHotKeys();
     }
+    private final Action zoomInAction = new AbstractAction("Zoom in") {
+	public void actionPerformed(ActionEvent ae) {
+	    windowManager.changeFontScale(ArbilWindowManager.FONT_SCALE_STEP);
+	}
+    };
+    private final Action zoomOutAction = new AbstractAction("Zoom out") {
+	public void actionPerformed(ActionEvent ae) {
+	    windowManager.changeFontScale(-1 * ArbilWindowManager.FONT_SCALE_STEP);
+	}
+    };
+    private final Action zoomResetAction = new AbstractAction("Reset zoom") {
+	public void actionPerformed(ActionEvent ae) {
+	    windowManager.resetFontScale();
+	}
+    };
 }
