@@ -109,4 +109,9 @@ public class ArbilWicketDataNodeLoaderProxy implements DataNodeLoader {
     public boolean isNodeLoading(PluginDataNode dataNode) {
 	return getDataNodeLoader().isNodeLoading(dataNode);
     }
+
+    @Override
+    public void requestReloadAllMetadataNodes() {
+	getDataNodeLoader().requestReloadAllMetadataNodes();
+    }
 }
