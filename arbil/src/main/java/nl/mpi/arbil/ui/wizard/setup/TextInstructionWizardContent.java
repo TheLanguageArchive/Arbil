@@ -73,7 +73,7 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
 		BugCatcherManager.getBugCatcher().logError("Cannot load wizard text. Location: " + resourceLocation, null);
 	    } else {
 		try {
-		    final BufferedReader contentReader = new BufferedReader(new InputStreamReader(resourceStream));
+		    final BufferedReader contentReader = new BufferedReader(new InputStreamReader(resourceStream,"UTF-8"));
 		    final StringBuilder contentStringBuilder = new StringBuilder();
 
 		    for (String line = contentReader.readLine(); line != null; line = contentReader.readLine()) {
