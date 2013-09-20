@@ -651,18 +651,6 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initHelpMenu() {
-	helpMenu.setText(menus.getString("HELP"));
-	helpMenu.addMenuListener(new MenuListener() {
-	    public void menuCanceled(MenuEvent evt) {
-	    }
-
-	    public void menuDeselected(MenuEvent evt) {
-	    }
-
-	    public void menuSelected(MenuEvent evt) {
-		viewErrorLogMenuItem.setEnabled(logConfigurer.getLogFile(sessionStorage).exists());
-	    }
-	});
 	aboutMenuItem.setText(menus.getString("ABOUT"));
 	aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -673,7 +661,6 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
-	helpMenu.add(aboutMenuItem);
 	helpMenuItem.setText(menus.getString("HELP"));
 	helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -684,7 +671,6 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
-	helpMenu.add(helpMenuItem);
 	setupWizardMenuItem.setText(menus.getString("RUN SETUP WIZARD"));
 	setupWizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
@@ -693,7 +679,6 @@ public class ArbilMenuBar extends JMenuBar {
 		wizard.showModalDialog();
 	    }
 	});
-	helpMenu.add(setupWizardMenuItem);
 	arbilForumMenuItem.setText(menus.getString("ARBIL FORUM (WEBSITE)"));
 	arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -704,7 +689,6 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
-	helpMenu.add(arbilForumMenuItem);
 
 	logConsoleMenuItem.setText(menus.getString("SHOW LOG CONSOLE"));
 	logConsoleMenuItem.addActionListener(new ActionListener() {
@@ -716,7 +700,6 @@ public class ArbilMenuBar extends JMenuBar {
 	    logConsoleMenuItem.setEnabled(false);
 	    logConsoleMenuItem.setToolTipText(menus.getString("LOG CONSOLE NOT AVAILABLE WEB START"));
 	}
-	helpMenu.add(logConsoleMenuItem);
 
 	viewErrorLogMenuItem.setText(menus.getString("VIEW ERROR LOG"));
 	viewErrorLogMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -728,7 +711,6 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
-	helpMenu.add(viewErrorLogMenuItem);
 	checkForUpdatesMenuItem.setText(menus.getString("CHECK FOR UPDATES"));
 	checkForUpdatesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -744,7 +726,6 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
-	helpMenu.add(checkForUpdatesMenuItem);
 
 	shortCutKeysjMenuItem.setText(menus.getString("SHORT CUT KEYS"));
 	shortCutKeysjMenuItem.addActionListener(
@@ -757,7 +738,6 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
-	helpMenu.add(shortCutKeysjMenuItem);
 //	printHelpMenuItem.setText("Print Help File");
 //	printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
 //
@@ -790,16 +770,38 @@ public class ArbilMenuBar extends JMenuBar {
 		}
 	    }
 	});
+
+	helpMenu.setText(menus.getString("HELP"));
+	helpMenu.add(aboutMenuItem);
+	helpMenu.add(helpMenuItem);
+	helpMenu.add(setupWizardMenuItem);
+	helpMenu.add(shortCutKeysjMenuItem);
+	helpMenu.add(new JSeparator());
+	helpMenu.add(arbilForumMenuItem);
+	helpMenu.add(checkForUpdatesMenuItem);
+	helpMenu.add(new JSeparator());
+	helpMenu.add(viewErrorLogMenuItem);
+	helpMenu.add(logConsoleMenuItem);
+	helpMenu.add(new JSeparator());
 	helpMenu.add(selectLanguageMenuItem);
 	this.add(helpMenu);
+
+	helpMenu.addMenuListener(new MenuListener() {
+	    public void menuCanceled(MenuEvent evt) {
+	    }
+
+	    public void menuDeselected(MenuEvent evt) {
+	    }
+
+	    public void menuSelected(MenuEvent evt) {
+		viewErrorLogMenuItem.setEnabled(logConfigurer.getLogFile(sessionStorage).exists());
+	    }
+	});
     }
 
     private void setUpHotKeys() {
 	// The jdesktop seems to be consuming the key strokes used for save, undo and redo so to make this available over the whole 
 	// interface it has been added here.
-	//
-	// These shortcuts are also configured in ArbilWindowManager through an AWT event listener to make sure they are globablly available
-	// even before the menu has been accessed.
 
 	// Command key (meta) is default modifier for MacOS, CTRL for other OS's
 	final int modifier = (hostOS == HostOS.MACOS) ? KeyEvent.META_DOWN_MASK : KeyEvent.CTRL_DOWN_MASK;
