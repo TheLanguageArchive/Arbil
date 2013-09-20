@@ -159,6 +159,8 @@ public class ArbilMain extends javax.swing.JFrame {
 	    }
 	});
 
+	initMacHandlers();
+
 	initComponents();
 	windowManager.addTaskListener(statusBar);
 	PreviewSplitPanel previewSplitPanel = new PreviewSplitPanel(windowManager, tableController);
@@ -184,10 +186,10 @@ public class ArbilMain extends javax.swing.JFrame {
 	    versionManager.checkForUpdate();
 	}
 
-	initMacHandlers();
+
     }
 
-    private void initMacHandlers() {
+    private boolean initMacHandlers() {
 	final MacAdapter macAdapter = new MacAdapter() {
 	    @Override
 	    protected boolean performApplicationExit() {
@@ -203,15 +205,14 @@ public class ArbilMain extends javax.swing.JFrame {
 	try {
 	    if (macAdapter.initMacApplicationHandlers()) {
 		// Successfully set handlers, now remove redundant options from menu bar
-		arbilMenuBar.setMacOsMenu(true);
+		//arbilMenuBar.setMacOsMenu(true);
+		logger.debug("Mac handlers succesfully congifured");
+		return true;
 	    }
 	} catch (MacAdapterException exception) {
-	    System.err.println("Could not configure MacOS application handlers");
-	    if (exception != null) {
-		System.err.println(exception);
-	    }
-
+	    logger.error("Could not configure MacOS application handlers", exception);
 	}
+	return false;
     }
 
     private void checkFirstRun() {

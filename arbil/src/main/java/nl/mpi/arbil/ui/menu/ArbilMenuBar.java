@@ -380,7 +380,7 @@ public class ArbilMenuBar extends JMenuBar {
 	zoomOutMenuItem.setAction(zoomOutAction);
 	zoomResetMenuItem.setAction(zoomResetAction);
 
-	viewMenu.setText("View");
+	viewMenu.setText(menus.getString("MENU_VIEW"));
 	viewMenu.add(zoomInMenuItem);
 	viewMenu.add(zoomOutMenuItem);
 	viewMenu.add(zoomResetMenuItem);
@@ -642,7 +642,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 
 	    public void menuSelected(MenuEvent evt) {
-		viewMenuMenuSelected(evt);
+		colomnViewMenuMenuSelected(evt);
 	    }
 	});
 	optionsMenu.add(columnViewMenu);
@@ -865,7 +865,7 @@ public class ArbilMenuBar extends JMenuBar {
 	saveFileMenuItem.setAccelerator(saveKeyStroke);
 	getActionMap().put("save", saveAction);
 	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(saveKeyStroke, "save");
-	
+
 	final KeyStroke undoKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_Z, modifier);
 	undoMenuItem.setAccelerator(undoKeyStroke);
 	getActionMap().put("undo", undoAction);
@@ -903,8 +903,8 @@ public class ArbilMenuBar extends JMenuBar {
 
     }
 
-    private void viewMenuMenuSelected(MenuEvent evt) {
-	initViewMenu(columnViewMenu);
+    private void colomnViewMenuMenuSelected(MenuEvent evt) {
+	initColumnViewMenu(columnViewMenu);
     }
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -1036,8 +1036,8 @@ public class ArbilMenuBar extends JMenuBar {
 	return false;
     }
 
-    private void initViewMenu(javax.swing.JMenu viewMenu) {
-	viewMenu.removeAll();
+    private void initColumnViewMenu(javax.swing.JMenu menu) {
+	menu.removeAll();
 	ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
 	//String[] viewLabels = guiHelper.imdiFieldViews.getSavedFieldViewLables();
 	for (Enumeration menuItemName = ArbilFieldViews.getSingleInstance().getSavedFieldViewLables(); menuItemName.hasMoreElements();) {
@@ -1057,7 +1057,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    }
 		}
 	    });
-	    viewMenu.add(viewLabelRadioButtonMenuItem);
+	    menu.add(viewLabelRadioButtonMenuItem);
 	}
     }
 //    private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templateName, String selectedTemplate) {
@@ -1156,17 +1156,17 @@ public class ArbilMenuBar extends JMenuBar {
 	this.macOsMenu = macOsMenu;
 	setUpHotKeys();
     }
-    private final Action zoomInAction = new AbstractAction("Zoom in") {
+    private final Action zoomInAction = new AbstractAction(menus.getString("MENU_INCREASE_FONT_SIZE")) { 
 	public void actionPerformed(ActionEvent ae) {
 	    windowManager.changeFontScale(ArbilWindowManager.FONT_SCALE_STEP);
 	}
     };
-    private final Action zoomOutAction = new AbstractAction("Zoom out") {
+    private final Action zoomOutAction = new AbstractAction(menus.getString("MENU_DECREASE_FONT_SIZE")) { //TODO: i18n
 	public void actionPerformed(ActionEvent ae) {
 	    windowManager.changeFontScale(-1 * ArbilWindowManager.FONT_SCALE_STEP);
 	}
     };
-    private final Action zoomResetAction = new AbstractAction("Reset zoom") {
+    private final Action zoomResetAction = new AbstractAction(menus.getString("MENU_RESET_FONT_SIZE")) { //TODO: i18n
 	public void actionPerformed(ActionEvent ae) {
 	    windowManager.resetFontScale();
 	}
