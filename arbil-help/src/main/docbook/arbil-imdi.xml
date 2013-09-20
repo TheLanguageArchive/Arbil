@@ -1379,8 +1379,21 @@
             <entry>Previous window</entry>
           </row>
           <row>
-            <entry>CTR+P</entry>
+            <entry>CTRL+P/CMD+P</entry>
             <entry>Hide/Show the selection preview</entry>
+          </row>
+          <row>
+            <entry>CTRL++/CMD++</entry>
+            <entry>Increase the font size used in the application</entry>
+          </row>
+          <row>
+            <entry>CTRL+-/CMD+-</entry>
+            <entry>Decrease the font size used in the application</entry>
+          </row>
+          <row>
+            <entry>CTRL+0/CMD+0</entry>
+            <entry>Reset the font size used in the application to the
+            default value</entry>
           </row>
           <row>
             <entry>ENTER (in the tree)</entry>
