@@ -185,7 +185,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	// load the templates and populate the templates menu
 	setVisible(true);
 
-	if (arbilMenuBar.checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
+	if (sessionStorage.loadBoolean("checkNewVersionAtStart", true)) {
 	    versionManager.checkForUpdate();
 	}
 
@@ -207,8 +207,6 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	try {
 	    if (macAdapter.initMacApplicationHandlers()) {
-		// Successfully set handlers, now remove redundant options from menu bar
-		//arbilMenuBar.setMacOsMenu(true);
 		logger.debug("Mac handlers succesfully congifured");
 		return true;
 	    }

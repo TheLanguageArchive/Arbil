@@ -109,69 +109,9 @@ public class ArbilMenuBar extends JMenuBar {
     private final ApplicationVersionManager versionManager;
     private final ArbilConfiguration applicationConfiguration;
     private final ArbilConfigurationManager configurationManager;
-    private JMenu windowMenu = new JMenu();
-    private boolean macOsMenu = false;
-    private JMenuItem saveFileMenuItem = new JMenuItem();
-    private JMenuItem showChangedNodesMenuItem = new JMenuItem();
-    private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
-    private JMenuItem shortCutKeysjMenuItem = new JMenuItem();
-    private JMenuItem selectLanguageMenuItem = new JMenuItem();
-    private JMenuItem arbilForumMenuItem = new JMenuItem();
-    private JMenuItem checkForUpdatesMenuItem = new JMenuItem();
-    private JMenuItem viewErrorLogMenuItem = new JMenuItem();
-    private JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem = new JCheckBoxMenuItem();
-    private JMenuItem templatesMenu = new JMenuItem();
-    private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem = new JCheckBoxMenuItem();
-    private JCheckBoxMenuItem useLanguageIdInColumnNameCheckBoxMenuItem = new JCheckBoxMenuItem();
-    private JMenuItem verbatimXmlStructureMenuItem = new JCheckBoxMenuItem();
-    private JMenuItem undoMenuItem = new JMenuItem();
-//    private JMenuItem viewFavouritesMenuItem;
-//    private JMenu setStorageDirectoryMenu;
-    private JMenu setCacheDirectoryMenu = new JMenu();
-    private JMenu columnViewMenu = new JMenu();
-    private JMenuItem resetWindowsMenuItem = new JMenuItem();
-    private JMenuItem closeWindowsMenuItem = new JMenuItem();
-    private JMenu optionsMenu = new JMenu();
-    private JMenuItem searchReplaceMenuItem;
-    private JMenuItem pasteMenuItem = new JMenuItem();
-    private JMenuItem printHelpMenuItem = new JMenuItem();
-    private JMenuItem redoMenuItem = new JMenuItem();
-    public JCheckBoxMenuItem checkNewVersionAtStartCheckBoxMenuItem = new JCheckBoxMenuItem();
-    private JMenuItem copyMenuItem = new JMenuItem();
-    private JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem = new JCheckBoxMenuItem();
-    private JCheckBoxMenuItem checkResourcePermissionsCheckBoxMenuItem = new JCheckBoxMenuItem();
-    private JCheckBoxMenuItem schemaCheckLocalFiles = new JCheckBoxMenuItem();
-    private JMenuItem editPreferredLanguagesMenuItem = new JMenuItem();
-    private JMenuItem editFieldViewsMenuItem = new JMenuItem();
-    private JMenuItem logConsoleMenuItem = new JMenuItem();
-//    private JMenuItem editLocationsMenuItem;
-    private JMenuItem updateAllLoadedVocabulariesMenuItem = new JMenuItem();
-    private JMenu editMenu = new JMenu();
-    private JMenu fileMenu = new JMenu();
-    private JMenu helpMenu = new JMenu();
-    private JMenuItem helpMenuItem = new JMenuItem();
-    private JMenuItem setupWizardMenuItem = new JMenuItem();
-    private JMenuItem importMenuItem = new JMenuItem();
-    private JCheckBoxMenuItem showStatusBarMenuItem = new JCheckBoxMenuItem();
-    private JMenu viewMenu = new JMenu();
-    private JMenuItem zoomInMenuItem = new JMenuItem();
-    private JMenuItem zoomOutMenuItem = new JMenuItem();
-    private JMenuItem zoomResetMenuItem = new JMenuItem();
     private final PreviewSplitPanel previewSplitPanel;
     private final JApplet containerApplet;
     private final HostOS hostOS;
-    private JMenuItem exitMenuItem = new JMenuItem() {
-	@Override
-	public boolean isVisible() {
-	    return hostOS != HostOS.MACOS;
-	}
-    };
-    private JMenuItem aboutMenuItem = new JMenuItem() {
-	@Override
-	public boolean isVisible() {
-	    return hostOS != HostOS.MACOS;
-	}
-    };
 
     public ArbilMenuBar(ArbilConfiguration appConfiguration, SessionStorage sessionStorage, MessageDialogHandler dialogHandler, ArbilWindowManager windowManager, ArbilTreeHelper treeHelper, DataNodeLoader dataNodeLoader, MimeHashQueue mimeHashQueue, ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer, JApplet containerApplet, PreviewSplitPanel previewSplitPanel, HostOS hostOS) {
 	this.containerApplet = containerApplet;
@@ -359,12 +299,6 @@ public class ArbilMenuBar extends JMenuBar {
 	redoMenuItem.setAction(redoAction);
 	redoMenuItem.setText(menus.getString("REDO"));
 
-	searchReplaceMenuItem = new JMenuItem() {
-	    @Override
-	    public boolean isEnabled() {
-		return (windowManager.getCurrentFrameComponent() instanceof ArbilSplitPanel);
-	    }
-	};
 	searchReplaceMenuItem.setText(menus.getString("FIND/REPLACE"));
 	searchReplaceMenuItem.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
@@ -1190,6 +1124,70 @@ public class ArbilMenuBar extends JMenuBar {
 		ArbilJournal.getSingleInstance().undoFromFieldChangeHistory();
 	    } catch (Exception ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
+	    }
+	}
+    };
+    private final JMenu windowMenu = new JMenu();
+    private final JMenuItem saveFileMenuItem = new JMenuItem();
+    private final JMenuItem showChangedNodesMenuItem = new JMenuItem();
+    private final JCheckBoxMenuItem saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
+    private final JMenuItem shortCutKeysjMenuItem = new JMenuItem();
+    private final JMenuItem selectLanguageMenuItem = new JMenuItem();
+    private final JMenuItem arbilForumMenuItem = new JMenuItem();
+    private final JMenuItem checkForUpdatesMenuItem = new JMenuItem();
+    private final JMenuItem viewErrorLogMenuItem = new JMenuItem();
+    private final JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem = new JCheckBoxMenuItem();
+    private final JMenuItem templatesMenu = new JMenuItem();
+    private final JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem = new JCheckBoxMenuItem();
+    private final JCheckBoxMenuItem useLanguageIdInColumnNameCheckBoxMenuItem = new JCheckBoxMenuItem();
+    private final JMenuItem verbatimXmlStructureMenuItem = new JCheckBoxMenuItem();
+    private final JMenuItem undoMenuItem = new JMenuItem();
+    private final JMenu setCacheDirectoryMenu = new JMenu();
+    private final JMenu columnViewMenu = new JMenu();
+    private final JMenuItem resetWindowsMenuItem = new JMenuItem();
+    private final JMenuItem closeWindowsMenuItem = new JMenuItem();
+    private final JMenu optionsMenu = new JMenu();
+    private final JMenuItem pasteMenuItem = new JMenuItem();
+    private final JMenuItem redoMenuItem = new JMenuItem();
+    private final JCheckBoxMenuItem checkNewVersionAtStartCheckBoxMenuItem = new JCheckBoxMenuItem();
+    private final JMenuItem copyMenuItem = new JMenuItem();
+    private final JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem = new JCheckBoxMenuItem();
+    private final JCheckBoxMenuItem checkResourcePermissionsCheckBoxMenuItem = new JCheckBoxMenuItem();
+    private final JCheckBoxMenuItem schemaCheckLocalFiles = new JCheckBoxMenuItem();
+    private final JMenuItem editPreferredLanguagesMenuItem = new JMenuItem();
+    private final JMenuItem editFieldViewsMenuItem = new JMenuItem();
+    private final JMenuItem logConsoleMenuItem = new JMenuItem();
+    private final JMenuItem updateAllLoadedVocabulariesMenuItem = new JMenuItem();
+    private final JMenu editMenu = new JMenu();
+    private final JMenu fileMenu = new JMenu();
+    private final JMenu helpMenu = new JMenu();
+    private final JMenuItem helpMenuItem = new JMenuItem();
+    private final JMenuItem setupWizardMenuItem = new JMenuItem();
+    private final JMenuItem importMenuItem = new JMenuItem();
+    private final JCheckBoxMenuItem showStatusBarMenuItem = new JCheckBoxMenuItem();
+    private final JMenu viewMenu = new JMenu();
+    private final JMenuItem zoomInMenuItem = new JMenuItem();
+    private final JMenuItem zoomOutMenuItem = new JMenuItem();
+    private final JMenuItem zoomResetMenuItem = new JMenuItem();
+    private final JMenuItem exitMenuItem = new JMenuItem() {
+	@Override
+	public boolean isVisible() {
+	    return hostOS != HostOS.MACOS;
+	}
+    };
+    private JMenuItem aboutMenuItem = new JMenuItem() {
+	@Override
+	public boolean isVisible() {
+	    return hostOS != HostOS.MACOS;
+	}
+    };
+    private final JMenuItem searchReplaceMenuItem = new JMenuItem() {
+	@Override
+	public boolean isEnabled() {
+	    if (windowManager != null) {
+		return (windowManager.getCurrentFrameComponent() instanceof ArbilSplitPanel);
+	    } else {
+		return false;
 	    }
 	}
     };
