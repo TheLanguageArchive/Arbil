@@ -34,6 +34,7 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar.HostOS;
 import nl.mpi.arbil.userstorage.ArbilConfiguration;
 import nl.mpi.arbil.userstorage.ArbilConfigurationManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
@@ -159,7 +160,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	    }
 	});
 
-	initMacHandlers();
+	final boolean macHandlersInitialized = initMacHandlers();
 
 	initComponents();
 	windowManager.addTaskListener(statusBar);
@@ -171,7 +172,9 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	final ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController, previewSplitPanel, dragDrop);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
-	arbilMenuBar = new ArbilMenuBar(appConfig, sessionStorage, windowManager, windowManager, treeHelper, dataNodeLoader, mimeHashQueue, versionManager, logConfigurer, null, previewSplitPanel);
+
+	final HostOS hostOs = macHandlersInitialized ? HostOS.MACOS : HostOS.OTHER;
+	arbilMenuBar = new ArbilMenuBar(appConfig, sessionStorage, windowManager, windowManager, treeHelper, dataNodeLoader, mimeHashQueue, versionManager, logConfigurer, null, previewSplitPanel, hostOs);
 	setJMenuBar(arbilMenuBar);
 
 	mainSplitPane.setDividerLocation(0.25);

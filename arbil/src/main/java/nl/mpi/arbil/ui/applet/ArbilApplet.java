@@ -23,6 +23,7 @@ import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar.HostOS;
 import nl.mpi.arbil.userstorage.ArbilConfiguration;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilLogConfigurer;
@@ -52,7 +53,7 @@ public class ArbilApplet extends javax.swing.JApplet {
 		    arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), previewSplitPanel, null);
 		    mainSplitPane.setLeftComponent(arbilTreePanels);
 		    previewSplitPanel.setPreviewPanel(true);
-		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(new ArbilConfiguration(), injector.getSessionStorage(), injector.getWindowManager(), injector.getWindowManager(),injector.getTreeHelper(),injector.getDataNodeLoader(),injector.getMimeHashQueue(), new ApplicationVersionManager(new ArbilVersion()), new ArbilLogConfigurer(new ArbilVersion(), "arbil-applet-log"), ArbilApplet.this, previewSplitPanel);
+		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(new ArbilConfiguration(), injector.getSessionStorage(), injector.getWindowManager(), injector.getWindowManager(),injector.getTreeHelper(),injector.getDataNodeLoader(),injector.getMimeHashQueue(), new ApplicationVersionManager(new ArbilVersion()), new ArbilLogConfigurer(new ArbilVersion(), "arbil-applet-log"), ArbilApplet.this, previewSplitPanel, HostOS.OTHER);
 		    setJMenuBar(arbilMenuBar);
 //                  LinorgWindowManager.getSingleInstance().setComponents(this);
 		    injector.getWindowManager().openIntroductionPage();

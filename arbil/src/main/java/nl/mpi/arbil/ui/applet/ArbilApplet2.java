@@ -54,7 +54,7 @@ public class ArbilApplet2 extends JApplet {
 	ArbilTreePanels arbilTreePanels = new ArbilTreePanels(injector.getTreeHelper(), injector.getTreeController(), previewSplitPanel, null);
 	mainSplitPane.setLeftComponent(arbilTreePanels);
 	mainSplitPane.setRightComponent(previewSplitPanel);
-	arbilMenuBar = new ArbilMenuBar(new ArbilConfiguration(), injector.getSessionStorage(), injector.getWindowManager(), injector.getWindowManager(), injector.getTreeHelper(), injector.getDataNodeLoader(), injector.getMimeHashQueue(), new ApplicationVersionManager(new ArbilVersion()), new ArbilLogConfigurer(new ArbilVersion(), "arbil-applet-log"), this, previewSplitPanel);
+	arbilMenuBar = new ArbilMenuBar(new ArbilConfiguration(), injector.getSessionStorage(), injector.getWindowManager(), injector.getWindowManager(), injector.getTreeHelper(), injector.getDataNodeLoader(), injector.getMimeHashQueue(), new ApplicationVersionManager(new ArbilVersion()), new ArbilLogConfigurer(new ArbilVersion(), "arbil-applet-log"), this, previewSplitPanel, ArbilMenuBar.HostOS.OTHER);
 	ArbilMimeHashQueue.setAllowCookies(true);
 	add(mainSplitPane, java.awt.BorderLayout.CENTER);
 	setJMenuBar(arbilMenuBar);

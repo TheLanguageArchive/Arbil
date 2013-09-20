@@ -81,7 +81,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import static javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
 import static javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW;
 
 /**
@@ -91,6 +90,11 @@ import static javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW;
  */
 public class ArbilMenuBar extends JMenuBar {
 
+    public static enum HostOS {
+
+	MACOS,
+	OTHER
+    }
     private final static Logger logger = LoggerFactory.getLogger(ArbilMenuBar.class);
     private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
     public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
@@ -155,22 +159,24 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem zoomResetMenuItem = new JMenuItem();
     private final PreviewSplitPanel previewSplitPanel;
     private final JApplet containerApplet;
+    private final HostOS hostOS;
     private JMenuItem exitMenuItem = new JMenuItem() {
 	@Override
 	public boolean isVisible() {
-	    return !isMacOsMenu();
+	    return hostOS != HostOS.MACOS;
 	}
     };
     private JMenuItem aboutMenuItem = new JMenuItem() {
 	@Override
 	public boolean isVisible() {
-	    return !isMacOsMenu();
+	    return hostOS != HostOS.MACOS;
 	}
     };
 
-    public ArbilMenuBar(ArbilConfiguration appConfiguration, SessionStorage sessionStorage, MessageDialogHandler dialogHandler, ArbilWindowManager windowManager, ArbilTreeHelper treeHelper, DataNodeLoader dataNodeLoader, MimeHashQueue mimeHashQueue, ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer, JApplet containerApplet, PreviewSplitPanel previewSplitPanel) {
+    public ArbilMenuBar(ArbilConfiguration appConfiguration, SessionStorage sessionStorage, MessageDialogHandler dialogHandler, ArbilWindowManager windowManager, ArbilTreeHelper treeHelper, DataNodeLoader dataNodeLoader, MimeHashQueue mimeHashQueue, ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer, JApplet containerApplet, PreviewSplitPanel previewSplitPanel, HostOS hostOS) {
 	this.containerApplet = containerApplet;
 	this.previewSplitPanel = previewSplitPanel;
+	this.hostOS = hostOS;
 	this.versionManager = versionManager;
 	this.logConfigurer = logConfigurer;
 	this.applicationConfiguration = appConfiguration;
@@ -858,7 +864,8 @@ public class ArbilMenuBar extends JMenuBar {
 	// These shortcuts are also configured in ArbilWindowManager through an AWT event listener to make sure they are globablly available
 	// even before the menu has been accessed.
 
-	final int modifier = isMacOsMenu() ? KeyEvent.META_DOWN_MASK : KeyEvent.CTRL_DOWN_MASK;
+	// Command key (meta) is default modifier for MacOS, CTRL for other OS's
+	final int modifier = (hostOS == HostOS.MACOS) ? KeyEvent.META_DOWN_MASK : KeyEvent.CTRL_DOWN_MASK;
 
 	saveFileMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_S);
 	final KeyStroke saveKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_S, modifier);
@@ -1141,22 +1148,7 @@ public class ArbilMenuBar extends JMenuBar {
 //            templateCount++;
 //        }
 //    }
-
-    /**
-     * @return the macOsMenu
-     */
-    public boolean isMacOsMenu() {
-	return macOsMenu;
-    }
-
-    /**
-     * @param macOsMenu the macOsMenu to set
-     */
-    public void setMacOsMenu(boolean macOsMenu) {
-	this.macOsMenu = macOsMenu;
-	setUpHotKeys();
-    }
-    private final Action zoomInAction = new AbstractAction(menus.getString("MENU_INCREASE_FONT_SIZE")) { 
+    private final Action zoomInAction = new AbstractAction(menus.getString("MENU_INCREASE_FONT_SIZE")) {
 	public void actionPerformed(ActionEvent ae) {
 	    windowManager.changeFontScale(ArbilWindowManager.FONT_SCALE_STEP);
 	}
