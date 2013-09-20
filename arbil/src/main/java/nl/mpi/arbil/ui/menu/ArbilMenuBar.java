@@ -338,6 +338,9 @@ public class ArbilMenuBar extends JMenuBar {
 		sessionStorage.saveBoolean("showStatusBar", showStatusBarMenuItem.getState());
 	    }
 	});
+	// Status bar not fully functional ATM, so disabled until completion (https://trac.mpi.nl/ticket/920)
+	showStatusBarMenuItem.setVisible(false);
+	showStatusBarMenuItem.setEnabled(false);
 
 	zoomInMenuItem.setAction(zoomInAction);
 	zoomOutMenuItem.setAction(zoomOutAction);
