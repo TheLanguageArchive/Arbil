@@ -316,14 +316,43 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void initViewMenu() {
+	showSelectionPreviewCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("showSelectionPreview", true));
+	previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
+	showSelectionPreviewCheckBoxMenuItem.setText(menus.getString("SHOW SELECTION PREVIEW"));
+	showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		try {
+		    previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
+		    sessionStorage.saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
+		} catch (Exception ex) {
+		    BugCatcherManager.getBugCatcher().logError(ex);
+		}
+	    }
+	});
+
+	showStatusBarMenuItem.setText(menus.getString("SHOW STATUS BAR"));
+	showStatusBarMenuItem.setState(sessionStorage.loadBoolean("showStatusBar", false));
+	showStatusBarMenuItem.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		windowManager.setStatusBarVisible(showStatusBarMenuItem.getState());
+		sessionStorage.saveBoolean("showStatusBar", showStatusBarMenuItem.getState());
+	    }
+	});
+
 	zoomInMenuItem.setAction(zoomInAction);
 	zoomOutMenuItem.setAction(zoomOutAction);
 	zoomResetMenuItem.setAction(zoomResetAction);
 
-	viewMenu.setText(menus.getString("MENU_VIEW"));
+	viewMenu.add(showSelectionPreviewCheckBoxMenuItem);
+	viewMenu.add(showStatusBarMenuItem);
+
+	viewMenu.add(new JSeparator());
+
 	viewMenu.add(zoomInMenuItem);
 	viewMenu.add(zoomOutMenuItem);
 	viewMenu.add(zoomResetMenuItem);
+
+	viewMenu.setText(menus.getString("MENU_VIEW"));
 	this.add(viewMenu);
     }
 
@@ -454,34 +483,6 @@ public class ArbilMenuBar extends JMenuBar {
 	saveWindowsCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("saveWindows", true));
 	saveWindowsCheckBoxMenuItem.setText(menus.getString("SAVE WINDOWS ON EXIT"));
 	optionsMenu.add(saveWindowsCheckBoxMenuItem);
-
-	showSelectionPreviewCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("showSelectionPreview", true));
-	previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
-	showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
-//        showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.META_MASK));
-	showSelectionPreviewCheckBoxMenuItem.setText(menus.getString("SHOW SELECTION PREVIEW"));
-	showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-		    previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
-		    sessionStorage.saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
-	    }
-	});
-	optionsMenu.add(showSelectionPreviewCheckBoxMenuItem);
-
-	showStatusBarMenuItem.setText(menus.getString("SHOW STATUS BAR"));
-	showStatusBarMenuItem.setState(sessionStorage.loadBoolean("showStatusBar", false));
-	showStatusBarMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
-	showStatusBarMenuItem.addActionListener(new ActionListener() {
-	    public void actionPerformed(ActionEvent e) {
-		windowManager.setStatusBarVisible(showStatusBarMenuItem.getState());
-		sessionStorage.saveBoolean("showStatusBar", showStatusBarMenuItem.getState());
-	    }
-	});
-	optionsMenu.add(showStatusBarMenuItem);
 
 	checkNewVersionAtStartCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("checkNewVersionAtStart", true));
 	checkNewVersionAtStartCheckBoxMenuItem.setText(menus.getString("CHECK FOR NEW VERSION ON START"));
@@ -670,7 +671,6 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(aboutMenuItem);
-	helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
 	helpMenuItem.setText(menus.getString("HELP"));
 	helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -818,8 +818,11 @@ public class ArbilMenuBar extends JMenuBar {
 	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(redoKeyStroke, "redo");
 	getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, modifier), "redo");
 
-	searchReplaceMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_F);
-	searchReplaceMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, modifier));
+	searchReplaceMenuItem.setMnemonic(KeyEvent.VK_F);
+	searchReplaceMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, modifier));
+	showStatusBarMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, modifier));
+	showSelectionPreviewCheckBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, modifier));
+	helpMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 
 	// Zoom in shortcuts
 	zoomInMenuItem.setMnemonic(KeyEvent.VK_PLUS);
