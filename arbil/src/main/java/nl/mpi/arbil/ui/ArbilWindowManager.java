@@ -237,10 +237,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 
     public void openAboutPage() {
 	ArbilVersion appVersion = (ArbilVersion) versionManager.getApplicationVersion();
-	String applicationInitialDesigner = "Peter Withers";
-	String applicationMaintainers = "Peter Withers and Twan Goosen";
 	String messageString = java.text.MessageFormat.format(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ABOUTBOXTEXT"),
-		new Object[]{applicationInitialDesigner, applicationMaintainers, appVersion.currentMajor, appVersion.currentMinor, appVersion.currentRevision, appVersion.lastCommitDate, appVersion.compileDate, System.getProperty("java.version"), System.getProperty("java.vendor"), System.getProperty("java.vm.name"), System.getProperty("java.vm.version"), System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"), appVersion.getCopyrightYear()});
+		new Object[]{appVersion.currentMajor, appVersion.currentMinor, appVersion.currentRevision, appVersion.lastCommitDate, appVersion.compileDate, System.getProperty("java.version"), System.getProperty("java.vendor"), System.getProperty("java.vm.name"), System.getProperty("java.vm.version"), System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"), appVersion.getCopyrightYear()});
 
 	final JTextArea textComponent = new JTextArea();
 	textComponent.setText(messageString);
