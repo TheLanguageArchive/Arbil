@@ -214,7 +214,7 @@
 	<dependency>
 	    <groupId>nl.mpi</groupId>
 	    <artifactId>typechecker</artifactId>
-	    <version>1.7.1</version>
+	    <version>1.7.2</version>
 	    <exclusions>
 		<exclusion>
 		    <groupId>log4j</groupId>
