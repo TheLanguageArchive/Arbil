@@ -24,6 +24,16 @@ menu option. (#2826)
 
 - TABLE: Nodes and fields can be deleted from the table view. (#1276)
 
+- MENU BAR: A view menu has been added to the menu bar with menu options
+to change the font size throughout the application. (#1981)
+
+- TREE STRUCTURE VIEW: It is possible to switch to a verbatim representation
+of the document structure in the tree for CMDI documents through an item
+in the 'Options' menu. (#1153)
+
+- REMOTE CORPUS TREE: A context menu option to add any selected remote node
+to the root of the 'Remote Corpus' tree is now available. (#1692)
+
 ** CHANGES **
 
 These parts of the Arbil functionality have changed:
@@ -42,9 +52,31 @@ derrived from the schema location. (#1470)
 - STORAGE DIRECTORY: When multiple storage directories are detected, the user is
 notified through a warning dialog. (#1246)
 
+- EDITING: Typing in a field will replace the existing content by default. The
+user can append to the existing content by using the mouse or one of the 
+keyboard shortcuts F2 or CTRL-U. (#1245)
+
+- LANGUAGE SELECTION: Selection of all languages from the IMDI language
+vocabulary will be updated as new languages get added. (#2317)
+
+- SEARCH RESULTS: Columns matching a search term get highlighted in the
+search result table. If a single node is returned as a search result, it is 
+shown as a single row instead of a vertical table. (#1170, #1273)
+
+- IMPORT/EXPORT: When importing or exporting metadata will hit an existing
+copy of a file, a dialogue is now shown asking the user whether to overwrite
+or not. (#1272, #1403)
+
+- NODE LOADING: Nodes only loaded for tree display purposes do not get fully
+processed. This increases performance, especially with large collections of
+CMDI files. (#1755, #1797)
+
 ** FIXES **
 
 Among other, mostly minor, bugfixes, the following issues have been resolved:
+
+- FIELD DESCRIPTIONS: Missing field descriptions have been added for a large
+number of IMDI fields. (#657)
 
 ** KNOWN ISSUES **
 
