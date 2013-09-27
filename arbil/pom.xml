@@ -64,15 +64,6 @@
 	    </plugin>
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-compiler-plugin</artifactId>
-		<version>3.0</version>
-		<configuration>
-		    <source>1.5</source>
-		    <target>1.5</target>
-		</configuration>
-	    </plugin>
-	    <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-jar-plugin</artifactId>
 		<version>2.4</version>
 		<configuration>
@@ -278,7 +269,7 @@
 	<dependency>
 	    <groupId>nl.mpi</groupId>
 	    <artifactId>pluginloader</artifactId>
-	    <version>1.2-pretesting-SNAPSHOT</version>
+	    <version>1.2.35804-pretesting</version>
 	</dependency>
 	<dependency>
 	    <groupId>nl.mpi</groupId>
