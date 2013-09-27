@@ -36,7 +36,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>plugins-core</artifactId>
-            <version>1.2.38315-pretesting</version>
+            <version>1.2-pretesting-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
