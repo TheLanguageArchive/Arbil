@@ -32,41 +32,6 @@
             </resource>
         </resources>
         <plugins>
-    <!--    
-        
-            <plugin>
-                <groupId>com.systemsplanet.plugin</groupId>
-                <artifactId>google-api-translate-java-maven-plugin</artifactId>
-                <inherited>false</inherited>
-                <configuration>
-                    <debug>true</debug>
-                    <sourceTranslationPath>
-                        ${basedir}/src/main/resources/nl/mpi/arbil/localisation
-                    </sourceTranslationPath>
-                    <languageFilePattern>
-                        Menus_{0}.properties
-                    </languageFilePattern>
-                    <sourceLanguage>
-                        en
-                    </sourceLanguage>
-                    <destinationPath>
-                        ${project.build.directory}/classes/
-                    </destinationPath>
-                      ar,zh,zh-CN,zh-TW,nl,fr,de,el,it,ja,ko,pt,ru,es 
-                    <targetLanguages>
-                        nl,fr,de,it,es
-                    </targetLanguages>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>generate-projects</id>
-                        <goals>
-                            <goal>localize</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->   
             <plugin>
                 <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
                 <artifactId>svn-revision-number-maven-plugin</artifactId>
