@@ -29,6 +29,7 @@ import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
@@ -169,7 +170,7 @@ public class ArbilFavourites implements FavouritesService {
      */
     private URI[][] makeLinksAbsolute(URI imdiUri) {
 	List<URI[]> relativeLinks = null;
-	if (ArbilDataNode.isPathCmdi(imdiUri.toString())) {
+	if (MetadataFormat.isPathCmdi(imdiUri.toString())) {
 	    relativeLinks = new ArrayList<URI[]>();
 	    ArrayList<CmdiResourceLink> resourceLinks = new CmdiComponentLinkReader().readLinks(imdiUri);
 	    for (CmdiResourceLink link : resourceLinks) {

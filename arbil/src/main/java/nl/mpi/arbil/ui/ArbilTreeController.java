@@ -35,6 +35,7 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
+import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -122,7 +123,7 @@ public class ArbilTreeController {
 	if (locationURI.isAbsolute()) {
 	    try {
 		// See if creating a file out of the URI does not cause any issues
-		final File file = ArbilDataNode.getFile(locationURI);
+		final File file = MetadataFormat.getFile(locationURI);
 		if (file != null && !file.exists()) {
 		    dialogHandler.addMessageDialogToQueue(widgets.getString("WARNING: NO FILE EXISTS AT THE SPECIFIED LOCATION!"), widgets.getString("MANUAL RESOURCE LOCATION"));
 		}

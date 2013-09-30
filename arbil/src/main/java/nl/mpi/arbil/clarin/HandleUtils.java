@@ -45,11 +45,11 @@ public class HandleUtils {
     public URI resolveHandle(String resourceRef) throws URISyntaxException {
         if (resourceRef != null && resourceRef.length() > 0) {
             if (resourceRef.startsWith("hdl://")) { // IS THIS VALID? TG 4/10/2011
-                return followRedirect(new URI(resourceRef.replace("hdl://", HANDLE_SERVER_URI)));
+                return new URI(resourceRef.replace("hdl://", HANDLE_SERVER_URI));
             } else if (resourceRef.startsWith("hdl:")) {
-                return followRedirect(new URI(resourceRef.replace("hdl:", HANDLE_SERVER_URI)));
+                return new URI(resourceRef.replace("hdl:", HANDLE_SERVER_URI));
             } else {
-                return followRedirect(new URI(resourceRef));
+                return new URI(resourceRef);
             }
         }
         return null;
@@ -57,29 +57,29 @@ public class HandleUtils {
 
     public URI resolveHandle(URI resourceURI) {
         if ("hdl".equals(resourceURI.getScheme())) {
-            return followRedirect(URI.create(HANDLE_SERVER_URI + resourceURI.toString().replaceFirst("^hdl:", "")));
+            return URI.create(HANDLE_SERVER_URI + resourceURI.toString().replaceFirst("^hdl:", ""));
         }
         return resourceURI;
     }
 
-    private URI followRedirect(URI handleURI) {
-        try {
-            URLConnection uRLConnection = handleURI.toURL().openConnection();
-            ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
-            uRLConnection.getInputStream();
-            System.out.println("handleURI: " + handleURI);
-            final URL resolvedUri = uRLConnection.getURL();
-            System.out.println("Redirected: " + resolvedUri);
-            return resolvedUri.toURI();
-        } catch (IOException exception) {
-            logger.error("Could not resolve handle: ", exception);
-        } catch (URISyntaxException exception) {
-            logger.error("Could not resolve handle: ", exception);
-        }
-        return null;
+    public URI followRedirect(URI handleURI) throws IOException, URISyntaxException {
+//        try {
+        URLConnection uRLConnection = handleURI.toURL().openConnection();
+        ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
+        uRLConnection.getInputStream();
+        System.out.println("handleURI: " + handleURI);
+        final URL resolvedUri = uRLConnection.getURL();
+        System.out.println("Redirected: " + resolvedUri);
+        return resolvedUri.toURI();
+//        } catch (IOException exception) {
+//            logger.error("Could not resolve handle: ", exception);
+//        } catch (URISyntaxException exception) {
+//            logger.error("Could not resolve handle: ", exception);
+//        }
+//        return null;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, URISyntaxException {
         new HandleUtils().followRedirect(URI.create("http://hdl.handle.net/1839/00-0000-0000-0001-53A6-F@format=cmdi"));
     }
 }

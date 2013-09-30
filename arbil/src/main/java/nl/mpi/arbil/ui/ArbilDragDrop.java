@@ -188,7 +188,7 @@ public class ArbilDragDrop {
 		if (treeHelper.componentIsTheLocalCorpusTree(currentDropTarget)) {
 		    if (currentLeadSelection.isCmdiMetaDataNode()) {
 			return ((ArbilDataNode) currentLeadSelection).canHaveResource();
-		    } else if (((ArbilDataNode) currentLeadSelection).isDirectory) {
+		    } else if (((ArbilDataNode) currentLeadSelection).isDirectory()) {
 			return false; // nothing can be dropped to a directory
 		    } else if (currentLeadSelection.isCorpus()) {
 			if ((selectionContainsArbilCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession) && !selectionContainsCmdiMetadata) {
