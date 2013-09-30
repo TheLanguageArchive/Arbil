@@ -714,7 +714,7 @@ public class ArbilDataNodeService {
                 // TODO: this is un tested for ./ paths, but at this stage it appears unlikey to ever be needed
                 protocolEndIndex = 0;
             } else {
-		protocolEndIndex = inputUrlString.indexOf(":/");
+		protocolEndIndex = inputUrlString.indexOf(":");
             }
             //                while (inputUrlString.charAt(protocolEndIndex) == '/') {
             //                    protocolEndIndex++;
