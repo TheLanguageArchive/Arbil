@@ -205,10 +205,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 
             // set window state (i.e. maximized or not)
             getMainFrame().setExtendedState((Integer) windowStatesHashtable.get("linorgFrameExtendedState"));
-            if (getMainFrame().getExtendedState() == JFrame.ICONIFIED) {
-                // start up iconified is just too confusing to the user
-                getMainFrame().setExtendedState(JFrame.NORMAL);
-            }
+//            if (getMainFrame().getExtendedState() == JFrame.ICONIFIED) {
+//                // start up iconified is just too confusing to the user
+//                getMainFrame().setExtendedState(JFrame.NORMAL);
+//            }
+            // another fix for MacOS: if the extended state == 6 (h max and v max) then MacOS minimises the window. So we always set the state to normal here.
+            getMainFrame().setExtendedState(JFrame.NORMAL);
 
             if (windowStatesHashtable.containsKey("ScreenDeviceCount")) {
                 int screenDeviceCount = ((Integer) windowStatesHashtable.get("ScreenDeviceCount"));
