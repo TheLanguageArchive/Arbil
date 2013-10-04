@@ -123,14 +123,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     private final Object domLockObjectPrivate = new Object();
     private final static String NODE_LOADING_TEXT = widgets.getString("LOADING NODE...");
     public static final String EMPTY_NODE_STRING_VALUE = "                      ";
-    final private MetadataFormat.FileType formatType;
+    private MetadataFormat.FileType formatType = MetadataFormat.FileType.UNKNOWN;
 
     protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
         super();
         //        addQueue = new Vector<String[]>();
         this.dataNodeService = dataNodeService;
         nodeUri = localUri;
-        formatType = new MetadataFormat().getFileType(nodeUri);
         if (nodeUri != null) {
             metadataUtils = ArbilDataNode.getMetadataUtils(nodeUri.toString());
         }
@@ -1264,6 +1263,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     public MetadataFormat.FileType getFormatType() {
         return formatType;
+    }
+
+    public void setFormatType(MetadataFormat.FileType formatType) {
+        this.formatType = formatType;
     }
 
     /**

@@ -591,6 +591,10 @@ public class ArbilDataNodeService {
         if (dataNode.getParentDomNode() != dataNode) {
             dataNode.getParentDomNode().loadArbilDom();
         } else {
+            // we reduce the times the file type is checked by only checking when the type is unset, this is because for difficult files a deep check is required which requires downloading a small portion of the file
+            if (dataNode.getFormatType() == MetadataFormat.FileType.UNKNOWN) {
+                dataNode.setFormatType(new MetadataFormat().getFileType(dataNode.getURI()));
+            }
             synchronized (dataNode.getParentDomLockObject()) {
                 dataNode.initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
                 if (!dataNode.isMetaDataNode() && !dataNode.isDirectory() && dataNode.isLocal()) {
@@ -714,7 +718,7 @@ public class ArbilDataNodeService {
                 // TODO: this is un tested for ./ paths, but at this stage it appears unlikey to ever be needed
                 protocolEndIndex = 0;
             } else {
-		protocolEndIndex = inputUrlString.indexOf(":");
+                protocolEndIndex = inputUrlString.indexOf(":");
             }
             //                while (inputUrlString.charAt(protocolEndIndex) == '/') {
             //                    protocolEndIndex++;
@@ -799,7 +803,7 @@ public class ArbilDataNodeService {
         }
     }
 
-    private void updateMetadataChildNodes(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {        
+    private void updateMetadataChildNodes(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
         final URI matadataUri = new HandleUtils().resolveHandle(dataNode.getURI());
         Document nodDom = ArbilComponentBuilder.getDocument(matadataUri);
         Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree = new HashMap<ArbilDataNode, Set<ArbilDataNode>>();
