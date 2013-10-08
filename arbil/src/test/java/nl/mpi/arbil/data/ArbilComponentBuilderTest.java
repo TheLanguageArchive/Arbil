@@ -81,9 +81,11 @@ public class ArbilComponentBuilderTest extends ArbilTest {
 	return childNode;
     }
 
-    private ArbilDataNode getMdInstanceNode() throws InterruptedException, IOException, URISyntaxException {
+    private ArbilDataNode getMdInstanceNode() throws Exception {
 	addToLocalTreeFromURI(copyOfResource(uriFromResource("/nl/mpi/arbil/data/example-md-instance.cmdi")));
-	ArbilDataNode node = (ArbilDataNode) getTreeHelper().getLocalCorpusNodes()[0];
+	final ArbilDataNode[] localCorpusNodes = getTreeHelper().getLocalCorpusNodes();
+	assertTrue(localCorpusNodes.length > 0);
+	final ArbilDataNode node = (ArbilDataNode) localCorpusNodes[0];
 	assertNotNull(node);
 	assertTrue(node.isCmdiMetaDataNode());
 	assertTrue(node.isLocal());

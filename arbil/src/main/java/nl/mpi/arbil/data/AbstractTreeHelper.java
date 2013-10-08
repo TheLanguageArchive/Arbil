@@ -371,14 +371,16 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public boolean addLocation(URI addedLocation) {
 	logger.debug("addLocation: " + addedLocation.toString());
 	// make sure the added location url matches that of the imdi node format
-	ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
+	final ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
 	//TODO: Synchronize this
 	if (addedLocationObject != null) {
 	    saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
 	    loadLocationsList();
 	    return true;
+	} else {
+	    logger.warn("Could not retrieve data node for location added to tree {}", addedLocation);
+	    return false;
 	}
-	return false;
     }
 
     @Override

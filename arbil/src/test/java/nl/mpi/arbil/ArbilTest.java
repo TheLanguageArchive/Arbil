@@ -56,17 +56,19 @@ public abstract class ArbilTest {
 	localTreeItems = null;
     }
 
-    protected void addToLocalTreeFromResource(String resourceClassPath) throws URISyntaxException, InterruptedException {
+    protected void addToLocalTreeFromResource(String resourceClassPath) throws Exception {
 	addToLocalTreeFromURI(uriFromResource(resourceClassPath));
     }
 
-    protected void addToLocalTreeFromURI(URI uri) throws InterruptedException, URISyntaxException {
+    protected void addToLocalTreeFromURI(URI uri) throws Exception {
 	if (localTreeItems == null) {
 	    localTreeItems = new HashSet<URI>();
 	}
 	localTreeItems.add(uri);
 
-	getTreeHelper().addLocation(uri);
+	if (!getTreeHelper().addLocation(uri)) {
+	    throw new Exception("Could not add location to tree" + uri);
+	}
 
 	for (ArbilNode node : getTreeHelper().getLocalCorpusNodes()) {
 	    waitForNodeToLoad((ArbilDataNode) node);
@@ -179,7 +181,6 @@ public abstract class ArbilTest {
 
     protected SessionStorage newSessionStorage() {
 	return new MockSessionStorage() {
-
 	    @Override
 	    public boolean pathIsInsideCache(File fullTestFile) {
 		return localTreeItems.contains(fullTestFile.toURI());
