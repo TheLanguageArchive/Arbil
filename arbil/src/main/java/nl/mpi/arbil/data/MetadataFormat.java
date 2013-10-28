@@ -72,10 +72,12 @@ public class MetadataFormat {
         new FormatType(".cmdi", ".CMD.Components", ArbilIcons.clarinIcon, FileType.CMDI),
         // Generic XML
         new FormatType(".xml", "", ArbilIcons.clarinIcon, FileType.CMDI), // Clarin icon is not really appropriate
+        // OAI-PMH, Open Archives Initiative Protocol for Metadata Harvesting
+        new FormatType(".xml", ".OAI-PMH.GetRecord.record.metadata.olac:olac", ArbilIcons.clarinIcon, FileType.CMDI), // Clarin icon is not really appropriate
         // KMDI, Kinship metadata
         new FormatType(".kmdi", ".Kinnate.CustomData", ArbilIcons.kinOathIcon, FileType.KMDI),
         // TLA test results
-        new FormatType(".trx", "", ArbilIcons.clarinIcon, FileType.CMDI)})); // Clarin icon is not really appropriate
+        new FormatType(".trx", "", ArbilIcons.clarinIcon, FileType.CMDI)})); // Clarin icon is not really appropriate    
 
 //    private static MetadataFormat singleInstance = null;
 //    static synchronized public MetadataFormat getSingleInstance() {
@@ -85,7 +87,7 @@ public class MetadataFormat {
 //        }
 //        return singleInstance;
 //    }
-    public FileType getFileType(URI targetUri) {
+    public FileType shallowCheck(URI targetUri) {
 //        final URI targetUri = new HandleUtils().resolveHandle(inputUri);
         String urlString = targetUri.toString();
         if (isStringChildNode(urlString)) {
@@ -108,11 +110,15 @@ public class MetadataFormat {
             logger.info("Presuming the URI points to a file based on its suffix: " + urlString);
             return FileType.FILE;
         }
-        // the file is remote so we need to do a deep check
-        return deepCheck(targetUri);
+        // the type is currently unknown and if a full load is requested will be deep checked before hand
+        return FileType.UNKNOWN;
     }
 
-    private FileType deepCheck(URI targetUri) {
+    public FileType deepCheck(URI targetUri) {
+        final FileType shallowCheckResult = shallowCheck(targetUri);
+        if (shallowCheckResult != FileType.UNKNOWN) {
+            return shallowCheckResult;
+        }
         try {
             int bytesToRead = 1024;
             final URI resolveHandle = new HandleUtils().resolveHandle(targetUri);

@@ -80,7 +80,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
             currentDataNode = arbilHashTable.get(localUri.toString());
             if (currentDataNode == null) {
-                currentDataNode = new ArbilDataNode(dataNodeService, localUri);
+                currentDataNode = new ArbilDataNode(dataNodeService, localUri, new MetadataFormat().shallowCheck(localUri));
                 arbilHashTable.put(localUri.toString(), currentDataNode);
             }
         }
@@ -287,7 +287,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     }
 
     public ArbilDataNode createNewDataNode(URI uri) {
-        return new ArbilDataNode(dataNodeService, uri);
+        return new ArbilDataNode(dataNodeService, uri, new MetadataFormat().shallowCheck(uri));
     }
 
     /**

@@ -125,10 +125,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     public static final String EMPTY_NODE_STRING_VALUE = "                      ";
     private MetadataFormat.FileType formatType = MetadataFormat.FileType.UNKNOWN;
 
-    protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri) {
+    protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri, MetadataFormat.FileType formatType) {
         super();
         //        addQueue = new Vector<String[]>();
         this.dataNodeService = dataNodeService;
+        this.formatType = formatType;
         nodeUri = localUri;
         if (nodeUri != null) {
             metadataUtils = ArbilDataNode.getMetadataUtils(nodeUri.toString());
