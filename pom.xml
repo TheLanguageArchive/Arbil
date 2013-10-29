@@ -31,6 +31,8 @@
         <arbil.branch>pretesting</arbil.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.2</slf4j.version>
+        <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
+        <arbil.license.copyrightYear>2013</arbil.license.copyrightYear>
     </properties>
     <dependencies>	
         <dependency>
@@ -51,8 +53,8 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-<build>
-	<plugins>
+    <build>
+        <plugins>    
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -63,29 +65,29 @@
                 </configuration>
             </plugin>
             <plugin>
-	        <artifactId>maven-assembly-plugin</artifactId>
-      		<version>2.4</version>
-      		<inherited>false</inherited>
-	        <configuration>
-	          <encoding>UTF-8</encoding>
-	          <finalName>arbil</finalName>
-	          <descriptors>
-	            <descriptor>sources-assembly.xml</descriptor>
-	          </descriptors>
-	          <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
-	        </configuration>
-	      	<executions>
-		        <execution>
-		            <id>standalone</id>
-		            <phase>package</phase>
-		            <goals>
-		                <goal>single</goal>
-		            </goals>
-		        </execution>
-		</executions>
-	      </plugin>
-	</plugins>
-</build>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <finalName>arbil</finalName>
+                    <descriptors>
+                        <descriptor>sources-assembly.xml</descriptor>
+                    </descriptors>
+                    <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>standalone</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <reporting>
         <plugins>

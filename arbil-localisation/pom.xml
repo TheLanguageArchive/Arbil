@@ -52,6 +52,52 @@
                         </entry>
                     </entries>
                 </configuration>
+            </plugin>	 
+            <plugin>
+		<!-- 
+		    License plugin checks for presence of license header in all source files (with some exceptions, see excludes below).
+		    You can use this plugin to actually insert or fix the license headers by running maven with the following goal:
+
+			mvn license:format
+
+                    For more info, see <http://mathieu.carbou.free.fr/p/maven-license-plugin/>.
+                -->
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version> 
+                <configuration>
+                    <header>${project.parent.basedir}/license-header.txt</header>
+                    <strictCheck>false</strictCheck>
+                    <properties>
+                        <year>${arbil.license.copyrightYear}</year>
+                        <organization>${project.organization.name}</organization>
+                    </properties>
+                    <mapping>
+                        <svg>XML_STYLE</svg>
+                        <imdi>XML_STYLE</imdi>
+                        <cmdi>XML_STYLE</cmdi>
+                    </mapping>
+                    <excludes>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.icns</exclude>
+                        <exclude>**/*.php</exclude>
+                        <exclude>installer/**</exclude>
+                        <exclude>nbactions*.xml</exclude>
+                        <exclude>nb-configuration.xml</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/templates/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/xsd/http/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/html/license/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
