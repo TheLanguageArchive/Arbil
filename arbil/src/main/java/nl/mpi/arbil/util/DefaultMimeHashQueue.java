@@ -552,7 +552,8 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    digest.update(buff, 0, i);
 		    long downloadDelay = System.currentTimeMillis() - startTime;
 		    if (downloadDelay > 100) {
-			throw new Exception("reading file for md5sum is taking too long (" + downloadDelay + ") skipping the file: " + fileUri);
+			logger.warn("reading file for md5sum is taking too long ({}) skipping the file: {}", downloadDelay, fileUri);
+			return null;
 		    }
 		    startTime = System.currentTimeMillis();
 		}

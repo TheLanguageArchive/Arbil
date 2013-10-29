@@ -32,10 +32,13 @@ import java.util.List;
 import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -43,6 +46,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import nl.mpi.arbil.ArbilIcons;
@@ -73,6 +77,7 @@ import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.WebstartHelper;
+import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
 import nl.mpi.arbilcommons.ui.LocalisationSelector;
 import nl.mpi.pluginloader.PluginService;
@@ -97,6 +102,7 @@ public class ArbilMenuBar extends JMenuBar {
     }
     private final static Logger logger = LoggerFactory.getLogger(ArbilMenuBar.class);
     private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
+    private static final ResourceBundle services = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     public static final String FORUM_URL = "http://tla.mpi.nl/forums/software/arbil/";
     private final WebstartHelper webstartHelper = new WebstartHelper();
     private final SessionStorage sessionStorage;
@@ -910,7 +916,6 @@ public class ArbilMenuBar extends JMenuBar {
 //	    arbilHelp.printAsOneFile();
 //	}
 //    }
-
 //    private void populateStorageLocationMenu(JMenu storageMenu) {
 //        storageMenu.removeAll();
 //        ButtonGroup storageMenuButtonGroup = new ButtonGroup();
@@ -944,6 +949,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        }
 //        // TODO: add other cache directory and update changeStorageDirectory to cope with the additional variables
 //    }
+
     private boolean saveApplicationState() {
 	if (dataNodeLoader.nodesNeedSave()) {
 	    // TODO: why is LinorgWindowManager.getArbilHelpInstance().offerUserToSaveChanges(); not used?
@@ -957,11 +963,11 @@ public class ArbilMenuBar extends JMenuBar {
 		    return false;
 	    }
 	}
-	mimeHashQueue.terminateQueue();
 
 	saveState(saveWindowsCheckBoxMenuItem.isSelected());
 	sessionStorage.saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
 	sessionStorage.saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());
+
 	return true;
     }
 
@@ -976,13 +982,20 @@ public class ArbilMenuBar extends JMenuBar {
 
     public boolean performCleanExit() { // TODO: this should be moved into a utility class
 	windowManager.stopEditingInCurrentWindow();
+
 	if (saveApplicationState()) {
-//                viewChangesMenuItem.setEnabled(false);
-//        screenCapture.stopCapture();
-	    System.exit(0);
+	    final Runnable exitRunner = new Runnable() {
+		public void run() {
+		    new HashQueueTerminator(mimeHashQueue, windowManager).terminateHashQueue();
+		    System.exit(0);
+		}
+	    };
+
+	    new Thread(exitRunner).start();
 	    return true;
+	} else {
+	    return false;
 	}
-	return false;
     }
 
     private void initColumnViewMenu(javax.swing.JMenu menu) {
@@ -1199,4 +1212,85 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	}
     };
+
+    public static class HashQueueTerminator {
+
+	private final static int HASH_QUEUE_WAIT_TIME = 500;
+	private final Object terminationLockObject = new Object();
+	private final MimeHashQueue mimeHashQueue;
+	private final WindowManager windowManager;
+	private boolean terminationComplete = false;
+	private JDialog messageDialogue;
+
+	public HashQueueTerminator(MimeHashQueue mimeHashQueue, WindowManager windowManager) {
+	    this.mimeHashQueue = mimeHashQueue;
+	    this.windowManager = windowManager;
+	}
+
+	public void terminateHashQueue() {
+	    startTerminatorThread();
+	    waitForTerminatorThread();
+	}
+
+	private void startTerminatorThread() {
+	    final Runnable terminator = new Runnable() {
+		public void run() {
+		    synchronized (terminationLockObject) {
+			terminationComplete = false;
+		    }
+
+		    mimeHashQueue.terminateQueue();
+
+		    synchronized (terminationLockObject) {
+			terminationComplete = true;
+			terminationLockObject.notifyAll();
+		    }
+		}
+	    };
+	    final Thread terminatorThread = new Thread(terminator);
+	    terminatorThread.start();
+	}
+
+	private void waitForTerminatorThread() {
+	    // Wait for termination to complete, if it takes too long show a popup
+	    boolean messageDialogueShown = false;
+	    while (!terminationComplete) {
+		synchronized (terminationLockObject) {
+		    try {
+			logger.debug("Waiting for mime hash queue termination to finish");
+			terminationLockObject.wait(HASH_QUEUE_WAIT_TIME);
+			if (!terminationComplete && !messageDialogueShown) {
+			    logger.info("Mime hash queue is busy while trying to exit application");
+			    SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+				    messageDialogue = new JDialog(windowManager.getMainFrame(), services.getString("TYPECHECKING_IN_PROGRESS"));
+				    final JLabel label = new JLabel(services.getString("FINISHING_TYPECHECKING"));
+				    label.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+				    messageDialogue.getContentPane().add(label);
+				    messageDialogue.setLocationRelativeTo(windowManager.getMainFrame());
+				    messageDialogue.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+				    messageDialogue.pack();
+				    messageDialogue.setVisible(true);
+				}
+			    });
+			    messageDialogueShown = true;
+			}
+		    } catch (InterruptedException ex) {
+			if (messageDialogue != null) {
+			    messageDialogue.dispose();
+			}
+		    }
+		}
+	    }
+
+	    // Termination complete, dispose dialogue if any
+	    SwingUtilities.invokeLater(new Runnable() {
+		public void run() {
+		    if (messageDialogue != null) {
+			messageDialogue.dispose();
+		    }
+		}
+	    });
+	}
+    }
 }
