@@ -1263,7 +1263,7 @@ public class ArbilMenuBar extends JMenuBar {
 			    logger.info("Mime hash queue is busy while trying to exit application");
 			    SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-				    messageDialogue = new JDialog(windowManager.getMainFrame(), services.getString("TYPECHECKING_IN_PROGRESS"));
+				    messageDialogue = new JDialog(windowManager.getMainFrame(), services.getString("TYPECHECKING_IN_PROGRESS"), true);
 				    final JLabel label = new JLabel(services.getString("FINISHING_TYPECHECKING"));
 				    label.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 				    messageDialogue.getContentPane().add(label);
