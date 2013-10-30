@@ -1037,6 +1037,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         return MetadataFormat.FileType.DIRECTORY == formatType;
     }
 
+    /**
+     * 
+     * @return whether the node represents a file on disk
+     */
     public boolean isFile() {
         return MetadataFormat.FileType.FILE == formatType;
     }

@@ -44,7 +44,7 @@ public class ArbilIcons {
     private static ApplicationVersionManager versionManager;
 
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
-        versionManager = versionManagerInstance;
+	versionManager = versionManagerInstance;
     }
     // the applicationIconName is set by the build script and will be in the jar file of the main class which might not be the arbil jar, so we use the ApplicationVersion class to access the correct jar file for the application icon.
     public ImageIcon linorgIcon = new ImageIcon(versionManager.getApplicationVersion().getClass().getResource(versionManager.getApplicationVersion().applicationIconName));
@@ -131,258 +131,254 @@ public class ArbilIcons {
     static private ArbilIcons singleInstance = null;
 
     static synchronized public ArbilIcons getSingleInstance() {
-        if (singleInstance == null) {
-            singleInstance = new ArbilIcons();
-        }
-        return singleInstance;
+	if (singleInstance == null) {
+	    singleInstance = new ArbilIcons();
+	}
+	return singleInstance;
     }
 
     private ArbilIcons() {
     }
 
     public ImageIcon getIconForNode(ArbilDataNode[] arbilNodeArray) {
-        int currentIconXPosition = 0;
-        int width = 0;
-        int heightMax = 0;
-        for (ArbilDataNode currentNode : arbilNodeArray) {
-            width += currentNode.getIcon().getIconWidth();
-            int height = currentNode.getIcon().getIconHeight();
-            if (heightMax < height) {
-                heightMax = height;
-            }
-        }
+	int currentIconXPosition = 0;
+	int width = 0;
+	int heightMax = 0;
+	for (ArbilDataNode currentNode : arbilNodeArray) {
+	    width += currentNode.getIcon().getIconWidth();
+	    int height = currentNode.getIcon().getIconHeight();
+	    if (heightMax < height) {
+		heightMax = height;
+	    }
+	}
 
-        BufferedImage bufferedImage = new BufferedImage(width, heightMax, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
-        for (Object childNode : arbilNodeArray) {
-            ImageIcon currentIcon = ((ArbilDataNode) childNode).getIcon();
-            currentIcon.paintIcon(null, g2d, currentIconXPosition, 0);
-            currentIconXPosition += currentIcon.getIconWidth();
-        }
-        g2d.dispose();
-        return new ImageIcon(bufferedImage);
+	BufferedImage bufferedImage = new BufferedImage(width, heightMax, BufferedImage.TYPE_INT_ARGB);
+	Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
+	for (Object childNode : arbilNodeArray) {
+	    ImageIcon currentIcon = ((ArbilDataNode) childNode).getIcon();
+	    currentIcon.paintIcon(null, g2d, currentIconXPosition, 0);
+	    currentIconXPosition += currentIcon.getIconWidth();
+	}
+	g2d.dispose();
+	return new ImageIcon(bufferedImage);
     }
 
     private ImageIcon compositIcons(List<Icon> iconArray) {
-        int widthTotal = 0;
-        int heightMax = 0;
-        for (Object currentIcon : iconArray) {
-            int width = ((Icon) currentIcon).getIconWidth();
-            int height = ((Icon) currentIcon).getIconHeight();
-            if (currentIcon != missingRedIcon) {
-                widthTotal += width;
-            }
-            if (heightMax < height) {
-                heightMax = height;
-            }
-        }
-        int currentIconXPosition = 0;
+	int widthTotal = 0;
+	int heightMax = 0;
+	for (Object currentIcon : iconArray) {
+	    int width = ((Icon) currentIcon).getIconWidth();
+	    int height = ((Icon) currentIcon).getIconHeight();
+	    if (currentIcon != missingRedIcon) {
+		widthTotal += width;
+	    }
+	    if (heightMax < height) {
+		heightMax = height;
+	    }
+	}
+	int currentIconXPosition = 0;
 
-        BufferedImage bufferedImage = new BufferedImage(widthTotal, heightMax, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
-        try {
-            for (Object currentIcon : iconArray) {
-                int yPos = (heightMax - ((Icon) currentIcon).getIconHeight()) / 2;
-                if (currentIcon != missingRedIcon) { // the missing icon always overlays the previous icon
-                    ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition, yPos);
-                    currentIconXPosition += ((Icon) currentIcon).getIconWidth();
-                } else {
-                    ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition - missingRedIcon.getIconWidth(), yPos);
-                }
-            }
-            g2d.dispose();
-        } finally {
-        }
-        return new ImageIcon(bufferedImage);
+	BufferedImage bufferedImage = new BufferedImage(widthTotal, heightMax, BufferedImage.TYPE_INT_ARGB);
+	Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
+	try {
+	    for (Object currentIcon : iconArray) {
+		int yPos = (heightMax - ((Icon) currentIcon).getIconHeight()) / 2;
+		if (currentIcon != missingRedIcon) { // the missing icon always overlays the previous icon
+		    ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition, yPos);
+		    currentIconXPosition += ((Icon) currentIcon).getIconWidth();
+		} else {
+		    ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition - missingRedIcon.getIconWidth(), yPos);
+		}
+	    }
+	    g2d.dispose();
+	} finally {
+	}
+	return new ImageIcon(bufferedImage);
     }
 
     public Icon getIconForVocabulary(ArbilField cellObject) {
-        if (cellObject.hasVocabulary()) {
-            if (((ArbilField) cellObject).isVocabularyOpen()) {
-                // Open vocabulary
-                if (((ArbilField) cellObject).isVocabularyList()) {
-                    // Open list
-                    return vocabularyOpenListIcon;
-                } else {
-                    // Open single
-                    return vocabularyOpenIcon;
-                }
-            } else {
-                // Closed vocabulary
-                if (((ArbilField) cellObject).isVocabularyList()) {
-                    // Closed list
-                    return vocabularyClosedListIcon;
-                } else {
-                    // Closed single
-                    return vocabularyClosedIcon;
-                }
-            }
-        } else {
-            return null;
-        }
+	if (cellObject.hasVocabulary()) {
+	    if (((ArbilField) cellObject).isVocabularyOpen()) {
+		// Open vocabulary
+		if (((ArbilField) cellObject).isVocabularyList()) {
+		    // Open list
+		    return vocabularyOpenListIcon;
+		} else {
+		    // Open single
+		    return vocabularyOpenIcon;
+		}
+	    } else {
+		// Closed vocabulary
+		if (((ArbilField) cellObject).isVocabularyList()) {
+		    // Closed list
+		    return vocabularyClosedListIcon;
+		} else {
+		    // Closed single
+		    return vocabularyClosedIcon;
+		}
+	    }
+	} else {
+	    return null;
+	}
     }
 
     public Icon getIconForField(ArbilField field) {
-        List<Icon> iconsList = new LinkedList<Icon>();
-        if (field.hasVocabulary()) {
-            iconsList.add(getIconForVocabulary(field));
-        }
-        if (field.isAllowsLanguageId()) {
-            iconsList.add(languageIcon);
-        }
-        if (field.hasEditableFieldAttributes()) {
-            iconsList.add(attributeIcon);
-        }
+	List<Icon> iconsList = new LinkedList<Icon>();
+	if (field.hasVocabulary()) {
+	    iconsList.add(getIconForVocabulary(field));
+	}
+	if (field.isAllowsLanguageId()) {
+	    iconsList.add(languageIcon);
+	}
+	if (field.hasEditableFieldAttributes()) {
+	    iconsList.add(attributeIcon);
+	}
 
-        switch (iconsList.size()) {
-            case 0:
-                return null;
-            case 1:
-                return iconsList.get(0);
-            default:
-                return compositIcons(iconsList);
-        }
+	switch (iconsList.size()) {
+	    case 0:
+		return null;
+	    case 1:
+		return iconsList.get(0);
+	    default:
+		return compositIcons(iconsList);
+	}
     }
 
     public ImageIcon getIconForNode(ArbilDataNode arbilNode) {
-        List<Icon> iconsList = new LinkedList<Icon>();
+	List<Icon> iconsList = new LinkedList<Icon>();
 
-        if (arbilNode.isLoading() || (arbilNode.getParentDomNode().isMetaDataNode() && !arbilNode.getParentDomNode().isDataPartiallyLoaded())) {
-            iconsList.add(loadingIcon);
-        }
-        if (arbilNode.isLocal()) {
-            if (arbilNode.isMetaDataNode()) {
-                if (arbilNode.matchesRemote == 0) {
-                    if (arbilNode.archiveHandle == null) {
-                        iconsList.add(localicon);
-                    } else {
-                        iconsList.add(localWithArchiveHandle);
-                    }
-                } else {
-                    iconsList.add(remoteicon);
-                }
-            }
-        } else {
-            iconsList.add(remoteicon);
-            // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
+	if (arbilNode.isLoading() || (arbilNode.getParentDomNode().isMetaDataNode() && !arbilNode.getParentDomNode().isDataPartiallyLoaded())) {
+	    iconsList.add(loadingIcon);
+	}
+	if (arbilNode.isLocal()) {
+	    if (arbilNode.isMetaDataNode()) {
+		if (arbilNode.matchesRemote == 0) {
+		    if (arbilNode.archiveHandle == null) {
+			iconsList.add(localicon);
+		    } else {
+			iconsList.add(localWithArchiveHandle);
+		    }
+		} else {
+		    iconsList.add(remoteicon);
+		}
+	    }
+	} else {
+	    iconsList.add(remoteicon);
+	    // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
 //                            if (matchesLocal == 0) {
 //                            } else {
 //                                icon = corpuslocalservericon;
 //                            }
-        }
-        if (arbilNode.resourceFileServerResponse == HttpURLConnection.HTTP_OK) {
-            iconsList.add(unLockedIcon);
-        } else if (arbilNode.resourceFileServerResponse == HttpURLConnection.HTTP_MOVED_TEMP) {
-            iconsList.add(lockedIcon);
-        }
-        String mimeTypeForNode = arbilNode.getAnyMimeType();
-        if (mimeTypeForNode != null) {
-            mimeTypeForNode = mimeTypeForNode.toLowerCase();
-            if (mimeTypeForNode.contains("audio")) {
-                iconsList.add(audioIcon);
-            } else if (mimeTypeForNode.contains("video")) {
-                iconsList.add(videoIcon);
-            } else if (mimeTypeForNode.contains("image")) {// ?????
-                iconsList.add(picturesIcon);
-            } else if (mimeTypeForNode.contains("text")) {
-                iconsList.add(writtenresourceIcon);
-            } else if (mimeTypeForNode.contains("xml")) {
-                iconsList.add(writtenresourceIcon);
-            } else if (mimeTypeForNode.contains("chat")) {
-                iconsList.add(writtenresourceIcon);
-            } else if (mimeTypeForNode.contains("pdf")) {
-                iconsList.add(writtenresourceIcon);
-            } else if (mimeTypeForNode.contains("kml")) {
-                iconsList.add(writtenresourceIcon);
-            } else if (mimeTypeForNode.contains("ogg")) { // application/ogg, video/ and audio/ already get captured above
-                iconsList.add(picturesIcon);
-            } else if (mimeTypeForNode.contains("manual/mediafile")) {
-                iconsList.add(picturesIcon);
-            } else if (mimeTypeForNode.contains("manual/writtenresource")) {
-                iconsList.add(writtenresourceIcon);
-            } else if (mimeTypeForNode.contains("unspecified") || mimeTypeForNode.length() == 0) {
-                // no icon for this
-                iconsList.add(fileIcon);
-            } else if (mimeTypeForNode.contains("unknown")) {
-                iconsList.add(fileCheckedIcon);
-            } else if (mimeTypeForNode.length() > 0) {
-                iconsList.add(fileCheckedIcon);
-                logger.debug("Icon not found for file type: {}", mimeTypeForNode);
-            }
-        } else if (arbilNode.isInfoLink) {
-            iconsList.add(infofileIcon);
-        } else if (arbilNode.hasResource()) {
-            // the resource is not found so show a unknow resource icon
-            iconsList.add(fileIcon);
-        } else if (arbilNode.isMetaDataNode()) {
-            if (arbilNode.isChildNode()) {
-                if (arbilNode.isContainerNode()) {
-                    iconsList.add(dataContainerIcon);
-                } else if (arbilNode.isEmptyMetaNode()) {
-                    iconsList.add(dataemptyIcon);
-                } else {
-                    iconsList.add(dataIcon);
-                }
-            } else if (arbilNode.isSession()) {
-                iconsList.add(sessionColorIcon);
-            } else if (arbilNode.isCatalogue()) {
-                iconsList.add(catalogueColorIcon);
-            } else if (arbilNode.isCorpus()) {
-                iconsList.add(corpusnodeColorIcon);
-            } else if (arbilNode.isCmdiMetaDataNode()) {
-                iconsList.add(MetadataFormat.getFormatIcon(arbilNode.getFormatType()));
-            } else {
-                // this icon might not be the best one to show in this case
-                if (arbilNode.isDataLoaded()) {
-                    iconsList.add(fileIcon);
-                }
-                //iconsVector.add(blankIcon);
-            }
-        } else if (arbilNode.isDirectory()) {
-            iconsList.add(UIManager.getIcon("FileView.directoryIcon"));
-        } else {
-            if (arbilNode.getTypeCheckerState().equals(TypeCheckerState.CHECKED)) {
-                iconsList.add(fileIcon);
-            } else {
-                if (arbilNode.isFile()) {
-                    iconsList.add(fileIcon);
-                } else {
-                    // File has not been type checked, indicate with question mark icon
-                    iconsList.add(questionBlackIcon);
-                }
-            }
-        }
-        // add missing file icon
-        if (arbilNode.fileNotFound) {
-            iconsList.add(missingRedIcon);
-        } else if (arbilNode.resourceFileNotFound()) {
-            if (arbilNode.isResourceSet()) {
-                // Resource is set but file not found, this is an error
-                iconsList.add(missingRedIcon);
-            } else {
-                // Resource has not been set, therefore 'not found', this is a different case
-                iconsList.add(questionRedIcon);
-            }
-        }
-        // add a file attached to a session icon
-        if (!arbilNode.isMetaDataNode() && arbilNode.matchesInCache + arbilNode.matchesRemote > 0) {
-            if (arbilNode.matchesRemote > 0) {
-                iconsList.add(tickGreenIcon);
-            } else {
-                iconsList.add(tickBlueIcon);
-            }
-        }
-        // add icons for favourites
-        if (arbilNode.isFavorite()) {
-            iconsList.add(favouriteIcon);
-        }
-        // add icons for save state
+	}
+	if (arbilNode.resourceFileServerResponse == HttpURLConnection.HTTP_OK) {
+	    iconsList.add(unLockedIcon);
+	} else if (arbilNode.resourceFileServerResponse == HttpURLConnection.HTTP_MOVED_TEMP) {
+	    iconsList.add(lockedIcon);
+	}
+	String mimeTypeForNode = arbilNode.getAnyMimeType();
+	if (mimeTypeForNode != null) {
+	    mimeTypeForNode = mimeTypeForNode.toLowerCase();
+	    if (mimeTypeForNode.contains("audio")) {
+		iconsList.add(audioIcon);
+	    } else if (mimeTypeForNode.contains("video")) {
+		iconsList.add(videoIcon);
+	    } else if (mimeTypeForNode.contains("image")) {// ?????
+		iconsList.add(picturesIcon);
+	    } else if (mimeTypeForNode.contains("text")) {
+		iconsList.add(writtenresourceIcon);
+	    } else if (mimeTypeForNode.contains("xml")) {
+		iconsList.add(writtenresourceIcon);
+	    } else if (mimeTypeForNode.contains("chat")) {
+		iconsList.add(writtenresourceIcon);
+	    } else if (mimeTypeForNode.contains("pdf")) {
+		iconsList.add(writtenresourceIcon);
+	    } else if (mimeTypeForNode.contains("kml")) {
+		iconsList.add(writtenresourceIcon);
+	    } else if (mimeTypeForNode.contains("ogg")) { // application/ogg, video/ and audio/ already get captured above
+		iconsList.add(picturesIcon);
+	    } else if (mimeTypeForNode.contains("manual/mediafile")) {
+		iconsList.add(picturesIcon);
+	    } else if (mimeTypeForNode.contains("manual/writtenresource")) {
+		iconsList.add(writtenresourceIcon);
+	    } else if (mimeTypeForNode.contains("unspecified") || mimeTypeForNode.length() == 0) {
+		// no icon for this
+		iconsList.add(fileIcon);
+	    } else if (mimeTypeForNode.contains("unknown")) {
+		iconsList.add(fileCheckedIcon);
+	    } else if (mimeTypeForNode.length() > 0) {
+		iconsList.add(fileCheckedIcon);
+		logger.debug("Icon not found for file type: {}", mimeTypeForNode);
+	    }
+	} else if (arbilNode.isInfoLink) {
+	    iconsList.add(infofileIcon);
+	} else if (arbilNode.hasResource()) {
+	    // the resource is not found so show a unknow resource icon
+	    iconsList.add(fileIcon);
+	} else if (arbilNode.isMetaDataNode()) {
+	    if (arbilNode.isChildNode()) {
+		if (arbilNode.isContainerNode()) {
+		    iconsList.add(dataContainerIcon);
+		} else if (arbilNode.isEmptyMetaNode()) {
+		    iconsList.add(dataemptyIcon);
+		} else {
+		    iconsList.add(dataIcon);
+		}
+	    } else if (arbilNode.isSession()) {
+		iconsList.add(sessionColorIcon);
+	    } else if (arbilNode.isCatalogue()) {
+		iconsList.add(catalogueColorIcon);
+	    } else if (arbilNode.isCorpus()) {
+		iconsList.add(corpusnodeColorIcon);
+	    } else if (arbilNode.isCmdiMetaDataNode()) {
+		iconsList.add(MetadataFormat.getFormatIcon(arbilNode.getFormatType()));
+	    } else {
+		// this icon might not be the best one to show in this case
+		if (arbilNode.isDataLoaded()) {
+		    iconsList.add(fileIcon);
+		}
+		//iconsVector.add(blankIcon);
+	    }
+	} else if (arbilNode.isDirectory()) {
+	    iconsList.add(UIManager.getIcon("FileView.directoryIcon"));
+	} else {
+	    if (arbilNode.getTypeCheckerState().equals(TypeCheckerState.CHECKED)) {
+		iconsList.add(fileIcon);
+	    } else {
+		// File has not been type checked, indicate with question mark icon
+		iconsList.add(questionBlackIcon);
+	    }
+	}
+	// add missing file icon
+	if (arbilNode.fileNotFound) {
+	    iconsList.add(missingRedIcon);
+	} else if (arbilNode.resourceFileNotFound()) {
+	    if (arbilNode.isResourceSet()) {
+		// Resource is set but file not found, this is an error
+		iconsList.add(missingRedIcon);
+	    } else {
+		// Resource has not been set, therefore 'not found', this is a different case
+		iconsList.add(questionRedIcon);
+	    }
+	}
+	// add a file attached to a session icon
+	if (!arbilNode.isMetaDataNode() && arbilNode.matchesInCache + arbilNode.matchesRemote > 0) {
+	    if (arbilNode.matchesRemote > 0) {
+		iconsList.add(tickGreenIcon);
+	    } else {
+		iconsList.add(tickBlueIcon);
+	    }
+	}
+	// add icons for favourites
+	if (arbilNode.isFavorite()) {
+	    iconsList.add(favouriteIcon);
+	}
+	// add icons for save state
 //        if (arbilNode.hasHistory()) {
 //            iconsVector.add(exclamationBlueIcon);
 //        }
 //        if (arbilNode.getNeedsSaveToDisk()) {
 //            iconsVector.add(exclamationRedIcon);
 //        }
-        return compositIcons(iconsList);// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
+	return compositIcons(iconsList);// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
     }
 }
