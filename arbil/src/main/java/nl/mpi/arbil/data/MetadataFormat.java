@@ -19,8 +19,10 @@ package nl.mpi.arbil.data;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Collection;
@@ -123,31 +125,53 @@ public class MetadataFormat {
             int bytesToRead = 1024;
             final URI resolveHandle = new HandleUtils().resolveHandle(targetUri);
             URLConnection uRLConnection = resolveHandle.toURL().openConnection();
-            ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
-            final String contentType = uRLConnection.getContentType();
-            logger.info("ContentType: " + contentType); // sadly we dont have a useful mime type here
-            if (contentType != null && contentType.contains("text/xml")) {
-                Scanner scanner = new Scanner(uRLConnection.getInputStream());
-                Pattern pattern = Pattern.compile("<[\\S]*");
-                boolean keepSearching = true;
-                while (keepSearching) {
-                    String found = scanner.findWithinHorizon(pattern, bytesToRead);
-                    logger.info("found: " + found);
-                    if ("<?xml".equals(found)) {
-                        continue;
-                    } else if ("<!--".equals(found)) {
-                        continue;
+            final HttpURLConnection httpConnection = (HttpURLConnection) uRLConnection;
+            httpConnection.setInstanceFollowRedirects(true);
+            // calling httpConnection.connect(); does not help us here, we nead to get the input stream
+            // only then can we get the redirected URL but we must get it via httpConnection.getURL()
+            // because the original connection and its location header that could have been retrieved
+            // by httpConnection.getHeaderField("Location"); has been discarded and
+            // replaced by a new connection.
+            final InputStream inputStream = uRLConnection.getInputStream();
+            try {
+                if (httpConnection.getURL() != null) {
+                    final FileType redirectedShallowCheckResult = shallowCheck(httpConnection.getURL().toURI());
+                    if (redirectedShallowCheckResult != FileType.UNKNOWN) {
+                        return redirectedShallowCheckResult;
                     }
-                    for (FormatType formatType : knownFormats) {
-                        if (formatType.metadataStartXpath != null && formatType.metadataStartXpath.length() > 0) {
-                            final String foundTag = found.substring(1);
-                            if (formatType.metadataStartXpath.startsWith(foundTag, 1)) {
-                                return formatType.fileType;
-                            }
+                }
+            } catch (URISyntaxException exception) {
+                logger.error("Could not read redirected URI: {}", exception.getMessage());
+            }
+            // There is no point checking uRLConnection.getContentType();
+            // because we dont have a useful mime type here, it could
+            // be application/xml or text/xml or text/plain etc.
+            // so there is no reliable way to test this content type
+            // without enforcing serverside content types
+            Scanner scanner = new Scanner(inputStream);
+            Pattern pattern = Pattern.compile("<[\\S]*");
+            boolean keepSearching = true;
+            while (keepSearching) {
+                String found = scanner.findWithinHorizon(pattern, bytesToRead);
+                if ("<?xml".equals(found)) {
+                    continue;
+                } else if ("<!--".equals(found)) {
+                    continue;
+                }
+                for (FormatType formatType : knownFormats) {
+                    if (formatType.metadataStartXpath != null && formatType.metadataStartXpath.length() > 0) {
+                        final String foundTag = found.substring(1);
+                        if (formatType.metadataStartXpath.startsWith(foundTag, 1)) {
+                            scanner.close();
+                            inputStream.close();
+                            return formatType.fileType;
                         }
                     }
                 }
+                logger.info("found: {}", found);
             }
+            scanner.close();
+            inputStream.close();
         } catch (IOException exception) {
             logger.info("Could not get remote file type: ", exception);
             return FileType.UNKNOWN;
