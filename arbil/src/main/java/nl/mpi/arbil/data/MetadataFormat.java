@@ -109,7 +109,7 @@ public class MetadataFormat {
         }
         if (urlString.lastIndexOf(".") > urlString.length() - 6) {
             // if the file name has a suffix and has passed through the known metadata suffixes then we assume it is a file and dont bother reading the remote file
-            logger.info("Presuming the URI points to a file based on its suffix: " + urlString);
+            logger.info("Presuming the URI points to non metadata based on its suffix: " + urlString);
             return FileType.FILE;
         }
         // the type is currently unknown and if a full load is requested will be deep checked before hand
