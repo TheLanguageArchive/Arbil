@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -709,7 +710,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
                 // TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
                 // nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
                 // if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
-
                 if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
                     preferredNameFieldExists = true;
                     for (ArbilField currentField : currentFieldArray) {
@@ -939,6 +939,15 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     }
 
     /**
+     * Returns the archive handle to a resource file if it exists.
+     *
+     * @return The handle for the remote resource if it exists.
+     */
+    public String getResourceArchiveHandle() {
+        return resourceUrlField.getArchiveHandle();
+    }
+
+    /**
      * Resolves the full path to a resource file if it exists.
      *
      * @return The path to remote resource if it exists.
@@ -1038,7 +1047,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     }
 
     /**
-     * 
+     *
      * @return whether the node represents a file on disk
      */
     public boolean isFile() {

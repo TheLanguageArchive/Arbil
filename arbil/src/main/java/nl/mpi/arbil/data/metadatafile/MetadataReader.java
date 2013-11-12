@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data.metadatafile;
 
@@ -769,11 +770,14 @@ public class MetadataReader {
         final String cvUrlString;
         final String keyName;
         final String languageId;
+        final String archiveHandle;
         if (childNodeAttributes != null) {
             // IMDI only...
             cvType = getNamedAttributeValue(childNodeAttributes, "Type");
             // IMDI only...
             cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
+            // IMDI only...
+            archiveHandle = getNamedAttributeValue(childNodeAttributes, "ArchiveHandle");
 
             final String languageIdAttribute = getNamedAttributeValue(childNodeAttributes, "LanguageId");
             if (languageIdAttribute != null) {
@@ -790,6 +794,7 @@ public class MetadataReader {
             cvUrlString = null;
             keyName = null;
             languageId = null;
+            archiveHandle = null;
         }
 
         final List<String[]> attributePaths;
@@ -819,7 +824,10 @@ public class MetadataReader {
 
         // is a leaf not a branch
         final ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath), allowsLanguageId, attributePaths, attributesValueMap);
-        // TODO: about to write this function
+        // IMDI can contain archive handles on resource links and this must be added to the field because resource links are stored as a field object
+        fieldToAdd.setArchiveHandle(archiveHandle);
+
+// TODO: about to write this function
         //GuiHelper.imdiSchema.convertXmlPathToUiPath();
         // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
         // TODO: note that this method does not use any attributes without a node value
