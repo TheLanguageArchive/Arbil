@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MetadataFormat {
 
-    private final static Logger logger = LoggerFactory.getLogger(MetadataFormat1.class);
+    private final static Logger logger = LoggerFactory.getLogger(MetadataFormat.class);
     public static final int DEEP_CHECK_BYTES_TO_READ = 1024;
     private static final Pattern ROOT_ELEMENT_PATTERN = Pattern.compile("<[\\S]*");
 
