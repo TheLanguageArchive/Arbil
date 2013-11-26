@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
 public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNode {
 
     private final static Logger logger = LoggerFactory.getLogger(ArbilDataNode.class);
+    private final static MetadataFormat metadataFormat = new MetadataFormat();
     private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
 
     public static enum LoadingState {
@@ -1058,7 +1059,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         if (resourceNode) {
             return false;
         } else {
-            return new MetadataFormat().isMetaDataNode(formatType);
+            return metadataFormat.isMetaDataNode(formatType);
         }
     }
 

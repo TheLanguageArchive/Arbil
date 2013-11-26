@@ -47,6 +47,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
      */
     private DataNodeLoaderThreadManager threadManager;
     private ArbilDataNodeService dataNodeService;
+    private final MetadataFormat metadataFormat = new MetadataFormat();
 
     public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager, ArbilDataNodeService dataNodeService) {
         this(loaderThreadManager);
@@ -80,7 +81,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
             currentDataNode = arbilHashTable.get(localUri.toString());
             if (currentDataNode == null) {
-                currentDataNode = new ArbilDataNode(dataNodeService, localUri, new MetadataFormat().shallowCheck(localUri));
+                currentDataNode = new ArbilDataNode(dataNodeService, localUri, metadataFormat.shallowCheck(localUri));
                 arbilHashTable.put(localUri.toString(), currentDataNode);
             }
         }
@@ -287,7 +288,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     }
 
     public ArbilDataNode createNewDataNode(URI uri) {
-        return new ArbilDataNode(dataNodeService, uri, new MetadataFormat().shallowCheck(uri));
+        return new ArbilDataNode(dataNodeService, uri, metadataFormat.shallowCheck(uri));
     }
 
     /**
