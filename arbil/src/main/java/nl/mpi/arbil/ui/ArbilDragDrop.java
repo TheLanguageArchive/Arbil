@@ -244,12 +244,12 @@ public class ArbilDragDrop {
 
 	@Override
 	public boolean canImport(JComponent comp, DataFlavor flavor[]) {
-	    logger.debug("canImport: {}", comp);
+	    logger.trace("canImport: {}", comp);
 	    currentDropTarget = null;
 	    dropAllowed = false;
 	    if (comp instanceof JTree) {
 		if (treeHelper.componentIsTheLocalCorpusTree(comp)) {
-		    logger.debug("localcorpustree so can drop here");
+		    logger.trace("localcorpustree so can drop here");
 		    if (selectionContainsArchivableLocalFile
 			    || //selectionContainsLocalFile ||
 			    //selectionContainsLocalDirectory ||
@@ -261,14 +261,14 @@ public class ArbilDragDrop {
 			    || selectionContainsImdiSession
 			    || selectionContainsCmdiMetadata
 			    || selectionContainsArbilChild) {
-			logger.debug("dragged contents are acceptable");
+			logger.trace("dragged contents are acceptable");
 			currentDropTarget = comp; // store the source component for the tree node sensitive drop
 			dropAllowed = (comp instanceof ArbilTree) && canDropToTarget((ArbilTree) comp);
 			return true;
 		    }
 		}
 		if (treeHelper.componentIsTheFavouritesTree(comp)) {
-		    logger.debug("favourites tree so can drop here");
+		    logger.trace("favourites tree so can drop here");
 		    if (//selectionContainsArchivableLocalFile &&
 			    //selectionContainsLocalFile ||
 			    //selectionContainsLocalDirectory &&
@@ -280,7 +280,7 @@ public class ArbilDragDrop {
 			    || selectionContainsImdiSession
 			    || selectionContainsCmdiMetadata
 			    || selectionContainsArbilChild) {
-			logger.debug("dragged contents are acceptable");
+			logger.trace("dragged contents are acceptable");
 			currentDropTarget = comp; // store the source component for the tree node sensitive drop
 			dropAllowed = canDropToTarget((ArbilTree) comp);
 			return true;
@@ -291,17 +291,17 @@ public class ArbilDragDrop {
 	    } else {
 		// search through al the parent nodes to see if we can find a drop target
 		dropAllowed = (null != findArbilDropableTarget(comp));
-		logger.debug("dropAllowed: {}", dropAllowed);
+		logger.trace("dropAllowed: {}", dropAllowed);
 		return dropAllowed;
 	    }
-	    logger.debug("canImport false");
+	    logger.trace("canImport false");
 	    return false;
 	}
 
 	private Container findArbilDropableTarget(Container tempCom) {
 	    while (tempCom != null) {
 		if (tempCom instanceof ArbilSplitPanel || tempCom instanceof JDesktopPane) {
-		    logger.debug("canImport true");
+		    logger.trace("canImport true");
 		    return tempCom;
 		}
 		tempCom = tempCom.getParent();
@@ -374,30 +374,30 @@ public class ArbilDragDrop {
 	}
 
 	private void classifyTransferableContents() {
-	    logger.debug("classifyTransferableContents");
+	    logger.trace("classifyTransferableContents");
 	    // classify the draggable bundle to help matching drop targets
 	    for (ArbilDataNode currentDraggedObject : draggedArbilNodes) {
 		if (currentDraggedObject != null) {
 		    if (currentDraggedObject.isLocal()) {
 			selectionContainsLocal = true;
-			logger.debug("selectionContainsLocal");
+			logger.trace("selectionContainsLocal");
 			if (currentDraggedObject.isDirectory()) {
 			    selectionContainsLocalDirectory = true;
-			    logger.debug("selectionContainsLocalDirectory");
+			    logger.trace("selectionContainsLocalDirectory");
 			} else {
 			    if (!currentDraggedObject.isMetaDataNode()) {
 				selectionContainsLocalFile = true;
-				logger.debug("selectionContainsLocalFile");
+				logger.trace("selectionContainsLocalFile");
 				if (currentDraggedObject.isArchivableFile()) {
 				    selectionContainsArchivableLocalFile = true;
-				    logger.debug("selectionContainsArchivableLocalFile");
+				    logger.trace("selectionContainsArchivableLocalFile");
 				}
 
 			    }
 			}
 		    } else {
 			selectionContainsRemote = true;
-			logger.debug("selectionContainsRemote");
+			logger.trace("selectionContainsRemote");
 		    }
 		    if (currentDraggedObject.isMetaDataNode()) {
 			// TG 2011/3/2: selectionContainsArbilInCache member has been removed since it wasn't used
@@ -407,28 +407,28 @@ public class ArbilDragDrop {
 //                        }
 			if (currentDraggedObject.isChildNode()) {
 			    selectionContainsArbilChild = true;
-			    logger.debug("selectionContainsImdiChild");
+			    logger.trace("selectionContainsImdiChild");
 			    // only an imdichild will contain a resource
 			    if (currentDraggedObject.hasResource()) {
 				selectionContainsArbilResource = true;
-				logger.debug("selectionContainsImdiResource");
+				logger.trace("selectionContainsImdiResource");
 			    }
 			} else if (currentDraggedObject.isSession()) {
 			    selectionContainsImdiSession = true;
-			    logger.debug("selectionContainsImdiSession");
+			    logger.trace("selectionContainsImdiSession");
 			} else if (currentDraggedObject.isCmdiMetaDataNode()) {
 			    selectionContainsCmdiMetadata = true;
-			    logger.debug("selectionContainsCmdiMetadata");
+			    logger.trace("selectionContainsCmdiMetadata");
 			} else if (currentDraggedObject.isCatalogue()) {
 			    selectionContainsImdiCatalogue = true;
-			    logger.debug("selectionContainsImdiCatalogue");
+			    logger.trace("selectionContainsImdiCatalogue");
 			} else if (currentDraggedObject.isCorpus()) {
 			    selectionContainsArbilCorpus = true;
-			    logger.debug("selectionContainsImdiCorpus");
+			    logger.trace("selectionContainsImdiCorpus");
 			}
 			if (currentDraggedObject.isFavorite()) {
 			    selectionContainsFavourite = true;
-			    logger.debug("selectionContainsFavourite");
+			    logger.trace("selectionContainsFavourite");
 			}
 		    }
 		}
@@ -445,7 +445,7 @@ public class ArbilDragDrop {
 		return false;
 	    }
 	    try {
-		logger.debug("importData: {}", comp);
+		logger.trace("importData: {}", comp);
 		if (comp instanceof ArbilTable && draggedArbilNodes == null) {
 		    tableController.pasteIntoSelectedTableRowsFromClipBoard((ArbilTable) comp);
 		} else if (draggedArbilNodes != null) {
@@ -483,7 +483,7 @@ public class ArbilDragDrop {
 
 	private boolean importToTree(ArbilTree dropTree) {
 	    for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
-		logger.debug("dragged: {}", draggedArbilNodes[draggedCounter]);
+		logger.trace("dragged: {}", draggedArbilNodes[draggedCounter]);
 	    }
 	    if (treeHelper.componentIsTheFavouritesTree(currentDropTarget)) {
 		try {
@@ -523,7 +523,7 @@ public class ArbilDragDrop {
 	    Object dropTargetUserObject = targetNode.getUserObject();
 	    Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
 	    Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
-	    logger.debug("to: {}", dropTargetUserObject);
+	    logger.trace("to: {}", dropTargetUserObject);
 
 	    final ArbilNode dropTargetNode;
 	    if (dropTargetUserObject instanceof ArbilNode) {
@@ -546,9 +546,9 @@ public class ArbilDragDrop {
 			    && selectionContainsArbilChild == false
 			    && selectionContainsLocal == true
 			    && selectionContainsRemote == false) {
-			logger.debug("ok to add local file");
+			logger.trace("ok to add local file");
 
-			logger.debug("dragged: {}", (Object) draggedArbilNodes);
+			logger.trace("dragged: {}", (Object) draggedArbilNodes);
 			new MetadataBuilder().requestAddNodes(dropTargetDataNode, widgets.getString("RESOURCE"), draggedArbilNodes);
 			return true;
 		    }
@@ -560,7 +560,7 @@ public class ArbilDragDrop {
 		    && selectionContainsLocalDirectory == false
 		    && selectionContainsArbilResource == false
 		    && (selectionContainsArbilCorpus == false || selectionContainsImdiSession == false)) {
-		logger.debug("ok to move local IMDI");
+		logger.trace("ok to move local IMDI");
 
 		boolean moveMultiple = draggedArbilNodes.length > 1;
 		boolean moveAll = false;
@@ -568,7 +568,7 @@ public class ArbilDragDrop {
 
 		for (int draggedCounter = 0; continueMove && draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 		    final ArbilDataNode currentNode = draggedArbilNodes[draggedCounter];
-		    logger.debug("dragged: {}", currentNode);
+		    logger.trace("dragged: {}", currentNode);
 		    if (!currentNode.isChildNode() || dropTargetDataNode != null && MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			//((ArbilDataNode) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
@@ -578,7 +578,7 @@ public class ArbilDragDrop {
 			while (ancestorNode != null) {
 			    if (draggedTreeNodes[draggedCounter].equals(ancestorNode)) {
 				draggedIntoSelf = true;
-				logger.debug("found ancestor: {}:{}", draggedTreeNodes[draggedCounter], ancestorNode);
+				logger.trace("found ancestor: {}:{}", draggedTreeNodes[draggedCounter], ancestorNode);
 			    }
 			    ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
 			}
@@ -695,12 +695,12 @@ public class ArbilDragDrop {
 	    if (addNodeResult) {
 		if (draggedTreeNodes[draggedCounter] != null) {
 		    if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
-			logger.debug("dragged from root");
+			logger.trace("dragged from root");
 			treeHelper.removeLocation(currentNode);
 			treeHelper.applyRootLocations();
 		    } else {
 			ArbilDataNode parentNode = (ArbilDataNode) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
-			logger.debug("removeing from parent: {}", parentNode);
+			logger.trace("removeing from parent: {}", parentNode);
 			// add the parent and the child node to the deletelist
 			if (!arbilNodesDeleteList.containsKey(parentNode)) {
 			    arbilNodesDeleteList.put(parentNode, new Vector());
@@ -719,7 +719,7 @@ public class ArbilDragDrop {
 		final Vector<ArbilDataNode> children = entry.getValue();
 		if (currentParent.isCorpus()) {
 		    // Removing sessions from corpus
-		    logger.debug("deleting by corpus link");
+		    logger.trace("deleting by corpus link");
 		    ArbilDataNode[] arbilNodeArray = children.toArray(new ArbilDataNode[]{});
 		    currentParent.deleteCorpusLink(arbilNodeArray);
 		} else if (currentParent.isMetaDataNode()) {

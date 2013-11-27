@@ -84,7 +84,7 @@ public class ArbilFieldViewTable extends JTable {
 				try {
 				    int targetColumn = Integer.parseInt(evt.getActionCommand());
 				    ArbilFieldViewTableModel fieldViewTableModel = (ArbilFieldViewTableModel) ((JTable) ((JPopupMenu) ((JMenuItem) evt.getSource()).getComponent().getParent()).getInvoker()).getModel();
-				    logger.debug("targetColumn: {}:{}", targetColumn, evt.getActionCommand());
+				    logger.trace("targetColumn: {}:{}", targetColumn, evt.getActionCommand());
 				    for (int rowCounter = 0; rowCounter < fieldViewTableModel.getRowCount(); rowCounter++) {
 					fieldViewTableModel.setValueAt(true, rowCounter, targetColumn);
 				    }
@@ -104,7 +104,7 @@ public class ArbilFieldViewTable extends JTable {
 				try {
 				    int targetColumn = Integer.parseInt(evt.getActionCommand());
 				    ArbilFieldViewTableModel fieldViewTableModel = (ArbilFieldViewTableModel) ((JTable) ((JPopupMenu) ((JMenuItem) evt.getSource()).getComponent().getParent()).getInvoker()).getModel();
-				    logger.debug("targetColumn: {}:{}", targetColumn, evt.getActionCommand());
+				    logger.trace("targetColumn: {}:{}", targetColumn, evt.getActionCommand());
 				    for (int rowCounter = 0; rowCounter < fieldViewTableModel.getRowCount(); rowCounter++) {
 					fieldViewTableModel.setValueAt(false, rowCounter, targetColumn);
 				    }

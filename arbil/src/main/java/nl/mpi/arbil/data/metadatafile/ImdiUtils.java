@@ -144,7 +144,7 @@ public class ImdiUtils implements MetadataUtils {
 				BugCatcherManager.getBugCatcher().logError(exception);
 			    }
 			}
-			logger.debug("currentLink: {} : {}", linkUriToUpdate, currentLink.getRawURL());
+			logger.trace("currentLink: {} : {}", linkUriToUpdate, currentLink.getRawURL());
 			if (linkUriToUpdate != null) {
 			    // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
 			    // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api

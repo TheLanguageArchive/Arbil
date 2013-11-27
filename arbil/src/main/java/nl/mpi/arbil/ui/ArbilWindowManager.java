@@ -714,7 +714,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	    logger.debug("loadSplitPlanes: {}", targetComponent.getName());
 	    Object linorgSplitPosition = windowStatesHashtable.get(targetComponent.getName());
 	    if (linorgSplitPosition instanceof Integer) {
-		logger.debug("{}: {}", targetComponent.getName(), linorgSplitPosition);
+		logger.trace("{}: {}", targetComponent.getName(), linorgSplitPosition);
 		((JSplitPane) targetComponent).setDividerLocation((Integer) linorgSplitPosition);
 	    } else {
 		if (targetComponent.getName().equals("rightSplitPane")) {

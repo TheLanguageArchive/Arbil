@@ -334,12 +334,12 @@ public class MetadataReader {
     }
 
     public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException {
-        logger.debug("insertFromTemplate: {} : {}", elementName, resourceUrl);
-        logger.debug("targetXpath: {}", targetXmlPath);
+        logger.trace("insertFromTemplate: {} : {}", elementName, resourceUrl);
+        logger.trace("targetXpath: {}", targetXmlPath);
         String insertBefore = currentTemplate.getInsertBeforeOfTemplate(elementName);
-        logger.debug("insertBefore: {}", insertBefore);
+        logger.trace("insertBefore: {}", insertBefore);
         final int maxOccurs = currentTemplate.getMaxOccursForTemplate(elementName);
-        logger.debug("maxOccurs: {}", maxOccurs);
+        logger.trace("maxOccurs: {}", maxOccurs);
         URI addedPathURI = null;
         try {
             String templateFileString = templateFileStringFromElementName(elementName);

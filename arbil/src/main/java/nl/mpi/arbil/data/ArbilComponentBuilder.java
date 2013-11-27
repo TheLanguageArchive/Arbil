@@ -1344,7 +1344,7 @@ public class ArbilComponentBuilder {
     }
 
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile, boolean addDummyData) {
-        logger.debug("createComponentFile: {}: {}", cmdiNodeFile, xsdFile);
+        logger.trace("createComponentFile: {}: {}", cmdiNodeFile, xsdFile);
         try {
             Document workingDocument = getNewDocument();
             readSchema(workingDocument, xsdFile, addDummyData);
