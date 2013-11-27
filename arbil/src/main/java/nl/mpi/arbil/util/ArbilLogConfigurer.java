@@ -88,18 +88,21 @@ public final class ArbilLogConfigurer {
      * @param level log level to use for the file
      * @throws IOException if there are IO problems opening the log file
      */
-    public void setLogFile(File logFile, Level level) throws IOException {
+    public void setLogFile(File logFile) throws IOException {
 	final java.util.logging.Logger defaultLogger = LogManager.getLogManager().getLogger("");
+	Level logLevel = Level.WARNING;
 	logger.info("Reconfiguring logging to send output to {}", logFile.getAbsolutePath());
 	for (Handler handler : defaultLogger.getHandlers()) {
 	    if (handler instanceof FileHandler) {
-		logger.debug("Closing and removing 1 FileHandler: {}", ((FileHandler) handler));
-		((FileHandler) handler).close();
+		final FileHandler fileHandler = (FileHandler) handler;
+		logger.debug("Closing and removing 1 FileHandler: {}", fileHandler);
+		logLevel = fileHandler.getLevel();
+		fileHandler.close();
 		defaultLogger.removeHandler(handler);
 	    }
 	}
 	final FileHandler handler = new FileHandler(logFile.getAbsolutePath(), true);
-	handler.setLevel(level);
+	handler.setLevel(logLevel);
 	handler.setFormatter(new SimpleFormatter());
 	defaultLogger.addHandler(handler);
     }
@@ -129,7 +132,7 @@ public final class ArbilLogConfigurer {
 		removeOldLogs(sessionStorage);
 		// Try to configure a log file in the application storage directory
 		final File logFile = getLogFile(sessionStorage);
-		setLogFile(logFile, Level.INFO);
+		setLogFile(logFile);
 		return true;
 	    } catch (IOException ex) {
 		logger.warn("Could not configure log file in session storage directory", ex);
