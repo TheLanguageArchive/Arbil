@@ -384,7 +384,7 @@ public class ArbilTableController implements TableController {
     }
 
     private void addChildNodeForFieldFromPlaceholder(final MetadataBuilder metadataBuilder, final ArbilDataNode dataNode, final ArbilField columnField, final String xmlPath) throws ArbilMetadataException {
-	final URI resultURI = metadataBuilder.addChildNode(dataNode, xmlPath, dataNode.getURI().getFragment(), null, null, new NodeCreationCallback() {
+	final URI resultURI = metadataBuilder.addChildNode(dataNode, xmlPath, dataNode.getURIFragment(), null, null, new NodeCreationCallback() {
 	    /**
 	     * Post-creation-and-reload callback; only at this stage additional field properties can be set
 	     */
@@ -446,7 +446,7 @@ public class ArbilTableController implements TableController {
      */
     private ArbilField getAddedField(final ArbilDataNode dataNode, URI addedNodeUri) {
 	if (dataNode.waitTillLoaded()) {
-	    final String fieldPath = addedNodeUri.getFragment();//.substring(dataNode.getURI().getFragment().length() + 1);
+	    final String fieldPath = addedNodeUri.getFragment();//.substring(dataNode.getURIFragment().length() + 1);
 	    final Pattern pattern = Pattern.compile("^(.*?)(\\((\\d+)\\))?$");
 	    final Matcher matcher = pattern.matcher(fieldPath);
 	    if (matcher.matches()) {

@@ -698,7 +698,7 @@ public class ArbilDataNodeService {
         } else {
             // apache method
             //                URI tempURI = new URI(inputUrlString);
-            //                URI returnURI = URIUtils.createURI(tempURI.getScheme(), tempURI.getHost(), tempURI.getPort(), tempURI.getPath(), tempURI.getQuery(), tempURI.getFragment());
+            //                URI returnURI = URIUtils.createURI(tempURI.getScheme(), tempURI.getHost(), tempURI.getPort(), tempURI.getPath(), tempURI.getQuery(), tempURI.getURIFragment());
             //                return returnURI;
             // end apache method : this requires the uri to be broken into its parts so we might as well do it with the standard classes
             // mpi method

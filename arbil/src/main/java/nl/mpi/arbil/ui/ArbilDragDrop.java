@@ -536,7 +536,7 @@ public class ArbilDragDrop {
 	    if (dropTargetDataNode != null) {
 		// Media files can be dropped onto CMDI's and on IMDI root Resources nodes
 		if (dropTargetDataNode.getParentDomNode().isCmdiMetaDataNode() && !selectionDraggedFromLocalCorpus
-			|| dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild() */) {
+			|| dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURIFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild() */) {
 		    if (selectionContainsArchivableLocalFile == true
 			    && selectionContainsLocalFile == true
 			    && selectionContainsLocalDirectory == false

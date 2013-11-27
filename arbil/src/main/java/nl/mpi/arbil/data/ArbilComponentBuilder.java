@@ -265,7 +265,7 @@ public class ArbilComponentBuilder {
     }
 
     private String getTargetXmlPath(ArbilDataNode arbilDataNode) {
-        String targetXmlPath = arbilDataNode.getURI().getFragment();
+        String targetXmlPath = arbilDataNode.getURIFragment();
         if (targetXmlPath == null) {
             // Get the root CMD Component
             targetXmlPath = ".CMD.Components.*[1]";
@@ -617,7 +617,7 @@ public class ArbilComponentBuilder {
         URI returnUri = null;
         // this node has already been saved in the metadatabuilder which called this
         // but lets check this again in case this gets called elsewhere and to make things consistant
-        String elementName = favouriteArbilDataNode.getURI().getFragment();
+        String elementName = favouriteArbilDataNode.getURIFragment();
         //String insertBefore = destinationArbilDataNode.nodeTemplate.getInsertBeforeOfTemplate(elementName);
         String insertBefore = destinationArbilDataNode.getNodeTemplate().getInsertBeforeOfTemplate(elementName);
         logger.debug("insertBefore: {}", insertBefore);
@@ -633,7 +633,7 @@ public class ArbilComponentBuilder {
             }
             synchronized (destinationArbilDataNode.getParentDomLockObject()) {
                 Document destinationDocument = getDocument(destinationArbilDataNode.getURI());
-                String favouriteXpath = favouriteArbilDataNode.getURI().getFragment();
+                String favouriteXpath = favouriteArbilDataNode.getURIFragment();
                 String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
                 boolean onlySubNodes = !favouriteXpathTrimmed.equals(favouriteXpath);
                 logger.debug("favouriteXpath: {}", favouriteXpathTrimmed);
@@ -706,7 +706,7 @@ public class ArbilComponentBuilder {
      * @return Aligned XPath, or original if could not be aligned
      */
     private String alignDestinationPathWithTarget(String destinationXpath, ArbilDataNode destinationArbilDataNode) {
-        String targetFragment = destinationArbilDataNode.getURI().getFragment();
+        String targetFragment = destinationArbilDataNode.getURIFragment();
         if (targetFragment != null) { // If null, it's the document root
 
             // If container node, we want to know the actual level to add to, so remove container part from path
@@ -920,7 +920,7 @@ public class ArbilComponentBuilder {
             targetXmlPath = checkTargetXmlPath(targetXmlPath, cmdiComponentId);
 
             logger.debug("trimmed targetXmlPath: {}", targetXmlPath);
-            //String targetXpath = targetNode.getURI().getFragment();
+            //String targetXpath = targetNode.getURIFragment();
             //logger.debug("targetXpath: " + targetXpath);
 //            File cmdiNodeFile = imdiTreeObject.getFile();
             String nodeFragment = "";

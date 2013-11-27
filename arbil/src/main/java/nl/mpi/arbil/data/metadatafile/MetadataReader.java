@@ -645,7 +645,7 @@ public class MetadataReader {
                             metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(nodeURIStringBuilder.toString()));
                             metaNode.setParentDomNode(parentDomNode);
 
-                            metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
+                            metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURIFragment());
                             if (!parentChildTree.containsKey(metaNode)) {
                                 parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
                             }
@@ -738,7 +738,7 @@ public class MetadataReader {
         // this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
         int siblingCount = 1;
         for (ArbilDataNode siblingNode : parentChildTree.get(parentNode)) {
-            String siblingPath = siblingNode.getURI().getFragment();
+            String siblingPath = siblingNode.getURIFragment();
             if (siblingPath != null) {
                 siblingPath = siblingPath.substring(siblingPath.lastIndexOf(".") + 1);
                 siblingPath = siblingPath.replaceAll("\\(\\d+\\)", "");
@@ -949,7 +949,7 @@ public class MetadataReader {
     }
 
     private String determineParentPath(ArbilDataNode parentNode) {
-        String parentNodePath = parentNode.getURI().getFragment();
+        String parentNodePath = parentNode.getURIFragment();
         if (parentNodePath == null) {
             // pathIsChildNode needs to have the entire path of the node not just the local part
             parentNodePath = "";

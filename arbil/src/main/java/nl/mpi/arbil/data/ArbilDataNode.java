@@ -98,7 +98,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     protected boolean nodeNeedsSaveToDisk;
     protected String nodeText, lastNodeText = NODE_LOADING_TEXT;
     //    private boolean nodeTextChanged = false;
-    private URI nodeUri;
+    private final URI nodeUri;
     private boolean containerNode = false;
     public ArbilField resourceUrlField;
     private CmdiComponentLinkReader cmdiComponentLinkReader = null;
@@ -416,7 +416,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     public ArbilDataNode getChildByPath(String path) {
         if (childArray != null && childArray.length > 0) {
             for (ArbilDataNode child : childArray) {
-                if (child.getURI() != null && path.equals(child.getURI().getFragment())) {
+                if (child.getURI() != null && path.equals(child.getURIFragment())) {
                     return child;
                 } else {
                     ArbilDataNode childMatch = child.getChildByPath(path);
@@ -740,7 +740,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         }
         if (!foundPreferredNameField && this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//* && fieldHashtable.size() > 0 && domParentImdi == this */) {
             String unamedText;
-            String nodeFragmentName = this.getURI().getFragment();
+            String nodeFragmentName = this.getURIFragment();
             if (nodeFragmentName != null) {
                 nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
                 unamedText = nodeFragmentName;
@@ -801,7 +801,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         if (isContainerNode()) {
             lastNodeText = String.format("%1$s (%2$d)", lastNodeText, getChildCount());
         } else if (isSingletonMetadataNode()) {
-            StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURI().getFragment()));
+            StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURIFragment()));
             if (nodeText != null && nodeText.length() > 0) {
                 nodeTextSB.append(" (").append(nodeText).append(")");
             }
@@ -1145,6 +1145,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
             BugCatcherManager.getBugCatcher().logError(ex);
             return null;
         }
+    }
+    
+    public String getURIFragment() {
+	return nodeUri.getFragment();
     }
 
     public File getFile() { //TODO: make throw IllegalArgumentException, URISyntaxException

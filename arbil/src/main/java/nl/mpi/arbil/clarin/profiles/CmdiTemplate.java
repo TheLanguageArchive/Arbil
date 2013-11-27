@@ -274,7 +274,7 @@ public class CmdiTemplate extends ArbilTemplate {
     @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
 	// get the xpath of the target node
-	String targetNodeXpath = ((ArbilDataNode) targetNodeUserObject).getURI().getFragment();
+	String targetNodeXpath = ((ArbilDataNode) targetNodeUserObject).getURIFragment();
 	boolean isComponentPath = false;
 	if (targetNodeXpath != null) {
 	    isComponentPath = targetNodeXpath.endsWith(")");
