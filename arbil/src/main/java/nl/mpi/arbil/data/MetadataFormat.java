@@ -120,7 +120,7 @@ public class MetadataFormat {
     }
 
     public FileType deepCheck(URI targetUri) {
-  	final FileType shallowCheckResult = shallowCheck(targetUri);
+	final FileType shallowCheckResult = shallowCheck(targetUri);
 	if (shallowCheckResult != FileType.UNKNOWN) {
 	    logger.debug("Shallow check was decisive: {}", shallowCheckResult);
 	    return shallowCheckResult;
@@ -184,7 +184,8 @@ public class MetadataFormat {
 	    scanner.close();
 	    inputStream.close();
 	} catch (IOException exception) {
-	    logger.info("Could not get remote file type for {}", targetUri, exception);
+	    logger.warn("Could not get remote file type for {}", targetUri);
+	    logger.info("Could not get remote file type, returning FileType.UNKNOWN", exception);
 	    return FileType.UNKNOWN;
 	}
 	return FileType.FILE;

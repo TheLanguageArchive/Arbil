@@ -149,7 +149,8 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	    toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
 	    fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
 	} catch (UnsupportedEncodingException uee) {
-	    logError(uee);
+	    // UTF-8 not supported, should not occur
+	    throw new RuntimeException(uee);
 	}
 	boolean success = fromDirectory.renameTo(toDirectory);
 	// This sometimes fails on Windows 7, JRE 6 without any clear reason. See https://trac.mpi.nl/ticket/1553
@@ -187,6 +188,11 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 		treeHelper.loadLocationsList();
 		treeHelper.applyRootLocations();
 		windowManager.closeAllWindows();
+	    } catch (UnsupportedEncodingException ex) {
+		// UTF-8 unsupported, should not occur
+		throw new RuntimeException(ex);
+	    } catch (IOException ex) {
+		logger.error("Could not save locations list", ex);
 	    } catch (Exception ex) {
 		logError(ex);
 //            logger.debug("save locationsList exception: " + ex.getMessage());
@@ -283,7 +289,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 		logger.debug("returnUri: {}", returnUri);
 	    }
 	} catch (URISyntaxException urise) {
-	    logError(urise);
+	    logger.error("Could not construct orginating URI from {}", uriPath, urise);
 	}
 	return returnUri;
     }
@@ -860,7 +866,9 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 	    httpConnection = (HttpURLConnection) urlConnection;
 //                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
 	    //h.setFollowRedirects(false);
-	    logger.debug("Code: {}, Message: {}", httpConnection.getResponseCode(), httpConnection.getResponseMessage() + resourceUrl.toString());
+	    if (logger.isDebugEnabled()) {
+		logger.debug("Code: {}, Message: {}", httpConnection.getResponseCode(), httpConnection.getResponseMessage() + resourceUrl.toString());
+	    }
 	}
 
 	if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
