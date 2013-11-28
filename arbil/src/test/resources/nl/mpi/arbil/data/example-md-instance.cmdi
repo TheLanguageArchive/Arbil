@@ -37,17 +37,17 @@
          
          <ResourceProxy id="a_photo">
             <ResourceType>Resource</ResourceType>
-            <ResourceRef>http://www.clarin.eu/sites/all/themes/clarin/images/clarin-name-logo.png</ResourceRef>
+            <ResourceRef>http://www.clarin.eu/sites/all/themes/clarin_eu/logo.png</ResourceRef>
          </ResourceProxy>
          
          <ResourceProxy id="a_text">
             <ResourceType>Resource</ResourceType>
-            <ResourceRef>http://www.clarin.eu/sometext.txt</ResourceRef>
+            <ResourceRef>http://www.clarin.eu/node/3853</ResourceRef>
          </ResourceProxy>
          
          <ResourceProxy id="another_md_file">
             <ResourceType>Metadata</ResourceType>
-            <ResourceRef>http://www.clarin.eu/cmd/example/example-md-instance.cmdi</ResourceRef>
+            <ResourceRef>http://infra.clarin.eu/cmd/example/example-md-instance.cmdi</ResourceRef>
          </ResourceProxy>
          
       </ResourceProxyList>
