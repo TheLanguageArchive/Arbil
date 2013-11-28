@@ -78,9 +78,11 @@ public class HandleUtils {
 		    return resolvedUri;
 		}
 	    } catch (URISyntaxException ex) {
-		logger.warn("Could not convert URL to URI for {}", handleURI, ex);
+		logger.warn("Could not convert URL to URI for {}: {}", handleURI, ex.getMessage());
+		logger.info("Could not convert URL to URI", ex);
 	    } catch (IOException ex) {
-		logger.warn("Could not follow redirects for {}", handleURI, ex);
+		logger.warn("Could not follow redirects for {}: {}", handleURI, ex.getMessage());
+		logger.info("Could not follow redirects", ex);
 	    }
 	}
 	return handleURI;

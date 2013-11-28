@@ -112,7 +112,7 @@ public class MetadataFormat {
 	}
 	if (urlString.lastIndexOf(".") > urlString.length() - 6) {
 	    // if the file name has a suffix and has passed through the known metadata suffixes then we assume it is a file and dont bother reading the remote file
-	    logger.info("Presuming the URI points to non metadata based on its suffix: " + urlString);
+	    logger.debug("Presuming the URI points to non metadata based on its suffix: {}", urlString);
 	    return FileType.FILE;
 	}
 	// the type is currently unknown and if a full load is requested will be deep checked before hand
@@ -184,7 +184,7 @@ public class MetadataFormat {
 	    scanner.close();
 	    inputStream.close();
 	} catch (IOException exception) {
-	    logger.info("Could not get remote file type: ", exception);
+	    logger.info("Could not get remote file type for {}", targetUri, exception);
 	    return FileType.UNKNOWN;
 	}
 	return FileType.FILE;
