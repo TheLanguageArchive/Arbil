@@ -38,125 +38,132 @@ public class CmdiComponentLinkReader {
     public ArrayList<ResourceRelation> cmdiResourceRelationArray = null;
 
     public static void main(String args[]) {
-        CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
-        try {//http://www.clarin.eu/cmd/example/example-md-instance.xml
-            cmdiComponentLinkReader.readLinks(new URI("http://www.clarin.eu/cmd/example/example-md-instance.cmdi"));
-        } catch (URISyntaxException exception) {
-            System.err.println(exception.getMessage());
-        }
+	CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
+	try {//http://www.clarin.eu/cmd/example/example-md-instance.xml
+	    cmdiComponentLinkReader.readLinks(new URI("http://www.clarin.eu/cmd/example/example-md-instance.cmdi"));
+	} catch (URISyntaxException exception) {
+	    System.err.println(exception.getMessage());
+	}
     }
 
     public final static class CmdiResourceLink {
 
-        public final String resourceProxyId;
-        public final String resourceType;
-        public final String resourceRef;
-        private final URI parentUri;
-        private int referencingNodes;
+	public final String resourceProxyId;
+	public final String resourceType;
+	public final String resourceRef;
+	private final URI parentUri;
+	private int referencingNodes;
 
-        /**
-         *
-         * @param parentUri URI of parent document
-         * @param proxyId id of proxy (id attribute of ResourceProxy element)
-         * @param type proxy type (generally 'Resource' or 'Metadata')
-         * @param ref reference to the actual resource location
-         */
-        public CmdiResourceLink(URI parentUri, String proxyId, String type, String ref) {
-            resourceProxyId = proxyId;
-            resourceType = type;
-            resourceRef = ref;
+	/**
+	 *
+	 * @param parentUri URI of parent document
+	 * @param proxyId id of proxy (id attribute of ResourceProxy element)
+	 * @param type proxy type (generally 'Resource' or 'Metadata')
+	 * @param ref reference to the actual resource location
+	 */
+	public CmdiResourceLink(URI parentUri, String proxyId, String type, String ref) {
+	    //TODO: Store resolved parent URI as soon as available (at the point of digestion), use this in getResolvedLinkUri
 
-            this.parentUri = parentUri;
-        }
+	    resourceProxyId = proxyId;
+	    resourceType = type;
+	    resourceRef = ref;
 
-        /**
-         * To be called whenever a reference of this resource link is found
-         */
-        public synchronized void addReferencingNode() {
-            referencingNodes++;
-        }
+	    this.parentUri = parentUri;
+	}
 
-        /**
-         * To be called whenever a reference of this resource link is removed
-         * (without reloading)
-         */
-        public synchronized void removeReferencingNode() {
-            referencingNodes--;
-        }
+	/**
+	 * To be called whenever a reference of this resource link is found
+	 */
+	public synchronized void addReferencingNode() {
+	    referencingNodes++;
+	}
 
-        /**
-         *
-         * @return Number of references to the resource registered
-         */
-        public synchronized int getReferencingNodesCount() {
-            return referencingNodes;
-        }
+	/**
+	 * To be called whenever a reference of this resource link is removed
+	 * (without reloading)
+	 */
+	public synchronized void removeReferencingNode() {
+	    referencingNodes--;
+	}
 
-        /**
-         *
-         * @return the URI of the link, can be unresolved
-         * @see #getResolvedLinkUri()
-         * @throws URISyntaxException if reference in this link is not a valid
-         * URI
-         */
-        public URI getLinkUri() throws URISyntaxException {
-            if (resourceRef != null && resourceRef.length() > 0) {
-                return new URI(resourceRef);
-            } else {
-                throw new URISyntaxException(resourceRef, "resourceRef is null or zero length");
-            }
-        }
+	/**
+	 *
+	 * @return Number of references to the resource registered
+	 */
+	public synchronized int getReferencingNodesCount() {
+	    return referencingNodes;
+	}
 
-        /**
-         *
-         * @return the URI of the link resolved against the URI of the
-         * containing document. Null if either reference or parent URI not set.
-         * @throws URISyntaxException if reference in this link is not a valid
-         * URI
-         */
-        public URI getResolvedLinkUri() throws URISyntaxException {
-            if (parentUri != null) {
-                return parentUri.resolve(getLinkUri());
-            } else {
-                throw new URISyntaxException(resourceRef, "resourceRef is null");
-            }
-        }
+	/**
+	 *
+	 * @return the URI of the link, can be unresolved
+	 * @see #getResolvedLinkUri()
+	 * @throws URISyntaxException if reference in this link is not a valid
+	 * URI
+	 */
+	public URI getLinkUri() throws URISyntaxException {
+	    if (resourceRef != null && resourceRef.length() > 0) {
+		return new URI(resourceRef);
+	    } else {
+		throw new URISyntaxException(resourceRef, "resourceRef is null or zero length");
+	    }
+	}
+
+	/**
+	 *
+	 * @return the URI of the link resolved against the URI of the
+	 * containing document. Null if either reference or parent URI not set.
+	 * @throws URISyntaxException if reference in this link is not a valid
+	 * URI
+	 */
+	public URI getResolvedLinkUri() throws URISyntaxException {
+	    if (parentUri != null) {
+		return parentUri.resolve(getLinkUri());
+	    } else {
+		throw new URISyntaxException(resourceRef, "resourceRef is null");
+	    }
+	}
+
+	@Override
+	public String toString() {
+	    return String.format("%s: %s -> [%s]%s", resourceProxyId, parentUri, resourceType, resourceRef);
+	}
     }
 
     public static class ResourceRelation {
 
-        public ResourceRelation(String type, String resource1, String resource2) {
-            relationType = type;
-            res1 = resource1;
-            res2 = resource2;
-        }
-        public final String relationType;
-        public final String res1;
-        public final String res2;
+	public ResourceRelation(String type, String resource1, String resource2) {
+	    relationType = type;
+	    res1 = resource1;
+	    res2 = resource2;
+	}
+	public final String relationType;
+	public final String res1;
+	public final String res2;
     }
 
     public CmdiComponentLinkReader() {
     }
 
     public URI getLinkUrlString(String resourceId) {
-        CmdiResourceLink cmdiResourceLink = getResourceLink(resourceId);
-        if (cmdiResourceLink != null) {
-            try {
-                return cmdiResourceLink.getLinkUri();
-            } catch (URISyntaxException urise) {
-                BugCatcherManager.getBugCatcher().logError(urise);
-            }
-        }
-        return null;
+	CmdiResourceLink cmdiResourceLink = getResourceLink(resourceId);
+	if (cmdiResourceLink != null) {
+	    try {
+		return cmdiResourceLink.getLinkUri();
+	    } catch (URISyntaxException urise) {
+		BugCatcherManager.getBugCatcher().logError(urise);
+	    }
+	}
+	return null;
     }
 
     public CmdiResourceLink getResourceLink(String resourceId) {
-        for (CmdiResourceLink cmdiResourceLink : cmdiResourceLinkArray) {
-            if (cmdiResourceLink.resourceProxyId.equals(resourceId)) {
-                return cmdiResourceLink;
-            }
-        }
-        return null;
+	for (CmdiResourceLink cmdiResourceLink : cmdiResourceLinkArray) {
+	    if (cmdiResourceLink.resourceProxyId.equals(resourceId)) {
+		return cmdiResourceLink;
+	    }
+	}
+	return null;
     }
 
     /**
@@ -166,66 +173,66 @@ public class CmdiComponentLinkReader {
      * ref can be found
      */
     public String getProxyId(String resourceRef) {
-        for (CmdiResourceLink resourceLink : cmdiResourceLinkArray) {
-            try {
-                if (resourceLink.resourceRef.equals(resourceRef)
-                        || resourceLink.getResolvedLinkUri().toString().equals(resourceRef)) {
-                    return resourceLink.resourceProxyId;
-                }
-            } catch (URISyntaxException ex) {
-                // Detected illegal URI in resource link. Can't do much at this point, continue with others
-                BugCatcherManager.getBugCatcher().logError(ex);
-            }
-        }
-        return null;
+	for (CmdiResourceLink resourceLink : cmdiResourceLinkArray) {
+	    try {
+		if (resourceLink.resourceRef.equals(resourceRef)
+			|| resourceLink.getResolvedLinkUri().toString().equals(resourceRef)) {
+		    return resourceLink.resourceProxyId;
+		}
+	    } catch (URISyntaxException ex) {
+		// Detected illegal URI in resource link. Can't do much at this point, continue with others
+		BugCatcherManager.getBugCatcher().logError(ex);
+	    }
+	}
+	return null;
     }
 
     public ArrayList<CmdiResourceLink> readLinks(URI targetCmdiNode) {
-        this.parentUri = targetCmdiNode;
+	this.parentUri = targetCmdiNode;
 //        ArrayList<URI> returnUriList = new ArrayList<URI>();
-        try {
-            Digester digester = new Digester();
-            digester.push(this);
-            digester.addCallMethod("CMD/Resources/ResourceProxyList/ResourceProxy", "addResourceProxy", 3);
-            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy", 0, "id");
-            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceType", 1);
-            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 2);
+	try {
+	    Digester digester = new Digester();
+	    digester.push(this);
+	    digester.addCallMethod("CMD/Resources/ResourceProxyList/ResourceProxy", "addResourceProxy", 3);
+	    digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy", 0, "id");
+	    digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceType", 1);
+	    digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 2);
 
-            digester.addCallMethod("CMD/Resources/ResourceRelationList/ResourceRelation", "addResourceRelation", 3);
-            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/RelationType", 0);
-            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res1", 1, "ref");
-            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res2", 2, "ref");
+	    digester.addCallMethod("CMD/Resources/ResourceRelationList/ResourceRelation", "addResourceRelation", 3);
+	    digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/RelationType", 0);
+	    digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res1", 1, "ref");
+	    digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res2", 2, "ref");
 
-            cmdiResourceLinkArray = new ArrayList<CmdiResourceLink>();
-            cmdiResourceRelationArray = new ArrayList<ResourceRelation>();
-            // we open the stream here so we can set follow redirects
-            URLConnection uRLConnection = targetCmdiNode.toURL().openConnection();
-            if (uRLConnection instanceof HttpURLConnection) {
-                ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
-            }
-            final InputStream inputStream = uRLConnection.getInputStream();
-            digester.parse(inputStream);
-        } catch (Exception e) {
-            BugCatcherManager.getBugCatcher().logError(e);
-        }
-        return cmdiResourceLinkArray;
+	    cmdiResourceLinkArray = new ArrayList<CmdiResourceLink>();
+	    cmdiResourceRelationArray = new ArrayList<ResourceRelation>();
+	    // we open the stream here so we can set follow redirects
+	    URLConnection uRLConnection = targetCmdiNode.toURL().openConnection();
+	    if (uRLConnection instanceof HttpURLConnection) {
+		((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
+	    }
+	    final InputStream inputStream = uRLConnection.getInputStream();
+	    digester.parse(inputStream);
+	} catch (Exception e) {
+	    BugCatcherManager.getBugCatcher().logError(e);
+	}
+	return cmdiResourceLinkArray;
     }
 
     public void addResourceProxy(
-            String resourceProxyId,
-            String resourceType,
-            String resourceRef) {
-        CmdiResourceLink cmdiProfile = new CmdiResourceLink(parentUri, resourceProxyId, resourceType, resourceRef);
+	    String resourceProxyId,
+	    String resourceType,
+	    String resourceRef) {
+	CmdiResourceLink cmdiProfile = new CmdiResourceLink(parentUri, resourceProxyId, resourceType, resourceRef);
 
-        cmdiResourceLinkArray.add(cmdiProfile);
+	cmdiResourceLinkArray.add(cmdiProfile);
     }
 
     public void addResourceRelation(
-            String RelationType,
-            String Res1,
-            String Res2) {
-        ResourceRelation resourceRelation = new ResourceRelation(RelationType, Res1, Res2);
+	    String RelationType,
+	    String Res1,
+	    String Res2) {
+	ResourceRelation resourceRelation = new ResourceRelation(RelationType, Res1, Res2);
 
-        cmdiResourceRelationArray.add(resourceRelation);
+	cmdiResourceRelationArray.add(resourceRelation);
     }
 }

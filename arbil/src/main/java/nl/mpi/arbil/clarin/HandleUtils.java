@@ -43,43 +43,52 @@ public class HandleUtils {
      * @throws URISyntaxException if reference in this link is not a valid URI
      */
     public URI resolveHandle(String resourceRef) throws URISyntaxException {
-        if (resourceRef != null && resourceRef.length() > 0) {
-            if (resourceRef.startsWith("hdl://")) { // IS THIS VALID? TG 4/10/2011
-                return new URI(resourceRef.replace("hdl://", HANDLE_SERVER_URI));
-            } else if (resourceRef.startsWith("hdl:")) {
-                return new URI(resourceRef.replace("hdl:", HANDLE_SERVER_URI));
-            } else {
-                return new URI(resourceRef);
-            }
-        }
-        return null;
+	if (resourceRef != null && resourceRef.length() > 0) {
+	    if (resourceRef.startsWith("hdl://")) { // IS THIS VALID? TG 4/10/2011
+		return new URI(resourceRef.replace("hdl://", HANDLE_SERVER_URI));
+	    } else if (resourceRef.startsWith("hdl:")) {
+		return new URI(resourceRef.replace("hdl:", HANDLE_SERVER_URI));
+	    } else {
+		return new URI(resourceRef);
+	    }
+	}
+	return null;
     }
 
     public URI resolveHandle(URI resourceURI) {
-        if ("hdl".equals(resourceURI.getScheme())) {
-            return URI.create(HANDLE_SERVER_URI + resourceURI.toString().replaceFirst("^hdl:", ""));
-        }
-        return resourceURI;
+	if ("hdl".equals(resourceURI.getScheme())) {
+	    return URI.create(HANDLE_SERVER_URI + resourceURI.toString().replaceFirst("^hdl:", ""));
+	}
+	return resourceURI;
     }
 
-    public URI followRedirect(URI handleURI) throws IOException, URISyntaxException {
-//        try {
-        URLConnection uRLConnection = handleURI.toURL().openConnection();
-        ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
-        uRLConnection.getInputStream();
-        System.out.println("handleURI: " + handleURI);
-        final URL resolvedUri = uRLConnection.getURL();
-        System.out.println("Redirected: " + resolvedUri);
-        return resolvedUri.toURI();
-//        } catch (IOException exception) {
-//            logger.error("Could not resolve handle: ", exception);
-//        } catch (URISyntaxException exception) {
-//            logger.error("Could not resolve handle: ", exception);
-//        }
-//        return null;
+    public URI followRedirect(final URI handleURI) {
+	if (handleURI.getScheme().startsWith("http")) {
+	    try {
+		final URLConnection uRLConnection = resolveHandle(handleURI).toURL().openConnection();
+		if (uRLConnection instanceof HttpURLConnection) {
+		    logger.trace("Requesting {} to find possible redirect", handleURI);
+		    ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
+		    uRLConnection.getInputStream().close();
+		    final URL resolvedUrl = uRLConnection.getURL();
+		    final URI resolvedUri = resolvedUrl.toURI();
+		    if (logger.isDebugEnabled() && !resolvedUri.equals(handleURI)) {
+			logger.debug("Redirected: {} -> {}", handleURI, resolvedUri);
+		    }
+		    return resolvedUri;
+		}
+	    } catch (URISyntaxException ex) {
+		logger.warn("Could not convert URL to URI for {}: {}", handleURI, ex.getMessage());
+		logger.info("Could not convert URL to URI", ex);
+	    } catch (IOException ex) {
+		logger.warn("Could not follow redirects for {}: {}", handleURI, ex.getMessage());
+		logger.info("Could not follow redirects", ex);
+	    }
+	}
+	return handleURI;
     }
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        new HandleUtils().followRedirect(URI.create("http://hdl.handle.net/1839/00-0000-0000-0001-53A6-F@format=cmdi"));
+	new HandleUtils().followRedirect(URI.create("http://hdl.handle.net/1839/00-0000-0000-0001-53A6-F@format=cmdi"));
     }
 }

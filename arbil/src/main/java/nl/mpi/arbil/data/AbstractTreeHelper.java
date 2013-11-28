@@ -553,10 +553,10 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    }
 	    if (childDataNode.isEmptyMetaNode()) {
 		for (ArbilDataNode metaChildNode : childDataNode.getChildArray()) {
-		    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
+		    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(metaChildNode.getURIFragment());
 		}
 	    }
-	    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(childDataNode.getURI().getFragment());
+	    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(childDataNode.getURIFragment());
 	    childDataNode.removeFromAllContainers();
 	} else if (parentDataNode.isCmdiMetaDataNode()) {
 	    // CMDI link

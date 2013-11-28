@@ -76,6 +76,7 @@ public class ArbilDataNodeService {
     private final TreeHelper treeHelper;
     private final ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
     private final MetadataReader metadataReader = MetadataReader.getSingleInstance();
+    private final MetadataFormat metadataFormat = new MetadataFormat();
 
     public ArbilDataNodeService(DataNodeLoader dataNodeLoader, MessageDialogHandler messageDialogHandler, SessionStorage sessionStorage, MimeHashQueue mimeHashQueue, TreeHelper treeHelper) {
         this.messageDialogHandler = messageDialogHandler;
@@ -593,7 +594,7 @@ public class ArbilDataNodeService {
         } else {
             // we reduce the times the file type is checked by only checking when the type is unset, this is because for difficult files a deep check is required which requires downloading a small portion of the file
             if (dataNode.getFormatType() == MetadataFormat.FileType.UNKNOWN) {
-                dataNode.setFormatType(new MetadataFormat().deepCheck(dataNode.getURI()));
+                dataNode.setFormatType(metadataFormat.deepCheck(dataNode.getURI()));
             }
             synchronized (dataNode.getParentDomLockObject()) {
                 dataNode.initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
@@ -697,7 +698,7 @@ public class ArbilDataNodeService {
         } else {
             // apache method
             //                URI tempURI = new URI(inputUrlString);
-            //                URI returnURI = URIUtils.createURI(tempURI.getScheme(), tempURI.getHost(), tempURI.getPort(), tempURI.getPath(), tempURI.getQuery(), tempURI.getFragment());
+            //                URI returnURI = URIUtils.createURI(tempURI.getScheme(), tempURI.getHost(), tempURI.getPort(), tempURI.getPath(), tempURI.getQuery(), tempURI.getURIFragment());
             //                return returnURI;
             // end apache method : this requires the uri to be broken into its parts so we might as well do it with the standard classes
             // mpi method

@@ -90,14 +90,17 @@ public class ApplicationVersionManager {
 	    }
 	    // either exact or greater version matches will be considered correct because there will be cases where the txt file is older than the jar
 	    return (applicationVersion.currentRevision.compareTo(serverVersionString) >= 0);
-	} catch (Exception ex) {
-	    BugCatcherManager.getBugCatcher().logError(ex);
+	} catch (IOException ex) {
+	    // probably not connected
+	    logger.warn("Could not download current version information");
+	    logger.info("Failed to download current version information", ex);
 	} finally {
 	    if (bufferedReader != null) {
 		try {
 		    bufferedReader.close();
-		} catch (IOException ioe) {
-		    BugCatcherManager.getBugCatcher().logError(ioe);
+		} catch (IOException ex) {
+		    logger.warn("Could not close stream to version information");
+		    logger.info("Failed to close stream to version information", ex);
 		}
 	    }
 	}

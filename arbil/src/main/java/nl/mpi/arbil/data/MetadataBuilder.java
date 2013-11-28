@@ -109,7 +109,7 @@ public class MetadataBuilder {
      * @return Whether the node can be added
      */
     public boolean canAddChildNode(final ArbilDataNode destinationNode, final String nodeType) {
-	final String targetXmlPath = destinationNode.getURI().getFragment();
+	final String targetXmlPath = destinationNode.getURIFragment();
 
 	synchronized (destinationNode.getParentDomLockObject()) {
 	    // Ignore CMDI metadata
@@ -165,7 +165,7 @@ public class MetadataBuilder {
 		    synchronized (destinationNode.getParentDomLockObject()) {
 			try {
 			    logger.debug("requestAddNode: {} : {}", nodeType, nodeTypeDisplayName);
-			    addedNode = processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
+			    addedNode = processAddNodes(destinationNode, nodeType, destinationNode.getURIFragment(), nodeTypeDisplayName, null, null, null);
 
 			    // CODE REMOVED: previously, imdiLoaders was requested to reload destinationNode
 			} catch (ArbilMetadataException exception) {
@@ -404,7 +404,7 @@ public class MetadataBuilder {
 			    favouriteUrlString = currentArbilNode.getUrlString();
 			}
 			if (nodeType != null) {
-			    String targetXmlPath = destinationNode.getURI().getFragment();
+			    String targetXmlPath = destinationNode.getURIFragment();
 			    logger.debug("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUri);
 
 			    // Create child node
@@ -461,7 +461,7 @@ public class MetadataBuilder {
     private void addMetaDataNode(final ArbilDataNode destinationNode, final List<ArbilDataNode> addableNodes) throws ArbilMetadataException, IOException {
 	for (ArbilDataNode addableNode : addableNodes) {
 	    URI addedNodeUri;
-	    if (addableNode.getURI().getFragment() == null) {
+	    if (addableNode.getURIFragment() == null) {
 		if (destinationNode != null) {
 		    addedNodeUri = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
 		} else {

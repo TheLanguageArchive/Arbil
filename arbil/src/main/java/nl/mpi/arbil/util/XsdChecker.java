@@ -60,8 +60,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class XsdChecker extends JSplitPane {
-    private final static Logger logger = LoggerFactory.getLogger(XsdChecker.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(XsdChecker.class);
     private static SessionStorage sessionStorage;
     private ArbilResourceResolver resourceResolver = new ArbilResourceResolver();
 
@@ -266,7 +266,8 @@ public class XsdChecker extends JSplitPane {
 //            logger.debug(xmlFile.getSystemId() + " is valid");
 //            doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is valid\n", styleWarning);
 	    } catch (SAXException e) {
-		logger.debug("{} is NOT valid",xmlFile.getSystemId(), e);
+		logger.info("{} is NOT valid: {}", xmlFile.getSystemId(), e.getMessage());
+		logger.debug("{} is NOT valid", xmlFile.getSystemId(), e);
 
 		doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is NOT valid\n", styleError);
 		doc.insertString(doc.getLength(), "Reason: " + e.getLocalizedMessage() + "\n", styleError);

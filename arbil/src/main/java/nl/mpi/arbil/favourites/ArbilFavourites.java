@@ -140,7 +140,7 @@ public class ArbilFavourites implements FavouritesService {
 	    // creating a uri with separate parameters could cause the url to be reencoded
 	    // hence this has been converted to use the string URI constuctor
 //            URI favouriteUri = new URI(copiedFileURI.getScheme(), copiedFileURI.getUserInfo(), copiedFileURI.getHost(), copiedFileURI.getPort(), copiedFileURI.getPath(), copiedFileURI.getQuery(),
-//                    imdiUri.getFragment());
+//                    imdiUri.getURIFragment());
 	    String uriString = copiedFileURI.toString().split("#")[0] /* fragment removed */;
 	    if (imdiUri.getFragment() != null) {
 		uriString = uriString + "#" + imdiUri.getFragment();
@@ -265,8 +265,8 @@ public class ArbilFavourites implements FavouritesService {
 	// out:
 	// .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27).Languages.Language
 
-	String favouriteXmlPath = favouriteNode.getURI().getFragment();
-	String targetXmlPath = targetDataNode.getURI().getFragment();
+	String favouriteXmlPath = favouriteNode.getURIFragment();
+	String targetXmlPath = targetDataNode.getURIFragment();
 	logger.debug("getNodeType: \nfavouriteXmlPath: {} targetXmlPath: {}", favouriteXmlPath, targetXmlPath);
 	String returnValue;
 	if (favouriteNode.isSession()) {

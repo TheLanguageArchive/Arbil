@@ -562,7 +562,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    hexString.append(Integer.toHexString(0x0100 + (md5sum[i] & 0x00FF)).substring(1));
 		}
 		hashString = hexString.toString();
-		logger.debug("Created hash string {} for {}", hashString, fileUri);
+		logger.trace("Created hash string {} for {}", hashString, fileUri);
 	    } catch (Exception ex) {
 		logger.warn("failed to created hash: {}", ex);
 	    } finally {
