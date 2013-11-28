@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +47,6 @@ import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
-import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 import nl.mpi.flap.model.DataField;
 import nl.mpi.flap.model.DataNodeType;
@@ -1157,6 +1154,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	// Node is contained by some object so make sure it's fully loaded or at least loading
 	if (!isDataLoaded() && !isLoading()) {
 	    if (containerToAdd.isFullyLoadedNodeRequired()) {
+		setRequestedLoadingState(LoadingState.LOADED);
 		dataNodeService.reloadNode(this);
 	    } else {
 		// Partial load required
