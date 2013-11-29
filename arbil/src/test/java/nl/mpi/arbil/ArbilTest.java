@@ -22,11 +22,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.LogManager;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
@@ -35,6 +37,8 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.junit.After;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -42,17 +46,24 @@ import org.junit.After;
  */
 public abstract class ArbilTest {
 
-    private ArbilTreeHelper treeHelper;
+    static {
+	try {
+	    final InputStream resourceAsStream = ArbilTest.class.getResourceAsStream("/logging-test.properties");
+	    LogManager.getLogManager().readConfiguration(resourceAsStream);
+	} catch (IOException ex) {
+	    System.err.println("Could not read logging configuration for testing");
+	    ex.printStackTrace(System.err);
+	}
+    }
+    private final static Logger logger = LoggerFactory.getLogger(ArbilTest.class);
     private SessionStorage sessionStorage;
     private MessageDialogHandler dialogHandler;
     private DefaultMimeHashQueue mimeHashQueue;
     private Set<URI> localTreeItems;
-    private DataNodeLoader dataNodeLoader;
 
     @After
     public void cleanUp() {
 	sessionStorage = null;
-	treeHelper = null;
 	localTreeItems = null;
     }
 
@@ -71,6 +82,7 @@ public abstract class ArbilTest {
 	}
 
 	for (ArbilNode node : getTreeHelper().getLocalCorpusNodes()) {
+	    logger.debug("Waiting for node to load: {}", node);
 	    waitForNodeToLoad((ArbilDataNode) node);
 	}
     }
@@ -79,6 +91,7 @@ public abstract class ArbilTest {
 	while (node.isLoading() || !node.isDataLoaded()) {
 	    try {
 		Thread.sleep(100);
+		logger.debug("Waiting for node to load: {}", node);
 		node.waitTillLoaded();
 	    } catch (InterruptedException ex) {
 	    }
