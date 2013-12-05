@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public abstract class ArbilTest {
-
+    
     static {
 	try {
 	    final InputStream resourceAsStream = ArbilTest.class.getResourceAsStream("/logging-test.properties");
@@ -60,33 +60,34 @@ public abstract class ArbilTest {
     private MessageDialogHandler dialogHandler;
     private DefaultMimeHashQueue mimeHashQueue;
     private Set<URI> localTreeItems;
-
+    
     @After
     public void cleanUp() {
 	sessionStorage = null;
 	localTreeItems = null;
     }
-
+    
     protected void addToLocalTreeFromResource(String resourceClassPath) throws Exception {
 	addToLocalTreeFromURI(uriFromResource(resourceClassPath));
     }
-
+    
     protected void addToLocalTreeFromURI(URI uri) throws Exception {
 	if (localTreeItems == null) {
 	    localTreeItems = new HashSet<URI>();
 	}
+	logger.debug("Adding node to local tree: {}", uri);
 	localTreeItems.add(uri);
-
+	
 	if (!getTreeHelper().addLocation(uri)) {
 	    throw new Exception("Could not add location to tree" + uri);
 	}
-
+	
 	for (ArbilNode node : getTreeHelper().getLocalCorpusNodes()) {
-	    logger.debug("Waiting for node to load: {}", node);
+	    logger.debug("Waiting for node from tree to load: {}", node);
 	    waitForNodeToLoad((ArbilDataNode) node);
 	}
     }
-
+    
     protected static void waitForNodeToLoad(ArbilDataNode node) {
 	while (node.isLoading() || !node.isDataLoaded()) {
 	    try {
@@ -101,25 +102,25 @@ public abstract class ArbilTest {
 	} catch (InterruptedException ex) {
 	}
     }
-
+    
     protected URI uriFromResource(String resourceClassPath) throws URISyntaxException {
 	return getClass().getResource(resourceClassPath).toURI();
     }
-
+    
     protected ArbilDataNode dataNodeFromUri(String uriString) throws URISyntaxException {
 	return dataNodeFromUri(new URI(uriString));
     }
-
+    
     protected ArbilDataNode dataNodeFromUri(URI uri) {
 	ArbilDataNode dataNode = getDataNodeLoader().getArbilDataNode(this, uri);
 	waitForNodeToLoad(dataNode);
 	return dataNode;
     }
-
+    
     protected ArbilDataNode dataNodeFromResource(String resourceClassPath) throws URISyntaxException {
 	return dataNodeFromUri(uriFromResource(resourceClassPath));
     }
-
+    
     protected URI copyOfResource(URI uri) throws FileNotFoundException, IOException {
 	File in = new File(uri);
 	File out = new File(in.getParentFile(), System.currentTimeMillis() + in.getName());
@@ -146,7 +147,7 @@ public abstract class ArbilTest {
 	return out.toURI();
     }
     ArbilTestInjector injector;
-
+    
     protected void inject() throws Exception {
 	injector = new ArbilTestInjector();
 	injector.injectHandlers(getSessionStorage());
@@ -156,42 +157,42 @@ public abstract class ArbilTest {
 //	injector.injectDataNodeLoader(getDataNodeLoader());
 //	injector.injectTreeHelper(getTreeHelper());
     }
-
+    
     protected synchronized DataNodeLoader getDataNodeLoader() {
 	return injector.dataNodeLoader;
     }
-
+    
     protected synchronized DefaultMimeHashQueue getMimeHashQueue() {
 	if (mimeHashQueue == null) {
 	    mimeHashQueue = newMimeHashQueue();
 	}
 	return mimeHashQueue;
     }
-
+    
     protected DefaultMimeHashQueue newMimeHashQueue() {
 	DefaultMimeHashQueue hashQueue = new DefaultMimeHashQueue(getSessionStorage());
 	hashQueue.setMessageDialogHandler(getDialogHandler());
 	return hashQueue;
     }
-
+    
     protected synchronized ArbilTreeHelper getTreeHelper() {
 	return injector.treeHelper;
     }
-
+    
     protected synchronized SessionStorage getSessionStorage() {
 	if (sessionStorage == null) {
 	    sessionStorage = newSessionStorage();
 	}
 	return sessionStorage;
     }
-
+    
     protected synchronized MessageDialogHandler getDialogHandler() {
 	if (dialogHandler == null) {
 	    dialogHandler = newDialogHandler();
 	}
 	return dialogHandler;
     }
-
+    
     protected SessionStorage newSessionStorage() {
 	return new MockSessionStorage() {
 	    @Override
@@ -200,11 +201,11 @@ public abstract class ArbilTest {
 	    }
 	};
     }
-
+    
     protected MessageDialogHandler newDialogHandler() {
 	return new MockDialogHandler();
     }
-
+    
     static public boolean deleteDirectory(File path) {
 	if (path.exists() && path.isDirectory()) {
 	    File[] files = path.listFiles();

@@ -50,6 +50,7 @@ public class ArbilComponentBuilderTest extends ArbilTest {
 
     @Test
     public void testInsertResourceProxies() throws Exception {
+	logger.info("testInsertResourceProxies");
 	ArbilDataNode node = getMdInstanceNode();
 	ArbilDataNode childNode = getMdChildNode(node);
 
@@ -60,6 +61,7 @@ public class ArbilComponentBuilderTest extends ArbilTest {
 
     @Test
     public void testRemoveResourceProxies() throws Exception {
+	logger.info("testRemoveResourceProxies");
 	ArbilDataNode node = getMdInstanceNode();
 	ArbilDataNode childNode = getMdChildNode(node);
 

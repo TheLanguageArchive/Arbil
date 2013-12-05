@@ -624,12 +624,12 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 	    return getParentDomNode().waitTillLoaded();
 	} else {
 	    while (isLoading()) {
-		logger.debug("isLoading");
+		logger.debug("is loading: {}", nodeUri);
 		try {
-		    logger.debug("wait");
+		    logger.debug("wait for loading: {}", nodeUri);
 		    getParentDomNode().wait(1000);
 		    if (isLoading()) {
-			logger.debug("waited till loaded (or timeout) but its still loading: {}", this.getUrlString());
+			logger.debug("waited till loaded (or timeout) but its still loading: {}", nodeUri);
 		    }
 		} catch (InterruptedException ex) {
 		    logger.debug("Interrupted while waiting for node to be loaded", ex);
