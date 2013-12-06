@@ -391,8 +391,9 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	} else if (cellValue instanceof ArbilDataNode[]) {
 	    tableController.openNodesInNewTable((ArbilDataNode[]) cellValue, fieldName, registeredOwner);
 	} else if (cellValue.length == 1 && cellValue[0] instanceof ArbilFieldPlaceHolder) {
-	    final ArbilFieldPlaceHolder placeholder = (ArbilFieldPlaceHolder) cellValue[0];
-	    tableController.addFieldFromPlaceholder(parentTable, columnIndex, placeholder);
+	    // Grey cell editing is disabled in Arbil 2.5, incomplete functionality: https://trac.mpi.nl/ticket/3340
+//	    final ArbilFieldPlaceHolder placeholder = (ArbilFieldPlaceHolder) cellValue[0];
+//	    tableController.addFieldFromPlaceholder(parentTable, columnIndex, placeholder);
 	} else {
 	    BugCatcherManager.getBugCatcher().logError("Edit cell type not supported", null);
 	}
