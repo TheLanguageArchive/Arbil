@@ -271,22 +271,22 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>pluginloader</artifactId>
-            <version>1.2-pretesting-SNAPSHOT</version>
+            <version>1.2.39381-TESTING</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-help</artifactId>
-            <version>2.5-pretesting-SNAPSHOT</version>
+            <version>2.5-testing-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-commons</artifactId>
-            <version>2.5-pretesting-SNAPSHOT</version>
+            <version>2.5-testing-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-localisation</artifactId>
-	    <version>2.5-pretesting-SNAPSHOT</version>
+	    <version>2.5-testing-SNAPSHOT</version>
 	</dependency>
 
         <!-- 
