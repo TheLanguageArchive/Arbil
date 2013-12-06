@@ -68,57 +68,7 @@ public class LocalisationSelector {
 	}
     }
 
-    public void askUser(JFrame jFrame, Icon icon, String please_select_your_preferred_language, String language_Selection, String system_Default) {
-	class LocaleOption {
-
-	    private final Locale locale;
-	    private final String displayName;
-
-	    public LocaleOption(Locale locale) {
-		this.locale = locale;
-		if (locale.getCountry().length() == 0) {
-		    this.displayName = locale.getDisplayLanguage(locale);
-		} else {
-		    this.displayName = String.format("%s (%s)", locale.getDisplayLanguage(locale), locale.getDisplayCountry(locale));
-		}
-	    }
-
-	    public LocaleOption(String displayName) {
-		this.locale = null;
-		this.displayName = displayName;
-	    }
-
-	    public Locale getLocale() {
-		return locale;
-	    }
-
-	    @Override
-	    public String toString() {
-		return displayName;
-	    }
-
-	    @Override
-	    public int hashCode() {
-		int hash = 5;
-		hash = 37 * hash + (this.locale != null ? this.locale.hashCode() : 0);
-		return hash;
-	    }
-
-	    @Override
-	    public boolean equals(Object obj) {
-		if (obj == null) {
-		    return false;
-		}
-		if (getClass() != obj.getClass()) {
-		    return false;
-		}
-		final LocaleOption other = (LocaleOption) obj;
-		if (other.getLocale() == null) {
-		    return locale == null;
-		}
-		return other.getLocale().equals(locale);
-	    }
-	}
+    public boolean askUser(JFrame jFrame, Icon icon, String please_select_your_preferred_language, String language_Selection, String system_Default) {
 	LocaleOption[] possibilities = new LocaleOption[knownLocales.size() + 1];
 	possibilities[0] = new LocaleOption(system_Default);
 	int localeIndex = 1;
@@ -137,11 +87,15 @@ public class LocalisationSelector {
 
 	if ((userSelection != null)) {
 	    if (userSelection.getLocale() == null) {
+		final boolean modified = getSavedLocale() != null;
 		setSavedLocale(null);
+		return modified;
 	    } else {
 		setSavedLocale(userSelection.getLocale());
+		return !userSelection.getLocale().equals(savedLocale);
 	    }
 	}
+	return false;
     }
 
     public boolean hasSavedLocal() {

@@ -768,9 +768,16 @@ public class ArbilMenuBar extends JMenuBar {
 		    final String please_select_your_preferred_language = menus.getString("PLEASE SELECT YOUR PREFERRED LANGUAGE");
 		    final String language_Selection = menus.getString("LANGUAGE SELECTION");
 		    final String system_Default = menus.getString("SYSTEM DEFAULT");
-		    localisationSelector.askUser(windowManager.getMainFrame(), ArbilIcons.getSingleInstance().linorgIcon, please_select_your_preferred_language, language_Selection, system_Default);
+		    final boolean languageChanged = localisationSelector.askUser(windowManager.getMainFrame(), ArbilIcons.getSingleInstance().linorgIcon, please_select_your_preferred_language, language_Selection, system_Default);
 		    localisationSelector.setLanguageFromSaved();
-		    dialogHandler.addMessageDialogToQueue(menus.getString("PLEASE RESTART THE APPLICATION FOR THE LANGUAGE SELECTION TO BECOME VISIBLE"), menus.getString("SELECT LANGUAGE"));
+		    // if changed, show a message
+		    if (languageChanged) {
+			// use a new bundle for this message because the locale has changed
+			final ResourceBundle menuBundle = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
+			dialogHandler.addMessageDialogToQueue(
+				menuBundle.getString("PLEASE RESTART THE APPLICATION FOR THE LANGUAGE SELECTION TO BECOME VISIBLE"),
+				menuBundle.getString("SELECT LANGUAGE"));
+		    }
 		} catch (Exception ex) {
 		    BugCatcherManager.getBugCatcher().logError(ex);
 		}
