@@ -19,6 +19,7 @@ package nl.mpi.arbil.util;
 
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilNode;
 
 /**
  *
@@ -64,6 +65,8 @@ public interface MimeHashQueue {
      * Terminates and cleans the queue, saves all to disk. Should only be called when quitting application
      */
     void terminateQueue();
+    
+    ArbilNode getActiveNode();
 
     public enum TypeCheckerState {
 
