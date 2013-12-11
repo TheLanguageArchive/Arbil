@@ -10,7 +10,6 @@
     <modules>
         <module>arbil</module>
         <module>arbil-help</module>
-        <module>arbil-wicket</module>
         <module>arbil-commons</module>
         <module>arbil-localisation</module>
     </modules>
