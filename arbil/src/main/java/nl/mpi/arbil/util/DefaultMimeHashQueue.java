@@ -38,6 +38,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
@@ -213,6 +214,14 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    stopMimeHashQueueThread();
 	    runner.checkSaveChanges();
 	    runner = null;
+	}
+    }
+
+    public ArbilNode getActiveNode() {
+	if (runner == null) {
+	    return null;
+	} else {
+	    return runner.getCurrentDataNode();
 	}
     }
 
@@ -614,6 +623,12 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	 */
 	private boolean checkForced(ArbilDataNode dataNode) {
 	    return forcedNodes.remove(dataNode);
+	}
+
+	public ArbilDataNode getCurrentDataNode() {
+	    synchronized (dataNodeQueue) {
+		return currentDataNode;
+	    }
 	}
     }
 

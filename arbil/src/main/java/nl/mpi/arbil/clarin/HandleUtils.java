@@ -18,7 +18,9 @@
 package nl.mpi.arbil.clarin;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -35,6 +37,7 @@ public class HandleUtils {
 
     private final static Logger logger = LoggerFactory.getLogger(HandleUtils.class);
     public static final String HANDLE_SERVER_URI = "http://hdl.handle.net/";
+    public final static int REDIRECT_TIMEOUT = 30 * 1000;
 
     /**
      *
@@ -69,6 +72,7 @@ public class HandleUtils {
 		if (uRLConnection instanceof HttpURLConnection) {
 		    logger.trace("Requesting {} to find possible redirect", handleURI);
 		    ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
+		    ((HttpURLConnection) uRLConnection).setReadTimeout(REDIRECT_TIMEOUT);
 		    uRLConnection.getInputStream().close();
 		    final URL resolvedUrl = uRLConnection.getURL();
 		    final URI resolvedUri = resolvedUrl.toURI();
@@ -80,9 +84,12 @@ public class HandleUtils {
 	    } catch (URISyntaxException ex) {
 		logger.warn("Could not convert URL to URI for {}: {}", handleURI, ex.getMessage());
 		logger.info("Could not convert URL to URI", ex);
+	    } catch(ConnectException ex){
+		logger.warn("Connection to {} could not be established, could not check for a redirect (timeout is {}ms}): {}", handleURI, REDIRECT_TIMEOUT, ex.getMessage());
+		logger.info("Connection could not be established while looking for redirect", ex);
 	    } catch (IOException ex) {
 		logger.warn("Could not follow redirects for {}: {}", handleURI, ex.getMessage());
-		logger.info("Could not follow redirects", ex);
+		logger.info("Could not follow redirects", ex);		
 	    }
 	}
 	return handleURI;

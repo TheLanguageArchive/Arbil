@@ -1267,7 +1267,7 @@ public class ArbilMenuBar extends JMenuBar {
 			logger.debug("Waiting for mime hash queue termination to finish");
 			terminationLockObject.wait(HASH_QUEUE_WAIT_TIME);
 			if (!terminationComplete && !messageDialogueShown) {
-			    logger.info("Mime hash queue is busy while trying to exit application");
+			    logger.info("Mime hash queue is busy while trying to exit application. Current node: {}", mimeHashQueue.getActiveNode());
 			    SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 				    messageDialogue = new JDialog(windowManager.getMainFrame(), services.getString("TYPECHECKING_IN_PROGRESS"), true);
