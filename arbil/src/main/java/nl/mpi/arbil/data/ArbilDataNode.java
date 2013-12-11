@@ -609,7 +609,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     }
 
     public synchronized void notifyLoaded() {
-	getParentDomNode().notifyAll();
+	getParentDomLockObject().notifyAll();
     }
 
     /**
@@ -618,26 +618,23 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      *
      * @return
      */
-    public synchronized boolean waitTillLoaded() {
-	logger.debug("waitTillLoaded");
+    public boolean waitTillLoaded() {
 	if (this != getParentDomNode()) { // isloading does this parent check pretty much already
 	    return getParentDomNode().waitTillLoaded();
 	} else {
-	    while (isLoading()) {
-		logger.debug("isLoading");
-		try {
-		    logger.debug("wait");
-		    getParentDomNode().wait(1000);
-		    if (isLoading()) {
-			logger.debug("waited till loaded (or timeout) but its still loading: {}", this.getUrlString());
+	    synchronized (getParentDomLockObject()) {
+		while (isLoading()) {
+		    try {
+			logger.debug("wait for loading: {}", nodeUri);
+			getParentDomLockObject().wait(1000);
+		    } catch (InterruptedException ex) {
+			logger.debug("Interrupted while waiting for node to be loaded", ex);
+			Thread.currentThread().interrupt();
+			return false;
 		    }
-		} catch (InterruptedException ex) {
-		    logger.debug("Interrupted while waiting for node to be loaded", ex);
-		    Thread.currentThread().interrupt();
-		    return false;
 		}
+		return true;
 	    }
-	    return true;
 	}
     }
 
@@ -659,8 +656,12 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     }
 
     public boolean isLoading() {
-	synchronized (loadingCountLock) {
-	    return getParentDomNode().isLoadingCount > 0;
+	if (this != getParentDomNode()) {
+	    return getParentDomNode().isLoading();
+	} else {
+	    synchronized (loadingCountLock) {
+		return getParentDomNode().isLoadingCount > 0;
+	    }
 	}
     }
 

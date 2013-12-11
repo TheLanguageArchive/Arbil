@@ -17,7 +17,7 @@
     
     <properties>
         <!-- Title of the application as it should be shown run time, e.g. in window titles, error log and "About Arbil" dialog -->
-        <arbil.application-title>Arbil (pretesting)</arbil.application-title>
+        <arbil.application-title>Arbil (testing)</arbil.application-title>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <output.jarname>${project.build.finalName}</output.jarname>

@@ -313,13 +313,16 @@ public class DataNodeLoaderThreadManager {
 	}
 
 	protected void loadNode(ArbilDataNode currentArbilDataNode) {
-	    currentArbilDataNode.loadArbilDom();
-	    currentArbilDataNode.updateLoadingState(-1);
-	    currentArbilDataNode.clearIcon();
-	    currentArbilDataNode.clearChildIcons();
-	    remoteArbilFilesLoaded++;
-	    currentArbilDataNode.notifyLoaded();
-	    currentArbilDataNode.lockedByLoadingThread = false;
+	    try {
+		currentArbilDataNode.loadArbilDom();
+		currentArbilDataNode.updateLoadingState(-1);
+		currentArbilDataNode.clearIcon();
+		currentArbilDataNode.clearChildIcons();
+		remoteArbilFilesLoaded++;
+	    } finally {
+		currentArbilDataNode.lockedByLoadingThread = false;
+		currentArbilDataNode.notifyLoaded();
+	    }
 
 	    callCallBacks(currentArbilDataNode);
 	}
@@ -350,12 +353,15 @@ public class DataNodeLoaderThreadManager {
 	    } else {
 		currentArbilDataNode.hasSchemaError = false;
 	    }
-	    currentArbilDataNode.updateLoadingState(-1);
-	    currentArbilDataNode.clearIcon();
-	    currentArbilDataNode.clearChildIcons();
-	    arbilFilesLoaded++;
-	    currentArbilDataNode.lockedByLoadingThread = false;
-	    currentArbilDataNode.notifyLoaded();
+	    try {
+		currentArbilDataNode.updateLoadingState(-1);
+		currentArbilDataNode.clearIcon();
+		currentArbilDataNode.clearChildIcons();
+		arbilFilesLoaded++;
+	    } finally {
+		currentArbilDataNode.lockedByLoadingThread = false;
+		currentArbilDataNode.notifyLoaded();
+	    }
 	    callCallBacks(currentArbilDataNode);
 	}
     }
