@@ -2,6 +2,7 @@ package nl.mpi.arbil.wicket;
 
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.MimeHashQueue;
 
 /**
@@ -45,5 +46,10 @@ public class ArbilWicketMimeHashQueueProxy implements MimeHashQueue {
     @Override
     public void forceInQueue(ArbilDataNode dataNode) {
 	getMimeHashQueue().forceInQueue(dataNode);
+    }
+
+    @Override
+    public ArbilNode getActiveNode() {
+	return getMimeHashQueue().getActiveNode();
     }
 }
