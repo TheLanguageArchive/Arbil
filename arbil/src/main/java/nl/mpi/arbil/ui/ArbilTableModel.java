@@ -157,7 +157,7 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	    embadTagStringBuilder.append(" archive=\"arbil-").append(appVersion.branch).append("-").append(appVersion.currentMajor).append("-").append(appVersion.currentMinor).append("-").append(appVersion.currentRevision).append(".jar,");
 	    // Add all jars in current classpath, except those in the exlude pattern defined in this class
 	    embadTagStringBuilder.append(
-		    "lib/xmlbeans-2.4.0.jar,"
+		    "lib/xmlbeans-2.6.0.jar,"
 		    + "lib/stax-api-1.0.1.jar,"
 		    + "lib/typechecker-1.7.0.jar,"
 		    + "lib/slcshttps-0.2.jar,"
@@ -175,13 +175,12 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		    + "lib/commons-digester-2.0.jar,"
 		    + "lib/commons-beanutils-1.8.0.jar,"
 		    + "lib/commons-logging-1.1.1.jar,"
-		    + "lib/log4j-1.2.16.jar,"
 		    + "lib/corpusstructure-api-1.7.3.jar,"
 		    + "lib/handle-6.1.jar,"
 		    + "lib/commons-io-1.4.jar,"
-		    + "lib/plugins-core-0.1.34211-pretesting.jar,"
-		    + "lib/arbil-commons-0.2.34218-pretesting.jar,"
-		    + "lib/arbil-localisation-1.0-SNAPSHOT.jar"
+		    + "lib/plugins-core-1.2.39113-testing,"
+		    + "lib/2.5.39486-testing.jar,"
+		    + "lib/arbil-localisation-2.5.39295-testing.jar"
 		    + "\"\n");
 	    embadTagStringBuilder.append(String.format(" width=\"%d\" height=\"%d\" >\n", tableWidth, tableHeight));
 	    // Application parameters
