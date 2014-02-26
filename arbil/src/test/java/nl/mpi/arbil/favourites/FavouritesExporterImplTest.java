@@ -51,6 +51,7 @@ public class FavouritesExporterImplTest {
     }
 
     private File createTempExportDir() throws IOException {
+         //TODO: Use JUnit TemporaryFolder
 	final File location = File.createTempFile(getClass().getSimpleName(), null);
 	location.delete();
 	location.mkdir();

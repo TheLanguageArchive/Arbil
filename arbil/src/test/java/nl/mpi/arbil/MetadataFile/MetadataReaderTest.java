@@ -119,7 +119,7 @@ public class MetadataReaderTest {
 	}
 	for (int testCounter = 0; testCounter < testTemplateTypes.length; testCounter++) {
 	    try {
-		File destinationFile = File.createTempFile("testFile", ".imdi");
+		File destinationFile = File.createTempFile("testFile", ".imdi"); //TODO: Use JUnit TemporaryFolder 
 		destinationFile.deleteOnExit();
 		String templateType = testTemplateTypes[testCounter];
 		URI expResult = expectedTypes[testCounter];
