@@ -71,9 +71,12 @@
 			<manifest>
 			    <addClasspath>true</addClasspath>
 			    <mainClass>${application.mainClass}</mainClass>
-			    <classpathPrefix>lib/</classpathPrefix>
+			    <classpathPrefix>lib/</classpathPrefix>                            
 			</manifest>
-		    </archive>
+                        <manifestEntries>
+                            <Permissions>all-permissions</Permissions>
+                        </manifestEntries>
+                    </archive>
 		    <excludes>
 			<exclude>nl/mpi/arbil/resources/**/readme.txt</exclude>
 			<exclude>nl/mpi/arbil/resources/icons/svg-files/**</exclude>
@@ -174,24 +177,24 @@
                         <exclude>**/*.icns</exclude>
                         <exclude>**/*.php</exclude>
                         <exclude>installer/**</exclude>
-			<exclude>nbactions*.xml</exclude>
-			<exclude>nb-configuration.xml</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/resources/templates/**</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/resources/xsd/http/**</exclude>
-			<exclude>src/main/resources/nl/mpi/arbil/resources/html/license/**</exclude>
-		    </excludes>
-		</configuration>
-		<executions>
-		    <execution>
-			<goals>
-			    <goal>check</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin>
-	</plugins>
+                        <exclude>nbactions*.xml</exclude>
+                        <exclude>nb-configuration.xml</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/defaults/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/templates/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/xsl/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/xsd/http/**</exclude>
+                        <exclude>src/main/resources/nl/mpi/arbil/resources/html/license/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
     <dependencies>
         <dependency>
@@ -203,7 +206,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>typechecker</artifactId>
-	    <version>1.7.2</version>
+            <version>1.7.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -260,7 +263,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>corpusstructure-api</artifactId>
-	    <version>1.8.1</version>
+            <version>1.8.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -286,8 +289,8 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-localisation</artifactId>
-	    <version>2.6-pretesting-SNAPSHOT</version>
-	</dependency>
+            <version>2.6-pretesting-SNAPSHOT</version>
+        </dependency>
 
         <!-- 
             LOGGING DEPENDENCIES
@@ -297,14 +300,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-	    <version>${slf4j.version}</version>
-	</dependency>
-	<!-- log4j replacement that redirects to slf4j -->
-	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>log4j-over-slf4j</artifactId>
-	    <version>${slf4j.version}</version>
-	</dependency>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <!-- log4j replacement that redirects to slf4j -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
 
         <!-- 
             TESTING DEPENDENCIES
