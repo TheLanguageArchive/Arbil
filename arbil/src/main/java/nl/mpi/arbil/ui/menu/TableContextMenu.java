@@ -207,7 +207,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	    }
 	});
 
-	copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
+	copyCellToColumnMenuItem.setText(menus.getString("COPY CELL TO WHOLE COLUMN")); // NOI18N
 	copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		tableController.copySelectedCellToColumn(table);
