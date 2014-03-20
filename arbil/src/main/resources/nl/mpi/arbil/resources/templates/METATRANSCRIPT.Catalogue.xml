@@ -6,7 +6,7 @@
         <Name/>
         <Title/>
         <Id/>
-		<!--Description: minOccurs=0 maxOccurs=unbounded-->
+        <!--Description: minOccurs=0 maxOccurs=unbounded-->
         <Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
         <DocumentLanguages>
             <!--Description: minOccurs=0 maxOccurs=unbounded-->
@@ -16,14 +16,14 @@
             <!--Description: minOccurs=0 maxOccurs=unbounded-->
             <!--Language: minOccurs=0 maxOccurs=unbounded-->
         </SubjectLanguages>
-		<!--Location: minOccurs=1 maxOccurs=unbounded-->
+        <!--Location: minOccurs=1 maxOccurs=unbounded-->
         <Location>
             <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="OpenVocabulary"/>
             <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="ClosedVocabulary"/>
             <Region/>
             <Address/>
         </Location>
-		<!--ContentType: minOccurs=1 maxOccurs=unbounded-->
+        <!--ContentType: minOccurs=1 maxOccurs=unbounded-->
         <ContentType/>
         <Format>
             <Text/>
@@ -38,7 +38,7 @@
             <Image>Unspecified</Image>
         </Quality>
         <SmallestAnnotationUnit/>
-        <Applications/>
+        <Applications Link="http://www.mpi.nl/IMDI/Schema/CatalogueApplicationType.xml" Type="OpenVocabulary" />
         <Date>Unspecified</Date>
         <Project>
             <Name/>
@@ -50,12 +50,12 @@
                 <Email/>
                 <Organisation/>
             </Contact>
-			<!--Description: minOccurs=0 maxOccurs=unbounded-->
+            <!--Description: minOccurs=0 maxOccurs=unbounded-->
             <Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
         </Project>
-		<!--Publisher: maxOccurs=unbounded-->
+        <!--Publisher: maxOccurs=unbounded-->
         <Publisher/>
-		<!--Author: maxOccurs=unbounded-->
+        <!--Author: maxOccurs=unbounded-->
         <Author/>
         <Size/>
         <DistributionForm/>
@@ -70,7 +70,7 @@
                 <Email/>
                 <Organisation/>
             </Contact>
-			<!--Description: minOccurs=0 maxOccurs=unbounded-->
+            <!--Description: minOccurs=0 maxOccurs=unbounded-->
             <Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
         </Access>
         <Pricing/>

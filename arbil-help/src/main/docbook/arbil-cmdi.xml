@@ -3,8 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <book>
   <title>Arbil</title>
-  <subtitle>Arbil 2.4</subtitle>
-  <subtitle>for editing and managing CMDI metadata</subtitle>
+  <subtitle>Arbil 2.5, for editing and managing CMDI metadata</subtitle>
   <bookinfo>
     <orgname>The Language Archive, MPI for Psycholinguistics, Nijmegen, The Netherlands</orgname>
     <mediaobject>
@@ -17,13 +16,14 @@
         <imagedata fileref="images/Clarin_logo2.png" contentwidth="45%"/>
       </imageobject>
     </mediaobject>
-    <releaseinfo>This manual was last updated on </releaseinfo>
+    <releaseinfo>This manual was last updated in March 2014</releaseinfo>
     <releaseinfo>The latest version can be found at: <ulink
         url="http://http://tla.mpi.nl/tools/tla-tools/arbil/"
         >http://http://tla.mpi.nl/tools/tla-tools/arbil/</ulink></releaseinfo>
     <releaseinfo>Anastasios Vogiatzis (June 2012)</releaseinfo>
     <releaseinfo>Claudia Zabeo (December 2012)</releaseinfo>
-    <releaseinfo>Janna Voelpel (August 2013)</releaseinfo>
+    <releaseinfo>Janna Voelpel (September 2013)</releaseinfo>
+    <releaseinfo>Francesca Bechis (February 2014)</releaseinfo>
   </bookinfo>
   <chapter id="Ch_Introduction">
     <title>Introduction</title>
@@ -34,79 +34,78 @@
       <title>General Information</title>
       <para>This version of Arbil manual focuses on creating collections of CMDI instances. These
         can be edited and converted into an archivable format to be exported on your local disk or
-        to be submitted to a metadata repository. CMDI instances mainly comprise of profiles and
+        to be submitted to a metadata repository. CMDI instances mainly consist of profiles and
         components.</para>
-      <para>In addition to create collections of CMDI instances, Arbil allows you to view all the
-        collections in the Archive or any other remote location (provided you have access rights).
-        As well as to edit collections from a remote location. </para>
-      <para/>
+      <para>Besides creating collections of CMDI instances, Arbil allows you to view all the
+        collections in the archive, or any other remote location (provided that you have access
+        rights), as well as to edit collections from a remote location. </para>
       <para> In short, Arbil allows you to: </para>
-      <para>1) View remote locations</para>
-      <para>2) Import metadata from the Archive &amp; edit.</para>
-      <para>3) Create new collections, with new metadata and media files.</para>
-      <para>4) Export the CMDI files, ready to be archived</para>
-      <para/>
+      <para>1) View remote locations;</para>
+      <para>2) Import metadata from the archive and edit them;</para>
+      <para>3) Create new collections, with new metadata and media files;</para>
+      <para>4) Export the CMDI files, ready to be archived.</para>
       <para>Changes you make to remote metadata will <emphasis role="underline"><emphasis
             role="bold">not</emphasis></emphasis> affect them directly, as Arbil merely allows you
-        to make changes on a <emphasis role="bold">local level</emphasis>, and not at a remote
+        to make changes on a <emphasis role="bold">local level</emphasis>, and not on a remote
         level. </para>
-      <para>Arbil is the next generation of the metadata editor with a more powerful user interface
+      <para>Arbil is the next generation of the metadata editor, with more powerful user interface
         and functionality. This manual contains detailed information on how to use Arbil in order to
         create new collections of CMDI instances and modify existing ones. It does not explain the
         internal structure of CMDI (for more information on the CMDI metadata, please see the <ulink
           url="http://www.clarin.eu/cmdi">Clarin website</ulink>).</para>
       <para>For a less detailed program description, see the <ulink
           url="http://tla.mpi.nl/tools/tla-tools/arbil">Arbil User Guide</ulink>. </para>
-      <para>You can access all the informations present in this manual from the application itself,
-        using the Help Menu. There you will also find additional informations about technical
-        topics.</para>
+      <para>You can access all the information present in this manual from the application itself,
+        using the <emphasis role="bold">Help Menu</emphasis>. </para>
       <para>We encourage you to provide feedback, comments, and suggestions so that we can improve
         the documentation to better meet your needs. Also, in case of problems that are not
         addressed anywhere in this guide, please use the <ulink
-          url="http://tla.mpi.nl/tools/tla-tools/arbil">Arbil Forum</ulink>.</para>
+          url="http://tla.mpi.nl/forums/software/arbil/">Arbil Forum</ulink>.</para>
     </section>
     <section id="Sec_Overview">
       <title>Overview</title>
-      <para>The way you start working on your data is twofold: </para>
-      <para>a) either you create a new collection of CMDI instances or </para>
-      <para>b) make a copy of an already existing collection from a server and edit it. </para>
+      <para>The way you start working on your data is two-fold: </para>
+      <para>a) either you create a new collection of CMDI instances </para>
+      <para>b) or you make a copy of an already existing collection from a server and edit it. </para>
       <para>Either way, the files you create/edit will be saved on your computer (in the so called
           <emphasis role="bold">Local Corpus</emphasis>). This enables you to work off-line in
         remote locations while still in the field. Changes you make in Arbil will <emphasis
           role="underline">not</emphasis> affect the remote metadata.</para>
-      <para/>
       <para>Arbil consists of 6 working areas as shown in the figure below:</para>
-      <para>- 1) <emphasis role="bold">The Menu Bar</emphasis> allows you to access the main
-        commands </para>
-      <para>- 2) <emphasis role="bold">The</emphasis>
-        <link linkend="Sec_Remote_Corpus"><emphasis role="bold">Remote Corpus</emphasis></link>
-        contains locations from the Language Archive. This is where you can view remote metadata and
-        choose to import.</para>
-      <para>- 3) <emphasis role="bold">The</emphasis>
-        <link linkend="Sec_Local_Corpus"><emphasis role="bold">Local Corpus</emphasis></link>
-        contains the user's main working area. This is where collections from the Remote Corpus can
-        be imported and edited. It is also used for creating new collections.</para>
-      <para>- 4) <emphasis role="bold">The</emphasis>
-        <link linkend="Sec_Working_Directories"><emphasis role="bold">Files /Favourites (Working
-            Directories)</emphasis></link>. This is where you can link directories from your
-        computer to Arbil in order to import media files and create favourite metadata items.</para>
-      <para>- 5) <emphasis role="bold">The Preview Area </emphasis>shows metadata of the selected
-        node (In the figure below, it displays the details for "New Corpus"). It changes every time
-        a new node is selected.</para>
-      <para>- 6) <emphasis role="bold">The Table Area</emphasis> is where several nodes can be
-        opened, compared, and modified at the same time (In the figure below, the three nodes from
-        the Local Corpus are placed in a table in this area)</para>
-      <para>Note: You can customise the size of these panes. To make a window larger or smaller
-        place the pointer on the border and drag it in the direction in which you want the window to
-        expand or contract. It is also possible to hide the preview area by unchecking <emphasis
-          role="italic">show selection preview</emphasis> from the <emphasis role="italic"
-          >options</emphasis> menu.</para>
+      <para>1) <emphasis role="bold">The Menu Bar</emphasis> allows you to access the main
+        commands;</para>
+      <para>2) The <link linkend="Sec_Remote_Corpus"><emphasis role="bold">Remote
+          Corpus</emphasis></link> contains locations from the Language Archive. This is where you
+        can view remote metadata and choose to import;</para>
+      <para>3) The <link linkend="Sec_Local_Corpus"><emphasis role="bold">Local
+          Corpus</emphasis></link> contains the user's main working area. This is where collections
+        from the Remote Corpus can be imported and edited. It is also used for creating new
+        collections;</para>
+      <para>4) The <link linkend="Sec_Working_Directories"><emphasis role="bold">Files /Favourites
+            (Working Directories)</emphasis></link>. This is where you can link directories from
+        your computer to Arbil in order to import media files and create favourite metadata
+        items;</para>
+      <para>5) The <emphasis role="bold">Preview Area</emphasis> shows metadata of the selected node
+        (in the figure below, it displays the details for "New Corpus"). It changes every time a new
+        node is selected;</para>
+      <para>6) The <emphasis role="bold">Table Area</emphasis> is where several nodes can be opened,
+        compared, and modified at the same time (in the figure below, the four nodes from the Local
+        Corpus are placed in a table in this area).</para>
+      <para>
+        <note>
+          <para>You can customise the size of these panels. To make a window larger or smaller place
+            the pointer on the border and drag it in the direction in which you want the window to
+            expand or contract. It is also possible to hide the preview area by unchecking <emphasis
+              role="bold">Show selection preview</emphasis> from the <emphasis role="bold"
+              >Options</emphasis> menu.</para>
+        </note>
+      </para>
       <figure>
         <title>Arbil workspace</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_Arbil_workspace.png" contentdepth="80%" scalefit="1"
-              width="100%"/>
+            <imagedata fileref="images/cmdi_Arbil_workspace.png" contentdepth="100%" scalefit="1"
+              width="70%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -117,27 +116,31 @@
           linkend="Sec_Remote_Corpus" role="bold">work on an existing collection of instances from
           the Remote Corpus</link> or <link linkend="Sec_New_Corpora" role="bold">create a new
           collection of instances</link>. Assuming that you intend to edit metadata from a remote
-        location and add additional media files, you follow the steps 1-6 below. </para>
-      <para>The Arbil work flow for editing a collection of CMDI instances is as follows:</para>
+        location and add additional media files, you will have to follow steps 1-6 below. </para>
+      <para>The Arbil work flow for editing a collection of CMDI instances functions as
+        follows:</para>
       <para>1) Browse the Remote Corpus and locate the metadata which you intend to edit; drag the
-        metadata from the Remote Corpus pane into the Local Corpus pane so as to import them. </para>
+        metadata from the Remote Corpus panel into the Local Corpus panel so as to import them. </para>
       <para>2) Now that the remote metadata are located in the Local Corpus, you may edit them
-        freely. To edit the metadata, drag the node into the Table Area (6, image 1.1 ) and edit the
-        fields accordingly. This can be done with several nodes at once.</para>
+        freely. To edit the metadata, drag the node into the Table Area (see figure 1.1 above, tab
+        number 6) and edit the fields accordingly. This can be done with several nodes at
+        once.</para>
       <para>3) In order to add resources to profiles (e.g. media files and annotations), you must
           <link linkend="Sec_Working_Directories">set up a working directory</link> which links a
-        folder on your computer to Arbil. This means that any media files in this folder will appear
-        in the Working directory area so that <link linkend="Sec_Adding_Resource_Files" role="bold"
-          >Resource files can be added</link> to the nodes in your Local Corpus. To add files to
-        your new collection, drag and drop them from the <emphasis role="italic">Files</emphasis> to
-        the <emphasis role="italic">Local Corpus </emphasis>. Now you can edit the metadata
-        following step 2.</para>
+        folder located on your computer to Arbil. This means that any media files in this folder
+        will appear in the Working Directory area so that <link linkend="Sec_Adding_Resource_Files"
+          role="bold">Resource files can be added</link> to the nodes in your Local Corpus. To add
+        files to your new collection, drag and drop them from the <emphasis role="bold"
+          >Files</emphasis> tab to the <emphasis role="bold">Local Corpus</emphasis>. Now you can
+        edit the metadata following step 2.</para>
       <para>4) Stored profile components, such as common actors, can be added to the local corpus
-        from the <emphasis role="italic">favourites</emphasis>.</para>
+        from the Favourites (either via drag and drop, or via the option <emphasis role="bold">Add
+          from favorites</emphasis> that you find when right clicking the node in the Local Corpus
+        where you want the favorites to be added.</para>
       <para>5) Once your metadata have been edited correctly and your desired media files have been
         added, you can export the metadata files to a directory (folder) on your computer, ready to
         be uploaded to a metadata repository.</para>
-      <para>6) At last, you can decide to make public your metadata. The procedure for this depends
+      <para>6) Finally, you can decide to make your metadata public. The procedure for this depends
         on the institution.</para>
       <figure>
         <title>Arbil Work flow </title>
@@ -149,19 +152,18 @@
         </mediaobject>
       </figure>
       <para>In Arbil all work on metadata takes place in the Local Corpus tree. The various
-        operations displayed in the figure above, can usually be triggered by right-clicking on
-        elements in the Local Corpus, or via "drag and drop" (e.g.. clicking on an element in the
+        operations displayed in the figure above can usually be triggered by right-clicking on
+        elements in the Local Corpus, or via "drag and drop" (e.g. clicking on an element in the
         Remote Corpus, holding the mouse key, and dragging the element to the Local Corpus, or to a
         node within the Local Corpus). Media files (i. e. audio and video recordings) and written
         resources can also be added to nodes via "drag and drop" from the Working Directories tree
         in the Files tab. Only for importing metadata files from the file system (e.g. previously
-        exported metadata) to the Local Corpus root, one has to access the File menu in Arbil's menu
-        bar. </para>
+        exported metadata) to the Local Corpus root, you have to access the File menu in Arbil's
+        menu bar. </para>
     </section>
     <section>
       <title>Arbil icons</title>
       <para>The following table defines graphical icons used by Abril:</para>
-      <para/>
       <para><inlinegraphic fileref="images/clarinE.png"/> CMDI metadata</para>
       <para><inlinegraphic fileref="images/attribute.png"/>Attribute </para>
       <para><inlinegraphic fileref="images/top_node_icon.png"/> The top node of the Remote Corpus
@@ -211,7 +213,6 @@
         Cosed controlled vocabulary</para>
       <para><inlinegraphic fileref="images/language1.png" align="left" contentdepth="100%"/>
         Language selection on field (e.g. Description language)</para>
-      <para/>
     </section>
   </chapter>
   <chapter>
@@ -220,27 +221,26 @@
       appears and gives you the ability to configure Arbil to your needs. The first window (Figure
       2.1) is a welcome window, press <emphasis role="italic">Next</emphasis> to move to the second
       step of the wizard. In this window (Figure 2.2) you select the metadata format i.e. IMDI or
-      CMDI; you can choose one of them or both. In this manual we will assume just CMDI. The third
-      window (Figure 2.3) gives you the ability to choose the corpora and/or the profiles that will
-      appear in the <emphasis role="italic">Remote corpus</emphasis> box. If you know the
-        URL<footnote id="fn_url">
+      CMDI; you can choose one of them or both. In this manual we will assume you will select just
+      CMDI. The third window (Figure 2.3) gives you the ability to choose the corpora and/or the
+      profiles that will appear in the <emphasis role="bold">Remote corpus</emphasis> box. If you
+      know the URL<footnote id="fn_url">
         <para>You can copy the URL of a corpus by selecting the node in the remote tree in Arbil
           when the wizard is not showing, right click and select 'Copy'; or get it from the IMDI
           browser by navigating to the corpus, right click the node and select 'Create bookmark' and
           copy the URL link. Then you can paste it into the box in the wizard.</para>
       </footnote> of the remote metadata that you will be working on frequently, you can add it to
-      this list so that it will be available on the root level of the tree in the <emphasis
-        role="italic">Remote corpus box</emphasis>. After finishing with <emphasis role="italic"
-        >Remote locations</emphasis> press <emphasis role="italic">next</emphasis> (Figure 2.4) and
-      then the <emphasis role="italic">Finish</emphasis> button. You can reopen the wizard through
-      the <emphasis role="italic">Help</emphasis> menu by choosing <emphasis role="italic">Run setup
-        wizard</emphasis>.</para>
+      this list so that it will be available on the root level of the tree in the Remote corpus box.
+      After finishing with <emphasis role="bold">Remote locations</emphasis> press <emphasis
+        role="bold">Next</emphasis> (Figure 2.4) and then <emphasis role="bold">Finish</emphasis>.
+      You can reopen the wizard by choosing <emphasis role="bold">Run setup wizard</emphasis> in the
+        <emphasis role="bold">Help</emphasis> menu.</para>
     <para>
       <figure>
         <title>Welcome to Arbil </title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/welcome.png" contentwidth="50%"/>
+            <imagedata fileref="images/welcome.png" contentdepth="100%" scalefit="1" width="60%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -248,7 +248,8 @@
         <title>Choosing CMDI</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/CMDI start.png" contentwidth="50%" scale="1" width="50%"/>
+            <imagedata fileref="images/CMDI start.png" width="50%" contentdepth="100%" scalefit="1"
+            />
           </imageobject>
         </mediaobject>
       </figure>
@@ -256,7 +257,8 @@
         <title>Select CMDI profile</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_Select_Cmdi_profile.png" contentdepth="50%"/>
+            <imagedata fileref="images/cmdi_Select_Cmdi_profile.png" contentdepth="100%"
+              scalefit="1" width="60%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -266,18 +268,65 @@
         <title>Remote locations</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_Arbil_Wizard.png" contentwidth="50%"/>
+            <imagedata fileref="images/cmdi_Arbil_Wizard.png" scalefit="1" width="60%"
+              contentdepth="100%"/>
           </imageobject>
         </mediaobject>
       </figure>
     </para>
-    <para>Starting Arbil can be done in two ways, either by web start or by downloading the
-      programme, see <ulink url="http://tla.mpi.nl/tools/tla-tools/arbil">here</ulink>. Note that
-      webstart will not work for OpenJDK 7; in this case download the installer version.</para>
-    <para/>
+    <para>Arbil can be started in two ways, either via the webstart or by downloading the installer
+      (see <ulink url="http://tla.mpi.nl/tools/tla-tools/arbil">here</ulink>). Note that the
+      webstart does not work for Ubuntu; in this case you will have to download the installer
+      version. </para>
+    <section>
+      <title>Language selection</title>
+      <para>Arbil 2.5 allows you to change the language in which the application will open and work.
+        At the moment, you can choose among: English (either the United Kingdom or the United States
+        variants), German, Italian and Spanish. </para>
+      <para>When you start the application for the first time, a dialog window will come out asking
+        you to choose a language. After having chosen and selected OK, Arbil wizard will open in the
+        language you have selected (see figures below). </para>
+      <para>However, you can always change the language via the option <emphasis role="bold">Select
+          language</emphasis> in the Help menu, which will open the same dialog window as before. </para>
+      <para>
+        <figure>
+          <title>Language selection</title>
+          <screenshot>
+            <screeninfo/>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/language_selection_italian.png" contentdepth="100%"
+                  scalefit="1" width="50%"/>
+              </imageobject>
+            </mediaobject>
+          </screenshot>
+        </figure>
+      </para>
+      <figure>
+        <title>Arbil wizard</title>
+        <screenshot>
+          <screeninfo/>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/language_selection_wizard.png" contentdepth="100%" os=""
+                scalefit="1" width="60%"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </section>
   </chapter>
   <chapter id="Ch_Basics">
     <title>Set-up</title>
+    <para>
+      <note>
+        <para>Remember that if, once you have set up your Arbil page, you realize that the font size
+          is either too small or too big, you can resize it as you like it via the options included
+          in the <emphasis role="bold">View</emphasis> menu, i.e.: <emphasis role="bold">Larger
+            font</emphasis>; <emphasis role="bold">Smaller font</emphasis>; <emphasis role="bold"
+            >Reset font size</emphasis>.</para>
+      </note>
+    </para>
     <section id="Sec_Remote_Corpus">
       <title>Remote Corpus</title>
       <para>The Remote Corpus contains all the remote metadata. Currently it is not possible to add
@@ -290,21 +339,28 @@
         click the node itself. This can be repeated for the sub-branches as well. In this way you
         can view the whole structure of the corpus. If you click the bullet again, the node will
         fold back.</para>
-      <para/>
+      <section>
+        <title>Tree structure view</title>
+        <para>As far as CMDI documents are concerned, it is possible to switch to a verbatim
+          representation of the latter in the tree. This means that the structure of CMDI documents
+          will be shown exactly as it is, with no kind of visual simplification. In order to have
+          such a representation, select <emphasis role="bold">Show verbatim XML structure in tree
+            for CMDI</emphasis> from the <emphasis role="bold">Options</emphasis> menu.</para>
+      </section>
       <section id="Sec_Adding_Removing_Remote_Locations">
         <title>Adding and removing Remote Locations</title>
         <para>If you want to use remote CMDI metadata that are not available under remote corpus, or
           want to link them at root level, you can add them yourself, provided that you know the URL
           address of this remote metadata. Right click on the Remote Corpus top node and choose
-            <emphasis role="italic">Add Remote Location</emphasis>. In the pop-up window enter the
-          URL and press OK. The corpus should now appear in the main list of the Remote Corpus
+            <emphasis role="bold">Add Remote Location</emphasis>. In the pop-up window enter the URL
+          and press OK. The corpus should now appear in the main list of the Remote Corpus
           window.</para>
         <figure>
           <title>Adding a remote location</title>
           <mediaobject>
             <imageobject>
-              <imagedata contentdepth="70%" fileref="images/Adding_a_remote_location.png"
-                scalefit="1" width="70%"/>
+              <imagedata contentdepth="100%" fileref="images/Adding_a_remote_location.png"
+                scalefit="1" width="60%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -312,63 +368,88 @@
           Corpus, it is also possible to remove any of the locations of the Remote Corpus at the
           root level so as to only display the collections that you need. This can be done at the
           root level only (see figure 3.1) by right clicking on the node (e.g. for MPI corpora) and
-          selecting <emphasis role="italic">Remove Remote Location</emphasis>. If you have removed
-          the default location, it is always possible to re-add them to the Remote Corpus by right
-          clicking on it and selecting <emphasis role="italic">Add Default Remote
-            Locations.</emphasis></para>
-        <para/>
-        <para> To add a subnode to the root level, browse to the desired sub collection, right click
-          on it and choose <emphasis role="italic">Copy</emphasis>. Then go back to the top node of
+          selecting <emphasis role="bold">Remove Remote Location</emphasis>. If you have removed the
+          default location, it is always possible to re-add them to the Remote Corpus by right
+          clicking on it and selecting <emphasis role="bold">Add Default Remote
+          Locations</emphasis>.</para>
+        <para>To add a subnode to the root level, browse to the desired sub collection, right click
+          on it and choose <emphasis role="bold">Copy</emphasis>. Then go back to the top node of
           the Remote Corpus and paste the URL in the dialogue box. The sub collection will now
           appear in the Remote Corpus tree. </para>
         <para>The corpus data on the Remote Corpus may sometimes be updated by the researchers. To
           be sure that you are working with the newest version of the available corpus, you can
           update it manually on the nodes that you believe have been altered. To do this, right
-          click on the specific collection you want to update and select <emphasis role="italic"
+          click on the specific collection you want to update and select <emphasis role="bold"
             >Reload</emphasis>. </para>
+      </section>
+      <section>
+        <title>Add to tree root</title>
+        <para>It may happen that the branch you want to work on is located at a very low
+          hierarchical position in your remote corpus. To avoid clicking on every single node in
+          order to get to the one you need, you can select this one, right click on it, and select
+          the option <emphasis role="bold">Add to Tree Root</emphasis>. A copy of it will be created
+          and placed at the top of the Remote Corpus tree, so that you will not have to look for it
+          anymore (see Bilingual Liceras Corpus example in the figure below).</para>
+        <para>
+          <figure>
+            <title>Add to tree root</title>
+            <screenshot>
+              <screeninfo/>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/add_tree_root_CMDI.png" contentdepth="100%"
+                    scalefit="1" width="60%"/>
+                </imageobject>
+              </mediaobject>
+            </screenshot>
+          </figure>
+        </para>
       </section>
       <section id="Sec_Viewing_Corpus_Information">
         <title>Viewing Remote Corpus Information</title>
         <para>In general, the easiest way to view the information of a node is to drag and drop it
           from the remote corpus into the grey working area on the bottom right. It is also possible
-          to right click on the selected node and choose <emphasis role="italic">View
+          to right click on the selected node and choose <emphasis role="bold">View
             Selected</emphasis>. In either case, a window pops up with the desired information
-          listed in tables. This can also enable you to view multiple nodes at the same time. </para>
-        <para>To view <emphasis role="italic">multiple</emphasis> nodes, simply hold Ctrl while
-          clicking on the desired nodes. Then drag them to the working area (or right click and
-          select <emphasis role="italic">View selected)</emphasis>. You will get a similar result to
-          this displayed in the figure (3.2) below.</para>
-        <para>Note: If you have an existing open table, it is also possible to add additional tree
-          nodes of any form (i.e. collections and files). Simply drag any unselected node from the
-          tree structure and drop it on the table. It will be automatically added to the table as a
-          row.</para>
+          listed in tables. This also enables you to view multiple nodes at the same time. </para>
+        <para>To view <emphasis role="italic">multiple</emphasis> nodes, simply hold the Ctrl key on
+          the keyboard while clicking on the desired nodes. Then drag them to the working area (or
+          right click and select <emphasis role="bold">View selected</emphasis>). The figure below
+          shows it.</para>
+        <para>
+          <note>
+            <para>If you have an existing open table, it is also possible to add additional tree
+              nodes of any form (i.e. collections and files). Simply drag any unselected node from
+              the tree structure and drop it on the table. It will be automatically added to the
+              table as a row.</para>
+          </note>
+        </para>
         <para>
           <figure>
             <title>Viewing multiple selected corpora</title>
             <mediaobject>
               <imageobject>
-                <imagedata contentdepth="45%"
+                <imagedata contentdepth="100%"
                   fileref="images/cmdi_Viewing_multiple_selected_corpora.png" scalefit="1"
-                  width="80%"/>
+                  width="100%"/>
               </imageobject>
             </mediaobject>
           </figure>
         </para>
-        <para>There are also two other quick ways for viewing corpus information. </para>
-        <para>(1) Let your cursor rest above a collection or a node without clicking. Information
-          about the collection will be displayed in the tool tip under the cursor.</para>
-        <para>(2) Click on a corpus node. Information, if available, will be displayed in the top
-          right frame. </para>
-        <para/>
+        <para>There are also two other quick ways for viewing corpus information:</para>
+        <para>(1) either you let your cursor rest above a collection or a node without clicking.
+          Information about the collection will be displayed in the tool tip under the
+          cursor;</para>
+        <para>(2) or you click on a corpus node. Information, if available, will be displayed in the
+          top right frame. </para>
         <para>When viewing information on multiple nodes, each row corresponds to one node while
           each column corresponds to one metadata field. By clicking on any of the column names, you
           can easily sort rows alphabetically within a given table.</para>
-        <para/>
         <para>In a table that includes several different types of nodes notice that not all the
           elements are described in terms of the same field; for example, there are data categories
           that belong to one collection but not to another. Such data fields are marked in grey and
-          are not available; this is also the case in the Local corpus (<link
-            linkend="Sec_Local_Corpus">see Section 3.2</link>).</para>
+          are not available; the same applies to the Local Corpus (<link linkend="Sec_Local_Corpus"
+            >see Section 3.2</link>).</para>
         <figure>
           <title>Not editable cells in a table</title>
           <mediaobject>
@@ -378,7 +459,7 @@
             </imageobject>
           </mediaobject>
         </figure>
-        <para>In some cases you will see that instead of a value in a cell in the table there is a
+        <para>In some cases you will see that, instead of a value, in a cell in the table there is a
           caption: &lt;multiple values>. This means that there is more than one value for this data
           category for this particular node. To see these values click on &lt;multiple values> and a
           new window will pop up with the information shown. </para>
@@ -387,154 +468,231 @@
     <section id="Sec_Local_Corpus">
       <title id="Sec_local_corpus" os="">Local Corpus</title>
       <para>The Local Corpus <inlinegraphic fileref="images/top_node_local_corpus_icon.png"
-          contentdepth="70%"/> is located beneath the Remote Corpus pane in Arbil's left frame.
-        Remember that the Local Corpus is the main working area and that changes made in the Local
-        Corpus will not affect the remote matadata. The Local Corpus serves two main functions: 1)
-        Edit existing collection, 2) Creating new collection. Section 3.2.1 explains how Local
-        Corpora may be modified by (re)editing the data from the Remote Corpus. Section 3.2.2
-        explains how to create and subsequently modify new collections.</para>
+          contentdepth="70%"/> is located beneath the Remote Corpus panel. Remember that the Local
+        Corpus is the main working area and that changes made in the Local Corpus will not affect
+        the remote matadata. The Local Corpus serves two main functions: 1) editing existing
+        collection, 2) creating new collection. Section 3.2.1 explains how Local Corpora can be
+        modified by (re)editing the data from the Remote Corpus. Section 3.2.2 explains how to
+        create and subsequently modify new collections.</para>
       <section id="Sec_Import_to_Local_Corpus">
-        <title>Import to Local Corpus</title>
-        <para>If you have decided to work on a corpus from a remote location you first need to
-          import it from the Remote Corpus to your Local Corpus, and then you can edit it. To do
-          this, locate the node from the Remote Corpus and simply drag the item and drop it into the
-          Local Corpus icon <inlinegraphic fileref="images/top_node_local_corpus_icon.png"
+        <title id="sec_import_local_corpus">Import to Local Corpus</title>
+        <para>If you have decided to work on a corpus from the archive you first need to import it
+          from the Remote Corpus to your Local Corpus, and then you can edit it. To do so, select
+          the node/session from the Remote Corpus and simply drag the item and drop it into the
+          local corpus icon <inlinegraphic fileref="images/top_node_local_corpus_icon.png"
             scalefit="1" contentdepth="70%"/>. You can also right click on the corpus node you want
-          to import and choose<emphasis role="italic"> Import to Local Corpus.</emphasis> In the
-          dialogue box that pops up (see figure 3.4) you can check the <emphasis role="italic">Show
-            Details and Options</emphasis> box in order to: </para>
-        <para>(1) <emphasis role="italic">Overwrite Local Changes</emphasis> : Overwrite an existing
-          Local Corpus node from the same original location. When is this option useful? Consider
-          the case that you have imported a node from the Remote corpus and started editing it. If
-          you want to reset the changes, you can reimport it from the Remote Corpus and check the
-            <emphasis role="italic">overwrite local changes </emphasis>box. You can apply this
-          option to every branch of the corpora. To do so, first check the <link
-            linkend="image_overwrite_local_changes"><emphasis role="italic">Show details and
-              options</emphasis></link> box; in the window that appears select the function <link
-            linkend="image_overwrite_local_changes"><emphasis role="italic">Overwrite local
-              changes</emphasis></link> (see figure 3.5).</para>
+          to import and choose <emphasis role="bold">Import to Local Corpus</emphasis>. </para>
+        <para>In the dialogue box that pops up you may want to check the option <emphasis
+            role="bold">Import Resource Files (if available)</emphasis>, through which, as the name
+          itself says, both the node and the possible resources that such node contains will be
+          imported into the Local Corpus. Please be aware that: 1) Arbil cannot deal with resources
+          that need authentication; 2) copying the resource files may take some time and will use
+          disk space on your computer. </para>
+        <para>Select <emphasis role="bold">Start</emphasis> to initiate the import process. Select
+            <emphasis role="bold">Stop</emphasis> if you want to interrupt such process. </para>
         <figure>
           <title>Show details and options</title>
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/cmdi_Show_details_and-options.png" contentdepth="40%"
-                id="images_show_details_and_options"/>
-            </imageobject>
-          </mediaobject>
+          <screenshot>
+            <screeninfo/>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/import_branch_CMDI.png" contentdepth="100%" scalefit="1"
+                  width="60%"/>
+              </imageobject>
+            </mediaobject>
+          </screenshot>
         </figure>
-        <figure>
-          <title>Overwrite local changes</title>
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/cmdi_Overwrite_local_changes.png" contentdepth="45%"
-                id="image_overwrite_local_changes"/>
-            </imageobject>
-          </mediaobject>
-        </figure>
-        <para>In the case that you have uploaded an exported collection from your Local Corpus to
-          the Remote Corpus and you want to edit it again, editing should not be done in the already
-          existing file in your Local Corpus. In this case you have to reimport the corpus from the
-          Remote Corpus where your uploaded it before via Lamus.</para>
-        <para>(2) <emphasis role="italic">Copy Resource Files</emphasis>: Import resource files to
-          your computer. Please be aware that copying the resource files may take some time and will
-          use disk space on your computer. When you press <emphasis role="italic">Start</emphasis>,
-          the branch will be copied to your Local Corpus tree. The process can be interrupted by
-          clicking <emphasis role="italic">Stop</emphasis>. Note that Arbil cannot deal with
-          resources that need authentication.</para>
-        <figure>
-          <title>Importing a corpus branch to Local Corpus</title>
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/cmdi_importing_a_corpus_branch_to_local_corpus.png"
-                contentdepth="50%" scalefit="1" width="50%"/>
-            </imageobject>
-          </mediaobject>
-        </figure>
+        <para>Once the import process has started a message can appear, asking you whether you want
+          to overwrite an existing local corpus/session node from the same original location. When
+          is this option useful? Consider the likely scenario that you have imported a node from the
+          Remote corpus and started editing it. If you want to reset the changes, you can reimport
+          it from the Remote Corpus and answer "Yes" to the question "Overwrite?". You can apply
+          this option to every branch of the corpora. </para>
+        <para>You may want to check the option <emphasis role="bold">Remember my choice</emphasis>,
+          so that the message will not come out again for the other already existing files that
+          Arbil will encounter during the import process. </para>
+        <para>
+          <figure>
+            <title>Overwrite message</title>
+            <screenshot>
+              <screeninfo/>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/overwrite_message_CMDI.png" contentdepth="100%"
+                    scalefit="1" width="60%"/>
+                </imageobject>
+              </mediaobject>
+            </screenshot>
+          </figure>
+        </para>
+        <para>Once the import has finished you will see a window telling you how many Metadata Files
+          have been processed. If you select <emphasis role="bold">Details</emphasis>, you will see
+          all the possible errors that have occurred during the process. </para>
+        <para>
+          <figure>
+            <title>Import completed</title>
+            <screenshot>
+              <screeninfo/>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/import_completed_CMDI.png" contentdepth="100%"
+                    scalefit="1" width="60%"/>
+                </imageobject>
+              </mediaobject>
+            </screenshot>
+          </figure>
+        </para>
       </section>
       <section id="Sec_New_Corpora">
         <title>Creating profile instances</title>
         <para>Instead of copying an existing collection or corpus nodes from the Remote Corpus, you
           can also create your own metadata instances. Moreover, you can add an existing profile;
           with multiple profile instances it is possible to build a tree structure.</para>
-        <para>To do this, select the top node of the Local Corpus (corpus node), right click it and
-          select the option <emphasis role="italic">Add ></emphasis> and then you can choose the
-          profile or component(s) you want to add.</para>
+        <para>To do so, select the top node of the Local Corpus (corpus node), right click it and
+          select the option <emphasis role="bold">Add</emphasis> and then you can choose the profile
+          or component(s) you want to add.</para>
+      </section>
+      <section>
+        <title>Creating (and describing) hierarchical collections</title>
+        <para>In Arbil CMDI you can also create hierarchical collections of instances. The easiest
+          way to do so is to create the parent and the child nodes <emphasis role="bold"
+            >separately</emphasis> in the Local Corpus, as if they were two different examples of
+          instances. Once both are there in the Local Corpus tree, simply drag the child node into
+          the parent node. A message will appear asking you whether you want to move the node X to
+          the node Y. After selecting <emphasis role="bold">Move</emphasis> you will see the Local
+          Corpus tree structure changed (see figures below).</para>
+        <para>
+          <figure>
+            <title>Creating parent and child node</title>
+            <screenshot>
+              <screeninfo/>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/create_parent_child_nodes.png" contentdepth="100%"
+                    scalefit="1" width="60%"/>
+                </imageobject>
+              </mediaobject>
+            </screenshot>
+          </figure>
+          <figure>
+            <title>Creating a hierarchy</title>
+            <screenshot>
+              <screeninfo/>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/create_hierarchy.png" contentdepth="100%" scalefit="1"
+                    width="60%"/>
+                </imageobject>
+              </mediaobject>
+            </screenshot>
+          </figure>
+        </para>
+        <para>
+          <note>
+            <para>The recommended Clarin profile to use in order to describe collections of
+              instances is  <ulink
+                url="http://catalog.clarin.eu/ds/ComponentRegistry?item=clarin.eu:cr1:p_1284723009187"
+                >clarin.eu:cr1:p_1284723009187</ulink>.</para>
+          </note>
+        </para>
+      </section>
+      <section>
+        <title>Local Corpus Storage Directory</title>
+        <para>When Arbil is started for the first time a .arbil directory should be automatically
+          created on your local machine. In it, and more specifically into a subfolder named
+          ArbilWorkingFiles, the content of your Local Corpus should be located and saved. However,
+          the location of your Local Corpus can always be changed. To do so, go to <emphasis
+            role="bold">Options</emphasis> > <emphasis role="bold">Local Corpus Storage
+            Directory</emphasis> > <emphasis role="bold">Move Local Corpus Storage
+            Directory...</emphasis>. </para>
+        <para>
+          <note>
+            <para>It may happen that Arbil detects multiple storage directories on your machine
+              (which may be due to an older version of the application conflicting with a new one).
+              In those cases you will be notified through a warning message, asking you what you are
+              going to do with such storage directories. </para>
+          </note>
+        </para>
       </section>
     </section>
     <section id="Sec_Working_Directories">
       <title>Working Directories</title>
-      <para>Beneath the Local Corpus window, you will find two different tabs: <emphasis
-          role="italic">Files</emphasis> and <emphasis role="italic">Favourites</emphasis>. This
-        section describes <emphasis role="italic">Files</emphasis> and its <emphasis role="italic"
-          >Working Directories</emphasis> while <link linkend="Sec_Favourites">Section 3.4</link>
-        focuses on<emphasis role="italic"> Favourites</emphasis>. This window is responsible for
-        linking a folder from your computer to Arbil so that media files can be transferred into
-        your corpus. It is advisable to have one or more folders on your computer that contains all
-        the necessary files that you would like to upload to your corpus. This way, you can simply
-        link this folder and retrieve all the necessary files.</para>
-      <para>The option <emphasis role="italic">Files</emphasis> is selected by default. Its
-          <emphasis role="italic">Working Directories</emphasis> are meant to keep at hand the
-        resources that you want to add to your corpus (such as annotations, audio files, pictures
-        etc.). To add a new Working Directory, right click on the Working Directory node and select
-          <emphasis role="italic">Add Working Directory</emphasis>. Now browse to the directory you
-        want to add, select it and click <emphasis role="italic">Open</emphasis>. In the figure
-          <link linkend="image_linked_folder">3.7</link>, the directory "Recursion pics" is about to
-        be added to the Working directory, so as to access the media files present in this
-        folder.</para>
+      <para>Beneath the Local Corpus window, you will find two different tabs: <emphasis role="bold"
+          >Files</emphasis> and <emphasis role="bold">Favourites</emphasis>. This section describes
+        the Files tab and the functioning of its <emphasis role="bold">Working
+          Directories</emphasis>, while <link linkend="Sec_Favourites">Section 3.4</link> below
+        focuses on the Favourites tab. </para>
+      <para>The Files tab is responsible for linking a folder from your computer to Arbil so that
+        media files can be transferred into your corpus. It is advisable to have one or more folders
+        on your computer that contains all the necessary files that you would like to upload to your
+        corpus. This way, you can simply link this folder and retrieve all the necessary
+        files.</para>
+      <para>The option Files is selected by default. Its Working Directories are meant to keep at
+        hand the resources that you want to add to your corpus (such as annotations, audio files,
+        pictures etc.). To add a new Working Directory, right click on the Working Directory node
+        and select <emphasis role="bold">Add Working Directory</emphasis>. Now browse to the
+        directory you want to add, select it and click again on <emphasis role="bold">Add Working
+          Directory</emphasis>. In the figure <link linkend="image_linked_folder">3.8</link>, the
+        directory "Recursion pics" is about to be added to the Working directories, after which you
+        will be able to access the media files present in this folder.</para>
       <para>
         <figure>
           <title>Add working directories</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/WD1.png" contentdepth="50%" scalefit="1" width="100%"/>
+              <imagedata fileref="images/WD1.png" contentdepth="100%" scalefit="1" width="70%"/>
             </imageobject>
           </mediaobject>
         </figure>
       </para>
       <para>After linking a directory to Arbil, you will have access to the folder. To import the
-        media files (e.g.. Droste.jpg) to a matadata document, simply drag and drop them into a
-        metadata document of the Local Corpus. </para>
+        media files (e.g. Droste.jpg) to a session of a corpus, simply drag and drop them into the
+        desired session. </para>
       <para> </para>
       <para>
         <figure>
           <title>Linked folder</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/WD2.png" contentdepth="55%" width="55%"
-                id="image_linked_folder"/>
+              <imagedata fileref="images/WD2.png" contentdepth="100%" width="50%"
+                id="image_linked_folder" scalefit="1"/>
             </imageobject>
           </mediaobject>
         </figure>
       </para>
-      <para>Note: If you right click on Working Directories, you will also see that it is possible
-        for Arbil to show you all hidden files (option <emphasis role="italic">Show hidden
-          files</emphasis>). This option is useful when you want to include collection files which
-        are normally hidden in your file manager. </para>
-      <para>Browsing through Working Directories is very similar to browsing through the Remote or
-        the Local Corpus. To open/close a folder click on the bullet or double click on its name. If
-        you have added or modified the content of a directory outside Arbil, by right clicking on
-        the Working Directory, you can update its content in Arbil (the <emphasis role="italic"
-          >Reload</emphasis> option).</para>
-      <para>Viewing file information is done in the same way as it has been described in Section
-        3.1.2. (<link linkend="Sec_Viewing_Corpus_Information">Viewing Remote Corpus
+      <para>
+        <note>
+          <para>If you right click on Working Directories, you will also see that it is possible for
+            Arbil to show you all hidden files (option <emphasis role="bold">Show hidden
+              files</emphasis>). This option is useful when you want to include collection files
+            which are normally hidden in your file manager.</para>
+        </note>
+      </para>
+      <para>Browsing through the Working Directories is very similar to browsing through the Remote
+        or the Local Corpus. To open/close a folder click on the bullet on the left of its name or
+        double click on the name itself. If you have added or modified the content of a directory
+        outside Arbil, you can update such content by right clicking Working Directories and
+        selecting <emphasis role="bold">Reload</emphasis>.</para>
+      <para>If you want to view the file information you can follow the instructions described in
+        Section 3.2.2. (<link linkend="Sec_Viewing_Corpus_Information">Viewing Remote Corpus
           Information</link>). Remember that if you place the cursor over a file, an information
         window will appear that will give you a file description, including the information about
         whether the file is archivable or not. Archivable files can be uploaded to the server. Image
-        3.9 shows an example of an archivable file: </para>
+        3.7 shows an example of an archivable file:</para>
       <figure>
         <title>Archivable file</title>
         <screenshot>
           <screeninfo/>
           <mediaobject>
             <imageobject>
-              <imagedata contentdepth="65%" fileref="images/archivable.png" scalefit="1" width="65%"
-              />
+              <imagedata contentdepth="100%" fileref="images/archivable.png" scalefit="1"
+                width="50%"/>
             </imageobject>
           </mediaobject>
         </screenshot>
       </figure>
       <para>Editable files from the Working Directory can also be opened by external applications.
-        Right click a given file (e.g.. audio file, picture) and select <emphasis role="italic">Open
+        Right click a given file (e.g.. audio file, picture) and select <emphasis role="bold">Open
           in External Application</emphasis>.</para>
       <para>If the file is not archivable, the <inlinegraphic contentdepth="100%"
           fileref="images/file.png" width="2%"/> icon will appear. If you hold the mouse pointer on
@@ -545,7 +703,7 @@
           <screeninfo/>
           <mediaobject>
             <imageobject>
-              <imagedata contentdepth="50%" fileref="images/unarchiveable.png" scalefit="1"
+              <imagedata contentdepth="100%" fileref="images/unarchiveable.png" scalefit="1"
                 width="100%"/>
             </imageobject>
           </mediaobject>
@@ -553,108 +711,168 @@
       </figure>
       <para>For the list of accepted file types and formats, check the <ulink
           url="http://www.mpi.nl/corpus/html/lamus/apa.html">LAMUS manual</ulink>. </para>
-      <para>A file that is not supported by Arbil can be kept in Arbil and still be added to a node,
-        overriding the decision of the internal type checker. Right click on it and select <emphasis
-          role="italic">Override Type Checker Decision</emphasis>, a pop up window will appear where
-        you have to choose if this is a <emphasis role="italic">media file</emphasis> or a <emphasis
-          role="italic">written resource</emphasis>; the <inlinegraphic contentdepth="100%"
-          fileref="images/file.png" width="2%"/> will then change into an icon of either a Media
-        file or a Written Resource file and can be added as a resource file. To open the file right
-        click it again and select <emphasis role="italic">Open in External Application</emphasis>.
-        Beware that overriding the type checker decision can cause your corpus not to be accepted
-        into the archive (rejected by Lamus).</para>
-      <para/>
+      <para>A file that is not supported by Arbil can be kept in Arbil anyway and still be added to
+        a Session in the Local Corpus, thus overriding the decision of the internal type checker. To
+        do so, right click on the unarchivable file and select <emphasis role="bold">Override Type
+          Checker Decision</emphasis>; a pop up window will appear asking you to say whether the
+        file is a <emphasis role="bold">MediaFile</emphasis> or a <emphasis role="bold"
+          >WrittenResource</emphasis>; the <inlinegraphic contentdepth="100%"
+          fileref="images/file.png" width="2%"/> will then change into an icon of either a media
+        file or a written resource file, and you will be able to add it as a resource file into the
+        Local Corpus. To open the file right click it again and select <emphasis role="bold">Open in
+          External Application</emphasis>. Beware that overriding the type checker decision can
+        cause your corpus not to be accepted into the archive (rejected by Lamus).</para>
+      <para>In addition, if you have modified your uploaded file externally, you may want to check
+        whether it is still accepted by Arbil. To do so, right click the file in Working Directories
+        and select <emphasis role="bold">Force Type Checking</emphasis>. If something has happened
+        to your file you will see its icon change.</para>
     </section>
     <section id="Sec_Favourites">
       <title>Favourites</title>
-      <para>The tab <emphasis role="italic">Favourites</emphasis> is meant for storing elements that
-        you would like to re-use in new node, such as <emphasis role="italic">actor, language
-          elements, location</emphasis> etc. Node elements that can be saved in Favourites are: CMDI
-        instances or any subnodes. If you have a number of elements in your Favourite List and you
-        are not certain what the content of a given element is, you can always place the cursor over
-        it and wait for the tool tip (information window) to appear.</para>
+      <para>The tab <emphasis role="bold">Favourites</emphasis> is meant for storing elements that
+        you would like to re-use in new node, such as <emphasis role="italic">actors, language
+          elements, locations</emphasis>, etc. Node elements that can be saved in Favourites are
+        CMDI instances, or any subnodes. When taken to the favorites tab, such elements are placed
+        in their corresponding subcategories; i.e. if you drag an author, this will be automatically
+        located under the category "Author". If you have a number of elements in your Favourite List
+        and you are not certain what the content of a given element is, you can always place the
+        cursor over it and wait for the tool tip (information window) to appear.</para>
       <figure>
         <title>Favourites List</title>
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata contentdepth="60%" fileref="images/favourites.png" scalefit="1" width="50%"
-              />
+              <imagedata contentdepth="100%" fileref="images/favorites_grouped_type_CMDI.png"
+                scalefit="1" width="50%"/>
             </imageobject>
           </mediaobject>
         </screenshot>
       </figure>
-      <para/>
       <para>In order to add an element from the local corpus to the Favourites List, right click its
-        node and choose <emphasis role="italic">Add to Favourites List.</emphasis> The element now
+        node and choose <emphasis role="bold">Add to Favourites List</emphasis>. The element now
         appears in the Favourites List. You can also just drag them from the corpus tree structure,
         right down to the Favourites List. If this element is needed again, you can place it into a
         preferable location in your Local Corpus either by dragging it from the Favourites list or
-        Copy/Paste it in one of the Local Corpus (sub)branches. </para>
+        by copying and pasting it in one of the Local Corpus (sub)branches. </para>
       <figure>
         <title>Adding to favourites via menu</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_adding_to_favourites_via_menu.png" contentdepth="50%"/>
+            <imagedata fileref="images/cmdi_adding_to_favourites_via_menu.png" contentdepth="100%"
+              scalefit="1" width="50%"/>
           </imageobject>
         </mediaobject>
       </figure>
       <para> </para>
       <para>Once you have completed your Favourites list, you can start using it. Let's say you want
-        to add a particular Actor to a session - in order to do this choose the node in question,
-        right click it and choose <emphasis role="italic">Favourites</emphasis>, <emphasis
-          role="italic">Add from Favourites</emphasis> and click on the right actor. You can also do
-        this by "drag and drop".<figure>
+        to add a particular Author to a session in your Local Corpus: in order to do so choose the
+        session in question, right click it, select <emphasis role="bold">Add from
+          Favourites</emphasis> and click on the desired author. Otherwise, you can simply drag and
+        drop the author from the Favorites tab to session in the Local Corpus.<figure>
           <title>Adding from Favourites to a component</title>
           <mediaobject>
             <imageobject>
               <imagedata fileref="images/cmdi_Adding_from_favourites_to_a_component.png"
-                contentdepth="50%"/>
+                contentdepth="100%" scalefit="1" width="60%"/>
             </imageobject>
           </mediaobject>
         </figure></para>
       <para>Note that the items in the Favourite List can be viewed and edited in the same way as
-        the elements of the Local Corpus (right click and View/Edit Selected). This means that if
-        you make changes to your favourites you have to right click on them and select Save Changes
-        to Disk to make them permanent (or use Ctrl/cmd+S). The favourites which have been edited
-        turn in blue which indicates this element still has to be saved locally.</para>
+        the elements of the Local Corpus (i.e. via the options of the right click context menu).
+        This means that if you make changes to your favourites you will have to right click on them
+        and select <emphasis role="bold">Save Changes to Disk</emphasis> to make them permanent (or
+        use Ctrl/cmd+S). The favourites which have been edited turn blue, which indicates that they
+        contain pending changes to be saved locally.</para>
+      <para>Favorites can also be exported and/or (re)imported. In order to <emphasis role="bold"
+          >export</emphasis> your favorites: right click on <emphasis role="bold"
+          >Favorites</emphasis> (in the Favorites tab) and select <emphasis role="bold"
+          >Import/Export Favorites</emphasis>. A window like the one in the figure below will
+        appear. Select the favorites you want to export, then <emphasis role="bold">Export
+          selection</emphasis>, and after having chosen the location where to export select
+          <emphasis role="bold">Save</emphasis>. As soon as the export process is complete you will
+        see a message confirming it and the folder containing the exported files will open.</para>
+      <para>
+        <figure>
+          <title>Export/Import Favourites</title>
+          <screenshot>
+            <screeninfo/>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/import_export_favourites_CMDI.png" contentdepth="100%"
+                  scalefit="1" width="60%"/>
+              </imageobject>
+            </mediaobject>
+          </screenshot>
+        </figure>
+      </para>
+      <para>As you can see from the image above, if you want to <emphasis role="bold"
+          >import</emphasis> some favorites into Arbil you have to follow the same instructions as
+        the ones explained for the export: right clich on favorites > select Import/Export
+        Favorites. This time, though, choose <emphasis role="bold">Import from dick</emphasis>.
+        Choose the (.config) file that you want to import and select <emphasis role="bold"
+          >Open</emphasis>. You will see a message confirming the successful import, while in the
+        Favorites tab you will see the just imported files.</para>
     </section>
     <section>
       <title id="link_to_appendix">Managing Selected Profiles </title>
-      <para>From the Options menu, choose <emphasis role="italic">Templates and Profiles</emphasis>.
-        On the right of the page you will see the available CMDI profiles. You can select from the
-        list or add new ones.<figure>
+      <para>From the <emphasis role="bold">Options</emphasis> menu, choose <emphasis role="bold"
+          >Templates and Profiles</emphasis>. A list of the available CMDI profiles will appear. You
+        can select the profiles you need from the list or you can add new ones.<figure>
           <title>Available Profiles</title>
           <mediaobject>
             <imageobject>
               <imagedata fileref="images/cmdi_available_templets_and_profiles.png"
-                contentdepth="30%"/>
+                contentdepth="100%" scalefit="1" width="60%"/>
             </imageobject>
           </mediaobject>
         </figure></para>
-      <para>The button <emphasis role="italic">Download all</emphasis> (3 in the above picture)
-        allows you to download all the available profiles. Therefore you will be able to see them
-        also without an internet connection. When you add new profiles manually, or there are
-        changes on them, you need to reload, through the button <emphasis role="italic">Reload
-          Selection</emphasis> (2), so that Arbil will see the changes and use the latest version of
-        a profile. With the button <emphasis role="italic">Refresh List</emphasis> (1) you will get
-        the latest list of profiles form the server.</para>
-      <para>In order to add new profile, select the dialogue box <emphasis role="italic">Add
-          URL</emphasis> and paste into it the URL of the profile you want to import. You can find
-        the URL, for instance, in the Clarin website, under the Component Registry. Note that only
-        published profiles appear by their name; otherwise, they are displayed in the list by their
-        ID (something that starts with clarin.eu).<figure>
+      <para>The button <emphasis role="bold">Download all</emphasis> (see number 3 in the above
+        picture) allows you to download all the available profiles, so that you will be able to see
+        them also without an internet connection. </para>
+      <para>
+        <note>
+          <para>Another way of having the profiles available also offline is to <emphasis
+              role="italic">select them from the list when online</emphasis>, since they get
+            downloaded as soon as they are selected. </para>
+        </note>
+      </para>
+      <para>When you add new profiles manually, or there are changes on them, you need to reload the
+        list through the button <emphasis role="bold">Reload Selection</emphasis> (number 2 figure
+        above) in order for the changes to be visible. Note that you have to <emphasis role="italic"
+          >quit and restart</emphasis> Arbil to fully validate the reload process. </para>
+      <para>With the button <emphasis role="bold">Refresh List</emphasis> (number 1 figure above)
+        the list of profiles available in the Component Registry will check for updates, so that you
+        will get the latest list of profiles form the server. In this case, unlike with the "Reload"
+        commad, you do not have to quit and restart Arbil in order for the changes to be visible. </para>
+      <para>In order to add a new profile, select the option <emphasis role="bold">Add
+          URL</emphasis> (it is located above the list of profiles; see figure above) and paste into
+        it the URL of the profile you want to import. You can find the URL, for instance, in the
+          <emphasis role="bold">Clarin</emphasis> website, under the <emphasis role="bold">Component
+          Registry</emphasis>. Note that only published profiles appear by their name; otherwise,
+        they are displayed in the list by their ID (something that starts with clarin.eu).<figure>
           <title>Add URL</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_Add_URL.png" contentdepth="50%"/>
+              <imagedata fileref="images/cmdi_Add_URL.png" contentdepth="100%" scalefit="1"
+                width="50%"/>
             </imageobject>
           </mediaobject>
         </figure></para>
-      <para>In order to use a profile, it needs first to be selected through the check box. Then,
-        right clicking on the Local Corpus node open the Add menu. Here you will find the names or
-        ID of the profiles that are selected in the list. Choose the one you need. It is now
-        imported and it will appear in your Local Corpus.</para>
+      <para>In order to use a profile, this needs first to be selected through the check box. Then,
+        if you right click on the Local Corpus node and go to the Add option, another menu will open
+        with the names or IDs of the profiles that are selected in the list. Choose the one you
+        need. This will be imported and it will appear in your Local Corpus.</para>
+      <para>
+        <note>
+          <para>A profiles' components can be edited directly in the Component Registry of the
+            Clarin website. If you do so, remember that you have to add the URL to the Arbil list of
+            profiles again (the process is the same as the one explained above: Options menu >
+            Templates &amp; Profiles > Add URL > Reload > quit and restart). Once the modified
+            profile has been added, if you go to the Local Corpus, right click it, and select Add,
+            you will see two profiles with the same name but with different details/structures (the
+            old one has not been replaced).</para>
+        </note>
+      </para>
     </section>
   </chapter>
   <chapter id="Ch_Editing_Corpus_Structure">
@@ -663,12 +881,12 @@
     <sect1 id="Sec_Adding_new_Node">
       <title>Adding components and/or elements</title>
       <para>Once you have created/imported a collection, you can add new components or elements to
-        any corpus node of the Local Corpus. To do this, right click on a corpus node, scroll down
-        to <emphasis role="italic">Add</emphasis> and choose the components or elements that belong
-        to the imported profile(s). Notice that in the below figure 4.3 the profile "Comic book" has
-        been selected. The components and elements which are displayed belong to that specific
-        profile. Different ones will appear accordingly for each profile you decide to use.</para>
-      <para>Notice how some manu items have the <inlinegraphic
+        any corpus node of the Local Corpus. To do so, right click on a corpus node, scroll down to
+        Add and choose the components or elements that belong to the imported profile(s). Notice
+        that in the figure below the profile "Comic book" has been selected. The components and
+        elements which are displayed belong to that specific profile. Different ones will appear
+        accordingly for each profile you decide to use.</para>
+      <para>Notice how some menu items have the <inlinegraphic
           fileref="images/imdi_contains_data.png" contentdepth="60%"/> icon, whereas others have a
           <inlinegraphic fileref="images/new_field.png" contentdepth="60%"/> icon. The
           <inlinegraphic fileref="images/imdi_contains_data.png" contentdepth="60%"/> icon
@@ -678,7 +896,8 @@
           <title>Adding a new component or element</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_Add_a_new_component.png" contentdepth="50%"/>
+              <imagedata fileref="images/cmdi_Add_a_new_component.png" contentdepth="100%"
+                scalefit="1" width="60%"/>
             </imageobject>
           </mediaobject>
         </figure></para>
@@ -692,21 +911,21 @@
           <title>Standard field name</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_Standard_field_name.png" contentdepth="80%"
-                scalefit="1" width="100%"/>
+              <imagedata fileref="images/cmdi_Standard_field_name.png" contentdepth="100%"
+                scalefit="1" width="70%"/>
             </imageobject>
           </mediaobject>
         </figure>Using the example of our ComicBook profile, it consists of field names which
-        include one field for title. You might want to add an additional 'Title' field. To do this,
-        right click on a node, Add > (e.g.. ComicBook Title). Some fields can be added multiple
+        include one field per title. You might want to add an additional 'Title' field. To do so,
+        right click on a node, Add > (e.g.) ComicBook Title. Some fields can be added multiple
         times, others can be added only once.</para>
       <para>
         <figure>
           <title>Add new metadata field</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_Add_new_metadata_field.png" contentdepth="50%"
-                scalefit="1" width="40%"/>
+              <imagedata fileref="images/cmdi_Add_new_metadata_field.png" contentdepth="100%"
+                scalefit="1" width="60%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -715,7 +934,7 @@
     <sect1 id="Sec_Adding_Resource_Files">
       <title>Adding resource files to a metadata document</title>
       <para>The easiest way to add resource files (e.g. audio, video etc.) to a metadata document is
-        to drag and drop a given element from the Working Directory to any existing node in a
+        to drag and drop a given element from the Working Directories to any existing node in a
         metadata document. There it will appear as a child node of the selected node.</para>
       <para>Note that not all file types are archivable. If a file is not archivable, you will not
         be able to drag and drop it (any problem with the file will be illustrated by the
@@ -725,31 +944,31 @@
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/cmdi_Adding a resource by dragging and dropping.png"
-              contentdepth="50%" scalefit="1" width="40%"/>
+              contentdepth="100%" scalefit="1" width="70%"/>
           </imageobject>
         </mediaobject>
       </figure>
-      <para>It is also possible to add resources, either from a remote location, i.e. the web,
-        manually. This can be done by right clicking on a node and select <emphasis role="italic"
-          >Insert Manual Resource Location</emphasis> and add the URL in the window that
-        appears.</para>
+      <para>It is also possible to manually add resources from a remote location, i.e. the archive
+        or the web. This can be done by right clicking on a node, selecting <emphasis role="bold"
+          >Insert Manual Resource Location</emphasis>, and adding the URL in the window that appears
+        in the table area.</para>
       <para>
         <figure>
           <title>Insert manual remote resources</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_insert_manual_remote_resource.png" contentdepth="50%"
-                scalefit="1" width="100%"/>
+              <imagedata fileref="images/cmdi_insert_manual_remote_resource.png" contentdepth="100%"
+                scalefit="1" width="50%"/>
             </imageobject>
           </mediaobject>
         </figure>
       </para>
       <para>When adding multiple resources from the Working Directories to a CMDI file, they will
-        get processed together and appear in a single result table.</para>
+        get processed together and appear in a single table in the table area.</para>
     </sect1>
     <sect1 id="Sec_Moving_Sessions">
       <title>Moving instances</title>
-      <para>Arbil allows to move metadata from one location to another. To do it, select in your
+      <para>Arbil allows to move metadata from one location to another. To do so, select in your
         Local Corpus an instance or a collection you would like to move and drag and drop it to the
         new location. It is also possible to move subnodes of collection, e.g. Actors, across
         sessions. However not all locations will be accepted, depending on the type of the dragged
@@ -758,17 +977,18 @@
     <sect1 id="Sec_Deleting_Corpus_Elements">
       <title>Deleting linked instances </title>
       <para>In order to delete metadata instances or child nodes, right click on a chosen element
-        and select <emphasis role="italic">Delete</emphasis>. If you want to remove several elements
+        and select <emphasis role="bold">Delete</emphasis>. If you want to remove several elements
         at a time, choose them all while holding the Ctrl (or Shift) button. Right click on the
-        selected elements and chose <emphasis role="italic">Delete</emphasis>. In each case you will
-        have to confirm the deletion.</para>
+        selected elements and chose Delete. In each case you will have to confirm the
+        deletion.</para>
     </sect1>
     <sect1>
       <title>Saving changes</title>
-      <para>The changes to your files are not made automatically. You have to save them yourself. To
-        save the changes made in your Local Corpus, right click on the node and choose <emphasis
-          role="italic">Save Changes to Disk</emphasis> or use the key short cut (i.e.
-        Ctrl+S/cmd+S).</para>
+      <para>The changes to your files are not applied automatically. You have to save them yourself.
+        To save the changes made in your local corpus: 1) right click on the node and choose
+          <emphasis role="bold">Save Changes to Disk</emphasis>; 2) from <emphasis role="bold"
+          >File</emphasis> menu select <emphasis role="bold">Save Changes</emphasis>; 3) use the key
+        short cut (i.e. Ctrl+S/cmd+S).</para>
     </sect1>
   </chapter>
   <chapter id="Ch_Editing_Metadata">
@@ -776,18 +996,19 @@
     <sect1 id="Sec_One_Cell_Editing">
       <title>Editing one cell</title>
       <para>To edit a metadata document or a collection just click on it (A), or select it and
-        choose <emphasis role="italic">View Selected</emphasis> (B). In the window that appears,
-        click on the field you want to change. Type in the new value and press <emphasis
-          role="italic">Enter</emphasis> to go to the next value. If the value you have typed is too
-        long for the cell, the <emphasis role="italic">Long Field Editor</emphasis> will open
-        automatically in order to edit this value. (<link linkend="sec_Long_field_editor">section
-          5.2</link>)</para>
+        choose <emphasis role="bold">View Selected</emphasis> (B). In the window that appears, click
+        on the field you want to change. Type in the new value: typing in an existing cell will
+        start editing for replacing the existing content. Pressing the F2-key on windows/linux or
+        CTRL-U-key on a Mac will start editing without removing content. Press <emphasis role="bold"
+          >Enter</emphasis> to go to the next value. If the value you have typed is too long for the
+        cell, the <emphasis role="bold">Long Field Editor</emphasis> will open automatically in
+        order to edit this value. (<link linkend="sec_Long_field_editor">section 5.2</link>)</para>
       <figure>
         <title>Editing</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_simple_editing.png" contentdepth="40%" scalefit="1"
-              width="50%"/>
+            <imagedata fileref="images/cmdi_simple_editing.png" contentdepth="100%" scalefit="1"
+              width="70%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -795,14 +1016,14 @@
           fileref="images/vocabulary_closed.png" contentdepth="50%"/>, (figure 5.2). When you double
         click the field you need, a drop-down menu will appear showing you available default values
         from which you can choose the one that fits your data. In controlled vocabulary fields
-        'type-ahead' functionality is available; to confirm a suggestion, press ENTER or type a
+        'type-ahead' functionality is available; to confirm a suggestion, press Enter or type a
         comma in multi-CV to add another value.</para>
       <figure>
         <title>Closed vocabularies</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_closed_vocaboulary.png" contentdepth="60%" scalefit="1"
-              width="70%"/>
+            <imagedata fileref="images/cmdi_closed_vocaboulary.png" contentdepth="100%" scalefit="1"
+              width="60%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -810,11 +1031,10 @@
     <sect1>
       <title>Attributes</title>
       <para>It is possible to fill in or modify fields which contain attributes by right clicking on
-        a selected node and choosing <emphasis role="italic">View Selected</emphasis>. Once the node
-        has been displayed, the attributes fields are ready to be edited. There is also the
-        possibility of working on them through the <emphasis role="italic">Long Field
-          Editor</emphasis>. Here, in case of long descriptions, one or more attribute fields can be
-        edited. </para>
+        a selected node and choosing View Selected. Once the node has been displayed, the attributes
+        fields are ready to be edited. There is also the possibility of working on them through the
+        Long Field Editor. In case of long descriptions, one or more attribute fields can be edited
+        here. </para>
       <para>Note that whether attributes are present or not depends on the profile that has been
         selected.</para>
       <para>
@@ -822,33 +1042,32 @@
           <title>Attributes</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_edit_attributes.png" contentdepth="50%"/>
+              <imagedata fileref="images/cmdi_edit_attributes.png" contentdepth="100%" scalefit="1"
+                width="70%"/>
             </imageobject>
           </mediaobject>
         </figure>
       </para>
-      <para>In the tooltip, which appears hovering on a field, are present, among the others, also
-        information about the attributes of that particular field. It will be displayed the number
-        of potential attributes as well as the value for the attributes that have one specified. For
-        an overview of all the possible attributes, open the field in <emphasis role="italic">The
-          Long Field Editor</emphasis> (<link linkend="sec_Long_field_editor">Section
-        5.3</link>)</para>
+      <para>In the tooltip which appears hovering on a field, you can also see information about the
+        attributes of that particular field. The number of potential attributes, as well as the
+        value for the attributes that have one specified are displayed too. For an overview of all
+        the possible attributes, open the field in The Long Field Editor (<link
+          linkend="sec_Long_field_editor">Section 5.3</link>).</para>
     </sect1>
     <sect1 id="sec_Long_field_editor">
       <title>Long field editor</title>
       <para>The Long Field Editor (LFE) allows the user to edit long values, such as descriptions.
-        The LFE works either automatically or manually. In the case you want to add a long
-        description in a cell you can right click on the field in the table and select <emphasis
-          role="italic">Open in Long Field Editor</emphasis>. In the window that appears you can add
-        and edit the text. In the case that a field already contains a value longer than what fits
-        in the task cell and you wish to edit it, double click on it; the LFE will open
-        automatically. </para>
+        The LFE works either automatically or manually. If you want to add a long description in a
+        cell you can right click on the field in the table and select <emphasis role="bold">Open in
+          Long Field Editor</emphasis>. In the window that appears you can add new text and/or edit
+        the already present text. If a field already contains a long value and you wish to edit it,
+        double click on it; the LFE will open automatically. </para>
       <para>The LFE can be opened on a selected node by right clicking on it and selecting <emphasis
-          role="italic">View/Edit in Long Field Editor</emphasis>. The LFE opens on the first field
-        under the node, you can then navigate in the fields by using the <emphasis role="italic"
-          >previous</emphasis> and <emphasis role="italic">next</emphasis> buttons (see Figure 5.4
-        1). The field you are currently in appears on the top of the LFE (see Figure 5.4 2). The
-        text appears and can be edited in the white area (see Figure 5.4 3).</para>
+          role="bold">Edit in Long Field Editor</emphasis>. The LFE opens on the first field under
+        the node (generally the field <emphasis role="bold">Name</emphasis>), you can then navigate
+        in the fields by using the <emphasis role="italic">previous</emphasis> and <emphasis
+          role="italic">next</emphasis> buttons (1). The field you are currently in appears on the
+        top of the LFE (2). The text appears and can be edited in the white area (3).</para>
       <para>Changes made in the LFE get applied to the field as soon as the LFE is closed or by
         pressing the <emphasis role="italic">previous</emphasis> or <emphasis role="italic"
           >next</emphasis> buttons.</para>
@@ -857,10 +1076,57 @@
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/long_field_editor.png" contentdepth="100%" scalefit="1"
-              width="100%"/>
+              width="70%"/>
           </imageobject>
         </mediaobject>
       </figure>
+    </sect1>
+    <sect1>
+      <title>Delete field(s)</title>
+      <para>Fields can also be deleted both for the metadata table of a single instance (see figure
+        below), and from the one containing several nodes. As far as <emphasis role="bold">one
+          single instance</emphasis> is concerned, you have to open such instance in the table area
+        (either via right click > <emphasis role="bold">View selected</emphasis>, or simply by
+        dragging and dropping the instance in the main area). Then select the field you want to
+        delete, right click it and select <emphasis role="bold">Delete 1 field(s) "..."</emphasis>.
+        Note that mandatory fields are NOT deletable; in case of a mandatory field you will not be
+        able to see the delete option.</para>
+      <para>
+        <figure>
+          <title>Delete field from single instance</title>
+          <screenshot>
+            <screeninfo/>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/delete_field_single_instance_CMDI.png"
+                  contentdepth="100%" scalefit="1" width="70%"/>
+              </imageobject>
+            </mediaobject>
+          </screenshot>
+        </figure>
+      </para>
+      <para>In case of multiple instances in one single table (see figure below), what changes is
+        the layout of the table itself, but the deletion process is the same as the one explained
+        above for single instances. Open the instances in the table area, choose the field you want
+        to delete, right click on it and select <emphasis role="bold">Delete field from all
+          nodes</emphasis>. Note that, as before, mandatory fields CANNOT be deleted. Unlike with
+        single instances, though, here you will always be able to see the delete option, the only
+        difference being that in case of undeletable field a message will pop out telling you that
+        that specific field cannot be deleted from the nodes.</para>
+      <para>
+        <figure>
+          <title>Delete field from several instances</title>
+          <screenshot>
+            <screeninfo/>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/delete_field_several_instances_CMDI.png"
+                  contentdepth="100%" scalefit="1" width="70%"/>
+              </imageobject>
+            </mediaobject>
+          </screenshot>
+        </figure>
+      </para>
     </sect1>
     <sect1 id="Sec_Editing_Multiple_Cells">
       <title>Editing multiple cells</title>
@@ -868,57 +1134,56 @@
         etc.) has to be repeated across the metadata documents. Instead of typing this data in every
         document, you can copy-paste it at once into all the relevant fields. Choose the relevant
         metadata documents by holding Ctrl and clicking on them. Then right click one of the
-        selected items and choose <emphasis role="italic">View Selected</emphasis>. You will see a
-        window appearing in which you can edit the documents.</para>
+        selected items and choose View Selected. You will see a window appearing in which you can
+        edit the documents.</para>
       <para>To edit the selected metadata documents, take the following steps:</para>
       <para>1. Fill one of the fields / choose a default value from the drop-down menu that you need
         (e.g. Country). If one of these fields is already filled in with the relevant information,
         skip this step.</para>
-      <para>2. Right click on one of the selected cell and select <emphasis role="italic"
+      <para>2. Right click on one of the selected cell and select <emphasis role="bold"
           >Copy</emphasis>.</para>
       <para>3. Select the fields where you want to paste the copied information (one by one) by
         holding Ctrl and clicking on them. Right click on one of the selected fields and chose
-          <emphasis role="italic">Paste</emphasis>.</para>
+          <emphasis role="bold">Paste</emphasis>.</para>
       <figure>
         <title>Pasting data into multiple cells</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_pasting_data_into_multiple_cells.png" contentdepth="40%"
-              scalefit="1" width="40%"/>
+            <imagedata fileref="images/cmdi_pasting_data_into_multiple_cells.png"
+              contentdepth="100%" scalefit="1" width="100%"/>
           </imageobject>
         </mediaobject>
       </figure>
-      <para>If you want to copy a value into <emphasis role="underline">all</emphasis> the cells of
-        a certain column, select the field you want to copy, right click it and chose <emphasis
-          role="italic">Copy Cell to Whole Column</emphasis>. All the cells in the column will be
+      <para>If you want to copy a value into <emphasis role="bold">all</emphasis> the cells of a
+        certain column, select the field you want to copy, right click it and chose <emphasis
+          role="bold">Copy Cell to Whole Column</emphasis>. All the cells in the column will be
         changed accordingly. Note, however, that this option is only applicable to one column at a
         time.</para>
-      <para/>
       <figure>
         <title>Copying the value of a cell to all the cells of a column</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="60%" fileref="images/cmdi_copy_to-the_whole_column.png"
+            <imagedata contentdepth="100%" fileref="images/cmdi_copy_to-the_whole_column.png"
               scalefit="1" width="100%"/>
           </imageobject>
         </mediaobject>
       </figure>
-      <para>It is also possible to simultaneously copy-paste values to multiple columns. To do that,
+      <para>It is also possible to copy-paste values to multiple columns simultaneously. To do so,
         while holding Ctrl (or cmd), select the relevant cells of a metadata file, right click one
-        of them and choose <emphasis role="italic">Copy</emphasis>.</para>
+        of them and choose <emphasis role="bold">Copy</emphasis>.</para>
       <figure>
         <title>Copying values from columns in one metadata file</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_copy_values_from_columns.png" contentdepth="60%"/>
+            <imagedata fileref="images/cmdi_copy_values_from_columns.png" contentdepth="100%"
+              scalefit="1" width="100%"/>
           </imageobject>
         </mediaobject>
       </figure>
-      <para/>
-      <para>Now choose the cells within the selected columns in to which you want to paste the
-        copied value by Ctrl (or cmd) clicking on them (you can also draw a box over them with the
-        cursor), right click one of the cells and select <emphasis role="italic">Paste</emphasis>.
-        The values will be pasted into the appropriate columns.</para>
+      <para>Now choose the cells within the selected columns into which you want to paste the copied
+        value by Ctrl (or cmd) clicking on them (you can also draw a box over them with the cursor),
+        right click one of the cells and select <emphasis role="bold">Paste</emphasis>. The values
+        will be pasted into the appropriate columns.</para>
       <para>Note that you cannot copy-paste data from different rows, only from different
         columns.</para>
       <para>
@@ -926,20 +1191,21 @@
           <title>Pasting values from two columns into several metadata files</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_pasting_values_two_columns.png" contentdepth="70%"
-                width="40%"/>
+              <imagedata fileref="images/cmdi_pasting_values_two_columns.png" contentdepth="100%"
+                width="100%" scalefit="1"/>
             </imageobject>
           </mediaobject>
         </figure>
       </para>
       <para>It is possible to show the entire document containing any specific node that is shown in
-        the horizontal table view. To do this, right click a cell or row and select <emphasis
-          role="italic">Show Context</emphasis>. This menu item opens the hierarchical 'sub-nodes'
+        the horizontal table view. To do so, right click a cell or row and select <emphasis
+          role="bold">Show Context</emphasis>. This menu item opens the hierarchical 'sub-nodes'
         view on the root of the document that contains the selected cell or row.<figure>
           <title>Show Context Menu</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/ShowContextMenu.png" contentdepth="70%"/>
+              <imagedata fileref="images/show_context_CMDI.png" contentdepth="100%" scalefit="1"
+                width="70%"/>
             </imageobject>
           </mediaobject>
         </figure></para>
@@ -947,24 +1213,24 @@
         <title><emphasis role="italic">Find</emphasis> and <emphasis role="italic"
             >Replace</emphasis></title>
         <para>Another option in editing cells is the <emphasis role="italic">Find and
-            Replace</emphasis> option activated by pressing CTRL+F when in a table, or by right
-          clicking on a cell and selecting "Find/Replace". In this case a line appears at the bottom
-          of the table with two boxes (figure 5.7); the left box is used to define the term you
-          intend to find in order to replace. Replacing is not done by typing in each cell you
-          intend to change, but by adding the new term in the right box. By pressing the <emphasis
-            role="italic">Find Next</emphasis> key the term specified in the first box is
-          highlighted in the table, you can either change it by pressing the <emphasis role="italic"
-            >Replace Selected</emphasis> key, or skip it and move to the next by pressing <emphasis
-            role="italic">Find Next</emphasis>. Once you have moved to the next term in the table,
-          you cannot go to a previous. In that case you will have to select a previous cell to start
-          from and continue searching.</para>
+            Replace</emphasis> option activated by pressing, when you are in a table, CTRL/CMD+F, or
+          by right clicking on a cell and selecting the option <emphasis role="bold"
+            >Find/Replace</emphasis>. In both cases a line appears at the bottom of the table with
+          two boxes (figure below); the left box (marked in red) is used to define the term you
+          intend to find; the right box (marked in green) is used to define the term to be replaced
+          with. By pressing the <emphasis role="bold">Find Next</emphasis> key the term specified in
+          the first box is highlighted in the table; now you can either replace such term by
+          pressing the <emphasis role="bold">Replace Selected</emphasis> key, or skip it and move to
+          the next by pressing Find Next. Once you have moved to the next term in the table, you
+          cannot go to a previous term. In that case you will have to manually select a previous
+          cell to start from and continue searching.</para>
         <para>
           <figure>
             <title>Find and Replace</title>
             <mediaobject>
               <imageobject>
                 <imagedata fileref="images/find_and_replace.png" scalefit="1" contentdepth="100%"
-                  width="100%"/>
+                  width="70%"/>
               </imageobject>
             </mediaobject>
           </figure>
@@ -974,17 +1240,17 @@
     <sect1>
       <title>Editing All Metadata of a Subnode </title>
       <para>It is also possible for the user of Arbil to get access to all metadata under a node in
-        a hierarchical order (figure 5.10), as the order of the (sub)sessions, so as to edit them.
-        To do this, right click on a metadata document on the tree view and select "<emphasis
-          role="italic">Edit All Metadata</emphasis>". Editing can be done in all cells in the way
-        it has already been described.</para>
+        a hierarchical order (figure below), as the order of the (sub)sessions, so as to edit them.
+        To do this, right click on a metadata document on the tree view and select <emphasis
+          role="bold">Edit All Metadata</emphasis>. Editing can be done in all cells in the way it
+        has already been described.</para>
       <para>
         <figure>
           <title>Edit/view all metadata</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_edit_all-metadata.png" contentdepth="40%" scalefit="1"
-                width="40%"/>
+              <imagedata fileref="images/cmdi_edit_all-metadata.png" contentdepth="100%"
+                scalefit="1" width="70%"/>
             </imageobject>
           </mediaobject>
         </figure>
@@ -992,21 +1258,21 @@
     </sect1>
     <sect1 id="Sec_Customizing_Column_Views">
       <title>Customizing Column Views</title>
-      <para>When viewing/editing multiple elements in a table, sometimes there are a lot of columns
-        to go through. It is possible to reduce them by choosing which columns you want to see or
-        which columns you want to hide. Right click the header of any column i.e. "Name" and select
-        the option <emphasis role="italic">Edit This Column View</emphasis>. In the window that pops
-        up, you can select columns that you want to show <emphasis role="italic">(Show Only)
-        </emphasis>or hide<emphasis role="italic"> (Hide)</emphasis> (if you check only the
-          <emphasis role="italic">Hide</emphasis> column, the unchecked names will appear in the
-        window). It is important to know that the column(s) which disappear from this particular
-        window, are not removed from the corpus itself.</para>
+      <para>When viewing/editing multiple elements in a table, sometimes there are many columns to
+        go through. It is possible to reduce them by choosing which columns you want to see or which
+        columns you want to hide. Right click the header of any column, i.e. Name, and select the
+        option <emphasis role="bold">Edit this Column View</emphasis>. In the window that pops up,
+        you can select the columns that you want to show <emphasis role="bold">Show Only</emphasis>
+        or hide <emphasis role="bold">Hide</emphasis> (if you check only the Hide column, the
+        unchecked field names will be shown in the table). It is important to know that the
+        column(s) which are hidden through this particular window, are not removed from the corpus
+        itself.</para>
       <para>
         <figure>
           <title>Choosing columns</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/cmdi_choosing_columns.png" contentdepth="60%" scalefit="1"
+              <imagedata fileref="images/cmdi_choosing_columns.png" contentdepth="100%" scalefit="1"
                 width="80%"/>
             </imageobject>
           </mediaobject>
@@ -1014,19 +1280,19 @@
       </para>
       <para>So let's say that you have <emphasis role="italic">Date</emphasis> and <emphasis
           role="italic">Description</emphasis> marked as <emphasis role="italic">Show
-          only</emphasis> (figure 5.12). This means that if you would now use this window to check
-        out a node that has other categories than the ones selected with the option <emphasis
+          only</emphasis> (see figure below). This means that if you would now use this window to
+        check out a node that has other categories than the ones selected with the option <emphasis
           role="italic">Show only</emphasis>, then these categories will not be displayed. So the
         window in this particular example will only have two columns.</para>
       <para>If you have a table with: Name, Title and Description and you set the Description to
         Hide, it means that Description will never be shown. But if the elements that you add to the
         window have other categories, these will still be displayed and the number of columns will
         increase accordingly (assuming that you don't use the show only option).</para>
-      <para>One more option of customizing the column view is the function <emphasis role="italic"
+      <para>One more option of customizing the column view is the function <emphasis role="bold"
           >Limit View to Current Columns</emphasis>, which you will find by right clicking the
         header of a column. When chosen, this mode will freeze the current columns view, meaning
         that no matter what element you add to the window, only the current categories (columns)
-        will be shown.</para>
+        will be shown. </para>
       <para>It is also possible to set the width of the columns by dragging the right or left edge
         of the column. This applies to arbitrary open tables as well as saved column views.</para>
       <para>
@@ -1034,15 +1300,15 @@
           <title>Editing column view</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/editing-column-view.png" contentwidth="50%" scalefit="1"
-                width="50%"/>
+              <imagedata fileref="images/editing-column-view.png" scalefit="1" width="70%"
+                contentdepth="100%"/>
             </imageobject>
           </mediaobject>
         </figure>
       </para>
-      <para>It is also possible to hide a column from the current view. To do this, right click the
-        column that you do not want to be displayed and choose <emphasis role="italic">This
-          column</emphasis> and then <emphasis role="italic">Hide Column</emphasis>. </para>
+      <para>It is also possible to hide a column from the current view. To do so, right click on the
+        column that you do not want to be displayed and choose <emphasis role="bold">This column
+          (...)</emphasis> > <emphasis role="bold">Hide Column</emphasis>. </para>
       <figure>
         <title>Hiding one column</title>
         <mediaobject>
@@ -1052,122 +1318,177 @@
           </imageobject>
         </mediaobject>
       </figure>
+      <para>
+        <note>
+          <para>The right click menu option <emphasis role="bold">This column (...)</emphasis> also
+            serves to adjust the size of the columns. Through the secondary options (see figure
+            above) you can either make the column size fix (<emphasis role="bold">Fixed column
+              size</emphasis>) or to make the columns big enough in order for their content to fit
+              (<emphasis role="bold">Make column fit contents</emphasis>). </para>
+        </note>
+      </para>
       <para>Once you have hidden the unnecessary columns, you can save this view by right clicking
-        any of the headers of the columns and choosing<emphasis role="italic"> Save Current Column
-          View</emphasis>. Give the column view a name and select <emphasis role="italic"
+        any of the headers of the columns and choosing <emphasis role="bold">Save Current Column
+          View</emphasis>. Give the column view a name and select <emphasis role="bold"
           >OK</emphasis>. </para>
       <figure>
         <title>Saving Column View</title>
         <mediaobject>
           <imageobject>
             <imagedata contentdepth="100%" fileref="images/cmdi_saving_column_view.png" scalefit="1"
-              width="100%"/>
+              width="60%"/>
           </imageobject>
         </mediaobject>
       </figure>
-      <para>Currently it is not possible to delete the column views that you create.</para>
+      <para>Currently it is NOT possible to delete the column views that you create.</para>
       <para>The view you have just saved is also applicable to other tables. Right click the header
-        column of the new Table, select <emphasis role="italic">Column View for this
-          Table</emphasis> and choose the view you want. By default, there are two views already
-        defined and cannot be modified: <emphasis role="underline">All</emphasis> (i.e. all columns
-        are displayed), and <emphasis role="underline">Minimal</emphasis> (i.e. displaying only
-          <emphasis role="italic">Name</emphasis>, <emphasis role="italic">Title</emphasis> and
-          <emphasis role="italic">Description</emphasis>). It is important not to forget that each
-        view you create initially is window specific. In this way you can use different views for
-        different windows. </para>
+        column of the new Table, select <emphasis role="bold">Column View for this Table</emphasis>
+        and choose the view you want. By default, there are two views already defined and cannot be
+        modified: <emphasis role="bold">All</emphasis> (i.e. all columns are displayed), and
+          <emphasis role="bold">Minimal</emphasis> (i.e. only <emphasis role="italic"
+          >Name</emphasis>, <emphasis role="italic">Title</emphasis> and <emphasis role="italic"
+          >Description</emphasis> are displayed). It is important not to forget that each view you
+        create initially is window specific. In this way you can use different views for different
+        windows. </para>
       <para>It is also possible to set your modified column view as the default column view that
-        will appear in all tables you open. To do this go to <emphasis role="italic"
-          >options</emphasis> in Arbil tool bar, scroll to <emphasis role="italic">Column View For
-          New Tables </emphasis>and then select the preferred column view. This is now your default
-        column view. (figure 5.15/1).</para>
+        will appear in all tables you open. To do so, go to <emphasis role="bold">Options</emphasis>
+        menu in Arbil toolbar, select <emphasis role="bold">Column View For New Tables</emphasis>
+        and the preferred column view. This is now your default column view. (see number 1 in the
+        figure below).</para>
       <para>
         <figure>
           <title>Setting new default column view</title>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="images/default_collumn view.png" contentdepth="50%" scalefit="1"
-                width="50%"/>
+              <imagedata fileref="images/default_collumn view.png" contentdepth="100%" scalefit="1"
+                width="60%"/>
             </imageobject>
           </mediaobject>
         </figure>
       </para>
-      <para/>
-      <para>Note: Column views that have been modified and multiple open windows in the working
-        area, either saved or unsaved, are available after closing Arbil once the programme starts
-        again exactly in the same way they were before closing it provided the <emphasis
-          role="italic">Save Windows on Exit</emphasis> is activated in the <emphasis role="italic"
-          >Options</emphasis> menu (figure 5.15/2).</para>
+      <para>
+        <note>
+          <para>Column views that have been modified and multiple open windows in the working area,
+            either saved or unsaved, are available after closing Arbil once the programme starts
+            again exactly in the same way they were before closing it provided the <emphasis
+              role="bold">Save Windows on Exit</emphasis> is activated in the Options menu (see
+            number 2 in the figure above).</para>
+        </note>
+      </para>
     </sect1>
     <sect1 id="Sec_Highlighting_Cells">
       <title>Highlighting cells with the same value</title>
-      <para>If you want to see, which cells in a table have the same value, right click the
-        appropriate cell and choose <emphasis role="italic">Highlight Matching Cells.</emphasis>
-        Cells with the same value will be highlighted. You can do this with more than one cell -
-        each new group of matching cells will be given a different colour. To remove the highlight,
-        right click on a cell and choose: <emphasis role="italic">Clear Cell Highlight</emphasis>,
-        which is visible in the above figure as well.</para>
+      <para>If you want to see which cells in a table have the same value, right click the
+        appropriate cell and choose <emphasis role="bold">Highlight Matching Cells</emphasis>. Cells
+        with the same value will be highlighted. You can do this with more than one cell; each new
+        group of matching cells will be given a different colour. To remove the highlight, right
+        click on a cell and choose: <emphasis role="bold">Clear Cell Highlight</emphasis>.</para>
       <figure>
         <title>Highlighting cells</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="50%" fileref="images/cmdi_highlighting_cells.png" scalefit="1"
-              width="100%"/>
+            <imagedata contentdepth="100%" fileref="images/cmdi_highlighting_cells.png" scalefit="1"
+              width="70%"/>
           </imageobject>
         </mediaobject>
       </figure>
+    </sect1>
+    <sect1>
+      <title>Track Table Selection in Tree</title>
+      <para>It may be the case that you have, in the main area of the application (i.e. the bottom
+        right part in the figure below) an open table with many elements displayed. Given this high
+        amount of resources/sessions, you may not be able to recognize which one you need, or else
+        which is which. From the Options menu mark the option <emphasis role="bold">Track Table
+          Selection in Tree</emphasis>: now if you select an item in the table, its corresponding
+        location on the tree will be highlighted, thus enabling you to know which and where you
+        required item is. </para>
+      <para>
+        <figure>
+          <title>Track Table Selection inTree</title>
+          <screenshot>
+            <screeninfo/>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/track_table_selection_CMDI.png" contentdepth="100%"
+                  scalefit="1" width="70%"/>
+              </imageobject>
+            </mediaobject>
+          </screenshot>
+        </figure>
+      </para>
     </sect1>
   </chapter>
   <chapter id="Ch_Exploring">
     <title>Searching</title>
     <sect1 id="Sec_Searching">
       <title>Searching Local Corpus</title>
-      <para>The search option allows you to find a value(s) throughout either the Local Corpus or
-        the Remote Corpus. To do that, right click on a given node you want to search in and select
-          <emphasis role="italic">Search</emphasis> (you might also choose a number of nodes by
-        holding Ctrl and clicking on them). A window will appear in which you can specify where
-        exactly you want to search e.g. within Corpus, Session, Catalogue, Actor etc.</para>
+      <para>The search option allows you to find a value throughout either the Local Corpus or the
+        Remote Corpus. To do so, right click on a given node you want to search and select <emphasis
+          role="bold">Search</emphasis> (you might also choose a number of nodes by holding Ctrl and
+        clicking on them). A window will appear in which you can specify where and what exactly you
+        want to search e.g. within Corpus, Session, Catalogue, Actor etc.</para>
       <figure>
         <title>Selecting search locations</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="60%" fileref="images/cmdi_selecting_search_location.png"
-              scalefit="1" width="40%"/>
+            <imagedata contentdepth="100%" fileref="images/cmdi_selecting_search_location.png"
+              scalefit="1" width="100%"/>
           </imageobject>
         </mediaobject>
       </figure>
       <para>In the search window you can further specify in which column you want to search. By
-        clicking on <emphasis role="italic">column</emphasis> a drop down list appears which
-        contains pre-defined common values and previously entered column names; it is also possible
-        to add any column name to this list, or remove arbitrary items by selecting the value and
-        pressing <emphasis role="italic">shift</emphasis> and <emphasis role="italic"
-          >delete</emphasis>; deleted values again have to be retyped and searched for in order to
-        appear in the drop down list again. After specifying the column (i.e. Name), give the value
-        name you look for, e.g. "Blance", and click on <emphasis role="italic"
-        >Search</emphasis>.</para>
+        clicking on <emphasis role="bold">&lt;column (optional)></emphasis> a drop down list
+        appears, containing pre-defined common values and previously entered column names; it is
+        also possible to manually add column names to this list, or to remove arbitrary items by
+        selecting the value and pressing the <emphasis role="bold">delete</emphasis> key on your
+        keyboard; deleted values have to be retyped and searched for in order to appear in the drop
+        down list again. After specifying the column (e.g. Name), give the value name you look for,
+        e.g. "Blance", and click on <emphasis role="bold">search</emphasis>.</para>
       <para>By selecting either <emphasis role="italic">Equal</emphasis> (<inlinegraphic
           fileref="images/Equal.jpeg" contentdepth="50%"/>) or <emphasis role="italic"
           >Unequal</emphasis> (<inlinegraphic fileref="images/Unequal.jpg" contentdepth="50%"/>),
         you will need to specify whether your search results should match the word you filled in or
         rather show you where this word does not appear.</para>
     </sect1>
+    <sect1>
+      <title>Display of Search Results</title>
+      <para>Suppose the search we are going to make is: Creator (&lt;column (optional)>) equals (==)
+        Annick (&lt;value (optional)>). After clicking on search, the results will be displayed in a
+        table such as the one below. In case the content of one or more cell exactly matches the
+        value you have searched for, the cell(s) will be highlighted.</para>
+      <para>
+        <figure>
+          <title>Display of Search Results</title>
+          <screenshot>
+            <screeninfo/>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/display_search_results_CMDI.png" contentdepth="100%"
+                  scalefit="1" width="70%"/>
+              </imageobject>
+            </mediaobject>
+          </screenshot>
+        </figure>
+      </para>
+    </sect1>
   </chapter>
   <chapter>
     <title>Exporting and Importing data</title>
     <sect1 id="Exporting_data_from_Arbil">
       <title>Exporting data from Arbil</title>
-      <para>After creating new branches or editing collections from an already existing archive, you
-        can save your files and upload them to the appropriate storage folder. In order to do this
-        you need to export your files from Arbil. To do this select the modified nodes or a branch
-        that contains the modified parts, right click them and select <emphasis role="italic"
-          >Export</emphasis>. A dialogue box will pop up, in which you choose the location of the
-        export and the name of the file. To complete the export, click on <emphasis role="italic"
-          >Export Branch Destination Directory</emphasis>.</para>
+      <para>After creating new corpus branches or editing corpora from an already existing archive,
+        you can save your files and upload them to the appropriate archive. In order to do so you
+        need to export your files from Arbil. Select the modified nodes or the branch that contains
+        the modified parts, right click on them and select <emphasis role="bold">Export</emphasis>.
+        A dialogue box will pop up, in which you choose the location of the export and the name of
+        the file. To complete the export, click on <emphasis role="bold">Export Branch Destination
+          Directory</emphasis>.</para>
       <figure>
         <title>Exporting files</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="50%" fileref="images/cmdi_Exporting_files.png" scalefit="1"
-              width="50%"/>
+            <imagedata contentdepth="100%" fileref="images/cmdi_Exporting_files.png" scalefit="1"
+              width="80%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -1177,42 +1498,42 @@
         <mediaobject>
           <imageobject>
             <imagedata contentdepth="100%" fileref="images/exporting_branch_details.png"
-              scalefit="1" width="40%"/>
+              scalefit="1" width="50%"/>
           </imageobject>
         </mediaobject>
       </figure>
-      <para>Selecting <emphasis role="italic">OK</emphasis> will lead you to a new message window
-        where, before clicking on <emphasis role="italic">Start</emphasis>, you can chose the option
-          <emphasis role="italic">More Options</emphasis>:</para>
+      <para>Selecting <emphasis role="bold">OK</emphasis> will lead you to a message window which is
+        the same as the one seen above regarding the import into the Local Corpus (see figure below
+        together with <link linkend="sec_import_local_corpus">section 3.2.1</link> for the options
+        description).</para>
       <figure>
         <title>Export window with details</title>
         <mediaobject>
           <imageobject>
-            <imagedata contentdepth="70%" fileref="images/cmdi-Export_branch.png" scalefit="1"
-              width="40%"/>
+            <imagedata fileref="images/import_branch_CMDI.png" contentdepth="100%" scalefit="1"
+              width="60%"/>
           </imageobject>
         </mediaobject>
       </figure>
-      <para>The options <emphasis role="italic">Rename Metadata Files</emphasis> and <emphasis
-          role="italic">Limit Characters in File Names </emphasis>is already checked. The option
-          <emphasis role="italic">Export Resource Files</emphasis> are explained in the <link
-          linkend="Sec_Import_to_Local_Corpus"><emphasis role="italic">Import to Local
-            Corpus</emphasis> section</link> (3.2.1).</para>
     </sect1>
     <sect1>
       <title>Importing data into Arbil</title>
-      <para>In Arbil there is a number of possibilities to import the data. The first way to import
-        data is from the Remote corpus to the Local corpus by right clicking on the remote corpus
-        and selecting <emphasis role="italic">Import to Local Corpus</emphasis>, or by drag and
-        drop. </para>
-      <para>In the case you want to import data from you local computer disk, or the network, you
-        can do this from the menu bar by going to <emphasis role="italic">Files</emphasis>,
-          <emphasis role="italic">Import</emphasis> and then selecting the data from your local
-        disk, or the network; your data is imported at the root level. </para>
-      <para><emphasis role="italic">Import Branch</emphasis> (i.e.. importing a piece of your
-        corpus) gives you the ability to import part of your corpus from your disk to the Local
-        Corpus. <emphasis role="italic">Reimport</emphasis> (i.e.. re-importing form the Remote
-        Corpus).</para>
+      <para>In Arbil there is a number of possibilities to import the data. </para>
+      <para>The first way to import data is from the Remote corpus to the Local corpus, either by
+        right clicking on the required branch in the remote corpus and selecting <emphasis
+          role="bold">Import to Local Corpus</emphasis>, or by dragging and dropping it. </para>
+      <para>If you want to import data from you local computer disk, or from the network, go to
+          <emphasis role="bold">File</emphasis> menu, select <emphasis role="bold"
+        >Import</emphasis>, and then choose the required data from your local disk, or from the
+        network; your data wil be imported at the root level. </para>
+      <para>In addition, at Local Corpus level, the context menu that comes out when right clicking
+        one of the nodes includes further import options:</para>
+      <para><emphasis role="bold">Import Branch</emphasis> (i.e. importing a piece of your corpus)
+        gives you the ability to import part of your corpus from your disk to the Local corpus. </para>
+      <para><emphasis role="bold">Reimport this branch</emphasis> (i.e. re-importing form the remote
+        corpus): in order to make changes to a corpus you have already exported to the Remote corpus
+        via Lamus, it is essential to reimport such corpus to the Local corpus and choose Yes to the
+        message question "Overwrite?".</para>
     </sect1>
     <sect1>
       <title id="Sec_using_an_external_editor">Using an External Editor</title>
@@ -1252,8 +1573,8 @@
         <title>Viewing data in external application</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/cmdi_viewing_in_external_application.png" contentdepth="40%"
-            />
+            <imagedata fileref="images/cmdi_viewing_in_external_application.png" contentdepth="100%"
+              scalefit="1" width="60%"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -1403,7 +1724,7 @@
       </tgroup>
     </table>
   </chapter>
-  <chapter role="application-help-only">
+  <chapter>
     <title>Technical details</title>
     <section>
       <title>Custom File types Configuration</title>
@@ -1461,14 +1782,18 @@
         directory.</para>
       <para>After installing the plugin you should restart Arbil for it to become available in the
         Plugins menu of the menu bar.</para>
-      <para/>
     </section>
     <section>
       <title>Custom logging configuration</title>
       <para>If present, a logging configuration will be read and applied from a file called 
         'logging.properties' in the application configuration directory ('.arbil'). An
       example of such a configuration is given below.</para>
-      <para><screen>
+      <para>The logging output (visible in the log console of the Help menu) can be observed from
+        different levels of detail. Such levels are: <emphasis role="bold">ALL</emphasis>, <emphasis
+          role="bold">FINE</emphasis>, <emphasis role="bold">INFO</emphasis>, <emphasis role="bold"
+          >WARNING</emphasis>, <emphasis role="bold">SEVERE</emphasis>. Note that the log console is
+        visible only when the application is installed, i.e. NOT with the webstart version.  </para>
+      <para><screen format="linespecific" width="100%">
         handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler
         
         # Default global logging level.
@@ -1485,7 +1810,7 @@
         java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
         
         # Limit the message that are printed on the console to INFO and above.
-        java.util.logging.ConsoleHandler.level = INFO
+        java.util.logging.ConsoleHandler.level = FINE
         java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
         
         
@@ -1505,16 +1830,17 @@
   </chapter>
   <appendix>
     <title>CMDI ecosystem</title>
-    <para> CMDI - “Component Metadata infrastructure” – is a metadata framework in which metadata
-      blueprints can be described and reused. Metadata is data about data, giving various kinds of
-      information about the data contained, e.g. about protagonists, places, the date of gathering
-      data etc. To manage this metadata in a diligent way certain ready-made options for description
-      can facilitate production of well-ordered information about data. In addition to creating
-      metadata (components) always from scratch, CMDI allows to use existing description options
-      –blueprints in the form of ‘profiles and components’ (see <xref linkend="figure_1"/> below).
-      These existing blueprints can be edited in the component registry according to individual
-      needs, if necessary. Further, editing the content of metadata descriptions can be done as a
-      next step in Arbil.  </para>
+    <para>CMDI - “Component Metadata infrastructure” – is a metadata framework in which metadata
+      blueprints can be described and reused. </para>
+    <para>Metadata is data about data, giving various kinds of information about the data contained,
+      e.g. about protagonists, places, the date of gathering data etc. To manage this metadata in a
+      diligent way certain ready-made options for description can be used which facilitate the
+      production of well-ordered information. </para>
+    <para>In addition, to create metadata (components) from scratch, CMDI allows you to use existing
+      description options –blueprints in the form of ‘profiles and components’ (see <xref
+        linkend="figure_1"/> below). These existing blueprints can be edited in the component
+      registry according to individual needs, if necessary. </para>
+    <para>Furthermore, Arbil also allows editing the content of metadata descriptions. </para>
     <para>
       <figure>
         <title id="figure_1"> Building profiles from components according to the projects’
@@ -1529,51 +1855,54 @@
     </para>
     <para>CLARIN has established this infrastructure of ready-made building blocks (components) to
       overcome “dispersion of metadata in diverse formats” (see <ulink
-        url="http://www.clarin.eu/node/3219">CLARIN website</ulink> about CMDI): Through the use of
-      standardized building blocks metadata will not be subject to arbitrary and very diverse,
-      individually preferred ways of describing data about data (=metadata). All necessary
-      information can be extracted easily from the standardized metadata-descriptions without having
-      to study the data themselves and first understanding the individual way authors of metadata
-      have set up their descriptions. Through standardization working with metadata is thus made
-      easy for authors and users. All in all, the potential of sharing and storing self-designed
-      components and profiles for reuse by others facilitates flexible, but structured metadata
-      building and search among various language resources.</para>
+        url="http://www.clarin.eu/node/3219">CLARIN website</ulink> for more information about
+      CMDI): through the use of standardized building blocks metadata will not be subject to
+      arbitrary and very diverse, individually preferred ways of describing data about data
+      (=metadata). All the necessary information can be extracted easily from the standardized
+      metadata-descriptions without having to study the data themselves and first understanding the
+      individual way authors of metadata have set up their descriptions. Through standardization,
+      working with metadata is thus made easy for authors and users. All in all, the potential of
+      sharing and storing self-designed components and profiles for reuse by others facilitates
+      flexible, but structured metadata building and search among various language resources.</para>
     <para>Another advantage of CMDI is the possibility of linking elements in components and
       profiles to the <ulink url="https://catalog.clarin.eu/isocat/interface/index.html">ISOcat
         concept registry</ulink>. This registry is a central framework for gathering concepts in
-      various domains and has special profile for metadata related categories. Through creating
-      links to this registry users searching for certain kinds of data in ISOcat will be enabled to
-      find all data of different authors, thanks to standardized metadata descriptions and the
-      central registry. ISOcat is thus highly recommended to be browsed through and to create links
-      to when working with CMDI, which can be done from inside the Component Registry. </para>
-    <para>The last significant related instrument of CLARIN to be mentioned here is the <ulink
+      various domains and has special profiles for metadata related categories. By creating links to
+      this registry users searching for certain kinds of data in ISOcat will be enabled to find all
+      data belonging to different authors, thanks to standardized metadata descriptions and to the
+      central registry. It is thus highly recommended to browse through ISOcat and to create links
+      to it when working with CMDI, which can be done from inside the Component Registry. </para>
+    <para>The last significant CLARIN-related instrument to be mentioned here is the <ulink
         url="http://catalog.clarin.eu/vlo/">VLO</ulink> (Virtual Language Observatory). This website
-      gives an overview over metadata from a number of registries covering a large number of
-      institutions making use of CDMI. Additionally all metadata which has been created with the
-      help of CMDI is available in the diverse records provided by the institutions. This service
-      facilitates the search for and exchange of data with the help of metadata among researchers’
-      communities in the field.</para>
+      gives an overview of metadata from a certain amount of registries covering a large number of
+      institutions which make use of CDMI. Additionally, all metadata which has been created with
+      the help of CMDI is available in the several records provided by the institutions. This
+      service facilitates the search for, and the exchange of, data with the help of metadata by
+      researchers’ communities in the field.</para>
     <sect1>
       <title>
         <emphasis role="bold">Creating profiles and components in the Component Registry</emphasis>
       </title>
       <para>For building, searching and using profiles and components a tool has been developed,
         which is the Component Registry. The <ulink
-          url="http://catalog.clarin.eu/ds/ComponentRegistry/">component registry</ulink> can be
-        found including a <ulink url="http://www.clarin.eu/node/3223">manual</ulink> on the CLARIN
-        website. Yet, in this short introduction of CMDI the most basic features for using the
-        infrastructure will be outlined.</para>
+          url="http://catalog.clarin.eu/ds/ComponentRegistry/">component registry</ulink> (and its
+          <ulink url="http://www.clarin.eu/node/3223">manual</ulink>) can be found  on the CLARIN
+        website. </para>
+      <para>This short introduction of CMDI will outline the most basic features for using the
+        infrastructure.</para>
       <sect2>
         <title>Login</title>
-        <para>To login to the ‘Component Registry’ one has to choose one’s organization from the
-          list or opt for "Clarin Guest Accounts". To log out simply end the browser session. </para>
+        <para>To login to the Component Registry you have to choose one’s organization from the list
+          or opt for "Clarin Guest Accounts". To log out simply end the browser session. </para>
       </sect2>
       <sect2>
         <title> Features of the Component Registry</title>
-        <para> The first way of using CMDI is browsing through registered components and profiles.
-          The second is editing and creating components or profiles. Registering and storing
-          components or CMDI profiles are more functions in the component registry. To illustrate
-          the workflow in the component registry consult the following <xref linkend="figure_2"/>: </para>
+        <para>The first way of using CMDI is browsing through registered components and profiles.
+          The second way consists of editing and creating components or profiles.</para>
+        <para>Registering and storing components or CMDI profiles are further functions of the
+          component registry. </para>
+        <para>To illustrate the workflow in the component registry please consult the following
+            <xref linkend="figure_2"/>: </para>
         <para>
           <figure>
             <title id="figure_2">Workflow from CMDI to Arbil</title>
@@ -1590,17 +1919,25 @@
           <para>The start screen of the <ulink url="http://catalog.clarin.eu/ds/ComponentRegistry/#"
               >Component Registry</ulink> is called the component browser, which is the entry point
             for using other functions (editing and importing) (see <xref linkend="figure_3"/>).
-            First though the user can either browse for ‘profiles’ or ‘components’. Search-terms can
+            First, though, the user can browse for either profiles or components. Search-terms can
             be typed in a field at the top on the right to filter out non-matching items.
             Additionally the user can switch between public and (unpublished, private) user
             workspaces. For more information on individual profiles or components, one can select
-            the entity in question and details will appear in the panel below. This can be
+            the entity in question and details will appear in the panel below. Such panel can be
             optionally displayed in an interactive default view (to explore structure more in depth)
-            or an xml-view of the actual component assessed. </para>
+            or in an xml-view of the actual component assessed. </para>
           <para>Right-clicking on items in the list leads to options such as downloading profiles or
-            components as xml representations or the respective xsd. The latter can be loaded into
-            Arbil for usage before publication, see section ' <xref linkend="link_to_appendix"/>'
-            and suits further use by other tools within CLARIN.</para>
+            components as xml representations or downloading the respective xsd. The latter can be
+            loaded into Arbil for usage before publication (see section ' <xref
+              linkend="link_to_appendix"/>'), and suits further use by other tools within
+            CLARIN.</para>
+          <para>On the top-left of the Component Registry you will find three options: the first
+            option (<emphasis role="bold">Create new</emphasis>) allows creating a new profile or
+            component in a private workspace. If you choose the second (<emphasis role="bold">Edit
+              as new</emphasis>), a selected item can be opened in the editor after authentication
+            of the user, depending on whether it is a copy of a public space or an item in the
+            users’ workspace. The last option (<emphasis role="bold">Import</emphasis>) leads to an
+            import form, which will not be discussed in this chapter. </para>
           <para>
             <figure>
               <title id="figure_3"> Component Registry window and functions offered: The first red
@@ -1618,14 +1955,10 @@
         </sect3>
         <sect3>
           <title>Component Editor</title>
-          <para>With the help of the component editor the user can create a new profile or component
-            – where applicable using existing building blocks (see <xref linkend="figure_4"/>). Via
-            the three buttons on the left at the top in the Component Registry the component editor
-            is to be opened: The first option allows creating a new profile or component in a
-            private workspace (“Create new”). Using the second (“edit (as new)”) a selected item can
-            be opened in the editor after authentication of the user, depending on whether it is a
-            copy of a public space or an item in the users’ workspace. The last option (“Import”)
-            leads to an import form, which will not be discussed in this chapter. </para>
+          <para>With the help of the component editor the user can modify a profile and/or its
+            components (see <xref linkend="figure_4"/>). You can access it - after having selected
+            the profile to modify - via the option <emphasis role="bold">Edit as new</emphasis>
+            mentioned above. A page like the one shown in the figure below will be shown.</para>
           <para>
             <figure>
               <title id="figure_4"> Component editor. The first red demarcation indicates where you
@@ -1633,17 +1966,18 @@
                 where information is found about whether a component or a profile is edited (2). The
                 third one shows the option to add attributes (3). In the fourth demarcation the
                 field for editing elements is stressed (4). The last highlights the option to choose
-                from public or private space to drag existing components into the editor (5).</title>
+                from public or private space to drag existing components into the editor
+                (5).</title>
               <mediaobject>
                 <imageobject>
-                  <imagedata fileref="images/Appendix_ComponentEditor_ecosystem_Arbil_image3.png"
-                    contentdepth="100%" scalefit="1" width="100%"/>
+                  <imagedata fileref="images/component_editor.png" contentdepth="100%" scalefit="1"
+                    width="100%"/>
                 </imageobject>
               </mediaobject>
             </figure>
           </para>
-          <para>To reuse existing components (edit (as new) –function) select an existing component
-            from the list below, drag it over the editing pane. Here options will be highlighted
+          <para>To reuse existing components (Edit (as new) –function) select an existing component
+            from the list below, drag it over the editing panel. Here options will be highlighted
             where dropping the component is possible. If the component already exists, at this point
             a reference will be automatically generated to it. Be aware that components which you
             you have not published yet cannot be used by anyone else. Instead referenced components
@@ -1663,9 +1997,9 @@
             discard changes, press “cancel”. </para>
           <para>For more detailed information about more elaborate editing processes (type, import,
             concept links, action links, comments and priority display) have a look at the <ulink
-              url="http://tla.mpi.nl/cmdi-metadata/">CMDI manual</ulink>, the <ulink
-              url="http://www.clarin.eu/node/3219">CLARIN website</ulink> or the extensive <ulink
-              url="http://tla.mpi.nl/cmdi-metadata/">CMDI manual</ulink> of the TLA.</para>
+              url="http://tla.mpi.nl/cmdi-metadata/">CMDI metadata</ulink> page on the TLA website,
+            the <ulink url="http://www.clarin.eu/node/3219">CLARIN website</ulink> or the extensive
+              <ulink url="http://tla.mpi.nl/cmdi-metadata/">CMDI manual</ulink> of the TLA.</para>
         </sect3>
       </sect2>
     </sect1>

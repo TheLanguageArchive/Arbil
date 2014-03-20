@@ -18,7 +18,7 @@
 package nl.mpi.arbil.data;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import nl.mpi.arbil.ArbilTest;
@@ -26,9 +26,12 @@ import nl.mpi.arbil.MockSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -36,8 +39,8 @@ import static org.junit.Assert.assertNotNull;
  */
 public class ArbilComponentBuilderTest extends ArbilTest {
 
-    ArbilComponentBuilder componentBuilder;
-    boolean firstrun = true;
+    private final static Logger logger = LoggerFactory.getLogger(ArbilComponentBuilderTest.class);
+    private ArbilComponentBuilder componentBuilder;
 
     @Before
     public synchronized void setUp() throws Exception {
@@ -47,6 +50,7 @@ public class ArbilComponentBuilderTest extends ArbilTest {
 
     @Test
     public void testInsertResourceProxies() throws Exception {
+	logger.info("testInsertResourceProxies");
 	ArbilDataNode node = getMdInstanceNode();
 	ArbilDataNode childNode = getMdChildNode(node);
 
@@ -57,6 +61,7 @@ public class ArbilComponentBuilderTest extends ArbilTest {
 
     @Test
     public void testRemoveResourceProxies() throws Exception {
+	logger.info("testRemoveResourceProxies");
 	ArbilDataNode node = getMdInstanceNode();
 	ArbilDataNode childNode = getMdChildNode(node);
 
@@ -82,7 +87,9 @@ public class ArbilComponentBuilderTest extends ArbilTest {
     }
 
     private ArbilDataNode getMdInstanceNode() throws Exception {
-	addToLocalTreeFromURI(copyOfResource(uriFromResource("/nl/mpi/arbil/data/example-md-instance.cmdi")));
+	final URI mdFileCopy = copyOfResource(uriFromResource("/nl/mpi/arbil/data/example-md-instance.cmdi"));
+	logger.debug("add to tree {}", mdFileCopy);
+	addToLocalTreeFromURI(mdFileCopy);
 	final ArbilDataNode[] localCorpusNodes = getTreeHelper().getLocalCorpusNodes();
 	assertTrue(localCorpusNodes.length > 0);
 	final ArbilDataNode node = (ArbilDataNode) localCorpusNodes[0];
@@ -94,8 +101,12 @@ public class ArbilComponentBuilderTest extends ArbilTest {
     }
 
     private void addResourceProxyToNode(ArbilDataNode node, ArbilDataNode resourceNode) {
-	assertNotNull(componentBuilder.insertResourceProxy(node, resourceNode));
+	logger.debug("inserting resource proxy for {} to node {}", resourceNode, node);
+	final URI inserted = componentBuilder.insertResourceProxy(node, resourceNode);
+	assertNotNull(inserted);
+	logger.debug("reload node: {}", node);
 	node.reloadNode();
+	logger.debug("waiting for node to load: {}", node);
 	waitForNodeToLoad(node);
     }
 
@@ -126,7 +137,6 @@ public class ArbilComponentBuilderTest extends ArbilTest {
     @Override
     protected SessionStorage newSessionStorage() {
 	return new MockSessionStorage() {
-
 	    @Override
 	    public boolean pathIsInsideCache(File fullTestFile) {
 		return true;

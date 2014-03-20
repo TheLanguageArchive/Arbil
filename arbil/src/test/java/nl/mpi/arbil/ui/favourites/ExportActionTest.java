@@ -52,7 +52,7 @@ public class ExportActionTest {
 	dialogHandler = context.mock(PluginDialogHandler.class);
 	exporter = context.mock(FavouritesExporter.class);
 	ui = context.mock(ExportUI.class);
-	exportLocation = File.createTempFile(getClass().getSimpleName(), null);
+	exportLocation = File.createTempFile(getClass().getSimpleName(), null); //TODO: Use JUnit TemporaryFolder
 	exportLocation.deleteOnExit();
     }
 

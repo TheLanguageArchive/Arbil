@@ -24,6 +24,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -129,7 +130,7 @@ public class FavouritesImportExportGUI implements ArbilDataNodeContainer {
     private JPanel createImportPanel() {
 	final JPanel importPanel = new JPanel(new BorderLayout());
 
-	final JTextArea importInstructions = new JTextArea(String.format(
+	final JTextArea importInstructions = new JTextArea(MessageFormat.format(
 		widgets.getString("FAVOURITES_PRESS THE IMPORT BUTTON")
 		+ widgets.getString("FAVOURITES_THE DIRECTORY SHOULD CONTAIN A FILE CALLED"),
 		FavouritesExporter.FAVOURITES_LIST_FILE));
