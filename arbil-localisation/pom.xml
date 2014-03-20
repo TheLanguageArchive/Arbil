@@ -10,7 +10,7 @@
     <groupId>nl.mpi</groupId>
     <artifactId>arbil-localisation</artifactId>
 <!--    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
-    <version>${arbil.majorVersion}.${arbil.minorVersion}.39295-${arbil.branch}</version>
+    <version>${arbil.majorVersion}.${arbil.minorVersion}.40297-${arbil.branch}</version>
     
     <name>Arbil Localisation ${arbil.majorVersion}.${arbil.minorVersion}</name>
     <url>http://maven.apache.org</url>
