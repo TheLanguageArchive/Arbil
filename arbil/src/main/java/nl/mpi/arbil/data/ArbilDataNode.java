@@ -841,7 +841,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     }
 
     public boolean canHaveResource() {
-        if (hasResource()) {
+        if (resourceUrlField != null) {
             return true;
         } else if (isCmdiMetaDataNode()) {
             final ArbilTemplate template = getNodeTemplate();

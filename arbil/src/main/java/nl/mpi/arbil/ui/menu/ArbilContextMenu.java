@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.ui.menu;
 
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen
  */
 public abstract class ArbilContextMenu extends JPopupMenu {
+
     private final static Logger logger = LoggerFactory.getLogger(ArbilContextMenu.class);
     private static final ResourceBundle menus = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus");
 
@@ -244,7 +246,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             //if (leadSelectedDataNode.is)
             saveMenuItem.setVisible(leadSelectedDataNode.getNeedsSaveToDisk(false));// save sould always be available if the node has been edited
 
-            if (leadSelectedDataNode.hasResource()) {
+            if (leadSelectedDataNode.canHaveResource()) {
                 browseForResourceFileMenuItem.setVisible(true);
             }
             if (!leadSelectedDataNode.isChildNode() && leadSelectedDataNode.isMetaDataNode()) {
@@ -315,21 +317,21 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     }
 
     /**
-     * Defines some (or all) item categories in a specific order, so that
-     * the order in which actual items are added will not affect the order
-     * of these categories
+     * Defines some (or all) item categories in a specific order, so that the
+     * order in which actual items are added will not affect the order of these
+     * categories
      */
     protected void prepareItemCategories() {
         addItemCategory(CATEGORY_NODE);
         addItemCategory(CATEGORY_RESOURCE);
         addItemCategory(CATEGORY_EDIT);
 
-	addItemCategory(CATEGORY_REMOTE_CORPUS);
-	addItemCategory(CATEGORY_WORKING_DIR);
-	addItemCategory(CATEGORY_TABLE_CELL_VIEW);
-	addItemCategory(CATEGORY_TABLE_CELL_EDIT);
-	addItemCategory(CATEGORY_TABLE_ROW);
-	addItemCategory(CATEGORY_ADD_FAVOURITES);
+        addItemCategory(CATEGORY_REMOTE_CORPUS);
+        addItemCategory(CATEGORY_WORKING_DIR);
+        addItemCategory(CATEGORY_TABLE_CELL_VIEW);
+        addItemCategory(CATEGORY_TABLE_CELL_EDIT);
+        addItemCategory(CATEGORY_TABLE_ROW);
+        addItemCategory(CATEGORY_ADD_FAVOURITES);
 
         addItemCategory(CATEGORY_DISK);
         addItemCategory(CATEGORY_IMPORT);
@@ -383,13 +385,17 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             itemPriority = Integer.valueOf(priority);
         }
 
-        /** hashCode has to match equals has to match compareTo */
+        /**
+         * hashCode has to match equals has to match compareTo
+         */
         @Override
         public int hashCode() {
             return itemPriority.hashCode();
         }
 
-        /** OrderedMenuItem only used in List yet, but e.g. hashes need equals */
+        /**
+         * OrderedMenuItem only used in List yet, but e.g. hashes need equals
+         */
         @Override
         public boolean equals(final Object o) {
             if (o instanceof OrderedMenuItem) {
