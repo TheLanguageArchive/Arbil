@@ -201,8 +201,8 @@ public class ImportExportDialog implements ImportExportUI {
 
 	updateDialog(showingMoreOptions, showingDetails); // updateDialog no longer calls pack()
 
-	JPanel closeButtonPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-	closeButton = new JButton(widgets.getString("CLOSE"));
+	JPanel closeButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+	closeButton = new JButton(widgets.getString("CANCEL"));
 	closeButton.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		importExportDialog.dispose();
@@ -892,7 +892,7 @@ public class ImportExportDialog implements ImportExportUI {
     }
 
     public boolean askCreateNewExportDir(File destinationFile) {
-	final Object[] dialogOptions = new Object[]{widgets.getString("REPLACE"), widgets.getString("NEW LOCATION"), widgets.getString("CANCEL")};
+	final Object[] dialogOptions = new Object[]{widgets.getString("OVERWRITE"), widgets.getString("MAKECOPY"), widgets.getString("CANCEL")};
 	final int newLocationOption = 1;
 	final int cancelOption = 2;
 
