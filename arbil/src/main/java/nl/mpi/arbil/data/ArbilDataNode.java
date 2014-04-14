@@ -266,7 +266,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
                 }
             }
         }
-	//        if (currentTemplate == null) {
+        //        if (currentTemplate == null) {
         //            // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
         //            if (isPathCmdi(nodeUri.getNodePath())) {
         //                // this must be loaded with the name space uri
@@ -284,7 +284,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         matchesLocalFileSystem = 0;
         fileNotFound = false;
         nodeNeedsSaveToDisk = false;
-	//    nodeText = null;
+        //    nodeText = null;
         //    urlString = null;
         //        resourceUrlField = null;        
         icon = null;
@@ -297,7 +297,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
                 File fileObject = getFile();
                 if (fileObject != null) {
                     this.nodeText = fileObject.getName();
-		    // TODO: check this on a windows box with a network drive and linux with symlinks
+                    // TODO: check this on a windows box with a network drive and linux with symlinks
                     //                    this.isDirectory = !fileObject.isFile();
                     //                    logger.debug("isFile" + fileObject.isFile());
                     //                    logger.debug("isDirectory" + fileObject.isDirectory());
@@ -473,12 +473,18 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     public boolean containsFieldValue(String fieldName, String searchValue) {
         boolean findResult = false;
-        ArbilField[] currentFieldArray = this.fieldHashtable.get(fieldName);
-        if (currentFieldArray != null) {
-            for (ArbilField currentField : currentFieldArray) {
-                logger.trace("containsFieldValue: {}:{}", currentField.getFieldValue(), searchValue);
-                if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
-                    return true;
+        final String fieldNameLowerCase = fieldName.toLowerCase();
+        // when we look for a feild name the check should be case insensitive
+        for (String keyString : this.fieldHashtable.keySet()) {
+            if (fieldNameLowerCase.equals(keyString.toLowerCase())) {
+                ArbilField[] currentFieldArray = this.fieldHashtable.get(keyString);
+                if (currentFieldArray != null) {
+                    for (ArbilField currentField : currentFieldArray) {
+                        logger.trace("containsFieldValue: {}:{}", currentField.getFieldValue(), searchValue);
+                        if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -502,7 +508,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     // this is used to disable the node in the tree gui
     public boolean getNodeEnabled() {
-	//       ---      TODO: here we could look through all the fields in this node against the current filed view, if node are showing then return false
+        //       ---      TODO: here we could look through all the fields in this node against the current filed view, if node are showing then return false
         //       ---      when the global field view is changed then set all nodeEnabled blaaaa
         return nodeEnabled;
     }
@@ -523,7 +529,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     public boolean hasCatalogue() {
         for (ArbilDataNode childNode : childArray) {
-	    //            String currentChildPath = currentLinkPair[0];
+            //            String currentChildPath = currentLinkPair[0];
             //            ImdiTreeObject childNode = ImdiLoader.getSingleInstance().getImdiObject(null, currentChildPath);
             //childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must wait here
             if (childNode.isCatalogue()) {
@@ -562,7 +568,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      * @return A hashtable of the fields
      */
     public Map<String, ArbilField[]> getFields() {
-	// store the Hastable for next call
+        // store the Hastable for next call
         // if hashtable is null then load from imdi
         return fieldHashtable;
     }
@@ -685,7 +691,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     public String refreshStringValue() {
         if (isLoading()) {
-	    //            if (lastNodeText.length() > 0) {
+            //            if (lastNodeText.length() > 0) {
             //                return lastNodeText;
             //            } else {asdasdasd
             ////                if (nodeText != null && nodeText.length() > 0) {
@@ -694,7 +700,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         } else if (lastNodeText.equals(NODE_LOADING_TEXT) && isDataPartiallyLoaded()) {
             lastNodeText = EMPTY_NODE_STRING_VALUE;
         }
-	//        if (commonFieldPathString != null && commonFieldPathString.length() > 0) {
+        //        if (commonFieldPathString != null && commonFieldPathString.length() > 0) {
         //            // todo: use the commonFieldPathString as the node name if not display preference is set or the ones that are set have no value
         //            nodeText = commonFieldPathString;
         //        }
@@ -706,7 +712,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         for (String currentPreferredName : this.getNodeTemplate().getPreferredNameFields()) {
             for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
 
-		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
+                // TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
                 // nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
                 // if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
                 if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
@@ -743,7 +749,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
                 nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
                 unamedText = nodeFragmentName;
             } else if (this.nodeTemplate != null) {
-		//            if (this.getNodeTemplate().preferredNameFields.length == 0) {
+                //            if (this.getNodeTemplate().preferredNameFields.length == 0) {
                 //                nodeText = "no field specified to name this node (" + this.nodeTemplate.getTemplateName() + ")";
                 //            } else {
                 unamedText = this.nodeTemplate.getTemplateName();
@@ -756,7 +762,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
                 nodeText = unamedText;
             }
         }
-	//        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && fieldHashtable.size() > 0) {
+        //        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && fieldHashtable.size() > 0) {
         //            // only if no name has been found and only for cmdi nodes and only when this is the dom parent node
         //            nodeText = fieldHashtable.elements().nextElement()[0].getFullXmlPath().split("\\.")[3];
         //        }
@@ -958,7 +964,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         try {
             URI targetUri;
             if (uriParts.length > 1) {
-		// todo: this will not allow urls that have square brackets in them due to yet another bug in the java URI class
+                // todo: this will not allow urls that have square brackets in them due to yet another bug in the java URI class
                 //                String bracketEncodedPath = uriParts[1].replaceAll("\\[", "%5B");
                 //                bracketEncodedPath = bracketEncodedPath.replaceAll("\\]", "%5D");
                 String bracketEncodedPath = uriParts[1];
@@ -971,7 +977,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
             }
             //            logger.debug("nodeUri: " + nodeUri);
             URI resourceUri = nodeUri.resolve(targetUri);
-	    //            logger.debug("targetUriString: " + targetUriString);
+            //            logger.debug("targetUriString: " + targetUriString);
             //            logger.debug("targetUri: " + targetUri);
             //            logger.debug("resourceUri: " + resourceUri);
             if (!targetUri.equals(resourceUri)) {
@@ -1014,7 +1020,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         //        logger.debug("nodeUri: " + nodeUri);
         if (domParentNode == null) {
             if (nodeUri.getFragment() != null) {
-		//domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getNodePath(), nodeUri.getQuery(), null /* fragment removed */));
+                //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getNodePath(), nodeUri.getQuery(), null /* fragment removed */));
                 // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
                 domParentNode = dataNodeService.loadArbilDataNode(null, URI.create(nodeUri.toString().split("#")[0] /* fragment removed */));
                 //                    logger.debug("nodeUri: " + nodeUri);
@@ -1175,7 +1181,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     public void clearChildIcons() {
         //        logger.debug("clearChildIconsParent: " + this);
         for (ArbilDataNode currentChild : childArray) {
-	    //            if (!currentChild.equals(currentChild.getParentDomNode())) {
+            //            if (!currentChild.equals(currentChild.getParentDomNode())) {
             //                logger.debug("clearChildIcons: " + currentChild);
             currentChild.clearChildIcons();
             currentChild.clearIcon();
@@ -1205,7 +1211,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
             logger.trace("Updating node {} in container {}", this, currentContainer);
             currentContainer.dataNodeIconCleared(this);
         }
-	//            }
+        //            }
         //        });
         //        logger.debug("end clearIcon: " + this);
     }
