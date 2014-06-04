@@ -109,6 +109,31 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>nl.mpi</groupId>
+                <artifactId>version-control-check</artifactId>
+                <version>1.0.21-testing</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>true</verbose>
+                    <vcsType>svn</vcsType>
+                    <allowSnapshots>false</allowSnapshots>
+                    <projectDirectory>${project.basedir}</projectDirectory>
+                    <majorVersion>2</majorVersion>
+                    <minorVersion>5</minorVersion>
+                    <buildType>testing</buildType>
+                    <propertiesPrefix>application</propertiesPrefix>
+                    <shortVersionModules>
+                        <param>arbil-parent</param>
+                    </shortVersionModules>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

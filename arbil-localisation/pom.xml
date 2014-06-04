@@ -10,7 +10,7 @@
     <groupId>nl.mpi</groupId>
     <artifactId>arbil-localisation</artifactId>
 <!--    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
-    <version>${arbil.majorVersion}.${arbil.minorVersion}.40542-${arbil.branch}</version>
+    <version>2.5.141-testing</version>
     
     <name>Arbil Localisation ${arbil.majorVersion}.${arbil.minorVersion}</name>
     <url>http://maven.apache.org</url>
@@ -32,27 +32,6 @@
             </resource>
         </resources>
         <plugins>
-            <plugin>
-                <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
-                <artifactId>svn-revision-number-maven-plugin</artifactId>
-                <version>1.13</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <entries>
-                        <entry>
-                            <path>${basedir}/src</path>
-                            <!-- this will populate "plugin.version.revision" etc -->
-                            <prefix>plugin.version</prefix>
-                        </entry>
-                    </entries>
-                </configuration>
-            </plugin>	 
             <plugin>
 		<!-- 
 		    License plugin checks for presence of license header in all source files (with some exceptions, see excludes below).

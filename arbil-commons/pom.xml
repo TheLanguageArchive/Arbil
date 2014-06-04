@@ -12,13 +12,10 @@
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
 <!--    <version>${arbil-commons.majorVersion}.${arbil-commons.minorVersion}-${arbil-commons.branch}-SNAPSHOT</version>-->
-    <version>${arbil.majorVersion}.${arbil.minorVersion}.39486-${arbil.branch}</version>
+    <version>2.5.37-testing</version>
     <name>Arbil Commons</name>
     <url>http://maven.apache.org</url>
     <properties>     
-        <arbil-commons.majorVersion>${arbil.majorVersion}</arbil-commons.majorVersion> 
-        <arbil-commons.minorVersion>${arbil.minorVersion}</arbil-commons.minorVersion> 
-        <arbil-commons.branch>${arbil.branch}</arbil-commons.branch>  
         <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.hint.license>gpl20</netbeans.hint.license>
@@ -38,27 +35,6 @@
           </resource>
       </resources>
       <plugins>
-          <plugin>
-              <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
-              <artifactId>svn-revision-number-maven-plugin</artifactId>
-              <version>1.13</version>
-              <executions>
-                  <execution>
-                      <goals>
-                          <goal>revision</goal>
-                      </goals>
-                  </execution>
-              </executions>
-              <configuration>
-                  <entries>
-                      <entry>
-                          <path>${basedir}/src</path>
-                          <!-- this will populate "arbil-commons.version.revision" -->
-                          <prefix>arbil-commons.version</prefix>
-                      </entry>
-                  </entries>
-              </configuration>
-          </plugin>
           <plugin>
                 <groupId>com.keyboardsamurais.maven</groupId>
                 <artifactId>maven-timestamp-plugin</artifactId>
