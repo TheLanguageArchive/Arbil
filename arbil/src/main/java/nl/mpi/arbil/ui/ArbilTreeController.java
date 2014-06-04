@@ -144,7 +144,7 @@ public class ArbilTreeController {
 
     public void addRemoteCorpus() {
         String addableLocation = (String) JOptionPane.showInputDialog(windowManager.getMainFrame(), widgets.getString("ENTER THE URL"), widgets.getString("ADD LOCATION"), JOptionPane.PLAIN_MESSAGE);
-        addRemoteCorpus(addableLocation);
+        addRemoteCorpus(addableLocation.trim());
     }
 
     public void addRemoteCorpus(String addableLocation) {
@@ -186,8 +186,7 @@ public class ArbilTreeController {
 
     public void addFromFavourite(ArbilDataNode leadSelectedTreeNode, String favouriteUrlString, String displayName) {
         try {
-            String favouriteUrlStringDecoded = URLDecoder.decode(favouriteUrlString, "UTF-8");
-            ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNodeService.conformStringToUrl(favouriteUrlStringDecoded));
+            ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNodeService.conformStringToUrl(favouriteUrlString));
             if (leadSelectedTreeNode != null) {
                 new MetadataBuilder().requestAddNode(leadSelectedTreeNode, displayName, templateDataNode);
             } else {
