@@ -374,6 +374,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	final ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
 	//TODO: Synchronize this
 	if (addedLocationObject != null) {
+            addedLocationObject.reloadNode();
 	    saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
 	    loadLocationsList();
 	    return true;
