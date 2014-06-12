@@ -359,6 +359,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
     public void highlightMatchingText(String highlightText) {
+        // todo: #3989 this needs to be case insensitive for the search, but does it affect other ways the lighlight is used??? 
+        // todo: #3989 also the search matches on "contains" whereas this highlight matches on "exact", therefore the search highlight should be using the highlight path not text!
 	getHighlightCells().add(highlightText);
 	cellColour = setCellColours(getData());
 	SwingUtilities.invokeLater(new Runnable() {
