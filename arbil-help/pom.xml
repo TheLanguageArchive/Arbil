@@ -6,7 +6,7 @@
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
 <!--    <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
-    <version>2.5.29-testing</version>
+    <version>2.5.30-testing</version>
     <name>Arbil Help</name>
     
     <parent>
@@ -137,6 +137,7 @@
 			<includes>
 			    <!--We don't want any other file types (e.g. svg) because Swing won't support them--> 
 			    <include>%regex[(?i).*\.jpg$]</include>
+                            <include>%regex[(?i).*\.jpeg$]</include>
 			    <include>%regex[(?i).*\.png$]</include>
 			</includes>
 		    </files>

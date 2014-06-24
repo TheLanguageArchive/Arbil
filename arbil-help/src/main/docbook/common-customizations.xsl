@@ -10,7 +10,7 @@
   </xsl:attribute-set>
 
   <xsl:param name="admon.graphics" select="1"/>
-  <xsl:param name="admon.graphics.path">images/</xsl:param> 
+  <xsl:param name="admon.graphics.path">../images/</xsl:param> 
   
   <!-- -->
   <xsl:param name="formal.title.placement">
