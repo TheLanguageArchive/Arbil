@@ -124,11 +124,11 @@
                 <configuration>
                     <verbose>true</verbose>
                     <vcsType>svn</vcsType>
-                    <allowSnapshots>false</allowSnapshots>
+                    <allowSnapshots>true</allowSnapshots>
                     <projectDirectory>${project.basedir}</projectDirectory>
                     <majorVersion>2</majorVersion>
                     <minorVersion>6</minorVersion>
-                    <buildType>testing</buildType>
+                    <buildType>pretesting</buildType>
                     <propertiesPrefix>application</propertiesPrefix>
                     <shortVersionModules>
                         <param>arbil-parent</param>
