@@ -24,6 +24,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -185,7 +186,8 @@ public class ArbilTreeController {
 
     public void addFromFavourite(ArbilDataNode leadSelectedTreeNode, String favouriteUrlString, String displayName) {
         try {
-            ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNodeService.conformStringToUrl(favouriteUrlString));
+            String favouriteUrlStringDecoded = URLDecoder.decode(favouriteUrlString, "UTF-8");
+            ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNodeService.conformStringToUrl(favouriteUrlStringDecoded));
             if (leadSelectedTreeNode != null) {
                 new MetadataBuilder().requestAddNode(leadSelectedTreeNode, displayName, templateDataNode);
             } else {

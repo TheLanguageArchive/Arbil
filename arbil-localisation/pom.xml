@@ -33,27 +33,6 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
-                <artifactId>svn-revision-number-maven-plugin</artifactId>
-                <version>1.13</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <entries>
-                        <entry>
-                            <path>${basedir}/src</path>
-                            <!-- this will populate "plugin.version.revision" etc -->
-                            <prefix>plugin.version</prefix>
-                        </entry>
-                    </entries>
-                </configuration>
-            </plugin>	 
-            <plugin>
 		<!-- 
 		    License plugin checks for presence of license header in all source files (with some exceptions, see excludes below).
 		    You can use this plugin to actually insert or fix the license headers by running maven with the following goal:

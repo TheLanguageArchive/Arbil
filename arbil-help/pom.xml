@@ -40,27 +40,6 @@
 	    </resource>
 	</resources>
 	<plugins>
-	    <plugin>
-		<groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
-		<artifactId>svn-revision-number-maven-plugin</artifactId>
-		<version>1.13</version>
-		<executions>
-		    <execution>
-			<goals>
-			    <goal>revision</goal>
-			</goals>
-		    </execution>
-		</executions>
-		<configuration>
-		    <entries>
-			<entry>
-			    <path>${basedir}/src</path>
-			    <!-- this will populate "plugin.version.revision" etc -->
-			    <prefix>plugin.version</prefix>
-			</entry>
-		    </entries>
-		</configuration>
-	    </plugin>
 	    <!-- Plugin to create HTML form DocBook sources --> 
 	    <plugin>
 		<groupId>com.agilejava.docbkx</groupId>
@@ -158,6 +137,7 @@
 			<includes>
 			    <!--We don't want any other file types (e.g. svg) because Swing won't support them--> 
 			    <include>%regex[(?i).*\.jpg$]</include>
+                            <include>%regex[(?i).*\.jpeg$]</include>
 			    <include>%regex[(?i).*\.png$]</include>
 			</includes>
 		    </files>
