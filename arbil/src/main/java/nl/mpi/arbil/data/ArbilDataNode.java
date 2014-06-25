@@ -110,6 +110,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     public boolean lockedByLoadingThread = false;
     //    private boolean isFavourite;
     public String archiveHandle = null;
+    public String archiveUri = null;
     public boolean hasDomIdAttribute = false; // used to requre a save (that will remove the dom ids) if a node has any residual dom id attributes
     //public Vector<String[]> addQueue;
     public boolean scrollToRequested = false;
