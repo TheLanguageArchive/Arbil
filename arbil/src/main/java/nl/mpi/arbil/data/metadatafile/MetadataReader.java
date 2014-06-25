@@ -596,6 +596,20 @@ public class MetadataReader {
                 final String childNodePath = new StringBuilder(3).append(nodePath).append(MetadataReader.imdiPathSeparator).append(localName).toString();
                 // todo: these filter strings should really be read from the metadata format
                 if ((childNodePath).equals(".CMD.Header")) {
+                    // parse the MdSelfLink and extract either the archive handle or the URI
+                    for (Node headerNode = childNode.getFirstChild(); headerNode != null; headerNode = headerNode.getNextSibling()) {
+                        if (MD_SELF_LINK.equals(headerNode.getLocalName())) {
+                            final String textContent = headerNode.getTextContent();
+                            if (textContent != null) {
+                                if (textContent.startsWith(HDL)) {
+                                    parentNode.archiveHandle = textContent;
+                                } else if (textContent.startsWith(HTTPHDLHANDLENET)) {
+                                    parentNode.archiveHandle = textContent.replace(HTTPHDLHANDLENET, HDL);
+                                }
+                                parentNode.archiveUri = textContent;
+                            }
+                        }
+                    }
                     continue;
                 }
                 if ((childNodePath).equals(".CMD.Resources")) {
@@ -697,6 +711,9 @@ public class MetadataReader {
         }
         return nodeOrderCounter;
     }
+    private static final String MD_SELF_LINK = "MdSelfLink";
+    private static final String HDL = "hdl:";
+    private static final String HTTPHDLHANDLENET = "http://hdl.handle.net/";
 
     /**
      * Updates counters and enters recursive iteration for child nodes. Also
