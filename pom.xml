@@ -27,7 +27,7 @@
     <properties>
         <arbil.majorVersion>2</arbil.majorVersion>
         <arbil.minorVersion>5</arbil.minorVersion>
-        <arbil.branch>testing</arbil.branch>
+        <arbil.branch>stable</arbil.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.2</slf4j.version>
         <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>plugins-core</artifactId>
-            <version>1.2.39113-testing</version>
+            <version>1.2.110-stable</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -127,7 +127,7 @@
                     <projectDirectory>${project.basedir}</projectDirectory>
                     <majorVersion>2</majorVersion>
                     <minorVersion>5</minorVersion>
-                    <buildType>testing</buildType>
+                    <buildType>stable</buildType>
                     <propertiesPrefix>application</propertiesPrefix>
                     <shortVersionModules>
                         <param>arbil-parent</param>
