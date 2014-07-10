@@ -37,7 +37,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>plugins-core</artifactId>
-            <version>1.2.110-stable</version>
+            <version>1.2.114-stable</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
