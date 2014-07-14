@@ -28,11 +28,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
+@Ignore
 public class CmdiTemplateTest {
 
     private static final Mockery context = new JUnit4Mockery();

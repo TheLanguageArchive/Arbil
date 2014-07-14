@@ -58,7 +58,6 @@ import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.ProgressListener;
 import nl.mpi.arbil.util.TreeHelper;
-import nl.mpi.arbil.util.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,11 +77,6 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 
     public void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
-    }
-    private WindowManager windowManager;
-
-    public void setWindowManager(WindowManager windowManagerInstance) {
-        windowManager = windowManagerInstance;
     }
     private TreeHelper treeHelper;
 
@@ -112,22 +106,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
-        File fromDirectory = getProjectWorkingDirectory();
-        if (!preferedCacheDirectory.getAbsolutePath().contains(getProjectDirectoryName()) && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
-            preferedCacheDirectory = new File(preferedCacheDirectory, getProjectDirectoryName());
-        }
-        // this moving of files is not relevant for projects and it does not work across devices so it has been removed, it should be replaced by the projects functionality
-        if (!moveFiles || JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
-                java.text.MessageFormat.format(services.getString("CHANGING YOUR CURRENT PROJECT FROM {0} TO {1}"), fromDirectory.getParent(), preferedCacheDirectory.getParent())
-                + "\n"
-                + services.getString("ARBIL WILL NEED TO CLOSE ALL TABLES ONCE THE FILES ARE MOVED"), "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-            if (moveFiles) {
-                // move the files
-                changeStorageDirectory(fromDirectory, preferedCacheDirectory);
-            } else {
-                saveString("cacheDirectory", preferedCacheDirectory.getAbsolutePath());
-            }
-        }
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 //    public void changeStorageDirectory(String preferedDirectory) {
@@ -141,69 +120,6 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 //    }
     // Move the storage directory and change the local corpus tree links to the new directory.
     // After completion the application will be closed!
-    private void changeStorageDirectory(File fromDirectory, File toDirectory) {
-        String toDirectoryUriString = toDirectory.toURI().toString().replaceAll("/$", "");
-        String fromDirectoryUriString = fromDirectory.toURI().toString().replaceAll("/$", "");
-        logger.debug("toDirectoryUriString: {}", toDirectoryUriString);
-        logger.debug("fromDirectoryUriString: {}", fromDirectoryUriString);
-        try {
-            toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
-            fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
-        } catch (UnsupportedEncodingException uee) {
-            // UTF-8 not supported, should not occur
-            throw new RuntimeException(uee);
-        }
-        boolean success = fromDirectory.renameTo(toDirectory);
-        // This sometimes fails on Windows 7, JRE 6 without any clear reason. See https://trac.mpi.nl/ticket/1553
-        if (!success) {
-            if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
-                    services.getString("THE FILES IN YOUR 'LOCAL CORPUS' COULD NOT BE MOVED TO THE REQUESTED LOCATION"),
-                    "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                saveString("cacheDirectory", toDirectory.getAbsolutePath());
-                localCacheDirectory = null;
-                getProjectWorkingDirectory();
-                treeHelper.loadLocationsList();
-                treeHelper.applyRootLocations();
-            }
-        } else {
-            try {
-                Vector<String> locationsList = new Vector<String>();
-                for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{
-                    treeHelper.getRemoteCorpusNodes(),
-                    treeHelper.getLocalCorpusNodes(),
-                    treeHelper.getLocalFileNodes(),
-                    treeHelper.getFavouriteNodes()}) {
-                    for (ArbilDataNode currentLocation : currentTreeArray) {
-                        String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
-                        logger.debug("currentLocationString: {}", currentLocationString);
-                        logger.debug("prefferedDirectoryUriString: {}", toDirectoryUriString);
-                        logger.debug("storageDirectoryUriString: {}", fromDirectoryUriString);
-                        locationsList.add(currentLocationString.replace(fromDirectoryUriString, toDirectoryUriString));
-                    }
-                }
-                //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
-                saveStringArray("locationsList", locationsList.toArray(new String[]{}));
-                saveString("cacheDirectory", toDirectory.getAbsolutePath());
-                localCacheDirectory = null;
-                getProjectWorkingDirectory();
-                treeHelper.loadLocationsList();
-                treeHelper.applyRootLocations();
-                windowManager.closeAllWindows();
-            } catch (UnsupportedEncodingException ex) {
-                // UTF-8 unsupported, should not occur
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                logger.error("Could not save locations list", ex);
-            } catch (Exception ex) {
-                logError(ex);
-//            logger.debug("save locationsList exception: " + ex.getMessage());
-            }
-//            treeHelper.loadLocationsList();
-//            JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The working files have been moved.", "Arbil", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Exit"}, "Exit");
-//            System.exit(0); // TODO: this exit might be unrequired
-        }
-    }
-
 //    public void showDirectorySelectionDialogue() {
 //        settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame));
 //        settingsjDialog.setLocationRelativeTo(LinorgWindowManager.getSingleInstance().linorgFrame);
@@ -375,7 +291,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     public String[] loadStringArray(String filename) throws IOException {
         File currentConfigFile = null;
         if (filename.equals("locationsList")) {
-	    // The tree locations config has been moved into the project directory,
+            // The tree locations config has been moved into the project directory,
             // for now we are setting this by the location name.
             // However this will be replaced by a project configuration class that will use JAXB to save to disk.
             currentConfigFile = new File(getProjectDirectory(), filename + ".config");
@@ -427,7 +343,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     public void saveStringArray(String filename, String[] storableValue) throws IOException {
         File destinationDirectory;
         if (filename.equals("locationsList")) {
-	    // The tree locations config has been moved into the project directory,
+            // The tree locations config has been moved into the project directory,
             // for now we are setting this by the location name.
             // However this will be replaced by a project configuration class that will use JAXB to save to disk.
             destinationDirectory = getProjectDirectory();
@@ -772,7 +688,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 //        logger.debug("destinationPath: " + destinationPath);
 //        File destinationFile = new File(destinationPath);
         if (destinationFile.length() == 0) {
-	    // todo: check the file size on the server and maybe its date also
+            // todo: check the file size on the server and maybe its date also
             // if the file is zero length then is presumably should either be replaced or the version in the jar used.
             if (destinationFile.delete()) {
                 logger.debug("Deleted zero length (!) file: " + destinationFile);

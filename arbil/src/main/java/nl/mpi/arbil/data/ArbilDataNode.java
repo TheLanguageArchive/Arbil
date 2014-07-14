@@ -544,10 +544,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         return dataNodeService.addCorpusLink(this, targetImdiNode);
     }
 
-    public void pasteIntoNode() {
-        dataNodeService.pasteIntoNode(this);
-    }
-
     /**
      * Saves the current changes from memory into a new imdi file on disk.
      * Previous imdi files are renamed and kept as a history. the caller is
@@ -851,15 +847,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
             }
         }
         return false;
-    }
-
-    /**
-     * Inserts/sets resource location. Behavior will depend on node type
-     *
-     * @param location Location to insert/set
-     */
-    public void insertResourceLocation(URI location) throws ArbilMetadataException {
-        dataNodeService.insertResourceLocation(this, location);
     }
 
     /**
