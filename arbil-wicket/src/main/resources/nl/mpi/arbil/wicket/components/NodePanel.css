@@ -1,7 +1,0 @@
-.nodePanel {
-    white-space: nowrap;
-}
-
-.nodePanel .nodeIcon, .nodePanel .nodeIcon img, .nodePanel .nodeName{
-    display: inline;
-}
