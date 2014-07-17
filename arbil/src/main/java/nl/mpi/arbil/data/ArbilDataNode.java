@@ -73,7 +73,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         PARTIAL,
         LOADED
     }
-    private ArbilDataNodeService dataNodeService;
+    private DataNodeService dataNodeService;
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
     private HashMap<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
@@ -125,7 +125,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     public static final String EMPTY_NODE_STRING_VALUE = "                      ";
     private MetadataFormat.FileType formatType = MetadataFormat.FileType.UNKNOWN;
 
-    protected ArbilDataNode(ArbilDataNodeService dataNodeService, URI localUri, MetadataFormat.FileType formatType) {
+    protected ArbilDataNode(DataNodeService dataNodeService, URI localUri, MetadataFormat.FileType formatType) {
         super();
         //        addQueue = new Vector<String[]>();
         this.dataNodeService = dataNodeService;
