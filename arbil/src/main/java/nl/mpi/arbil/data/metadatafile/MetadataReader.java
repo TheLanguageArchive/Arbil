@@ -652,7 +652,7 @@ public class MetadataReader {
                         StringBuilder siblingSpacer;
                         boolean isSingleton = false;
                         // Build URI for metaNode or subNode
-                        final StringBuilder nodeURIStringBuilder = new StringBuilder(4).append(parentNode.getURI().toString()).append(pathUrlXpathSeparator).append(siblingNodePath);
+                        final StringBuilder nodeURIStringBuilder = new StringBuilder(4).append(parentNode.getUri().toString()).append(pathUrlXpathSeparator).append(siblingNodePath);
                         if ((!applicationConfiguration.isVerbatimXmlTreeStructure() && (maxOccurs > 1 || maxOccurs == -1))
                                 || !(parentDomNode.nodeTemplate instanceof CmdiTemplate)) { // this version of the metanode creation should always be run for imdi files 
                             isSingleton = maxOccurs == 1; // 
@@ -857,7 +857,7 @@ public class MetadataReader {
             if (fieldToAdd.xmlPath.endsWith("Description")) {
                 if (cvUrlString != null && cvUrlString.length() > 0) {
                     // TODO: this field sould be put in the link node not the parent node
-                    URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
+                    URI correcteLink = correctLinkPath(parentNode.getUri(), cvUrlString);
                     childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
                     ArbilDataNode descriptionLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink);
                     descriptionLinkNode.isInfoLink = true;
@@ -875,7 +875,7 @@ public class MetadataReader {
                 destinationNode.addField(fieldToAdd);
             } else if (fieldToAdd.xmlPath.startsWith(".METATRANSCRIPT.Corpus.CorpusLink") && fieldValue.length() > 0) {
                 // add corpus link
-                URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
+                URI linkPath = correctLinkPath(parentNode.getUri(), fieldToAdd.getFieldValue());
                 childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
                 ArbilDataNode linkedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(linkPath);
                 linkedNode.setNodeText(fieldToAdd.getKeyName());
@@ -951,7 +951,7 @@ public class MetadataReader {
             try {
                 URI linkURI = clarinLink.getLinkUri();
                 if (linkURI != null) {
-                    linkURI = parentNode.getURI().resolve(linkURI);
+                    linkURI = parentNode.getUri().resolve(linkURI);
                     childLinks.add(new String[]{clarinLink.toString(), clarinLink.resourceProxyId});
                     final ArbilDataNode resourceLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(linkURI);
                     // Unless resource proxy type is metadata, treat as resource
@@ -994,7 +994,7 @@ public class MetadataReader {
                 schemaLocationString = schemaLocationNode.getNodeValue();
                 String[] schemaLocation = schemaLocationString.split("\\s");
                 schemaLocationString = schemaLocation[schemaLocation.length - 1];
-                schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
+                schemaLocationString = parentNode.getUri().resolve(schemaLocationString).toString();
                 // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
                 // this method also assumes that the xsd url is fully resolved
                 parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
@@ -1046,7 +1046,7 @@ public class MetadataReader {
         if (catalogueLinkAtt != null) {
             String catalogueLink = catalogueLinkAtt.getNodeValue();
             if (catalogueLink.length() > 0) {
-                URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
+                URI correcteLink = correctLinkPath(parentNode.getUri(), catalogueLink);
                 childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
                 parentChildTree.get(parentNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink));
             }

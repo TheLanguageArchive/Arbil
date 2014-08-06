@@ -321,7 +321,7 @@ public class XsdChecker extends JSplitPane {
 	    SwingUtilities.invokeLater(new Runnable() {
 		public void run() {
 		    try {
-			fileViewPane.setPage(imdiObject.getURI().toURL());
+			fileViewPane.setPage(imdiObject.getUri().toURL());
 		    } catch (Exception ex) {
 			BugCatcherManager.getBugCatcher().logError(ex);
 		    }

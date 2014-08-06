@@ -7,7 +7,7 @@
     The build number is only required when depending on the output in other projects or building to the server.-->
     <version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
     <!--<version>${arbil.majorVersion}.${arbil.minorVersion}.33660-${arbil.branch}</version>-->
-    <name>Arbil</name>   
+    <name>arbil-metadata-loader</name>   
     
     <parent>
         <groupId>nl.mpi</groupId>

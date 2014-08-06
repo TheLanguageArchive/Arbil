@@ -37,7 +37,7 @@ public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilDataNode> {
     public ArbilDataNodeTableCell(ArbilDataNode dataNode) {
 	setContent(dataNode);
 	if (dataNode != null) {
-	    contentUri = dataNode.getURI();
+	    contentUri = dataNode.getUri();
 	}
     }
 
@@ -58,7 +58,7 @@ public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilDataNode> {
     @Override
     public final void setContent(ArbilDataNode content) {
 	this.dataNode = content;
-	contentUri = content != null ? content.getURI() : null;
+	contentUri = content != null ? content.getUri() : null;
     }
 
     @Override

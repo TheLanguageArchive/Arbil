@@ -19,6 +19,7 @@ package nl.mpi.arbil.data;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -114,6 +115,19 @@ public class BlockingDataNodeLoader implements PluginArbilDataNodeLoader, DataNo
             @Override
             public void saveString(String filename, String storableValue) {
             }
+
+            @Override
+            public void saveBoolean(String filename, boolean storableValue) {
+            }
+
+            @Override
+            public void saveStringArray(String filename, String[] storableValue) throws IOException {
+            }
+
+            @Override
+            public void saveObject(Serializable object, String filename) throws IOException {
+            }
+            
         };
 //        final SessionStorage sessionStorage = new SessionStorage() {
 //

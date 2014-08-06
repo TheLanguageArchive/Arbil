@@ -259,7 +259,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 
     public URI getNodeURI(PluginDataNode dataNode) throws WrongNodeTypeException {
 	if (dataNode instanceof ArbilDataNode) {
-	    return ((ArbilDataNode) dataNode).getURI();
+	    return ((ArbilDataNode) dataNode).getUri();
 	} else {
 	    throw new WrongNodeTypeException("Not an ArbilDataNode.");
 	}

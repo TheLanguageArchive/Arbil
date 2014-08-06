@@ -49,8 +49,11 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 import nl.mpi.flap.model.DataField;
+import nl.mpi.flap.model.DataNodeLink;
+import nl.mpi.flap.model.DataNodePermissions;
 import nl.mpi.flap.model.DataNodeType;
 import nl.mpi.flap.model.FieldGroup;
+import nl.mpi.flap.model.ModelException;
 import nl.mpi.flap.model.PluginDataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -414,7 +417,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     public ArbilDataNode getChildByPath(String path) {
         if (childArray != null && childArray.length > 0) {
             for (ArbilDataNode child : childArray) {
-                if (child.getURI() != null && path.equals(child.getURIFragment())) {
+                if (child.getUri() != null && path.equals(child.getURIFragment())) {
                     return child;
                 } else {
                     ArbilDataNode childMatch = child.getChildByPath(path);
@@ -1122,7 +1125,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      *
      * @return The URI that this node represents.
      */
-    public URI getURI() {
+    public URI getUri() {
         return nodeUri;
     }
 
@@ -1426,5 +1429,25 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      */
     public void setResourceNode(boolean resource) {
         this.resourceNode = resource;
+    }
+
+    public String getURI() throws ModelException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public String getArchiveHandle() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public DataNodePermissions getPermissions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Integer getLinkCount() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public List<DataNodeLink> getChildIds() throws ModelException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

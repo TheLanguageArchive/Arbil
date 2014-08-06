@@ -68,7 +68,7 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
 	} else {
 	    contentUris = new ArrayList<URI>(dataNodes.length);
 	    for (ArbilDataNode node : dataNodes) {
-		contentUris.add(node != null ? node.getURI() : null);
+		contentUris.add(node != null ? node.getUri() : null);
 	    }
 	}
     }

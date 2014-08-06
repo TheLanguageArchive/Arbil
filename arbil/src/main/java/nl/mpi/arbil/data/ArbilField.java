@@ -609,7 +609,7 @@ public class ArbilField extends HistoryField implements Serializable {
      */
     public final synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
         this.parentDataNode = parentDataNode;
-        this.parentDataNodeURI = parentDataNode != null ? parentDataNode.getURI() : null;
+        this.parentDataNodeURI = parentDataNode != null ? parentDataNode.getUri() : null;
     }
 
     public DocumentationLanguages getDocumentationLanguages() {

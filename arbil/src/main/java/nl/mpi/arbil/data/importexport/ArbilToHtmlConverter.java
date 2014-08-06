@@ -95,7 +95,7 @@ public class ArbilToHtmlConverter {
 	transformer.setErrorListener(errorHandler);
 	// 3. Use the Transformer to transform an XML Source and send the output to a Result object.
 	try {
-	    transformer.transform(new javax.xml.transform.stream.StreamSource(inputNode.getURI().toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(destinationFile.getCanonicalPath())));
+	    transformer.transform(new javax.xml.transform.stream.StreamSource(inputNode.getUri().toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(destinationFile.getCanonicalPath())));
 	} catch (TransformerException tEx) {
 	    BugCatcherManager.getBugCatcher().logError("Transformer error messages: " + errorStringWriter.toString(), null);
 	    throw tEx;

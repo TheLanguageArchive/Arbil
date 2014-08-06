@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -195,7 +196,7 @@ public class ArbilComponentBuilder {
             }
             try {
                 // load the dom
-                Document targetDocument = getDocument(arbilDataNode.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getUri());
                 // insert the new section
                 try {
                     try {
@@ -231,7 +232,7 @@ public class ArbilComponentBuilder {
                 BugCatcherManager.getBugCatcher().logError(exception);
                 return null;
             }
-            return arbilDataNode.getURI();
+            return arbilDataNode.getUri();
         }
     }
 
@@ -325,7 +326,7 @@ public class ArbilComponentBuilder {
             String targetXmlPath = getTargetXmlPath(parent);
             logger.debug("removeResourceProxyReferences: {}", targetXmlPath);
             try {
-                Document targetDocument = getDocument(parent.getURI());
+                Document targetDocument = getDocument(parent.getUri());
                 // insert the new section
                 try {
                     Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
@@ -434,7 +435,7 @@ public class ArbilComponentBuilder {
             logger.debug("remove from parent nodes: " + arbilDataNode);
             File cmdiNodeFile = arbilDataNode.getFile();
             try {
-                Document targetDocument = getDocument(arbilDataNode.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getUri());
                 // collect up all the nodes to be deleted without changing the xpath
                 ArrayList<Node> selectedNodes = new ArrayList<Node>();
                 for (String currentNodePath : nodePaths) {
@@ -486,11 +487,11 @@ public class ArbilComponentBuilder {
 
     public boolean setFieldValues(ArbilDataNode arbilDataNode, Collection<FieldUpdateRequest> fieldUpdates) {
         synchronized (arbilDataNode.getParentDomLockObject()) {
-            //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
+            //new ImdiUtils().addDomIds(imdiTreeObject.getUri()); // testing only
             logger.debug("setFieldValues: " + arbilDataNode);
             File cmdiNodeFile = arbilDataNode.getFile();
             try {
-                Document targetDocument = getDocument(arbilDataNode.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getUri());
                 if (!doFieldUpdates(fieldUpdates, targetDocument, arbilDataNode)) {
                     return false;
                 }
@@ -604,7 +605,6 @@ public class ArbilComponentBuilder {
             languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
         }
 
-
         if (currentFieldUpdate.keyNameValue != null) {
             Node keyNameNode = attributesMap.getNamedItem("Name");
             if (keyNameNode != null) {
@@ -629,10 +629,10 @@ public class ArbilComponentBuilder {
         try {
             Document favouriteDocument;
             synchronized (favouriteArbilDataNode.getParentDomLockObject()) {
-                favouriteDocument = getDocument(favouriteArbilDataNode.getURI());
+                favouriteDocument = getDocument(favouriteArbilDataNode.getUri());
             }
             synchronized (destinationArbilDataNode.getParentDomLockObject()) {
-                Document destinationDocument = getDocument(destinationArbilDataNode.getURI());
+                Document destinationDocument = getDocument(destinationArbilDataNode.getUri());
                 String favouriteXpath = favouriteArbilDataNode.getURIFragment();
                 String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
                 boolean onlySubNodes = !favouriteXpathTrimmed.equals(favouriteXpath);
@@ -678,7 +678,7 @@ public class ArbilComponentBuilder {
                     logger.debug("nodeFragment: {}", nodeFragment);
                     // return the child node url and path in the xml
                     // first strip off any fragment then add the full node fragment
-                    returnUri = new URI(destinationArbilDataNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
+                    returnUri = new URI(destinationArbilDataNode.getUri().toString().split("#")[0] + "#" + nodeFragment);
                 } catch (URISyntaxException exception) {
                     BugCatcherManager.getBugCatcher().logError(exception);
                 }
@@ -928,7 +928,7 @@ public class ArbilComponentBuilder {
                 // load the schema
                 SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().getTemplateFile());
                 // load the dom
-                Document targetDocument = getDocument(arbilDataNode.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getUri());
                 // insert the new section
                 try {
 //                printoutDocument(targetDocument);
@@ -958,7 +958,7 @@ public class ArbilComponentBuilder {
                 logger.debug("nodeFragment: {}", nodeFragment);
                 // return the child node url and path in the xml
                 // first strip off any fragment then add the full node fragment
-                return new URI(arbilDataNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
+                return new URI(arbilDataNode.getUri().toString().split("#")[0] + "#" + nodeFragment);
             } catch (URISyntaxException exception) {
                 BugCatcherManager.getBugCatcher().logError(exception);
                 return null;
@@ -982,7 +982,7 @@ public class ArbilComponentBuilder {
                 // load the schema
                 SchemaType schemaType = getFirstSchemaType(arbilDataNode);
                 // load the dom
-                Document targetDocument = getDocument(arbilDataNode.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getUri());
                 // insert the new section
                 try {
                     return canInsertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
@@ -1020,7 +1020,7 @@ public class ArbilComponentBuilder {
     public void removeArchiveHandles(ArbilDataNode arbilDataNode) {
         synchronized (arbilDataNode.getParentDomLockObject()) {
             try {
-                Document workingDocument = getDocument(arbilDataNode.getURI());
+                Document workingDocument = getDocument(arbilDataNode.getUri());
                 removeArchiveHandles(workingDocument);
                 savePrettyFormatting(workingDocument, arbilDataNode.getFile());
             } catch (Exception exception) {
@@ -1499,7 +1499,6 @@ public class ArbilComponentBuilder {
         //SchemaType childType =schemaType.
 
         /////////////////////
-
         for (SchemaProperty schemaProperty : currentSchemaType.getElementProperties()) {
             //for (int childCounter = 0; childCounter < schemaProperty.getMinOccurs().intValue(); childCounter++) {
             // if the searched element is a child node of the given node return
@@ -1515,7 +1514,6 @@ public class ArbilComponentBuilder {
 //            logger.debug("node name: " + schemaProperty.getName().getLocalPart());
 //            logger.debug("node.getMinOccurs(): " + schemaProperty.getMinOccurs());
 //            logger.debug("node.getMaxOccurs(): " + schemaProperty.getMaxOccurs());
-
             BigInteger maxNumberToAdd;
             if (addDummyData) {
                 maxNumberToAdd = schemaProperty.getMaxOccurs();

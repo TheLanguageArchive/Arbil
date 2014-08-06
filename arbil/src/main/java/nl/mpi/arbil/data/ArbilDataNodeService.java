@@ -18,10 +18,6 @@
  */
 package nl.mpi.arbil.data;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,14 +31,12 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
-import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -145,7 +139,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
                 bumpHistory(dataNode.getFile());
                 copyLastHistoryToCurrent(dataNode); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
                 synchronized (dataNode.getParentDomLockObject()) {
-                    return dataNode.getMetadataUtils().addCorpusLink(dataNode.getURI(), new URI[]{targetNode.getURI()});
+                    return dataNode.getMetadataUtils().addCorpusLink(dataNode.getUri(), new URI[]{targetNode.getUri()});
                 }
             } catch (IOException ex) {
                 // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
@@ -172,10 +166,10 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
                     //                if (targetImdiNodes[nodeCounter].hasResource()) {
                     //                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getFullResourceURI(); // todo: should this resouce case be used here? maybe just the uri
                     //                } else {
-                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getURI();
+                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getUri();
                     //                }
                 }
-                dataNode.getMetadataUtils().removeCorpusLink(dataNode.getURI(), copusUriList);
+                dataNode.getMetadataUtils().removeCorpusLink(dataNode.getUri(), copusUriList);
                 dataNode.getParentDomNode().loadArbilDom();
             }
             //        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
@@ -501,7 +495,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
         } else {
             // we reduce the times the file type is checked by only checking when the type is unset, this is because for difficult files a deep check is required which requires downloading a small portion of the file
             if (dataNode.getFormatType() == MetadataFormat.FileType.UNKNOWN) {
-                dataNode.setFormatType(metadataFormat.deepCheck(dataNode.getURI()));
+                dataNode.setFormatType(metadataFormat.deepCheck(dataNode.getUri()));
             }
             synchronized (dataNode.getParentDomLockObject()) {
                 dataNode.initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
@@ -710,7 +704,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
 
     private void initComponentLinkReader(ArbilDataNode dataNode) {
         if (dataNode.isCmdiMetaDataNode()) {
-            final URI matadataUri = new HandleUtils().resolveHandle(dataNode.getURI());
+            final URI matadataUri = new HandleUtils().resolveHandle(dataNode.getUri());
             // load the links from the cmdi file
             // the links will be hooked to the relevent nodes when the rest of the xml is read
             dataNode.getCmdiComponentLinkReader().readLinks(matadataUri);
@@ -718,7 +712,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
     }
 
     private void updateMetadataChildNodes(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
-        final URI matadataUri = new HandleUtils().resolveHandle(dataNode.getURI());
+        final URI matadataUri = new HandleUtils().resolveHandle(dataNode.getUri());
         Document nodDom = ArbilComponentBuilder.getDocument(matadataUri);
         Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree = new HashMap<ArbilDataNode, Set<ArbilDataNode>>();
         dataNode.childLinks = loadMetadataChildNodes(dataNode, nodDom, parentChildTree);
