@@ -121,7 +121,7 @@ public class MetadataFormat {
     }
 
     public FileType deepCheck(URI targetUri) {
-        final FileType shallowCheckResult = shallowCheck(targetUri);
+        FileType shallowCheckResult = shallowCheck(targetUri);
         if (shallowCheckResult != FileType.UNKNOWN) {
             logger.debug("Shallow check was decisive: {}", shallowCheckResult);
             return shallowCheckResult;
@@ -135,12 +135,21 @@ public class MetadataFormat {
                 ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
             }
 
-	    // calling httpConnection.connect(); does not help us here, we need to get the input stream
+            // calling httpConnection.connect(); does not help us here, we need to get the input stream
             // only then can we get the redirected URL but we must get it via httpConnection.getURL()
             // because the original connection and its location header that could have been retrieved
             // by httpConnection.getHeaderField("Location"); has been discarded and
             // replaced by a new connection.
-            final InputStream inputStream = uRLConnection.getInputStream(); // <=== DO NOT MOVE (even though it only gets used later on)
+            final InputStream inputStream;
+            try {
+                uRLConnection.connect();
+                shallowCheckResult = shallowCheck(uRLConnection.getURL().toURI());
+                uRLConnection.getHeaderFields();
+                shallowCheckResult = shallowCheck(uRLConnection.getURL().toURI());
+            } catch (URISyntaxException exception) {
+                logger.error("Could not read redirected URI: {}", exception.getMessage());
+            }
+            inputStream = uRLConnection.getInputStream(); // <=== DO NOT MOVE (even though it only gets used later on)            
             logger.debug("Connected to {}", uRLConnection.getURL());
             try {
                 // Connection url might be different since a connection has been established which may have resulted in a redirect
@@ -155,7 +164,7 @@ public class MetadataFormat {
             } catch (URISyntaxException exception) {
                 logger.error("Could not read redirected URI: {}", exception.getMessage());
             }
-	    // There is no point checking uRLConnection.getContentType();
+            // There is no point checking uRLConnection.getContentType();
             // because we dont have a useful mime type here, it could
             // be application/xml or text/xml or text/plain etc.
             // so there is no reliable way to test this content type
@@ -186,8 +195,8 @@ public class MetadataFormat {
             inputStream.close();
         } catch (IOException exception) {
             logger.warn("Could not get remote file type for {}", targetUri);
-            logger.info("Could not get remote file type, returning FileType.UNKNOWN", exception);
-            return FileType.UNKNOWN;
+            logger.info("Could not get remote file type, returning " + shallowCheckResult.name(), exception);
+            return shallowCheckResult;
         }
         return FileType.FILE;
     }
