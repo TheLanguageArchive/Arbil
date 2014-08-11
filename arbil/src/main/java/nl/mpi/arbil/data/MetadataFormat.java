@@ -142,12 +142,15 @@ public class MetadataFormat {
             // replaced by a new connection.
             final InputStream inputStream;
             try {
-                uRLConnection.connect();
-                shallowCheckResult = shallowCheck(uRLConnection.getURL().toURI());
-                uRLConnection.getHeaderFields();
-                shallowCheckResult = shallowCheck(uRLConnection.getURL().toURI());
+                // handle 303 redirects
+                final String locationField = uRLConnection.getHeaderField("Location");
+                final FileType locationCheckResult = shallowCheck(new URI(locationField));
+                if (locationCheckResult != FileType.UNKNOWN) {
+                    logger.debug("location header check on URL {} was decisive: {}", locationField, locationCheckResult);
+                    return locationCheckResult;
+                }
             } catch (URISyntaxException exception) {
-                logger.error("Could not read redirected URI: {}", exception.getMessage());
+                logger.debug("location header check on URL {} failed", exception.getMessage());
             }
             inputStream = uRLConnection.getInputStream(); // <=== DO NOT MOVE (even though it only gets used later on)            
             logger.debug("Connected to {}", uRLConnection.getURL());
