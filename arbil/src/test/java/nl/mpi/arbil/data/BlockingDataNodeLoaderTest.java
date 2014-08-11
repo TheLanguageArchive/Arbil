@@ -17,6 +17,8 @@
  */
 package nl.mpi.arbil.data;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import nl.mpi.flap.model.ModelException;
@@ -33,13 +35,13 @@ public class BlockingDataNodeLoaderTest {
      * Test of problematic URLs which have 303 redirects
      */
     @Test
-    public void testProblematicUrls() throws URISyntaxException, ModelException {
+    public void testProblematicUrls() throws URISyntaxException, ModelException, IOException {
 
         // https://trac.mpi.nl/ticket/4143
 //        https://lux16.mpi.nl/cmdi_test/Root/Metadata/aCollection.cmdi
 //        hdl:11142/00-BAB83179-F270-4477-88FE-DFD10EA68CCA
         System.out.println("getBlockingDataNodeLoader");
-        final String cacheDirectory = System.getProperty("user.dir");
+        final String cacheDirectory = File.createTempFile("arbil-unit-test", "-tmp").getParent();
         final BlockingDataNodeLoader blockingDataNodeLoader = BlockingDataNodeLoader.getBlockingDataNodeLoader(cacheDirectory);
         ArbilDataNode dataNode = (ArbilDataNode) blockingDataNodeLoader.getPluginArbilDataNode(null, new URI("hdl:11142/00-BAB83179-F270-4477-88FE-DFD10EA68CCA"));
 //        if (dataNode.getLoadingState() != ArbilDataNode.LoadingState.LOADED && dataNode.isMetaDataNode()) {
