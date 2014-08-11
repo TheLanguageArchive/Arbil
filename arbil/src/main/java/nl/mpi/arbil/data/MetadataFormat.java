@@ -144,10 +144,12 @@ public class MetadataFormat {
             try {
                 // handle 303 redirects
                 final String locationField = uRLConnection.getHeaderField("Location");
-                final FileType locationCheckResult = shallowCheck(new URI(locationField));
-                if (locationCheckResult != FileType.UNKNOWN) {
-                    logger.debug("location header check on URL {} was decisive: {}", locationField, locationCheckResult);
-                    return locationCheckResult;
+                if (locationField != null) {
+                    final FileType locationCheckResult = shallowCheck(new URI(locationField));
+                    if (locationCheckResult != FileType.UNKNOWN) {
+                        logger.debug("location header check on URL {} was decisive: {}", locationField, locationCheckResult);
+                        return locationCheckResult;
+                    }
                 }
             } catch (URISyntaxException exception) {
                 logger.debug("location header check on URL {} failed", exception.getMessage());
