@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,8 +30,7 @@ import static org.junit.Assert.*;
 public class BlockingDataNodeLoaderTest {
 
     /**
-     * Test of getBlockingDataNodeLoader method, of class
-     * BlockingDataNodeLoader.
+     * Test of problematic URLs which have 303 redirects
      */
     @Test
     public void testProblematicUrls() throws URISyntaxException, ModelException {
