@@ -214,18 +214,32 @@ public class CmdiComponentLinkReader {
             // we open the stream here so we can set follow redirects
             URLConnection uRLConnection = targetCmdiNode.toURL().openConnection();
             // handle 303 redirects 
-            try {
-                final String locationField = uRLConnection.getHeaderField("Location");
-                if (locationField != null) {
-                    uRLConnection = new URI(locationField).toURL().openConnection();
+            int maxRedirects = 5;
+            while (maxRedirects > 0) {
+//                logger.info("maxRedirects:" + maxRedirects);
+                maxRedirects--;
+                if (uRLConnection instanceof HttpURLConnection) {
+                    final HttpURLConnection httpConnection = (HttpURLConnection) uRLConnection;
+                    httpConnection.setInstanceFollowRedirects(true);
+                    int stat = httpConnection.getResponseCode();
+                    if (stat >= 300 && stat <= 307 && stat != 306 && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
+                        try {
+                            final String locationField = uRLConnection.getHeaderField("Location");
+                            if (locationField != null) {
+//                                logger.info(locationField, locationField);
+                                final URI redirectedUri = new URI(locationField);
+                                uRLConnection = redirectedUri.toURL().openConnection();
+                                this.parentUri = redirectedUri;
+                            }
+                        } catch (IOException exception) {
+                            logger.debug("get document 303 check on URL {} failed", exception.getMessage());
+                        } catch (URISyntaxException exception) {
+                            logger.debug("get document 303 check on URL {} failed", exception.getMessage());
+                        }
+                    } else {
+                        break;
+                    }
                 }
-            } catch (IOException exception) {
-                logger.debug("location header check on URL {} failed", exception.getMessage());
-            } catch (URISyntaxException exception) {
-                logger.debug("location header check on URL {} failed", exception.getMessage());
-            }
-            if (uRLConnection instanceof HttpURLConnection) {
-                ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
             }
             final InputStream inputStream = uRLConnection.getInputStream();
             digester.parse(inputStream);
