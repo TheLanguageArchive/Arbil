@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+-->
+<METATRANSCRIPT xmlns="http://www.mpi.nl/IMDI/Schema/IMDI"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                Date="2010-01-06"
+                FormatId="IMDI 3.03"
+                Originator="Arbil.0.2.14710M"
+                Type="SESSION"
+                Version="0"
+                id="i59"
+                xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
+  <Session id="i2">
+      <Name id="i3">Standard (Session) Resource Bundle</Name>
+      <Title id="i4"/>
+      <Date id="i5"/>
+      <Description LanguageId="" Link="" id="i6"/>
+      <MDGroup id="i7">
+         <Location id="i8">
+            <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="ClosedVocabulary"
+                       id="i9"/>
+            <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="ClosedVocabulary"
+                     id="i10"/>
+            <Region id="i11"/>
+            <Address id="i12"/>
+         </Location>
+         <Project id="i13">
+            <Name id="i14"/>
+            <Title id="i15"/>
+            <Id id="i16"/>
+            <Contact id="i17">
+               <Name id="i18"/>
+               <Address id="i19"/>
+               <Email id="i20"/>
+               <Organisation id="i21"/>
+            </Contact>
+            <Description LanguageId="" Link="" id="i22"/>
+         </Project>
+         <Keys id="i23">
+      </Keys>
+         <Content id="i24">
+            <Genre Link="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" Type="OpenVocabulary"
+                   id="i25"/>
+            <SubGenre Link="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml"
+                      Type="OpenVocabularyList"
+                      id="i26"/>
+            <Task Link="http://www.mpi.nl/IMDI/Schema/Content-Task.xml" Type="OpenVocabulary"
+                  id="i27"/>
+            <Modalities Link="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml"
+                        Type="OpenVocabularyList"
+                        id="i28"/>
+            <Subject Link="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml"
+                     Type="OpenVocabularyList"
+                     id="i29"/>
+            <CommunicationContext id="i30">
+               <Interactivity Link="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml"
+                              Type="ClosedVocabulary"
+                              id="i31"/>
+               <PlanningType Link="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml"
+                             Type="ClosedVocabulary"
+                             id="i32"/>
+               <Involvement Link="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml"
+                            Type="ClosedVocabulary"
+                            id="i33"/>
+               <SocialContext Link="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml"
+                              Type="ClosedVocabulary"
+                              id="i34"/>
+               <EventStructure Link="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml"
+                               Type="ClosedVocabulary"
+                               id="i35"/>
+               <Channel Link="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml"
+                        Type="ClosedVocabulary"
+                        id="i36"/>
+            </CommunicationContext>
+            <Languages id="i37">
+               <Description LanguageId="" Link="" id="i38"/>
+            </Languages>
+            <Keys id="i39">
+        </Keys>
+            <Description LanguageId="" Link="" id="i40"/>
+         </Content>
+         <Actors id="i41">
+            <Description LanguageId="" Link="" id="i42"/>
+         </Actors>
+      </MDGroup>
+      <Resources id="i43">
+         <Anonyms id="i44">
+            <ResourceLink id="i45"/>
+            <Access id="i46">
+               <Availability id="i47"/>
+               <Date id="i48"/>
+               <Owner id="i49"/>
+               <Publisher id="i50"/>
+               <Contact id="i51">
+                  <Name id="i52"/>
+                  <Address id="i53"/>
+                  <Email id="i54"/>
+                  <Organisation id="i55"/>
+               </Contact>
+               <Description LanguageId="" Link="" id="i56"/>
+            </Access>
+         </Anonyms>
+      </Resources>
+      <References id="i57">
+         <Description LanguageId="" Link="" id="i58"/>
+      </References>
+  </Session>
+</METATRANSCRIPT>

@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+-->
+<METATRANSCRIPT xmlns="http://www.mpi.nl/IMDI/Schema/IMDI"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                Date="2012-12-20"
+                FormatId="IMDI 3.03"
+                Originator="Arbil.2.4.34880:Sign Language"
+                Type="SESSION"
+                Version="0"
+                xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
+    <Session>
+        <Name>Sign-Language Session</Name>
+        <Title/>
+      <Date>Unspecified</Date>
+        <Description LanguageId="" Link=""/>
+        <MDGroup>
+            <Location>
+                <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml"
+                       Type="ClosedVocabulary"/>
+                <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml"
+                     Type="OpenVocabulary"/>
+                <Region/>
+                <Address/>
+            </Location>
+            <Project>
+                <Name/>
+                <Title/>
+                <Id/>
+                <Contact>
+                    <Name/>
+                    <Address/>
+                    <Email/>
+                    <Organisation/>
+                </Contact>
+                <Description LanguageId="" Link=""/>
+            </Project>
+            <Keys>
+            </Keys>
+            <Content>
+                <Genre Link="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml"
+                   Type="OpenVocabulary"/>
+                <SubGenre Link="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml"
+                      Type="OpenVocabularyList"/>
+                <Task Link="http://www.mpi.nl/IMDI/Schema/Content-Task.xml"
+                  Type="OpenVocabulary"/>
+                <Modalities Link="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml"
+                        Type="OpenVocabularyList"/>
+                <Subject Link="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml"
+                     Type="OpenVocabularyList"/>
+                <CommunicationContext>
+                    <Interactivity Link="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml"
+                              Type="ClosedVocabulary"/>
+                    <PlanningType Link="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml"
+                             Type="ClosedVocabulary"/>
+                    <Involvement Link="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml"
+                            Type="ClosedVocabulary"/>
+                    <SocialContext Link="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml"
+                              Type="ClosedVocabulary"/>
+                    <EventStructure Link="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml"
+                               Type="ClosedVocabulary"/>
+                    <Channel Link="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml"
+                        Type="ClosedVocabulary"/>
+                </CommunicationContext>
+                <Languages>
+                    <Description LanguageId="" Link=""/>
+                <Language>
+                  <Id>ISO639-3:nmn</Id>
+                  <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml"
+                        Type="OpenVocabulary">'N|ohan</Name>
+                  <Dominant Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                            Type="ClosedVocabulary">Unspecified</Dominant>
+                  <SourceLanguage Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                                  Type="ClosedVocabulary">Unspecified</SourceLanguage>
+                  <TargetLanguage Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                                  Type="ClosedVocabulary">Unspecified</TargetLanguage>
+                  <Description LanguageId="" Link=""/>
+               </Language>
+            </Languages>
+                <Keys>
+                    <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/ElicitationMethod.xml"
+                    Name="ElicitationMethod"
+                    Type="OpenVocabulary"/>
+                    <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Interpreting.Source.xml"
+                    Name="Interpreting.Source"
+                    Type="OpenVocabulary"/>
+                    <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Interpreting.Target.xml"
+                    Name="Interpreting.Target"
+                    Type="OpenVocabulary"/>
+                    <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Interpreting.Visibility.xml"
+                    Name="Interpreting.Visibility"
+                    Type="ClosedVocabulary"/>
+                    <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Interpreting.Audience.xml"
+                    Name="Interpreting.Audience"
+                    Type="ClosedVocabulary"/>
+                </Keys>
+                <Description LanguageId="" Link=""/>
+            </Content>
+            <Actors>
+            <Actor>
+               <Role Link="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml"
+                     Type="OpenVocabularyList"/>
+               <Name>Standard Actor</Name>
+               <FullName/>
+               <Code/>
+               <FamilySocialRole Link="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml"
+                                 Type="OpenVocabularyList"/>
+               <Languages>
+                  <Description LanguageId="" Link=""/>
+                  <Language>
+                     <Id>ISO639-3:bls</Id>
+                     <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml"
+                           Type="OpenVocabulary">Balaesang</Name>
+                     <MotherTongue Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                                   Type="ClosedVocabulary">true</MotherTongue>
+                     <PrimaryLanguage Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                                      Type="ClosedVocabulary">Unspecified</PrimaryLanguage>
+                     <Description LanguageId="" Link=""/>
+                  </Language>
+                  <Language>
+                     <Id>ISO639-3:bas</Id>
+                     <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml"
+                           Type="OpenVocabulary">Basaa</Name>
+                     <MotherTongue Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                                   Type="ClosedVocabulary">Unspecified</MotherTongue>
+                     <PrimaryLanguage Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                                      Type="ClosedVocabulary">Unspecified</PrimaryLanguage>
+                     <Description LanguageId="" Link=""/>
+                  </Language>
+               </Languages>
+               <EthnicGroup/>
+               <Age>Unspecified</Age>
+               <BirthDate>Unspecified</BirthDate>
+               <Sex Link="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml"
+                    Type="ClosedVocabulary"/>
+               <Education>Unspecified</Education>
+               <Anonymized Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                           Type="ClosedVocabulary">Unspecified</Anonymized>
+               <Contact>
+                  <Name/>
+                  <Address/>
+                  <Email/>
+                  <Organisation/>
+               </Contact>
+               <Keys>
+        </Keys>
+               <Description LanguageId="" Link=""/>
+            </Actor>
+            <Actor>
+               <Role Link="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml"
+                     Type="OpenVocabularyList">Speaker/Signer</Role>
+               <Name>Speaker/Signer Actor</Name>
+               <FullName/>
+               <Code/>
+               <FamilySocialRole Link="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml"
+                                 Type="OpenVocabularyList"/>
+               <Languages>
+                  <Description LanguageId="" Link=""/>
+               </Languages>
+               <EthnicGroup/>
+               <Age>Unspecified</Age>
+               <BirthDate>Unspecified</BirthDate>
+               <Sex Link="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml"
+                    Type="ClosedVocabulary"/>
+               <Education>Unspecified</Education>
+               <Anonymized Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                           Type="ClosedVocabulary">Unspecified</Anonymized>
+               <Contact>
+                  <Name/>
+                  <Address/>
+                  <Email/>
+                  <Organisation/>
+               </Contact>
+               <Keys>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.Status.xml"
+                       Name="Deafness.Status"
+                       Type="ClosedVocabulary"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.AidType.xml"
+                       Name="Deafness.AidType"
+                       Type="ClosedVocabulary"/>
+                  <Key Name="SignLanguageExperience.ExposureAge"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/SignLanguageExperience.AcquisitionLocation.xml"
+                       Name="SignLanguageExperience.AcquisitionLocation"
+                       Type="OpenVocabularyList"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/SignLanguageExperience.SignTeaching.xml"
+                       Name="SignLanguageExperience.SignTeaching"
+                       Type="OpenVocabularyList"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.Status.xml"
+                       Name="Family.Mother.Deafness"
+                       Type="ClosedVocabulary"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/CommunicationForm.xml"
+                       Name="Family.Mother.PrimaryCommunicationForm"
+                       Type="OpenVocabularyList"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.Status.xml"
+                       Name="Family.Father.Deafness"
+                       Type="ClosedVocabulary"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/CommunicationForm.xml"
+                       Name="Family.Father.PrimaryCommunicationForm"
+                       Type="OpenVocabularyList"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Deafness.Status.xml"
+                       Name="Family.Partner.Deafness"
+                       Type="ClosedVocabulary"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/CommunicationForm.xml"
+                       Name="Family.Partner.PrimaryCommunicationForm"
+                       Type="OpenVocabularyList"/>
+                  <Key Name="Education.Age"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Education.SchoolType.xml"
+                       Name="Education.SchoolType"
+                       Type="OpenVocabulary"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Education.ClassKind.xml"
+                       Name="Education.ClassKind"
+                       Type="OpenVocabulary"/>
+                  <Key Link="http://sign-lang.ruhosting.nl/IMDI/vocabs/Education.EducationModel.xml"
+                       Name="Education.EducationModel"
+                       Type="OpenVocabulary"/>
+                  <Key Name="Education.Location"/>
+                  <Key Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                       Name="Education.BoardingSchool"
+                       Type="ClosedVocabulary"/>
+               </Keys>
+               <Description LanguageId="" Link=""/>
+            </Actor>
+            <Actor>
+               <Role Link="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml"
+                     Type="OpenVocabularyList"/>
+               <Name>Standard Actor</Name>
+               <FullName/>
+               <Code/>
+               <FamilySocialRole Link="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml"
+                                 Type="OpenVocabularyList"/>
+               <Languages>
+                  <Description LanguageId="" Link=""/>
+               </Languages>
+               <EthnicGroup/>
+               <Age>Unspecified</Age>
+               <BirthDate>Unspecified</BirthDate>
+               <Sex Link="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml"
+                    Type="ClosedVocabulary"/>
+               <Education>Unspecified</Education>
+               <Anonymized Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml"
+                           Type="ClosedVocabulary">Unspecified</Anonymized>
+               <Contact>
+                  <Name/>
+                  <Address/>
+                  <Email/>
+                  <Organisation/>
+               </Contact>
+               <Keys>
+        </Keys>
+               <Description LanguageId="" Link=""/>
+            </Actor>
+         </Actors>
+        </MDGroup>
+        <Resources>
+        </Resources>
+        <References>
+        </References>
+    </Session>
+</METATRANSCRIPT>

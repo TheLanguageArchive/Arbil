@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+-->
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg2268"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   sodipodi:docbase="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/svg-files"
+   sodipodi:docname="filetick16x16.svg"
+   inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/loading04.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs2270">
+    <marker
+       inkscape:stockid="StopM"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="StopM"
+       style="overflow:visible">
+      <path
+         id="path2313"
+         d="M 0.0,5.65 L 0.0,-5.65"
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         transform="scale(0.4)" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleOutM"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="TriangleOutM"
+       style="overflow:visible">
+      <path
+         id="path2322"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.4)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Mend"
+       style="overflow:visible;">
+      <path
+         id="path2399"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.6) rotate(180) translate(-5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;">
+      <path
+         id="path2417"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.4) rotate(180)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path2423"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lstart"
+       style="overflow:visible">
+      <path
+         id="path2426"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.8)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="22.197802"
+     inkscape:cx="-2.2347934"
+     inkscape:cy="8.8285832"
+     inkscape:current-layer="g3342"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="872"
+     inkscape:window-height="591"
+     inkscape:window-x="486"
+     inkscape:window-y="291" />
+  <metadata
+     id="metadata2273">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       style="fill:#bfdfd6;fill-opacity:0.72619042;fill-rule:evenodd;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 10.806063,0.94703098 L 13.644191,7.2089126 L 8.7337828,3.740101 L 10.806063,0.94703098 z "
+       id="path2281"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:#bfdfd6;fill-opacity:0.72619042;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 4.1565558,1.498021 L 10.143189,1.498021 L 9.2372488,3.660398 L 13.201616,7.4574275 L 13.246666,14.452972 L 4.1565558,14.498022 L 4.1565558,1.498021 z "
+       id="path2279"
+       sodipodi:nodetypes="ccccccc" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#007800;stroke-width:1.65255916px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 1.9153585,0.90544598 L 3.4125997,4.553425 L 9.4015625,-2.742532"
+       id="path2226"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/tick-green.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="5.1386719"
+       y="12.854766"
+       id="text1307"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/question-red.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan1309"
+         x="5.1386719"
+         y="12.854766">?</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#001bed;stroke-width:1.65255916px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 0.95298269,7.9356458 L 2.4502237,11.583625 L 8.4391868,4.287668"
+       id="path1309"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/tick-blue.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#f3a600;stroke-width:1.65255916px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 0.49620137,11.474259 L 1.9934424,15.122237 L 7.9824048,7.8262796"
+       id="path1311"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/tick-yellow.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ae0004;stroke-width:1.65255916px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 1.3574382,4.422775 L 2.8546792,8.0707536 L 8.8436422,0.77479598"
+       id="path2186"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/tick-red.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:14.45582962px;font-style:normal;font-weight:normal;line-height:125%;fill:#d20000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="21.30624"
+       y="14.332141"
+       id="text2193"
+       sodipodi:linespacing="125%"
+       transform="scale(1.074949,0.930277)"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/exclamation-red.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan2195"
+         x="21.30624"
+         y="14.332141"
+         style="font-size:14.45582962px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#d20000;fill-opacity:1;font-family:Minion Pro">!</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14.4558382px;font-style:normal;font-weight:normal;line-height:125%;fill:#0027d2;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="11.69641"
+       y="13.201853"
+       id="text2197"
+       sodipodi:linespacing="125%"
+       transform="scale(1.074949,0.930277)"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/exclamation-blue.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan2199"
+         x="11.69641"
+         y="13.201853"
+         style="font-size:14.4558382px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#0027d2;fill-opacity:1;font-family:Minion Pro">!</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14.4558382px;font-style:normal;font-weight:normal;line-height:125%;fill:#00990c;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="18.98457"
+       y="3.5826585"
+       id="text2201"
+       sodipodi:linespacing="125%"
+       transform="scale(1.074949,0.930277)"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/exclamation-green.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan2203"
+         x="18.98457"
+         y="3.5826585"
+         style="font-size:14.4558382px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#00990c;fill-opacity:1;font-family:Minion Pro">!</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14.45583534px;font-style:normal;font-weight:normal;line-height:125%;fill:#edc900;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="16.595322"
+       y="11.829654"
+       id="text2205"
+       sodipodi:linespacing="125%"
+       transform="scale(1.074949,0.930277)"
+       inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/exclamation-yellow.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan2207"
+         x="16.595322"
+         y="11.829654"
+         style="font-size:14.45583534px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#edc900;fill-opacity:1;font-family:Minion Pro">!</tspan></text>
+    <g
+       id="g3338"
+       transform="translate(6.686577,4.388175)">
+      <path
+         d="M -19.423986,1.9878594 C -18.588678,-0.64207976 -15.692551,-2.1419672 -13.062612,-1.3066595 C -10.432673,-0.47135168 -8.9327856,2.4247754 -9.7680934,5.0547145 C -10.603401,7.6846537 -13.499528,9.1845412 -16.129467,8.3492334 C -17.225685,8.0010583 -18.185397,7.2762704 -18.820215,6.317143"
+         sodipodi:t0="0.34"
+         sodipodi:argument="-18.177593"
+         sodipodi:radius="5.0656161"
+         sodipodi:revolution="1.3"
+         sodipodi:expansion="0"
+         sodipodi:cy="3.521287"
+         sodipodi:cx="-14.59604"
+         id="path1378"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ae0004;stroke-width:1.70000005;stroke-linecap:round;stroke-linejoin:miter;marker-start:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         sodipodi:type="spiral" />
+      <path
+         sodipodi:nodetypes="ccc"
+         id="path3336"
+         d="M -19.15,8.85 L -19.15,5.85 L -16.555446,5.9851485"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ae0004;stroke-width:1.70000005;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <g
+       id="g3342"
+       transform="translate(22.48028,4.344086)">
+      <path
+         d="M -19.423986,1.9878594 C -18.588678,-0.64207976 -15.692551,-2.1419672 -13.062612,-1.3066595 C -10.432673,-0.47135168 -8.9327856,2.4247754 -9.7680934,5.0547145 C -10.603401,7.6846537 -13.499528,9.1845412 -16.129467,8.3492334 C -17.225685,8.0010583 -18.185397,7.2762704 -18.820215,6.317143"
+         sodipodi:t0="0.34"
+         sodipodi:argument="-18.177593"
+         sodipodi:radius="5.0656161"
+         sodipodi:revolution="1.3"
+         sodipodi:expansion="0"
+         sodipodi:cy="3.521287"
+         sodipodi:cx="-14.59604"
+         id="path3344"
+         style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#007800;stroke-width:1.70000005;stroke-linecap:round;stroke-linejoin:miter;marker-start:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         sodipodi:type="spiral" />
+      <path
+         sodipodi:nodetypes="ccc"
+         id="path3346"
+         d="M -19.15,8.85 L -19.15,5.85 L -16.555446,5.9851485"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#007800;stroke-width:1.70000005;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,147 @@
+<!--
+
+    Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+-->
+<!-- 
+    Document   : Features.html
+    Created on : Dec 8, 2008, 10:42:06 AM
+    Author     : Peter.Withers@mpi.nl
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <b>The following features are functional</b><br>
+        <ul>
+            <li>Fields can be copied from a table containing a single IMDI file and then pasted into the selected rows of any table (only matching field names will be pasted).</li>
+            <li>The data copied from a table can be edited in an external editor and then pasted back into a table provided that it remains in the correct format.</li>
+            <li>IMDI Session nodes or sub node of a Session can be flagged as a template. These templates then can be used to add new nodes via the "Add From Template" menu.</li>
+            <li>Searching sub nodes for both text and node types (corpus, actors, sessions, etc.) using multiple 'and', 'or', 'not' boolean parameters</li>
+            <li>Creating an off line cache of a corpus (downloading from a server)</li>
+            <li>Creation of Corpus nodes</li>
+            <li>Creation of Session nodes</li>
+            <li>Editing of values in a Corpus node</li>
+            <li>Editing of values in a Session node</li>
+            <li>Adding multiple subsections to a Session i.e. adding additional Actors</li>
+            <li>Saving of Corpus nodes</li>
+            <li>Saving of Session nodes</li>
+            <li>Dragging from the trees to tables and between tables</li>
+            <li>Copy text from a table in CSV format</li>
+            <li>Highlighting matching text in a table</li>
+            <li>Selecting matching rows in a table</li>
+            <li>Editing views on a table</li>
+            <li>Saving views and setting the default view</li>
+            <li>Preview of jpeg files (other media in progress)</li>
+            <li>Keys are displayed with the user set name</li>
+            <li>Enabled the file save menu</li>
+            <li>Added check before closing for unsaved changes</li>
+            <li>When a node has been edited and not save to disk it will have a red exclamation mark in front of its icon</li>
+            <li>When a node is different to the version on the server it will have a blue exclamation mark in front of its icon</li>
+            <li>Resource files can be added to a session by either dragging or manually entering the details</li>
+            <li>The user is suggested to save changes if any exist before the application exits</li>
+            <li>User tool to check an IMDI file for conformance to the IMID file format.</li>
+        </ul>
+        <br>        
+        <b>The following bugs have been recently resolved</b><br>
+        <ul>
+            <li>Multiple fields with the same name are now correclty shown</li>
+            <li>The multi line fields can be easily edited</li>
+            <li>Search has been completed and now offers more options</li>
+            <li>Corrected the sizing of columns in tables.</li>
+            <li>Corrected the redraw of data in tables.</li>
+            <li>Reenabled the post creation display of sub nodes in a table after they have been added to a session.</li>
+            <li>When a session or corpus is added or a resource dragged to a session, the newly created node is scrolled to and selected in the tree so that it is clear to the user what has been added and where.</li>
+            <li>Added drag action to open in a new table.</li>
+            <li>Updated the tool tip in the trees to use the same detailed view as the table.</li>
+            <li>Radically updated the way that tree nodes are populated, updated, reloaded and sorted to prevent rendering issues.</li>
+            <li>Prevented branches closing when a tree updates.</li>
+            <li>Prevented branches closing when adding or removing local directories and a few other situations</li>
+            <li>Prevented occasional but dramatic issues displaying the trees.</li>
+            <li>Corrected the update of icons and text colours when the imdi node is edited or saved.</li>
+            <li>Modified the insertion of template parts to prevent xmlns errors and to insert in the correct node order.</li>
+            <li>Enabled the view imdi file formatted menu item.</li>
+            <li>Enabled validate imdi the menu item.</li>
+            <li>When a directory is added to a table the contents of the directory are shown.</li>
+            <li>Removed the temporary "Constrain table width" menu item.</li>
+            <li>Added detailed tool tip for Imdi nodes including name and description.</li>
+            <li>Added a list of Short Cut Keys available from the help menu.</li>
+            <li>Added an 'are you sure' dialog when deleting nodes or removing links.</li>
+            <li>Adding a node changes to sibling nodes are saved first to prevent data loss</li>
+            
+            <li>Added new search functionality using panels displayed above the results grid.</li>
+            <li>Added detailed tool tip for Imdi nodes including name and description.</li>
+            <li>Added a list of Short Cut Keys as a html window.</li>
+            <li>Added an 'are you sure' dialog when deleting nodes or removing links.</li>
+            <li>When there is no network local imdi files will be loaded as a priority</li>
+            <li>Corrected separate errors when removing working directories and corpus links</li>
+        </ul>
+        <br>        
+        <b>The following are known issues and areas under development</b><br>
+        <ul>
+            <li>local repository of actors "project"-info etc. that can be quickly added to a new session is not yet implemented</li>
+            <li>Menus need to be generalised so that all functions available in relevant contexts.</li>
+            <li>Edit menu needs to be populated with the generalised menu</li>
+            <li>Templates functionality needs to be completed and enabled</li>
+            <li>Delete sub nodes (actors/resources) needs to be added.</li>
+            <li>Move sub nodes (actors/resources) needs to be added.</li>
+            <li>Copy paste menu need to be added and enabled in the generalised menu</li>
+            <li>Undo redo menu need to be added and enabled in the generalised menu</li>
+            <li>The default order of columns in a table needs to be set from the imdi file format</li>
+            
+            <li>The integration with Lamus has not yet begun so it is recommended to limit work to new corpus trees. Rather than editing files that already exist in a Corpus on the server</li>
+            <li>The function to export for use in Lamus is not yet present </li>
+            <!--<li>Resource images are not displayed when the application opens and remembers the previous windows.</li>-->
+            <li>Sections of a session that have multiple elements are not formatted consistently</li>
+            <!--            <li>Resource files cannot yet be added to a session</li>-->
+            <li>Preview of media files will only display jpg files at this stage</li>
+            <li>Webstart occasionally gives an error that it can't find jar files when the internet connection is slow</li>
+            <!--            <li>Save changes on exit and from file menu needs to be added</li>-->
+<!--            <li>Adding a node reloads sibling nodes without saving any changes</li>-->
+
+<!--            <li>Search has been disabled because it will be revamped in the near future</li>-->
+<!--            <li>Table column width is not always set correctly</li>-->
+            <li>The right click menu is about to be updated which will populate the edit menu and add copy paste functions where applicable</li>
+            <li>Copy / paste of existing node elements is not yet implemented</li>
+            <li>Undo / redo functionality is not yet available</li>
+            <li>A number of mouse actions currently cannot be done on multiple selections</li>
+            <li>Hide / show hidden files in the working directory</li>
+            <!--            <li>When adding or remove local directory and few other situations, the tree branches will close</li>-->
+<!--            <li>When adding nodes the new nodes will not always be displayed immediately</li>-->
+            <li>On Mac the internal windows can be slow when dragged around</li>
+            <li>The versions of a imdi file cannot yet be viewed</li>
+            <li>In the resource preview window the row selection of the table is not yet synchronised with the preview items</li>
+            <li>The table columns are not yet ordered correctly by default</li>
+            <li>Keyboard short cuts for add session etc. has not yet been added</li>
+            <li>Controlled vocabularies displayed in the table cell are dependant on the information in the imdi file and needs to be made more robust</li>
+            <li>There are some cosmetic display issues on Mac</li>
+            <!--            <li>When a node is saved or reloaded the colour indicating the need to save may not update immediately</li>-->
+            <li>Currently it is not possible to add or drag to sub nodes of a session, this must for now be done only on the session node</li>
+            <li>Currently it is not possible delete sub nodes of a session, ie actors and resources</li>
+            <!--            <li>Table columns are not yet correctly sized</li>-->
+            <li>It is not yet possible to easily view and edit long or multi line fields</li>
+            <li>Templates are not yet usable</li>
+            <li>It is not yet possible to set the language for descriptions etc..</li>
+        </ul>
+        <br>
+        <br>
+        features / bugs jar version<br>
+    </body>
+</html>
