@@ -38,7 +38,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>plugins-core</artifactId>
-            <version>1.3-pretesting-SNAPSHOT</version>
+            <version>1.3.119-testing</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

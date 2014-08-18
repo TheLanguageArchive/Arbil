@@ -80,8 +80,6 @@ import nl.mpi.arbil.util.WebstartHelper;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
 import nl.mpi.arbilcommons.ui.LocalisationSelector;
-import nl.mpi.pluginloader.PluginService;
-import nl.mpi.pluginloader.ui.PluginMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
