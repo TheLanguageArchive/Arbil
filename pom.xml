@@ -13,6 +13,7 @@
         <module>arbil-wicket</module>
         <module>arbil-commons</module>
         <module>arbil-localisation</module>
+        <module>metadata-reader-writer</module>
     </modules>
 
     <organization> 
