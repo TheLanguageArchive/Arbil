@@ -121,6 +121,7 @@ public class MetadataFormat {
     }
 
     public FileType deepCheck(URI targetUri) {
+        // todo: set the redirected uri in the data node here rather than repeatedly following redirects
         FileType shallowCheckResult = shallowCheck(targetUri);
         if (shallowCheckResult != FileType.UNKNOWN) {
             logger.debug("Shallow check was decisive: {}", shallowCheckResult);
@@ -200,7 +201,7 @@ public class MetadataFormat {
             inputStream.close();
         } catch (IOException exception) {
             logger.warn("Could not get remote file type for {}", targetUri);
-            logger.info("Could not get remote file type, returning " + shallowCheckResult.name(), exception);
+            logger.info("Could not get remote file type, returning " + shallowCheckResult.name());
             return shallowCheckResult;
         }
         return FileType.FILE;

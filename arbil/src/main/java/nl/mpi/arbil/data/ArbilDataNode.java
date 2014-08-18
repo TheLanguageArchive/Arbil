@@ -114,6 +114,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     //    private boolean isFavourite;
     public String archiveHandle = null;
     public String archiveUri = null;
+// todo: store the redirected url rather than rechecking it all the time ---  public String redirectedUri = null;
     public boolean hasDomIdAttribute = false; // used to requre a save (that will remove the dom ids) if a node has any residual dom id attributes
     //public Vector<String[]> addQueue;
     public boolean scrollToRequested = false;

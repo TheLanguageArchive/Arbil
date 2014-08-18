@@ -43,7 +43,11 @@ public class BlockingDataNodeLoaderTest {
         System.out.println("getBlockingDataNodeLoader");
         final String cacheDirectory = File.createTempFile("arbil-unit-test", "-tmp").getParent();
         final BlockingDataNodeLoader blockingDataNodeLoader = BlockingDataNodeLoader.getBlockingDataNodeLoader(cacheDirectory);
+//        ArbilDataNode dataNode = (ArbilDataNode) blockingDataNodeLoader.getPluginArbilDataNode(null, new URI("http://hdl.handle.net/11142/00-74BB450B-4E5E-4EC7-B043-F444C62DB5C0"));
+//        ArbilDataNode dataNode = (ArbilDataNode) blockingDataNodeLoader.getPluginArbilDataNode(null, new URI("hdl:11142/00-50AD419C-056C-4A9B-AB38-08BDAC854236"));
         ArbilDataNode dataNode = (ArbilDataNode) blockingDataNodeLoader.getPluginArbilDataNode(null, new URI("hdl:11142/00-BAB83179-F270-4477-88FE-DFD10EA68CCA"));
+//        ArbilDataNode dataNode = (ArbilDataNode) blockingDataNodeLoader.getPluginArbilDataNode(null, new URI("hdl:11142/00-F776D856-F005-4C41-9E8F-C16056624E34"));
+//        ArbilDataNode dataNode = (ArbilDataNode) blockingDataNodeLoader.getPluginArbilDataNode(null, new URI("http://hdl.handle.net/11142/00-F776D856-F005-4C41-9E8F-C16056624E34"));
 //        if (dataNode.getLoadingState() != ArbilDataNode.LoadingState.LOADED && dataNode.isMetaDataNode()) {
 //            dataNode.loadArbilDom();
 //            dataNode.loadFullArbilDom();// todo: this has changed undo if can
@@ -53,6 +57,12 @@ public class BlockingDataNodeLoaderTest {
         System.out.println("links:" + dataNode.getChildLinks().size());
         System.out.println("field groups:" + dataNode.getFieldGroups().size());
         assertEquals("aCollection", dataNode.getLabel());
+
+//        assertEquals(5, dataNode.getChildLinks().get(0));
+//        assertEquals(5, dataNode.getChildIds().get(0).getNodeUriString());
+//        assertEquals(5, dataNode.getAllChildren()[0].getURI());
+//        assertEquals(5, dataNode.getChildArray()[0].getURI());
+//        assertEquals(5, dataNode.getChildArray()[0].getURI());
         assertEquals(5, dataNode.getChildCount());
         assertEquals(5, dataNode.getChildLinks().size());
         assertEquals(1, dataNode.getFieldGroups().size());

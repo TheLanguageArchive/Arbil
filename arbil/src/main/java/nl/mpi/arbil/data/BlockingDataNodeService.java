@@ -19,7 +19,9 @@ package nl.mpi.arbil.data;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,7 +35,8 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.HandleUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.util.BugCatcherManager;
-import nl.mpi.flap.plugin.PluginArbilDataNodeLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -44,6 +47,7 @@ import org.xml.sax.SAXException;
  */
 public class BlockingDataNodeService extends AbstractDataNodeService implements DataNodeService {
 
+    private final static Logger logger = LoggerFactory.getLogger(BlockingDataNodeService.class);
     private final MetadataFormat metadataFormat = new MetadataFormat();
     private final MetadataReader metadataReader = MetadataReader.getSingleInstance();
     // todo: the ResourceBundle widgets is not relevant to this usage and it would be better to throw from this class
@@ -130,7 +134,8 @@ public class BlockingDataNodeService extends AbstractDataNodeService implements 
                         initComponentLinkReader(dataNode);
                         updateMetadataChildNodes(dataNode);
                     } catch (Exception mue) {
-                        BugCatcherManager.getBugCatcher().logError(dataNode.getUrlString(), mue);
+                        logger.info(mue.getMessage());
+//                        BugCatcherManager.getBugCatcher().logError(dataNode.getUrlString(), mue);
                         //            logger.debug("Invalid input URL: " + mue);
                         File nodeFile = dataNode.getFile();
                         if (nodeFile != null && nodeFile.exists()) {
@@ -147,6 +152,30 @@ public class BlockingDataNodeService extends AbstractDataNodeService implements 
                     }
 
                     dataNode.setLoadingState(requestedLoadingState);
+                } else if (!dataNode.isLocal()) {
+                    //todo: move me and or make me optional
+                    try {
+                        final URLConnection uRLConnection = dataNode.getUri().toURL().openConnection();
+                        if (uRLConnection instanceof HttpURLConnection) {
+                            // For HTTP connections, we want to follow redirects
+                            ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
+                        }
+                        // add http headers as data node fields
+                        final Map<String, List<String>> headerFields = uRLConnection.getHeaderFields();
+                        for (String fieldName : headerFields.keySet()) {
+                            final List<String> values = headerFields.get(fieldName);
+                            for (String value : values) {
+                                final String fieldNameNonNull = (fieldName != null) ? fieldName : "";
+                                final String valueNonNull = (value != null) ? value : "";
+                                dataNode.addField(new ArbilField(0, dataNode, fieldNameNonNull, valueNonNull, 0, false));
+                            }
+                        }
+                        dataNode.setLoadingState(ArbilDataNode.LoadingState.LOADED);
+                    } catch (IOException exception) {
+                        logger.debug("location header check on URL {} failed", exception.getMessage());
+//                    } catch (MalformedURLException exception) {
+//                        logger.debug("location header check on URL {} failed", exception.getMessage());
+                    }
                 }
             }
         }
