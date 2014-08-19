@@ -117,9 +117,9 @@ public class ArbilFavourites implements FavouritesService {
 		}
 	    } else {
 		if (setAsTempate) {
-		    addAsFavourite(currentNode.getURI());
+		    addAsFavourite(currentNode.getUri());
 		} else {
-		    removeFromFavourites(currentNode.getURI());
+		    removeFromFavourites(currentNode.getUri());
 		    // TODO: remove from any tables and update the tree roots
 //                currentImdiObject.setFavouriteStatus(false);
 		}

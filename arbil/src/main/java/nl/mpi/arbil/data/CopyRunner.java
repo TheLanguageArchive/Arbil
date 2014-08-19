@@ -140,12 +140,12 @@ public class CopyRunner implements Runnable {
 	    for (ArbilDataNode currentFinishedNode : copiedNodes) {
 		if (destinationNode != null) {
 		    // Import into specific corpus inside local corpus
-		    if (!destinationNode.getURI().equals(currentFinishedNode.getURI())) {
+		    if (!destinationNode.getUri().equals(currentFinishedNode.getUri())) {
 			destinationNode.addCorpusLink(currentFinishedNode);
 		    }
 		} else {
 		    // Import to root level of local corpus
-		    if (!treeHelper.addLocation(currentFinishedNode.getURI())) {
+		    if (!treeHelper.addLocation(currentFinishedNode.getUri())) {
 			finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
 		    }
 		}
@@ -160,10 +160,10 @@ public class CopyRunner implements Runnable {
     }
 
     private void copyElement(final Object currentElement, final File exportDestinationDirectory, final List<URI> getList, final Map<URI, RetrievableFile> seenFiles, final List<URI> doneList, final XsdChecker xsdChecker, final List<ArbilDataNode> finishedTopNodes) {
-	final URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
+	final URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getUri();
 	getList.add(currentGettableUri);
 	if (!seenFiles.containsKey(currentGettableUri)) {
-	    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
+	    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getUri(), exportDestinationDirectory));
 	}
 	while (!impExpUI.isStopCopy() && getList.size() > 0) {
 	    RetrievableFile currentRetrievableFile = seenFiles.get(getList.remove(0));

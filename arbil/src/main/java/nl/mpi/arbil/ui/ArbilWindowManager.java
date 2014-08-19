@@ -1322,7 +1322,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 	if (rowNodesArray.length == 1 && rowNodesArray[0] != null && rowNodesArray[0].isInfoLink) {
 	    try {
 		if (rowNodesArray[0].getUrlString().toLowerCase().endsWith(".html") || rowNodesArray[0].getUrlString().toLowerCase().endsWith(".txt")) {
-		    openUrlWindowOnce(rowNodesArray[0].toString(), rowNodesArray[0].getURI().toURL());
+		    openUrlWindowOnce(rowNodesArray[0].toString(), rowNodesArray[0].getUri().toURL());
 		    return null;
 		}
 	    } catch (MalformedURLException exception) {
@@ -1539,7 +1539,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
 		    return;
 		}
 	    }
-	    URI nodeUri = new HandleUtils().resolveHandle(((ArbilDataNode) (userObject)).getURI());
+	    URI nodeUri = new HandleUtils().resolveHandle(((ArbilDataNode) (userObject)).getUri());
 	    logger.debug("openImdiXmlWindow: " + nodeUri);
 	    String nodeName = ((ArbilDataNode) (userObject)).toString();
 	    if (formatXml) {

@@ -47,7 +47,7 @@ public class BinaryMetadataReader {
     public ArbilField[] getExifMetadata(ArbilDataNode resourceNode, int currentFieldId) {
 	List<ArbilField> exifTagFields = new ArrayList<ArbilField>();
 	try {
-	    URI uri = resourceNode.getURI();
+	    URI uri = resourceNode.getUri();
 	    if (resourceNode.getFile().getName().contains(".")) {
 		String fileSuffix = resourceNode.getFile().getName().substring(resourceNode.getFile().getName().lastIndexOf(".") + 1);
 		Iterator readers = ImageIO.getImageReadersBySuffix(fileSuffix);

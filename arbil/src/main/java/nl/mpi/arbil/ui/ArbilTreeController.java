@@ -78,7 +78,7 @@ public class ArbilTreeController {
 
     public void reImportBranch(ArbilDataNode leadSelectedTreeNode, ArbilTreePanels treePanels) {
         try {
-            URI remoteDataFile = sessionStorage.getOriginatingUri(leadSelectedTreeNode.getURI());
+            URI remoteDataFile = sessionStorage.getOriginatingUri(leadSelectedTreeNode.getUri());
             if (remoteDataFile != null) {
                 ArbilDataNode originatingNode = dataNodeLoader.getArbilDataNodeWithoutLoading(remoteDataFile);
                 if (originatingNode.isLocal() && !originatingNode.getFile().exists()) {
@@ -220,7 +220,7 @@ public class ArbilTreeController {
                     filteredNodes.add(currentItem);
                 } else {
                     try {
-                        windowManager.openUrlWindowOnce(currentItem.toString(), currentItem.getURI().toURL());
+                        windowManager.openUrlWindowOnce(currentItem.toString(), currentItem.getUri().toURL());
                     } catch (MalformedURLException murle) {
                         BugCatcherManager.getBugCatcher().logError(murle);
                     }

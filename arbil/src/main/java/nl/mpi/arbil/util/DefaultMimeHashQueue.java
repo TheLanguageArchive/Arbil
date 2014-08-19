@@ -352,7 +352,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 			if (checkForced(currentDataNode) || previousMTime != currentMTime || lastCheckedMimeArray == null) {
 //                                    logger.debug("run DefaultMimeHashQueue processing: " + currentPathString);
 			    currentDataNode.setMimeType(getMimeType(currentPathURI));
-			    currentDataNode.hashString = getHash(currentPathURI, currentDataNode.getURI());
+			    currentDataNode.hashString = getHash(currentPathURI, currentDataNode.getUri());
 			    processedFilesMTimes.put(currentPathURI.toString(), currentMTime); // avoid issues of the file being modified between here and the last mtime check
 			    setChangedSinceLastSave(true);
 			} else {
@@ -639,7 +639,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    // Non-resource data node
 	    try {
 		// Remove fragment from URI to get reference to actual file
-		return new URI(dataNode.getURI().getScheme(), dataNode.getURI().getSchemeSpecificPart(), null);
+		return new URI(dataNode.getUri().getScheme(), dataNode.getUri().getSchemeSpecificPart(), null);
 	    } catch (URISyntaxException ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
 		return null;

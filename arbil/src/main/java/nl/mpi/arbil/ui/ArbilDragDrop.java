@@ -689,7 +689,7 @@ public class ArbilDragDrop {
 		    }
 		}
 	    } else {
-		addNodeResult = treeHelper.addLocation(currentNode.getURI());
+		addNodeResult = treeHelper.addLocation(currentNode.getUri());
 	    }
 
 	    if (addNodeResult) {

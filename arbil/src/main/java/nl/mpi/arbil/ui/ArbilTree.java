@@ -338,7 +338,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer, Clipboar
 			if (currentNode.hasResource()) {
 			    copiedNodeUrls = copiedNodeUrls.concat(URLDecoder.decode(currentNode.getFullResourceURI().toString(), "UTF-8"));
 			} else {
-			    copiedNodeUrls = copiedNodeUrls.concat(URLDecoder.decode(currentNode.getURI().toString(), "UTF-8"));
+			    copiedNodeUrls = copiedNodeUrls.concat(URLDecoder.decode(currentNode.getUri().toString(), "UTF-8"));
 			}
 		    } catch (UnsupportedEncodingException murle) {
 			BugCatcherManager.getBugCatcher().logError(murle);

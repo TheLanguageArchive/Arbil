@@ -358,7 +358,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     public void clearRemoteLocations() {
 	for (ArbilDataNode removeNode : remoteCorpusNodes) {
-	    removeLocation(removeNode.getURI());
+	    removeLocation(removeNode.getUri());
 	}
     }
 

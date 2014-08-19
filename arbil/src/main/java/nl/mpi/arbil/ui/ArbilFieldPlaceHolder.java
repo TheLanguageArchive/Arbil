@@ -43,7 +43,7 @@ public class ArbilFieldPlaceHolder implements Serializable {
 	this.fieldName = fieldName;
 	this.arbilDataNode = dataNode;
 	if (dataNode != null) {
-	    this.arbilDataNodeURI = arbilDataNode.getURI();
+	    this.arbilDataNodeURI = arbilDataNode.getUri();
 	}
     }
 

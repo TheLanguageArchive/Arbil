@@ -71,7 +71,7 @@ public class FavouritesExporterImpl implements FavouritesExporter {
 	final URI exportUri = exportLocation.toURI();
 	final List<URI> favouriteNodeUris = new ArrayList<URI>(favouriteNodes.length);
 	for (ArbilDataNode favouriteNode : favouriteNodes) {
-	    final URI nodeUri = favouriteNode.getURI();
+	    final URI nodeUri = favouriteNode.getUri();
 	    final URI relativeNodeUri = favouritesBaseUri.relativize(nodeUri);
 	    favouriteNodeUris.add(relativeNodeUri);
 

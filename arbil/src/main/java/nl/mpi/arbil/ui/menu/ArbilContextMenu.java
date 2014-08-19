@@ -291,7 +291,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             if (currentNode.hasResource()) {
                 targetUri = currentNode.getFullResourceURI();
             } else {
-                targetUri = currentNode.getURI();
+                targetUri = currentNode.getUri();
                 if (targetUri.getFragment() != null) {
                     try {
                         targetUri = new URI(targetUri.getScheme(), targetUri.getHost(), targetUri.getPath(), null);
