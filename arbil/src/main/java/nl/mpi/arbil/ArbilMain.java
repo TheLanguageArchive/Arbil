@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil;
 
@@ -75,179 +76,175 @@ public class ArbilMain extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-	final ArbilVersion arbilVersion = new ArbilVersion();
-	final ArbilLogConfigurer logConfigurer = new ArbilLogConfigurer(arbilVersion, "arbil-log-");
-	// See if a logging configuration has been specified manually
-	if (System.getProperty("java.util.logging.config.file") == null) {
-	    // No logging configured, use built in initial logging properties
-	    logConfigurer.configureLoggingFromResource(ArbilMain.class, "/logging-initial.properties");
-	}
+        final ArbilVersion arbilVersion = new ArbilVersion();
+        final ArbilLogConfigurer logConfigurer = new ArbilLogConfigurer(arbilVersion, "arbil-log-");
+        // See if a logging configuration has been specified manually
+        if (System.getProperty("java.util.logging.config.file") == null) {
+            // No logging configured, use built in initial logging properties
+            logConfigurer.configureLoggingFromResource(ArbilMain.class, "/logging-initial.properties");
+        }
 
-	logger.info("Starting Arbil");
-	final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
-	final ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
+        logger.info("Starting Arbil");
+        final ApplicationVersionManager versionManager = new ApplicationVersionManager(arbilVersion);
+        final ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
 
-	System.setProperty("sun.swing.enableImprovedDragGesture", "true");
-	System.setProperty("apple.awt.graphics.UseQuartz", "true");
-	System.setProperty("apple.laf.useScreenMenuBar", "true");
-	java.awt.EventQueue.invokeLater(new Runnable() {
-	    public void run() {
-		// setting version manager on icon because it may be needed for localisation popup
-		ArbilIcons.setVersionManager(versionManager);
-		// set localisation from stored setting as early as possible because some initialisations may be locale sensitive
-		checkLocalisation(sessionStorage);
+        System.setProperty("sun.swing.enableImprovedDragGesture", "true");
+        System.setProperty("apple.awt.graphics.UseQuartz", "true");
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                // set localisation from stored setting as early as possible because some initialisations may be locale sensitive
+                checkLocalisation(sessionStorage, versionManager);
 
-		try {
-		    new ArbilMain(sessionStorage, versionManager, logConfigurer).run();
-		} catch (Exception ex) {
-		    BugCatcherManager.getBugCatcher().logError(ex);
-		}
-	    }
-	});
+                try {
+                    new ArbilMain(sessionStorage, versionManager, logConfigurer).run();
+                } catch (Exception ex) {
+                    BugCatcherManager.getBugCatcher().logError(ex);
+                }
+            }
+        });
     }
 
     public ArbilMain(ArbilSessionStorage sessionStorage, ApplicationVersionManager versionManager, ArbilLogConfigurer logConfigurer) {
-	this.versionManager = versionManager;
-	this.logConfigurer = logConfigurer;
-	this.sessionStorage = sessionStorage;
+        this.versionManager = versionManager;
+        this.logConfigurer = logConfigurer;
+        this.sessionStorage = sessionStorage;
 
-	final ArbilDesktopInjector injector = new ArbilDesktopInjector();
-	injector.injectHandlers(sessionStorage, versionManager, logConfigurer);
+        final ArbilDesktopInjector injector = new ArbilDesktopInjector();
+        injector.injectHandlers(sessionStorage, versionManager, logConfigurer);
 
-	this.treeHelper = injector.getTreeHelper();
-	this.treeController = injector.getTreeController();
-	this.windowManager = injector.getWindowManager();
-	this.mimeHashQueue = injector.getMimeHashQueue();
-	this.tableController = injector.getTableController();
-	this.dataNodeLoader = injector.getDataNodeLoader();
+        this.treeHelper = injector.getTreeHelper();
+        this.treeController = injector.getTreeController();
+        this.windowManager = injector.getWindowManager();
+        this.mimeHashQueue = injector.getMimeHashQueue();
+        this.tableController = injector.getTableController();
+        this.dataNodeLoader = injector.getDataNodeLoader();
     }
 
     public void run() {
-	final ArbilConfiguration config = readConfig();
-	initApplication();
-	initUI(config);
-	checkFirstRun();
+        final ArbilConfiguration config = readConfig();
+        initApplication();
+        initUI(config);
+        checkFirstRun();
     }
 
     private ArbilConfiguration readConfig() {
-	ArbilConfigurationManager configManager = new ArbilConfigurationManager(sessionStorage);
-	ArbilConfiguration appConfig = configManager.read();
+        ArbilConfigurationManager configManager = new ArbilConfigurationManager(sessionStorage);
+        ArbilConfiguration appConfig = configManager.read();
 
-	// Set shared config on using objects
-	ArbilTemplateManager.getSingleInstance().setApplicationConfiguration(appConfig);
-	MetadataReader.getSingleInstance().setApplicationConfiguration(appConfig);
-	return appConfig;
+        // Set shared config on using objects
+        ArbilTemplateManager.getSingleInstance().setApplicationConfiguration(appConfig);
+        MetadataReader.getSingleInstance().setApplicationConfiguration(appConfig);
+        return appConfig;
     }
 
     private void initApplication() {
 
-	try {
-	    java.net.Authenticator.setDefault(new AuthenticatorStub(windowManager));
-	} catch (SecurityException sEx) {
-	    BugCatcherManager.getBugCatcher().logError("Failed to set custom Authenticator. Default authentication dialogs may appear.", sEx);
-	}
+        try {
+            java.net.Authenticator.setDefault(new AuthenticatorStub(windowManager));
+        } catch (SecurityException sEx) {
+            BugCatcherManager.getBugCatcher().logError("Failed to set custom Authenticator. Default authentication dialogs may appear.", sEx);
+        }
 
-	treeHelper.init();
-	mimeHashQueue.init();
+        treeHelper.init();
+        mimeHashQueue.init();
     }
 
     private void initUI(ArbilConfiguration appConfig) {
-	this.addWindowListener(new WindowAdapter() {
-	    @Override
-	    public void windowClosing(WindowEvent e) {
-		arbilMenuBar.performCleanExit();
-		//super.windowClosing(e);
-	    }
-	});
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                arbilMenuBar.performCleanExit();
+                //super.windowClosing(e);
+            }
+        });
 
-	final boolean macHandlersInitialized = initMacHandlers();
+        final boolean macHandlersInitialized = initMacHandlers();
 
-	initComponents();
-	windowManager.addTaskListener(statusBar);
-	PreviewSplitPanel previewSplitPanel = new PreviewSplitPanel(windowManager, tableController);
-	mainSplitPane.setRightComponent(previewSplitPanel);
+        initComponents();
+        windowManager.addTaskListener(statusBar);
+        PreviewSplitPanel previewSplitPanel = new PreviewSplitPanel(windowManager, tableController);
+        mainSplitPane.setRightComponent(previewSplitPanel);
 
-	final ArbilDragDrop dragDrop = new ArbilDragDrop(sessionStorage, treeHelper, windowManager, windowManager, tableController);
-	windowManager.setDragDrop(dragDrop);
+        final ArbilDragDrop dragDrop = new ArbilDragDrop(sessionStorage, treeHelper, windowManager, windowManager, tableController);
+        windowManager.setDragDrop(dragDrop);
 
-	final ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController, previewSplitPanel, dragDrop);
-	mainSplitPane.setLeftComponent(arbilTreePanels);
+        final ArbilTreePanels arbilTreePanels = new ArbilTreePanels(treeHelper, treeController, previewSplitPanel, dragDrop);
+        mainSplitPane.setLeftComponent(arbilTreePanels);
 
-	final HostOS hostOs = macHandlersInitialized ? HostOS.MACOS : HostOS.OTHER;
-	arbilMenuBar = new ArbilMenuBar(appConfig, sessionStorage, windowManager, windowManager, treeHelper, dataNodeLoader, mimeHashQueue, versionManager, logConfigurer, null, previewSplitPanel, hostOs);
-	setJMenuBar(arbilMenuBar);
+        final HostOS hostOs = macHandlersInitialized ? HostOS.MACOS : HostOS.OTHER;
+        arbilMenuBar = new ArbilMenuBar(appConfig, sessionStorage, windowManager, windowManager, treeHelper, dataNodeLoader, mimeHashQueue, versionManager, logConfigurer, null, previewSplitPanel, hostOs);
+        setJMenuBar(arbilMenuBar);
 
-	mainSplitPane.setDividerLocation(0.25);
+        mainSplitPane.setDividerLocation(0.25);
 
-	windowManager.loadGuiState(this, statusBar);
-	setTitle(versionManager.getApplicationVersion().applicationTitle + " " + versionManager.getApplicationVersion().compileDate);
-	setIconImage(ArbilIcons.getSingleInstance().linorgIcon.getImage());
-	// load the templates and populate the templates menu
-	setVisible(true);
-        
-	if (sessionStorage.loadBoolean("checkNewVersionAtStart", true)) {
-	    versionManager.checkForUpdate();
-	}
+        windowManager.loadGuiState(this, statusBar);
+        setTitle(versionManager.getApplicationVersion().applicationTitle + " " + versionManager.getApplicationVersion().compileDate);
+        setIconImage(ArbilIcons.getSingleInstance().getApplicationIcon(versionManager).getImage());
+        // load the templates and populate the templates menu
+        setVisible(true);
 
-
+        if (sessionStorage.loadBoolean("checkNewVersionAtStart", true)) {
+            versionManager.checkForUpdate();
+        }
     }
 
     private boolean initMacHandlers() {
-	final MacAdapter macAdapter = new MacAdapter() {
-	    @Override
-	    protected boolean performApplicationExit() {
-		return arbilMenuBar.performCleanExit();
-	    }
+        final MacAdapter macAdapter = new MacAdapter() {
+            @Override
+            protected boolean performApplicationExit() {
+                return arbilMenuBar.performCleanExit();
+            }
 
-	    @Override
-	    protected void performApplicationAbout() {
-		windowManager.openAboutPage();
-	    }
-	};
+            @Override
+            protected void performApplicationAbout() {
+                windowManager.openAboutPage();
+            }
+        };
 
-	try {
-	    if (macAdapter.initMacApplicationHandlers()) {
-		logger.debug("Mac handlers succesfully congifured");
-		return true;
-	    }
-	} catch (MacAdapterException exception) {
-	    logger.error("Could not configure MacOS application handlers", exception);
-	}
-	return false;
+        try {
+            if (macAdapter.initMacApplicationHandlers()) {
+                logger.debug("Mac handlers succesfully congifured");
+                return true;
+            }
+        } catch (MacAdapterException exception) {
+            logger.error("Could not configure MacOS application handlers", exception);
+        }
+        return false;
     }
 
     private void checkFirstRun() {
-	windowManager.showSetupWizardIfFirstRun();
-	windowManager.openIntroductionPage();
+        windowManager.showSetupWizardIfFirstRun();
+        windowManager.openIntroductionPage();
     }
 
-    private static void checkLocalisation(SessionStorage sessionStorage) {
-	final String availableLanguages = ResourceBundle.getBundle("nl/mpi/arbil/localisation/AvailableLanguages").getString("LANGUAGE CODES");
-	final LocalisationSelector localisationSelector = new LocalisationSelector(sessionStorage, availableLanguages.split(","));
-	if (!localisationSelector.hasSavedLocal()) {
-	    final String please_select_your_preferred_language = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PLEASE SELECT YOUR PREFERRED LANGUAGE");
-	    final String language_Selection = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LANGUAGE SELECTION");
-	    final String system_Default = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SYSTEM DEFAULT");
-	    localisationSelector.askUser(null, ArbilIcons.getSingleInstance().linorgIcon, please_select_your_preferred_language, language_Selection, system_Default);
-	}
-	localisationSelector.setLanguageFromSaved();
+    private static void checkLocalisation(SessionStorage sessionStorage, ApplicationVersionManager versionManagerLocal) {
+        final String availableLanguages = ResourceBundle.getBundle("nl/mpi/arbil/localisation/AvailableLanguages").getString("LANGUAGE CODES");
+        final LocalisationSelector localisationSelector = new LocalisationSelector(sessionStorage, availableLanguages.split(","));
+        if (!localisationSelector.hasSavedLocal()) {
+            final String please_select_your_preferred_language = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("PLEASE SELECT YOUR PREFERRED LANGUAGE");
+            final String language_Selection = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("LANGUAGE SELECTION");
+            final String system_Default = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Menus").getString("SYSTEM DEFAULT");
+            localisationSelector.askUser(null, ArbilIcons.getSingleInstance().getApplicationIcon(versionManagerLocal), please_select_your_preferred_language, language_Selection, system_Default);
+        }
+        localisationSelector.setLanguageFromSaved();
     }
 
     private void initComponents() {
 
-	mainSplitPane = new javax.swing.JSplitPane();
-	statusBar = new ArbilTaskStatusBar();
+        mainSplitPane = new javax.swing.JSplitPane();
+        statusBar = new ArbilTaskStatusBar();
 
-	setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-	setTitle("Arbil");
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle("Arbil");
 
-	mainSplitPane.setDividerLocation(100);
-	mainSplitPane.setDividerSize(5);
-	mainSplitPane.setName("mainSplitPane");
-	getContentPane().setLayout(new BorderLayout());
-	getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
-	getContentPane().add(statusBar, BorderLayout.SOUTH);
+        mainSplitPane.setDividerLocation(100);
+        mainSplitPane.setDividerSize(5);
+        mainSplitPane.setName("mainSplitPane");
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
+        getContentPane().add(statusBar, BorderLayout.SOUTH);
 
-	pack();
+        pack();
     }
 }
