@@ -122,7 +122,7 @@ public class MetadataBuilder {
 		    if (destinationNode.getNodeTemplate().getMaxOccursForTemplate(nodeType) >= 0) {
 			logger.debug("adding to current node");
 			try {
-			    Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
+			    Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getUri());
 			    if (nodDom == null) {
 				messageDialogHandler.addMessageDialogToQueue(services.getString("THE METADATA FILE COULD NOT BE OPENED"), services.getString("ADD NODE"));
 			    } else {
@@ -396,7 +396,7 @@ public class MetadataBuilder {
 			    if (nodeType == null) {
 				nodeType = handleUnknownMimetype(currentArbilNode);
 			    }
-			    resourceUri = currentArbilNode.getURI();
+			    resourceUri = currentArbilNode.getUri();
 			    mimeType = currentArbilNode.mpiMimeType;
 			    nodeTypeDisplayName = "Resource";
 			} else {
@@ -463,11 +463,11 @@ public class MetadataBuilder {
 	    URI addedNodeUri;
 	    if (addableNode.getURIFragment() == null) {
 		if (destinationNode != null) {
-		    addedNodeUri = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
+		    addedNodeUri = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getUri().getPath());
 		} else {
-		    addedNodeUri = sessionStorage.getNewArbilFileName(sessionStorage.getSaveLocation(""), addableNode.getURI().getPath());
+		    addedNodeUri = sessionStorage.getNewArbilFileName(sessionStorage.getSaveLocation(""), addableNode.getUri().getPath());
 		}
-		ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
+		ArbilDataNode.getMetadataUtils(addableNode.getUri().toString()).copyMetadataFile(addableNode.getUri(), new File(addedNodeUri), null, true);
 		ArbilDataNode addedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 		new ArbilComponentBuilder().removeArchiveHandles(addedNode);
 		if (destinationNode == null) {
@@ -475,7 +475,7 @@ public class MetadataBuilder {
 		    treeHelper.addLocation(addedNodeUri);
 		    treeHelper.applyRootLocations();
 		} else {
-		    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
+		    destinationNode.metadataUtils.addCorpusLink(destinationNode.getUri(), new URI[]{addedNodeUri});
 		}
 		addedNode.loadArbilDom();
 		addedNode.scrollToRequested = true;
@@ -527,11 +527,11 @@ public class MetadataBuilder {
 		    if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
 			logger.debug("adding to current node");
 			try {
-			    Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
+			    Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getUri());
 			    if (nodDom == null) {
 				messageDialogHandler.addMessageDialogToQueue(services.getString("THE METADATA FILE COULD NOT BE OPENED"), services.getString("ADD NODE"));
 			    } else {
-				addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
+				addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getUri(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
 				destinationNode.bumpHistory();
 				ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
 
@@ -581,7 +581,7 @@ public class MetadataBuilder {
 			    throw new ArbilMetadataException("A node of the requested could not be created. See previous messages for details.");
 			} else {
 			    if (destinationNode.getFile().exists()) {
-				destinationNode.getParentDomNode().getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
+				destinationNode.getParentDomNode().getMetadataUtils().addCorpusLink(destinationNode.getUri(), new URI[]{addedNodePath});
 				destinationNode.getParentDomNode().loadArbilDom();
 				if (creationCallback != null) {
 				    creationCallback.nodeCreated(destinationNode, addedNodePath);
