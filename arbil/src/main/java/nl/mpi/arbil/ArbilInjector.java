@@ -80,7 +80,6 @@ public abstract class ArbilInjector {
     }
 
     public void injectVersionManager(ApplicationVersionManager versionManager) {
-	ArbilIcons.setVersionManager(versionManager);
 	ArbilTableModel.setVersionManager(versionManager);
 	MetadataReader.setVersionManager(versionManager);
     }
