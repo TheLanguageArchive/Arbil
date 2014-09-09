@@ -85,6 +85,8 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import static javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW;
+import nl.mpi.pluginloader.PluginService;
+import nl.mpi.pluginloader.ui.PluginMenu;
 
 /**
  * ArbilMenuBar.java Created on Jul 9, 2009, 12:01:02 PM
@@ -766,7 +768,7 @@ public class ArbilMenuBar extends JMenuBar {
 		    final String please_select_your_preferred_language = menus.getString("PLEASE SELECT YOUR PREFERRED LANGUAGE");
 		    final String language_Selection = menus.getString("LANGUAGE SELECTION");
 		    final String system_Default = menus.getString("SYSTEM DEFAULT");
-		    final boolean languageChanged = localisationSelector.askUser(windowManager.getMainFrame(), ArbilIcons.getSingleInstance().linorgIcon, please_select_your_preferred_language, language_Selection, system_Default);
+		    final boolean languageChanged = localisationSelector.askUser(windowManager.getMainFrame(), ArbilIcons.getSingleInstance().getApplicationIcon(versionManager), please_select_your_preferred_language, language_Selection, system_Default);
 		    localisationSelector.setLanguageFromSaved();
 		    // if changed, show a message
 		    if (languageChanged) {
