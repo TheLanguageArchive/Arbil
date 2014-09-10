@@ -50,7 +50,7 @@ public class DetachableArbilDataNodeCollection implements Serializable, IDetacha
 	return ImmutableList.copyOf(Lists.transform(nodes, new Function<ArbilDataNode, URI>() {
 
 	    public URI apply(ArbilDataNode f) {
-		return f.getURI();
+		return f.getUri();
 	    }
 	}));
     }
@@ -92,7 +92,7 @@ public class DetachableArbilDataNodeCollection implements Serializable, IDetacha
 
     public boolean contains(Object o) {
 	if (o instanceof ArbilDataNode) {
-	    return getURIs().contains(((ArbilDataNode) o).getURI());
+	    return getURIs().contains(((ArbilDataNode) o).getUri());
 	} else if (o instanceof URI) {
 	    return getURIs().contains((URI) o);
 	} else {
@@ -113,7 +113,7 @@ public class DetachableArbilDataNodeCollection implements Serializable, IDetacha
     }
 
     public boolean add(ArbilDataNode e) {
-	if (getURIs().add(e.getURI())) {
+	if (getURIs().add(e.getUri())) {
 	    // Invalidate dataNodes
 	    detach();
 	    return true;
@@ -125,7 +125,7 @@ public class DetachableArbilDataNodeCollection implements Serializable, IDetacha
     public boolean remove(Object o) {
 	boolean result = false;
 	if (o instanceof ArbilDataNode) {
-	    result = getURIs().remove(((ArbilDataNode) o).getURI());
+	    result = getURIs().remove(((ArbilDataNode) o).getUri());
 	} else if (o instanceof URI) {
 	    result = getURIs().remove((URI) o);
 	}
