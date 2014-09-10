@@ -15,7 +15,7 @@ public class ArbilDataNodeModel extends LoadableDetachableModel<ArbilDataNode>{
     
     public ArbilDataNodeModel(ArbilDataNode dataNode){
 	super(dataNode);
-	this.uri = dataNode.getURI();
+	this.uri = dataNode.getUri();
     }
     
     public ArbilDataNodeModel(URI uri){
