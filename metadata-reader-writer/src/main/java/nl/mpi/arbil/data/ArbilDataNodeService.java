@@ -18,6 +18,10 @@
  */
 package nl.mpi.arbil.data;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,12 +35,14 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
+import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -47,6 +53,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.TableManager;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
 import org.slf4j.Logger;
@@ -102,6 +109,89 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
     }
 
     @Override
+    public void pasteIntoNode(final TableManager tableManager, ArbilDataNode dataNode) {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Transferable transfer = clipboard.getContents(null);
+        try {
+            String clipBoardString = "";
+            Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
+            if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
+                clipBoardString = clipBoardData.toString();
+                logger.debug("clipBoardString: {}", clipBoardString);
+
+                String[] elements;
+                if (clipBoardString.contains("\n")) {
+                    elements = clipBoardString.split("\n");
+                } else {
+                    elements = new String[]{clipBoardString};
+                }
+                for (String element : elements) {
+                }
+                for (ArbilDataNode clipboardNode : pasteIntoNode(tableManager, dataNode, elements)) {
+                    new MetadataBuilder().requestAddNode(tableManager, dataNode, MessageFormat.format(widgets.getString("COPY OF {0}"), clipboardNode), clipboardNode);
+                }
+            }
+        } catch (Exception ex) {
+            BugCatcherManager.getBugCatcher().logError(ex);
+        }
+    }
+
+    private Collection<ArbilDataNode> pasteIntoNode(final TableManager tableManager, ArbilDataNode dataNode, String[] clipBoardStrings) {
+        try {
+            ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
+            boolean ignoreSaveChanges = false;
+            for (String clipBoardString : clipBoardStrings) {
+                if (dataNode.isCorpus()) {
+                    if (MetadataFormat.isPathMetadata(clipBoardString) || MetadataFormat.isStringChildNode(clipBoardString)) {
+                        ArbilDataNode clipboardNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
+                        if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
+                            if (!(MetadataFormat.isStringChildNode(clipBoardString) && (!dataNode.isSession() && !dataNode.isChildNode()))) {
+                                if (dataNode.getFile().exists()) {
+                                    if (!ignoreSaveChanges && clipboardNode.getNeedsSaveToDisk(false)) {
+                                        if (JOptionPane.CANCEL_OPTION == messageDialogHandler.showDialogBox(
+                                                widgets.getString("SOME OF THE NODES TO BE COPIED CONTAIN UNSAVED CHANGES"), widgets.getString("COPYING WITH UNSAVED CHANGES"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                                            return new ArrayList<ArbilDataNode>(0);
+                                        } else {
+                                            ignoreSaveChanges = true;
+                                        }
+                                    }
+
+                                    // this must use merge like favoirite to prevent instances end endless loops in corpus branches
+                                    nodesToAdd.add(clipboardNode);
+                                } else {
+                                    messageDialogHandler.addMessageDialogToQueue(widgets.getString("THE TARGET NODE'S FILE DOES NOT EXIST"), null);
+                                }
+                            } else {
+                                messageDialogHandler.addMessageDialogToQueue(widgets.getString("CANNOT PASTE SESSION SUBNODES INTO A CORPUS"), null);
+                            }
+                        } else {
+                            messageDialogHandler.addMessageDialogToQueue(widgets.getString("THE TARGET FILE IS NOT IN THE CACHE"), null);
+                        }
+                    } else {
+                        messageDialogHandler.addMessageDialogToQueue(widgets.getString("PASTED STRING IS NOT AND IMDI FILE"), null);
+                    }
+                } else if (dataNode.isMetaDataNode() || dataNode.isSession()) {
+                    // Get source node
+                    ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
+                    // Check if it can be contained by destination node
+                    if (metadataReader.nodeCanExistInNode(dataNode, templateDataNode)) {
+                        // Add source to destination
+                        new MetadataBuilder().requestAddNode(tableManager, dataNode, templateDataNode.toString(), templateDataNode);
+                    } else {
+                        // Invalid copy/paste...
+                        messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("CANNOT COPY {0} TO {1}"), templateDataNode.toString(), dataNode.toString()), "Cannot copy");
+                    }
+                } else { // Not corpus, session or metadata
+                    messageDialogHandler.addMessageDialogToQueue(widgets.getString("NODES OF THIS TYPE CANNOT BE PASTED INTO AT THIS STAGE"), null);
+                }
+            }
+            return nodesToAdd;
+        } catch (URISyntaxException ex) {
+            BugCatcherManager.getBugCatcher().logError(ex);
+            return null;
+        }
+    }
+
     public boolean addCorpusLink(ArbilDataNode dataNode, ArbilDataNode targetNode) {
         boolean linkAlreadyExists = false;
         if (targetNode.isCatalogue()) {
@@ -190,7 +280,31 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
         dataNode.clearIcon(); // this must be cleared so that the leaf / branch flag gets set
     }
 
-    @Override
+    /**
+     * Inserts/sets resource location. Behavior will depend on node type
+     *
+     * @param location Location to insert/set
+     */
+    public void insertResourceLocation(final TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
+        if (dataNode.isCmdiMetaDataNode()) {
+            ArbilDataNode resourceNode = null;
+            try {
+                resourceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(location);
+            } catch (Exception ex) {
+                throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
+            }
+            if (resourceNode == null) {
+                throw new ArbilMetadataException(MessageFormat.format(widgets.getString("UNKNOWN ERROR CREATING RESOURCE NODE FOR URI: {0}"), location.toString()));
+            }
+
+            new MetadataBuilder().requestAddNode(tableManager, dataNode, null, resourceNode);
+        } else {
+            if (dataNode.hasResource()) {
+                dataNode.resourceUrlField.setFieldValue(location.toString(), true, false);
+            }
+        }
+    }
+
     public void addField(ArbilDataNode dataNode, ArbilField fieldToAdd) {
         //        System.addField:out.println("addField: " + this.getUrlString() + " : " + fieldToAdd.xmlPath + " : " + fieldToAdd.getFieldValue());
         ArbilField[] currentFieldsArray = dataNode.getFieldArray(fieldToAdd.getTranslateFieldName());
