@@ -88,6 +88,8 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import static javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW;
+import javax.swing.ProgressMonitor;
+import nl.mpi.arbil.data.IMDIVocabularies;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.pluginloader.PluginService;
 import nl.mpi.pluginloader.ui.PluginMenu;
@@ -486,7 +488,8 @@ public class ArbilMenuBar extends JMenuBar {
         updateAllLoadedVocabulariesMenuItem.setText(menus.getString("RE-DOWNLOAD CURRENT VOCABULARIES"));
         updateAllLoadedVocabulariesMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-		IMDIVocabularies.getSingleInstance().redownloadCurrentlyLoadedVocabularies();
+                ProgressMonitor progressMonitor = windowManager.newProgressMonitor(services.getString("DOWNLOADING CURRENTLY LOADED VOCABULARIES"), "", 0, 100);
+                IMDIVocabularies.getSingleInstance().redownloadCurrentlyLoadedVocabularies(progressMonitor);
             }
         });
         optionsMenu.add(updateAllLoadedVocabulariesMenuItem);
