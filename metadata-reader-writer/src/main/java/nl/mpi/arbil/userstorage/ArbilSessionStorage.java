@@ -105,10 +105,9 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
         HttpURLConnection.setFollowRedirects(false); // TODO: replace with calls to setInstanceFollowRedirects in the right places
     }
 
-    public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void clearProjectWorkingDirectory() {
+        localCacheDirectory = null;
     }
-
 //    public void changeStorageDirectory(String preferedDirectory) {
 ////        TODO: this caused isses on windows 20100416 test and confirm if this is an issue
 //        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to move the storage directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
@@ -118,9 +117,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 //            changeStorageDirectory(fromDirectory, toDirectory);
 //        }
 //    }
-    // Move the storage directory and change the local corpus tree links to the new directory.
-    // After completion the application will be closed!
-//    public void showDirectorySelectionDialogue() {
+    //    public void showDirectorySelectionDialogue() {
 //        settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame));
 //        settingsjDialog.setLocationRelativeTo(LinorgWindowManager.getSingleInstance().linorgFrame);
 //        JPanel optionsPanel = new JPanel();
@@ -249,7 +246,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     /**
      * @return the name of the project directory
      */
-    protected String getProjectDirectoryName() {
+    public String getProjectDirectoryName() {
         return "ArbilWorkingFiles";
     }
 
