@@ -101,6 +101,7 @@ public class IMDIVocabularies {
     }
 
     public void redownloadCurrentlyLoadedVocabularies(final ProgressMonitor progressMonitor) {
+        progressMonitor.setMaximum(vocabulariesTable.size());
         new Thread() {
             @Override
             public void run() {
