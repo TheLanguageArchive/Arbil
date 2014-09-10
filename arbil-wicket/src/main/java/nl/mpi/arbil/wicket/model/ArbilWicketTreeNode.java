@@ -24,7 +24,7 @@ public class ArbilWicketTreeNode extends DefaultMutableTreeNode implements IDeta
 	    serializableNode = dataNode;
 	} else {
 	    if (dataNode instanceof ArbilDataNode) {
-		this.uri = ((ArbilDataNode) dataNode).getURI();
+		this.uri = ((ArbilDataNode) dataNode).getUri();
 	    }
 	}
 	setUserObject(dataNode);
