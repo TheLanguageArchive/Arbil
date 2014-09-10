@@ -15,12 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 package nl.mpi.arbil.data;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.util.TableManager;
 
 /**
  * @since Jul 15, 2014 11:35:33 AM (creation date)
@@ -78,4 +79,8 @@ public interface DataNodeService {
     // TODO: this is not used yet but may be required for unicode paths
     String urlEncodePath(String inputPath);
 
+    // todo: this should not be in the no UI project
+    void pasteIntoNode(final TableManager tableManager, ArbilDataNode dataNode);
+
+    void insertResourceLocation(final TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException;
 }
