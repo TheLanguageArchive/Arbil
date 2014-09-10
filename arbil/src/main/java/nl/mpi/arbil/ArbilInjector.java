@@ -44,8 +44,6 @@ import nl.mpi.arbil.ui.ArbilFieldPlaceHolder;
 import nl.mpi.arbil.ui.ArbilHyperlinkListener;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ImportExportDialog;
-import nl.mpi.arbil.ui.TableController;
-import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.wizard.setup.RemoteLocationsContent;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
