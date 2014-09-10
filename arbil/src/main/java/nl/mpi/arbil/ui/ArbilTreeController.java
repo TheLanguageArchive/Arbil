@@ -111,7 +111,7 @@ public class ArbilTreeController {
             try {
                 final URI locationURI = new URI(manualLocation);
                 if (checkResourceLocation(locationURI)) {
-                    leadSelectedTreeNode.insertResourceLocation(locationURI);
+                    leadSelectedTreeNode.insertResourceLocation(windowManager, locationURI);
                 }
             } catch (URISyntaxException ex) {
                 dialogHandler.addMessageDialogToQueue(widgets.getString("THE URI ENTERED AS A RESOURCE LOCATION IS INVALID. PLEASE CHECK THE LOCATION AND TRY AGAIN."), widgets.getString("INVALID URI"));
