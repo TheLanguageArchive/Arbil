@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil;
 
@@ -33,9 +34,9 @@ import nl.mpi.arbil.util.LoggingBugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
- * Takes care of injecting certain class instances into objects or classes.
- * This provides us with a sort of dependency injection, which enables loosening
- * the coupling between for example data classes and UI classes.
+ * Takes care of injecting certain class instances into objects or classes. This
+ * provides us with a sort of dependency injection, which enables loosening the
+ * coupling between for example data classes and UI classes.
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
@@ -51,58 +52,59 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     private ArbilTableController tableController;
 
     /**
-     * <strong>To be used for testing scenario's only<strong>, will generate a new {@link ApplicationVersion} and {@link ArbilLogConfigurer}.
-     * For production workflows, use {@link #injectHandlers(nl.mpi.arbil.util.ApplicationVersionManager, nl.mpi.arbil.util.ArbilLogConfigurer) }
+     * <strong>To be used for testing scenario's only<strong>, will generate a
+     * new {@link ApplicationVersion} and {@link ArbilLogConfigurer}. For
+     * production workflows, use {@link #injectHandlers(nl.mpi.arbil.util.ApplicationVersionManager, nl.mpi.arbil.util.ArbilLogConfigurer)
+     * }
      */
     public synchronized void injectDefaultHandlers() {
-	final ArbilVersion arbilVersion = new ArbilVersion();
-	injectHandlers(new ArbilSessionStorage(), new ApplicationVersionManager(arbilVersion), new ArbilLogConfigurer(arbilVersion, "arbil-log"));
+        final ArbilVersion arbilVersion = new ArbilVersion();
+        injectHandlers(new ArbilSessionStorage(), new ApplicationVersionManager(arbilVersion), new ArbilLogConfigurer(arbilVersion, "arbil-log"));
     }
 
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
     public synchronized void injectHandlers(final ArbilSessionStorage sessionStorage, final ApplicationVersionManager versionManager, final ArbilLogConfigurer logManager) {
-	this.injectVersionManager(versionManager);
-	this.sessionStorage = sessionStorage;
-	
-	// From now on log to application storage directory
-	logManager.configureLoggingFromSessionStorage(sessionStorage);
-	injectSessionStorage(sessionStorage);
+        this.injectVersionManager(versionManager);
+        this.sessionStorage = sessionStorage;
 
-	BugCatcherManager.setBugCatcher(new LoggingBugCatcher());
+        // From now on log to application storage directory
+        logManager.configureLoggingFromSessionStorage(sessionStorage);
+        injectSessionStorage(sessionStorage);
 
-	windowManager = new ArbilWindowManager();
-	windowManager.setSessionStorage(sessionStorage);
-	windowManager.setVersionManager(versionManager);
-	imageBoxRenderer = new ImageBoxRenderer();
-	windowManager.setImageBoxRenderer(imageBoxRenderer);
+        BugCatcherManager.setBugCatcher(new LoggingBugCatcher());
 
-	final MessageDialogHandler messageDialogHandler = windowManager;
-	sessionStorage.setMessageDialogHandler(messageDialogHandler);
-	injectDialogHandler(messageDialogHandler);
+        windowManager = new ArbilWindowManager();
+        windowManager.setSessionStorage(sessionStorage);
+        windowManager.setVersionManager(versionManager);
+        imageBoxRenderer = new ImageBoxRenderer();
+        windowManager.setImageBoxRenderer(imageBoxRenderer);
 
-	sessionStorage.setWindowManager(windowManager);
-	injectWindowManager(windowManager);
+        final MessageDialogHandler messageDialogHandler = windowManager;
+        sessionStorage.setMessageDialogHandler(messageDialogHandler);
+        injectDialogHandler(messageDialogHandler);
 
-	mimeHashQueue = new ArbilMimeHashQueue(windowManager, sessionStorage);
-	mimeHashQueue.setMessageDialogHandler(messageDialogHandler);
+        injectWindowManager(windowManager);
 
-	treeHelper = new ArbilTreeHelper(sessionStorage, messageDialogHandler);
-	windowManager.setTreeHelper(treeHelper);
-	sessionStorage.setTreeHelper(treeHelper);
-	injectTreeHelper(treeHelper);
+        mimeHashQueue = new ArbilMimeHashQueue(windowManager, sessionStorage);
+        mimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 
-	dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
-	treeHelper.setDataNodeLoader(dataNodeLoader);
-	mimeHashQueue.setDataNodeLoader(dataNodeLoader);
-	windowManager.setDataNodeLoader(dataNodeLoader);
-	injectDataNodeLoader(dataNodeLoader);
+        treeHelper = new ArbilTreeHelper(sessionStorage, messageDialogHandler);
+        windowManager.setTreeHelper(treeHelper);
+        sessionStorage.setTreeHelper(treeHelper);
+        injectTreeHelper(treeHelper);
 
-	tableController = new ArbilTableController(treeHelper, messageDialogHandler, windowManager);
-	windowManager.setTableController(tableController);
+        dataNodeLoader = new ArbilDataNodeLoader(messageDialogHandler, sessionStorage, mimeHashQueue, treeHelper);
+        treeHelper.setDataNodeLoader(dataNodeLoader);
+        mimeHashQueue.setDataNodeLoader(dataNodeLoader);
+        windowManager.setDataNodeLoader(dataNodeLoader);
+        injectDataNodeLoader(dataNodeLoader);
 
-	treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, messageDialogHandler, dataNodeLoader, mimeHashQueue, versionManager);
+        tableController = new ArbilTableController(treeHelper, messageDialogHandler, windowManager);
+        windowManager.setTableController(tableController);
+
+        treeController = new ArbilTreeController(sessionStorage, treeHelper, windowManager, messageDialogHandler, dataNodeLoader, mimeHashQueue, versionManager);
     }
 
     /**
@@ -111,7 +113,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
      * @return the treeHelper
      */
     public ArbilTreeHelper getTreeHelper() {
-	return treeHelper;
+        return treeHelper;
     }
 
     /**
@@ -120,7 +122,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
      * @return the tree controller
      */
     public ArbilTreeController getTreeController() {
-	return treeController;
+        return treeController;
     }
 
     /**
@@ -129,7 +131,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
      * @return the treeHelper
      */
     public ArbilMimeHashQueue getMimeHashQueue() {
-	return mimeHashQueue;
+        return mimeHashQueue;
     }
 
     /**
@@ -138,7 +140,7 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
      * @return the treeHelper
      */
     public ArbilWindowManager getWindowManager() {
-	return windowManager;
+        return windowManager;
     }
 
     /**
@@ -147,18 +149,18 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
      * @return the treeHelper
      */
     public ArbilDataNodeLoader getDataNodeLoader() {
-	return dataNodeLoader;
+        return dataNodeLoader;
     }
 
     public ImageBoxRenderer getImageBoxRenderer() {
-	return imageBoxRenderer;
+        return imageBoxRenderer;
     }
 
     public ArbilTableController getTableController() {
-	return tableController;
+        return tableController;
     }
 
     public ArbilSessionStorage getSessionStorage() {
-	return sessionStorage;
+        return sessionStorage;
     }
 }
