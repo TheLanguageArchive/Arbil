@@ -35,6 +35,7 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.HandleUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.TableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -262,6 +263,10 @@ public class BlockingDataNodeService extends AbstractDataNodeService implements 
     }
 
     public String urlEncodePath(String inputPath) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public void pasteIntoNode(TableManager tableManager, ArbilDataNode dataNode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
