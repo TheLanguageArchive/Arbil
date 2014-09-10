@@ -40,8 +40,6 @@ public interface SessionStorage extends PluginSessionStorage {
     public static final String PARAM_LAST_FILE_FILTER = "metadataFileFilter";
     public static final String PARAM_WIZARD_RUN = "wizardHasRun";
 
-    void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles);
-
     /**
      * Removes the cache path component from a path string and appends it to the
      * destination directory. Then tests for and creates the directory structure
