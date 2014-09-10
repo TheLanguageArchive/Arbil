@@ -270,6 +270,10 @@ public class BlockingDataNodeService extends AbstractDataNodeService implements 
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public void insertResourceLocation(TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     private void checkRemovedChildNodes(Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) {
         for (Map.Entry<ArbilDataNode, Set<ArbilDataNode>> entry : parentChildTree.entrySet()) {
             ArbilDataNode currentNode = entry.getKey();
