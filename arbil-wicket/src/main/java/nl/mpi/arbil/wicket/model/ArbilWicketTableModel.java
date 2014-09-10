@@ -115,7 +115,7 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
     protected synchronized void putInDataNodeHash(ArbilDataNode arbilDataNode) {
 	super.putInDataNodeHash(arbilDataNode);
 	// Note: this may be redundant, uri can be constructed from urlstring
-	dataNodeUrisMap.put(arbilDataNode.getUrlString(), arbilDataNode.getURI());
+	dataNodeUrisMap.put(arbilDataNode.getUrlString(), arbilDataNode.getUri());
     }
 
     @Override
