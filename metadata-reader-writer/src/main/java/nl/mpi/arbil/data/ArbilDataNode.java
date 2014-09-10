@@ -48,6 +48,7 @@ import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
+import nl.mpi.arbil.util.TableManager;
 import nl.mpi.flap.model.DataField;
 import nl.mpi.flap.model.DataNodeLink;
 import nl.mpi.flap.model.DataNodePermissions;
@@ -548,6 +549,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         return dataNodeService.addCorpusLink(this, targetImdiNode);
     }
 
+    public void pasteIntoNode(final TableManager tableManager) {
+        dataNodeService.pasteIntoNode(tableManager, this);
+    }
+
     /**
      * Saves the current changes from memory into a new imdi file on disk.
      * Previous imdi files are renamed and kept as a history. the caller is
@@ -851,6 +856,15 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
             }
         }
         return false;
+    }
+
+    /**
+     * Inserts/sets resource location. Behavior will depend on node type
+     *
+     * @param location Location to insert/set
+     */
+    public void insertResourceLocation(final TableManager tableManager, URI location) throws ArbilMetadataException {
+        dataNodeService.insertResourceLocation(tableManager, this, location);
     }
 
     /**
