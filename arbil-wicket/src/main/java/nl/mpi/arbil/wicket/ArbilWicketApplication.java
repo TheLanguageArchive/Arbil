@@ -49,7 +49,6 @@ public class ArbilWicketApplication extends WebApplication {
     public SessionStorage newSessionStorage() {
 	ArbilSessionStorage sessionStorage = new ArbilSessionStorage();
 	sessionStorage.setMessageDialogHandler(injector.getMessageDialogHandler());
-	sessionStorage.setWindowManager(injector.getWindowManager());
 	sessionStorage.setTreeHelper(injector.getTreeHelper());
 	return sessionStorage;
     }
