@@ -138,71 +138,71 @@ public class LinorgSessionStorageTest {
             assertEquals(expResult, result);
         }
     }
-    /**
-     * Test of getSaveLocation method, of class LinorgSessionStorage.
-     */
-    @Test
-    @Ignore("Machine specific, should be fixed")
-    public void testGetSaveLocation() {
-        System.out.println("getSaveLocation");
-        // this test must confirm that "/.linorg/imdicache/file/Users/testUser/.linorg/imdicache/" can never happen
-        String[][] testInputArray = {
-            {"file:/Users/testUser/.arbil/imdicache/20091222113221/20091222113221.imdi",
-                "/Users/testUser/.arbil/imdicache/20091222113221/20091222113221.imdi",
-                "/Users/testUser/.arbil/imdicache/"},
-            {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/.arbil/imdicache/"},
-            {"http://www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/.arbil/imdicache/"
-            },
-            {"file:/Users/testUser/.linorg/imdicache/20091222113221/20091222113221.imdi",
-                "/Users/testUser/.linorg/imdicache/20091222113221/20091222113221.imdi",
-                "/Users/testUser/.linorg/imdicache/"},
-            {"file:/Users/testUser/.linorg/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/.linorg/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/.linorg/imdicache/"},
-            {"http://www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/.linorg/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/.linorg/imdicache/"
-            },
-            {"file:/Users/testUser/Library/Mail%20Downloads/MPI-Korpus/Corpusstructure/1.imdi",
-                "/Users/testUser/.linorg/imdicache/file/Users/testUser/Library/Mail Downloads/MPI-Korpus/Corpusstructure/1.imdi",
-                "/Users/testUser/.linorg/imdicache/"
-            },
-            {"file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
-                "/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
-                "/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/"
-            },
-            {"http://www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/http/www.mpi.nl/IMDI/Schema/Continents.xml",
-                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/"
-            },
-            {"file:/Users/testUser/Library/Mail%20Downloads/MPI-Korpus/Corpusstructure/1.imdi",
-                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/file/Users/testUser/Library/Mail Downloads/MPI-Korpus/Corpusstructure/1.imdi",
-                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/"
-            },
-            {"file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
-                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
-                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/"
-            },
-            {"file:/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
-                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
-                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/"
-            }
-
-        };
-        ArbilSessionStorage instance = new ArbilSessionStorage();
-//        instance.storageDirectory = "/Users/testUser/";
-        for (String[] currentTest : testInputArray) {
-            instance.changeCacheDirectory(new File(currentTest[2]), false);
-            File expResult = new File(currentTest[1]);
-            File result = instance.getSaveLocation(currentTest[0]);
-            assertEquals(expResult, result);
-            if (result.toString().length() > 259) {
-                fail("path too long: " + result);
-            }
-        }
-    }
+//    /**
+//     * Test of getSaveLocation method, of class LinorgSessionStorage.
+//     */
+//    @Test
+//    @Ignore("Machine specific, should be fixed")
+//    public void testGetSaveLocation() {
+//        System.out.println("getSaveLocation");
+//        // this test must confirm that "/.linorg/imdicache/file/Users/testUser/.linorg/imdicache/" can never happen
+//        String[][] testInputArray = {
+//            {"file:/Users/testUser/.arbil/imdicache/20091222113221/20091222113221.imdi",
+//                "/Users/testUser/.arbil/imdicache/20091222113221/20091222113221.imdi",
+//                "/Users/testUser/.arbil/imdicache/"},
+//            {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/.arbil/imdicache/"},
+//            {"http://www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/.arbil/imdicache/"
+//            },
+//            {"file:/Users/testUser/.linorg/imdicache/20091222113221/20091222113221.imdi",
+//                "/Users/testUser/.linorg/imdicache/20091222113221/20091222113221.imdi",
+//                "/Users/testUser/.linorg/imdicache/"},
+//            {"file:/Users/testUser/.linorg/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/.linorg/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/.linorg/imdicache/"},
+//            {"http://www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/.linorg/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/.linorg/imdicache/"
+//            },
+//            {"file:/Users/testUser/Library/Mail%20Downloads/MPI-Korpus/Corpusstructure/1.imdi",
+//                "/Users/testUser/.linorg/imdicache/file/Users/testUser/Library/Mail Downloads/MPI-Korpus/Corpusstructure/1.imdi",
+//                "/Users/testUser/.linorg/imdicache/"
+//            },
+//            {"file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+//                "/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+//                "/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/"
+//            },
+//            {"http://www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+//                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/"
+//            },
+//            {"file:/Users/testUser/Library/Mail%20Downloads/MPI-Korpus/Corpusstructure/1.imdi",
+//                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/file/Users/testUser/Library/Mail Downloads/MPI-Korpus/Corpusstructure/1.imdi",
+//                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/"
+//            },
+//            {"file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+//                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+//                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/"
+//            },
+//            {"file:/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+//                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+//                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/"
+//            }
+//
+//        };
+//        ArbilSessionStorage instance = new ArbilSessionStorage();
+////        instance.storageDirectory = "/Users/testUser/";
+//        for (String[] currentTest : testInputArray) {
+//            instance.changeCacheDirectory(new File(currentTest[2]), false);
+//            File expResult = new File(currentTest[1]);
+//            File result = instance.getSaveLocation(currentTest[0]);
+//            assertEquals(expResult, result);
+//            if (result.toString().length() > 259) {
+//                fail("path too long: " + result);
+//            }
+//        }
+//    }
 }
