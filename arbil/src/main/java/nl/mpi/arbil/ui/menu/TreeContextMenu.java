@@ -253,7 +253,7 @@ public class TreeContextMenu extends ArbilContextMenu {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     for (ArbilDataNode currentNode : selectedTreeNodes) {
-                        currentNode.pasteIntoNode(windowManager);
+                        currentNode.pasteIntoNode(ArbilFavourites.getSingleInstance(), windowManager);
                     }
                 } catch (Exception ex) {
                     BugCatcherManager.getBugCatcher().logError(ex);
