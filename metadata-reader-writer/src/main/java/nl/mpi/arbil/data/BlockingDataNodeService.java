@@ -34,7 +34,7 @@ import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.HandleUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.PathUtility;
 import nl.mpi.arbil.util.TableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,11 +266,11 @@ public class BlockingDataNodeService extends AbstractDataNodeService implements 
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public void pasteIntoNode(TableManager tableManager, ArbilDataNode dataNode) {
+    public void pasteIntoNode(PathUtility pathUtility, TableManager tableManager, ArbilDataNode dataNode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public void insertResourceLocation(TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
+    public void insertResourceLocation(PathUtility pathUtility, TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
