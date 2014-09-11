@@ -48,6 +48,7 @@ import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
+import nl.mpi.arbil.util.PathUtility;
 import nl.mpi.arbil.util.TableManager;
 import nl.mpi.flap.model.DataField;
 import nl.mpi.flap.model.DataNodeLink;
@@ -549,8 +550,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         return dataNodeService.addCorpusLink(this, targetImdiNode);
     }
 
-    public void pasteIntoNode(final TableManager tableManager) {
-        dataNodeService.pasteIntoNode(tableManager, this);
+    public void pasteIntoNode(final PathUtility pathUtility, final TableManager tableManager) {
+        dataNodeService.pasteIntoNode(pathUtility, tableManager, this);
     }
 
     /**
@@ -863,8 +864,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      *
      * @param location Location to insert/set
      */
-    public void insertResourceLocation(final TableManager tableManager, URI location) throws ArbilMetadataException {
-        dataNodeService.insertResourceLocation(tableManager, this, location);
+    public void insertResourceLocation(final PathUtility pathUtility, final TableManager tableManager, URI location) throws ArbilMetadataException {
+        dataNodeService.insertResourceLocation(pathUtility, tableManager, this, location);
     }
 
     /**
