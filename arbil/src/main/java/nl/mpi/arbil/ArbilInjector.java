@@ -125,7 +125,7 @@ public abstract class ArbilInjector {
     }
 
     public void injectWindowManager(WindowManager windowManager) {
-	MetadataBuilder.setWindowManager(windowManager);
+//	MetadataBuilder.setWindowManager(windowManager);
     }
 
     public void injectSessionStorage(SessionStorage sessionStorage) {
