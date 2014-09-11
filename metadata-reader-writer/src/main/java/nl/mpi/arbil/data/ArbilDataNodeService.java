@@ -53,6 +53,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.PathUtility;
 import nl.mpi.arbil.util.TableManager;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
@@ -109,7 +110,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
     }
 
     @Override
-    public void pasteIntoNode(final TableManager tableManager, ArbilDataNode dataNode) {
+    public void pasteIntoNode(final PathUtility pathUtility, final TableManager tableManager, ArbilDataNode dataNode) {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         Transferable transfer = clipboard.getContents(null);
         try {
@@ -127,8 +128,8 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
                 }
                 for (String element : elements) {
                 }
-                for (ArbilDataNode clipboardNode : pasteIntoNode(tableManager, dataNode, elements)) {
-                    new MetadataBuilder().requestAddNode(tableManager, dataNode, MessageFormat.format(widgets.getString("COPY OF {0}"), clipboardNode), clipboardNode);
+                for (ArbilDataNode clipboardNode : pasteIntoNode(pathUtility, tableManager, dataNode, elements)) {
+                    new MetadataBuilder().requestAddNode(pathUtility, tableManager, dataNode, MessageFormat.format(widgets.getString("COPY OF {0}"), clipboardNode), clipboardNode);
                 }
             }
         } catch (Exception ex) {
@@ -136,7 +137,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
         }
     }
 
-    private Collection<ArbilDataNode> pasteIntoNode(final TableManager tableManager, ArbilDataNode dataNode, String[] clipBoardStrings) {
+    private Collection<ArbilDataNode> pasteIntoNode(final PathUtility pathUtility, final TableManager tableManager, ArbilDataNode dataNode, String[] clipBoardStrings) {
         try {
             ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
             boolean ignoreSaveChanges = false;
@@ -176,7 +177,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
                     // Check if it can be contained by destination node
                     if (metadataReader.nodeCanExistInNode(dataNode, templateDataNode)) {
                         // Add source to destination
-                        new MetadataBuilder().requestAddNode(tableManager, dataNode, templateDataNode.toString(), templateDataNode);
+                        new MetadataBuilder().requestAddNode(pathUtility, tableManager, dataNode, templateDataNode.toString(), templateDataNode);
                     } else {
                         // Invalid copy/paste...
                         messageDialogHandler.addMessageDialogToQueue(MessageFormat.format(widgets.getString("CANNOT COPY {0} TO {1}"), templateDataNode.toString(), dataNode.toString()), "Cannot copy");
@@ -285,7 +286,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
      *
      * @param location Location to insert/set
      */
-    public void insertResourceLocation(final TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
+    public void insertResourceLocation(final PathUtility pathUtility, final TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException {
         if (dataNode.isCmdiMetaDataNode()) {
             ArbilDataNode resourceNode = null;
             try {
@@ -297,7 +298,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
                 throw new ArbilMetadataException(MessageFormat.format(widgets.getString("UNKNOWN ERROR CREATING RESOURCE NODE FOR URI: {0}"), location.toString()));
             }
 
-            new MetadataBuilder().requestAddNode(tableManager, dataNode, null, resourceNode);
+            new MetadataBuilder().requestAddNode(pathUtility, tableManager, dataNode, null, resourceNode);
         } else {
             if (dataNode.hasResource()) {
                 dataNode.resourceUrlField.setFieldValue(location.toString(), true, false);
