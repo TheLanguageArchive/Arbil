@@ -110,6 +110,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>nl.mpi</groupId>
