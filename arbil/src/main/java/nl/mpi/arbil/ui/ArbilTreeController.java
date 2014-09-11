@@ -190,9 +190,9 @@ public class ArbilTreeController {
             String favouriteUrlStringDecoded = URLDecoder.decode(favouriteUrlString, "UTF-8");
             ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, ArbilDataNodeService.conformStringToUrl(favouriteUrlStringDecoded));
             if (leadSelectedTreeNode != null) {
-                new MetadataBuilder().requestAddNode(leadSelectedTreeNode, displayName, templateDataNode);
+                new MetadataBuilder().requestAddNode(ArbilFavourites.getSingleInstance(), windowManager, leadSelectedTreeNode, displayName, templateDataNode);
             } else {
-                new MetadataBuilder().requestAddRootNode(templateDataNode, displayName);
+                new MetadataBuilder().requestAddRootNode(ArbilFavourites.getSingleInstance(), windowManager, templateDataNode, displayName);
             }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
@@ -308,10 +308,10 @@ public class ArbilTreeController {
     public void addNodeFromTemplate(ArbilDataNode leadSelectedTreeNode, String nodeType, String displayName) {
         try {
             if (leadSelectedTreeNode != null) {
-                new MetadataBuilder().requestAddNode(leadSelectedTreeNode, nodeType, displayName);
+                new MetadataBuilder().requestAddNode(windowManager, leadSelectedTreeNode, nodeType, displayName);
             } else {
                 // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-                new MetadataBuilder().requestRootAddNode(nodeType, displayName);
+                new MetadataBuilder().requestRootAddNode(windowManager, nodeType, displayName);
             }
         } catch (Exception ex) {
             BugCatcherManager.getBugCatcher().logError(ex);
@@ -325,11 +325,11 @@ public class ArbilTreeController {
                         || dialogHandler.showConfirmDialogBox(
                                 MessageFormat.format(widgets.getString("ADDING A NODE WILL SAVE PENDING CHANGES"), leadSelectedTreeNode.getParentDomNode().toString()),
                                 widgets.getString("SAVE PENDING CHANGES?"))) {
-                    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, nodeType, nodeText);
+                    new MetadataBuilder().requestAddNode(windowManager, leadSelectedTreeNode, nodeType, nodeText);
                 }
             } else {
                 // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-                new MetadataBuilder().requestRootAddNode(nodeType, nodeText);
+                new MetadataBuilder().requestRootAddNode(windowManager, nodeType, nodeText);
             }
         } catch (Exception ex) {
             BugCatcherManager.getBugCatcher().logError(ex);
