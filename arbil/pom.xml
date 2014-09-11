@@ -257,6 +257,11 @@
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
+            <artifactId>arbil-metadata-reader-writer</artifactId>
+            <version>2.6-pretesting-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
             <artifactId>arbil-help</artifactId>
             <version>2.6-pretesting-SNAPSHOT</version>
         </dependency>
