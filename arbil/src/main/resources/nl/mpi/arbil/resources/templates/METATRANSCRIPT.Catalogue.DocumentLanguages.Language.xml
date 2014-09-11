@@ -1,7 +1,0 @@
-
-<InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI">
-    <Language>
-        <Id/>
-        <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary"/>
-    </Language>
-</InsertableSection>

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<METATRANSCRIPT Date="0001-01-01" FormatId="IMDI 3.03" Originator="" Type="CORPUS" Version="0" xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
-        <Corpus>
-                <Name>Standard Corpus</Name>
-                <Title/>
-                <Description LanguageId="" Link=""/>
-        </Corpus>
-</METATRANSCRIPT>
