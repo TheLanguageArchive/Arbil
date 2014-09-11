@@ -38,6 +38,7 @@ import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.MetadataFormat;
+import nl.mpi.arbil.favourites.ArbilFavourites;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -111,7 +112,7 @@ public class ArbilTreeController {
             try {
                 final URI locationURI = new URI(manualLocation);
                 if (checkResourceLocation(locationURI)) {
-                    leadSelectedTreeNode.insertResourceLocation(windowManager, locationURI);
+                    leadSelectedTreeNode.insertResourceLocation(ArbilFavourites.getSingleInstance(), windowManager, locationURI);
                 }
             } catch (URISyntaxException ex) {
                 dialogHandler.addMessageDialogToQueue(widgets.getString("THE URI ENTERED AS A RESOURCE LOCATION IS INVALID. PLEASE CHECK THE LOCATION AND TRY AGAIN."), widgets.getString("INVALID URI"));
