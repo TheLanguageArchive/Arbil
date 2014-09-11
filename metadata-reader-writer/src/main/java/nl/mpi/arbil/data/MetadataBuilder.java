@@ -36,6 +36,7 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.PathUtility;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.TableManager;
 import org.slf4j.Logger;
@@ -90,14 +91,15 @@ public class MetadataBuilder {
      * Requests to add a node on basis of a given existing node to the local
      * corpus
      *
+     * @param pathUtility utility class that is used to calculate the node path
      * @param tableManager Callback object used to show the resulting nodes
      * after an add request completes
      * @param nodeType Name of node type
      * @param addableNode Node to base new node on
      */
-    public void requestAddRootNode(final TableManager tableManager, final ArbilDataNode addableNode, final String nodeTypeDisplayNameLocal) {
+    public void requestAddRootNode(final PathUtility pathUtility, final TableManager tableManager, final ArbilDataNode addableNode, final String nodeTypeDisplayNameLocal) {
         // Start new thread to add the node to its destination
-        creatAddAddableNodeThread(tableManager, null, new String[]{nodeTypeDisplayNameLocal}, new ArbilDataNode[]{addableNode}).start();
+        creatAddAddableNodeThread(pathUtility, tableManager, null, new String[]{nodeTypeDisplayNameLocal}, new ArbilDataNode[]{addableNode}).start();
     }
 
     /**
@@ -224,17 +226,18 @@ public class MetadataBuilder {
      * Requests to add a node on basis of a given existing node to the given
      * destination node
      *
+     * @param pathUtility utility class that is used to calculate the node path
      * @param tableManager Callback object used to show the resulting nodes
      * @param destinationNode Node to add new node to
      * @param nodeType Name of node type
      * @param addableNode Node to base new node on
      */
-    public void requestAddNode(final TableManager tableManager, final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) {
+    public void requestAddNode(final PathUtility pathUtility, final TableManager tableManager, final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) {
         if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }
         // Start new thread to add the node to its destination
-        requestAddNodes(tableManager, destinationNode, new String[]{nodeTypeDisplayNameLocal}, new ArbilDataNode[]{addableNode});
+        requestAddNodes(pathUtility, tableManager, destinationNode, new String[]{nodeTypeDisplayNameLocal}, new ArbilDataNode[]{addableNode});
     }
 
     /**
@@ -266,32 +269,34 @@ public class MetadataBuilder {
      * Requests to add a list of nodes on basis of given existing nodes to the
      * given destination node
      *
+     * @param pathUtility utility class that is used to calculate the node path
      * @param tableManager Callback object used to show the resulting nodes
      * @param destinationNode Node to add new node to
      * @param nodeTypeDisplayName name of node type to use for all nodes
      * @param addableNodes Nodes to base new node on
      */
-    public void requestAddNodes(final TableManager tableManager, final ArbilDataNode destinationNode, final String nodeTypeDisplayName, final ArbilDataNode[] addableNodes) {
+    public void requestAddNodes(final PathUtility pathUtility, final TableManager tableManager, final ArbilDataNode destinationNode, final String nodeTypeDisplayName, final ArbilDataNode[] addableNodes) {
         String[] nodeTypeDisplayNames = new String[addableNodes.length];
         Arrays.fill(nodeTypeDisplayNames, nodeTypeDisplayName);
-        requestAddNodes(tableManager, destinationNode, nodeTypeDisplayNames, addableNodes);
+        requestAddNodes(pathUtility, tableManager, destinationNode, nodeTypeDisplayNames, addableNodes);
     }
 
     /**
      * Requests to add a list of nodes on basis of given existing nodes to the
      * given destination node
      *
+     * @param pathUtility utility class that is used to calculate the node path
      * @param tableManager Callback object used to show the resulting nodes
      * @param destinationNode Node to add new node to
      * @param nodeType Names of node type
      * @param addableNode Nodes to base new node on
      */
-    public void requestAddNodes(final TableManager tableManager, final ArbilDataNode destinationNode, final String[] nodeTypeDisplayNames, final ArbilDataNode[] addableNode) {
+    public void requestAddNodes(final PathUtility pathUtility, final TableManager tableManager, final ArbilDataNode destinationNode, final String[] nodeTypeDisplayNames, final ArbilDataNode[] addableNode) {
         if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }
         // Start new thread to add the node to its destination
-        creatAddAddableNodeThread(tableManager, destinationNode, nodeTypeDisplayNames, addableNode).start();
+        creatAddAddableNodeThread(pathUtility, tableManager, destinationNode, nodeTypeDisplayNames, addableNode).start();
     }
 
     /**
@@ -303,7 +308,7 @@ public class MetadataBuilder {
      * @param addableNodes Node to base new node on
      * @return New thread that adds the addable node
      */
-    private Thread creatAddAddableNodeThread(final TableManager tableManager, final ArbilDataNode destinationNode, final String[] nodeTypeDisplayNames, final ArbilDataNode[] addableNodes) {
+    private Thread creatAddAddableNodeThread(final PathUtility pathUtility, final TableManager tableManager, final ArbilDataNode destinationNode, final String[] nodeTypeDisplayNames, final ArbilDataNode[] addableNodes) {
         return new Thread("requestAddNode") {
             @Override
             public void run() {
@@ -311,7 +316,7 @@ public class MetadataBuilder {
                     if (destinationNode != null) {
                         destinationNode.updateLoadingState(1);
                     }
-                    addNodes(tableManager, destinationNode, nodeTypeDisplayNames, addableNodes);
+                    addNodes(pathUtility, tableManager, destinationNode, nodeTypeDisplayNames, addableNodes);
                 } catch (ArbilMetadataException exception) {
                     messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), services.getString("INSERT NODE ERROR"));
                 } catch (IOException exception) {
@@ -335,18 +340,18 @@ public class MetadataBuilder {
         };
     }
 
-    public void addNodes(final TableManager tableManager, final ArbilDataNode destinationNode, final String[] nodeTypeDisplayNames, final ArbilDataNode[] addableNodes) throws ArbilMetadataException, IOException {
+    public void addNodes(final PathUtility pathUtility, final TableManager tableManager, final ArbilDataNode destinationNode, final String[] nodeTypeDisplayNames, final ArbilDataNode[] addableNodes) throws ArbilMetadataException, IOException {
         if (destinationNode == null) {
-            doAddNodes(tableManager, null, nodeTypeDisplayNames, addableNodes);
+            doAddNodes(pathUtility, tableManager, null, nodeTypeDisplayNames, addableNodes);
         } else {
             // synchronize on destination node, so that multiple additions do not happen simultaneously
             synchronized (destinationNode.getParentDomLockObject()) {
-                doAddNodes(tableManager, destinationNode, nodeTypeDisplayNames, addableNodes);
+                doAddNodes(pathUtility, tableManager, destinationNode, nodeTypeDisplayNames, addableNodes);
             }
         }
     }
 
-    private void doAddNodes(final TableManager tableManager, final ArbilDataNode destinationNode, final String[] nodeTypeDisplayName, final ArbilDataNode[] addableNode) throws ArbilMetadataException, IOException {
+    private void doAddNodes(final PathUtility pathUtility, final TableManager tableManager, final ArbilDataNode destinationNode, final String[] nodeTypeDisplayName, final ArbilDataNode[] addableNode) throws ArbilMetadataException, IOException {
 
         // Split inputs between metadata ndoes and non-metadata nodes
         // Lists will be initialized when needed
@@ -374,11 +379,11 @@ public class MetadataBuilder {
             addMetaDataNode(tableManager, destinationNode, dataNodeMeta);
         }
         if (dataNodeNonMeta != null && dataNodeNonMeta.size() > 0) {
-            addNonMetaDataNode(tableManager, destinationNode, nodeTypeDisplayNameNonMeta, dataNodeNonMeta);
+            addNonMetaDataNode(pathUtility, tableManager, destinationNode, nodeTypeDisplayNameNonMeta, dataNodeNonMeta);
         }
     }
 
-    private void addNonMetaDataNode(final TableManager tableManager, final ArbilDataNode destinationNode, final List<String> nodeTypeDisplayNames, final List<ArbilDataNode> addableNodes) throws ArbilMetadataException {
+    private void addNonMetaDataNode(final PathUtility pathUtility, final TableManager tableManager, final ArbilDataNode destinationNode, final List<String> nodeTypeDisplayNames, final List<ArbilDataNode> addableNodes) throws ArbilMetadataException {
 
         List<URI> addedNodeURIs = new ArrayList<URI>(addableNodes.size());
 
@@ -411,7 +416,7 @@ public class MetadataBuilder {
                             mimeType = currentArbilNode.mpiMimeType;
                             nodeTypeDisplayName = "Resource";
                         } else {
-                            nodeType = ArbilFavourites.getSingleInstance().getNodeType(currentArbilNode, destinationNode);
+                            nodeType = pathUtility.getNodeType(currentArbilNode, destinationNode);
                             favouriteUrlString = currentArbilNode.getUrlString();
                         }
                         if (nodeType != null) {
