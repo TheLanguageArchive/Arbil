@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
+import nl.mpi.arbil.util.PathUtility;
 import nl.mpi.arbil.util.TableManager;
 
 /**
@@ -80,7 +82,7 @@ public interface DataNodeService {
     String urlEncodePath(String inputPath);
 
     // todo: this should not be in the no UI project
-    void pasteIntoNode(final TableManager tableManager, ArbilDataNode dataNode);
+    void pasteIntoNode(final PathUtility pathUtility, final TableManager tableManager, ArbilDataNode dataNode);
 
-    void insertResourceLocation(final TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException;
+    void insertResourceLocation(final PathUtility pathUtility, final TableManager tableManager, ArbilDataNode dataNode, URI location) throws ArbilMetadataException;
 }
