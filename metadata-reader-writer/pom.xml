@@ -174,13 +174,6 @@
         <!-- 
             LOGGING DEPENDENCIES
         -->
-
-        <!-- Bind slf4j to JDK logging aka java.util.logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
         <!-- log4j replacement that redirects to slf4j -->
         <dependency>
             <groupId>org.slf4j</groupId>
