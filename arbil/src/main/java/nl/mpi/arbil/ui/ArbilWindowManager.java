@@ -296,7 +296,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager, 
     public File showEmptyExportDirectoryDialogue(String titleText) {
 	boolean fileSelectDone = false;
 	while (!fileSelectDone) {
-	    File[] selectedFiles = showFileSelectBox(titleText + java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString(" DESTINATION DIRECTORY"), true, false, null, DialogueType.custom, null);
+	    File[] selectedFiles = showFileSelectBox(titleText + " " + java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString(" DESTINATION DIRECTORY"), true, false, null, DialogueType.custom, null);
 	    if (selectedFiles != null && selectedFiles.length > 0) {
 		File destinationDirectory = selectedFiles[0];
 		boolean mkdirsOkay = true;
