@@ -127,7 +127,7 @@
                 </executions>
                 <configuration>
                     <verbose>true</verbose>
-                    <vcsType>svn</vcsType>
+                    <vcsType>git</vcsType>
                     <allowSnapshots>true</allowSnapshots>
                     <projectDirectory>${project.basedir}</projectDirectory>
                     <majorVersion>2</majorVersion>
