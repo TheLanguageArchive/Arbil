@@ -63,6 +63,7 @@ import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcherManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.UrlConnector;
 import nl.mpi.arbilcommons.journal.ArbilJournal;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
@@ -120,35 +121,14 @@ public class ArbilComponentBuilder {
         } else {
 //            logger.info(inputUri.toString());
             // we open the stream here so we can set follow redirects
-            URLConnection uRLConnection = inputUri.toURL().openConnection();
-            // handle 303 redirects 
-            int maxRedirects = 5;
-            while (maxRedirects > 0) {
-//                logger.info("maxRedirects:" + maxRedirects);
-                maxRedirects--;
-                if (uRLConnection instanceof HttpURLConnection) {
-                    final HttpURLConnection httpConnection = (HttpURLConnection) uRLConnection;
-                    httpConnection.setInstanceFollowRedirects(true);
-                    int stat = httpConnection.getResponseCode();
-                    if (stat >= 300 && stat <= 307 && stat != 306 && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
-                        try {
-                            final String locationField = uRLConnection.getHeaderField("Location");
-                            if (locationField != null) {
-//                                logger.info(locationField, locationField);
-                                uRLConnection = new URI(locationField).toURL().openConnection();
-                            }
-                        } catch (IOException exception) {
-                            logger.debug("get document 303 check on URL {} failed", exception.getMessage());
-                        } catch (URISyntaxException exception) {
-                            logger.debug("get document 303 check on URL {} failed", exception.getMessage());
-                        }
-                    } else {
-                        break;
-                    }
-                }
+//            URLConnection uRLConnection = inputUri.toURL().openConnection();
+            final UrlConnector connector = new UrlConnector(inputUri);
+            if (connector.connect()) {
+                final InputStream inputStream = connector.getConnection().getInputStream();
+                return getDocumentBuilder().parse(inputStream);
+            } else {
+                throw new IOException("Could not connect");
             }
-            final InputStream inputStream = uRLConnection.getInputStream();
-            return getDocumentBuilder().parse(inputStream);
         }
     }
 

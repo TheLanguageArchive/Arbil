@@ -66,6 +66,7 @@ public class HandleUtils {
     }
 
     public URI followRedirect(final URI handleURI) {
+        //TODO: deprecate and/or use nl.mpi.arbil.util.UrlConnector instead
 	if (handleURI.getScheme().startsWith("http")) {
 	    try {
 		final URLConnection uRLConnection = resolveHandle(handleURI).toURL().openConnection();

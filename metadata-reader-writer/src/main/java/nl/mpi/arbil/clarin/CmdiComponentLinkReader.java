@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import nl.mpi.arbil.util.BugCatcherManager;
+import nl.mpi.arbil.util.UrlConnector;
 import org.apache.commons.digester.Digester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +38,12 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class CmdiComponentLinkReader {
-
+    
     private final static Logger logger = LoggerFactory.getLogger(CmdiComponentLinkReader.class);
     private URI parentUri;
     public ArrayList<CmdiResourceLink> cmdiResourceLinkArray = null;
     public ArrayList<ResourceRelation> cmdiResourceRelationArray = null;
-
+    
     public static void main(String args[]) {
         CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
         try {//http://www.clarin.eu/cmd/example/example-md-instance.xml
@@ -51,9 +52,9 @@ public class CmdiComponentLinkReader {
             System.err.println(exception.getMessage());
         }
     }
-
+    
     public final static class CmdiResourceLink {
-
+        
         public final String resourceProxyId;
         public final String resourceType;
         public final String resourceRef;
@@ -73,7 +74,7 @@ public class CmdiComponentLinkReader {
             resourceProxyId = proxyId;
             resourceType = type;
             resourceRef = ref;
-
+            
             this.parentUri = parentUri;
         }
 
@@ -129,15 +130,15 @@ public class CmdiComponentLinkReader {
                 throw new URISyntaxException(resourceRef, "resourceRef is null");
             }
         }
-
+        
         @Override
         public String toString() {
             return String.format("%s: %s -> [%s]%s", resourceProxyId, parentUri, resourceType, resourceRef);
         }
     }
-
+    
     public static class ResourceRelation {
-
+        
         public ResourceRelation(String type, String resource1, String resource2) {
             relationType = type;
             res1 = resource1;
@@ -147,10 +148,10 @@ public class CmdiComponentLinkReader {
         public final String res1;
         public final String res2;
     }
-
+    
     public CmdiComponentLinkReader() {
     }
-
+    
     public URI getLinkUrlString(String resourceId) {
         CmdiResourceLink cmdiResourceLink = getResourceLink(resourceId);
         if (cmdiResourceLink != null) {
@@ -162,7 +163,7 @@ public class CmdiComponentLinkReader {
         }
         return null;
     }
-
+    
     public CmdiResourceLink getResourceLink(String resourceId) {
         for (CmdiResourceLink cmdiResourceLink : cmdiResourceLinkArray) {
             if (cmdiResourceLink.resourceProxyId.equals(resourceId)) {
@@ -192,7 +193,7 @@ public class CmdiComponentLinkReader {
         }
         return null;
     }
-
+    
     public ArrayList<CmdiResourceLink> readLinks(URI targetCmdiNode) {
         this.parentUri = targetCmdiNode;
 //        ArrayList<URI> returnUriList = new ArrayList<URI>();
@@ -203,46 +204,23 @@ public class CmdiComponentLinkReader {
             digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy", 0, "id");
             digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceType", 1);
             digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 2);
-
+            
             digester.addCallMethod("CMD/Resources/ResourceRelationList/ResourceRelation", "addResourceRelation", 3);
             digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/RelationType", 0);
             digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res1", 1, "ref");
             digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res2", 2, "ref");
-
+            
             cmdiResourceLinkArray = new ArrayList<CmdiResourceLink>();
             cmdiResourceRelationArray = new ArrayList<ResourceRelation>();
             // we open the stream here so we can set follow redirects
-            URLConnection uRLConnection = targetCmdiNode.toURL().openConnection();
-            // handle 303 redirects 
-            int maxRedirects = 5;
-            while (maxRedirects > 0) {
-//                logger.info("maxRedirects:" + maxRedirects);
-                maxRedirects--;
-                if (uRLConnection instanceof HttpURLConnection) {
-                    final HttpURLConnection httpConnection = (HttpURLConnection) uRLConnection;
-                    httpConnection.setInstanceFollowRedirects(true);
-                    int stat = httpConnection.getResponseCode();
-                    if (stat >= 300 && stat <= 307 && stat != 306 && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
-                        try {
-                            final String locationField = uRLConnection.getHeaderField("Location");
-                            if (locationField != null) {
-//                                logger.info(locationField, locationField);
-                                final URI redirectedUri = new URI(locationField);
-                                uRLConnection = redirectedUri.toURL().openConnection();
-                                this.parentUri = redirectedUri;
-                            }
-                        } catch (IOException exception) {
-                            logger.debug("get document 303 check on URL {} failed", exception.getMessage());
-                        } catch (URISyntaxException exception) {
-                            logger.debug("get document 303 check on URL {} failed", exception.getMessage());
-                        }
-                    } else {
-                        break;
-                    }
-                }
+            final UrlConnector connector = new UrlConnector(targetCmdiNode);
+            if (connector.connect()) {
+                this.parentUri = connector.getRedirectedUri();
+                final InputStream inputStream = connector.getConnection().getInputStream();
+                digester.parse(inputStream);
+            } else {
+                logger.error("Failed to read cmdi links: could not connect to {}", targetCmdiNode);
             }
-            final InputStream inputStream = uRLConnection.getInputStream();
-            digester.parse(inputStream);
         } catch (IOException e) {
             logger.debug("failed to read cmdi links", e);
         } catch (SAXException e) {
@@ -250,22 +228,22 @@ public class CmdiComponentLinkReader {
         }
         return cmdiResourceLinkArray;
     }
-
+    
     public void addResourceProxy(
             String resourceProxyId,
             String resourceType,
             String resourceRef) {
         CmdiResourceLink cmdiProfile = new CmdiResourceLink(parentUri, resourceProxyId, resourceType, resourceRef);
-
+        
         cmdiResourceLinkArray.add(cmdiProfile);
     }
-
+    
     public void addResourceRelation(
             String RelationType,
             String Res1,
             String Res2) {
         ResourceRelation resourceRelation = new ResourceRelation(RelationType, Res1, Res2);
-
+        
         cmdiResourceRelationArray.add(resourceRelation);
     }
 }

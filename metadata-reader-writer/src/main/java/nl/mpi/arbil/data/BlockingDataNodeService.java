@@ -36,6 +36,7 @@ import nl.mpi.arbil.clarin.HandleUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.util.PathUtility;
 import nl.mpi.arbil.util.TableManager;
+import nl.mpi.arbil.util.UrlConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -156,24 +157,26 @@ public class BlockingDataNodeService extends AbstractDataNodeService implements 
                 } else if (!dataNode.isLocal()) {
                     //todo: move me and or make me optional
                     try {
-                        final URLConnection uRLConnection = dataNode.getUri().toURL().openConnection();
-                        if (uRLConnection instanceof HttpURLConnection) {
-                            // For HTTP connections, we want to follow redirects
-                            ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
-                        }
-                        // add http headers as data node fields
-                        final Map<String, List<String>> headerFields = uRLConnection.getHeaderFields();
-                        for (String fieldName : headerFields.keySet()) {
-                            final List<String> values = headerFields.get(fieldName);
-                            for (String value : values) {
-                                final String fieldNameNonNull = (fieldName != null) ? fieldName : "";
-                                final String valueNonNull = (value != null) ? value : "";
-                                dataNode.addField(new ArbilField(0, dataNode, fieldNameNonNull, valueNonNull, 0, false));
+                        final URI nodeUri = new HandleUtils().resolveHandle(dataNode.getUri());
+                        final UrlConnector connector = new UrlConnector(nodeUri);
+                        if (connector.connect()) {
+                            final URLConnection uRLConnection = connector.getConnection();
+                            // add http headers as data node fields
+                            final Map<String, List<String>> headerFields = uRLConnection.getHeaderFields();
+                            for (String fieldName : headerFields.keySet()) {
+                                final List<String> values = headerFields.get(fieldName);
+                                for (String value : values) {
+                                    final String fieldNameNonNull = (fieldName != null) ? fieldName : "";
+                                    final String valueNonNull = (value != null) ? value : "";
+                                    dataNode.addField(new ArbilField(0, dataNode, fieldNameNonNull, valueNonNull, 0, false));
+                                }
                             }
+                            dataNode.setLoadingState(ArbilDataNode.LoadingState.LOADED);
+                        } else {
+                            logger.error("Could not connect to {}", nodeUri);
                         }
-                        dataNode.setLoadingState(ArbilDataNode.LoadingState.LOADED);
                     } catch (IOException exception) {
-                        logger.debug("location header check on URL {} failed", exception.getMessage());
+                        logger.warn("location header check on URL {} failed", exception.getMessage());
 //                    } catch (MalformedURLException exception) {
 //                        logger.debug("location header check on URL {} failed", exception.getMessage());
                     }
