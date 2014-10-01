@@ -171,17 +171,38 @@ public class BlockingDataNodeService extends AbstractDataNodeService implements 
                                     dataNode.addField(new ArbilField(0, dataNode, fieldNameNonNull, valueNonNull, 0, false));
                                 }
                             }
+                            // set the 'after redirect URI' - this triggers another connection with a maximum of 1 redirects
+                            // to prevent ending up at a shibboleth login page
+                            dataNode.setRedirectedUri(getRedirectedUri(connector, nodeUri));
                             dataNode.setLoadingState(ArbilDataNode.LoadingState.LOADED);
                         } else {
                             logger.error("Could not connect to {}", nodeUri);
                         }
                     } catch (IOException exception) {
                         logger.warn("location header check on URL {} failed", exception.getMessage());
-//                    } catch (MalformedURLException exception) {
-//                        logger.debug("location header check on URL {} failed", exception.getMessage());
                     }
                 }
             }
+        }
+    }
+
+    /**
+     *
+     * @param connector previous connector in a post-connect state
+     * @param nodeUrl original node request URL (not a hdl: URI)
+     * @return the resulting URI after at most 1 redirects
+     * @throws IOException
+     */
+    private URI getRedirectedUri(final UrlConnector connector, final URI nodeUrl) throws IOException {
+        if (connector == null || !connector.getRedirectedUri().equals(nodeUrl)) {
+            // a redirect happened in the previous connector
+            UrlConnector filenameConnector = new UrlConnector(nodeUrl);
+            // redirect only once to prevent ending up at a shibboleth login page or other trap
+            filenameConnector.setMaxRedirects(1);
+            filenameConnector.connect();
+            return filenameConnector.getRedirectedUri();
+        } else {
+            return nodeUrl;
         }
     }
 

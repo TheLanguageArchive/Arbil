@@ -117,7 +117,7 @@ public class UrlConnector {
 
     private boolean followRedirects() throws IOException {
         int redirectsLeft = maxRedirects;
-        while (redirectsLeft > 0) {
+        while (redirectsLeft >= 0) {
             redirectsLeft--;
             if (connection instanceof HttpURLConnection) {
                 // make connection and check response code

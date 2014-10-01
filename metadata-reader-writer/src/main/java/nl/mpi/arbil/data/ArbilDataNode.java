@@ -116,7 +116,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     //    private boolean isFavourite;
     public String archiveHandle = null;
     public String archiveUri = null;
-// todo: store the redirected url rather than rechecking it all the time ---  public String redirectedUri = null;
+    //Stores the redirected url
+    private URI redirectedUri = null;
     public boolean hasDomIdAttribute = false; // used to requre a save (that will remove the dom ids) if a node has any residual dom id attributes
     //public Vector<String[]> addQueue;
     public boolean scrollToRequested = false;
@@ -313,6 +314,9 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
             }
             if (!isMetaDataNode() && nodeText == null) {
                 nodeText = this.getUrlString();
+            }
+            if (archiveHandle == null && nodeUri.getScheme().equalsIgnoreCase("hdl")) {
+                archiveHandle = nodeUri.toString();
             }
         }
     }
@@ -788,6 +792,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
                 }
                 nodeText = resourcePathString;
             }
+        } else if (formatType == MetadataFormat.FileType.FILE && redirectedUri != null) {
+            // nodes that are files get the filename as node name
+            nodeText = redirectedUri.getPath()
+                    // remove everything up to the last / (this works because the expression is eager)
+                    .replaceAll("^(.+\\/)", "");
         }
         if (isInfoLink) {
             final Iterator<ArbilField[]> fieldsIterator = fieldHashtable.values().iterator();
@@ -1465,5 +1474,23 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     public List<DataNodeLink> getChildIds() throws ModelException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     *
+     * @return in case the node URI is a handle, the location that the handle
+     * points to
+     */
+    public URI getRedirectedUri() {
+        return redirectedUri;
+    }
+
+    /**
+     *
+     * @param redirectedUri in case the node URI is a handle, the location that
+     * the handle points to
+     */
+    public void setRedirectedUri(URI redirectedUri) {
+        this.redirectedUri = redirectedUri;
     }
 }
