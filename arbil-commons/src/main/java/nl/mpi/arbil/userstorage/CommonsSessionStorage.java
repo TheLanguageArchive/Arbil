@@ -126,9 +126,9 @@ public abstract class CommonsSessionStorage implements PluginSessionStorage {
                     if (!storageFile.exists()) {
                         if (!storageFile.mkdir()) {
                             testedStorageDirectories = testedStorageDirectories + currentStorageDirectory + "\n";
-                            logError("failed to create: " + currentStorageDirectory, null);
+                            logger.info("could not create: {}", currentStorageDirectory);
                         } else {
-                            logger.debug("created new storage directory: " + currentStorageDirectory);
+                            logger.info("created new storage directory: " + currentStorageDirectory);
                             storageDirectoryFile = storageFile;
                             break;
                         }
