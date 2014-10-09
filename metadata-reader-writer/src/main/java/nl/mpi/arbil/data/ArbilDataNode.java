@@ -133,13 +133,22 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     private MetadataFormat.FileType formatType = MetadataFormat.FileType.UNKNOWN;
 
     protected ArbilDataNode(DataNodeService dataNodeService, URI localUri, MetadataFormat.FileType formatType) {
+        this(dataNodeService, localUri, null, formatType);
+    }
+
+    protected ArbilDataNode(final DataNodeService dataNodeService, final URI localUri, final URI redirectedUri, final MetadataFormat.FileType formatType) {
         super();
         //        addQueue = new Vector<String[]>();
         this.dataNodeService = dataNodeService;
         this.formatType = formatType;
-        nodeUri = localUri;
-        if (nodeUri != null) {
+        this.nodeUri = localUri;
+        this.redirectedUri = redirectedUri;
+        if (redirectedUri != null) {
+            metadataUtils = ArbilDataNode.getMetadataUtils(redirectedUri.toString());
+        } else if (nodeUri != null) {
             metadataUtils = ArbilDataNode.getMetadataUtils(nodeUri.toString());
+            // keep the redirected URI the same as the request URI until we know more...
+            this.redirectedUri = nodeUri;
         }
         initNodeVariables();
     }
@@ -438,11 +447,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     }
 
     public String getNodePath() {
-        final String fragment = nodeUri.getFragment();
+        final String fragment = redirectedUri.getFragment();
         if (fragment == null) {
             return null;
         } else {
-            final String startPath = MetadataFormat.getMetadataStartPath(nodeUri.getPath());
+            final String startPath = MetadataFormat.getMetadataStartPath(redirectedUri.getPath());
             if (fragment.startsWith(startPath) && fragment.length() > startPath.length()) {
                 return fragment.substring(startPath.length() + 1);
             } else {
@@ -469,7 +478,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
      */
     public File getSubDirectory() {
         String currentFileName = this.getFile().getParent();
-        if (MetadataFormat.isPathImdi(nodeUri.getPath()) || MetadataFormat.isPathCmdi(nodeUri.getPath())) {
+        if (MetadataFormat.isPathImdi(redirectedUri.getPath()) || MetadataFormat.isPathCmdi(redirectedUri.getPath())) {
             currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
             File destinationDir = new File(currentFileName);
             if (!destinationDir.exists()) {
@@ -992,13 +1001,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
                 targetUri = new URI(null, targetUriString, null);
             }
             //            logger.debug("nodeUri: " + nodeUri);
-            URI resourceUri = nodeUri.resolve(targetUri);
+            URI resourceUri = redirectedUri.resolve(targetUri);
             //            logger.debug("targetUriString: " + targetUriString);
             //            logger.debug("targetUri: " + targetUri);
             //            logger.debug("resourceUri: " + resourceUri);
             if (!targetUri.equals(resourceUri)) {
                 // maintain the UNC path
-                boolean isUncPath = nodeUri.toString().toLowerCase().startsWith("file:////");
+                boolean isUncPath = redirectedUri.toString().toLowerCase().startsWith("file:////");
                 if (isUncPath) {
                     resourceUri = URI.create("file:////" + resourceUri.toString().substring("file:/".length()));
                 }
@@ -1035,10 +1044,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     public synchronized ArbilDataNode getParentDomNode() {
         //        logger.debug("nodeUri: " + nodeUri);
         if (domParentNode == null) {
-            if (nodeUri.getFragment() != null) {
+            if (redirectedUri.getFragment() != null) {
                 //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getNodePath(), nodeUri.getQuery(), null /* fragment removed */));
                 // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
-                domParentNode = dataNodeService.loadArbilDataNode(null, URI.create(nodeUri.toString().split("#")[0] /* fragment removed */));
+                domParentNode = dataNodeService.loadArbilDataNode(null, URI.create(redirectedUri.toString().split("#")[0] /* fragment removed */));
                 //                    logger.debug("nodeUri: " + nodeUri);
             } else {
                 domParentNode = this;
@@ -1135,8 +1144,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
     }
 
     public boolean isLocal() {
-        if (nodeUri != null) {
-            return ArbilDataNode.isUriLocal(nodeUri);
+        if (redirectedUri != null) {
+            return ArbilDataNode.isUriLocal(redirectedUri);
         } else {
             return false;
         }
@@ -1160,7 +1169,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
 
     public File getFile() { //TODO: make throw IllegalArgumentException, URISyntaxException
         try {
-            return MetadataFormat.getFile(nodeUri);
+            return MetadataFormat.getFile(redirectedUri);
         } catch (Exception urise) {
             logger.error(nodeUri.toString(), urise);
             return null;

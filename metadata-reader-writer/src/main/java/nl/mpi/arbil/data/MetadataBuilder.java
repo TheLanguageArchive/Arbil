@@ -124,7 +124,7 @@ public class MetadataBuilder {
                     if (destinationNode.getNodeTemplate().getMaxOccursForTemplate(nodeType) >= 0) {
                         logger.debug("adding to current node");
                         try {
-                            Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getUri());
+                            Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getRedirectedUri());
                             if (nodDom == null) {
                                 messageDialogHandler.addMessageDialogToQueue(services.getString("THE METADATA FILE COULD NOT BE OPENED"), services.getString("ADD NODE"));
                             } else {
@@ -543,7 +543,7 @@ public class MetadataBuilder {
                     if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
                         logger.debug("adding to current node");
                         try {
-                            Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getUri());
+                            Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getRedirectedUri());
                             if (nodDom == null) {
                                 messageDialogHandler.addMessageDialogToQueue(services.getString("THE METADATA FILE COULD NOT BE OPENED"), services.getString("ADD NODE"));
                             } else {

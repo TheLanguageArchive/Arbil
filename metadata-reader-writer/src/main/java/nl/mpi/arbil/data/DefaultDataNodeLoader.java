@@ -18,12 +18,14 @@
  */
 package nl.mpi.arbil.data;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Hashtable;
 import java.util.ResourceBundle;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.HandleUtils;
 import nl.mpi.arbil.data.ArbilDataNode.LoadingState;
+import nl.mpi.arbil.util.UrlConnector;
 import nl.mpi.flap.model.PluginDataNode;
 import nl.mpi.flap.plugin.WrongNodeTypeException;
 import org.slf4j.Logger;
@@ -77,15 +79,16 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 
     @Override
     public ArbilDataNode getArbilDataNodeWithoutLoading(URI localUri) {
+        final URI normalisedUri = normaliseUri(localUri);
         ArbilDataNode currentDataNode = null;
-        if (localUri != null) {
-            localUri = resolveAndNormaliseUri(localUri);
+        if (normalisedUri != null) {
             // correct any variations in the url string
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
-            currentDataNode = arbilHashTable.get(localUri.toString());
+            currentDataNode = arbilHashTable.get(normalisedUri.toString());
             if (currentDataNode == null) {
-                currentDataNode = new ArbilDataNode(dataNodeService, localUri, metadataFormat.shallowCheck(localUri));
-                arbilHashTable.put(localUri.toString(), currentDataNode);
+                final URI resolvedUri = resolveUri(normalisedUri);
+                currentDataNode = new ArbilDataNode(dataNodeService, normalisedUri, resolvedUri, metadataFormat.shallowCheck(normalisedUri));
+                arbilHashTable.put(normalisedUri.toString(), currentDataNode);
             }
         }
         return currentDataNode;
@@ -135,16 +138,14 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     // return the node only if it has already been loaded otherwise return null
     @Override
     public ArbilDataNode getArbilDataNodeOnlyIfLoaded(URI arbilUri) {
-//        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        arbilUri = resolveAndNormaliseUri(arbilUri);
+        arbilUri = normaliseUri(arbilUri);
         return arbilHashTable.get(arbilUri.toString());
     }
 
     // reload the node only if it has already been loaded otherwise ignore
     @Override
     public void requestReloadOnlyIfLoaded(URI arbilUri) {
-//        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        arbilUri = resolveAndNormaliseUri(arbilUri);
+        arbilUri = normaliseUri(arbilUri);
         ArbilDataNode currentDataNode = arbilHashTable.get(arbilUri.toString());
         if (currentDataNode != null) {
             requestReload(currentDataNode);
@@ -290,9 +291,11 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
         threadManager.setSchemaCheckLocalFiles(schemaCheckLocalFiles);
     }
 
-    public ArbilDataNode createNewDataNode(URI uri) {
-        uri = resolveAndNormaliseUri(uri);
-        return new ArbilDataNode(dataNodeService, uri, metadataFormat.shallowCheck(uri));
+    public ArbilDataNode createNewDataNode(final URI uri) {
+        final URI normalisedUri = ArbilDataNodeService.normaliseURI(uri);
+        final URI resolvedUri = resolveUri(normalisedUri);
+        final ArbilDataNode arbilDataNode = new ArbilDataNode(dataNodeService, normalisedUri,resolvedUri,  metadataFormat.shallowCheck(normalisedUri));
+        return arbilDataNode;
     }
 
     /**
@@ -308,9 +311,22 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
      * @param uri URI to resolve and normalise
      * @return normalised and resolved URI
      */
-    private URI resolveAndNormaliseUri(URI uri) {
-        final URI normalisedUri = ArbilDataNodeService.normaliseURI(uri);
-        //TODO: use nl.mpi.arbil.util.UrlConnector instead (test)
-        return handleUtils.followRedirect(normalisedUri);
+    private URI normaliseUri(URI uri) {
+        return ArbilDataNodeService.normaliseURI(uri);
+    }
+
+    private URI resolveUri(URI normalisedUri) {
+        final URI resolvedHandle = handleUtils.resolveHandle(normalisedUri);
+        final UrlConnector connector = new UrlConnector(resolvedHandle);
+        connector.setMaxRedirects(1);
+        try {
+            if (connector.connect()) {
+                return connector.getRedirectedUri();
+            }
+        } catch (IOException ex) {
+            logger.error("Error connecting to {} -> {}", normalisedUri, resolvedHandle, ex);
+        }
+        logger.warn("Could not connector to URI {} -> {}", normalisedUri, resolvedHandle);
+        return resolvedHandle;
     }
 }

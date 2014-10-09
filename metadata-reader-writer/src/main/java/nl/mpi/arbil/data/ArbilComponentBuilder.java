@@ -115,6 +115,11 @@ public class ArbilComponentBuilder {
     }
     private HashMap<ArbilDataNode, SchemaType> nodeSchemaTypeMap = new HashMap<ArbilDataNode, SchemaType>();
 
+    public static Document getDocument(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException {
+        return getDocument(dataNode.getRedirectedUri());
+    }
+    
+    @Deprecated
     public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
         if (inputUri == null) {
             return getNewDocument();
@@ -200,7 +205,7 @@ public class ArbilComponentBuilder {
             }
             try {
                 // load the dom
-                Document targetDocument = getDocument(arbilDataNode.getUri());
+                Document targetDocument = getDocument(arbilDataNode.getRedirectedUri());
                 // insert the new section
                 try {
                     try {
@@ -633,10 +638,10 @@ public class ArbilComponentBuilder {
         try {
             Document favouriteDocument;
             synchronized (favouriteArbilDataNode.getParentDomLockObject()) {
-                favouriteDocument = getDocument(favouriteArbilDataNode.getUri());
+                favouriteDocument = getDocument(favouriteArbilDataNode.getRedirectedUri());
             }
             synchronized (destinationArbilDataNode.getParentDomLockObject()) {
-                Document destinationDocument = getDocument(destinationArbilDataNode.getUri());
+                Document destinationDocument = getDocument(destinationArbilDataNode.getRedirectedUri());
                 String favouriteXpath = favouriteArbilDataNode.getURIFragment();
                 String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
                 boolean onlySubNodes = !favouriteXpathTrimmed.equals(favouriteXpath);
@@ -932,7 +937,7 @@ public class ArbilComponentBuilder {
                 // load the schema
                 SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().getTemplateFile());
                 // load the dom
-                Document targetDocument = getDocument(arbilDataNode.getUri());
+                Document targetDocument = getDocument(arbilDataNode.getRedirectedUri());
                 // insert the new section
                 try {
 //                printoutDocument(targetDocument);
@@ -986,7 +991,7 @@ public class ArbilComponentBuilder {
                 // load the schema
                 SchemaType schemaType = getFirstSchemaType(arbilDataNode);
                 // load the dom
-                Document targetDocument = getDocument(arbilDataNode.getUri());
+                Document targetDocument = getDocument(arbilDataNode.getRedirectedUri());
                 // insert the new section
                 try {
                     return canInsertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
@@ -1024,7 +1029,7 @@ public class ArbilComponentBuilder {
     public void removeArchiveHandles(ArbilDataNode arbilDataNode) {
         synchronized (arbilDataNode.getParentDomLockObject()) {
             try {
-                Document workingDocument = getDocument(arbilDataNode.getUri());
+                Document workingDocument = getDocument(arbilDataNode.getRedirectedUri());
                 removeArchiveHandles(workingDocument);
                 savePrettyFormatting(workingDocument, arbilDataNode.getFile());
             } catch (Exception exception) {

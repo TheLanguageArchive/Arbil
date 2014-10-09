@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.clarin;
 
@@ -46,57 +47,23 @@ public class HandleUtils {
      * @throws URISyntaxException if reference in this link is not a valid URI
      */
     public URI resolveHandle(String resourceRef) throws URISyntaxException {
-	if (resourceRef != null && resourceRef.length() > 0) {
-	    if (resourceRef.startsWith("hdl://")) { // IS THIS VALID? TG 4/10/2011
-		return new URI(resourceRef.replace("hdl://", HANDLE_SERVER_URI));
-	    } else if (resourceRef.startsWith("hdl:")) {
-		return new URI(resourceRef.replace("hdl:", HANDLE_SERVER_URI));
-	    } else {
-		return new URI(resourceRef);
-	    }
-	}
-	return null;
+        if (resourceRef != null && resourceRef.length() > 0) {
+            if (resourceRef.startsWith("hdl://")) { // IS THIS VALID? TG 4/10/2011
+                return new URI(resourceRef.replace("hdl://", HANDLE_SERVER_URI));
+            } else if (resourceRef.startsWith("hdl:")) {
+                return new URI(resourceRef.replace("hdl:", HANDLE_SERVER_URI));
+            } else {
+                return new URI(resourceRef);
+            }
+        }
+        return null;
     }
 
     public URI resolveHandle(URI resourceURI) {
-	if ("hdl".equals(resourceURI.getScheme())) {
-	    return URI.create(HANDLE_SERVER_URI + resourceURI.toString().replaceFirst("^hdl:", ""));
-	}
-	return resourceURI;
+        if ("hdl".equalsIgnoreCase(resourceURI.getScheme())) {
+            return URI.create(HANDLE_SERVER_URI + resourceURI.toString().replaceFirst("^hdl:", ""));
+        }
+        return resourceURI;
     }
 
-    public URI followRedirect(final URI handleURI) {
-        //TODO: deprecate and/or use nl.mpi.arbil.util.UrlConnector instead
-	if (handleURI.getScheme().startsWith("http")) {
-	    try {
-		final URLConnection uRLConnection = resolveHandle(handleURI).toURL().openConnection();
-		if (uRLConnection instanceof HttpURLConnection) {
-		    logger.trace("Requesting {} to find possible redirect", handleURI);
-		    ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
-		    ((HttpURLConnection) uRLConnection).setReadTimeout(REDIRECT_TIMEOUT);
-		    uRLConnection.getInputStream().close();
-		    final URL resolvedUrl = uRLConnection.getURL();
-		    final URI resolvedUri = resolvedUrl.toURI();
-		    if (logger.isDebugEnabled() && !resolvedUri.equals(handleURI)) {
-			logger.debug("Redirected: {} -> {}", handleURI, resolvedUri);
-		    }
-		    return resolvedUri;
-		}
-	    } catch (URISyntaxException ex) {
-		logger.warn("Could not convert URL to URI for {}: {}", handleURI, ex.getMessage());
-		logger.info("Could not convert URL to URI", ex);
-	    } catch(ConnectException ex){
-		logger.warn("Connection to {} could not be established, could not check for a redirect (timeout is {}ms}): {}", handleURI, REDIRECT_TIMEOUT, ex.getMessage());
-		logger.info("Connection could not be established while looking for redirect", ex);
-	    } catch (IOException ex) {
-		logger.warn("Could not follow redirects for {}: {}", handleURI, ex.getMessage());
-		logger.info("Could not follow redirects", ex);		
-	    }
-	}
-	return handleURI;
-    }
-
-    public static void main(String[] args) throws IOException, URISyntaxException {
-	new HandleUtils().followRedirect(URI.create("http://hdl.handle.net/1839/00-0000-0000-0001-53A6-F@format=cmdi"));
-    }
 }

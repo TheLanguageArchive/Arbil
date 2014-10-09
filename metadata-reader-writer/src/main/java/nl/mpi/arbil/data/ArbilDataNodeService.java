@@ -610,7 +610,7 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
         } else {
             // we reduce the times the file type is checked by only checking when the type is unset, this is because for difficult files a deep check is required which requires downloading a small portion of the file
             if (dataNode.getFormatType() == MetadataFormat.FileType.UNKNOWN) {
-                dataNode.setFormatType(metadataFormat.deepCheck(dataNode.getUri()));
+                dataNode.setFormatType(metadataFormat.deepCheck(dataNode.getRedirectedUri()));
             }
             synchronized (dataNode.getParentDomLockObject()) {
                 dataNode.initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
@@ -819,16 +819,14 @@ public class ArbilDataNodeService extends AbstractDataNodeService implements Dat
 
     private void initComponentLinkReader(ArbilDataNode dataNode) {
         if (dataNode.isCmdiMetaDataNode()) {
-            final URI matadataUri = new HandleUtils().resolveHandle(dataNode.getUri());
             // load the links from the cmdi file
             // the links will be hooked to the relevent nodes when the rest of the xml is read
-            dataNode.getCmdiComponentLinkReader().readLinks(matadataUri);
+            dataNode.getCmdiComponentLinkReader().readLinks(dataNode.getRedirectedUri());
         }
     }
 
     private void updateMetadataChildNodes(ArbilDataNode dataNode) throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
-        final URI matadataUri = new HandleUtils().resolveHandle(dataNode.getUri());
-        Document nodDom = ArbilComponentBuilder.getDocument(matadataUri);
+        Document nodDom = ArbilComponentBuilder.getDocument(dataNode.getRedirectedUri());
         Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree = new HashMap<ArbilDataNode, Set<ArbilDataNode>>();
         dataNode.childLinks = loadMetadataChildNodes(dataNode, nodDom, parentChildTree);
         checkRemovedChildNodes(parentChildTree);

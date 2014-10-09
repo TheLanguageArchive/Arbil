@@ -138,8 +138,14 @@ public class UrlConnector {
                         return false;
                     }
                 } else {
-                    // we got a non-redirect response this time
-                    return true;
+                    try {
+                        redirectedUri = connection.getURL().toURI();
+                        // we got a non-redirect response this time
+                        return true;
+                    } catch (URISyntaxException ex) {
+                        logger.error("Invalid URI encountered", ex);
+                        return false;
+                    }
                 }
             } else {
                 // not an http URL, assume this goes well
