@@ -5,7 +5,7 @@
     <artifactId>arbil-parent</artifactId>
     <name>Arbil parent</name>
     <packaging>pom</packaging>
-    <version>2.6</version>
+    <version>2.7</version>
     <description>Parent pom for Arbil</description>
     <modules>
         <module>arbil</module>
@@ -28,7 +28,7 @@
 
     <properties>
         <arbil.majorVersion>2</arbil.majorVersion>
-        <arbil.minorVersion>6</arbil.minorVersion>
+        <arbil.minorVersion>7</arbil.minorVersion>
         <arbil.branch>pretesting</arbil.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.7</slf4j.version>
@@ -131,7 +131,7 @@
                     <allowSnapshots>true</allowSnapshots>
                     <projectDirectory>${project.basedir}</projectDirectory>
                     <majorVersion>2</majorVersion>
-                    <minorVersion>6</minorVersion>
+                    <minorVersion>7</minorVersion>
                     <buildType>pretesting</buildType>
                     <propertiesPrefix>application</propertiesPrefix>
                     <shortVersionModules>
