@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2014 The Language Archive, Max Planck Institute for Psycholinguistics
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -475,7 +475,7 @@ public class MetadataBuilder {
 		    treeHelper.addLocation(addedNodeUri);
 		    treeHelper.applyRootLocations();
 		} else {
-		    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
+		    destinationNode.getMetadataUtils().addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
 		}
 		addedNode.loadArbilDom();
 		addedNode.scrollToRequested = true;

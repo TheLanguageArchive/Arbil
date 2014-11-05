@@ -1,8 +1,8 @@
-ARBIL 2.5.x RELEASE NOTES
+ARBIL 2.6.x RELEASE NOTES
 ----------------------------------------
-$Date$ 
-$Revision$ (this means that the descriptions below apply to Arbil 2.5.x 
-with x >= revision)
+$Date: 2014-11-05 10:02:18 +0100 (Wed, 05 Nov 2014) $ 
+$Revision: 42473 $ (this means that the descriptions below apply to Arbil
+2.6.x with x >= revision)
 
 Contacts:
 - Peter Withers (peter.withers@mpi.nl)
@@ -10,108 +10,13 @@ Contacts:
 ----------------------------------------
 
 Below is an overview of changes in Arbil since the previous minor version (Arbil
-2.4). Where applicable, related ticket numbers from TRAC are included at the end
+2.5). Where applicable, related ticket numbers from TRAC are included at the end
 of the description.
 
-** ADDITIONS **
+- The default remote locations have been fixed
 
-The following functionality has been added to Arbil:
+- Checking for updates has been fixed
 
-- FAVOURITES: Favourites can be now be imported and exported. (#19)
+- Typechecker has been upgraded to version 1.7.6
 
-- TYPE CHECKING: Typechecking can be forced on a resource manually through a
-menu option. (#2826)
-
-- TABLE: Nodes and fields can be deleted from the table view. (#1276)
-
-- MENU BAR: A view menu has been added to the menu bar with menu options
-to change the font size throughout the application. (#1981)
-
-- TREE STRUCTURE VIEW: It is possible to switch to a verbatim representation
-of the document structure in the tree for CMDI documents through an item
-in the 'Options' menu. (#1153)
-
-- REMOTE CORPUS TREE: A context menu option to add any selected remote node
-to the root of the 'Remote Corpus' tree is now available. (#1692)
-
-- DELETION: Nodes and fields can be deleted from the table (horizontal
-view where there is a node per row) through the context menu of the row itself
-or the column header respectively. (#1276) 
-
-** CHANGES **
-
-These parts of the Arbil functionality have changed:
-
-- FAVOURITES: Favourites are now grouped by type. (#21)
-
-- CMDI PROFILES: Profiles are no longer downloaded automatically along with the
-profiles list. They get downloaded as soon as they are selected, or
-alternatively all profiles can be downloaded through a new 'Download all
-profiles' button in the profiles panel of the templates dialog. (#1412)
-
-- CMDI PROFILES: The name of manually added profiles now gets retrieved from
-the profile schema, so that their full name gets displayed instead of a name
-derrived from the schema location. (#1470)
-
-- STORAGE DIRECTORY: When multiple storage directories are detected, the user is
-notified through a warning dialog. (#1246)
-
-- EDITING: Typing in a field will replace the existing content by default. The
-user can append to the existing content by using the mouse or one of the 
-keyboard shortcuts F2 or CTRL-U. (#1245)
-
-- LANGUAGE SELECTION: Selection of all languages from the IMDI language
-vocabulary will be updated as new languages get added. (#2317)
-
-- SEARCH RESULTS: Columns matching a search term get highlighted in the
-search result table. If a single node is returned as a search result, it is 
-shown as a single row instead of a vertical table. (#1170, #1273)
-
-- IMPORT/EXPORT: When importing or exporting metadata will hit an existing
-copy of a file, a dialogue is now shown asking the user whether to overwrite
-or not. (#1272, #1403)
-
-- NODE LOADING: Nodes only loaded for tree display purposes do not get fully
-processed. This increases performance, especially with large collections of
-CMDI files. (#1755, #1797)
-
-- LOGGING: Logging has been made more configurable (as explained in the help
-section on this topic) and output can be monitored on different levels of detail
-in the new 'log console' available through the 'Help' menu when running the 
-installed version of the application. (#2793)
-
-** FIXES **
-
-Among other, mostly minor, bugfixes, the following issues have been resolved:
-
-- FIELD DESCRIPTIONS: Missing field descriptions have been added for a large
-number of IMDI fields. (#657)
-
-- XML RESOURCES: Arbil will no longer attempt to open CMDI resources that are
-XML files themselves 
-
-** KNOWN ISSUES **
-
-Among others, the following issues have been described and will be addressed in
-future version of Arbil:
-
-- IMPORT RESOURCES: Resources that are protected and require authentication can
-currently not be imported into the local corpus since the authentication
-mechanism is broken. (#679)
-
-- SHOW IMDI FORMATTED: When showing an IMDI metadata file 'IMDI formatted', the
-formatting does not look as expected. (#899)
-
-- PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays
-high. (#929)
-
-- SEARCH IN TABLE: The layout of the input boxes for search/replcae within a
-table sometimes break on Windows and Linux. (#1577)
-
-- REMOTE SEARCH: The search interface for remote search is not very intuitive.
-At the moment remote search requires two steps: remote searching and local
-filtering. (#651)
-
-- FILE HANDLING: There are some issues with file handling that occur on Windows
-7. These can cause opening in external file and moving the local corpus
-directory to fail. (#1372 and #1553)
+- Optional support for CMDI 'localURI' attribute in resource proxies. (#4143)

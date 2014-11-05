@@ -5,7 +5,7 @@
     <artifactId>arbil-parent</artifactId>
     <name>Arbil parent</name>
     <packaging>pom</packaging>
-    <version>2.5</version>
+    <version>2.6</version>
     <description>Parent pom for Arbil</description>
     <modules>
         <module>arbil</module>
@@ -26,18 +26,18 @@
 
     <properties>
         <arbil.majorVersion>2</arbil.majorVersion>
-        <arbil.minorVersion>5</arbil.minorVersion>
-        <arbil.branch>stable</arbil.branch>
+        <arbil.minorVersion>6</arbil.minorVersion>
+        <arbil.branch>testing</arbil.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>1.7.2</slf4j.version>
+        <slf4j.version>1.7.7</slf4j.version>
         <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
-        <arbil.license.copyrightYear>2013</arbil.license.copyrightYear>
+        <arbil.license.copyrightYear>2014</arbil.license.copyrightYear>
     </properties>
     <dependencies>	
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>plugins-core</artifactId>
-            <version>1.2.114-stable</version>
+            <version>1.2.87-stable</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -108,6 +108,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>nl.mpi</groupId>
@@ -121,13 +124,14 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <!-- Set this to stable and disallow snapshots when releasing! -->
                     <verbose>true</verbose>
                     <vcsType>svn</vcsType>
-                    <allowSnapshots>false</allowSnapshots>
+                    <allowSnapshots>true</allowSnapshots>
                     <projectDirectory>${project.basedir}</projectDirectory>
-                    <majorVersion>2</majorVersion>
-                    <minorVersion>5</minorVersion>
-                    <buildType>stable</buildType>
+                    <majorVersion>${arbil.majorVersion}</majorVersion>
+                    <minorVersion>${arbil.minorVersion}</minorVersion>
+                    <buildType>testing</buildType>
                     <propertiesPrefix>application</propertiesPrefix>
                     <shortVersionModules>
                         <param>arbil-parent</param>

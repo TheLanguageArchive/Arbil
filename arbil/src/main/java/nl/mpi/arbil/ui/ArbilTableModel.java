@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2014 The Language Archive, Max Planck Institute for Psycholinguistics
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -159,11 +159,11 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 	    embadTagStringBuilder.append(
 		    "lib/xmlbeans-2.6.0.jar,"
 		    + "lib/stax-api-1.0.1.jar,"
-		    + "lib/typechecker-1.7.0.jar,"
+		    + "lib/typechecker-1.7.6.jar,"
 		    + "lib/slcshttps-0.2.jar,"
-		    + "lib/imdi-api-1.1.2.jar,"
-		    + "lib/mpi-util-1.0.0.jar,"
-		    + "lib/Saxon-HE-9.4.jar,"
+		    + "lib/imdi-api-1.1.4.jar,"
+		    + "lib/mpi-util-1.2.3.jar,"
+		    + "lib/Saxon-HE-9.4.0.7.jar,"
 		    + "lib/jdom-1.1.jar,"
 		    + "lib/xom-1.2.5.jar,"
 		    + "lib/dom4j-1.6.1.jar,"
@@ -175,12 +175,12 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		    + "lib/commons-digester-2.0.jar,"
 		    + "lib/commons-beanutils-1.8.0.jar,"
 		    + "lib/commons-logging-1.1.1.jar,"
-		    + "lib/corpusstructure-api-1.7.3.jar,"
+		    + "lib/corpusstructure-api-1.8.1.jar,"
 		    + "lib/handle-6.1.jar,"
 		    + "lib/commons-io-1.4.jar,"
 		    + "lib/plugins-core-1.2.39113-testing,"
-		    + "lib/2.5.39486-testing.jar,"
-		    + "lib/arbil-localisation-2.5.39295-testing.jar"
+		    + "lib/arbil-2.6-testing-SNAPSHOT.jar,"
+		    + "lib/arbil-localisation-2.6-testing-SNAPSHOT.jar"
 		    + "\"\n");
 	    embadTagStringBuilder.append(String.format(" width=\"%d\" height=\"%d\" >\n", tableWidth, tableHeight));
 	    // Application parameters

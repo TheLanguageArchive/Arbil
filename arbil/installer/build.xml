@@ -1,0 +1,398 @@
+<?xml version="1.0"?>
+<!--
+ * build.xml
+ * Created on 10 September 2008, 10:03
+ * Modified on 21 September 2011, 14:27
+ * Modified on 8 March 2013
+ * @author Peter.Withers@mpi.nl
+ * @author Twan.Goosen@mpi.nl
+-->
+<project name="installer" default="maven-jar">
+    <target name="setproperties">
+        <loadproperties srcfile="../application.properties" />
+        <property name="APPNAME" value="${application.name}" />
+        <property name="SRCDIR" location="${application.baseDir}src/main/java/"/>
+        <property name="OUTPUTDIR" location="./target"/>
+        <property name="LIBDIR" location="${OUTPUTDIR}/lib/"/>
+        <property name="IconsDir" location="${application.baseDir}${application.iconsDir}"/>
+        <property name="ClassDir" location="${application.baseDir}/target/classes" />
+        <property name="KeyStoreLocation" location="${application.baseDir}${mpi.keystorelocation}" />
+        <property name="KeyName" value="${mpi.keyname}" />
+        <property name="ExternalPropertiesFile" value="${ClassDir}${application.packagePath}/version.properties" />
+    </target>
+    <target name="loadproperties" depends="maven-compile">
+        <loadproperties srcfile="${ExternalPropertiesFile}" />
+        <property name="JarPrefix" value="${APPNAME}-${application.branch}-${application.majorVersion}-${application.minorVersion}-${application.revision}"/>
+        <property name="DistJarName" value="${JarPrefix}.jar"/>
+        <property name="application.icon-file-name" value="${APPNAME}-${application.branch}128x128"/>
+        <property name="WindowsLauncherExe" value="${APPNAME}-${application.branch}.exe"/> 
+    </target>
+    <target name="clean" description="remove all artifact files" depends="setproperties, maven-clean">
+        <delete dir="${OUTPUTDIR}"/>
+        <mkdir dir="${OUTPUTDIR}"/>
+    </target>
+    <!-- start package creation -->
+    <path id="ant-deb.classpath">
+        <fileset dir="./ant-deb-jar/" includes="*.jar"/>
+    </path>
+    <!-- http://code.google.com/p/ant-deb-task/ -->
+    <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-deb.classpath"/>
+    <taskdef name="desktopEntry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-deb.classpath"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="/usr/share/java/ant-contrib.jar"/>
+        </classpath>
+    </taskdef>
+    <target name="makeDebPackage" depends="signapplication" description="build the deb file">
+        <property name="package.name" value="${APPNAME}-${application.branch}"/>
+        <property name="package.jarname" value="${DistJarName}"/>
+        <!--check that the icon exists and fail if not-->
+        <available file="${IconsDir}/${application.icon-file-name}.png" property="packageIconAvail"/>
+        <fail unless="packageIconAvail" message="${IconsDir}/${application.icon-file-name}.png doesn't exist!"/>
+        <property name="distributionDirectory" value="${OUTPUTDIR}/distribution"/>
+        <mkdir dir="${distributionDirectory}"/>
+        <desktopEntry
+            toFile="${distributionDirectory}/${package.name}.desktop"
+            name="${application.title}"
+            comment="${application.shortDescription}"
+            exec="java -Xms${application.initialHeapSize}m -Xmx${application.maxHeapSize}m -jar /usr/share/${package.name}/${package.jarname}"
+            path="/usr/share/${package.name}/"
+            icon="/usr/share/${package.name}/${application.icon-file-name}.png"
+            categories="Science;Education;Java"
+        />
+        <deb
+            todir="${distributionDirectory}"
+            package="${package.name}"
+            section="${application.debian.section}"
+            depends="${application.debian.dependends}"            
+            conflicts="${application.debian.conflicts}"
+        > <!-- homepage="http://www.lat-mpi.eu/tools/kinoath" deb doesn't support the "homepage" attribute -->
+            <version upstream="${application.majorVersion}.${application.minorVersion}" debian="${application.revision}"/>
+            <maintainer name="${application.maintainer.name}" email="${application.maintainer.email}"/>
+            <description synopsis="${application.shortDescription}">${application.longDescription}</description>
+            <tarfileset file="${OUTPUTDIR}/${package.jarname}" prefix="usr/share/${package.name}"/>
+            <tarfileset file="${IconsDir}/${application.icon-file-name}.png" prefix="usr/share/${package.name}"/>
+            <tarfileset dir="${LIBDIR}" prefix="usr/share/${package.name}/lib">
+                <include name="*.jar"/>
+            </tarfileset>
+            <tarfileset file="${distributionDirectory}/${package.name}.desktop" prefix="usr/share/applications/"/>
+        </deb>
+    </target>
+    <!-- end package creation -->
+    <target name="updateJnlpAndAppletHtml" depends="loadproperties">
+        <!--find . -name "*.jar" -exec /bin/echo <jar href=\"lib/{}\" download=\"eager\"/> ;-->
+        <exec dir="${LIBDIR}" executable="/usr/bin/find" outputproperty="libsList">
+            <arg line='. -iname "*.jar"' />
+            <arg line='-execdir /bin/echo' />
+            <arg value='        &lt;jar href="lib/{}" download="eager"/&gt;' />
+            <arg value=';' />
+        </exec>
+        
+        <macrodef name="updateSingleFile">
+            <attribute name="fileName"/>
+            <sequential>
+                <copy overwrite="true" file="./templates/@{fileName}.template" tofile="${OUTPUTDIR}/distribution/@{fileName}">
+                    <filterchain>
+                        <replacetokens>
+                            <token key="JarPrefix" value="${JarPrefix}"/>
+                            <token key="VersionNumber" value="${application.majorVersion}-${application.minorVersion}-${application.revision}"/>
+                            <token key="DistJarName" value="${DistJarName}"/>
+                            <token key="BuildDirectory" value="${APPNAME}-build-${application.majorVersion}.${application.minorVersion}.x"/>
+                            <token key="InstalledIcon" value="${application.icon-file-name}"/>
+                            <token key="Branch" value="${application.branch}"/>
+                            <token key="ApplicationTitle" value="${application.title}"/>
+                            <token key="LongDescription" value="${application.longDescription}"/>
+                            <token key="ShortDescription" value="${application.shortDescription}"/>
+                            <token key="DistName" value="${APPNAME}"/>
+                            <token key="InitialHeapSize" value="${application.initialHeapSize}"/>
+                            <token key="MaxHeapSize" value="${application.maxHeapSize}"/>
+                            <token key="JavaVersion" value="${application.javaTargetVersion}" />
+                            <token key="AppName" value="${application.title}"/>
+                            <token key="MainClass" value="${application.mainClass}"/>
+                            <token key="LibsList" value="${libsList}" />
+                            <token key="WindowsLauncherExe" value="${WindowsLauncherExe}" />
+                        </replacetokens>
+                    </filterchain>
+                </copy>
+            </sequential>
+        </macrodef>
+        <updateSingleFile fileName="application.jnlp"/>
+        <updateSingleFile fileName="win-installer.iss"/>
+        <updateSingleFile fileName="Info.plist"/>
+        <updateSingleFile fileName="start"/>
+        <copy file="${OUTPUTDIR}/distribution/application.jnlp" tofile="${ClassDir}/JNLP-INF/APPLICATION.JNLP"/>
+    </target>
+    <target name="copyWinUtils" if="application.winUtilsLocation" depends="prepareWinUtilsDir">
+        <get src="${application.winUtilsLocation}" dest="${OUTPUTDIR}/winUtils.zip"/>
+        <unzip src="${OUTPUTDIR}/winUtils.zip" dest="${OUTPUTDIR}/distribution-win32/temp/utils"/>
+        <delete file="${OUTPUTDIR}/winUtils.zip"/>
+    </target>
+    <target name="prepareWinUtilsDir" depends="setproperties">
+        <mkdir dir="${OUTPUTDIR}/distribution-win32/temp/utils"/>
+        <echo file="${OUTPUTDIR}/distribution-win32/temp/utils/readme.txt" append="true">Windows utils are placed here.</echo>
+    </target>
+    <target name="buildWindowsInstaller" depends="signapplication, createWindowsLauncher">
+        <!--check that the icon exists and fail if not-->
+        <available file="${IconsDir}/${application.icon-file-name}.ico" property="installedIconAvail"/>
+        <fail unless="installedIconAvail" message="${application.icon-file-name}.ico doesn't exist!"/>
+        <mkdir dir="${OUTPUTDIR}/distribution-win32/temp/utils"/>
+        <copy todir="${OUTPUTDIR}/distribution-win32/temp/">
+            <fileset dir="${IconsDir}/" includes="*.ico"/>
+        </copy>
+        <!--get and unzip utilities zip, e.g. imagemagick -->
+        <antcall target="copyWinUtils" />
+        <exec dir="${OUTPUTDIR}" executable="wine" ><!--os="Windows NT"-->
+            <arg line='"C:\Program Files\Inno Setup 5\iscc.exe" ./distribution/win-installer.iss'/>
+        </exec>
+        <delete dir="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip"/>
+        <zip destfile="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip" >
+            <file file="${OUTPUTDIR}/distribution-win32/${APPNAME}-installer-${application.majorVersion}-${application.minorVersion}-${application.revision}.exe"/>
+        </zip>
+        <available file="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip" property="installerZipMissing"/>
+        <fail unless="installerZipMissing" message="${APPNAME}-${application.branch}-installer.zip doesn't exist! Is Inno Setup installed inside wine?"/>
+    </target>
+    <target name="buildMacInstaller" depends="signapplication">
+        <!--check that the icon exists and fail if not-->
+        <available file="${IconsDir}/${APPNAME}-${application.branch}.icns" property="installedIconAvail"/>
+        <fail unless="installedIconAvail" message="${APPNAME}-${application.branch}.icns doesn't exist!"/>
+        <copy file="${OUTPUTDIR}/distribution/Info.plist" todir="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}.app/Contents/"/>
+        <copy file="${OUTPUTDIR}/distribution/start" todir="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}.app/Contents/MacOS/"/>
+        <copy file="${IconsDir}/${APPNAME}-${application.branch}.icns" todir="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}.app/Contents/Resources/"/>
+        <copy file="${OUTPUTDIR}/${DistJarName}" todir="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}.app/Contents/MacOS/"/>
+        <copy todir="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}.app/Contents/MacOS/lib/">
+            <fileset dir="${OUTPUTDIR}/lib/" includes="*.jar"/>
+        </copy>
+        <chmod file="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}.app/Contents/MacOS/start" perm="a+xr"/>
+        <tar destfile="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}-mac.tar">
+            <tarfileset dir="${OUTPUTDIR}/distribution-mac/" filemode="755" username="ant" group="ant">
+                <include name="${APPNAME}-${application.branch}.app/Contents/MacOS/start"/>
+            </tarfileset>
+            <tarfileset dir="${OUTPUTDIR}/distribution-mac/" filemode="664" username="ant" group="ant">
+                <include name="${APPNAME}-${application.branch}.app/**"/>
+                <exclude name="${APPNAME}-${application.branch}.app/Contents/MacOS/start"/>
+            </tarfileset>
+        </tar>
+    </target>
+
+    <macrodef name="unsignjar">
+        
+        <attribute name="jar"/>
+            
+        <sequential>
+            <!-- Remove any existing signatures from a JAR file. -->
+            <tempfile prefix="usignjar-" destdir="${java.io.tmpdir}" property="temp.file"/>
+            <echo message="Removing signatures from JAR: @{jar}"/>
+            <mkdir dir="${temp.file}"/>
+                
+            <unjar src="@{jar}" dest="${temp.file}">
+                <patternset>
+                    <include name="**"/>
+                    <exclude name="META-INF/*.SF"/>
+                    <exclude name="META-INF/*.DSA"/>
+                    <exclude name="META-INF/*.RSA"/>
+                </patternset>
+            </unjar>
+                
+            <delete file="@{jar}" failonerror="true"/>
+                
+            <!-- Touch it in case the file didn't have a manifest.
+            Otherwise the JAR task below will fail if the manifest 
+            file doesn't exist. -->
+            <mkdir dir="${temp.file}/META-INF"/>
+            <touch file="${temp.file}/META-INF/MANIFEST.MF"/>
+                
+            <jar destfile="@{jar}" 
+                 basedir="${temp.file}" 
+                 includes="**" 
+                 manifest="${temp.file}/META-INF/MANIFEST.MF"/>
+                
+            <delete dir="${temp.file}" failonerror="true"/>
+        </sequential>
+    </macrodef>
+
+    <target name="signapplication" depends="maven-jar">
+        <echo message="The following sections requires the use of ant-contrib. This can be installed with: sudo apt-get install ant-contrib"/>
+        <input message="Please enter the latsoftware password:" addproperty="latsoftware.pw">
+            <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+        </input>
+
+        <for param="file">
+            <path>
+                <fileset dir="${OUTPUTDIR}/lib" includes="**/*.jar"/>
+            </path>
+            <sequential>
+                <unsignjar jar="@{file}" />
+                <signjar
+                    jar="@{file}"
+                    alias="${KeyName}"
+                    storepass="${latsoftware.pw}"
+                    keystore="${KeyStoreLocation}"/>
+            </sequential>
+        </for>
+        <!--
+                <signjar keystore="${KeyStoreLocation}"
+                         alias="${KeyName}" storepass="${latsoftware.pw}">
+                    <path>
+                        <fileset dir="${OUTPUTDIR}/lib" includes="**/*.jar" />
+                    </path>
+                </signjar>
+        -->
+        <signjar jar="${OUTPUTDIR}/${DistJarName}"
+                 keystore="${KeyStoreLocation}"
+                 alias="${KeyName}" storepass="${latsoftware.pw}" />
+
+    </target>
+    <target name="GetTracTodoList" depends="loadproperties,GetLoginData" if="application.todoListLocation">
+        <!--        todo: add another file for the rss feed of completed tasks-->        
+        <property name="TodoListFile" value="${OUTPUTDIR}/distribution/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_todo.csv"/>
+        <get src="${application.todoListLocation}" 
+             dest="${TodoListFile}" 
+             username="${lux09.user}" 
+             password="${lux09.pw}"/>
+        <scp file="${TodoListFile}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <scp file="${TodoListFile}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-all_todo.csv"/> <!-- ${application.branch}-->
+        <property name="ChangeListFile" value="${OUTPUTDIR}/distribution/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_changes.csv"/>
+        <get src="${application.doneListLocation}"
+             dest="${ChangeListFile}"
+             username="${lux09.user}"
+             password="${lux09.pw}"/>
+        <scp file="${ChangeListFile}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <scp file="${ChangeListFile}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-all_changes.csv"/> <!-- ${application.branch}-->
+        <!--    generating an rss from trac exports too much information when it should only be outputting the id, date, title and milestone, so we dont do that here -->
+
+    </target>
+    <target name="GetLoginData">
+        <echo message="If you get an error regarding jsch, it is probably because ant-jsch.jar cannot find jsch.jar. On a debian system you should first try linking the required jar file: 'sudo ln -s /usr/share/java/jsch.jar /usr/share/ant/lib/'"/>
+        <input message="Please enter lux09 username:" addproperty="lux09.user" />
+        <input message="Please enter lux09 password:" addproperty="lux09.pw">
+            <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+        </input>
+    </target>
+    <target name="createVersionFile" depends="loadproperties">
+        <echo file="${OUTPUTDIR}/${APPNAME}-${application.branch}-current.txt">${application.majorVersion}.${application.minorVersion}.${application.revision}</echo>
+    </target>
+    <target name="scp_to_lux09" depends="clean, maven-build-sources-packages, makeDebPackage, buildWindowsInstaller, buildMacInstaller, createVersionFile, GetLoginData, GetTracTodoList">
+        <scp file="${OUTPUTDIR}/${DistJarName}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <!-- the lib direcory only needs to be updated when there is a real change so can be commented out to save build time -->
+        <scp todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/lib">
+            <fileset dir="${OUTPUTDIR}/lib"/>
+        </scp>
+        <scp file="${IconsDir}/${application.icon-file-name}.png" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <!-- push the updated the applet html and the ${APPNAME} jnlp files to the server -->
+        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}-${application.majorVersion}-${application.minorVersion}-${application.revision}.jnlp"/>
+        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}.jnlp"/>
+        <!-- the non numbered version of the jnlp will allow the user to always get the latest update of that type. Whereas the build numbered version is of no use because it will always redirect to the latest version of its type not the version of the file name -->
+        <!--        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}.jnlp"/>-->
+        <!--        <scp file= "${BUILDDIR}/${APPNAME}-applet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-applet-${application.branch}.html"/>-->
+        <!-- push the deb package -->
+        <scp file="${distributionDirectory}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <scp file="${distributionDirectory}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}.deb"/>
+        <!-- push the windows installer -->
+        <scp file="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <scp file="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}-win-installer.zip"/>
+        <!-- push the mac installer -->
+        <scp file="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}-mac.tar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <scp file="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}-mac.tar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}-mac.tar"/>
+        <!-- only after all the installers have been pushed do we update the version text file -->
+        <scp file="${OUTPUTDIR}/${APPNAME}-${application.branch}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <!-- copy the current version of allversionslisting.php to make sure it gets kept in svn -->
+        <scp file="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/allversionslisting.php" todir="${application.baseDir}/src/main/php/" />
+        <scp file="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/todolisttable.php" todir="${application.baseDir}/src/main/php/" />
+        <!-- copy release notes (only if property is set, see target condition) -->
+        <antcall target="-copy_release_notes_to_lux09" />
+        <antcall target="-copy_sources_to_lux09" />
+        <!-- set the required permissions for apache --> 
+        <sshexec host="lux09.mpi.nl" username="${lux09.user}" password="${lux09.pw}" command="find /data/extweb1/docs/TG/j2se/jnlp/${APPNAME} -user ${lux09.user} -follow -exec chmod a+r,g+w {} \;" />
+    </target>
+    <target name="copy_release_notes_to_lux09" depends="setproperties,loadproperties,GetLoginData">
+        <antcall target="-copy_release_notes_to_lux09" />
+    </target>
+    <!-- 'private' target without dependencies so that scp_to_lux09 can call this without re-compiling the application -->
+    <target name="-copy_release_notes_to_lux09" if="application.releaseNotesLocation">
+        <fail unless="application.releaseNotesLocation" />
+        <!-- copy the release notes -->
+        <echo message="Copying release notes from ${application.baseDir}${application.releaseNotesLocation} to release_notes-${APPNAME}-${application.branch}.txt on server" />
+        <scp file="${application.baseDir}${application.releaseNotesLocation}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/release_notes-${APPNAME}-${application.branch}.txt" />
+        <scp file="${application.baseDir}${application.releaseNotesLocation}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/release_notes-${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}.txt" />
+    </target>
+    <target name="maven-compile" depends="setproperties">
+        <!-- while this could be done in a maven ant task, this method appears more portable at this stage -->
+        <exec dir="${application.baseDir}" executable="mvn" failonerror="true">
+            <arg line="clean compile" />
+            <arg line="-Doutput.directory=${OUTPUTDIR}"/>
+        </exec>
+    </target>
+    <target name="maven-jar" depends="updateJnlpAndAppletHtml">
+        <!-- clean must be run before updateJnlpAndAppletHtml otherwise the jnlp file gets deleted from the classes before making the jar file -->
+        <!-- while this could be done in a maven ant task, this method appears more portable at this stage -->
+        <exec dir="${application.baseDir}" executable="mvn" failonerror="true">
+            <arg line="package" />
+            <arg line="-Doutput.jarname=${JarPrefix}"/>
+            <arg line="-Doutput.directory=${OUTPUTDIR}"/>
+        </exec>
+    </target>
+    <target name="maven-deploy" depends="maven-jar">
+        <!-- while this could be done in a maven and task, this method appears more portable at this stage -->
+        <exec dir="${application.baseDir}" executable="mvn" failonerror="true">
+            <arg line="install:install-file" />
+            <arg line="-Dfile=${OUTPUTDIR}/${DistJarName}" />
+            <!--
+                        <arg line="-DgroupId=nl.mpi" />
+                        <arg line="-DartifactId=${APPNAME}" />
+                        <arg line="-Dversion=${application.majorVersion}.${application.minorVersion}.${application.revision}" />
+            -->
+            <arg line="-Dpackaging=jar" />
+            <arg line="-DpomFile=${application.baseDir}pom.xml" />
+            <!-- -DgeneratePom=true -->
+        </exec>
+    </target>
+    <target name="maven-clean" depends="setproperties">
+        <exec dir="${application.baseDir}" executable="mvn" failonerror="true">
+            <arg line="clean" />
+            <arg line="-Doutput.directory=${OUTPUTDIR}"/>
+        </exec>
+    </target>
+    <target name="createWindowsLauncher" depends="prepareWinUtilsDir, maven-jar">
+        <exec dir="." executable="mvn" failonerror="true">
+            <arg line="-f launch4j-pom.xml" />
+            <arg line="package" />
+            <arg line="-Dapplication.propertiesFile=${ExternalPropertiesFile}"/>
+            <arg line="-Doutput.directory=${OUTPUTDIR}/distribution-win32/temp"/>
+            <arg line="-Dinput.jarFile=${DistJarName}" />
+            <arg line="-Dinput.iconsDir=${IconsDir}" />
+            <arg line="-Doutput.exeFile=${WindowsLauncherExe}" />
+        </exec>
+    </target>
+
+    <target name="copy_sources_to_lux09"   depends="maven-build-sources-packages,loadproperties,GetLoginData">
+        <antcall target="-copy_sources_to_lux09" />
+    </target>
+
+    <!-- 'private' target without dependencies so that scp_to_lux09 can call this without re-compiling the application -->
+    <target name="-copy_sources_to_lux09" if="application.sources.archiveLocation">
+        <fail unless="application.sources.archiveLocation" />
+        <!-- copy the release notes -->
+        <echo message="Copying source package notes from ${application.sources.baseDir}${application.sources.archiveLocation} to ${APPNAME}-${application.branch}-src.zip on server" />
+        <scp file="${application.sources.baseDir}${application.sources.archiveLocation}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}-src.zip" />
+    </target>
+
+    <!-- 
+    This will do a 'clean install' on the parent project with the goal of
+    a source archive becoming present in the configured
+    location (application.sources.archiveLocation) relative to the parent
+    project 
+    -->
+    <target name="maven-build-sources-packages" depends="setproperties">
+        <antcall target="-maven-build-sources-package" />
+    </target>
+
+    <target name="-maven-build-sources-package" if="application.sources.baseDir">
+        <fail unless="application.sources.baseDir" />
+        <exec dir="${application.sources.baseDir}" executable="mvn" failonerror="true">
+            <arg line="clean install" />
+            <arg line="-DskipTests=true"/>
+        </exec>
+    </target>
+
+</project>
+ 

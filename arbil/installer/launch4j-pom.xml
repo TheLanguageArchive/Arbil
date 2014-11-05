@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>nl.mpi</groupId>
+    <artifactId>launch4j-builder</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0</version>
+    
+    <properties>
+		<output.exeFile>${application.name}-${application.branch}.exe</output.exeFile>
+		<application.version>${application.majorVersion}.${application.minorVersion}.${application.revision}</application.version>
+    </properties>
+    
+    <build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<executions>
+					<execution>
+					<phase>initialize</phase>
+					<goals>
+						<goal>read-project-properties</goal>
+					</goals>
+					<configuration>
+						<files>
+							<file>../application.properties</file>
+							<file>${application.propertiesFile}</file>
+						</files>
+					</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+			  <groupId>com.akathist.maven.plugins.launch4j</groupId>
+			  <artifactId>launch4j-maven-plugin</artifactId>
+			  <executions>
+				<execution>
+				  <id>l4j-gui</id>
+				  <phase>package</phase>
+				  <goals>
+					<goal>launch4j</goal>
+				  </goals>
+				  <configuration>
+					<headerType>gui</headerType>
+					<outfile>${output.directory}/${output.exeFile}</outfile>
+					<jar>${input.jarFile}</jar>
+					<dontWrapJar>true</dontWrapJar>
+					<icon>${input.iconsDir}/${application.name}-${application.branch}128x128.ico</icon>
+					<errTitle>${application.title}</errTitle>
+					<jre>
+					  <minVersion>${application.minimalJavaVersion}</minVersion>
+					  <initialHeapSize>${application.initialHeapSize}</initialHeapSize>
+					  <maxHeapSize>${application.maxHeapSize}</maxHeapSize>
+					</jre>
+					<versionInfo>
+					  <fileVersion>${application.version}.0</fileVersion>
+					  <txtFileVersion>${application.title} ${application.version}</txtFileVersion>
+					  <fileDescription>${application.shortDescription}</fileDescription>
+					  <copyright>Copyright (C) 2012, Max Planck Institute</copyright>
+					  <productVersion>${application.version}.0</productVersion>
+					  <txtProductVersion>${application.title} ${application.version}</txtProductVersion>
+					  <productName>${application.title}</productName>
+					  <internalName>${application.name}</internalName>
+					  <originalFilename>${output.exeFile}</originalFilename>
+					</versionInfo>
+					<!-- TODO: Add splash screen. Version number etc should be added on the fly to a BMP -->
+					<!--
+					<splash>
+						<file>${input.iconsDir}/${application.name}-${application.branch}.bmp</file>
+						<waitForWindow>true</waitForWindow>
+						<timeout>60</timeout>
+						<timeoutErr>false</timeoutErr>
+					</splash>
+					-->
+				  </configuration>
+				</execution>
+			  </executions>
+			</plugin>
+		</plugins>
+    </build>
+</project>

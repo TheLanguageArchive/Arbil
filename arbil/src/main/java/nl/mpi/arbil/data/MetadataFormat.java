@@ -1,20 +1,19 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for
- * Psycholinguistics
+ * Copyright (C) 2014 The Language Archive, Max Planck Institute for Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -140,7 +139,21 @@ public class MetadataFormat {
             // because the original connection and its location header that could have been retrieved
             // by httpConnection.getHeaderField("Location"); has been discarded and
             // replaced by a new connection.
-            final InputStream inputStream = uRLConnection.getInputStream(); // <=== DO NOT MOVE (even though it only gets used later on)
+            final InputStream inputStream;
+            try {
+                // handle 303 redirects
+                final String locationField = uRLConnection.getHeaderField("Location");
+                if (locationField != null) {
+                    final FileType locationCheckResult = shallowCheck(new URI(locationField));
+                    if (locationCheckResult != FileType.UNKNOWN) {
+                        logger.debug("location header check on URL {} was decisive: {}", locationField, locationCheckResult);
+                        return locationCheckResult;
+                    }
+                }
+            } catch (URISyntaxException exception) {
+                logger.debug("location header check on URL {} failed", exception.getMessage());
+            }
+            inputStream = uRLConnection.getInputStream(); // <=== DO NOT MOVE (even though it only gets used later on)            
             logger.debug("Connected to {}", uRLConnection.getURL());
             try {
                 // Connection url might be different since a connection has been established which may have resulted in a redirect

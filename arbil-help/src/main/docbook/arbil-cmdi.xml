@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <book>
   <title>Arbil</title>
-  <subtitle>Arbil 2.5, for editing and managing CMDI metadata</subtitle>
+  <subtitle>Arbil 2.6, for editing and managing CMDI metadata</subtitle>
   <bookinfo>
     <orgname>The Language Archive, MPI for Psycholinguistics, Nijmegen, The Netherlands</orgname>
     <mediaobject>
@@ -280,7 +280,7 @@
       version. </para>
     <section>
       <title>Language selection</title>
-      <para>Arbil 2.5 allows you to change the language in which the application will open and work.
+      <para>Arbil 2.6 allows you to change the language in which the application will open and work.
         At the moment, you can choose among: English (either the United Kingdom or the United States
         variants), German, Italian and Spanish. </para>
       <para>When you start the application for the first time, a dialog window will come out asking

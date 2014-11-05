@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Copyright (C) 2014 The Language Archive, Max Planck Institute for
  * Psycholinguistics
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -948,19 +948,29 @@ public class MetadataReader {
 
     private void addResourceLinkNode(ArbilDataNode parentNode, ArbilDataNode destinationNode, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, CmdiResourceLink clarinLink, List<String[]> childLinks) {
         if (clarinLink != null) {
+
             try {
-                URI linkURI = clarinLink.getLinkUri();
-                if (linkURI != null) {
-                    linkURI = parentNode.getURI().resolve(linkURI);
+                final URI resourceRef;
+                if (parentNode.isLocal() && clarinLink.getLocalUri() != null) {
+                    resourceRef = clarinLink.getLocalUri();
+                } else if (clarinLink.resourceRef != null && clarinLink.resourceRef.length() > 0) {
+                    resourceRef = clarinLink.getResolvedLinkUri();
+                } else {
+                    resourceRef = null;
+                }
+
+                if (resourceRef != null) {
+//                        linkURI = parentNode.getUri().resolve(linkURI);
                     childLinks.add(new String[]{clarinLink.toString(), clarinLink.resourceProxyId});
-                    final ArbilDataNode resourceLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(linkURI);
+                    final ArbilDataNode resourceLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(resourceRef);
                     // Unless resource proxy type is metadata, treat as resource
                     resourceLinkNode.setResourceNode(!clarinLink.resourceType.equals("Metadata"));
                     parentChildTree.get(destinationNode).add(resourceLinkNode);
                     clarinLink.addReferencingNode();
                 }
             } catch (URISyntaxException ex) {
-                BugCatcherManager.getBugCatcher().logError("Error while reading resource link. Link not added: " + clarinLink.resourceRef, ex);
+                logger.info("Error while reading resource link. Link not added: {}", clarinLink);
+//                BugCatcherManager.getBugCatcher().logError("Error while reading resource link. Link not added: " + clarinLink.resourceRef, ex);
             }
         }
     }

@@ -1,0 +1,184 @@
+/**
+ * imdi.css
+ *
+ * LANA style for imdi viewer
+ *
+ * Freddy Offenga, 2006-04-04
+ *
+ * #FFFFF2 (light yellow) background
+ * #FDFDDA (other light yellow) header background
+ * #9E001C (red) header names, links
+ * #B0B0B0 (grey) group borders
+ *
+ */
+
+body {
+    font-family: Verdana, Arial, Helv, Helvetica, sans-serif;
+    background-color: #FFFFF2;
+    margin: 0px;
+    scrollbar-arrow-color: #9E001C;
+    scrollbar-base-color: #FDFDDA;
+    scrollbar-face-color: #FDFDDA;
+    scrollbar-highlight-color: #D3D3D3;    
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 2%;
+    margin-right: 2%;     
+}
+
+.IMDI_name_value .IMDI_label {
+  font-weight: bold; 
+  float: left;
+  width: 180px;
+  //width: 10%;
+  text-align: right; 
+  padding-right:4px;  
+  word-wrap:break-word;  
+}
+
+.IMDI_name_value .IMDI_value {
+  font-weight: normal;
+  float: left;
+  //width: 335px;
+  width: 60%;
+  text-align: left;  
+}
+
+.IMDI_name_value {
+  font-family: Verdana, Arial, Helv, Helvetica, sans-serif;
+  font-size: 12px;
+  clear: left;
+}
+
+/** Added key_name_value because they are they have non fixed key lengths so it needs to be set wider without making the rest look crap*/
+.IMDI_key_name_value .IMDI_key_label {
+  font-weight: bold; 
+  float: left;
+  width: 350px;
+  text-align: right; 
+  padding-right:4px;  
+  word-wrap:break-word;  
+}
+
+.IMDI_key_name_value .IMDI_key_value {
+  font-weight: normal;
+  float: left;
+  width: 60%;
+  text-align: left;  
+}
+
+.IMDI_key_name_value {
+  font-family: Verdana, Arial, Helv, Helvetica, sans-serif;
+  font-size: 12px;
+  clear: left;
+}
+
+/* info after clickable header name */
+.IMDI_header_info {
+  padding-left: 4px;
+}
+
+/* text block */
+pre {
+  width: 98%;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  overflow: auto;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+.IMDI_large_text_block {
+  height: 128px;
+}
+
+.IMDI_small_text_block {
+}
+
+a {
+  color: #9E001C;
+}
+
+.marker {
+  background-color:yellow;
+  color: red;
+}
+
+/* link to resource */
+.IMDI_link {
+  /*font-size: 12px; */
+  padding-left: 4px;
+}
+
+/* clickable image icon */
+.IMDI_click_image {
+  padding-right:4px;
+}
+
+.IMDI_group {
+  padding: 2px;
+}
+
+/* static content header */
+.IMDI_group_header_static {
+  background-color: #FDFDDA;
+  padding: 1px;
+  border: solid 1px #B0B0B0;
+}
+
+/* dynamic content header */
+.IMDI_group_header_dynamic {
+  background-color: #FDFDDA;
+  padding: 1px;  
+  border: solid 1px #B0B0B0;  
+}
+
+/* clickable header link */
+.IMDI_group_header_link {
+  color: #9E001C;
+}
+
+/* dynamic content group */
+.IMDI_group_dynamic {  
+  display: none;    
+  border-collapse:collapse;
+  background-color: #FFFFF2; 
+  border-left: dashed 1px #B0B0B0;
+  border-right: dashed 1px #B0B0B0;
+  border-bottom: dashed 1px #B0B0B0;  
+}
+
+/* static content groups */
+.IMDI_group_static {
+//  display: block;
+  border-collapse:collapse;
+  background-color: #FFFFF2;
+  border-left: solid 1px #B0B0B0;
+  border-right: solid 1px #B0B0B0;
+  border-bottom: solid 1px #B0B0B0;  
+}
+
+/* top of page header */
+.IMDI_header {
+  color: #000;
+  border: thin solid #B0B0B0;     
+  background-color: #FFFFF2;
+  text-align: center;
+  vertical-align: baseline;
+  line-height: 38px;  
+  margin-bottom: 10px;
+}
+
+.IMDI_logo {
+  background-image: url(imdi_120_wo.jpg);
+  background-repeat: no-repeat;
+  display:block;
+  float:left;
+  width:120px;
+  height: 38px;      
+}

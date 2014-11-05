@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for
+ * Copyright (C) 2014 The Language Archive, Max Planck Institute for
  * Psycholinguistics
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -73,8 +73,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         PARTIAL,
         LOADED
     }
-    private ArbilDataNodeService dataNodeService;
-    public MetadataUtils metadataUtils;
+    private final ArbilDataNodeService dataNodeService;
     public ArbilTemplate nodeTemplate;
     private HashMap<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     protected ArbilDataNode[] childArray = new ArbilDataNode[0];
@@ -131,9 +130,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         this.dataNodeService = dataNodeService;
         this.formatType = formatType;
         nodeUri = localUri;
-        if (nodeUri != null) {
-            metadataUtils = ArbilDataNode.getMetadataUtils(nodeUri.toString());
-        }
         initNodeVariables();
     }
 
@@ -164,6 +160,12 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         return MetadataFormat.isPathMetadata(urlString.replaceAll("mdi.[0-9]*$", "mdi"));
     }
 
+    /**
+     *
+     * @param urlString URL identifying a metadata file
+     * @return a new instance of the metadata utilities class matching the
+     * metadata type of the specified object (null in case of no match)
+     */
     static public MetadataUtils getMetadataUtils(String urlString) {
         if (MetadataFormat.isPathCmdi(urlString)) {
             return new CmdiUtils();
@@ -173,8 +175,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable, PluginDataNo
         return null;
     }
 
+    /**
+     *
+     * @return a new instance of the metadata utilities class matching the the
+     * metadata type of this node
+     */
     public MetadataUtils getMetadataUtils() {
-        return metadataUtils;
+        return getMetadataUtils(nodeUri.toString());
     }
 
     // end static methods for testing imdi file and object types

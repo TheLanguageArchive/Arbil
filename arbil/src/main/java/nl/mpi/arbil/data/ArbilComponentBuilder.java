@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2013 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2014 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -117,10 +118,34 @@ public class ArbilComponentBuilder {
         if (inputUri == null) {
             return getNewDocument();
         } else {
+//            logger.info(inputUri.toString());
             // we open the stream here so we can set follow redirects
             URLConnection uRLConnection = inputUri.toURL().openConnection();
-            if (uRLConnection instanceof HttpURLConnection) {
-                ((HttpURLConnection) uRLConnection).setInstanceFollowRedirects(true);
+            // handle 303 redirects 
+            int maxRedirects = 5;
+            while (maxRedirects > 0) {
+//                logger.info("maxRedirects:" + maxRedirects);
+                maxRedirects--;
+                if (uRLConnection instanceof HttpURLConnection) {
+                    final HttpURLConnection httpConnection = (HttpURLConnection) uRLConnection;
+                    httpConnection.setInstanceFollowRedirects(true);
+                    int stat = httpConnection.getResponseCode();
+                    if (stat >= 300 && stat <= 307 && stat != 306 && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
+                        try {
+                            final String locationField = uRLConnection.getHeaderField("Location");
+                            if (locationField != null) {
+//                                logger.info(locationField, locationField);
+                                uRLConnection = new URI(locationField).toURL().openConnection();
+                            }
+                        } catch (IOException exception) {
+                            logger.debug("get document 303 check on URL {} failed", exception.getMessage());
+                        } catch (URISyntaxException exception) {
+                            logger.debug("get document 303 check on URL {} failed", exception.getMessage());
+                        }
+                    } else {
+                        break;
+                    }
+                }
             }
             final InputStream inputStream = uRLConnection.getInputStream();
             return getDocumentBuilder().parse(inputStream);
@@ -408,16 +433,29 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public boolean updateResourceProxyReference(Document document, String resourceProxyId, URI referenceURI) {
-        return updateResourceProxyReference(document, resourceProxyId, referenceURI.toString());
+    public boolean updateResourceProxyReference(Document document, String resourceProxyId, URI referenceURI, URI localURI) {
+        final String reference = referenceURI == null ? null : referenceURI.toString();
+        final String local = localURI == null ? null : localURI.toString();
+        return updateResourceProxyReference(document, resourceProxyId, reference, local);
     }
 
-    public boolean updateResourceProxyReference(Document document, String resourceProxyId, String reference) {
+    public boolean updateResourceProxyReference(Document document, String resourceProxyId, String reference, String localURI) {
         try {
             // Look for ResourceProxy node with specified id
-            Node resourceRefNode = selectSingleNode(document, getPathForResourceProxynode(resourceProxyId) + ".ResourceRef");
-            if (resourceRefNode != null) {
-                resourceRefNode.setTextContent(reference);
+            final Node resourceRefNode = selectSingleNode(document, getPathForResourceProxynode(resourceProxyId) + ".ResourceRef");
+            if (resourceRefNode instanceof Element) { // therefore not null
+                final Element resourceRefElement = (Element) resourceRefNode;
+                if (reference != null) {
+                    resourceRefElement.setTextContent(reference);
+                }
+                if (localURI != null) {
+                    if (localURI.equals(resourceRefElement.getTextContent())) {
+                        // local URI is redundant, remove (if present)
+                        resourceRefElement.removeAttributeNS("http://www.clarin.eu/cmd/extension", "lcl:localURI");
+                    } else {
+                        resourceRefElement.setAttributeNS("http://www.clarin.eu/cmd/extension", "lcl:localURI", localURI);
+                    }
+                }
                 return true;
             }
         } catch (TransformerException ex) {
@@ -603,7 +641,6 @@ public class ArbilComponentBuilder {
         if (languageNode != null) {
             languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
         }
-
 
         if (currentFieldUpdate.keyNameValue != null) {
             Node keyNameNode = attributesMap.getNamedItem("Name");
@@ -1499,7 +1536,6 @@ public class ArbilComponentBuilder {
         //SchemaType childType =schemaType.
 
         /////////////////////
-
         for (SchemaProperty schemaProperty : currentSchemaType.getElementProperties()) {
             //for (int childCounter = 0; childCounter < schemaProperty.getMinOccurs().intValue(); childCounter++) {
             // if the searched element is a child node of the given node return
@@ -1515,7 +1551,6 @@ public class ArbilComponentBuilder {
 //            logger.debug("node name: " + schemaProperty.getName().getLocalPart());
 //            logger.debug("node.getMinOccurs(): " + schemaProperty.getMinOccurs());
 //            logger.debug("node.getMaxOccurs(): " + schemaProperty.getMaxOccurs());
-
             BigInteger maxNumberToAdd;
             if (addDummyData) {
                 maxNumberToAdd = schemaProperty.getMaxOccurs();
