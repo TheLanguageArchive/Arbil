@@ -35,6 +35,7 @@ public class BlockingDataNodeLoaderTest {
      * Test of problematic URLs which have 303 redirects
      */
     @Test
+    @Ignore("Dependent on existing handle, needs to be changed")
     public void testProblematicUrls() throws URISyntaxException, ModelException, IOException {
 
         // https://trac.mpi.nl/ticket/4143
