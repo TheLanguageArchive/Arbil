@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import nl.mpi.flap.model.ModelException;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
