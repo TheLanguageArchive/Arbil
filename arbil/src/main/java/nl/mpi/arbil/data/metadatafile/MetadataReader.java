@@ -38,6 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -105,6 +108,13 @@ public class MetadataReader {
     public final static String imdiPathSeparator = ".";
     private static final ResourceBundle services = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     private ArbilConfiguration applicationConfiguration = new ArbilConfiguration(); //TODO: make immutable and get injected through constructor (post singleton)
+    /**
+     * Pattern that finds the CMD namespace schema as defined in a
+     * xsi:schemaLocation attribute (allowing other namespaces to be defined in
+     * arbitrary order)
+     */
+    private static final Pattern CMD_SCHEMA_LOCATION_PATTERN = Pattern.compile("http:\\/\\/www.clarin.eu\\/cmd\\/\\s+(\\S+)", Pattern.MULTILINE);
+    private static final CopyOnWriteArrayList<String> IGNORED_METADATA_TYPES = new CopyOnWriteArrayList<String>(new String[]{"SearchPage", "LandingPage", "SearchService"});
 
     // todo: this should probably be moved into the arbiltemplate class
     public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
@@ -817,11 +827,12 @@ public class MetadataReader {
         final List<String[]> attributePaths;
         final Map<String, Object> attributesValueMap;
         final boolean allowsLanguageId;
-        if (destinationNode.isCmdiMetaDataNode()) {
+        ArbilTemplate template;
+        if (destinationNode.isCmdiMetaDataNode() && (template = destinationNode.getNodeTemplate()) instanceof CmdiTemplate) {
             // For CMDI nodes, get field attribute paths from schema and values from document before creating arbil field
             final String nodePath = fullSubNodePath.replaceAll("\\(\\d+\\)", "");
-            CmdiTemplate template = (CmdiTemplate) destinationNode.getNodeTemplate();
-            attributePaths = template.getEditableAttributesForPath(nodePath);
+            final CmdiTemplate cmdiTemplate = (CmdiTemplate) template;
+            attributePaths = cmdiTemplate.getEditableAttributesForPath(nodePath);
             attributesValueMap = new HashMap<String, Object>();
             if (childNodeAttributes != null) {
                 for (int i = 0; i < childNodeAttributes.getLength(); i++) {
@@ -830,7 +841,7 @@ public class MetadataReader {
                     attributesValueMap.put(path, attrNode.getNodeValue());
                 }
             }
-            allowsLanguageId = template.pathAllowsLanguageId(nodePath); //CMDI case where language id is optional as specified by schema
+            allowsLanguageId = cmdiTemplate.pathAllowsLanguageId(nodePath); //CMDI case where language id is optional as specified by schema
         } else {
             // IMDI case where language id comes from template
             allowsLanguageId = languageId != null;
@@ -947,8 +958,7 @@ public class MetadataReader {
     }
 
     private void addResourceLinkNode(ArbilDataNode parentNode, ArbilDataNode destinationNode, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree, CmdiResourceLink clarinLink, List<String[]> childLinks) {
-        if (clarinLink != null) {
-
+        if (clarinLink != null && !IGNORED_METADATA_TYPES.contains(clarinLink.resourceType)) {
             try {
                 final URI resourceRef;
                 if (parentNode.isLocal() && clarinLink.getLocalUri() != null) {
@@ -989,23 +999,9 @@ public class MetadataReader {
     private void getTemplate(Node childNode, ArbilDataNode parentNode, NamedNodeMap attributesMap) throws DOMException {
         // if this is the first node and it is not metatranscript then it is not an imdi so get the clarin template
         if (!childNode.getLocalName().equals("METATRANSCRIPT")) {
-            // change made for clarin
-            // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
-            //                    logger.debug("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
-            //                    logger.debug("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
-            //                    logger.debug("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
-            //                    logger.debug("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
-            String schemaLocationString = null;
-            Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
-            if (schemaLocationNode == null) {
-                schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:schemaLocation");
-            }
-            if (schemaLocationNode != null) {
-                schemaLocationString = schemaLocationNode.getNodeValue();
-                String[] schemaLocation = schemaLocationString.split("\\s");
-                schemaLocationString = schemaLocation[schemaLocation.length - 1];
-                schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
-                // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
+            // CMDI (or at least non-IMDI) case
+            final String schemaLocationString = getSchemaLocation(childNode, parentNode);
+            if (schemaLocationString != null) {
                 // this method also assumes that the xsd url is fully resolved
                 parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
             } else {
@@ -1048,6 +1044,46 @@ public class MetadataReader {
                 }
             }
         }
+    }
+
+    private String getSchemaLocation(Node rootNode, ArbilDataNode parentNode) throws DOMException {
+        final Node schemaLocationNode = rootNode.getAttributes().getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
+        if (schemaLocationNode != null) {
+            //try to find schema location for CMD namespace
+            String schemaLocationString = getCmdSchemaLocation(schemaLocationNode);
+            if (schemaLocationString == null) {
+                //if not found, fall back to the first schema location defined (and support arbitrary schema-based XML)
+                schemaLocationString = getSingleSchemaLocation(schemaLocationNode);
+            }
+            final String resolvedSchemaLocation = parentNode.getURI().resolve(schemaLocationString).toString();
+            logger.debug("Found schema location for CMD namespace: {} (resolves to {})", schemaLocationString, resolvedSchemaLocation);
+            return resolvedSchemaLocation;
+        }
+
+        // last resort: look for noNamespaceSchemaLocation
+        final Node noNamespaceSchemaLocationNode = rootNode.getAttributes().getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "noNamespaceSchemaLocation");
+        if (noNamespaceSchemaLocationNode != null) {
+            return noNamespaceSchemaLocationNode.getNodeValue();
+        } else {
+            return null;
+        }
+    }
+
+    private String getCmdSchemaLocation(Node schemaLocationNode) throws DOMException {
+        final Matcher cmdSchemaLocationMatcher = CMD_SCHEMA_LOCATION_PATTERN.matcher(schemaLocationNode.getNodeValue());
+        if (cmdSchemaLocationMatcher.find()) {
+            return cmdSchemaLocationMatcher.group(1);
+        } else {
+            return null;
+        }
+    }
+
+    private String getSingleSchemaLocation(Node schemaLocationNode) throws DOMException {
+        String schemaLocationString;
+        schemaLocationString = schemaLocationNode.getNodeValue();
+        String[] schemaLocation = schemaLocationString.split("\\s");
+        schemaLocationString = schemaLocation[schemaLocation.length - 1];
+        return schemaLocationString;
     }
 
     private void getImdiCatalogue(NamedNodeMap attributesMap, ArbilDataNode parentNode, List<String[]> childLinks, Map<ArbilDataNode, Set<ArbilDataNode>> parentChildTree) throws DOMException {

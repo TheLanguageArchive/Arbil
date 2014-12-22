@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.util.BugCatcherManager;
 import org.apache.commons.digester.Digester;
 import org.slf4j.Logger;
@@ -204,7 +205,7 @@ public class CmdiComponentLinkReader {
             digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy", 0, "id");
             digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceType", 1);
             digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 2);
-            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 3, "lcl:localURI");
+            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 3, ArbilComponentBuilder.LOCAL_URI_ATTRIBUTE_QUALIFIED_NAME);
 
             digester.addCallMethod("CMD/Resources/ResourceRelationList/ResourceRelation", "addResourceRelation", 3);
             digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/RelationType", 0);

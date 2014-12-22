@@ -92,13 +92,19 @@ public class CmdiUtils implements MetadataUtils {
                                     final boolean success;
                                     {
                                         // two options: set ResourceRef value or localURI attribute
-                                        
+
                                         final String linkUri = link.resourceRef;
+                                        final boolean currentRefIsFile = link.getResolvedLinkUri().getScheme().equals("file");
                                         if (!getOption(OPTION_STORE_LOCAL_URI, true) // local URI storage can be disabled by the user
-                                                || linkUri == null  // if no resourceRef has been set, set it first rather than local URI
-                                                || link.getResolvedLinkUri().getScheme().equals("file")) {
+                                                || linkUri == null // if no resourceRef has been set, set it first rather than local URI
+                                                || currentRefIsFile) {
                                             // link has no resource ref value or it is a local file, so overwrite (and do not supply an additonal local URI)
-                                            success = componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi, null);
+                                            if (currentRefIsFile) {
+                                                // a local file, no need to store a separate local URI (pass in new reference twice so that the attribute gets removed)
+                                                success = componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi, newReferenceURi);
+                                            } else {
+                                                success = componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi, null);
+                                            }
                                         } else {
                                             // link already has a resource ref value (probably a handle); keep it and only add or replace the 'localURI' attribute
                                             success = componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, null, newReferenceURi);

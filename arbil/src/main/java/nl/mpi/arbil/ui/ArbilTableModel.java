@@ -179,8 +179,8 @@ public class ArbilTableModel extends AbstractArbilTableModel implements Clipboar
 		    + "lib/handle-6.1.jar,"
 		    + "lib/commons-io-1.4.jar,"
 		    + "lib/plugins-core-1.2.39113-testing,"
-		    + "lib/arbil-2.6-testing-SNAPSHOT.jar,"
-		    + "lib/arbil-localisation-2.6-testing-SNAPSHOT.jar"
+		    + "lib/arbil-2.6.1074-testing.jar,"
+		    + "lib/arbil-localisation-2.6.151-testing.jar"
 		    + "\"\n");
 	    embadTagStringBuilder.append(String.format(" width=\"%d\" height=\"%d\" >\n", tableWidth, tableHeight));
 	    // Application parameters

@@ -93,6 +93,9 @@ public class ArbilComponentBuilder {
     private final static Logger logger = LoggerFactory.getLogger(ArbilComponentBuilder.class);
     private final static ResourceBundle services = java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Services");
     public static final String CMD_NAMESPACE = "http://www.clarin.eu/cmd/";
+    public static final String LOCAL_URI_ATTRIBUTE_QUALIFIED_NAME = "lat:localURI";
+    public static final String LOCAL_URI_ATTRIBUTE_LOCAL_NAME = "localURI";
+    public static final String LOCAL_URI_NAMESPACE = "http://lat.mpi.nl/";
     public static final String RESOURCE_ID_PREFIX = "res_";
     private static MessageDialogHandler messageDialogHandler;
 
@@ -433,12 +436,32 @@ public class ArbilComponentBuilder {
         }
     }
 
+    /**
+     * Updates a resource proxy. if referenceURI equals localURI, localURI will
+     * be removed if already set
+     *
+     * @param document
+     * @param resourceProxyId
+     * @param referenceURI
+     * @param localURI
+     * @return
+     */
     public boolean updateResourceProxyReference(Document document, String resourceProxyId, URI referenceURI, URI localURI) {
         final String reference = referenceURI == null ? null : referenceURI.toString();
         final String local = localURI == null ? null : localURI.toString();
         return updateResourceProxyReference(document, resourceProxyId, reference, local);
     }
 
+    /**
+     * Updates a resource proxy. if referenceURI equals localURI, localURI will
+     * be removed if already set
+     *
+     * @param document
+     * @param resourceProxyId
+     * @param reference
+     * @param localURI
+     * @return
+     */
     public boolean updateResourceProxyReference(Document document, String resourceProxyId, String reference, String localURI) {
         try {
             // Look for ResourceProxy node with specified id
@@ -451,9 +474,15 @@ public class ArbilComponentBuilder {
                 if (localURI != null) {
                     if (localURI.equals(resourceRefElement.getTextContent())) {
                         // local URI is redundant, remove (if present)
-                        resourceRefElement.removeAttributeNS("http://www.clarin.eu/cmd/extension", "lcl:localURI");
+                        resourceRefElement.removeAttributeNS(LOCAL_URI_NAMESPACE, LOCAL_URI_ATTRIBUTE_LOCAL_NAME);
                     } else {
-                        resourceRefElement.setAttributeNS("http://www.clarin.eu/cmd/extension", "lcl:localURI", localURI);
+                        resourceRefElement.setAttributeNS(LOCAL_URI_NAMESPACE, LOCAL_URI_ATTRIBUTE_QUALIFIED_NAME, localURI);
+                    }
+                } else {
+                    // localURI not set - check if already existing value is equal to the resource ref; in that case remove 
+                    final String localUri = resourceRefElement.getAttributeNS(LOCAL_URI_NAMESPACE, LOCAL_URI_ATTRIBUTE_LOCAL_NAME);
+                    if (localUri != null && localUri.equals(resourceRefElement.getTextContent())) {
+                        resourceRefElement.removeAttributeNS(LOCAL_URI_NAMESPACE, LOCAL_URI_ATTRIBUTE_LOCAL_NAME);
                     }
                 }
                 return true;
