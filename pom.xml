@@ -37,7 +37,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>plugins-core</artifactId>
-            <version>1.2.114-stable</version>
+            <version>1.2.87-stable</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -108,6 +108,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>nl.mpi</groupId>
@@ -122,7 +125,7 @@
                 </executions>
                 <configuration>
                     <verbose>true</verbose>
-                    <vcsType>svn</vcsType>
+                    <vcsType>git</vcsType>
                     <allowSnapshots>false</allowSnapshots>
                     <projectDirectory>${project.basedir}</projectDirectory>
                     <majorVersion>2</majorVersion>
