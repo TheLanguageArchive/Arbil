@@ -12,7 +12,7 @@
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
 <!--    <version>${arbil-commons.majorVersion}.${arbil-commons.minorVersion}-${arbil-commons.branch}-SNAPSHOT</version>-->
-    <version>2.5.39-stable</version>
+    <version>2.5.38-stable</version>
     <name>Arbil Commons</name>
     <url>http://maven.apache.org</url>
     <properties>     
