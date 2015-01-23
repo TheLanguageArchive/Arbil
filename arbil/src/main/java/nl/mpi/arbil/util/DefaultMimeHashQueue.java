@@ -669,8 +669,9 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    logger.warn("Could not open input stream for {}", fileUri);
 		} else {
 		    if (deep) {
-			// Node that the type checker will choke if the path includes "//"
-			typeCheckerMessage = deepFileType.checkStream(inputStream, fileUri.toString());
+                        // Will never get here, deep checking not supported
+			// Note that the type checker will choke if the path includes "//"
+//			typeCheckerMessage = deepFileType.checkStream(inputStream, fileUri.toString());
 		    } else {
 			typeCheckerMessage = getFileType().checkStream(inputStream, fileUri.toString());
 		    }

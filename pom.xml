@@ -126,7 +126,7 @@
                 <configuration>
                     <!-- Set this to stable and disallow snapshots when releasing! -->
                     <verbose>true</verbose>
-                    <vcsType>svn</vcsType>
+                    <vcsType>git</vcsType>
                     <allowSnapshots>true</allowSnapshots>
                     <projectDirectory>${project.basedir}</projectDirectory>
                     <majorVersion>${arbil.majorVersion}</majorVersion>

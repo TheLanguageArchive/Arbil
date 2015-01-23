@@ -16,14 +16,14 @@
         <imagedata fileref="images/Clarin_logo2.png" contentwidth="45%"/>
       </imageobject>
     </mediaobject>
-    <releaseinfo>This manual was last updated in March 2014</releaseinfo>
+    <releaseinfo>This manual was last updated in July 2014</releaseinfo>
     <releaseinfo>The latest version can be found at: <ulink
         url="http://http://tla.mpi.nl/tools/tla-tools/arbil/"
         >http://http://tla.mpi.nl/tools/tla-tools/arbil/</ulink></releaseinfo>
     <releaseinfo>Anastasios Vogiatzis (June 2012)</releaseinfo>
     <releaseinfo>Claudia Zabeo (December 2012)</releaseinfo>
     <releaseinfo>Janna Voelpel (September 2013)</releaseinfo>
-    <releaseinfo>Francesca Bechis (February 2014)</releaseinfo>
+    <releaseinfo>Francesca Bechis (July 2014)</releaseinfo>
   </bookinfo>
   <chapter id="Ch_Introduction">
     <title>Introduction</title>
@@ -496,7 +496,7 @@
             <screeninfo/>
             <mediaobject>
               <imageobject>
-                <imagedata fileref="images/import_branch_CMDI.png" contentdepth="100%" scalefit="1"
+                <imagedata fileref="images/import_lc_cmdi.png" contentdepth="100%" scalefit="1"
                   width="60%"/>
               </imageobject>
             </mediaobject>
@@ -518,7 +518,7 @@
               <screeninfo/>
               <mediaobject>
                 <imageobject>
-                  <imagedata fileref="images/overwrite_message_CMDI.png" contentdepth="100%"
+                  <imagedata fileref="images/overwrite_changes_cmdi.png" contentdepth="100%"
                     scalefit="1" width="60%"/>
                 </imageobject>
               </mediaobject>
@@ -1510,7 +1510,7 @@
         <title>Export window with details</title>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/import_branch_CMDI.png" contentdepth="100%" scalefit="1"
+            <imagedata fileref="images/export_branch_cmdi.png" contentdepth="100%" scalefit="1"
               width="60%"/>
           </imageobject>
         </mediaobject>
@@ -1541,19 +1541,31 @@
         external editors such as spread sheets or text editors. Overall the process is done by
         moving data from Arbil to the external editor, making the necessary changes, and then moving
         them back to Arbil. </para>
-      <para>Moving data back to Arbil however posses some restrictions; for example, if you copy
-        multiple rows in a table, the data format cannot be pasted back into Arbil. However it can
-        still be viewed and edited in an external editor. For this reason after editing data in an
-        external editor, such as Microsoft Excel, you can save your data in CSV format, and then
-        import them to Arbil by right clicking on the preferred node and selecting <emphasis
-          role="italic">Import CSV</emphasis>. This way gives you the ability to import the data in
-        a table format; in any other case you will have to import the edited data column by column,
-        but not all at once.</para>
-      <para>If some cells in a table, which correspond to a single metadata file, are copied, the
-        data will be in a format that can then be pasted back into any table in Arbil, provided that
-        the data maintains the same formatting.</para>
-      <para>To open data in an external editor i.e. Ms Excel, select and copy the data from the
-        table then paste them in the editor you wish to use.</para>
+      <para>However, possibilities of moving data back into Arbil are currently very <emphasis role="italic"
+          >limited</emphasis>. It is possible to do any of the following:
+        <itemizedlist>
+          <listitem><para>Copy single field values (individual cells) from the external editor into Arbil;</para></listitem>
+          <listitem><para>In case of the IMDI Session root node, save your data in <emphasis role="italic">CSV format</emphasis>, and then
+            import them to Arbil by right clicking on the node where you want to copy them back and
+            selecting <emphasis role="bold">Import CSV</emphasis>. This way you will be able to
+            import the data in a table format; in any other case you will have to import the edited data
+            column by column, but not all at once;</para></listitem>
+          <listitem><para>If cells in a table corresponding to a single metadata file are copied, then the data
+            will be in a format that can then be pasted back into any table in Arbil, provided that the
+            data maintains the same formatting.</para></listitem>
+        </itemizedlist>
+      </para>
+      <para>The following functions are currently <emphasis role="italic">not available</emphasis>:
+        <itemizedlist>
+          <listitem><para>Pasting of multiple rows (i.e. data representing multiple nodes) into Arbil,
+            even if the table in Arbil has an identical structure;</para></listitem>
+          <listitem><para>Pasting of multiple values in general unless their structure corresponds to
+          one of the options listed above;</para></listitem>
+          <listitem><para>Importing CSV to any other type of node than the Session root.</para></listitem>
+        </itemizedlist>
+      </para>
+      <para>To open the data in an external editor (i.e. Ms Excel), select and copy the data from the
+        table, then paste them in the editor you wish to use.</para>
       <figure>
         <title>Editing data in an External editor</title>
         <mediaobject>
@@ -1998,8 +2010,10 @@
           <para>For more detailed information about more elaborate editing processes (type, import,
             concept links, action links, comments and priority display) have a look at the <ulink
               url="http://tla.mpi.nl/cmdi-metadata/">CMDI metadata</ulink> page on the TLA website,
-            the <ulink url="http://www.clarin.eu/node/3219">CLARIN website</ulink> or the extensive
-              <ulink url="http://tla.mpi.nl/cmdi-metadata/">CMDI manual</ulink> of the TLA.</para>
+            the <ulink url="http://www.clarin.eu/node/3219">CLARIN website</ulink> - where you can
+            access the <ulink url="http://www.clarin.eu/content/component-registry-documentation"
+              >Component Registry Documentation</ulink> - or the extensive <ulink
+              url="http://tla.mpi.nl/cmdi-metadata/">CMDI manual</ulink> of the TLA.</para>
         </sect3>
       </sect2>
     </sect1>
