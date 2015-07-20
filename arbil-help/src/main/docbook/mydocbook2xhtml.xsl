@@ -2,7 +2,8 @@
 <xsl:stylesheet  
        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"  version="1.0"> 
 <!--  <xsl:import href="../html/chunk.xsl"/>  -->
-  <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/xhtml/chunkfast.xsl"/> 
+<!--  <xsl:import href="https://raw.githubusercontent.com/napcs/docbook/master/xsl/xhtml/chunkfast.xsl"/>  -->
+  <xsl:import href="docbook-xsl/xhtml/chunkfast.xsl"/> 
   <xsl:param name="chunker.output.encoding" select="'UTF-8'"/>
   <xsl:include href="common-customizations.xsl" />
   <xsl:param name="ignore.image.scaling" select="1" />
