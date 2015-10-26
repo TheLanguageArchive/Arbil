@@ -108,21 +108,6 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	    });
 	    fieldViewsMenuItem.add(viewLabelMenuItem);
 	}
-	final JMenuItem copyEmbedTagMenuItem = new JMenuItem(menus.getString("COPY TABLE FOR WEBSITE"));
-	copyEmbedTagMenuItem.addActionListener(new ActionListener() {
-	    public void actionPerformed(ActionEvent e) {
-		// find the table dimensions
-		Component sizedComponent = table;
-		Component currentComponent = table;
-		while (currentComponent.getParent() != null) {
-		    currentComponent = currentComponent.getParent();
-		    if (currentComponent instanceof ArbilSplitPanel) {
-			sizedComponent = currentComponent;
-		    }
-		}
-		tableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
-	    }
-	});
 	final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem(java.text.MessageFormat.format(menus.getString("MAKE ALL COLUMNS THE SIZE OF"), new Object[]{targetColumnName}));
 	setAllColumnsSizeFromColumn.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
@@ -190,11 +175,10 @@ public class TableHeaderContextMenu extends JPopupMenu {
 	add(editViewMenuItem);
 	add(showOnlyCurrentViewMenuItem);
 
-	add(new JSeparator());
-	add(deleteFieldFromNodes);
-
-	add(new JSeparator());
-	add(copyEmbedTagMenuItem);
+        if(tableModel.isHorizontalView()) {
+            add(new JSeparator());
+            add(deleteFieldFromNodes);
+        }
     }
 
     private JMenuItem createHideColumnMenuItem(final int targetColumn) {

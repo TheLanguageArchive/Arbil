@@ -1,22 +1,30 @@
 ARBIL 2.6.x RELEASE NOTES
 ----------------------------------------
-$Date: 2014-11-05 10:02:18 +0100 (Wed, 05 Nov 2014) $ 
-$Revision: 42473 $ (this means that the descriptions below apply to Arbil
+$Date: 2015-10-23 10:10:12 +0200 (Fri, 23 Oct 2015) $ 
+$Revision: 44557 $ (this means that the descriptions below apply to Arbil
 2.6.x with x >= revision)
 
 Contacts:
-- Peter Withers (peter.withers@mpi.nl)
 - Twan Goosen (twan.goosen@mpi.nl)
+- Peter Withers (peter.withers@mpi.nl)
 ----------------------------------------
 
 Below is an overview of changes in Arbil since the previous minor version (Arbil
 2.5). Where applicable, related ticket numbers from TRAC are included at the end
 of the description.
 
-- The default remote locations have been fixed
+- The default remote locations have been fixed (#4005)
 
-- Checking for updates has been fixed
-
-- Typechecker has been upgraded to version 1.7.6
+- The application offers to update remote locations that have changed (#4733)
 
 - Optional support for CMDI 'localURI' attribute in resource proxies. (#4143)
+
+- An option to export IMDI to CMDI has been added to the export dialogue (#4566)
+
+- Exporter no longer asks for confirmation on clashes originating from export itself (#4662)
+
+- Checking for application updates has been fixed
+
+- Typechecker has been upgraded to version 1.8.3
+
+- The 'Copy Table For Website' option has been removed

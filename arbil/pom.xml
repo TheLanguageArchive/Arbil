@@ -6,8 +6,9 @@
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
 
-<version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>
-<!--    <version>2.6.1076-testing</version> -->
+<!--
+<version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
+    <version>2.6.1074-testing</version>
     <name>Arbil</name>   
     
     <parent>
@@ -186,7 +187,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>typechecker</artifactId>
-            <version>1.8.1</version>
+            <version>1.8.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -223,7 +224,7 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <version>9.4.0.7</version>
+            <version>9.5.1-8</version>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
@@ -233,7 +234,7 @@
         <dependency>
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
-            <version>2.7.1</version>
+            <version>2.7.2</version>
         </dependency>
         <dependency>
             <groupId>commons-digester</groupId>
@@ -243,7 +244,7 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>corpusstructure-api</artifactId>
-            <version>1.8.1</version>
+            <version>1.8.8</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -259,17 +260,17 @@
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-help</artifactId>
-            <version>2.6-testing-SNAPSHOT</version>
+            <version>2.6.34-testing</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-commons</artifactId>
-            <version>2.6-testing-SNAPSHOT</version>
+            <version>2.6.41-testing</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
             <artifactId>arbil-localisation</artifactId>
-            <version>2.6-testing-SNAPSHOT</version>
+            <version>2.6.155-testing</version>
         </dependency>
 
         <!-- 
@@ -297,6 +298,11 @@
             <artifactId>jmock-junit4</artifactId>
             <version>2.5.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.mpi.translation</groupId>
+            <artifactId>metadata-translator</artifactId>
+            <version>1.5.3</version>
         </dependency>
     </dependencies>    
 </project>

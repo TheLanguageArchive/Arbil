@@ -146,7 +146,11 @@ public class HelpViewerPanel extends javax.swing.JPanel {
     public void setCurrentPage(String helpSet, String helpPage) {
 	final HelpItem helpFile = getHelpFileByName(getHelpTree(helpSet).getHelpIndex(), helpPage);
 	if (helpFile != null) {
-	    showHelpItem(getHelpTree(helpSet), helpFile.getFile());
+            final HelpTree tree = getHelpTree(helpSet);
+            // Make sure the right tree tab is active
+            showTree(tree);
+            // Select the item
+	    showHelpItem(tree, helpFile.getFile());
 	} else {
 	    logger.error("Help page not found: {}", helpPage);
 	}
@@ -227,7 +231,6 @@ public class HelpViewerPanel extends javax.swing.JPanel {
     }
 
     private void initHelpTreeTabs() {
-	//TODO: If only one helpTree, skip the tabs
 	tabbedPane = new JTabbedPane();
 	for (HelpTree tree : helpTrees) {
 	    tabbedPane.add(tree.getHelpResourceSet().getName(), tree.getIndexScrollPane());
@@ -297,7 +300,11 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 		// Update index, which will show the help item if found.
 		final String itemPath = relativeURI.getPath();
 		if (itemPath != null) {
-		    return updateIndex(helpTree, itemPath.toString(), relativeURI.getFragment());
+                    try {
+                        return updateIndex(helpTree, itemPath.toString(), relativeURI.getFragment());
+                    } finally{
+                        
+                    }
 		}
 	    }
 	} catch (URISyntaxException usEx) {
@@ -354,7 +361,7 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	}
 
 	// First check current selection
-	DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) tree.getIndexTree().getSelectionPath().getLastPathComponent();
+	final DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) tree.getIndexTree().getSelectionPath().getLastPathComponent();
 	if (lastPathComponent.getUserObject() instanceof HelpItem) {
 	    final HelpItem helpItem = (HelpItem) lastPathComponent.getUserObject();
 	    if (itemResource.equals(helpItem.getFile())) {
@@ -364,18 +371,44 @@ public class HelpViewerPanel extends javax.swing.JPanel {
 	}
 
 	// Search node with specified resource
-	DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getIndexTree().getModel().getRoot();
-	DefaultMutableTreeNode selectionItem = findChild(root, itemResource);
+	final DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getIndexTree().getModel().getRoot();
+	final DefaultMutableTreeNode selectionItem = findChild(root, itemResource);
 	if (selectionItem != null) {
-	    // Node found, set selection
-	    final TreePath treePath = new TreePath(selectionItem.getPath());
-	    tree.getIndexTree().setSelectionPath(treePath);
-	    // And scroll to it
-	    tree.getIndexTree().scrollPathToVisible(treePath);
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    // Node found, set selection
+                    final TreePath treePath = new TreePath(selectionItem.getPath());
+                    tree.getIndexTree().setSelectionPath(treePath);
+                    // And scroll to it
+                    tree.getIndexTree().scrollPathToVisible(treePath);
+                }
+            });
 	    return true;
 	} else {
 	    return false;
 	}
+    }
+
+    /**
+     * Selects the tab for the specified help tree (IMDI or CMDI)
+     * @param tree 
+     */
+    private void showTree(final HelpTree tree) {
+        final JScrollPane target = tree.getIndexScrollPane();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if(tabbedPane.getComponentAt(tabbedPane.getSelectedIndex()) != target) {
+                    // not already selected
+                    for(int i=0;i<tabbedPane.getTabCount();i++) {
+                        if(tabbedPane.getComponentAt(i) == target) {
+                            // component at index matches tree
+                            tabbedPane.setSelectedIndex(i);
+                            return;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private DefaultMutableTreeNode findChild(DefaultMutableTreeNode root, String itemResource) {

@@ -29,7 +29,7 @@
         <arbil.minorVersion>6</arbil.minorVersion>
         <arbil.branch>testing</arbil.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>1.7.7</slf4j.version>
+        <slf4j.version>1.7.10</slf4j.version>
         <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
         <arbil.license.copyrightYear>2014</arbil.license.copyrightYear>
     </properties>

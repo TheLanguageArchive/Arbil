@@ -25,8 +25,10 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +70,7 @@ public class CopyRunner implements Runnable {
         this.dataNodeLoader = dataNodeLoader;
         this.treeHelper = treeHelper;
     }
+
     private int freeGbWarningPoint = 3;
     private int xsdErrors = 0;
     private int totalLoaded = 0;
@@ -93,28 +96,31 @@ public class CopyRunner implements Runnable {
         } else {
             impExpUI.appendToResourceCopyOutput("'Copy Resource Files' is not selected: No resource files will be downloaded, however they will be still accessible via the web server." + "\n");
         }
+        boolean success = false;
         try {
             impExpUI.onCopyStart();
             impExpUI.setProgressIndeterminate(true);
             // Copy the selected nodes
             copyElements(impExpUI.getSelectedNodesIterator(), impExpUI.getDestinationNode(), exportDestinationDirectory);
+            success = true;
         } catch (Exception ex) {
             BugCatcherManager.getBugCatcher().logError(ex);
+            impExpUI.appendToResourceCopyOutput("CRITICAL ERROR: " + ex.toString());
             finalMessageString = finalMessageString + "There was a critical error.";
         }
         // Done copying
-        impExpUI.onCopyEnd(finalMessageString);
+        impExpUI.onCopyEnd(success, finalMessageString);
     }
 
     private void copyElements(final Iterator<ArbilDataNode> selectedNodesEnum, final ArbilDataNode destinationNode, final File exportDestinationDirectory) {
         final List<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
         final Map<URI, RetrievableFile> seenFiles = new HashMap<URI, RetrievableFile>();
         final List<URI> getList = new ArrayList<URI>();
-        final List<URI> doneList = new ArrayList<URI>();
+        final Collection<File> writtenFiles = new HashSet<File>();
         final XsdChecker xsdChecker = new XsdChecker();
         while (selectedNodesEnum.hasNext() && !impExpUI.isStopCopy()) {
             final ArbilDataNode currentElement = selectedNodesEnum.next();
-            copyElement(currentElement, exportDestinationDirectory, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
+            copyElement(currentElement, exportDestinationDirectory, getList, seenFiles, writtenFiles, xsdChecker, finishedTopNodes);
         }
         finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
 
@@ -164,7 +170,7 @@ public class CopyRunner implements Runnable {
         }
     }
 
-    private void copyElement(final Object currentElement, final File exportDestinationDirectory, final List<URI> getList, final Map<URI, RetrievableFile> seenFiles, final List<URI> doneList, final XsdChecker xsdChecker, final List<ArbilDataNode> finishedTopNodes) {
+    private void copyElement(final Object currentElement, final File exportDestinationDirectory, final List<URI> getList, final Map<URI, RetrievableFile> seenFiles, final Collection<File> writtenFiles, final XsdChecker xsdChecker, final List<ArbilDataNode> finishedTopNodes) {
         final URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
         getList.add(currentGettableUri);
         if (!seenFiles.containsKey(currentGettableUri)) {
@@ -172,7 +178,7 @@ public class CopyRunner implements Runnable {
         }
         while (!impExpUI.isStopCopy() && getList.size() > 0) {
             RetrievableFile currentRetrievableFile = seenFiles.get(getList.remove(0));
-            copyFile(currentRetrievableFile, exportDestinationDirectory, seenFiles, doneList, getList, xsdChecker);
+            copyFile(currentRetrievableFile, exportDestinationDirectory, seenFiles, getList, writtenFiles, xsdChecker);
         }
         if (exportDestinationDirectory == null) {
             // This is an import into the local corpus
@@ -183,84 +189,83 @@ public class CopyRunner implements Runnable {
 
     private final HandleUtils handleUtils = new HandleUtils();
 
-    private void copyFile(final RetrievableFile currentRetrievableFile, final File exportDestinationDirectory, final Map<URI, RetrievableFile> seenFiles, final List<URI> doneList, final List<URI> getList, final XsdChecker xsdChecker) {
+    private void copyFile(final RetrievableFile currentRetrievableFile, final File exportDestinationDirectory, final Map<URI, RetrievableFile> seenFiles, final List<URI> getList, final Collection<File> writtenFiles, final XsdChecker xsdChecker) {
         try {
-            if (!doneList.contains(currentRetrievableFile.sourceURI)) {
-                final String journalActionString;
-                if (exportDestinationDirectory == null) {
-                    // This is an import into the local corpus
+            final String journalActionString;
+            if (exportDestinationDirectory == null) {
+                // This is an import into the local corpus
+                currentRetrievableFile.calculateUriFileName();
+                journalActionString = "import";
+            } else {
+                // This is an export to a location on the file system
+                if (impExpUI.isRenameFileToNodeName()) {
+                    calculateTreeFileName(currentRetrievableFile, Collections.<URI[]>emptyList(), writtenFiles);
+                } else {
                     currentRetrievableFile.calculateUriFileName();
-                    journalActionString = "import";
+                }
+                journalActionString = "export";
+            }
+            if (impExpUI.isStopCopy()) {
+                return;
+            }
+            final URI resolvedUri = handleUtils.followRedirect(currentRetrievableFile.sourceURI);
+            final MetadataUtils metadataUtils = ArbilDataNode.getMetadataUtils(resolvedUri.toString());
+            metadataUtils.setOption(CmdiUtils.OPTION_STORE_LOCAL_URI, sessionStorage.loadBoolean(STORE_LOCAL_URI_OPTION, true));
+
+            if (metadataUtils == null) {
+                throw new ArbilMetadataException("Metadata format could not be determined");
+            }
+
+            final List<URI[]> uncopiedLinks = new ArrayList<URI[]>();
+            final MetadataLinkSet linkSet = metadataUtils.getCorpusLinks(resolvedUri);
+            if (linkSet != null) {
+                copyLinks(exportDestinationDirectory, linkSet, seenFiles, currentRetrievableFile, getList, uncopiedLinks, writtenFiles);
+            }
+
+            final boolean overwriteFile;
+            if (currentRetrievableFile.destinationFile.exists()) {
+                totalExisting++;
+                overwriteFile = impExpUI.askOverwrite(currentRetrievableFile.getSourceURI());
+            } else {
+                overwriteFile = false;
+            }
+
+            // Request to stop copy can have been triggered from UI (probably when presenting user with pre-existing copy)
+            if (!impExpUI.isStopCopy()) {
+                if (currentRetrievableFile.destinationFile.exists() && !overwriteFile) {
+                    impExpUI.appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
+                    impExpUI.appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
                 } else {
-                    // This is an export to a location on the file system
-                    if (impExpUI.isRenameFileToNodeName()) {
-                        calculateTreeFileName(currentRetrievableFile, Collections.<URI[]>emptyList());
-                    } else {
-                        currentRetrievableFile.calculateUriFileName();
+                    final boolean replacingExistingFile = currentRetrievableFile.destinationFile.exists() && overwriteFile;
+                    if (replacingExistingFile) {
+                        impExpUI.appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
                     }
-                    journalActionString = "export";
-                }
-                if (impExpUI.isStopCopy()) {
-                    return;
-                }
-                final URI resolvedUri = handleUtils.followRedirect(currentRetrievableFile.sourceURI);
-                final MetadataUtils metadataUtils = ArbilDataNode.getMetadataUtils(resolvedUri.toString());
-                metadataUtils.setOption(CmdiUtils.OPTION_STORE_LOCAL_URI, sessionStorage.loadBoolean(STORE_LOCAL_URI_OPTION, true));
-                
-                if (metadataUtils == null) {
-                    throw new ArbilMetadataException("Metadata format could not be determined");
-                }
-
-                final List<URI[]> uncopiedLinks = new ArrayList<URI[]>();
-                final MetadataLinkSet linkSet = metadataUtils.getCorpusLinks(resolvedUri);
-                if (linkSet != null) {
-                    copyLinks(exportDestinationDirectory, linkSet, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
-                }
-
-                final boolean overwriteFile;
-                if (currentRetrievableFile.destinationFile.exists()) {
-                    totalExisting++;
-                    overwriteFile = impExpUI.askOverwrite(currentRetrievableFile);
-                } else {
-                    overwriteFile = false;
-                }
-
-                // Request to stop copy can have been triggered from UI (probably when presenting user with pre-existing copy)
-                if (!impExpUI.isStopCopy()) {
-                    if (currentRetrievableFile.destinationFile.exists() && !overwriteFile) {
-                        impExpUI.appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
-                        impExpUI.appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
-                    } else {
-                        final boolean replacingExistingFile = currentRetrievableFile.destinationFile.exists() && overwriteFile;
-                        if (replacingExistingFile) {
-                            impExpUI.appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+                    final ArbilDataNode destinationNode = dataNodeLoader.getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
+                    if (destinationNode.getNeedsSaveToDisk(false)) {
+                        destinationNode.saveChangesToCache(true);
+                    }
+                    if (destinationNode.hasHistory()) {
+                        destinationNode.bumpHistory();
+                    }
+                    if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
+                        if (!currentRetrievableFile.destinationFile.getParentFile().mkdir()) {
+                            logger.error("Could not create missing parent directory for {}", currentRetrievableFile.destinationFile);
                         }
-                        final ArbilDataNode destinationNode = dataNodeLoader.getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
-                        if (destinationNode.getNeedsSaveToDisk(false)) {
-                            destinationNode.saveChangesToCache(true);
-                        }
-                        if (destinationNode.hasHistory()) {
-                            destinationNode.bumpHistory();
-                        }
-                        if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
-                            if (!currentRetrievableFile.destinationFile.getParentFile().mkdir()) {
-                                logger.error("Could not create missing parent directory for {}", currentRetrievableFile.destinationFile);
-                            }
-                        }
-                        metadataUtils.copyMetadataFile(resolvedUri, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
-                        ArbilJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
-                        final String checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile);
-                        if (checkerResult != null) {
-                            impExpUI.appendToXmlOutput(currentRetrievableFile.sourceURI.toString() + "\n");
-                            impExpUI.appendToXmlOutput("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
-                            logger.debug("checkerResult: {}", checkerResult);
-                            impExpUI.appendToXmlOutput(checkerResult + "\n");
-                            impExpUI.addToValidationErrors(currentRetrievableFile.sourceURI);
-                            xsdErrors++;
-                        }
-                        if (replacingExistingFile) {
-                            dataNodeLoader.requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
-                        }
+                    }
+                    metadataUtils.copyMetadataFile(resolvedUri, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
+                    writtenFiles.add(currentRetrievableFile.destinationFile.getCanonicalFile());
+                    ArbilJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
+                    final String checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile);
+                    if (checkerResult != null) {
+                        impExpUI.appendToXmlOutput(currentRetrievableFile.sourceURI.toString() + "\n");
+                        impExpUI.appendToXmlOutput("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+                        logger.debug("checkerResult: {}", checkerResult);
+                        impExpUI.appendToXmlOutput(checkerResult + "\n");
+                        impExpUI.addToValidationErrors(currentRetrievableFile.sourceURI);
+                        xsdErrors++;
+                    }
+                    if (replacingExistingFile) {
+                        dataNodeLoader.requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
                     }
                 }
             }
@@ -289,7 +294,7 @@ public class CopyRunner implements Runnable {
         }
     }
 
-    private void copyLinks(final File exportDestinationDirectory, MetadataLinkSet linksUriArray, Map<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, List<URI> getList, List<URI[]> uncopiedLinks) throws MalformedURLException {
+    private void copyLinks(final File exportDestinationDirectory, MetadataLinkSet linksUriArray, Map<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, List<URI> getList, List<URI[]> uncopiedLinks, Collection<File> writtenFiles) throws MalformedURLException, IOException {
         // Copy resource links
         for (final URI linkUri : linksUriArray.getResourceLinks()) {
             if (impExpUI.isStopCopy()) {
@@ -302,7 +307,7 @@ public class CopyRunner implements Runnable {
                     seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
                 }
                 final RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
-                copyResourceLink(currentRetrievableFile, currentLink, retrievableLink, exportDestinationDirectory, uncopiedLinks, linkUri);
+                copyResourceLink(currentRetrievableFile, currentLink, retrievableLink, exportDestinationDirectory, uncopiedLinks, linkUri, writtenFiles);
             }
         }
 
@@ -322,7 +327,7 @@ public class CopyRunner implements Runnable {
         }
     }
 
-    private void copyMetadataLink(final URI gettableLinkUri, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI> getList, List<URI[]> uncopiedLinks, URI linkUri) {
+    private void copyMetadataLink(final URI gettableLinkUri, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI> getList, List<URI[]> uncopiedLinks, URI linkUri) throws IOException {
         getList.add(gettableLinkUri);
         if (impExpUI.isRenameFileToNodeName() && exportDestinationDirectory != null) {
             // On export there is the option to rename the file to the name of the node as present in the metadata
@@ -333,7 +338,7 @@ public class CopyRunner implements Runnable {
         uncopiedLinks.add(new URI[]{linkUri, retrievableLink.destinationFile.toURI()});
     }
 
-    private void copyResourceLink(RetrievableFile currentRetrievableFile, final String currentLink, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI[]> uncopiedLinks, URI linkUri) throws MalformedURLException {
+    private void copyResourceLink(RetrievableFile currentRetrievableFile, final String currentLink, final RetrievableFile retrievableLink, final File exportDestinationDirectory, List<URI[]> uncopiedLinks, URI linkUri, Collection<File> writtenFiles) throws MalformedURLException, IOException {
         if (!impExpUI.isCopyFilesOnImport() && !impExpUI.isCopyFilesOnExport()) {
             uncopiedLinks.add(new URI[]{linkUri, linkUri});
         } else {
@@ -344,7 +349,7 @@ public class CopyRunner implements Runnable {
             } else {
                 // On import
                 if (impExpUI.isRenameFileToNodeName()) {
-                    calculateTreeFileName(retrievableLink, uncopiedLinks);
+                    calculateTreeFileName(retrievableLink, uncopiedLinks, writtenFiles);
                 } else {
                     retrievableLink.calculateUriFileName();
                 }
@@ -360,6 +365,7 @@ public class CopyRunner implements Runnable {
             if (downloadFileLocation != null && downloadFileLocation.exists()) {
                 impExpUI.appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
                 uncopiedLinks.add(new URI[]{linkUri, downloadFileLocation.toURI()});
+                writtenFiles.add(downloadFileLocation.getCanonicalFile());
             } else {
                 impExpUI.appendToResourceCopyOutput("Download failed: " + currentLink + " \n");
                 impExpUI.addToFileCopyErrors(currentRetrievableFile.sourceURI);
@@ -388,14 +394,31 @@ public class CopyRunner implements Runnable {
         }
     }
 
-    private void calculateTreeFileName(final RetrievableFile retrievableFile, List<URI[]> reservedLinks) {
+    private void calculateTreeFileName(final RetrievableFile retrievableFile, List<URI[]> reservedLinks) throws IOException {
+        calculateTreeFileName(retrievableFile, reservedLinks, Collections.EMPTY_LIST);
+    }
+
+    /**
+     * 
+     * @param retrievableFile
+     * @param reservedLinks
+     * @param writtenFiles files that have been written in this export, won't ask to overwrite or rename
+     * @throws IOException 
+     */
+    private void calculateTreeFileName(final RetrievableFile retrievableFile, List<URI[]> reservedLinks, Collection<File> writtenFiles) throws IOException {
         retrievableFile.calculateTreeFileName(impExpUI.isRenameFileToLamusFriendlyName(), reservedLinks);
         if (retrievableFile.destinationFile.exists()) {
-            if (exportToUniqueLocation == null) {
-                exportToUniqueLocation = impExpUI.askCreateNewExportDir(retrievableFile.destinationFile);
-            }
-            if (exportToUniqueLocation) {
+            if (writtenFiles.contains(retrievableFile.destinationFile.getCanonicalFile())) {
+                // would overwrite a file from this export - make a unique file name without asking 
                 retrievableFile.makeUnique(reservedLinks);
+            } else {
+                // file already was present - ask what to do
+                if (exportToUniqueLocation == null) {
+                    exportToUniqueLocation = impExpUI.askCreateNewExportDir(retrievableFile.destinationFile);
+                }
+                if (exportToUniqueLocation) {
+                    retrievableFile.makeUnique(reservedLinks);
+                }
             }
         }
     }
@@ -549,5 +572,15 @@ public class CopyRunner implements Runnable {
             }
             return fileNameString;
         }
+
+        @Override
+        public String toString() {
+            if (destinationFile == null) {
+                return String.format("[%s] -> [%s]", sourceURI, destinationDirectory);
+            } else {
+                return String.format("[%s] -> [%s]", sourceURI, destinationFile);
+            }
+        }
+
     }
 }

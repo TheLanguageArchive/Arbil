@@ -28,6 +28,7 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Date"/>
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Date"/>
         <RequiredField FieldPath=".METATRANSCRIPT.Catalogue.Date"/>
+	<RequiredField FieldPath=".*\.Age"/>
         <RequiredField FieldPath=".*\.BirthDate"/>
         <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content\(x\).Languages.Language\(x\).Dominant"/>
         <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content\(x\).Languages.Language\(x\).SourceLanguage"/>
@@ -57,10 +58,10 @@
     </GenreSubgenres>
     <FieldConstraints>
         <comment>The fields listed here will be required to match the regex constraint and will be highlighted in the application if they do not</comment>
-        <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
-        <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
+        <FieldConstraint FieldPath=".*\.Date" Constraint="[0-9]{4}(-(0[1-9]|1[012])(-([0-2][0-9]|3[01]))?)?(/[0-9]{4}(-(0[1-9]|1[012])(-([0-2][0-9]|3[01]))?)?)?|Unknown|Unspecified"/>
+        <FieldConstraint FieldPath=".*\.BirthDate" Constraint="[0-9]{4}(-(0[1-9]|1[012])(-([0-2][0-9]|3[01]))?)?(/[0-9]{4}(-(0[1-9]|1[012])(-([0-2][0-9]|3[01]))?)?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\.Email" Constraint=".+@.+"/>
-	<FieldConstraint FieldPath=".*\.Age" Constraint="([0-9]+)?(;[0-9]+)?(.[0-9]+)?(/([0-9]+)?(;[0-9]+)?(.[0-9]+)?)?|Unknown|Unspecified"/>
+	<FieldConstraint FieldPath=".*\.Age" Constraint="[0-9]{1,3}(;(0?[0-9]|1[01])(\.(0?[0-9]|[12][0-9]|30))?)?(/[0-9]{1,3}(;(0?[0-9]|1[01])(\.(0?[0-9]|[12][0-9]|30))?)?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\(x\).TimePosition.Start" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\(x\).TimePosition.End" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified"/>

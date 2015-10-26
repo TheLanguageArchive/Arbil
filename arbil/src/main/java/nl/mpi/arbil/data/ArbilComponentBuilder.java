@@ -206,16 +206,37 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public URI insertResourceProxy(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) {
+    /**
+     *
+     * @param targetMetadataNode target node for proxy reference
+     * @param resourceNode resource to insert a proxy reference for
+     * @return the URL of {@code targetMetadataNode} if successful, or null if
+     * the insertion failed
+     */
+    public URI insertResourceProxy(ArbilDataNode targetMetadataNode, ArbilDataNode resourceNode) {
+        return insertResourceProxy(targetMetadataNode, resourceNode, null);
+    }
+
+    /**
+     *
+     * @param targetMetadataNode target node for proxy reference
+     * @param resourceNode resource to insert a proxy reference for
+     * @param overrideResourceUri optional URI to use instead of the one
+     * provided by {@link ArbilDataNode#getURI() } (which is used if null provided)
+     * @return the URL of {@code targetMetadataNode} if successful, or null if
+     * the insertion failed
+     */
+    public URI insertResourceProxy(ArbilDataNode targetMetadataNode, ArbilDataNode resourceNode, URI overrideResourceUri) {
         // there is no need to save the node at this point because metadatabuilder has already done so
-        synchronized (arbilDataNode.getParentDomLockObject()) {
-            String targetXmlPath = getTargetXmlPath(arbilDataNode);
+        synchronized (targetMetadataNode.getParentDomLockObject()) {
+            String targetXmlPath = getTargetXmlPath(targetMetadataNode);
             logger.debug("insertResourceProxy: {}", targetXmlPath);
 //            File cmdiNodeFile = imdiTreeObject.getFile();
 //            String nodeFragment = "";
 
-            final CmdiComponentLinkReader linkReader = arbilDataNode.getParentDomNode().getCmdiComponentLinkReader();
-            String resourceProxyId = linkReader.getProxyId(resourceNode.getUrlString());
+            final CmdiComponentLinkReader linkReader = targetMetadataNode.getParentDomNode().getCmdiComponentLinkReader();
+            final String resourceUri = (overrideResourceUri != null) ? overrideResourceUri.toString() : resourceNode.getUrlString();
+            String resourceProxyId = linkReader.getProxyId(resourceUri);
             boolean newResourceProxy = (resourceProxyId == null);
             if (newResourceProxy) {
                 // generate a uuid for new resource
@@ -223,7 +244,7 @@ public class ArbilComponentBuilder {
             }
             try {
                 // load the dom
-                Document targetDocument = getDocument(arbilDataNode.getURI());
+                Document targetDocument = getDocument(targetMetadataNode.getURI());
                 // insert the new section
                 try {
                     try {
@@ -235,8 +256,8 @@ public class ArbilComponentBuilder {
 //                printoutDocument(targetDocument);
                     if (newResourceProxy) {
                         // load the schema
-                        SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().getTemplateFile());
-                        addNewResourceProxy(targetDocument, schemaType, resourceProxyId, resourceNode);
+                        SchemaType schemaType = getFirstSchemaType(targetMetadataNode.getNodeTemplate().getTemplateFile());
+                        addNewResourceProxy(targetDocument, schemaType, resourceProxyId, resourceNode, resourceUri);
                     } else {
                         // Increase counter for referencing nodes
                         linkReader.getResourceLink(resourceProxyId).addReferencingNode();
@@ -246,9 +267,9 @@ public class ArbilComponentBuilder {
                     return null;
                 }
                 // bump the history
-                arbilDataNode.bumpHistory();
+                targetMetadataNode.bumpHistory();
                 // save the dom
-                savePrettyFormatting(targetDocument, arbilDataNode.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+                savePrettyFormatting(targetDocument, targetMetadataNode.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
             } catch (IOException exception) {
                 BugCatcherManager.getBugCatcher().logError(exception);
                 return null;
@@ -259,7 +280,7 @@ public class ArbilComponentBuilder {
                 BugCatcherManager.getBugCatcher().logError(exception);
                 return null;
             }
-            return arbilDataNode.getURI();
+            return targetMetadataNode.getURI();
         }
     }
 
@@ -319,7 +340,7 @@ public class ArbilComponentBuilder {
         }
     }
 
-    private void addNewResourceProxy(Document targetDocument, SchemaType firstChildSchemaType, String resourceProxyId, ArbilDataNode resourceNode) throws ArbilMetadataException, DOMException {
+    private void addNewResourceProxy(Document targetDocument, SchemaType firstChildSchemaType, String resourceProxyId, ArbilDataNode resourceNode, String resourceUri) throws ArbilMetadataException, DOMException {
         Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), firstChildSchemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
         addedResourceNode.getAttributes().getNamedItem("id").setNodeValue(resourceProxyId);
         for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
@@ -333,7 +354,7 @@ public class ArbilComponentBuilder {
                 }
             }
             if ("ResourceRef".equals(localName)) {
-                childNode.setTextContent(resourceNode.getUrlString());
+                childNode.setTextContent((resourceUri != null) ? resourceUri : resourceNode.getUrlString());
             }
         }
     }

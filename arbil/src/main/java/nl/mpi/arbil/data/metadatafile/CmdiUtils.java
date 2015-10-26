@@ -37,6 +37,8 @@ import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.clarin.HandleUtils;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.util.BugCatcherManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,6 +52,7 @@ import org.xml.sax.SAXException;
 public class CmdiUtils implements MetadataUtils {
 
     public final static String OPTION_STORE_LOCAL_URI = "nl.mpi.arbil.data.metadatafile.CmdiUtils/storelocaluri";
+    private final static Logger logger = LoggerFactory.getLogger(CmdiUtils.class);
 
     private final Map<String, Boolean> options = new HashMap<String, Boolean>();
 
@@ -150,8 +153,7 @@ public class CmdiUtils implements MetadataUtils {
             // Traverse links
             for (CmdiResourceLink link : links) {
                 try {
-                    // follow any redirects, resolving any handles on the way
-                    URI linkUri = handleUtils.followRedirect(link.getResolvedLinkUri());
+                    URI linkUri = getPreferredLinkUri(link);
                     if (linkUri != null) {
                         // Link is CMDI metadata, include in result
                         if (link.resourceType.equalsIgnoreCase("Metadata")) {
@@ -166,6 +168,21 @@ public class CmdiUtils implements MetadataUtils {
             }
         }
         return new MetadataLinkSet(resourceLinks, metadataLinks);
+    }
+
+    private URI getPreferredLinkUri(CmdiResourceLink link) throws URISyntaxException {
+        // always prefer local file URI - but check if it exist
+        final URI localUri = link.getLocalUri();
+        if (localUri != null && localUri.getScheme().equals("file")) {
+            if (new File(localUri).exists()) {
+                return localUri;
+            } else {
+                logger.warn("Local file URI references non-existing file: {}", localUri);
+            }
+        }
+
+        // no (valid) localURI -> use global URI, follow any redirects, resolving any handles on the way
+        return handleUtils.followRedirect(link.getResolvedLinkUri());
     }
 
     public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks) {

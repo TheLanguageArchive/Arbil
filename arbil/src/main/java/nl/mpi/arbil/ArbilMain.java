@@ -24,6 +24,7 @@ import java.util.ResourceBundle;
 import nl.mpi.arbil.MacAdapter.MacAdapterException;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.ArbilDragDrop;
@@ -136,6 +137,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	// Set shared config on using objects
 	ArbilTemplateManager.getSingleInstance().setApplicationConfiguration(appConfig);
 	MetadataReader.getSingleInstance().setApplicationConfiguration(appConfig);
+        MetadataBuilder.setApplicationConfiguration(appConfig);
 	return appConfig;
     }
 

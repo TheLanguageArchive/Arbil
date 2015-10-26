@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2014 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2014 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.data;
 
@@ -37,6 +38,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -64,6 +68,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public static final String GROUP_FAVOURITES_BY_TYPE_OPTION = "groupFavouritesByType";
     private final static Logger logger = LoggerFactory.getLogger(AbstractTreeHelper.class);
     private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
+    private static final String DEFAULT_LOCATIONS_RESOURCE = "/nl/mpi/arbil/defaults/imdiLocations";
+    private static final String UPDATE_RULES_RESOURCE = "/nl/mpi/arbil/defaults/updateRules";
     private DefaultTreeModel localCorpusTreeModel;
     private DefaultTreeModel remoteCorpusTreeModel;
     private DefaultTreeModel localDirectoryTreeModel;
@@ -76,6 +82,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     private MessageDialogHandler messageDialogHandler;
     private DataNodeLoader dataNodeLoader;
     private boolean groupFavouritesByType = true;
+    private boolean locationsChecked = false;
+
     /**
      * ArbilRootNode for local corpus tree
      */
@@ -179,30 +187,12 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     @Override
     public int addDefaultCorpusLocations() {
         try {
-            addLocations(getClass().getResourceAsStream("/nl/mpi/arbil/defaults/imdiLocations"));
+            addLocations(getClass().getResourceAsStream(DEFAULT_LOCATIONS_RESOURCE));
             return remoteCorpusNodes.length;
         } catch (IOException ex) {
             BugCatcherManager.getBugCatcher().logError(ex);
             return 0;
         }
-    }
-
-    public int addDefaultCorpusLocationsOld() {
-        HashSet<ArbilDataNode> remoteCorpusNodesSet = new HashSet<ArbilDataNode>();
-        remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
-        for (String currentUrlString : new String[]{
-            "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
-            "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi",
-            "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"
-        }) {
-            try {
-                remoteCorpusNodesSet.add(dataNodeLoader.getArbilDataNode(null, new URI(currentUrlString)));
-            } catch (URISyntaxException ex) {
-                BugCatcherManager.getBugCatcher().logError(ex);
-            }
-        }
-        remoteCorpusNodes = remoteCorpusNodesSet.toArray(new ArbilDataNode[]{});
-        return remoteCorpusNodesSet.size();
     }
 
     @Override
@@ -242,20 +232,23 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     @Override
-    public final void loadLocationsList() {
+    public final synchronized void loadLocationsList() {
         logger.debug("loading locationsList");
-        String[] locationsArray = null;
-        try {
-            locationsArray = getSessionStorage().loadStringArray("locationsList");
-        } catch (IOException ex) {
-            BugCatcherManager.getBugCatcher().logError(ex);
-            messageDialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("COULD NOT FIND OR LOAD LOCATIONS. ADDING DEFAULT LOCATIONS."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ERROR"));
-        }
+        String[] locationsArray = loadLocations();
         if (locationsArray != null) {
-            ArrayList<ArbilDataNode> remoteCorpusNodesList = new ArrayList<ArbilDataNode>();
-            ArrayList<ArbilDataNode> localCorpusNodesList = new ArrayList<ArbilDataNode>();
-            ArrayList<ArbilDataNode> localFileNodesList = new ArrayList<ArbilDataNode>();
-            ArrayList<ArbilDataNode> favouriteNodesList = new ArrayList<ArbilDataNode>();
+            if (!locationsChecked) {
+                try {
+                    //see if any of the locations need updating
+                    locationsArray = checkLocations(locationsArray);
+                    locationsChecked = true; // do this only once per run
+                } catch (IOException ex) {
+                    logger.info("Failed to check locations", ex);
+                }
+            }
+            final ArrayList<ArbilDataNode> remoteCorpusNodesList = new ArrayList<ArbilDataNode>();
+            final ArrayList<ArbilDataNode> localCorpusNodesList = new ArrayList<ArbilDataNode>();
+            final ArrayList<ArbilDataNode> localFileNodesList = new ArrayList<ArbilDataNode>();
+            final ArrayList<ArbilDataNode> favouriteNodesList = new ArrayList<ArbilDataNode>();
 
             int failedLoads = 0;
             // this also removes all locations and replaces them with normalised paths
@@ -305,6 +298,17 @@ public abstract class AbstractTreeHelper implements TreeHelper {
         groupFavouritesByType = getSessionStorage().loadBoolean(GROUP_FAVOURITES_BY_TYPE_OPTION, groupFavouritesByType);
     }
 
+    public String[] loadLocations() {
+        String[] locationsArray = null;
+        try {
+            locationsArray = getSessionStorage().loadStringArray("locationsList");
+        } catch (IOException ex) {
+            BugCatcherManager.getBugCatcher().logError(ex);
+            messageDialogHandler.addMessageDialogToQueue(java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("COULD NOT FIND OR LOAD LOCATIONS. ADDING DEFAULT LOCATIONS."), java.util.ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets").getString("ERROR"));
+        }
+        return locationsArray;
+    }
+
     @Override
     public void setShowHiddenFilesInTree(boolean showState) {
         showHiddenFilesInTree = showState;
@@ -341,6 +345,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     public void addLocations(InputStream inputStream) throws IOException {
+        List<URI> locationsList = readLocationsList(inputStream);
+        addLocations(locationsList);
+    }
+
+    private List<URI> readLocationsList(InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         List<URI> locationsList = new LinkedList<URI>();
         String location = reader.readLine();
@@ -353,7 +362,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
             }
             location = reader.readLine();
         }
-        addLocations(locationsList);
+        return locationsList;
     }
 
     public void clearRemoteLocations() {
@@ -795,4 +804,98 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     protected DataNodeLoader getDataNodeLoader() {
         return dataNodeLoader;
     }
+
+    private String[] checkLocations(final String[] locations) throws IOException {
+        // load update rules from resource (mapping from URL (pattern) to replacement)
+        final Map<Pattern, String> updateRules = loadUpdateRules();
+        // lists to get populated
+        final List<String> newLocationsList = new ArrayList<String>();
+        final List<String> locationsToUpdate = new ArrayList<String>();
+        // look for actual updates
+        findLocationUpdateCandidates(locations, updateRules, newLocationsList, locationsToUpdate);
+
+        // found anything?
+        if (!locationsToUpdate.isEmpty() && askUpdateLocations(locationsToUpdate)) {
+            final String[] newLocations = newLocationsList.toArray(new String[]{});
+            //store adapted location list
+            getSessionStorage().saveStringArray("locationsList", newLocations);
+            return newLocations;
+        } else {
+            // no change candidates or user denies
+            return locations;
+        }
+    }
+
+    public void findLocationUpdateCandidates(final String[] locations, Map<Pattern, String> updateRules, final List<String> newLocationsList, final List<String> locationsToUpdate) {
+        // build new list and update list
+        for (String location : locations) {
+            // check if an update can be derived from the rules
+            final String newVersion = getUpdatedLocation(location, updateRules);
+            if (newVersion != null) {
+                newLocationsList.add(newVersion);
+                locationsToUpdate.add(newVersion);
+            } else {
+                newLocationsList.add(location);
+            }
+        }
+    }
+
+    private String getUpdatedLocation(String location, final Map<Pattern, String> updateRules) {
+        // traverse over pattern/replacement pairs, apply first match
+        for (Pattern pattern : updateRules.keySet()) {
+            // try to match this pattern
+            final Matcher matcher = pattern.matcher(location);
+            if (matcher.matches()) {
+                final String replacemenet = updateRules.get(pattern);
+                return matcher.replaceAll(replacemenet);
+            }
+        }
+        return null;
+    }
+
+    public boolean askUpdateLocations(final List<String> locationsToUpdate) {
+        final StringBuilder message = new StringBuilder(widgets.getString("UPDATE REMOTE LOCATIONS"));
+        for (String location : locationsToUpdate) {
+            message.append("\n - ").append(location);
+        }
+        return JOptionPane.YES_OPTION
+                == messageDialogHandler.showDialogBox(
+                        message.toString(),
+                        widgets.getString("UPDATE REMOTE LOCATIONS TITLE"),
+                        JOptionPane.YES_OPTION,
+                        JOptionPane.QUESTION_MESSAGE, null, null);
+    }
+
+    /**
+     * Loads the remote location update rules from the embedded resource file
+     *
+     * @return
+     */
+    private Map<Pattern, String> loadUpdateRules() {
+        final Map<Pattern, String> map = new HashMap<Pattern, String>();
+        try {
+            final InputStream rulesStream = getClass().getResourceAsStream(UPDATE_RULES_RESOURCE);
+            try {
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(rulesStream));
+                String line;
+                while (null != (line = reader.readLine())) {
+                    // each line in file should be {regex} --> {replace string}
+                    final String[] tokens = line.split(" --> ");
+                    if (tokens.length == 2) {
+                        try {
+                            map.put(Pattern.compile(tokens[0]), tokens[1]);
+                        } catch (PatternSyntaxException ex) {
+                            logger.warn("Could not parse regex " + tokens[0], ex);
+                        }
+                    }
+                }
+            } finally {
+                rulesStream.close();
+            }
+        } catch (IOException ex) {
+            logger.warn("Could not read update rules for remote location", ex);
+        }
+        return map;
+    }
+
 }

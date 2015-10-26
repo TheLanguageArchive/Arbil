@@ -1,19 +1,20 @@
 /**
- * Copyright (C) 2014 The Language Archive, Max Planck Institute for Psycholinguistics
+ * Copyright (C) 2014 The Language Archive, Max Planck Institute for
+ * Psycholinguistics
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 package nl.mpi.arbil.userstorage;
 
@@ -270,28 +271,31 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     }
 
     public URI getOriginatingUri(URI locationInCacheURI) {
-        URI returnUri = null;
-        String uriPath = locationInCacheURI.getPath();
-//        logger.debug("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
-        logger.debug("uriPath: {}", uriPath);
-        int foundPos = uriPath.indexOf("imdicache");
+        final String rawUriPath = locationInCacheURI.getPath();
+        logger.debug("uriPath: {}", rawUriPath);
+        
+        int foundPos = rawUriPath.indexOf("imdicache");
         if (foundPos == -1) {
-            foundPos = uriPath.indexOf(getProjectDirectoryName());
+            foundPos = rawUriPath.indexOf(getProjectDirectoryName());
             if (foundPos == -1) {
                 return null;
             }
         }
-        uriPath = uriPath.substring(foundPos);
-        String[] uriParts = uriPath.split("/", 4);
+        
+        final String uriPath = rawUriPath.substring(foundPos);
+
+        final String[] uriParts = uriPath.split("/", 4);
         try {
-            if (uriParts[1].toLowerCase().equals("http")) {
-                returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
-                logger.debug("returnUri: {}", returnUri);
+            final String scheme = uriParts[1].toLowerCase();
+            if (scheme.equals("http") || scheme.equals("https")) {
+                final URI originatingUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null);
+                logger.debug("originatingUri: {}", originatingUri);
+                return originatingUri; // [0] will be "imdicache"
             }
         } catch (URISyntaxException urise) {
             logger.error("Could not construct orginating URI from {}", uriPath, urise);
         }
-        return returnUri;
+        return null;
     }
 
     /**
@@ -374,7 +378,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     public String[] loadStringArray(String filename) throws IOException {
         File currentConfigFile = null;
         if (filename.equals("locationsList")) {
-	    // The tree locations config has been moved into the project directory,
+            // The tree locations config has been moved into the project directory,
             // for now we are setting this by the location name.
             // However this will be replaced by a project configuration class that will use JAXB to save to disk.
             currentConfigFile = new File(getProjectDirectory(), filename + ".config");
@@ -426,7 +430,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
     public void saveStringArray(String filename, String[] storableValue) throws IOException {
         File destinationDirectory;
         if (filename.equals("locationsList")) {
-	    // The tree locations config has been moved into the project directory,
+            // The tree locations config has been moved into the project directory,
             // for now we are setting this by the location name.
             // However this will be replaced by a project configuration class that will use JAXB to save to disk.
             destinationDirectory = getProjectDirectory();
@@ -771,7 +775,7 @@ public class ArbilSessionStorage extends CommonsSessionStorage implements Sessio
 //        logger.debug("destinationPath: " + destinationPath);
 //        File destinationFile = new File(destinationPath);
         if (destinationFile.length() == 0) {
-	    // todo: check the file size on the server and maybe its date also
+            // todo: check the file size on the server and maybe its date also
             // if the file is zero length then is presumably should either be replaced or the version in the jar used.
             if (destinationFile.delete()) {
                 logger.debug("Deleted zero length (!) file: " + destinationFile);

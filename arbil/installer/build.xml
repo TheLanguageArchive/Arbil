@@ -11,6 +11,10 @@
     <target name="setproperties">
         <loadproperties srcfile="../application.properties" />
         <property name="APPNAME" value="${application.name}" />
+
+        <property name="WEBHOST" value="ssh.mpi.nl" />
+        <property name="TARGETPATH" value="/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}" />
+
         <property name="SRCDIR" location="${application.baseDir}src/main/java/"/>
         <property name="OUTPUTDIR" location="./target"/>
         <property name="LIBDIR" location="${OUTPUTDIR}/lib/"/>
@@ -247,24 +251,24 @@
         <property name="TodoListFile" value="${OUTPUTDIR}/distribution/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_todo.csv"/>
         <get src="${application.todoListLocation}" 
              dest="${TodoListFile}" 
-             username="${lux09.user}" 
-             password="${lux09.pw}"/>
-        <scp file="${TodoListFile}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
-        <scp file="${TodoListFile}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-all_todo.csv"/> <!-- ${application.branch}-->
+             username="${webhost.user}" 
+             password="${webhost.pw}"/>
+        <scp file="${TodoListFile}" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/"/>
+        <scp file="${TodoListFile}" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-all_todo.csv"/> <!-- ${application.branch}-->
         <property name="ChangeListFile" value="${OUTPUTDIR}/distribution/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_changes.csv"/>
         <get src="${application.doneListLocation}"
              dest="${ChangeListFile}"
-             username="${lux09.user}"
-             password="${lux09.pw}"/>
-        <scp file="${ChangeListFile}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
-        <scp file="${ChangeListFile}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-all_changes.csv"/> <!-- ${application.branch}-->
+             username="${webhost.user}"
+             password="${webhost.pw}"/>
+        <scp file="${ChangeListFile}" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/"/>
+        <scp file="${ChangeListFile}" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-all_changes.csv"/> <!-- ${application.branch}-->
         <!--    generating an rss from trac exports too much information when it should only be outputting the id, date, title and milestone, so we dont do that here -->
 
     </target>
     <target name="GetLoginData">
         <echo message="If you get an error regarding jsch, it is probably because ant-jsch.jar cannot find jsch.jar. On a debian system you should first try linking the required jar file: 'sudo ln -s /usr/share/java/jsch.jar /usr/share/ant/lib/'"/>
-        <input message="Please enter lux09 username:" addproperty="lux09.user" />
-        <input message="Please enter lux09 password:" addproperty="lux09.pw">
+        <input message="Please enter lux09 username:" addproperty="webhost.user" />
+        <input message="Please enter lux09 password:" addproperty="webhost.pw">
             <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
         </input>
     </target>
@@ -272,37 +276,37 @@
         <echo file="${OUTPUTDIR}/${APPNAME}-${application.branch}-current.txt">${application.majorVersion}.${application.minorVersion}.${application.revision}</echo>
     </target>
     <target name="scp_to_lux09" depends="clean, maven-build-sources-packages, makeDebPackage, buildWindowsInstaller, buildMacInstaller, createVersionFile, GetLoginData, GetTracTodoList">
-        <scp file="${OUTPUTDIR}/${DistJarName}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <scp file="${OUTPUTDIR}/${DistJarName}" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/"/>
         <!-- the lib direcory only needs to be updated when there is a real change so can be commented out to save build time -->
-        <scp todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/lib">
+        <scp todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/lib">
             <fileset dir="${OUTPUTDIR}/lib"/>
         </scp>
-        <scp file="${IconsDir}/${application.icon-file-name}.png" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <scp file="${IconsDir}/${application.icon-file-name}.png" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/"/>
         <!-- push the updated the applet html and the ${APPNAME} jnlp files to the server -->
-        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}-${application.majorVersion}-${application.minorVersion}-${application.revision}.jnlp"/>
-        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}.jnlp"/>
+        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-${application.branch}-${application.majorVersion}-${application.minorVersion}-${application.revision}.jnlp"/>
+        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-${application.branch}.jnlp"/>
         <!-- the non numbered version of the jnlp will allow the user to always get the latest update of that type. Whereas the build numbered version is of no use because it will always redirect to the latest version of its type not the version of the file name -->
-        <!--        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}.jnlp"/>-->
-        <!--        <scp file= "${BUILDDIR}/${APPNAME}-applet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-applet-${application.branch}.html"/>-->
+        <!--        <scp file="${OUTPUTDIR}/distribution/application.jnlp" remoteTofile="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}.jnlp"/>-->
+        <!--        <scp file= "${BUILDDIR}/${APPNAME}-applet.html" remoteTofile="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-applet-${application.branch}.html"/>-->
         <!-- push the deb package -->
-        <scp file="${distributionDirectory}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
-        <scp file="${distributionDirectory}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}.deb"/>
+        <scp file="${distributionDirectory}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_all.deb" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/"/>
+        <scp file="${distributionDirectory}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}_all.deb" remoteTofile="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-${application.branch}.deb"/>
         <!-- push the windows installer -->
-        <scp file="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
-        <scp file="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}-win-installer.zip"/>
+        <scp file="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/"/>
+        <scp file="${OUTPUTDIR}/distribution-win32/${APPNAME}-${application.branch}-installer.zip" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}-win-installer.zip"/>
         <!-- push the mac installer -->
-        <scp file="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}-mac.tar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
-        <scp file="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}-mac.tar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}-mac.tar"/>
+        <scp file="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}-mac.tar" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/"/>
+        <scp file="${OUTPUTDIR}/distribution-mac/${APPNAME}-${application.branch}-mac.tar" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}-${application.revision}-mac.tar"/>
         <!-- only after all the installers have been pushed do we update the version text file -->
-        <scp file="${OUTPUTDIR}/${APPNAME}-${application.branch}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/"/>
+        <scp file="${OUTPUTDIR}/${APPNAME}-${application.branch}-current.txt" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/"/>
         <!-- copy the current version of allversionslisting.php to make sure it gets kept in svn -->
-        <scp file="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/allversionslisting.php" todir="${application.baseDir}/src/main/php/" />
-        <scp file="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/todolisttable.php" todir="${application.baseDir}/src/main/php/" />
+        <scp file="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/allversionslisting.php" todir="${application.baseDir}/src/main/php/" />
+        <scp file="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/todolisttable.php" todir="${application.baseDir}/src/main/php/" />
         <!-- copy release notes (only if property is set, see target condition) -->
         <antcall target="-copy_release_notes_to_lux09" />
         <antcall target="-copy_sources_to_lux09" />
         <!-- set the required permissions for apache --> 
-        <sshexec host="lux09.mpi.nl" username="${lux09.user}" password="${lux09.pw}" command="find /data/extweb1/docs/TG/j2se/jnlp/${APPNAME} -user ${lux09.user} -follow -exec chmod a+r,g+w {} \;" />
+        <sshexec host="${WEBHOST}" username="${webhost.user}" password="${webhost.pw}" command="find ${TARGETPATH} -user ${webhost.user} -follow -exec chmod a+r,g+w {} \;" />
     </target>
     <target name="copy_release_notes_to_lux09" depends="setproperties,loadproperties,GetLoginData">
         <antcall target="-copy_release_notes_to_lux09" />
@@ -312,8 +316,8 @@
         <fail unless="application.releaseNotesLocation" />
         <!-- copy the release notes -->
         <echo message="Copying release notes from ${application.baseDir}${application.releaseNotesLocation} to release_notes-${APPNAME}-${application.branch}.txt on server" />
-        <scp file="${application.baseDir}${application.releaseNotesLocation}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/release_notes-${APPNAME}-${application.branch}.txt" />
-        <scp file="${application.baseDir}${application.releaseNotesLocation}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/release_notes-${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}.txt" />
+        <scp file="${application.baseDir}${application.releaseNotesLocation}" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/release_notes-${APPNAME}-${application.branch}.txt" />
+        <scp file="${application.baseDir}${application.releaseNotesLocation}" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/release_notes-${APPNAME}-${application.branch}_${application.majorVersion}.${application.minorVersion}.txt" />
     </target>
     <target name="maven-compile" depends="setproperties">
         <!-- while this could be done in a maven ant task, this method appears more portable at this stage -->
@@ -373,7 +377,7 @@
         <fail unless="application.sources.archiveLocation" />
         <!-- copy the release notes -->
         <echo message="Copying source package notes from ${application.sources.baseDir}${application.sources.archiveLocation} to ${APPNAME}-${application.branch}-src.zip on server" />
-        <scp file="${application.sources.baseDir}${application.sources.archiveLocation}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/${APPNAME}/${APPNAME}-${application.branch}-src.zip" />
+        <scp file="${application.sources.baseDir}${application.sources.archiveLocation}" todir="${webhost.user}:${webhost.pw}@${WEBHOST}:${TARGETPATH}/${APPNAME}-${application.branch}-src.zip" />
     </target>
 
     <!-- 

@@ -1,0 +1,2 @@
+http:\/\/corpus1.mpi.nl\/(qfs1\/)?(.*) --> https://corpus1.mpi.nl/$2
+http://infra.clarin.eu/cmd/example(.*) --> https://infra.clarin.eu/cmd/example$1
