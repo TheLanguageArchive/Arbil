@@ -131,7 +131,7 @@
                     <projectDirectory>${project.basedir}</projectDirectory>
                     <majorVersion>${arbil.majorVersion}</majorVersion>
                     <minorVersion>${arbil.minorVersion}</minorVersion>
-                    <buildType>testing</buildType>
+                    <buildType>${arbil.branch}</buildType>
                     <propertiesPrefix>application</propertiesPrefix>
                     <shortVersionModules>
                         <param>arbil-parent</param>
