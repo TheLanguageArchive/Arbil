@@ -13,7 +13,7 @@
       </imageobject>
     </mediaobject>
     
-    <releaseinfo>This manual was last updated in July 2014. </releaseinfo>
+    <releaseinfo>This manual was last updated in November 2015. </releaseinfo>
     <releaseinfo>The latest version can be found at: <ulink url="http://tla.mpi.nl/tools/tla-tools/arbil/">http://tla.mpi.nl/tools/tla-tools/arbil/</ulink></releaseinfo>
     <releaseinfo>George Saad</releaseinfo>
     <releaseinfo>Anastosios Vogiatzis</releaseinfo>
@@ -21,6 +21,7 @@
     <releaseinfo>Claudia Zabeo</releaseinfo>
     <releaseinfo>Michal Czaplinski</releaseinfo>
     <releaseinfo>Francesca Bechis</releaseinfo>
+    <releaseinfo>Steffen Kaiser</releaseinfo>
     
   </bookinfo>
   <chapter id="Ch_Introduction">
@@ -260,7 +261,7 @@
       version.</para>
     <section>
       <title>Language selection</title>
-      <para>Arbil 2.6 allows you to change the language in which the application will open and work.
+      <para>Arbil 2.5 allows you to change the language in which the application will open and work.
         At the moment, you can choose among: English (either the United Kingdom or the United States
         variants), German, Italian and Spanish. </para>
       <para>When you start the application for the first time, a dialog window will come out asking
@@ -1536,11 +1537,10 @@
           </mediaobject>
       </figure>
       <para>Selecting <emphasis role="bold">OK</emphasis> will lead you to a message window which is
-        the same as the one seen above regarding the import into the Local Corpus (see figure below
-        together with <link linkend="Sec_Import_to_Local_Corpus">section 3.3.1</link> for the
-        options description).</para>
+        the same as the one seen above regarding the import into the Local Corpus (see <xref
+          linkend="figure_exportBranch"/>).</para>
       <para>
-        <figure>
+        <figure id="figure_exportBranch">
           <title>Export data</title>
           <screenshot>
             <screeninfo/>
@@ -1553,6 +1553,54 @@
           </screenshot>
         </figure>
       </para>
+      <sect2>
+        <title>More export options</title>
+        <para>The export window offers advanced export options. These can be accessed by clicking
+          the button <emphasis role="bold">More options</emphasis> (see <xref
+            linkend="fig_exportBranch_optionsExpanded"/>). </para>
+        <figure id="fig_exportBranch_optionsExpanded">
+          <title>Export window - more options</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/exportBranch_optionsExpanded.png" contentdepth="100%"
+                scalefit="1" width="60%"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+        <para>The following options are available: <itemizedlist>
+          <listitem>
+            <para><emphasis role="bold">Convert exported IMDI to CMDI</emphasis>: This option
+              converts the exported IMDI files to the CMDI file type. This gives you the
+              possibility to import the exported files to a CMDI archive.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis role="bold">Rename Metadata Files </emphasis>: Rename files to match
+              local corpus tree names.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis role="bold">Limit Characters in File Names</emphasis>: This replaces all
+                characters in the filenames which are not accepted by LAMUS. Currently accepted are
+                digits, non-accented letters, dots (.), underscores (_) and hyphens (-).  All other
+                characters will be replaced.</para>
+          </listitem>
+        </itemizedlist>
+        </para>
+      </sect2>
+      <sect2>
+        <title>Export process details</title>
+        <para>By selecting <emphasis role="bold">Details</emphasis> you can inspect the export
+          process details including possible erros (see <xref
+            linkend="fig_exportBranch_everythingExpanded"/>).</para>
+        <figure id="fig_exportBranch_everythingExpanded">
+          <title>Export window - details</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/exportBranch_everythingExpanded.png" contentdepth="100%"
+                scalefit="1" width="60%"/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect2>
     </sect1>
     <sect1>
       <title>Importing data into Arbil</title>
