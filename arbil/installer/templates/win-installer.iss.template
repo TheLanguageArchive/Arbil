@@ -74,31 +74,39 @@ var
     VersionsArray: TArrayOfString;
     VersionCounter: Integer;
     JavaInstalled : Boolean;
-    GetJavaBool : Boolean;
+    GetJava: Integer;
     ExecResult: Integer;
 begin
     JavaInstalled := false;
     if RegGetSubkeyNames(HKLM, 'SOFTWARE\JavaSoft\Java Runtime Environment', VersionsArray) then
-    begin
-        for VersionCounter := 0 to GetArrayLength(VersionsArray) - 1 do
         begin
-            if ( VersionsArray[VersionCounter][2]='.' ) and ( ( StrToInt(VersionsArray[VersionCounter][1]) > 1 ) or ( ( StrToInt(VersionsArray[VersionCounter][1]) = 1 ) and ( StrToInt(VersionsArray[VersionCounter][3]) >= 5 ) ) ) then
+            for VersionCounter := 0 to GetArrayLength(VersionsArray) - 1 do
             begin
-                JavaInstalled := true;
+                if ( VersionsArray[VersionCounter][2]='.' ) and ( ( StrToInt(VersionsArray[VersionCounter][1]) > 1 ) or ( ( StrToInt(VersionsArray[VersionCounter][1]) = 1 ) and ( StrToInt(VersionsArray[VersionCounter][3]) >= 5 ) ) ) then
+                begin
+                    JavaInstalled := true;
+                end;
             end;
         end;
-    end;
     if JavaInstalled then
     begin
         Result := true;
     end else
     begin
-        Result:=false;
-        GetJavaBool := MsgBox('@AppName@ requires Java version 1.5 or newer before it can be installed.'#13#10'You will need to re-run this @AppName@ installer once Java is installed.'#13#10'Do you want open a web browser to download the java installer now?', mbConfirmation, MB_YESNO) = idYes;
-        if GetJavaBool then
+        GetJava := MsgBox('@AppName@ requires Java version 1.5 or newer before it can be installed.'#13#10'You will need to re-run this @AppName@ installer once Java is installed.'#13#10'Do you want open a web browser to download the java installer now? Pressing 'No' will continue the installation. Press 'Cancel' to stop the installation.', mbConfirmation, MB_YESNOCANCEL, IDYES);
+        if GetJava = IDYES then
         begin
-// todo: add override for special cases
+            Result:=false;
             ShellExec('open', 'http://www.java.com/getjava/', '','',SW_SHOWNORMAL,ewNoWait,ExecResult);
+        end;
+        else
+        if GetJava = IDNO then
+        begin
+            Result := MsgBox('Warning: Java may not be installed properly. Continuing installation, but Arbil may not function properly. Please verify that Java is installed properly in case any errors occur. Before doing so you should remove any existing Java installation. Are you sure you want to continue?', mbConfirmation, MB_YESNO) = idYes;
+        else
+        if GetJava = IDCANCEL then
+        begin
+            Result:=false;
         end;
    end;
 end;
