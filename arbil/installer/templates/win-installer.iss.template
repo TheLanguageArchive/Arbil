@@ -93,18 +93,17 @@ begin
         Result := true;
     end else
     begin
-        GetJava := MsgBox('@AppName@ requires Java version 1.5 or newer before it can be installed.'#13#10'You will need to re-run this @AppName@ installer once Java is installed.'#13#10'Do you want open a web browser to download the java installer now? Pressing 'No' will continue the installation. Press 'Cancel' to stop the installation.', mbConfirmation, MB_YESNOCANCEL, IDYES);
+        GetJava := MsgBox('@AppName@ requires Java version 1.5 or newer before it can be installed.'#13#10'You will need to re-run this @AppName@ installer once Java is installed.'#13#10'Do you want open a web browser to download the java installer now?'#13#10'Pressing "No" will continue the installation. Press "Cancel" to stop the installation.', mbConfirmation, MB_YESNOCANCEL);
         if GetJava = IDYES then
         begin
             Result:=false;
             ShellExec('open', 'http://www.java.com/getjava/', '','',SW_SHOWNORMAL,ewNoWait,ExecResult);
-        end;
-        else
-        if GetJava = IDNO then
+        end
+        else if GetJava = IDNO then
         begin
-            Result := MsgBox('Warning: Java may not be installed properly. Continuing installation, but Arbil may not function properly. Please verify that Java is installed properly in case any errors occur. Before doing so you should remove any existing Java installation. Are you sure you want to continue?', mbConfirmation, MB_YESNO) = idYes;
-        else
-        if GetJava = IDCANCEL then
+            Result := MsgBox('Warning: Java may not be installed properly. Continuing installation, but Arbil may not function properly.'#13#10'Please verify that Java is installed properly in case any errors occur. Before doing so you should remove any existing Java installation.'#13#10'Are you sure you want to continue?', mbConfirmation, MB_YESNO) = idYes;
+	end
+        else if GetJava = IDCANCEL then
         begin
             Result:=false;
         end;
