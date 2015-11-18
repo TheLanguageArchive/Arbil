@@ -59,7 +59,7 @@ Source: "..\lib\*"; DestDir: "{app}\lib\"; Flags: ignoreversion recursesubdirs c
 [Icons]
 ; TODO: put the text "Launch @ApplicationTitle@ Via Webstart" into the language files
 Name: "{group}\@ApplicationTitle@"; Filename: "{app}\@WindowsLauncherExe@"; IconFileName:"{app}\@InstalledIcon@.ico"
-Name: "{group}\{cm:ProgramOnTheWeb,@AppName@}"; Filename: "http://www.lat-mpi.eu/tools/@DistName@"
+Name: "{group}\{cm:ProgramOnTheWeb,@AppName@}"; Filename: "https://tla.mpi.nl/tools/tla-tools/@DistName@"
 Name: "{group}\{cm:ProgramOnTheWeb,@AppName@ Forum}"; Filename: "http://tla.mpi.nl/forums/software/@DistName@/"
 Name: "{group}\Launch @ApplicationTitle@ Via Webstart"; Filename: "http://www.mpi.nl/tg/j2se/jnlp/@DistName@/@DistName@-@Branch@.jnlp"
 Name: "{commondesktop}\@ApplicationTitle@"; Filename: "{app}\@WindowsLauncherExe@"; IconFileName:"{app}\@InstalledIcon@.ico"
