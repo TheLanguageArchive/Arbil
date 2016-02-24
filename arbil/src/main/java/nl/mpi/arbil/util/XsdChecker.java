@@ -31,6 +31,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
@@ -62,9 +63,12 @@ import org.xml.sax.SAXParseException;
 public class XsdChecker extends JSplitPane {
 
     private final static Logger logger = LoggerFactory.getLogger(XsdChecker.class);
+    private final static Pattern REMOTE_SCHEMA_PATTERN = Pattern.compile("^http(s?):\\/.*$", Pattern.CASE_INSENSITIVE);
+    private final static Pattern LOCAL_SCHEMA_PATTERN = Pattern.compile("^file:\\/.*$", Pattern.CASE_INSENSITIVE);
     private static SessionStorage sessionStorage;
     private ArbilResourceResolver resourceResolver = new ArbilResourceResolver();
 
+        
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
@@ -150,17 +154,20 @@ public class XsdChecker extends JSplitPane {
 	logger.debug("nameSpaceURI: {}", nameSpaceURI);
 	int daysTillExpire = 15;
 	File schemaFile = null;
-	if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("http:/")) {
+        
+	if (nameSpaceURI != null && REMOTE_SCHEMA_PATTERN.matcher(nameSpaceURI).matches()) {
 	    schemaFile = sessionStorage.updateCache(nameSpaceURI, daysTillExpire, false);
 	}
-	if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("file:/")) {
+        else if (nameSpaceURI != null && LOCAL_SCHEMA_PATTERN.matcher(nameSpaceURI).matches()) {
 	    try {
 		// do not make cache copies of local schema files
 		schemaFile = new File(new URI(nameSpaceURI));
 	    } catch (URISyntaxException ex) {
 		BugCatcherManager.getBugCatcher().logError(ex);
 	    }
-	}
+	} else {
+            logger.warn("Schema URI matches neither remote or local URI pattern: {}", nameSpaceURI);
+        }
 	URL schemaURL = null;
 	// if this is a cmdi file then we should just fail here
 	// otherwise try to get the imdi schema
