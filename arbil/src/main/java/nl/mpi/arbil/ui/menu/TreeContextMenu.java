@@ -129,7 +129,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		}
 		// set up the favourites menu
 		addFromFavouritesMenu.setVisible(true);
-		addResourcesFavouritesMenu.setVisible(true);
+		//addResourcesFavouritesMenu.setVisible(true);
 	    }
 	    if (tree == getTreePanel().localDirectoryTree) {
 		removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
@@ -357,20 +357,20 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addFromFavouritesMenu);
 
-	addResourcesFavouritesMenu.setText(menus.getString("ADD BULK RESOURCES VIA FAVOURITES"));
-	addResourcesFavouritesMenu.addActionListener(new java.awt.event.ActionListener() {
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-		// handle add actions on the root tree node
-		ArbilNode targetObject = leadSelectedDataNode;
-		if (targetObject == null) {
-		    // No lead selected tree node, so pass local corpus root node
-		    targetObject = (ArbilNode) (((DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot()).getUserObject());
-		}
-		treeController.addBulkResources(targetObject);
-	    }
-	});
-	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addResourcesFavouritesMenu);
+//	addResourcesFavouritesMenu.setText(menus.getString("ADD BULK RESOURCES VIA FAVOURITES"));
+//	addResourcesFavouritesMenu.addActionListener(new java.awt.event.ActionListener() {
+//	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+//
+//		// handle add actions on the root tree node
+//		ArbilNode targetObject = leadSelectedDataNode;
+//		if (targetObject == null) {
+//		    // No lead selected tree node, so pass local corpus root node
+//		    targetObject = (ArbilNode) (((DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot()).getUserObject());
+//		}
+//		treeController.addBulkResources(targetObject);
+//	    }
+//	});
+//	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addResourcesFavouritesMenu);
 
 	if (leadSelectedDataNode != null && leadSelectedDataNode.isContainerNode()) {
 	    addToFavouritesMenuItem.setText(menus.getString("ADD CHILDREN TO FAVOURITES LIST"));
@@ -796,7 +796,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	deleteMenuItem.setVisible(false);
 	viewSelectedNodesMenuItem.setVisible(false);
 	addFromFavouritesMenu.setVisible(false);
-	addResourcesFavouritesMenu.setVisible(false);
+	//addResourcesFavouritesMenu.setVisible(false);
 	importExportFavouritesMenuItem.setVisible(false);
 	groupFavouritesMenuItem.setVisible(false);
 	//viewChangesMenuItem.setVisible(false);
@@ -817,7 +817,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
     private ArbilTree tree;
     private JMenu addFromFavouritesMenu = new JMenu();
-    private JMenuItem addResourcesFavouritesMenu = new JMenuItem();
+    //private JMenuItem addResourcesFavouritesMenu = new JMenuItem(); //not functioning, option removed 2016-02-25
     private JMenuItem addLocalDirectoryMenuItem = new JMenuItem();
     private JCheckBoxMenuItem showHiddenFilesMenuItem = new JCheckBoxMenuItem();
     private JCheckBoxMenuItem groupFavouritesMenuItem = new JCheckBoxMenuItem();

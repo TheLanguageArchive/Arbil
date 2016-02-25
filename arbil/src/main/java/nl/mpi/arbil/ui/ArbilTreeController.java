@@ -283,6 +283,12 @@ public class ArbilTreeController {
         }
     }
 
+    /**
+     * <strong>NOTE: this function is not complete and should not be
+     * used</strong>
+     *
+     * @param targetObject
+     */
     public void addBulkResources(ArbilNode targetObject) {
         try {
             final FavouriteSelectBox favouriteSelectBox = new FavouriteSelectBox(targetObject);
