@@ -31,7 +31,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.10</slf4j.version>
         <!-- Year to show in copyright messages. Used in the 'About Arbil' dialog (via version.properties) and by maven-license-plugin (see below) -->
-        <arbil.license.copyrightYear>2014</arbil.license.copyrightYear>
+        <arbil.license.copyrightYear>2016</arbil.license.copyrightYear>
     </properties>
     <dependencies>	
         <dependency>
@@ -181,6 +181,14 @@
             <id>MPI</id>
             <name>MPI LAT Repository</name>
             <url>https://lux15.mpi.nl/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>MPI-Snapshots</id>
+            <name>MPI LAT Snapshot Repository</name>            
+            <url>https://lux15.mpi.nl/nexus/content/repositories/MPI-Snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
     
