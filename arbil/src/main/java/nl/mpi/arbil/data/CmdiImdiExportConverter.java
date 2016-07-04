@@ -20,8 +20,10 @@ package nl.mpi.arbil.data;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -150,7 +152,7 @@ public class CmdiImdiExportConverter {
     private boolean applyXslt(File source, File result) {
         try {
             final String cmdiOut = translator.getCMDI(source.toURI().toURL(), null);
-            final FileWriter fw = new FileWriter(result);
+            final Writer fw = new OutputStreamWriter(new FileOutputStream(result), "UTF-8");
             try {
                 fw.write(cmdiOut);
             } finally {
