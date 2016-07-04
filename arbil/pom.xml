@@ -8,7 +8,7 @@
 
 
 <!--<version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
-    <version>2.6.1095-pretesting</version>
+    <version>2.6.1096-pretesting</version>
     <name>Arbil</name>   
     
     <parent>
@@ -218,7 +218,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.6</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -272,6 +272,11 @@
             <artifactId>arbil-localisation</artifactId>
             <version>2.6.156-stable</version>
         </dependency>
+        <dependency>
+            <groupId>nl.mpi.translation</groupId>
+            <artifactId>metadata-translator</artifactId>
+            <version>1.6-SNAPSHOT</version>
+        </dependency>
 
         <!-- 
             LOGGING DEPENDENCIES
@@ -298,11 +303,6 @@
             <artifactId>jmock-junit4</artifactId>
             <version>2.5.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nl.mpi.translation</groupId>
-            <artifactId>metadata-translator</artifactId>
-            <version>1.6-SNAPSHOT</version>
         </dependency>
     </dependencies>    
 </project>

@@ -40,52 +40,54 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ExportAction extends AbstractAction {
-    
+
     private final static Logger logger = LoggerFactory.getLogger(ExportAction.class);
     private static final ResourceBundle widgets = ResourceBundle.getBundle("nl/mpi/arbil/localisation/Widgets");
     private final PluginDialogHandler dialogHandler;
     private final FavouritesExporter exporter;
-    
+    private boolean openAfterExport = true;
+
     public ExportAction(PluginDialogHandler dialogHandler, FavouritesExporter exporter) {
-	super("export");
-	this.dialogHandler = dialogHandler;
-	this.exporter = exporter;
+        super("export");
+        this.dialogHandler = dialogHandler;
+        this.exporter = exporter;
     }
 
     /**
      *
-     * @param e action event, the {@link ActionEvent#getSource() source} of which should implement {@link ExportUI}
+     * @param e action event, the {@link ActionEvent#getSource() source} of
+     * which should implement {@link ExportUI}
      */
     public void actionPerformed(ActionEvent e) {
-	if (e.getSource() instanceof ExportUI) {
-	    final ExportUI source = (ExportUI) e.getSource();
-	    exportFavourites(source.getSelectedFavourites());
-	} else {
-	    throw new RuntimeException("Cannot retrieve favourites selection from UI, action source does not implement ExportUI");
-	}
+        if (e.getSource() instanceof ExportUI) {
+            final ExportUI source = (ExportUI) e.getSource();
+            exportFavourites(source.getSelectedFavourites());
+        } else {
+            throw new RuntimeException("Cannot retrieve favourites selection from UI, action source does not implement ExportUI");
+        }
     }
-    
+
     private void exportFavourites(List<ArbilDataNode> nodesToExport) {
-	if (nodesToExport.size() > 0) {
-	    try {
-		File[] exportLocation = dialogHandler.showFileSelectBox(widgets.getString("SELECT EXPORT DESTINATION"), true, false, null, PluginDialogHandler.DialogueType.save, null);
-		if (exportLocation != null && exportLocation.length > 0 && exportLocation[0] != null) {
-		    // Carry out export
-		    exporter.exportFavourites(exportLocation[0], nodesToExport.toArray(new ArbilDataNode[]{}));
-		    // Show result in file browser
-		    openDirectory(exportLocation[0]);
-		    // Applause!
-		    dialogHandler.addMessageDialogToQueue(widgets.getString("FAVOURITES HAVE BEEN EXPORTED"), widgets.getString("EXPORT COMPLETE"));
-		}
-	    } catch (FavouritesImportExportException ex) {
-		logger.error("An error occurred while exporting favourites", ex);
-		dialogHandler.addMessageDialogToQueue(
-			MessageFormat.format(widgets.getString("AN ERROR OCCURRED WHILE EXPORTING FAVOURITES"),
-			ex.getMessage()), "Error");
-	    }
-	} else {
-	    dialogHandler.addMessageDialogToQueue(widgets.getString("NO NODES ARE SELECTED. SELECT AT LEAST ONE NODE TO EXPORT."), widgets.getString("SELECT NODES TO EXPORT"));
-	}
+        if (nodesToExport.size() > 0) {
+            try {
+                File[] exportLocation = dialogHandler.showFileSelectBox(widgets.getString("SELECT EXPORT DESTINATION"), true, false, null, PluginDialogHandler.DialogueType.save, null);
+                if (exportLocation != null && exportLocation.length > 0 && exportLocation[0] != null) {
+                    // Carry out export
+                    exporter.exportFavourites(exportLocation[0], nodesToExport.toArray(new ArbilDataNode[]{}));
+                    // Show result in file browser
+                    openDirectory(exportLocation[0]);
+                    // Applause!
+                    dialogHandler.addMessageDialogToQueue(widgets.getString("FAVOURITES HAVE BEEN EXPORTED"), widgets.getString("EXPORT COMPLETE"));
+                }
+            } catch (FavouritesImportExportException ex) {
+                logger.error("An error occurred while exporting favourites", ex);
+                dialogHandler.addMessageDialogToQueue(
+                        MessageFormat.format(widgets.getString("AN ERROR OCCURRED WHILE EXPORTING FAVOURITES"),
+                                ex.getMessage()), "Error");
+            }
+        } else {
+            dialogHandler.addMessageDialogToQueue(widgets.getString("NO NODES ARE SELECTED. SELECT AT LEAST ONE NODE TO EXPORT."), widgets.getString("SELECT NODES TO EXPORT"));
+        }
     }
 
     /**
@@ -94,17 +96,25 @@ public class ExportAction extends AbstractAction {
      * @param exportLocation location to open
      */
     private void openDirectory(File exportLocation) {
-	try {
-	    if (!GraphicsEnvironment.isHeadless()) {
-		logger.info("Headless mode, not opening export target directory {}", exportLocation);
-		Desktop.getDesktop().open(exportLocation);
-	    }
-	} catch (IOException ex) {
-	    // No associated application, or the associated application fails to be launched. Fail silently.
-	    logger.warn("Could not open target location {}", exportLocation, ex);
-	} catch (RuntimeException ex) {
-	    // Not supported, security issue, file does not exist... No reason to crash, fail silently.
-	    logger.warn("Could not open target location {}", exportLocation, ex);
-	}
+        try {
+            if (openAfterExport) {
+                if (GraphicsEnvironment.isHeadless()) {
+                    logger.info("Headless mode, not opening export target directory {}", exportLocation);
+                } else {
+                    Desktop.getDesktop().open(exportLocation);
+                }
+            }
+        } catch (IOException ex) {
+            // No associated application, or the associated application fails to be launched. Fail silently.
+            logger.warn("Could not open target location {}", exportLocation, ex);
+        } catch (RuntimeException ex) {
+            // Not supported, security issue, file does not exist... No reason to crash, fail silently.
+            logger.warn("Could not open target location {}", exportLocation, ex);
+        }
     }
+
+    public void setOpenAfterExport(boolean openAfterExport) {
+        this.openAfterExport = openAfterExport;
+    }
+
 }
