@@ -3,12 +3,12 @@
     <groupId>nl.mpi</groupId>
     <artifactId>arbil</artifactId>
     <packaging>jar</packaging>
+
     <!--    Either use the snapshot version of manually enter the current build number. 
     The build number is only required when depending on the output in other projects or building to the server.-->
 
-
 <!--<version>${arbil.majorVersion}.${arbil.minorVersion}-${arbil.branch}-SNAPSHOT</version>-->
-    <version>2.6.1102-pretesting</version>
+    <version>2.6.1103-pretesting</version>
     <name>Arbil</name>   
     
     <parent>
