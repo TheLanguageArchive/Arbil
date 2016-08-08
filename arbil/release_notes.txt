@@ -25,6 +25,6 @@ of the description.
 
 - Checking for application updates has been fixed
 
-- Typechecker has been upgraded to version 1.8.3
+- Typechecker has been upgraded to version 1.8.5
 
 - The 'Copy Table For Website' option has been removed
